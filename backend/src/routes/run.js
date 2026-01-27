@@ -13,7 +13,7 @@ const installedPackages = new Set();
 async function installPythonPackage(packageName) {
   if (installedPackages.has(packageName)) return true;
   try {
-    execSync(`pip install --break-system-packages ${packageName}`, { timeout: 60000, stdio: 'pipe' });
+    execSync(`python3 -m pip install --break-system-packages --user ${packageName}`, { timeout: 60000, stdio: 'pipe' });
     installedPackages.add(packageName);
     return true;
   } catch {
