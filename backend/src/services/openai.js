@@ -48,7 +48,10 @@ Rules:
 - For API-based problems:
   - Use correct API endpoints and methods
   - Handle HTTP errors properly
-  - For GitHub: use /commits/{sha}/status for combined status (state: success/failure/pending)
+  - For GitHub PR status: GET /repos/{owner}/{repo}/commits/{sha}/status returns JSON with "state" field
+    - state == "success" means all checks passed (show ✓)
+    - state == "failure" or "pending" means not all passed (show ✕)
+    - Do NOT use check-runs API, use the combined status endpoint
   - Parse JSON responses correctly
   - Match the EXACT output format specified
 - For Bash: use proper shebang, handle all error cases

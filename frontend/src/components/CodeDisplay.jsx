@@ -41,10 +41,29 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
     }
   }, [examples]);
 
-  const handleExampleChange = (index) => {
+  const handleExampleChange = async (index) => {
     setSelectedExample(index);
     if (examples && examples[index]) {
-      setInput(examples[index].input || '');
+      const newInput = examples[index].input || '';
+      setInput(newInput);
+      setRunning(true);
+      setOutput(null);
+      try {
+        const response = await fetch(API_URL + '/api/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, language, input: newInput, args }),
+        });
+        const data = await response.json();
+        setOutput(data);
+        if (!data.success && data.error && fixAttempts < 3) {
+          handleAutoFix(data.error);
+        }
+      } catch (err) {
+        setOutput({ success: false, error: err.message });
+      } finally {
+        setRunning(false);
+      }
     }
   };
 
