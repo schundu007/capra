@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.Resizer {
+  background: #1e293b;
+  opacity: 1;
+  z-index: 1;
+  box-sizing: border-box;
+  background-clip: padding-box;
+}
+
+.Resizer:hover {
+  transition: all 0.3s ease;
+}
+
+.Resizer.vertical {
+  width: 8px;
+  margin: 0 -4px;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  cursor: col-resize;
+}
+
+.Resizer.vertical:hover {
+  border-left: 4px solid #3b82f6;
+  border-right: 4px solid #3b82f6;
+}
+
+.SplitPane {
+  position: relative !important;
+  height: 100% !important;
+}
+
+.SplitPane .Pane {
+  overflow: auto;
+}
+
+.Pane1, .Pane2 {
+  height: 100% !important;
+}
