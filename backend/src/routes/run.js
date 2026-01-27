@@ -13,7 +13,7 @@ const installedPackages = new Set();
 async function installPythonPackage(packageName) {
   if (installedPackages.has(packageName)) return true;
   try {
-    execSync(`pip install --break-system-packages ${packageName}`, { timeout: 60000, stdio: 'pipe' });
+    execSync(`/usr/bin/python3 -m pip install --break-system-packages ${packageName}`, { timeout: 60000, stdio: 'pipe' });
     installedPackages.add(packageName);
     return true;
   } catch {
@@ -32,7 +32,7 @@ function extractMissingModule(error) {
 const RUNNERS = {
   python: {
     ext: '.py',
-    cmd: 'python3',
+    cmd: '/usr/bin/python3',
     args: (file, cliArgs) => [file, ...cliArgs],
   },
   bash: {
