@@ -1,5 +1,5 @@
 [project]
-name = "interview-coder-backend"
+name = "capra-backend"
 version = "1.0.0"
 description = "AI-powered coding practice assistant backend"
 requires-python = ">=3.11"

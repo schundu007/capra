@@ -34,10 +34,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-  console.log('Available endpoints:');
-  console.log('  POST /api/solve   - Solve a coding problem from text');
-  console.log('  POST /api/analyze - Analyze a screenshot of a problem');
-  console.log('  POST /api/fetch   - Fetch problem from URL');
-  console.log('  GET  /api/health  - Health check');
+  console.log(`Capra API running on port ${PORT}`);
 });

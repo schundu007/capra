@@ -1,6 +1,6 @@
-# Interview Coding Assistant
+# Capra
 
-A web application that helps solve coding interview problems using AI (Claude or GPT-4).
+AI-powered coding assistant.
 
 ## Features
 
@@ -15,7 +15,7 @@ A web application that helps solve coding interview problems using AI (Claude or
 ## Project Structure
 
 ```
-interview-coder/
+capra/
 ├── frontend/          # React + Vite + TailwindCSS
 │   ├── src/
 │   │   ├── components/

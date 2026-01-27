@@ -1,7 +1,7 @@
 {
-  "name": "interview-coder-backend",
+  "name": "capra-backend",
   "version": "1.0.0",
-  "description": "Backend for Interview Coding Assistant",
+  "description": "Capra Backend API",
   "main": "src/index.js",
   "type": "module",
   "engines": {

@@ -1,3 +1,3 @@
-"""Interview Coding Assistant Backend."""
+"""Capra Backend."""
 
 __version__ = "1.0.0"

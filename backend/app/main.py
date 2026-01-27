@@ -12,8 +12,8 @@ from app.core.config import get_settings
 settings = get_settings()
 
 app = FastAPI(
-    title="Interview Coding Assistant API",
-    description="AI-powered coding practice assistant for Python interview preparation",
+    title="Capra API",
+    description="AI-powered coding assistant",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
@@ -57,7 +57,7 @@ app.include_router(router)
 async def root():
     """Root endpoint."""
     return {
-        "name": "Interview Coding Assistant API",
+        "name": "Capra API",
         "version": "1.0.0",
         "docs": "/docs",
         "health": "/api/v1/health",
