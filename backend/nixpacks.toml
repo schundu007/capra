@@ -1,9 +1,9 @@
 [phases.setup]
-nixPkgs = ["nodejs_20", "python312Full", "bash", "sqlite", "gcc"]
-aptPkgs = ["python3-pip", "python3-requests", "python3-numpy", "python3-pandas", "python3-aiohttp", "python3-bs4", "python3-lxml"]
+nixPkgs = ["nodejs_20", "bash", "sqlite", "gcc"]
+aptPkgs = ["python3-full", "python3-pip"]
 
 [phases.install]
-cmds = ["npm install"]
+cmds = ["npm install", "pip install --break-system-packages requests numpy pandas httpx aiohttp beautifulsoup4 lxml"]
 
 [start]
 cmd = "node src/index.js"

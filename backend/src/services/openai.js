@@ -46,7 +46,7 @@ Rules:
   - Main execution logic
   - The code must be self-contained and produce output when run
 - For API-based problems:
-  - IMPORTANT: Use urllib.request (built-in) instead of requests library for HTTP calls in Python
+  - Use the requests library for HTTP calls in Python
   - Use correct API endpoints and methods
   - Handle HTTP errors properly
   - For GitHub PR status: GET /repos/{owner}/{repo}/commits/{sha}/status returns JSON with "state" field
