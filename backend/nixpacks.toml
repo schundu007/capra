@@ -2,7 +2,7 @@
 nixPkgs = ["nodejs_20", "python311Full", "bash", "sqlite", "gcc"]
 
 [phases.install]
-cmds = ["npm install", "pip install requests numpy pandas httpx aiohttp beautifulsoup4 lxml"]
+cmds = ["npm install", "pip install --break-system-packages requests numpy pandas httpx aiohttp beautifulsoup4 lxml"]
 
 [start]
 cmd = "node src/index.js"
