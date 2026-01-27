@@ -35,35 +35,43 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
   }, [initialCode]);
 
   useEffect(() => {
-    if (examples && examples.length > 0) {
-      setInput(examples[0].input || '');
+    if (examples && examples.length > 0 && code) {
+      const firstInput = examples[0].input || '';
+      setInput(firstInput);
       setSelectedExample(0);
+      setShowInput(true);
+      runWithInput(firstInput);
     }
-  }, [examples]);
+  }, [examples, code]);
 
-  const handleExampleChange = async (index) => {
+  const runWithInput = async (inputValue) => {
+    if (!code || !RUNNABLE.includes(language)) return;
+    setRunning(true);
+    setOutput(null);
+    try {
+      const response = await fetch(API_URL + '/api/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, language, input: inputValue, args }),
+      });
+      const data = await response.json();
+      setOutput(data);
+      if (!data.success && data.error && fixAttempts < 3) {
+        handleAutoFix(data.error);
+      }
+    } catch (err) {
+      setOutput({ success: false, error: err.message });
+    } finally {
+      setRunning(false);
+    }
+  };
+
+  const handleExampleChange = (index) => {
     setSelectedExample(index);
     if (examples && examples[index]) {
       const newInput = examples[index].input || '';
       setInput(newInput);
-      setRunning(true);
-      setOutput(null);
-      try {
-        const response = await fetch(API_URL + '/api/run', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code, language, input: newInput, args }),
-        });
-        const data = await response.json();
-        setOutput(data);
-        if (!data.success && data.error && fixAttempts < 3) {
-          handleAutoFix(data.error);
-        }
-      } catch (err) {
-        setOutput({ success: false, error: err.message });
-      } finally {
-        setRunning(false);
-      }
+      runWithInput(newInput);
     }
   };
 
