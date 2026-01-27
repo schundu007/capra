@@ -1,7 +1,7 @@
 {
   "name": "capra-backend",
   "version": "1.0.0",
-  "description": "Capra Backend API",
+  "description": "Capra Backend API - Enterprise-grade coding interview assistant",
   "main": "src/index.js",
   "type": "module",
   "engines": {
@@ -9,7 +9,8 @@
   },
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "dev": "NODE_ENV=development node --watch src/index.js",
+    "prod": "NODE_ENV=production node src/index.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.0",

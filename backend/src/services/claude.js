@@ -1,9 +1,25 @@
-import Anthropic from '@anthropic-ai/sdk';
+/**
+ * Claude AI Service
+ * Handles all interactions with the Anthropic Claude API
+ */
 
+import Anthropic from '@anthropic-ai/sdk';
+import { config } from '../lib/config.js';
+import { createLogger } from '../lib/logger.js';
+import { AIServiceError } from '../lib/errors.js';
+
+const logger = createLogger('services:claude');
+
+/**
+ * Anthropic API client instance
+ */
 const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+  apiKey: config.apiKeys.anthropic,
 });
 
+/**
+ * System prompt for coding interview assistance
+ */
 const SYSTEM_PROMPT = `You are an expert coding interview assistant. Your code MUST produce the EXACT expected output.
 
 CRITICAL RULES:
@@ -59,31 +75,21 @@ Rules:
 - For Terraform: use proper resource blocks
 - For Jenkins: use declarative pipeline syntax`;
 
-export async function solveProblem(problemText, language = 'auto') {
-  const languageInstruction = language === 'auto'
-    ? 'Detect the appropriate language from the problem context.'
-    : `Write the solution in ${language.toUpperCase()}.`;
-
-  const response = await client.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 4096,
-    messages: [
-      {
-        role: 'user',
-        content: `${languageInstruction}\n\nSolve this problem and return the response as JSON:\n\n${problemText}`,
-      },
-    ],
-    system: SYSTEM_PROMPT,
-  });
-
-  const content = response.content[0].text;
-
+/**
+ * Parse JSON from AI response, handling markdown code blocks
+ * @param {string} content - Raw AI response content
+ * @returns {Object} - Parsed JSON object
+ */
+function parseJsonResponse(content) {
   try {
     const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) ||
                       content.match(/```\s*([\s\S]*?)\s*```/);
     const jsonStr = jsonMatch ? jsonMatch[1] : content;
     return JSON.parse(jsonStr);
   } catch (error) {
+    logger.warn('Failed to parse JSON response, returning raw content', {
+      error: error.message,
+    });
     return {
       code: content,
       explanations: [{ line: 1, code: content, explanation: 'Raw response from AI' }],
@@ -92,42 +98,135 @@ export async function solveProblem(problemText, language = 'auto') {
   }
 }
 
-export async function extractText(base64Image, mimeType) {
-  const response = await client.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 4096,
-    messages: [
-      {
-        role: 'user',
-        content: [
-          {
-            type: 'image',
-            source: {
-              type: 'base64',
-              media_type: mimeType,
-              data: base64Image,
-            },
-          },
-          {
-            type: 'text',
-            text: 'Extract all text from this image. Return ONLY the extracted text, nothing else. Preserve the formatting and structure as much as possible.',
-          },
-        ],
-      },
-    ],
-  });
+/**
+ * Solve a coding problem using Claude
+ * @param {string} problemText - The problem description
+ * @param {string} [language='auto'] - Target programming language
+ * @returns {Promise<Object>} - Solution with code, explanations, complexity
+ */
+export async function solveProblem(problemText, language = 'auto') {
+  const startTime = Date.now();
 
-  return { text: response.content[0].text };
+  try {
+    const languageInstruction = language === 'auto'
+      ? 'Detect the appropriate language from the problem context.'
+      : `Write the solution in ${language.toUpperCase()}.`;
+
+    logger.debug('Calling Claude API for problem solving', {
+      model: config.ai.claude.model,
+      language,
+    });
+
+    const response = await client.messages.create({
+      model: config.ai.claude.model,
+      max_tokens: config.ai.claude.maxTokens,
+      messages: [
+        {
+          role: 'user',
+          content: `${languageInstruction}\n\nSolve this problem and return the response as JSON:\n\n${problemText}`,
+        },
+      ],
+      system: SYSTEM_PROMPT,
+    });
+
+    const duration = Date.now() - startTime;
+    logger.debug('Claude API response received', {
+      duration,
+      stopReason: response.stop_reason,
+      inputTokens: response.usage?.input_tokens,
+      outputTokens: response.usage?.output_tokens,
+    });
+
+    const content = response.content[0].text;
+    return parseJsonResponse(content);
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    logger.error('Claude API error during problem solving', {
+      error: error.message,
+      duration,
+      errorType: error.constructor?.name,
+    });
+    throw new AIServiceError('claude', error.message, { originalError: error.name });
+  }
 }
 
+/**
+ * Extract text from an image using Claude's vision capabilities
+ * @param {string} base64Image - Base64 encoded image
+ * @param {string} mimeType - Image MIME type
+ * @returns {Promise<{text: string}>} - Extracted text
+ */
+export async function extractText(base64Image, mimeType) {
+  const startTime = Date.now();
+
+  try {
+    logger.debug('Calling Claude API for text extraction', {
+      model: config.ai.claude.model,
+      mimeType,
+    });
+
+    const response = await client.messages.create({
+      model: config.ai.claude.model,
+      max_tokens: config.ai.claude.maxTokens,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: {
+                type: 'base64',
+                media_type: mimeType,
+                data: base64Image,
+              },
+            },
+            {
+              type: 'text',
+              text: 'Extract all text from this image. Return ONLY the extracted text, nothing else. Preserve the formatting and structure as much as possible.',
+            },
+          ],
+        },
+      ],
+    });
+
+    const duration = Date.now() - startTime;
+    logger.debug('Claude API text extraction complete', { duration });
+
+    return { text: response.content[0].text };
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    logger.error('Claude API error during text extraction', {
+      error: error.message,
+      duration,
+    });
+    throw new AIServiceError('claude', error.message, { originalError: error.name });
+  }
+}
+
+/**
+ * Fix code that produced an error
+ * @param {string} code - Original code with error
+ * @param {string} error - Error message
+ * @param {string} [language] - Programming language
+ * @returns {Promise<{code: string}>} - Fixed code
+ */
 export async function fixCode(code, error, language) {
-  const response = await client.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 4096,
-    messages: [
-      {
-        role: 'user',
-        content: `Fix this ${language} code that produced an error.
+  const startTime = Date.now();
+
+  try {
+    logger.debug('Calling Claude API for code fix', {
+      model: config.ai.claude.model,
+      language,
+      codeLength: code.length,
+    });
+
+    const response = await client.messages.create({
+      model: config.ai.claude.model,
+      max_tokens: config.ai.claude.maxTokens,
+      messages: [
+        {
+          role: 'user',
+          content: `Fix this ${language} code that produced an error.
 
 CODE:
 \`\`\`${language}
@@ -138,56 +237,80 @@ ERROR:
 ${error}
 
 Return ONLY the fixed code, no explanations. Do NOT add comments.`,
-      },
-    ],
-  });
+        },
+      ],
+    });
 
-  let fixedCode = response.content[0].text;
-  const codeMatch = fixedCode.match(/```(?:\w+)?\s*([\s\S]*?)\s*```/);
-  if (codeMatch) {
-    fixedCode = codeMatch[1];
+    const duration = Date.now() - startTime;
+    logger.debug('Claude API code fix complete', { duration });
+
+    let fixedCode = response.content[0].text;
+    const codeMatch = fixedCode.match(/```(?:\w+)?\s*([\s\S]*?)\s*```/);
+    if (codeMatch) {
+      fixedCode = codeMatch[1];
+    }
+    return { code: fixedCode.trim() };
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    logger.error('Claude API error during code fix', {
+      error: error.message,
+      duration,
+    });
+    throw new AIServiceError('claude', error.message, { originalError: error.name });
   }
-  return { code: fixedCode.trim() };
 }
 
+/**
+ * Analyze an image of a coding problem and solve it
+ * @param {string} base64Image - Base64 encoded image
+ * @param {string} mimeType - Image MIME type
+ * @returns {Promise<Object>} - Solution with code, explanations, complexity
+ */
 export async function analyzeImage(base64Image, mimeType) {
-  const response = await client.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 4096,
-    messages: [
-      {
-        role: 'user',
-        content: [
-          {
-            type: 'image',
-            source: {
-              type: 'base64',
-              media_type: mimeType,
-              data: base64Image,
-            },
-          },
-          {
-            type: 'text',
-            text: 'This is a screenshot of a coding problem. Extract the problem description, then solve it and return the response as JSON with code, explanations, and complexity.',
-          },
-        ],
-      },
-    ],
-    system: SYSTEM_PROMPT,
-  });
-
-  const content = response.content[0].text;
+  const startTime = Date.now();
 
   try {
-    const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) ||
-                      content.match(/```\s*([\s\S]*?)\s*```/);
-    const jsonStr = jsonMatch ? jsonMatch[1] : content;
-    return JSON.parse(jsonStr);
+    logger.debug('Calling Claude API for image analysis', {
+      model: config.ai.claude.model,
+      mimeType,
+    });
+
+    const response = await client.messages.create({
+      model: config.ai.claude.model,
+      max_tokens: config.ai.claude.maxTokens,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: {
+                type: 'base64',
+                media_type: mimeType,
+                data: base64Image,
+              },
+            },
+            {
+              type: 'text',
+              text: 'This is a screenshot of a coding problem. Extract the problem description, then solve it and return the response as JSON with code, explanations, and complexity.',
+            },
+          ],
+        },
+      ],
+      system: SYSTEM_PROMPT,
+    });
+
+    const duration = Date.now() - startTime;
+    logger.debug('Claude API image analysis complete', { duration });
+
+    const content = response.content[0].text;
+    return parseJsonResponse(content);
   } catch (error) {
-    return {
-      code: content,
-      explanations: [{ line: 1, code: content, explanation: 'Raw response from AI' }],
-      complexity: { time: 'Unknown', space: 'Unknown' },
-    };
+    const duration = Date.now() - startTime;
+    logger.error('Claude API error during image analysis', {
+      error: error.message,
+      duration,
+    });
+    throw new AIServiceError('claude', error.message, { originalError: error.name });
   }
 }
