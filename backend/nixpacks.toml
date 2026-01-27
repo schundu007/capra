@@ -1,5 +1,6 @@
 [phases.setup]
-nixPkgs = ["nodejs_20", "python311Full", "python311Packages.pip", "python311Packages.requests", "python311Packages.numpy", "python311Packages.pandas", "python311Packages.aiohttp", "python311Packages.beautifulsoup4", "python311Packages.lxml", "bash", "sqlite", "gcc"]
+nixPkgs = ["nodejs_20", "python312Full", "bash", "sqlite", "gcc"]
+aptPkgs = ["python3-pip", "python3-requests", "python3-numpy", "python3-pandas", "python3-aiohttp", "python3-bs4", "python3-lxml"]
 
 [phases.install]
 cmds = ["npm install"]
