@@ -8,7 +8,7 @@ import ProviderToggle from './components/ProviderToggle';
 const API_URL = import.meta.env.VITE_API_URL || '';
 
 export default function App() {
-  const [provider, setProvider] = useState('claude');
+  const [provider, setProvider] = useState('openai');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [solution, setSolution] = useState(null);
@@ -167,6 +167,7 @@ export default function App() {
             language={solution?.language}
             complexity={solution?.complexity}
             onLineHover={setHighlightedLine}
+            examples={solution?.examples}
           />
         </div>
 
@@ -174,6 +175,7 @@ export default function App() {
           <ExplanationPanel
             explanations={solution?.explanations}
             highlightedLine={highlightedLine}
+            pitch={solution?.pitch}
           />
         </div>
       </div>

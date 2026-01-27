@@ -21,6 +21,11 @@ IMPORTANT: Respond with valid JSON in exactly this format:
 {
   "language": "python|bash|terraform|jenkins|yaml|sql|javascript",
   "code": "the complete code as a string with \\n for newlines",
+  "pitch": "A 1-2 minute verbal explanation of your thought process and solution approach. Structure it as: 1) Problem understanding - what we're solving, 2) Key insight - the core idea/pattern, 3) Approach - step by step strategy, 4) Why this works - reasoning. Write in first person as if explaining to an interviewer.",
+  "examples": [
+    {"input": "example input 1 from problem", "expected": "expected output 1"},
+    {"input": "example input 2 from problem", "expected": "expected output 2"}
+  ],
   "explanations": [
     {"line": 1, "code": "first line of code", "explanation": "explanation for line 1"},
     {"line": 2, "code": "second line of code", "explanation": "explanation for line 2"}
@@ -34,6 +39,18 @@ IMPORTANT: Respond with valid JSON in exactly this format:
 Rules:
 - Do NOT add any comments in the code
 - Match the EXACT output format from examples
+- The pitch should be conversational, suitable for verbal delivery in an interview
+- CRITICAL: Always generate COMPLETE, RUNNABLE code that includes:
+  - All necessary imports
+  - Input reading code (using input() for Python, stdin for others) OR hardcoded test data if no stdin needed
+  - Main execution logic
+  - The code must be self-contained and produce output when run
+- For API-based problems:
+  - Use correct API endpoints and methods
+  - Handle HTTP errors properly
+  - For GitHub: use /commits/{sha}/status for combined status (state: success/failure/pending)
+  - Parse JSON responses correctly
+  - Match the EXACT output format specified
 - For Bash: use proper shebang, handle all error cases
 - For Terraform: use proper resource blocks
 - For Jenkins: use declarative pipeline syntax`;
@@ -93,6 +110,36 @@ export async function extractText(base64Image, mimeType) {
   });
 
   return { text: response.choices[0].message.content };
+}
+
+export async function fixCode(code, error, language) {
+  const response = await client.chat.completions.create({
+    model: 'gpt-4o',
+    messages: [
+      {
+        role: 'user',
+        content: `Fix this ${language} code that produced an error.
+
+CODE:
+\`\`\`${language}
+${code}
+\`\`\`
+
+ERROR:
+${error}
+
+Return ONLY the fixed code, no explanations. Do NOT add comments.`,
+      },
+    ],
+    max_tokens: 4096,
+  });
+
+  let fixedCode = response.choices[0].message.content;
+  const codeMatch = fixedCode.match(/```(?:\w+)?\s*([\s\S]*?)\s*```/);
+  if (codeMatch) {
+    fixedCode = codeMatch[1];
+  }
+  return { code: fixedCode.trim() };
 }
 
 export async function analyzeImage(base64Image, mimeType) {

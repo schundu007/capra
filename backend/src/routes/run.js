@@ -25,6 +25,16 @@ const RUNNERS = {
     cmd: 'node',
     args: (file, cliArgs) => [file, ...cliArgs],
   },
+  typescript: {
+    ext: '.ts',
+    cmd: 'npx',
+    args: (file, cliArgs) => ['tsx', file, ...cliArgs],
+  },
+  sql: {
+    ext: '.sql',
+    cmd: 'sqlite3',
+    args: (file, cliArgs) => [':memory:', '-init', file, '.quit'],
+  },
 };
 
 async function executeCode(code, language, input = '', args = []) {
@@ -36,8 +46,14 @@ async function executeCode(code, language, input = '', args = []) {
   const filename = `code_${randomUUID()}${runner.ext}`;
   const filepath = join(tmpdir(), filename);
 
+  let processedCode = code.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+  if (language === 'bash' && !processedCode.startsWith('#!')) {
+    processedCode = '#!/bin/bash\n' + processedCode;
+  }
+
   try {
-    await writeFile(filepath, code);
+    await writeFile(filepath, processedCode);
 
     return new Promise((resolve) => {
       const proc = spawn(runner.cmd, runner.args(filepath, args), {

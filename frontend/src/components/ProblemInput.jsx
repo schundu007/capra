@@ -4,11 +4,12 @@ const LANGUAGES = [
   { value: 'auto', label: 'Auto-detect' },
   { value: 'python', label: 'Python' },
   { value: 'bash', label: 'Bash/Shell' },
+  { value: 'javascript', label: 'JavaScript' },
+  { value: 'typescript', label: 'TypeScript' },
+  { value: 'sql', label: 'SQL' },
   { value: 'terraform', label: 'Terraform' },
   { value: 'jenkins', label: 'Jenkins' },
   { value: 'yaml', label: 'YAML/K8s' },
-  { value: 'sql', label: 'SQL' },
-  { value: 'javascript', label: 'JavaScript' },
 ];
 
 export default function ProblemInput({ onSubmit, onFetchUrl, isLoading, extractedText, onExtractedTextClear, shouldClear }) {
