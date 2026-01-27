@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { spawn } from 'child_process';
+import { spawn, execSync } from 'child_process';
 import { writeFile, unlink } from 'fs/promises';
 import { join } from 'path';
 import { tmpdir } from 'os';
@@ -8,6 +8,26 @@ import { randomUUID } from 'crypto';
 const router = Router();
 
 const TIMEOUT = 10000;
+const installedPackages = new Set();
+
+async function installPythonPackage(packageName) {
+  if (installedPackages.has(packageName)) return true;
+  try {
+    execSync(`pip install ${packageName}`, { timeout: 30000, stdio: 'pipe' });
+    installedPackages.add(packageName);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function extractMissingModule(error) {
+  const match = error.match(/ModuleNotFoundError: No module named '([^']+)'/);
+  if (match) {
+    return match[1].split('.')[0];
+  }
+  return null;
+}
 
 const RUNNERS = {
   python: {
@@ -37,7 +57,7 @@ const RUNNERS = {
   },
 };
 
-async function executeCode(code, language, input = '', args = []) {
+async function executeCode(code, language, input = '', args = [], retryCount = 0) {
   const runner = RUNNERS[language];
   if (!runner) {
     return { success: false, error: `Unsupported language: ${language}` };
@@ -81,14 +101,25 @@ async function executeCode(code, language, input = '', args = []) {
         resolve({ success: false, error: 'Execution timeout (10s limit)' });
       }, TIMEOUT);
 
-      proc.on('close', (code) => {
+      proc.on('close', async (exitCode) => {
         clearTimeout(timer);
         unlink(filepath).catch(() => {});
 
-        if (code === 0) {
+        if (exitCode === 0) {
           resolve({ success: true, output: stdout || '(no output)' });
         } else {
-          resolve({ success: false, error: stderr || `Exit code: ${code}` });
+          if (language === 'python' && retryCount < 3) {
+            const missingModule = extractMissingModule(stderr);
+            if (missingModule) {
+              const installed = await installPythonPackage(missingModule);
+              if (installed) {
+                const retryResult = await executeCode(code, language, input, args, retryCount + 1);
+                resolve(retryResult);
+                return;
+              }
+            }
+          }
+          resolve({ success: false, error: stderr || `Exit code: ${exitCode}` });
         }
       });
 
