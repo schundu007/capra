@@ -233,17 +233,17 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
+    <div className="h-screen flex flex-col bg-neutral-950 text-white font-sans">
 
       {/* Header */}
-      <header className="gradient-border flex items-center justify-between px-6 py-3">
+      <header className="flex items-center justify-between px-6 py-3 border-b border-neutral-800 bg-neutral-900">
         <div className="flex items-center gap-3">
-          <div className="p-1.5 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 shadow-glow">
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="p-1.5 rounded-md bg-white">
+            <svg className="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
             </svg>
           </div>
-          <h1 className="text-base font-bold bg-gradient-to-r from-slate-100 to-slate-300 bg-clip-text text-transparent">
+          <h1 className="text-base font-semibold text-white tracking-tight">
             Capra
           </h1>
         </div>
@@ -262,7 +262,7 @@ export default function App() {
         onMouseLeave={handleMouseUp}
       >
         {/* Input panel */}
-        <div className="flex flex-col bg-slate-900/50" style={{width: `${panelWidths.input}%`}}>
+        <div className="flex flex-col bg-neutral-900 border-r border-neutral-800" style={{width: `${panelWidths.input}%`}}>
           <div className="flex-1 p-3 overflow-y-auto scrollbar-thin space-y-3">
             <ProblemInput
               onSubmit={handleSolve}
@@ -294,15 +294,15 @@ export default function App() {
         {/* Resize handle 1 */}
         <div
           onMouseDown={handleMouseDown('first')}
-          className="w-1 bg-slate-700/50 hover:bg-indigo-500 cursor-col-resize transition-colors flex-shrink-0 group"
+          className="w-1 bg-neutral-800 hover:bg-neutral-600 cursor-col-resize transition-colors flex-shrink-0 group"
         >
           <div className="h-full w-full flex items-center justify-center">
-            <div className="w-0.5 h-8 bg-slate-600 group-hover:bg-indigo-400 rounded-full transition-colors" />
+            <div className="w-0.5 h-8 bg-neutral-700 group-hover:bg-neutral-500 rounded-full transition-colors" />
           </div>
         </div>
 
         {/* Code panel */}
-        <div className="flex flex-col bg-slate-900/50" style={{width: `${panelWidths.code}%`}}>
+        <div className="flex flex-col bg-neutral-900 border-r border-neutral-800" style={{width: `${panelWidths.code}%`}}>
           <CodeDisplay
             code={solution?.code}
             language={solution?.language}
@@ -316,15 +316,15 @@ export default function App() {
         {/* Resize handle 2 */}
         <div
           onMouseDown={handleMouseDown('second')}
-          className="w-1 bg-slate-700/50 hover:bg-indigo-500 cursor-col-resize transition-colors flex-shrink-0 group"
+          className="w-1 bg-neutral-800 hover:bg-neutral-600 cursor-col-resize transition-colors flex-shrink-0 group"
         >
           <div className="h-full w-full flex items-center justify-center">
-            <div className="w-0.5 h-8 bg-slate-600 group-hover:bg-indigo-400 rounded-full transition-colors" />
+            <div className="w-0.5 h-8 bg-neutral-700 group-hover:bg-neutral-500 rounded-full transition-colors" />
           </div>
         </div>
 
         {/* Explanation panel */}
-        <div className="flex flex-col bg-slate-900/50" style={{width: `${panelWidths.explanation}%`}}>
+        <div className="flex flex-col bg-neutral-900" style={{width: `${panelWidths.explanation}%`}}>
           <ExplanationPanel
             explanations={solution?.explanations}
             highlightedLine={highlightedLine}

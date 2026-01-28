@@ -1,73 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --color-brand-primary: #6366f1;
-  --color-brand-secondary: #818cf8;
-  --color-surface-primary: #0f172a;
-  --color-surface-secondary: #1e293b;
-  --color-surface-tertiary: #334155;
-  --color-text-primary: #f1f5f9;
-  --color-text-secondary: #94a3b8;
-  --color-border: #334155;
+  --color-bg-primary: #0a0a0a;
+  --color-bg-secondary: #121212;
+  --color-bg-tertiary: #1a1a1a;
+  --color-border: #333333;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #888888;
+  --color-text-muted: #666666;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
 }
 
-/* Glass panel effect */
+/* Component styles */
 @layer components {
-  .glass-panel {
-    @apply bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl;
+  .panel {
+    @apply bg-neutral-900 border border-neutral-700;
   }
 
-  .gradient-border {
-    position: relative;
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  }
-
-  .gradient-border::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    padding: 1px;
-    border-radius: inherit;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.5) 0%, rgba(168, 85, 247, 0.5) 50%, rgba(99, 102, 241, 0.5) 100%);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-  }
-
-  .shimmer-bg {
-    background: linear-gradient(
-      90deg,
-      rgba(99, 102, 241, 0.1) 0%,
-      rgba(99, 102, 241, 0.2) 50%,
-      rgba(99, 102, 241, 0.1) 100%
-    );
-    background-size: 200% 100%;
-    animation: shimmer 2s infinite linear;
+  .panel-header {
+    @apply px-4 py-3 border-b border-neutral-700 bg-neutral-850;
   }
 
   .btn-primary {
-    @apply px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium rounded-lg shadow-lg shadow-indigo-500/25 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none;
+    @apply px-4 py-2 bg-white text-black font-medium rounded-md hover:bg-neutral-200 transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium rounded-lg border border-slate-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply px-4 py-2 bg-neutral-800 text-white font-medium rounded-md border border-neutral-600 hover:bg-neutral-700 transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed;
   }
 
   .input-field {
-    @apply w-full p-3 bg-slate-900/50 text-slate-100 rounded-lg border border-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none transition-all duration-200 placeholder:text-slate-500;
+    @apply w-full p-3 bg-neutral-900 text-white rounded-md border border-neutral-700 focus:border-neutral-500 focus:outline-none transition-colors duration-200 placeholder:text-neutral-500;
   }
 }
 
@@ -75,7 +50,7 @@ body {
 @layer utilities {
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: #475569 transparent;
+    scrollbar-color: #444444 transparent;
   }
 
   .scrollbar-thin::-webkit-scrollbar {
@@ -88,18 +63,18 @@ body {
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: #475569;
+    background-color: #444444;
     border-radius: 3px;
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background-color: #64748b;
+    background-color: #666666;
   }
 }
 
 /* Resizer styles */
 .Resizer {
-  background: #1e293b;
+  background: #1a1a1a;
   opacity: 1;
   z-index: 1;
   box-sizing: border-box;
@@ -119,8 +94,8 @@ body {
 }
 
 .Resizer.vertical:hover {
-  border-left: 4px solid #6366f1;
-  border-right: 4px solid #6366f1;
+  border-left: 4px solid #666666;
+  border-right: 4px solid #666666;
 }
 
 .SplitPane {
@@ -134,4 +109,9 @@ body {
 
 .Pane1, .Pane2 {
   height: 100% !important;
+}
+
+/* Code styling */
+code, pre {
+  font-family: 'JetBrains Mono', 'Fira Code', Monaco, Consolas, monospace;
 }

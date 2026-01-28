@@ -43,17 +43,17 @@ export default function ScreenshotUpload({ onUpload, isLoading, shouldClear }) {
     <div>
       {preview ? (
         <div className="relative">
-          <img src={preview} alt="Preview" className="w-full h-24 object-contain rounded bg-slate-800" />
+          <img src={preview} alt="Preview" className="w-full h-24 object-contain rounded bg-neutral-800" />
           <button
             onClick={clearPreview}
             disabled={isLoading}
-            className="absolute top-1 right-1 p-1 bg-slate-900/80 hover:bg-red-600 rounded text-slate-300 text-xs"
+            className="absolute top-1 right-1 p-1 bg-neutral-900/80 hover:bg-neutral-700 rounded text-neutral-300 text-xs"
           >
             ✕
           </button>
           {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-slate-900/70 rounded">
-              <span className="text-xs text-indigo-400">Analyzing...</span>
+            <div className="absolute inset-0 flex items-center justify-center bg-neutral-900/70 rounded">
+              <span className="text-xs text-white">Analyzing...</span>
             </div>
           )}
         </div>
@@ -64,10 +64,10 @@ export default function ScreenshotUpload({ onUpload, isLoading, shouldClear }) {
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
           className={`h-20 border-2 border-dashed rounded flex items-center justify-center cursor-pointer transition-colors ${
-            isDragging ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-700 hover:border-slate-600'
+            isDragging ? 'border-white bg-neutral-800' : 'border-neutral-700 hover:border-neutral-500'
           }`}
         >
-          <span className="text-slate-500 text-xs">Drop screenshot or click</span>
+          <span className="text-neutral-500 text-xs">Drop screenshot or click</span>
         </div>
       )}
       <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />

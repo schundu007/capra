@@ -52,16 +52,16 @@ export default function ProblemInput({ onSubmit, onFetchUrl, isLoading, extracte
     <div>
       {/* Tabs + Language in one row */}
       <div className="flex items-center gap-2 mb-2">
-        <div className="flex bg-slate-800 rounded p-0.5">
+        <div className="flex bg-neutral-800 rounded p-0.5 border border-neutral-700">
           <button
             onClick={() => setActiveTab('text')}
-            className={`px-3 py-1 text-xs rounded ${activeTab === 'text' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}
+            className={`px-3 py-1 text-xs rounded transition-colors ${activeTab === 'text' ? 'bg-white text-black' : 'text-neutral-400 hover:text-white'}`}
           >
             Text
           </button>
           <button
             onClick={() => setActiveTab('url')}
-            className={`px-3 py-1 text-xs rounded ${activeTab === 'url' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}
+            className={`px-3 py-1 text-xs rounded transition-colors ${activeTab === 'url' ? 'bg-white text-black' : 'text-neutral-400 hover:text-white'}`}
           >
             URL
           </button>
@@ -70,7 +70,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, isLoading, extracte
           value={language}
           onChange={(e) => setLanguage(e.target.value)}
           disabled={isLoading}
-          className="px-2 py-1 bg-slate-800 text-slate-300 rounded text-xs border border-slate-700 focus:outline-none"
+          className="px-2 py-1 bg-neutral-800 text-neutral-300 rounded text-xs border border-neutral-700 focus:outline-none focus:border-neutral-500"
         >
           {LANGUAGES.map((lang) => (
             <option key={lang.value} value={lang.value}>{lang.label}</option>
@@ -84,13 +84,13 @@ export default function ProblemInput({ onSubmit, onFetchUrl, isLoading, extracte
             value={problemText}
             onChange={(e) => setProblemText(e.target.value)}
             placeholder="Paste problem here..."
-            className="w-full h-36 px-3 py-2 bg-slate-800/50 border border-slate-700 rounded text-sm text-slate-200 placeholder-slate-500 resize-none focus:outline-none focus:border-indigo-500"
+            className="w-full h-36 px-3 py-2 bg-neutral-900 border border-neutral-700 rounded text-sm text-white placeholder-neutral-500 resize-none focus:outline-none focus:border-neutral-500"
             disabled={isLoading}
           />
           <button
             type="submit"
             disabled={isLoading || !problemText.trim()}
-            className="w-full mt-2 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 text-white text-sm font-medium rounded transition-colors"
+            className="w-full mt-2 py-2 bg-white hover:bg-neutral-200 disabled:bg-neutral-800 disabled:text-neutral-500 text-black text-sm font-medium rounded transition-colors"
           >
             {isLoading ? 'Processing...' : 'Solve'}
           </button>
@@ -102,13 +102,13 @@ export default function ProblemInput({ onSubmit, onFetchUrl, isLoading, extracte
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://leetcode.com/problems/..."
-            className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700 rounded text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+            className="w-full px-3 py-2 bg-neutral-900 border border-neutral-700 rounded text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-500"
             disabled={isLoading}
           />
           <button
             type="submit"
             disabled={isLoading || !url.trim()}
-            className="w-full mt-2 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 text-white text-sm font-medium rounded transition-colors"
+            className="w-full mt-2 py-2 bg-white hover:bg-neutral-200 disabled:bg-neutral-800 disabled:text-neutral-500 text-black text-sm font-medium rounded transition-colors"
           >
             {isLoading ? 'Fetching...' : 'Fetch & Solve'}
           </button>

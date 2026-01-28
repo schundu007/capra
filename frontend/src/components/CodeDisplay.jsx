@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const LANGUAGE_MAP = {
   python: 'python',
@@ -16,6 +16,19 @@ const LANGUAGE_MAP = {
 const RUNNABLE = ['python', 'bash', 'javascript', 'typescript', 'sql'];
 
 const API_URL = import.meta.env.VITE_API_URL || '';
+
+// Custom monochrome theme based on oneDark
+const monochromeTheme = {
+  ...oneDark,
+  'pre[class*="language-"]': {
+    ...oneDark['pre[class*="language-"]'],
+    background: 'transparent',
+  },
+  'code[class*="language-"]': {
+    ...oneDark['code[class*="language-"]'],
+    color: '#e5e5e5',
+  },
+};
 
 export default function CodeDisplay({ code: initialCode, language, complexity, onLineHover, examples, onCodeUpdate, streamingText }) {
   const [code, setCode] = useState(initialCode);
@@ -137,17 +150,17 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
   if (!code && !streamingText) {
     return (
       <div className="h-full flex flex-col">
-        <div className="px-4 py-2.5 bg-slate-800/50 border-b border-slate-700/50">
+        <div className="px-4 py-2.5 bg-neutral-800 border-b border-neutral-700">
           <div className="flex items-center gap-2">
-            <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
             </svg>
-            <span className="text-sm font-medium text-slate-200">Code</span>
+            <span className="text-sm font-medium text-white">Code</span>
           </div>
         </div>
-        <div className="flex-1 flex flex-col items-center justify-center text-slate-500 p-8">
-          <div className="p-4 rounded-full bg-slate-800/50 mb-4">
-            <svg className="w-8 h-8 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="flex-1 flex flex-col items-center justify-center text-neutral-500 p-8">
+          <div className="p-4 rounded-md bg-neutral-800 mb-4">
+            <svg className="w-8 h-8 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
             </svg>
           </div>
@@ -161,48 +174,48 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
   if (streamingText && !code) {
     return (
       <div className="h-full flex flex-col">
-        <div className="px-4 py-2.5 bg-slate-800/50 border-b border-slate-700/50">
+        <div className="px-4 py-2.5 bg-neutral-800 border-b border-neutral-700">
           <div className="flex items-center gap-2">
-            <svg className="w-4 h-4 text-indigo-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
             </svg>
-            <span className="text-sm font-medium text-slate-200">Generating...</span>
+            <span className="text-sm font-medium text-white">Generating...</span>
             <div className="flex gap-1">
-              <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-              <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-              <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              <span className="w-1.5 h-1.5 bg-white rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+              <span className="w-1.5 h-1.5 bg-white rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+              <span className="w-1.5 h-1.5 bg-white rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
             </div>
           </div>
         </div>
         <div className="flex-1 overflow-auto scrollbar-thin p-4">
-          <pre className="text-sm font-mono text-slate-300 whitespace-pre-wrap">{streamingText}</pre>
+          <pre className="text-sm font-mono text-neutral-300 whitespace-pre-wrap">{streamingText}</pre>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col bg-slate-900/30">
+    <div className="h-full flex flex-col bg-neutral-900">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-slate-800/50 border-b border-slate-700/50">
+      <div className="flex items-center justify-between px-4 py-2.5 bg-neutral-800 border-b border-neutral-700">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
             </svg>
-            <span className="text-sm font-medium text-slate-200">Code</span>
+            <span className="text-sm font-medium text-white">Code</span>
           </div>
           {language && (
-            <span className="px-2 py-0.5 text-xs bg-gradient-to-r from-indigo-600/50 to-purple-600/50 text-indigo-200 rounded-full uppercase font-medium">
+            <span className="px-2 py-0.5 text-xs bg-neutral-700 text-neutral-300 rounded uppercase font-medium">
               {language}
             </span>
           )}
           {complexity && (
             <div className="flex gap-2 text-xs">
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <span className="px-2 py-0.5 rounded bg-neutral-700 text-neutral-300 border border-neutral-600">
                 {complexity.time}
               </span>
-              <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">
+              <span className="px-2 py-0.5 rounded bg-neutral-700 text-neutral-300 border border-neutral-600">
                 {complexity.space}
               </span>
             </div>
@@ -212,10 +225,10 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
           {/* Edit toggle */}
           <button
             onClick={() => setIsEditing(!isEditing)}
-            className={`px-2 py-1 text-xs rounded-lg transition-all duration-200 flex items-center gap-1 ${
+            className={`px-2 py-1 text-xs rounded transition-all duration-200 flex items-center gap-1 ${
               isEditing
-                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                : 'btn-secondary'
+                ? 'bg-white text-black'
+                : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
             }`}
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -226,10 +239,10 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
           {/* Fix with prompt */}
           <button
             onClick={() => setShowFixPrompt(!showFixPrompt)}
-            className={`px-2 py-1 text-xs rounded-lg transition-all duration-200 flex items-center gap-1 ${
+            className={`px-2 py-1 text-xs rounded transition-all duration-200 flex items-center gap-1 ${
               showFixPrompt
-                ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                : 'btn-secondary'
+                ? 'bg-white text-black'
+                : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
             }`}
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -240,10 +253,10 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
           {/* Input toggle */}
           <button
             onClick={() => setShowInput(!showInput)}
-            className={`px-2 py-1 text-xs rounded-lg transition-all duration-200 ${
+            className={`px-2 py-1 text-xs rounded transition-all duration-200 ${
               showInput
-                ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
-                : 'btn-secondary'
+                ? 'bg-white text-black'
+                : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
             }`}
           >
             Input
@@ -253,7 +266,7 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
             <button
               onClick={handleRun}
               disabled={running}
-              className="px-3 py-1 text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:from-slate-600 disabled:to-slate-600 text-white rounded-lg font-medium shadow-lg shadow-emerald-500/25 transition-all duration-200 disabled:shadow-none flex items-center gap-1.5"
+              className="px-3 py-1 text-xs bg-white hover:bg-neutral-200 disabled:bg-neutral-700 disabled:text-neutral-500 text-black rounded font-medium transition-all duration-200 flex items-center gap-1.5"
             >
               {running ? (
                 <>
@@ -275,11 +288,11 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
           )}
           <button
             onClick={handleCopy}
-            className="btn-secondary px-2 py-1 text-xs flex items-center gap-1"
+            className="px-2 py-1 text-xs bg-neutral-700 text-neutral-300 hover:bg-neutral-600 rounded flex items-center gap-1"
           >
             {copied ? (
               <>
-                <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
                 Copied
@@ -298,20 +311,20 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
 
       {/* Fix prompt panel */}
       {showFixPrompt && (
-        <div className="px-4 py-3 bg-purple-900/20 border-b border-purple-700/30 animate-slide-up">
-          <label className="block text-xs text-purple-300 mb-1.5 font-medium">Describe what to fix or improve:</label>
+        <div className="px-4 py-3 bg-neutral-800 border-b border-neutral-700 animate-fade-in">
+          <label className="block text-xs text-neutral-400 mb-1.5 font-medium">Describe what to fix or improve:</label>
           <div className="flex gap-2">
             <input
               value={fixPrompt}
               onChange={(e) => setFixPrompt(e.target.value)}
               placeholder="e.g., Handle edge case when input is empty, Add error handling..."
-              className="flex-1 input-field text-sm"
+              className="flex-1 px-3 py-2 bg-neutral-900 border border-neutral-700 rounded text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-500"
               onKeyDown={(e) => e.key === 'Enter' && handleManualFix()}
             />
             <button
               onClick={handleManualFix}
               disabled={fixing || !fixPrompt.trim()}
-              className="px-4 py-2 text-xs bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:from-slate-600 disabled:to-slate-600 text-white rounded-lg font-medium transition-all duration-200 flex items-center gap-1.5"
+              className="px-4 py-2 text-xs bg-white hover:bg-neutral-200 disabled:bg-neutral-700 disabled:text-neutral-500 text-black rounded font-medium transition-all duration-200 flex items-center gap-1.5"
             >
               {fixing ? (
                 <>
@@ -331,19 +344,19 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
 
       {/* Input panel */}
       {showInput && (
-        <div className="px-4 py-3 bg-slate-800/30 border-b border-slate-700/50 space-y-3 animate-slide-up">
+        <div className="px-4 py-3 bg-neutral-850 border-b border-neutral-700 space-y-3 animate-fade-in">
           {examples && examples.length > 0 && (
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5 font-medium">Test Case</label>
+              <label className="block text-xs text-neutral-400 mb-1.5 font-medium">Test Case</label>
               <div className="flex gap-1.5 flex-wrap">
                 {examples.map((ex, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleExampleChange(idx)}
-                    className={`px-2.5 py-1 text-xs rounded-lg transition-all duration-200 ${
+                    className={`px-2.5 py-1 text-xs rounded transition-all duration-200 ${
                       selectedExample === idx
-                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/25'
-                        : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                        ? 'bg-white text-black'
+                        : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
                     }`}
                   >
                     Example {idx + 1}
@@ -351,29 +364,29 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
                 ))}
               </div>
               {examples[selectedExample]?.expected && (
-                <div className="mt-2 px-3 py-2 bg-slate-900/50 rounded-lg">
-                  <span className="text-xs text-slate-400">Expected: </span>
-                  <span className="text-xs text-emerald-400 font-mono">{examples[selectedExample].expected}</span>
+                <div className="mt-2 px-3 py-2 bg-neutral-900 rounded">
+                  <span className="text-xs text-neutral-400">Expected: </span>
+                  <span className="text-xs text-white font-mono">{examples[selectedExample].expected}</span>
                 </div>
               )}
             </div>
           )}
           <div>
-            <label className="block text-xs text-slate-400 mb-1.5 font-medium">Input (stdin)</label>
+            <label className="block text-xs text-neutral-400 mb-1.5 font-medium">Input (stdin)</label>
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Enter input for the program..."
-              className="input-field h-16 resize-none text-sm font-mono"
+              className="w-full h-16 px-3 py-2 bg-neutral-900 border border-neutral-700 rounded text-sm text-white placeholder-neutral-500 resize-none focus:outline-none focus:border-neutral-500 font-mono"
             />
           </div>
           <div>
-            <label className="block text-xs text-slate-400 mb-1.5 font-medium">Arguments (command line)</label>
+            <label className="block text-xs text-neutral-400 mb-1.5 font-medium">Arguments (command line)</label>
             <input
               value={args}
               onChange={(e) => setArgs(e.target.value)}
               placeholder="e.g. arg1 arg2"
-              className="input-field text-sm font-mono"
+              className="w-full px-3 py-2 bg-neutral-900 border border-neutral-700 rounded text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-500 font-mono"
             />
           </div>
         </div>
@@ -385,13 +398,13 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
           <textarea
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            className="w-full h-full bg-transparent text-slate-100 font-mono text-sm p-4 resize-none focus:outline-none"
+            className="w-full h-full bg-transparent text-white font-mono text-sm p-4 resize-none focus:outline-none"
             spellCheck={false}
           />
         ) : (
           <SyntaxHighlighter
             language={syntaxLanguage}
-            style={vscDarkPlus}
+            style={monochromeTheme}
             showLineNumbers
             wrapLines
             lineProps={(lineNumber) => ({
@@ -414,24 +427,24 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
 
       {/* Output panel */}
       {(output || fixing) && (
-        <div className="border-t border-slate-700/50 animate-slide-up">
-          <div className="px-4 py-2 bg-slate-800/50 flex items-center justify-between">
+        <div className="border-t border-neutral-700 animate-fade-in">
+          <div className="px-4 py-2 bg-neutral-800 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-slate-300">Output</span>
+              <span className="text-sm font-medium text-white">Output</span>
               {fixing && (
-                <span className="px-2 py-0.5 text-xs bg-yellow-500/20 text-yellow-400 rounded-full border border-yellow-500/30 animate-pulse">
+                <span className="px-2 py-0.5 text-xs bg-neutral-700 text-neutral-300 rounded border border-neutral-600 animate-pulse">
                   Fixing...
                 </span>
               )}
               {fixAttempts > 0 && (
-                <span className="px-2 py-0.5 text-xs bg-blue-500/20 text-blue-400 rounded-full border border-blue-500/30">
+                <span className="px-2 py-0.5 text-xs bg-neutral-700 text-neutral-300 rounded border border-neutral-600">
                   Fix #{fixAttempts}
                 </span>
               )}
             </div>
             <button
               onClick={() => { setOutput(null); }}
-              className="p-1 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded transition-colors"
+              className="p-1 text-neutral-400 hover:text-white hover:bg-neutral-700 rounded transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -439,7 +452,7 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
             </button>
           </div>
           {output && (
-            <pre className={'p-4 text-sm font-mono overflow-auto max-h-[40vh] scrollbar-thin ' + (output.success ? 'text-emerald-400' : 'text-red-400')}>
+            <pre className={'p-4 text-sm font-mono overflow-auto max-h-[40vh] scrollbar-thin ' + (output.success ? 'text-white' : 'text-neutral-400')}>
               {output.success ? output.output : output.error}
             </pre>
           )}

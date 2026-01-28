@@ -1,13 +1,13 @@
 export default function ProviderToggle({ provider, onChange }) {
   return (
-    <div className="flex items-center gap-1 p-1 bg-slate-800/50 backdrop-blur-sm rounded-full border border-slate-700/50">
+    <div className="flex items-center gap-1 p-1 bg-neutral-800 rounded-md border border-neutral-700">
       <button
         onClick={() => onChange('claude')}
         className={
-          'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ' +
+          'flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-all duration-200 ' +
           (provider === 'claude'
-            ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-glow-orange'
-            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50')
+            ? 'bg-white text-black'
+            : 'text-neutral-400 hover:text-white hover:bg-neutral-700')
         }
       >
         <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
@@ -18,10 +18,10 @@ export default function ProviderToggle({ provider, onChange }) {
       <button
         onClick={() => onChange('openai')}
         className={
-          'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ' +
+          'flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-all duration-200 ' +
           (provider === 'openai'
-            ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-glow-emerald'
-            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50')
+            ? 'bg-white text-black'
+            : 'text-neutral-400 hover:text-white hover:bg-neutral-700')
         }
       >
         <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">

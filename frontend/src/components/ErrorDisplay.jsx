@@ -26,25 +26,25 @@ export default function ErrorDisplay({ error, type = 'default', onDismiss }) {
   const icon = ICONS[type] || ICONS.default;
 
   return (
-    <div className="animate-slide-up">
-      <div className="glass-panel p-4 border-red-500/30 bg-gradient-to-r from-red-900/20 to-red-800/10">
+    <div className="animate-fade-in">
+      <div className="bg-neutral-800 border border-neutral-600 rounded-md p-4">
         <div className="flex items-start gap-3">
           {/* Icon */}
-          <div className="flex-shrink-0 p-2 rounded-lg bg-red-500/20 text-red-400">
+          <div className="flex-shrink-0 p-2 rounded-md bg-neutral-700 text-white">
             {icon}
           </div>
 
           {/* Content */}
           <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-medium text-red-300">Error</h4>
-            <p className="mt-1 text-sm text-red-200/80">{error}</p>
+            <h4 className="text-sm font-medium text-white">Error</h4>
+            <p className="mt-1 text-sm text-neutral-400">{error}</p>
           </div>
 
           {/* Dismiss button */}
           {onDismiss && (
             <button
               onClick={onDismiss}
-              className="flex-shrink-0 p-1 rounded-lg hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors"
+              className="flex-shrink-0 p-1 rounded-md hover:bg-neutral-700 text-neutral-400 hover:text-white transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

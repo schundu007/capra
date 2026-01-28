@@ -6,36 +6,33 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', 'monospace'],
+      },
       colors: {
-        brand: {
-          50: '#eef2ff',
-          100: '#e0e7ff',
-          200: '#c7d2fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#312e81',
-          950: '#1e1b4b',
+        neutral: {
+          950: '#0a0a0a',
+          900: '#121212',
+          850: '#1a1a1a',
+          800: '#222222',
+          700: '#333333',
+          600: '#444444',
+          500: '#666666',
+          400: '#888888',
+          300: '#aaaaaa',
+          200: '#cccccc',
+          100: '#e5e5e5',
+          50: '#f5f5f5',
         },
       },
-      backgroundImage: {
-        'glass-gradient': 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-      },
       boxShadow: {
-        'glow': '0 0 20px rgba(99, 102, 241, 0.3)',
-        'glow-lg': '0 0 40px rgba(99, 102, 241, 0.4)',
-        'glow-orange': '0 0 20px rgba(251, 146, 60, 0.3)',
-        'glow-emerald': '0 0 20px rgba(52, 211, 153, 0.3)',
+        'subtle': '0 1px 2px rgba(0, 0, 0, 0.5)',
+        'elevated': '0 4px 12px rgba(0, 0, 0, 0.5)',
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-out',
         'slide-up': 'slideUp 0.3s ease-out',
-        'shimmer': 'shimmer 2s infinite linear',
-        'spin-slow': 'spin 3s linear infinite',
         'pulse-subtle': 'pulseSubtle 2s ease-in-out infinite',
       },
       keyframes: {
@@ -47,13 +44,9 @@ export default {
           '0%': { opacity: '0', transform: 'translateY(10px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
-        shimmer: {
-          '0%': { backgroundPosition: '-200% 0' },
-          '100%': { backgroundPosition: '200% 0' },
-        },
         pulseSubtle: {
           '0%, 100%': { opacity: '1' },
-          '50%': { opacity: '0.7' },
+          '50%': { opacity: '0.5' },
         },
       },
     },

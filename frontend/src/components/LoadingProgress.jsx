@@ -64,20 +64,20 @@ export default function LoadingProgress({ type = 'solve', isActive }) {
   const currentStage = stages[stageIndex];
 
   return (
-    <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-700/50">
+    <div className="bg-neutral-800 rounded-md p-3 border border-neutral-700">
       {/* Stage indicator */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse" />
-          <span className="text-xs font-medium text-slate-300">{currentStage?.name}</span>
+          <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+          <span className="text-xs font-medium text-neutral-300">{currentStage?.name}</span>
         </div>
-        <span className="text-xs text-slate-500">{progress}%</span>
+        <span className="text-xs text-neutral-500">{progress}%</span>
       </div>
 
       {/* Progress bar */}
-      <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+      <div className="h-1.5 bg-neutral-700 rounded-full overflow-hidden">
         <div
-          className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-300 ease-out"
+          className="h-full bg-white rounded-full transition-all duration-300 ease-out"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -87,7 +87,7 @@ export default function LoadingProgress({ type = 'solve', isActive }) {
         {stages.map((stage, idx) => (
           <div key={idx} className="flex flex-col items-center">
             <div className={`w-1.5 h-1.5 rounded-full transition-colors ${
-              idx <= stageIndex ? 'bg-indigo-500' : 'bg-slate-600'
+              idx <= stageIndex ? 'bg-white' : 'bg-neutral-600'
             }`} />
           </div>
         ))}
