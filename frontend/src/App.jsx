@@ -1,20 +1,14 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import ProblemInput from './components/ProblemInput';
 import ScreenshotUpload from './components/ScreenshotUpload';
 import CodeDisplay from './components/CodeDisplay';
 import ExplanationPanel from './components/ExplanationPanel';
 import ProviderToggle from './components/ProviderToggle';
-import LoadingOverlay from './components/LoadingOverlay';
+import LoadingProgress from './components/LoadingProgress';
 import ErrorDisplay from './components/ErrorDisplay';
 import PlatformStatus from './components/PlatformStatus';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
-
-const LOADING_MESSAGES = {
-  solve: 'Generating solution...',
-  fetch: 'Fetching problem from URL...',
-  screenshot: 'Extracting text from screenshot...',
-};
 
 // Stream solve request using SSE
 async function solveWithStream(problem, provider, language, onChunk) {
@@ -76,6 +70,58 @@ export default function App() {
   const [highlightedLine, setHighlightedLine] = useState(null);
   const [extractedText, setExtractedText] = useState('');
   const [clearScreenshot, setClearScreenshot] = useState(0);
+
+  // Resizable panel widths (percentages)
+  const [panelWidths, setPanelWidths] = useState({ input: 25, code: 35, explanation: 40 });
+  const containerRef = useRef(null);
+  const isDragging = useRef(null);
+
+  const handleMouseDown = useCallback((divider) => (e) => {
+    e.preventDefault();
+    isDragging.current = divider;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  }, []);
+
+  const handleMouseMove = useCallback((e) => {
+    if (!isDragging.current || !containerRef.current) return;
+
+    const container = containerRef.current;
+    const rect = container.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const totalWidth = rect.width;
+    const percentX = (x / totalWidth) * 100;
+
+    setPanelWidths(prev => {
+      if (isDragging.current === 'first') {
+        // Dragging between input and code
+        const newInput = Math.max(15, Math.min(40, percentX));
+        const diff = newInput - prev.input;
+        return {
+          input: newInput,
+          code: Math.max(20, prev.code - diff),
+          explanation: prev.explanation
+        };
+      } else if (isDragging.current === 'second') {
+        // Dragging between code and explanation
+        const inputCodeWidth = prev.input + prev.code;
+        const newCodeEnd = Math.max(prev.input + 20, Math.min(80, percentX));
+        const newCode = newCodeEnd - prev.input;
+        return {
+          input: prev.input,
+          code: newCode,
+          explanation: Math.max(20, 100 - prev.input - newCode)
+        };
+      }
+      return prev;
+    });
+  }, []);
+
+  const handleMouseUp = useCallback(() => {
+    isDragging.current = null;
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  }, []);
 
   const resetState = () => {
     setSolution(null);
@@ -188,10 +234,6 @@ export default function App() {
 
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
-      {/* Loading overlay */}
-      {isLoading && (
-        <LoadingOverlay message={LOADING_MESSAGES[loadingType] || 'Processing...'} />
-      )}
 
       {/* Header */}
       <header className="gradient-border flex items-center justify-between px-6 py-3">
@@ -212,9 +254,15 @@ export default function App() {
       </header>
 
       {/* Main content */}
-      <div className="flex-1 flex overflow-hidden">
+      <div
+        ref={containerRef}
+        className="flex-1 flex overflow-hidden"
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      >
         {/* Input panel */}
-        <div className="flex flex-col bg-slate-900/50 border-r border-slate-700/50" style={{width: '25%'}}>
+        <div className="flex flex-col bg-slate-900/50" style={{width: `${panelWidths.input}%`}}>
           <div className="flex-1 p-3 overflow-y-auto scrollbar-thin space-y-3">
             <ProblemInput
               onSubmit={handleSolve}
@@ -230,6 +278,9 @@ export default function App() {
               shouldClear={clearScreenshot}
             />
 
+            {/* Loading Progress */}
+            <LoadingProgress type={loadingType} isActive={isLoading} />
+
             {error && (
               <ErrorDisplay
                 error={error}
@@ -240,8 +291,18 @@ export default function App() {
           </div>
         </div>
 
+        {/* Resize handle 1 */}
+        <div
+          onMouseDown={handleMouseDown('first')}
+          className="w-1 bg-slate-700/50 hover:bg-indigo-500 cursor-col-resize transition-colors flex-shrink-0 group"
+        >
+          <div className="h-full w-full flex items-center justify-center">
+            <div className="w-0.5 h-8 bg-slate-600 group-hover:bg-indigo-400 rounded-full transition-colors" />
+          </div>
+        </div>
+
         {/* Code panel */}
-        <div className="flex flex-col bg-slate-900/50 border-r border-slate-700/50" style={{width: '35%'}}>
+        <div className="flex flex-col bg-slate-900/50" style={{width: `${panelWidths.code}%`}}>
           <CodeDisplay
             code={solution?.code}
             language={solution?.language}
@@ -252,8 +313,18 @@ export default function App() {
           />
         </div>
 
+        {/* Resize handle 2 */}
+        <div
+          onMouseDown={handleMouseDown('second')}
+          className="w-1 bg-slate-700/50 hover:bg-indigo-500 cursor-col-resize transition-colors flex-shrink-0 group"
+        >
+          <div className="h-full w-full flex items-center justify-center">
+            <div className="w-0.5 h-8 bg-slate-600 group-hover:bg-indigo-400 rounded-full transition-colors" />
+          </div>
+        </div>
+
         {/* Explanation panel */}
-        <div className="flex flex-col bg-slate-900/50" style={{width: '40%'}}>
+        <div className="flex flex-col bg-slate-900/50" style={{width: `${panelWidths.explanation}%`}}>
           <ExplanationPanel
             explanations={solution?.explanations}
             highlightedLine={highlightedLine}
