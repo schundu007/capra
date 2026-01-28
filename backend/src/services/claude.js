@@ -64,8 +64,8 @@ export async function solveProblem(problemText, language = 'auto', fast = true) 
     ? 'Detect the appropriate language from the problem context.'
     : `Write the solution in ${language.toUpperCase()}.`;
 
-  // Use Haiku for speed, Sonnet for quality
-  const model = fast ? 'claude-3-5-haiku-latest' : 'claude-sonnet-4-20250514';
+  // Use Claude 3.5 Sonnet for best speed/quality balance
+  const model = 'claude-3-5-sonnet-20241022';
 
   const response = await client.messages.create({
     model,
