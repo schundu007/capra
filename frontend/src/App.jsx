@@ -1,22 +1,9 @@
 import { useState } from 'react';
-import ProblemInput from './components/ProblemInput';
-import ScreenshotUpload from './components/ScreenshotUpload';
-import CodeDisplay from './components/CodeDisplay';
-import ExplanationPanel from './components/ExplanationPanel';
 import ProviderToggle from './components/ProviderToggle';
-import LoadingOverlay from './components/LoadingOverlay';
-import ErrorDisplay from './components/ErrorDisplay';
-import PlatformStatus from './components/PlatformStatus';
+import CodeEditor from './components/CodeEditor';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
-const LOADING_MESSAGES = {
-  solve: 'Generating solution...',
-  fetch: 'Fetching problem from URL...',
-  screenshot: 'Extracting text from screenshot...',
-};
-
-// Stream solve request using SSE
 async function solveWithStream(problem, provider, language, onChunk) {
   const response = await fetch(API_URL + '/api/solve/stream', {
     method: 'POST',
@@ -24,9 +11,7 @@ async function solveWithStream(problem, provider, language, onChunk) {
     body: JSON.stringify({ problem, provider, language }),
   });
 
-  if (!response.ok) {
-    throw new Error('Failed to solve problem');
-  }
+  if (!response.ok) throw new Error('Failed to solve problem');
 
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
@@ -45,109 +30,90 @@ async function solveWithStream(problem, provider, language, onChunk) {
       if (line.startsWith('data: ')) {
         try {
           const data = JSON.parse(line.slice(6));
-          if (data.chunk) {
-            onChunk(data.chunk);
-          }
-          if (data.done && data.result) {
-            result = data.result;
-          }
-          if (data.error) {
-            throw new Error(data.error);
-          }
+          if (data.chunk) onChunk(data.chunk);
+          if (data.done && data.result) result = data.result;
+          if (data.error) throw new Error(data.error);
         } catch (e) {
-          if (e.message !== 'Unexpected end of JSON input') {
-            console.error('SSE parse error:', e);
-          }
+          if (e.message !== 'Unexpected end of JSON input') console.error('SSE error:', e);
         }
       }
     }
   }
-
   return result;
 }
 
 export default function App() {
-  const [provider, setProvider] = useState('openai');
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingType, setLoadingType] = useState(null);
+  const [provider, setProvider] = useState('claude');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [errorType, setErrorType] = useState('default');
   const [solution, setSolution] = useState(null);
-  const [highlightedLine, setHighlightedLine] = useState(null);
-  const [extractedText, setExtractedText] = useState('');
-  const [clearScreenshot, setClearScreenshot] = useState(0);
+  const [streamText, setStreamText] = useState('');
 
-  const resetState = () => {
-    setSolution(null);
+  // Input state
+  const [inputMode, setInputMode] = useState('text'); // text, url, screenshot
+  const [problemText, setProblemText] = useState('');
+  const [urlInput, setUrlInput] = useState('');
+  const [language, setLanguage] = useState('auto');
+
+  const handleSolve = async () => {
+    if (!problemText.trim()) return;
     setError(null);
-    setErrorType('default');
-    setClearScreenshot(c => c + 1);
-  };
+    setSolution(null);
+    setStreamText('');
+    setLoading(true);
 
-  const [streamingText, setStreamingText] = useState('');
-
-  const handleSolve = async (problem, language) => {
-    resetState();
-    setStreamingText('');
-    setIsLoading(true);
-    setLoadingType('solve');
     try {
-      const result = await solveWithStream(problem, provider, language, (chunk) => {
-        setStreamingText(prev => prev + chunk);
+      const result = await solveWithStream(problemText, provider, language, (chunk) => {
+        setStreamText(prev => prev + chunk);
       });
-      if (result) {
-        setSolution(result);
-      }
+      if (result) setSolution(result);
     } catch (err) {
       setError(err.message);
-      setErrorType('solve');
     } finally {
-      setIsLoading(false);
-      setLoadingType(null);
-      setStreamingText('');
+      setLoading(false);
+      setStreamText('');
     }
   };
 
-  const handleFetchUrl = async (url, language) => {
-    resetState();
-    setIsLoading(true);
-    setLoadingType('fetch');
+  const handleFetchUrl = async () => {
+    if (!urlInput.trim()) return;
+    setError(null);
+    setSolution(null);
+    setStreamText('');
+    setLoading(true);
+
     try {
-      const fetchResponse = await fetch(API_URL + '/api/fetch', {
+      const fetchRes = await fetch(API_URL + '/api/fetch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url: urlInput }),
       });
 
-      if (!fetchResponse.ok) {
-        throw new Error('Failed to fetch problem from URL');
-      }
-
-      const fetchData = await fetchResponse.json();
-      setLoadingType('solve');
+      if (!fetchRes.ok) throw new Error('Failed to fetch URL');
+      const fetchData = await fetchRes.json();
+      setProblemText(fetchData.problemText || '');
 
       const result = await solveWithStream(fetchData.problemText, provider, language, (chunk) => {
-        setStreamingText(prev => prev + chunk);
+        setStreamText(prev => prev + chunk);
       });
-      if (result) {
-        setSolution(result);
-      }
+      if (result) setSolution(result);
     } catch (err) {
       setError(err.message);
-      setErrorType('fetch');
     } finally {
-      setIsLoading(false);
-      setLoadingType(null);
+      setLoading(false);
+      setStreamText('');
     }
   };
 
-  const handleScreenshot = async (file, language = 'auto') => {
-    setSolution(null);
+  const handleScreenshot = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
     setError(null);
-    setErrorType('default');
-    setClearScreenshot(c => c + 1);
-    setIsLoading(true);
-    setLoadingType('screenshot');
+    setSolution(null);
+    setStreamText('');
+    setLoading(true);
+
     try {
       const formData = new FormData();
       formData.append('image', file);
@@ -159,112 +125,150 @@ export default function App() {
         body: formData,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.details || errorData.error || 'Failed to extract text');
-      }
-
+      if (!response.ok) throw new Error('Failed to extract text');
       const data = await response.json();
-      const extractedProblem = data.text || '';
-      setExtractedText(extractedProblem);
+      const extracted = data.text || '';
+      setProblemText(extracted);
 
-      if (extractedProblem.trim()) {
-        setLoadingType('solve');
-        const result = await solveWithStream(extractedProblem, provider, language, (chunk) => {
-          setStreamingText(prev => prev + chunk);
+      if (extracted.trim()) {
+        const result = await solveWithStream(extracted, provider, language, (chunk) => {
+          setStreamText(prev => prev + chunk);
         });
-        if (result) {
-          setSolution(result);
-        }
+        if (result) setSolution(result);
       }
     } catch (err) {
       setError(err.message);
-      setErrorType('screenshot');
     } finally {
-      setIsLoading(false);
-      setLoadingType(null);
+      setLoading(false);
+      setStreamText('');
     }
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
-      {/* Loading overlay */}
-      {isLoading && (
-        <LoadingOverlay message={LOADING_MESSAGES[loadingType] || 'Processing...'} />
-      )}
-
-      {/* Header */}
-      <header className="gradient-border flex items-center justify-between px-6 py-3">
-        <div className="flex items-center gap-3">
-          <div className="p-1.5 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 shadow-glow">
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-            </svg>
-          </div>
-          <h1 className="text-base font-bold bg-gradient-to-r from-slate-100 to-slate-300 bg-clip-text text-transparent">
-            Capra
-          </h1>
+    <div className="h-screen flex flex-col bg-slate-950 text-slate-100">
+      {/* Minimal Header */}
+      <header className="flex items-center justify-between px-4 py-2 border-b border-slate-800 bg-slate-900/50">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold">C</div>
+          <span className="text-sm font-semibold text-slate-300">Capra</span>
         </div>
         <div className="flex items-center gap-3">
-          <PlatformStatus />
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            className="px-2 py-1 text-xs bg-slate-800 border border-slate-700 rounded text-slate-300"
+          >
+            <option value="auto">Auto</option>
+            <option value="python">Python</option>
+            <option value="javascript">JavaScript</option>
+            <option value="bash">Bash</option>
+            <option value="sql">SQL</option>
+          </select>
           <ProviderToggle provider={provider} onChange={setProvider} />
         </div>
       </header>
 
-      {/* Main content */}
+      {/* Main Content - Two Column */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Input panel */}
-        <div className="flex flex-col bg-slate-900/50 border-r border-slate-700/50" style={{width: '25%'}}>
-          <div className="px-4 py-2.5 bg-slate-800/50 border-b border-slate-700/50">
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <span className="text-sm font-medium text-slate-200">Input</span>
-            </div>
+        {/* Left Panel - Input */}
+        <div className="w-80 flex flex-col border-r border-slate-800 bg-slate-900/30">
+          {/* Input Mode Tabs */}
+          <div className="flex border-b border-slate-800">
+            {['text', 'url', 'screenshot'].map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setInputMode(mode)}
+                className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${
+                  inputMode === mode
+                    ? 'text-indigo-400 border-b-2 border-indigo-400 bg-slate-800/50'
+                    : 'text-slate-500 hover:text-slate-300'
+                }`}
+              >
+                {mode.charAt(0).toUpperCase() + mode.slice(1)}
+              </button>
+            ))}
           </div>
-          <div className="flex-1 p-3 overflow-y-auto scrollbar-thin space-y-3">
-            <ProblemInput
-              onSubmit={handleSolve}
-              onFetchUrl={handleFetchUrl}
-              isLoading={isLoading}
-              extractedText={extractedText}
-              onExtractedTextClear={() => setExtractedText('')}
-              shouldClear={clearScreenshot}
-            />
-            <ScreenshotUpload
-              onUpload={handleScreenshot}
-              isLoading={isLoading}
-              shouldClear={clearScreenshot}
-            />
 
-            {error && (
-              <ErrorDisplay
-                error={error}
-                type={errorType}
-                onDismiss={() => setError(null)}
-              />
+          {/* Input Content */}
+          <div className="flex-1 flex flex-col p-3">
+            {inputMode === 'text' && (
+              <>
+                <textarea
+                  value={problemText}
+                  onChange={(e) => setProblemText(e.target.value)}
+                  placeholder="Paste problem statement here..."
+                  className="flex-1 w-full bg-slate-800/50 border border-slate-700 rounded-lg p-3 text-sm text-slate-200 placeholder-slate-500 resize-none focus:outline-none focus:border-indigo-500"
+                />
+                <button
+                  onClick={handleSolve}
+                  disabled={loading || !problemText.trim()}
+                  className="mt-3 w-full py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:from-slate-700 disabled:to-slate-700 text-white text-sm font-medium rounded-lg transition-all"
+                >
+                  {loading ? 'Solving...' : 'Solve'}
+                </button>
+              </>
+            )}
+
+            {inputMode === 'url' && (
+              <>
+                <input
+                  value={urlInput}
+                  onChange={(e) => setUrlInput(e.target.value)}
+                  placeholder="https://leetcode.com/problems/..."
+                  className="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                />
+                <button
+                  onClick={handleFetchUrl}
+                  disabled={loading || !urlInput.trim()}
+                  className="mt-3 w-full py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:from-slate-700 disabled:to-slate-700 text-white text-sm font-medium rounded-lg transition-all"
+                >
+                  {loading ? 'Fetching...' : 'Fetch & Solve'}
+                </button>
+                {problemText && (
+                  <div className="mt-3 flex-1 overflow-auto">
+                    <div className="text-xs text-slate-500 mb-1">Extracted:</div>
+                    <div className="text-xs text-slate-400 bg-slate-800/50 rounded p-2 max-h-40 overflow-auto">
+                      {problemText.slice(0, 500)}...
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
+            {inputMode === 'screenshot' && (
+              <>
+                <label className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-slate-700 rounded-lg cursor-pointer hover:border-indigo-500 transition-colors">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleScreenshot}
+                    className="hidden"
+                  />
+                  <svg className="w-10 h-10 text-slate-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span className="text-sm text-slate-500">Click to upload screenshot</span>
+                </label>
+              </>
             )}
           </div>
+
+          {/* Error */}
+          {error && (
+            <div className="mx-3 mb-3 px-3 py-2 bg-red-500/10 border border-red-500/30 rounded-lg text-xs text-red-400">
+              {error}
+            </div>
+          )}
         </div>
 
-        {/* Code panel */}
-        <div className="flex flex-col bg-slate-900/50 border-r border-slate-700/50" style={{width: '35%'}}>
-          <CodeDisplay
+        {/* Right Panel - Code Editor */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <CodeEditor
             code={solution?.code}
             language={solution?.language}
             complexity={solution?.complexity}
-            onLineHover={setHighlightedLine}
             examples={solution?.examples}
-            streamingText={isLoading && loadingType === 'solve' ? streamingText : null}
-          />
-        </div>
-
-        {/* Explanation panel */}
-        <div className="flex flex-col bg-slate-900/50" style={{width: '40%'}}>
-          <ExplanationPanel
-            explanations={solution?.explanations}
-            highlightedLine={highlightedLine}
+            streamingText={loading ? streamText : null}
             pitch={solution?.pitch}
           />
         </div>
