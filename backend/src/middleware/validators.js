@@ -18,6 +18,7 @@ export const schemas = {
       'auto', 'python', 'bash', 'javascript', 'typescript',
       'sql', 'terraform', 'jenkins', 'yaml'
     ).default('auto'),
+    fast: Joi.boolean().default(true),
   }),
 
   fetch: Joi.object({

@@ -59,13 +59,16 @@ Rules:
 - For Terraform: use proper resource blocks
 - For Jenkins: use declarative pipeline syntax`;
 
-export async function solveProblem(problemText, language = 'auto') {
+export async function solveProblem(problemText, language = 'auto', fast = true) {
   const languageInstruction = language === 'auto'
     ? 'Detect the appropriate language from the problem context.'
     : `Write the solution in ${language.toUpperCase()}.`;
 
+  // Use gpt-4o-mini for speed, gpt-4o for quality
+  const model = fast ? 'gpt-4o-mini' : 'gpt-4o';
+
   const response = await client.chat.completions.create({
-    model: 'gpt-4o',
+    model,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       {

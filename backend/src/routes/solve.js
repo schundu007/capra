@@ -8,10 +8,10 @@ const router = Router();
 
 router.post('/', validate('solve'), async (req, res, next) => {
   try {
-    const { problem, provider = 'claude', language = 'auto' } = req.body;
+    const { problem, provider = 'claude', language = 'auto', fast = true } = req.body;
 
     const service = provider === 'openai' ? openai : claude;
-    const result = await service.solveProblem(problem, language);
+    const result = await service.solveProblem(problem, language, fast);
 
     res.json(result);
   } catch (error) {
