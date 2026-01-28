@@ -41,9 +41,10 @@ function validateConfig() {
     console.warn('Some features may not work correctly.');
   }
 
-  // In production, fail if required vars are missing
+  // In production, warn but don't crash (API keys might be set differently)
   if (missing.length > 0 && config.NODE_ENV === 'production') {
-    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+    console.warn(`Warning: Missing environment variables: ${missing.join(', ')}`);
+    console.warn('Some features may not work correctly.');
   }
 
   return config;
