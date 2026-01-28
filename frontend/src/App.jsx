@@ -11,10 +11,60 @@ import PlatformStatus from './components/PlatformStatus';
 const API_URL = import.meta.env.VITE_API_URL || '';
 
 const LOADING_MESSAGES = {
-  solve: 'Analyzing problem and generating solution...',
+  solve: 'Generating solution...',
   fetch: 'Fetching problem from URL...',
   screenshot: 'Extracting text from screenshot...',
 };
+
+// Stream solve request using SSE
+async function solveWithStream(problem, provider, language, onChunk) {
+  const response = await fetch(API_URL + '/api/solve/stream', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ problem, provider, language }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to solve problem');
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let result = null;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || '';
+
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        try {
+          const data = JSON.parse(line.slice(6));
+          if (data.chunk) {
+            onChunk(data.chunk);
+          }
+          if (data.done && data.result) {
+            result = data.result;
+          }
+          if (data.error) {
+            throw new Error(data.error);
+          }
+        } catch (e) {
+          if (e.message !== 'Unexpected end of JSON input') {
+            console.error('SSE parse error:', e);
+          }
+        }
+      }
+    }
+  }
+
+  return result;
+}
 
 export default function App() {
   const [provider, setProvider] = useState('openai');
@@ -34,29 +84,27 @@ export default function App() {
     setClearScreenshot(c => c + 1);
   };
 
+  const [streamingText, setStreamingText] = useState('');
+
   const handleSolve = async (problem, language) => {
     resetState();
+    setStreamingText('');
     setIsLoading(true);
     setLoadingType('solve');
     try {
-      const response = await fetch(API_URL + '/api/solve', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ problem, provider, language }),
+      const result = await solveWithStream(problem, provider, language, (chunk) => {
+        setStreamingText(prev => prev + chunk);
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to solve problem');
+      if (result) {
+        setSolution(result);
       }
-
-      const data = await response.json();
-      setSolution(data);
     } catch (err) {
       setError(err.message);
       setErrorType('solve');
     } finally {
       setIsLoading(false);
       setLoadingType(null);
+      setStreamingText('');
     }
   };
 
@@ -78,18 +126,12 @@ export default function App() {
       const fetchData = await fetchResponse.json();
       setLoadingType('solve');
 
-      const solveResponse = await fetch(API_URL + '/api/solve', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ problem: fetchData.problemText, provider, language }),
+      const result = await solveWithStream(fetchData.problemText, provider, language, (chunk) => {
+        setStreamingText(prev => prev + chunk);
       });
-
-      if (!solveResponse.ok) {
-        throw new Error('Failed to solve problem');
+      if (result) {
+        setSolution(result);
       }
-
-      const data = await solveResponse.json();
-      setSolution(data);
     } catch (err) {
       setError(err.message);
       setErrorType('fetch');
@@ -128,18 +170,12 @@ export default function App() {
 
       if (extractedProblem.trim()) {
         setLoadingType('solve');
-        const solveResponse = await fetch(API_URL + '/api/solve', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ problem: extractedProblem, provider, language }),
+        const result = await solveWithStream(extractedProblem, provider, language, (chunk) => {
+          setStreamingText(prev => prev + chunk);
         });
-
-        if (!solveResponse.ok) {
-          throw new Error('Failed to solve problem');
+        if (result) {
+          setSolution(result);
         }
-
-        const solveData = await solveResponse.json();
-        setSolution(solveData);
       }
     } catch (err) {
       setError(err.message);
@@ -220,6 +256,7 @@ export default function App() {
             complexity={solution?.complexity}
             onLineHover={setHighlightedLine}
             examples={solution?.examples}
+            streamingText={isLoading && loadingType === 'solve' ? streamingText : null}
           />
         </div>
 

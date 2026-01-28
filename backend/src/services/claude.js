@@ -153,6 +153,30 @@ Return ONLY the fixed code, no explanations. Do NOT add comments.`,
   return { code: fixedCode.trim() };
 }
 
+export async function* solveProblemStream(problemText, language = 'auto') {
+  const languageInstruction = language === 'auto'
+    ? 'Detect the appropriate language from the problem context.'
+    : `Write the solution in ${language.toUpperCase()}.`;
+
+  const stream = await client.messages.stream({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 4096,
+    messages: [
+      {
+        role: 'user',
+        content: `${languageInstruction}\n\nSolve this problem and return the response as JSON:\n\n${problemText}`,
+      },
+    ],
+    system: SYSTEM_PROMPT,
+  });
+
+  for await (const event of stream) {
+    if (event.type === 'content_block_delta' && event.delta?.text) {
+      yield event.delta.text;
+    }
+  }
+}
+
 export async function analyzeImage(base64Image, mimeType) {
   const response = await client.messages.create({
     model: 'claude-sonnet-4-20250514',

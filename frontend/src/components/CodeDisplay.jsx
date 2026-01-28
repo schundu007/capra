@@ -17,7 +17,7 @@ const RUNNABLE = ['python', 'bash', 'javascript', 'typescript', 'sql'];
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
-export default function CodeDisplay({ code: initialCode, language, complexity, onLineHover, examples, onCodeUpdate }) {
+export default function CodeDisplay({ code: initialCode, language, complexity, onLineHover, examples, onCodeUpdate, streamingText }) {
   const [code, setCode] = useState(initialCode);
   const [copied, setCopied] = useState(false);
   const [running, setRunning] = useState(false);
@@ -133,7 +133,7 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
   const syntaxLanguage = LANGUAGE_MAP[language] || 'python';
   const canRun = RUNNABLE.includes(language);
 
-  if (!code) {
+  if (!code && !streamingText) {
     return (
       <div className="h-full flex flex-col">
         <div className="px-4 py-2.5 bg-slate-800/50 border-b border-slate-700/50">
@@ -151,6 +151,30 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
             </svg>
           </div>
           <p className="text-sm">Submit a problem to see solution</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show streaming text while generating
+  if (streamingText && !code) {
+    return (
+      <div className="h-full flex flex-col">
+        <div className="px-4 py-2.5 bg-slate-800/50 border-b border-slate-700/50">
+          <div className="flex items-center gap-2">
+            <svg className="w-4 h-4 text-indigo-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+            <span className="text-sm font-medium text-slate-200">Generating...</span>
+            <div className="flex gap-1">
+              <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+              <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+              <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+            </div>
+          </div>
+        </div>
+        <div className="flex-1 overflow-auto scrollbar-thin p-4">
+          <pre className="text-sm font-mono text-slate-300 whitespace-pre-wrap">{streamingText}</pre>
         </div>
       </div>
     );
