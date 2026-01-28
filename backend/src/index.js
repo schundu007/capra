@@ -22,9 +22,12 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
 
-// CORS
+// CORS - allow all origins including chrome extensions
 app.use(cors({
-  origin: config.CORS_ORIGIN,
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id'],
 }));
 
 // Request ID tracking
