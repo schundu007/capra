@@ -1,0 +1,91 @@
+/**
+ * Input validation middleware using Joi
+ */
+
+import Joi from 'joi';
+import { AppError, ErrorCode } from './errorHandler.js';
+
+// Validation schemas for each route
+export const schemas = {
+  solve: Joi.object({
+    problem: Joi.string().required().min(1).max(50000).messages({
+      'string.empty': 'Problem text is required',
+      'string.max': 'Problem text exceeds maximum length',
+      'any.required': 'Problem text is required',
+    }),
+    provider: Joi.string().valid('claude', 'openai').default('claude'),
+    language: Joi.string().valid(
+      'auto', 'python', 'bash', 'javascript', 'typescript',
+      'sql', 'terraform', 'jenkins', 'yaml'
+    ).default('auto'),
+  }),
+
+  fetch: Joi.object({
+    url: Joi.string().uri().required().messages({
+      'string.uri': 'Invalid URL format',
+      'any.required': 'URL is required',
+    }),
+  }),
+
+  fix: Joi.object({
+    code: Joi.string().required().min(1).max(100000).messages({
+      'string.empty': 'Code is required',
+      'any.required': 'Code is required',
+    }),
+    error: Joi.string().required().min(1).max(10000).messages({
+      'string.empty': 'Error message is required',
+      'any.required': 'Error message is required',
+    }),
+    language: Joi.string().allow('', null),
+    provider: Joi.string().valid('claude', 'openai').default('openai'),
+  }),
+
+  run: Joi.object({
+    code: Joi.string().required().min(1).max(100000).messages({
+      'string.empty': 'Code is required',
+      'any.required': 'Code is required',
+    }),
+    language: Joi.string().valid(
+      'python', 'bash', 'javascript', 'typescript', 'sql'
+    ).required().messages({
+      'any.only': 'Unsupported language',
+      'any.required': 'Language is required',
+    }),
+    input: Joi.string().allow('', null).max(10000),
+    args: Joi.alternatives().try(
+      Joi.array().items(Joi.string()),
+      Joi.string()
+    ).default([]),
+  }),
+};
+
+/**
+ * Validation middleware factory
+ * @param {string} schemaName - Name of the schema to use for validation
+ * @returns {Function} Express middleware function
+ */
+export function validate(schemaName) {
+  const schema = schemas[schemaName];
+
+  if (!schema) {
+    throw new Error(`Unknown validation schema: ${schemaName}`);
+  }
+
+  return (req, res, next) => {
+    const { error, value } = schema.validate(req.body, {
+      abortEarly: false,
+      stripUnknown: true,
+    });
+
+    if (error) {
+      const details = error.details.map(d => d.message).join('; ');
+      return next(new AppError(details, ErrorCode.VALIDATION_ERROR));
+    }
+
+    // Replace body with validated/sanitized value
+    req.body = value;
+    next();
+  };
+}
+
+export default validate;

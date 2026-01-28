@@ -1,29 +1,180 @@
 import * as cheerio from 'cheerio';
+import { getPlatformCookies } from '../routes/auth.js';
+
+// Platform-specific selectors for extracting problem content
+const PLATFORM_SELECTORS = {
+  leetcode: [
+    '[data-track-load="description_content"]',
+    '.content__u3I1',
+    '[class*="question-content"]',
+    '[class*="elfjS"]', // LeetCode's newer class pattern
+    '.question-content__JfgR',
+    '[data-key="description-content"]',
+  ],
+  hackerrank: [
+    '.challenge-body-html',
+    '.problem-statement',
+    '.challenge_problem_statement',
+    '.challenge-text',
+    '.hr-challenge-description',
+  ],
+  glider: [
+    '.question-description',
+    '.problem-description',
+    '.coding-question',
+    '.question-content',
+    '.problem-content',
+    '[class*="question-desc"]',
+    '[class*="problem-desc"]',
+    '.ql-editor', // Glider uses Quill editor
+    '.question-body',
+  ],
+  lark: [
+    '.coding-problem',
+    '.problem-description',
+    '.question-content',
+    '[class*="problem-content"]',
+    '[class*="question-body"]',
+    '.code-problem-desc',
+    '.problem-statement',
+  ],
+  codesignal: [
+    '.task-description',
+    '.markdown-body',
+    '[class*="task-content"]',
+  ],
+  codility: [
+    '.task-description',
+    '[class*="task-description"]',
+    '.brinza-task-description',
+  ],
+  generic: [
+    'article',
+    'main',
+    '.problem',
+    '.description',
+    '.content',
+    '.question',
+    '[role="main"]',
+  ],
+};
+
+/**
+ * Detect platform from URL
+ */
+function detectPlatform(url) {
+  const hostname = new URL(url).hostname.toLowerCase();
+
+  if (hostname.includes('leetcode')) return 'leetcode';
+  if (hostname.includes('hackerrank')) return 'hackerrank';
+  if (hostname.includes('glider')) return 'glider';
+  if (hostname.includes('lark') || hostname.includes('larksuite')) return 'lark';
+  if (hostname.includes('codesignal')) return 'codesignal';
+  if (hostname.includes('codility')) return 'codility';
+
+  return 'generic';
+}
+
+/**
+ * Extract content using platform-specific selectors
+ */
+function extractContent($, platform) {
+  const selectors = [
+    ...(PLATFORM_SELECTORS[platform] || []),
+    ...PLATFORM_SELECTORS.generic,
+  ];
+
+  for (const selector of selectors) {
+    const content = $(selector).first().text();
+    if (content && content.trim().length > 50) {
+      return content;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Clean and normalize extracted text
+ */
+function cleanText(text) {
+  return text
+    .replace(/\t/g, ' ')
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    .replace(/[ ]+/g, ' ')
+    .replace(/\n[ ]+/g, '\n')
+    .replace(/[ ]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+/**
+ * Extract examples/test cases from the page
+ */
+function extractExamples($) {
+  const examples = [];
+
+  // Common example patterns
+  const exampleSelectors = [
+    '.example',
+    '[class*="example"]',
+    'pre',
+    '.sample-input',
+    '.sample-output',
+    '[class*="testcase"]',
+  ];
+
+  for (const selector of exampleSelectors) {
+    $(selector).each((_, el) => {
+      const text = $(el).text().trim();
+      if (text && text.length > 5 && text.length < 500) {
+        examples.push(text);
+      }
+    });
+
+    if (examples.length >= 3) break;
+  }
+
+  return examples.slice(0, 3);
+}
 
 export async function fetchProblemFromUrl(url) {
   try {
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache',
-        'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
-        'Sec-Ch-Ua-Mobile': '?0',
-        'Sec-Ch-Ua-Platform': '"macOS"',
-        'Sec-Fetch-Dest': 'document',
-        'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-Site': 'none',
-        'Sec-Fetch-User': '?1',
-        'Upgrade-Insecure-Requests': '1',
-      },
-    });
+    const platform = detectPlatform(url);
+
+    // Build headers
+    const headers = {
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+      'Accept-Language': 'en-US,en;q=0.9',
+      'Accept-Encoding': 'gzip, deflate, br',
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache',
+      'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+      'Sec-Ch-Ua-Mobile': '?0',
+      'Sec-Ch-Ua-Platform': '"macOS"',
+      'Sec-Fetch-Dest': 'document',
+      'Sec-Fetch-Mode': 'navigate',
+      'Sec-Fetch-Site': 'none',
+      'Sec-Fetch-User': '?1',
+      'Upgrade-Insecure-Requests': '1',
+    };
+
+    // Add auth cookies if available for this platform
+    const cookies = getPlatformCookies(platform);
+    if (cookies) {
+      headers['Cookie'] = cookies;
+    }
+
+    const response = await fetch(url, { headers });
 
     if (!response.ok) {
-      if (response.status === 403) {
-        throw new Error('Site blocks automated access. Use screenshot or copy-paste the problem text instead.');
+      if (response.status === 403 || response.status === 401) {
+        const authMsg = cookies
+          ? 'Session may have expired. Try syncing again from the extension.'
+          : 'Authentication required. Install the Interview Coder extension and login to the platform.';
+        throw new Error(authMsg);
       }
       throw new Error(`Failed to fetch URL: ${response.status}`);
     }
@@ -31,53 +182,37 @@ export async function fetchProblemFromUrl(url) {
     const html = await response.text();
     const $ = cheerio.load(html);
 
-    // Remove script and style elements
-    $('script, style, nav, header, footer').remove();
+    // Remove non-content elements
+    $('script, style, nav, header, footer, aside, .ads, [class*="sidebar"], [class*="comment"]').remove();
 
-    // Try to extract problem content based on common patterns
-    let problemText = '';
+    // Try platform-specific extraction first
+    let problemText = extractContent($, platform);
 
-    // LeetCode patterns
-    const leetcodeContent = $('[data-track-load="description_content"]').text() ||
-                           $('.content__u3I1').text() ||
-                           $('[class*="question-content"]').text();
-
-    // HackerRank patterns
-    const hackerrankContent = $('.challenge-body-html').text() ||
-                              $('.problem-statement').text() ||
-                              $('.challenge_problem_statement').text();
-
-    // Generic patterns
-    const genericContent = $('article').text() ||
-                          $('main').text() ||
-                          $('.problem').text() ||
-                          $('.description').text();
-
-    problemText = leetcodeContent || hackerrankContent || genericContent;
+    // Fallback to body text if extraction failed
+    if (!problemText || problemText.length < 100) {
+      problemText = $('body').text();
+    }
 
     // Clean up the text
-    problemText = problemText
-      .replace(/\s+/g, ' ')
-      .replace(/\n\s*\n/g, '\n\n')
-      .trim();
+    problemText = cleanText(problemText);
 
-    // If we couldn't extract much, get all body text
-    if (problemText.length < 100) {
-      problemText = $('body').text()
-        .replace(/\s+/g, ' ')
-        .replace(/\n\s*\n/g, '\n\n')
-        .trim()
-        .substring(0, 5000); // Limit to 5000 chars
-    }
+    // Extract examples if available
+    const examples = extractExamples($);
 
     if (!problemText || problemText.length < 20) {
-      throw new Error('Could not extract problem content from the page');
+      throw new Error(`Could not extract problem content from ${platform}. Try using screenshot or copy-paste instead.`);
     }
+
+    // Limit size
+    problemText = problemText.substring(0, 8000);
 
     return {
       success: true,
-      problemText: problemText.substring(0, 8000), // Limit size
+      problemText,
       sourceUrl: url,
+      platform,
+      authenticated: !!cookies,
+      examples: examples.length > 0 ? examples : undefined,
     };
   } catch (error) {
     return {

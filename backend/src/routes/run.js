@@ -4,6 +4,8 @@ import { writeFile, unlink } from 'fs/promises';
 import { join } from 'path';
 import { tmpdir } from 'os';
 import { randomUUID } from 'crypto';
+import { validate } from '../middleware/validators.js';
+import { AppError, ErrorCode } from '../middleware/errorHandler.js';
 
 const router = Router();
 
@@ -135,25 +137,19 @@ async function executeCode(code, language, input = '', args = [], retryCount = 0
   }
 }
 
-router.post('/', async (req, res) => {
+router.post('/', validate('run'), async (req, res, next) => {
   try {
     const { code, language, input, args = [] } = req.body;
-
-    if (!code || typeof code !== 'string') {
-      return res.status(400).json({ error: 'Code is required' });
-    }
-
-    if (!language || !RUNNERS[language]) {
-      return res.status(400).json({
-        error: `Unsupported language. Supported: ${Object.keys(RUNNERS).join(', ')}`,
-      });
-    }
 
     const cliArgs = Array.isArray(args) ? args : args.split(' ').filter(Boolean);
     const result = await executeCode(code, language, input, cliArgs);
     res.json(result);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to execute code', details: error.message });
+    next(new AppError(
+      'Failed to execute code',
+      ErrorCode.INTERNAL_ERROR,
+      error.message
+    ));
   }
 });
 

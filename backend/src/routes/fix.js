@@ -1,28 +1,25 @@
 import { Router } from 'express';
 import * as claude from '../services/claude.js';
 import * as openai from '../services/openai.js';
+import { validate } from '../middleware/validators.js';
+import { AppError, ErrorCode } from '../middleware/errorHandler.js';
 
 const router = Router();
 
-router.post('/', async (req, res) => {
+router.post('/', validate('fix'), async (req, res, next) => {
   try {
     const { code, error, language, provider = 'openai' } = req.body;
-
-    if (!code || !error) {
-      return res.status(400).json({
-        error: 'Code and error are required',
-      });
-    }
 
     const service = provider === 'openai' ? openai : claude;
     const result = await service.fixCode(code, error, language);
 
     res.json(result);
   } catch (error) {
-    res.status(500).json({
-      error: 'Failed to fix code',
-      details: error.message,
-    });
+    next(new AppError(
+      'Failed to fix code',
+      ErrorCode.EXTERNAL_API_ERROR,
+      error.message
+    ));
   }
 });
 
