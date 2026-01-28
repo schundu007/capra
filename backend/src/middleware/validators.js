@@ -53,9 +53,9 @@ export const schemas = {
     }),
     input: Joi.string().allow('', null).max(10000),
     args: Joi.alternatives().try(
-      Joi.array().items(Joi.string()),
-      Joi.string()
-    ).default([]),
+      Joi.array().items(Joi.string().allow('')),
+      Joi.string().allow('')
+    ).allow(null, '').default([]),
   }),
 };
 
