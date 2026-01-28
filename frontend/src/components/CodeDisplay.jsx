@@ -28,21 +28,24 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
   const [args, setArgs] = useState('');
   const [selectedExample, setSelectedExample] = useState(0);
   const [fixAttempts, setFixAttempts] = useState(0);
+  const [isEditing, setIsEditing] = useState(false);
+  const [fixPrompt, setFixPrompt] = useState('');
+  const [showFixPrompt, setShowFixPrompt] = useState(false);
 
   useEffect(() => {
     setCode(initialCode);
     setFixAttempts(0);
+    setIsEditing(false);
   }, [initialCode]);
 
   useEffect(() => {
-    if (examples && examples.length > 0 && code) {
+    if (examples && examples.length > 0 && code && !isEditing) {
       const firstInput = examples[0].input || '';
       setInput(firstInput);
       setSelectedExample(0);
       setShowInput(true);
-      runWithInput(firstInput);
     }
-  }, [examples, code]);
+  }, [examples, initialCode]);
 
   const runWithInput = async (inputValue) => {
     if (!code || !RUNNABLE.includes(language)) return;
@@ -56,9 +59,6 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
       });
       const data = await response.json();
       setOutput(data);
-      if (!data.success && data.error && fixAttempts < 3) {
-        handleAutoFix(data.error);
-      }
     } catch (err) {
       setOutput({ success: false, error: err.message });
     } finally {
@@ -71,30 +71,34 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
     if (examples && examples[index]) {
       const newInput = examples[index].input || '';
       setInput(newInput);
-      runWithInput(newInput);
     }
   };
 
-  const handleAutoFix = async (errorMessage) => {
-    if (fixAttempts >= 3) {
-      return;
-    }
+  const handleManualFix = async () => {
+    if (!fixPrompt.trim()) return;
     setFixing(true);
     try {
       const response = await fetch(API_URL + '/api/fix', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, error: errorMessage, language, provider: 'openai' }),
+        body: JSON.stringify({
+          code,
+          error: fixPrompt,
+          language,
+          provider: 'openai'
+        }),
       });
       const data = await response.json();
       if (data.code) {
         setCode(data.code);
         setFixAttempts(prev => prev + 1);
-        setOutput({ success: true, output: `Fixed (attempt ${fixAttempts + 1}). Click Run to test.` });
+        setOutput({ success: true, output: `Fixed based on: "${fixPrompt}"` });
+        setFixPrompt('');
+        setShowFixPrompt(false);
         if (onCodeUpdate) onCodeUpdate(data.code);
       }
     } catch (err) {
-      console.error('Auto-fix failed:', err);
+      setOutput({ success: false, error: 'Fix failed: ' + err.message });
     } finally {
       setFixing(false);
     }
@@ -120,9 +124,6 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
       });
       const data = await response.json();
       setOutput(data);
-      if (!data.success && data.error && fixAttempts < 3) {
-        handleAutoFix(data.error);
-      }
     } catch (err) {
       setOutput({ success: false, error: err.message });
     } finally {
@@ -208,37 +209,69 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
           )}
         </div>
         <div className="flex items-center gap-2">
+          {/* Edit toggle */}
+          <button
+            onClick={() => setIsEditing(!isEditing)}
+            className={`px-2 py-1 text-xs rounded-lg transition-all duration-200 flex items-center gap-1 ${
+              isEditing
+                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                : 'btn-secondary'
+            }`}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            {isEditing ? 'Editing' : 'Edit'}
+          </button>
+          {/* Fix with prompt */}
+          <button
+            onClick={() => setShowFixPrompt(!showFixPrompt)}
+            className={`px-2 py-1 text-xs rounded-lg transition-all duration-200 flex items-center gap-1 ${
+              showFixPrompt
+                ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                : 'btn-secondary'
+            }`}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Fix
+          </button>
+          {/* Input toggle */}
+          <button
+            onClick={() => setShowInput(!showInput)}
+            className={`px-2 py-1 text-xs rounded-lg transition-all duration-200 ${
+              showInput
+                ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
+                : 'btn-secondary'
+            }`}
+          >
+            Input
+          </button>
+          {/* Run button - always visible for runnable languages */}
           {canRun && (
-            <>
-              <button
-                onClick={() => setShowInput(!showInput)}
-                className="btn-secondary px-2 py-1 text-xs"
-              >
-                Input
-              </button>
-              <button
-                onClick={handleRun}
-                disabled={running}
-                className="px-3 py-1 text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:from-slate-600 disabled:to-slate-600 text-white rounded-lg font-medium shadow-lg shadow-emerald-500/25 transition-all duration-200 disabled:shadow-none flex items-center gap-1.5"
-              >
-                {running ? (
-                  <>
-                    <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    Running
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                    Run
-                  </>
-                )}
-              </button>
-            </>
+            <button
+              onClick={handleRun}
+              disabled={running}
+              className="px-3 py-1 text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:from-slate-600 disabled:to-slate-600 text-white rounded-lg font-medium shadow-lg shadow-emerald-500/25 transition-all duration-200 disabled:shadow-none flex items-center gap-1.5"
+            >
+              {running ? (
+                <>
+                  <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Running
+                </>
+              ) : (
+                <>
+                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                  Run
+                </>
+              )}
+            </button>
           )}
           <button
             onClick={handleCopy}
@@ -262,6 +295,39 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
           </button>
         </div>
       </div>
+
+      {/* Fix prompt panel */}
+      {showFixPrompt && (
+        <div className="px-4 py-3 bg-purple-900/20 border-b border-purple-700/30 animate-slide-up">
+          <label className="block text-xs text-purple-300 mb-1.5 font-medium">Describe what to fix or improve:</label>
+          <div className="flex gap-2">
+            <input
+              value={fixPrompt}
+              onChange={(e) => setFixPrompt(e.target.value)}
+              placeholder="e.g., Handle edge case when input is empty, Add error handling..."
+              className="flex-1 input-field text-sm"
+              onKeyDown={(e) => e.key === 'Enter' && handleManualFix()}
+            />
+            <button
+              onClick={handleManualFix}
+              disabled={fixing || !fixPrompt.trim()}
+              className="px-4 py-2 text-xs bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:from-slate-600 disabled:to-slate-600 text-white rounded-lg font-medium transition-all duration-200 flex items-center gap-1.5"
+            >
+              {fixing ? (
+                <>
+                  <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Fixing...
+                </>
+              ) : (
+                'Apply Fix'
+              )}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Input panel */}
       {showInput && (
@@ -313,28 +379,37 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
         </div>
       )}
 
-      {/* Code area */}
+      {/* Code area - editable or syntax highlighted */}
       <div className="flex-1 overflow-auto scrollbar-thin">
-        <SyntaxHighlighter
-          language={syntaxLanguage}
-          style={vscDarkPlus}
-          showLineNumbers
-          wrapLines
-          lineProps={(lineNumber) => ({
-            style: { cursor: 'pointer' },
-            onMouseEnter: () => onLineHover && onLineHover(lineNumber),
-            onMouseLeave: () => onLineHover && onLineHover(null),
-          })}
-          customStyle={{
-            margin: 0,
-            padding: '1rem',
-            background: 'transparent',
-            fontSize: '14px',
-            lineHeight: '1.5',
-          }}
-        >
-          {code}
-        </SyntaxHighlighter>
+        {isEditing ? (
+          <textarea
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            className="w-full h-full bg-transparent text-slate-100 font-mono text-sm p-4 resize-none focus:outline-none"
+            spellCheck={false}
+          />
+        ) : (
+          <SyntaxHighlighter
+            language={syntaxLanguage}
+            style={vscDarkPlus}
+            showLineNumbers
+            wrapLines
+            lineProps={(lineNumber) => ({
+              style: { cursor: 'pointer' },
+              onMouseEnter: () => onLineHover && onLineHover(lineNumber),
+              onMouseLeave: () => onLineHover && onLineHover(null),
+            })}
+            customStyle={{
+              margin: 0,
+              padding: '1rem',
+              background: 'transparent',
+              fontSize: '14px',
+              lineHeight: '1.5',
+            }}
+          >
+            {code}
+          </SyntaxHighlighter>
+        )}
       </div>
 
       {/* Output panel */}
@@ -345,7 +420,7 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
               <span className="text-sm font-medium text-slate-300">Output</span>
               {fixing && (
                 <span className="px-2 py-0.5 text-xs bg-yellow-500/20 text-yellow-400 rounded-full border border-yellow-500/30 animate-pulse">
-                  Auto-fixing...
+                  Fixing...
                 </span>
               )}
               {fixAttempts > 0 && (
@@ -355,7 +430,7 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
               )}
             </div>
             <button
-              onClick={() => { setOutput(null); setFixAttempts(0); }}
+              onClick={() => { setOutput(null); }}
               className="p-1 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
