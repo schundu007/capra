@@ -166,7 +166,7 @@ export default function App() {
             </svg>
           </div>
           <h1 className="text-base font-bold bg-gradient-to-r from-slate-100 to-slate-300 bg-clip-text text-transparent">
-            Interview Coder
+            Capra
           </h1>
         </div>
         <div className="flex items-center gap-3">

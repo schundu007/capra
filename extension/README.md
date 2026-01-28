@@ -1,6 +1,6 @@
-# Interview Coder Browser Extension
+# Capra Browser Extension
 
-This Chrome extension captures authentication from coding platforms (Glider, Lark, HackerRank) so Interview Coder can fetch problems that require login.
+This Chrome extension captures authentication from coding platforms (Glider, Lark, HackerRank) so Capra can fetch problems that require login.
 
 ## Installation
 
@@ -20,7 +20,7 @@ Firefox requires a different manifest format. For now, use a Chromium-based brow
 1. **Install the extension** (see above)
 2. **Login to platforms** - Go to Glider, Lark, or HackerRank and login normally
 3. **Click the extension icon** - You'll see which platforms you're connected to
-4. **Click "Sync All"** - This sends your session cookies to the Interview Coder backend
+4. **Click "Sync All"** - This sends your session cookies to the Capra backend
 5. **Fetch problems** - Now you can paste URLs from authenticated platforms
 
 ## Supported Platforms
@@ -37,7 +37,7 @@ Firefox requires a different manifest format. For now, use a Chromium-based brow
 ## How It Works
 
 1. The extension captures session cookies when you're logged into supported platforms
-2. When you click "Sync", these cookies are sent to your local Interview Coder backend
+2. When you click "Sync", these cookies are sent to your local Capra backend
 3. The backend stores them temporarily (4 hours)
 4. When you fetch a problem URL, the backend uses these cookies to authenticate
 

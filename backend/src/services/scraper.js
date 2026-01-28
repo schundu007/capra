@@ -173,7 +173,7 @@ export async function fetchProblemFromUrl(url) {
       if (response.status === 403 || response.status === 401) {
         const authMsg = cookies
           ? 'Session may have expired. Try syncing again from the extension.'
-          : 'Authentication required. Install the Interview Coder extension and login to the platform.';
+          : 'Authentication required. Install the Capra extension and login to the platform.';
         throw new Error(authMsg);
       }
       throw new Error(`Failed to fetch URL: ${response.status}`);

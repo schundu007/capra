@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Interview Coder Auth",
+  "name": "Capra Auth",
   "version": "1.0.0",
   "description": "Capture authentication for coding platforms (Glider, Lark, HackerRank)",
   "permissions": [
