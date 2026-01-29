@@ -27,24 +27,24 @@ export default function ErrorDisplay({ error, type = 'default', onDismiss }) {
 
   return (
     <div className="animate-fade-in">
-      <div className="bg-neutral-800 border border-neutral-600 rounded-md p-4">
+      <div className="bg-red-50 border border-red-200 rounded-md p-4">
         <div className="flex items-start gap-3">
           {/* Icon */}
-          <div className="flex-shrink-0 p-2 rounded-md bg-neutral-700 text-white">
+          <div className="flex-shrink-0 p-2 rounded-md bg-red-100 text-red-600">
             {icon}
           </div>
 
           {/* Content */}
           <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-medium text-white">Error</h4>
-            <p className="mt-1 text-sm text-neutral-400">{error}</p>
+            <h4 className="text-sm font-medium text-red-800">Error</h4>
+            <p className="mt-1 text-sm text-red-600">{error}</p>
           </div>
 
           {/* Dismiss button */}
           {onDismiss && (
             <button
               onClick={onDismiss}
-              className="flex-shrink-0 p-1 rounded-md hover:bg-neutral-700 text-neutral-400 hover:text-white transition-colors"
+              className="flex-shrink-0 p-1 rounded-md hover:bg-red-100 text-red-400 hover:text-red-600 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

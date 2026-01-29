@@ -434,7 +434,7 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
           <textarea
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            className={`w-full h-full font-mono text-sm p-4 resize-none focus:outline-none ${isDark ? 'bg-[#1a1a1a] text-neutral-100' : 'bg-transparent text-neutral-900'}`}
+            className={`w-full h-full font-mono text-xs p-4 resize-none focus:outline-none leading-relaxed ${isDark ? 'bg-[#1a1a1a] text-neutral-100' : 'bg-transparent text-neutral-900'}`}
             spellCheck={false}
           />
         ) : (
@@ -452,7 +452,7 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
               margin: 0,
               padding: '1rem',
               background: isDark ? '#1a1a1a' : 'transparent',
-              fontSize: '14px',
+              fontSize: '12px',
               lineHeight: '1.6',
             }}
             lineNumberStyle={{

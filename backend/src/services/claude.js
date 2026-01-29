@@ -48,12 +48,19 @@ Rules:
 - For API-based problems:
   - Use the requests library for HTTP calls in Python
   - Use correct API endpoints and methods
-  - Handle HTTP errors properly
-  - For GitHub PR status: GET /repos/{owner}/{repo}/commits/{sha}/status returns JSON with "state" field
-    - state == "success" means all checks passed (show ✓)
-    - state == "failure" or "pending" means not all passed (show ✕)
-    - Do NOT use check-runs API, use the combined status endpoint
-  - Parse JSON responses correctly
+  - Handle HTTP errors and missing keys with try/except or .get()
+  - GITHUB API REFERENCE:
+    * Combined status: GET /repos/{owner}/{repo}/commits/{ref}/status
+      Response: {"state": "success|failure|pending", "statuses": [...]}
+      Use: response.json()["state"] NOT response.json()[0]["status"]
+    * Check runs: GET /repos/{owner}/{repo}/commits/{ref}/check-runs
+      Response: {"total_count": N, "check_runs": [{"status": "completed", "conclusion": "success"}, ...]}
+      Use: response.json()["check_runs"][0]["conclusion"] NOT ["status"]["state"]
+    * Pull requests: GET /repos/{owner}/{repo}/pulls/{number}
+      Response: {"number": N, "state": "open|closed", "merged": bool, ...}
+    * Always check response.ok or response.status_code before parsing JSON
+    * Always use .get("key", default) for optional fields
+  - Parse JSON responses correctly - always verify structure first
   - Match the EXACT output format specified
 - For Bash: use proper shebang, handle all error cases
 - For Terraform: use proper resource blocks
@@ -123,7 +130,11 @@ export async function extractText(base64Image, mimeType) {
   return { text: response.content[0].text };
 }
 
-export async function fixCode(code, error, language) {
+export async function fixCode(code, error, language, problem = '') {
+  const problemContext = problem
+    ? `\nORIGINAL PROBLEM:\n${problem}\n`
+    : '';
+
   const response = await client.messages.create({
     model: 'claude-sonnet-4-20250514',
     max_tokens: 4096,
@@ -131,7 +142,7 @@ export async function fixCode(code, error, language) {
       {
         role: 'user',
         content: `Fix this ${language} code that produced an error.
-
+${problemContext}
 CODE:
 \`\`\`${language}
 ${code}
@@ -140,7 +151,11 @@ ${code}
 ERROR:
 ${error}
 
-Return ONLY the fixed code, no explanations. Do NOT add comments.`,
+IMPORTANT:
+- If the error is a KeyError or similar, check that you're accessing the correct JSON structure
+- For API calls, verify the response structure matches what you're trying to access
+- Use .get("key", default) for optional fields
+- Return ONLY the fixed code, no explanations. Do NOT add comments.`,
       },
     ],
   });

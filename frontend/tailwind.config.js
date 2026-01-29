@@ -8,8 +8,13 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', 'monospace'],
+        sans: ['Geist', '-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'system-ui', 'sans-serif'],
+        mono: ['Geist Mono', 'SF Mono', 'Menlo', 'Monaco', 'monospace'],
+      },
+      fontSize: {
+        'xs': ['11px', '16px'],
+        'sm': ['12px', '18px'],
+        'base': ['13px', '20px'],
       },
       colors: {
         neutral: {

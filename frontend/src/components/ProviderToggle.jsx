@@ -1,13 +1,13 @@
 export default function ProviderToggle({ provider, onChange }) {
   return (
-    <div className="flex items-center gap-1 p-1 bg-neutral-800 rounded-md border border-neutral-700">
+    <div className="flex items-center gap-1 p-1 bg-neutral-100 rounded-md border border-neutral-200">
       <button
         onClick={() => onChange('claude')}
         className={
           'flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-all duration-200 ' +
           (provider === 'claude'
-            ? 'bg-white text-black'
-            : 'text-neutral-400 hover:text-white hover:bg-neutral-700')
+            ? 'bg-neutral-900 text-white'
+            : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-200')
         }
       >
         <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
@@ -20,8 +20,8 @@ export default function ProviderToggle({ provider, onChange }) {
         className={
           'flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-all duration-200 ' +
           (provider === 'openai'
-            ? 'bg-white text-black'
-            : 'text-neutral-400 hover:text-white hover:bg-neutral-700')
+            ? 'bg-neutral-900 text-white'
+            : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-200')
         }
       >
         <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
