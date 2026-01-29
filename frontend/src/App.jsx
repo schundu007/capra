@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import ProblemInput from './components/ProblemInput';
 import CodeDisplay from './components/CodeDisplay';
 import ExplanationPanel from './components/ExplanationPanel';
@@ -61,7 +61,25 @@ async function solveWithStream(problem, provider, language, onChunk) {
 
 export default function App() {
   const [provider, setProvider] = useState('openai');
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') || 'dark';
+    }
+    return 'dark';
+  });
   const [isLoading, setIsLoading] = useState(false);
+
+  // Apply theme to document
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark');
   const [loadingType, setLoadingType] = useState(null);
   const [error, setError] = useState(null);
   const [errorType, setErrorType] = useState('default');
@@ -219,23 +237,39 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-neutral-100 text-neutral-900 font-sans">
+    <div className="h-screen flex flex-col bg-neutral-100 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 font-sans transition-colors">
 
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-3 border-b border-neutral-200 bg-white">
+      <header className="flex items-center justify-between px-6 py-3 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 transition-colors">
         <div className="flex items-center gap-3">
-          <div className="p-1.5 rounded-md bg-neutral-900">
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="p-1.5 rounded-md bg-neutral-900 dark:bg-white">
+            <svg className="w-5 h-5 text-white dark:text-neutral-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
             </svg>
           </div>
-          <h1 className="text-base font-semibold text-neutral-900 tracking-tight">
+          <h1 className="text-base font-semibold text-neutral-900 dark:text-white tracking-tight">
             Capra
           </h1>
         </div>
         <div className="flex items-center gap-3">
           <PlatformStatus />
           <ProviderToggle provider={provider} onChange={setProvider} />
+          {/* Theme toggle */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-md bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {theme === 'dark' ? (
+              <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5 text-neutral-700" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+            )}
+          </button>
         </div>
       </header>
 
@@ -248,9 +282,9 @@ export default function App() {
         onMouseLeave={handleMouseUp}
       >
         {/* Left panel: Input + Code stacked */}
-        <div className="flex flex-col bg-white border-r border-neutral-200" style={{width: `${leftPanelWidth}%`}}>
+        <div className="flex flex-col bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 transition-colors" style={{width: `${leftPanelWidth}%`}}>
           {/* Input section */}
-          <div className="p-3 border-b border-neutral-200">
+          <div className="p-3 border-b border-neutral-200 dark:border-neutral-800">
             <ProblemInput
               onSubmit={handleSolve}
               onFetchUrl={handleFetchUrl}
@@ -290,6 +324,7 @@ export default function App() {
               onLineHover={setHighlightedLine}
               examples={solution?.examples}
               streamingText={isLoading && loadingType === 'solve' ? streamingText : null}
+              theme={theme}
             />
           </div>
         </div>
@@ -297,15 +332,15 @@ export default function App() {
         {/* Resize handle */}
         <div
           onMouseDown={handleMouseDown}
-          className="w-1 bg-neutral-200 hover:bg-neutral-400 cursor-col-resize transition-colors flex-shrink-0 group"
+          className="w-1 bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-400 dark:hover:bg-neutral-600 cursor-col-resize transition-colors flex-shrink-0 group"
         >
           <div className="h-full w-full flex items-center justify-center">
-            <div className="w-0.5 h-8 bg-neutral-300 group-hover:bg-neutral-500 rounded-full transition-colors" />
+            <div className="w-0.5 h-8 bg-neutral-300 dark:bg-neutral-600 group-hover:bg-neutral-500 dark:group-hover:bg-neutral-400 rounded-full transition-colors" />
           </div>
         </div>
 
         {/* Right panel: Explanation */}
-        <div className="flex flex-col bg-white" style={{width: `${100 - leftPanelWidth}%`}}>
+        <div className="flex flex-col bg-white dark:bg-neutral-900 transition-colors" style={{width: `${100 - leftPanelWidth}%`}}>
           <ExplanationPanel
             explanations={solution?.explanations}
             highlightedLine={highlightedLine}
