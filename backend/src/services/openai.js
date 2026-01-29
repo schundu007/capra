@@ -162,32 +162,44 @@ export async function fixCode(code, error, language, problem = '') {
     messages: [
       {
         role: 'user',
-        content: `Fix this ${language} code that produced an error.
+        content: `Fix this ${language} code based on the feedback/error provided.
 ${problemContext}
 CODE:
 \`\`\`${language}
 ${code}
 \`\`\`
 
-ERROR:
+FEEDBACK/ERROR:
 ${error}
 
+Return a JSON object with:
+{
+  "code": "the complete fixed code as a string",
+  "explanations": [
+    {"line": 1, "code": "first line of code", "explanation": "what this line does"},
+    {"line": 2, "code": "second line of code", "explanation": "what this line does"}
+  ]
+}
+
 IMPORTANT:
-- If the error is a KeyError or similar, check that you're accessing the correct JSON structure
-- For API calls, verify the response structure matches what you're trying to access
-- Use .get("key", default) for optional fields
-- Return ONLY the fixed code, no explanations. Do NOT add comments.`,
+- Fix the code based on the feedback
+- Do NOT add comments in the code
+- Provide line-by-line explanations for the FIXED code
+- Keep explanations concise`,
       },
     ],
     max_tokens: 4096,
+    response_format: { type: 'json_object' },
   });
 
-  let fixedCode = response.choices[0].message.content;
-  const codeMatch = fixedCode.match(/```(?:\w+)?\s*([\s\S]*?)\s*```/);
-  if (codeMatch) {
-    fixedCode = codeMatch[1];
+  const content = response.choices[0].message.content;
+  try {
+    return JSON.parse(content);
+  } catch {
+    const codeMatch = content.match(/```(?:\w+)?\s*([\s\S]*?)\s*```/);
+    const fixedCode = codeMatch ? codeMatch[1] : content;
+    return { code: fixedCode.trim(), explanations: [] };
   }
-  return { code: fixedCode.trim() };
 }
 
 export async function analyzeImage(base64Image, mimeType) {

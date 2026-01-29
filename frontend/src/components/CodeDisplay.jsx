@@ -43,7 +43,7 @@ const lightTheme = {
   },
 };
 
-export default function CodeDisplay({ code: initialCode, language, complexity, onLineHover, examples, onCodeUpdate, streamingText, theme = 'dark' }) {
+export default function CodeDisplay({ code: initialCode, language, complexity, onLineHover, examples, onCodeUpdate, onExplanationsUpdate, streamingText, theme = 'dark' }) {
   const normalizedLanguage = language?.toLowerCase() || 'python';
   const [code, setCode] = useState(initialCode);
   const [copied, setCopied] = useState(false);
@@ -125,6 +125,9 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
         setFixPrompt('');
         setShowFixPrompt(false);
         if (onCodeUpdate) onCodeUpdate(data.code);
+        if (onExplanationsUpdate && data.explanations) {
+          onExplanationsUpdate(data.explanations);
+        }
       }
     } catch (err) {
       setOutput({ success: false, error: 'Fix failed: ' + err.message });

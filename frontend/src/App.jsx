@@ -325,6 +325,9 @@ export default function App() {
               examples={solution?.examples}
               streamingText={isLoading && loadingType === 'solve' ? streamingText : null}
               theme={theme}
+              onExplanationsUpdate={(explanations) => {
+                setSolution(prev => prev ? { ...prev, explanations } : null);
+              }}
             />
           </div>
         </div>
