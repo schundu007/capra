@@ -44,7 +44,12 @@ Rules:
   - All necessary imports
   - Input reading code (using input() for Python, stdin for others) OR hardcoded test data if no stdin needed
   - Main execution logic
-  - The code must be self-contained and produce output when run
+  - MUST include print() or console.log() or echo statements to OUTPUT THE RESULT
+  - The code must be self-contained and produce visible output when run
+- IMPORTANT: Your code MUST print the final answer/result to stdout. Without print statements, the code will show "no output"
+- For Python: Always use print() to output the result
+- For JavaScript: Always use console.log() to output the result
+- For Bash: Always use echo to output the result
 - For API-based problems:
   - Use the requests library for HTTP calls in Python
   - Use correct API endpoints and methods
