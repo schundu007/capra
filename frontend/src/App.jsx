@@ -1,6 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
 import ProblemInput from './components/ProblemInput';
-import ScreenshotUpload from './components/ScreenshotUpload';
 import CodeDisplay from './components/CodeDisplay';
 import ExplanationPanel from './components/ExplanationPanel';
 import ProviderToggle from './components/ProviderToggle';
@@ -71,14 +70,14 @@ export default function App() {
   const [extractedText, setExtractedText] = useState('');
   const [clearScreenshot, setClearScreenshot] = useState(0);
 
-  // Resizable panel widths (percentages)
-  const [panelWidths, setPanelWidths] = useState({ input: 25, code: 35, explanation: 40 });
+  // Resizable panel width (percentage for left panel)
+  const [leftPanelWidth, setLeftPanelWidth] = useState(55);
   const containerRef = useRef(null);
-  const isDragging = useRef(null);
+  const isDragging = useRef(false);
 
-  const handleMouseDown = useCallback((divider) => (e) => {
+  const handleMouseDown = useCallback((e) => {
     e.preventDefault();
-    isDragging.current = divider;
+    isDragging.current = true;
     document.body.style.cursor = 'col-resize';
     document.body.style.userSelect = 'none';
   }, []);
@@ -92,33 +91,13 @@ export default function App() {
     const totalWidth = rect.width;
     const percentX = (x / totalWidth) * 100;
 
-    setPanelWidths(prev => {
-      if (isDragging.current === 'first') {
-        // Dragging between input and code
-        const newInput = Math.max(15, Math.min(40, percentX));
-        const diff = newInput - prev.input;
-        return {
-          input: newInput,
-          code: Math.max(20, prev.code - diff),
-          explanation: prev.explanation
-        };
-      } else if (isDragging.current === 'second') {
-        // Dragging between code and explanation
-        const inputCodeWidth = prev.input + prev.code;
-        const newCodeEnd = Math.max(prev.input + 20, Math.min(80, percentX));
-        const newCode = newCodeEnd - prev.input;
-        return {
-          input: prev.input,
-          code: newCode,
-          explanation: Math.max(20, 100 - prev.input - newCode)
-        };
-      }
-      return prev;
-    });
+    // Constrain between 30% and 70%
+    const newWidth = Math.max(30, Math.min(70, percentX));
+    setLeftPanelWidth(newWidth);
   }, []);
 
   const handleMouseUp = useCallback(() => {
-    isDragging.current = null;
+    isDragging.current = false;
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
   }, []);
@@ -127,6 +106,14 @@ export default function App() {
     setSolution(null);
     setError(null);
     setErrorType('default');
+  };
+
+  const handleClearAll = () => {
+    setSolution(null);
+    setError(null);
+    setErrorType('default');
+    setExtractedText('');
+    setStreamingText('');
     setClearScreenshot(c => c + 1);
   };
 
@@ -191,7 +178,6 @@ export default function App() {
     setSolution(null);
     setError(null);
     setErrorType('default');
-    setClearScreenshot(c => c + 1);
     setIsLoading(true);
     setLoadingType('screenshot');
     try {
@@ -233,17 +219,17 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-neutral-950 text-white font-sans">
+    <div className="h-screen flex flex-col bg-neutral-100 text-neutral-900 font-sans">
 
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-3 border-b border-neutral-800 bg-neutral-900">
+      <header className="flex items-center justify-between px-6 py-3 border-b border-neutral-200 bg-white">
         <div className="flex items-center gap-3">
-          <div className="p-1.5 rounded-md bg-white">
-            <svg className="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="p-1.5 rounded-md bg-neutral-900">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
             </svg>
           </div>
-          <h1 className="text-base font-semibold text-white tracking-tight">
+          <h1 className="text-base font-semibold text-neutral-900 tracking-tight">
             Capra
           </h1>
         </div>
@@ -253,7 +239,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main content */}
+      {/* Main content - 2 panel layout */}
       <div
         ref={containerRef}
         className="flex-1 flex overflow-hidden"
@@ -261,70 +247,65 @@ export default function App() {
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
-        {/* Input panel */}
-        <div className="flex flex-col bg-neutral-900 border-r border-neutral-800" style={{width: `${panelWidths.input}%`}}>
-          <div className="flex-1 p-3 overflow-y-auto scrollbar-thin space-y-3">
+        {/* Left panel: Input + Code stacked */}
+        <div className="flex flex-col bg-white border-r border-neutral-200" style={{width: `${leftPanelWidth}%`}}>
+          {/* Input section */}
+          <div className="p-3 border-b border-neutral-200">
             <ProblemInput
               onSubmit={handleSolve}
               onFetchUrl={handleFetchUrl}
+              onScreenshot={handleScreenshot}
+              onClear={handleClearAll}
               isLoading={isLoading}
               extractedText={extractedText}
               onExtractedTextClear={() => setExtractedText('')}
               shouldClear={clearScreenshot}
-            />
-            <ScreenshotUpload
-              onUpload={handleScreenshot}
-              isLoading={isLoading}
-              shouldClear={clearScreenshot}
+              hasSolution={!!solution}
             />
 
             {/* Loading Progress */}
-            <LoadingProgress type={loadingType} isActive={isLoading} />
+            {isLoading && (
+              <div className="mt-3">
+                <LoadingProgress type={loadingType} isActive={isLoading} />
+              </div>
+            )}
 
             {error && (
-              <ErrorDisplay
-                error={error}
-                type={errorType}
-                onDismiss={() => setError(null)}
-              />
+              <div className="mt-3">
+                <ErrorDisplay
+                  error={error}
+                  type={errorType}
+                  onDismiss={() => setError(null)}
+                />
+              </div>
             )}
           </div>
-        </div>
 
-        {/* Resize handle 1 */}
-        <div
-          onMouseDown={handleMouseDown('first')}
-          className="w-1 bg-neutral-800 hover:bg-neutral-600 cursor-col-resize transition-colors flex-shrink-0 group"
-        >
-          <div className="h-full w-full flex items-center justify-center">
-            <div className="w-0.5 h-8 bg-neutral-700 group-hover:bg-neutral-500 rounded-full transition-colors" />
+          {/* Code section */}
+          <div className="flex-1 overflow-hidden">
+            <CodeDisplay
+              code={solution?.code}
+              language={solution?.language}
+              complexity={solution?.complexity}
+              onLineHover={setHighlightedLine}
+              examples={solution?.examples}
+              streamingText={isLoading && loadingType === 'solve' ? streamingText : null}
+            />
           </div>
         </div>
 
-        {/* Code panel */}
-        <div className="flex flex-col bg-neutral-900 border-r border-neutral-800" style={{width: `${panelWidths.code}%`}}>
-          <CodeDisplay
-            code={solution?.code}
-            language={solution?.language}
-            complexity={solution?.complexity}
-            onLineHover={setHighlightedLine}
-            examples={solution?.examples}
-            streamingText={isLoading && loadingType === 'solve' ? streamingText : null}
-          />
-        </div>
-
-        {/* Resize handle 2 */}
+        {/* Resize handle */}
         <div
-          onMouseDown={handleMouseDown('second')}
-          className="w-1 bg-neutral-800 hover:bg-neutral-600 cursor-col-resize transition-colors flex-shrink-0 group"
+          onMouseDown={handleMouseDown}
+          className="w-1 bg-neutral-200 hover:bg-neutral-400 cursor-col-resize transition-colors flex-shrink-0 group"
         >
           <div className="h-full w-full flex items-center justify-center">
-            <div className="w-0.5 h-8 bg-neutral-700 group-hover:bg-neutral-500 rounded-full transition-colors" />
+            <div className="w-0.5 h-8 bg-neutral-300 group-hover:bg-neutral-500 rounded-full transition-colors" />
           </div>
         </div>
 
-        {/* Explanation panel */}
-        <div className="flex flex-col bg-neutral-900" style={{width: `${panelWidths.explanation}%`}}>
+        {/* Right panel: Explanation */}
+        <div className="flex flex-col bg-white" style={{width: `${100 - leftPanelWidth}%`}}>
           <ExplanationPanel
             explanations={solution?.explanations}
             highlightedLine={highlightedLine}
