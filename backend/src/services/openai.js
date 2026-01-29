@@ -48,24 +48,31 @@ Rules:
 - For API-based problems:
   - Use the requests library for HTTP calls in Python
   - Use correct API endpoints and methods
-  - Handle HTTP errors properly
-  - For GitHub PR status: GET /repos/{owner}/{repo}/commits/{sha}/status returns JSON with "state" field
-    - state == "success" means all checks passed (show ✓)
-    - state == "failure" or "pending" means not all passed (show ✕)
-    - Do NOT use check-runs API, use the combined status endpoint
-  - Parse JSON responses correctly
+  - Handle HTTP errors and missing keys with try/except or .get()
+  - GITHUB API REFERENCE:
+    * Combined status: GET /repos/{owner}/{repo}/commits/{ref}/status
+      Response: {"state": "success|failure|pending", "statuses": [...]}
+      Use: response.json()["state"] NOT response.json()[0]["status"]
+    * Check runs: GET /repos/{owner}/{repo}/commits/{ref}/check-runs
+      Response: {"total_count": N, "check_runs": [{"status": "completed", "conclusion": "success"}, ...]}
+      Use: response.json()["check_runs"][0]["conclusion"] NOT ["status"]["state"]
+    * Pull requests: GET /repos/{owner}/{repo}/pulls/{number}
+      Response: {"number": N, "state": "open|closed", "merged": bool, ...}
+    * Always check response.ok or response.status_code before parsing JSON
+    * Always use .get("key", default) for optional fields
+  - Parse JSON responses correctly - always verify structure first
   - Match the EXACT output format specified
 - For Bash: use proper shebang, handle all error cases
 - For Terraform: use proper resource blocks
 - For Jenkins: use declarative pipeline syntax`;
 
-export async function solveProblem(problemText, language = 'auto', fast = true) {
+export async function solveProblem(problemText, language = 'auto') {
   const languageInstruction = language === 'auto'
     ? 'Detect the appropriate language from the problem context.'
     : `Write the solution in ${language.toUpperCase()}.`;
 
-  // Use gpt-4o-mini for speed, gpt-4o for quality
-  const model = fast ? 'gpt-4o-mini' : 'gpt-4o';
+  // Always use gpt-4o for quality code generation
+  const model = 'gpt-4o';
 
   const response = await client.chat.completions.create({
     model,
@@ -90,6 +97,32 @@ export async function solveProblem(problemText, language = 'auto', fast = true) 
       explanations: [{ line: 1, code: content, explanation: 'Raw response from AI' }],
       complexity: { time: 'Unknown', space: 'Unknown' },
     };
+  }
+}
+
+export async function* solveProblemStream(problemText, language = 'auto') {
+  const languageInstruction = language === 'auto'
+    ? 'Detect the appropriate language from the problem context.'
+    : `Write the solution in ${language.toUpperCase()}.`;
+
+  const stream = await client.chat.completions.create({
+    model: 'gpt-4o',
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      {
+        role: 'user',
+        content: `${languageInstruction}\n\nSolve this problem and return the response as JSON:\n\n${problemText}`,
+      },
+    ],
+    max_tokens: 4096,
+    stream: true,
+  });
+
+  for await (const chunk of stream) {
+    const content = chunk.choices[0]?.delta?.content;
+    if (content) {
+      yield content;
+    }
   }
 }
 
@@ -119,14 +152,18 @@ export async function extractText(base64Image, mimeType) {
   return { text: response.choices[0].message.content };
 }
 
-export async function fixCode(code, error, language) {
+export async function fixCode(code, error, language, problem = '') {
+  const problemContext = problem
+    ? `\nORIGINAL PROBLEM:\n${problem}\n`
+    : '';
+
   const response = await client.chat.completions.create({
     model: 'gpt-4o',
     messages: [
       {
         role: 'user',
         content: `Fix this ${language} code that produced an error.
-
+${problemContext}
 CODE:
 \`\`\`${language}
 ${code}
@@ -135,7 +172,11 @@ ${code}
 ERROR:
 ${error}
 
-Return ONLY the fixed code, no explanations. Do NOT add comments.`,
+IMPORTANT:
+- If the error is a KeyError or similar, check that you're accessing the correct JSON structure
+- For API calls, verify the response structure matches what you're trying to access
+- Use .get("key", default) for optional fields
+- Return ONLY the fixed code, no explanations. Do NOT add comments.`,
       },
     ],
     max_tokens: 4096,
