@@ -71,8 +71,8 @@ export async function solveProblem(problemText, language = 'auto') {
     ? 'Detect the appropriate language from the problem context.'
     : `Write the solution in ${language.toUpperCase()}.`;
 
-  // Always use gpt-4o for quality code generation
-  const model = 'gpt-4o';
+  // Use GPT-5 for best quality code generation
+  const model = 'gpt-5';
 
   const response = await client.chat.completions.create({
     model,
@@ -106,7 +106,7 @@ export async function* solveProblemStream(problemText, language = 'auto') {
     : `Write the solution in ${language.toUpperCase()}.`;
 
   const stream = await client.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'gpt-5',
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       {
@@ -128,7 +128,7 @@ export async function* solveProblemStream(problemText, language = 'auto') {
 
 export async function extractText(base64Image, mimeType) {
   const response = await client.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'gpt-5',
     messages: [
       {
         role: 'user',
@@ -158,7 +158,7 @@ export async function fixCode(code, error, language, problem = '') {
     : '';
 
   const response = await client.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'gpt-5',
     messages: [
       {
         role: 'user',
@@ -192,7 +192,7 @@ IMPORTANT:
 
 export async function analyzeImage(base64Image, mimeType) {
   const response = await client.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'gpt-5',
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       {
