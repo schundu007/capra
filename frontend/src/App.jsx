@@ -601,7 +601,7 @@ export default function App() {
 
         {/* Right Panel - Code */}
         <div
-          className="flex flex-col h-full border-l border-white/10 overflow-auto scrollbar-thin"
+          className="flex flex-col h-full border-l border-white/10"
           style={{ width: `${100 - leftPanelWidth}%` }}
         >
           <CodeDisplay

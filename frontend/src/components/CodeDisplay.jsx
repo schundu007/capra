@@ -209,9 +209,9 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
   }
 
   return (
-    <div className="flex flex-col panel-left min-h-full">
-      {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-gradient-to-r from-slate-800/50 to-transparent">
+    <div className="flex flex-col panel-left h-full">
+      {/* Header - sticky */}
+      <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-slate-900/95 backdrop-blur-sm sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <span className="text-sm font-semibold text-white">Code</span>
         </div>
@@ -308,8 +308,10 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
           </div>
       </div>
 
-      {/* Fix prompt panel */}
-          {showFixPrompt && (
+      {/* Scrollable content area */}
+      <div className="flex-1 overflow-auto scrollbar-thin">
+        {/* Fix prompt panel */}
+        {showFixPrompt && (
             <div className="px-4 py-3 border-b border-white/5 bg-white/[0.02] animate-fade-in">
               <label className="block text-xs mb-2 font-medium text-zinc-400">Describe what to fix or improve:</label>
               <div className="flex gap-2">
@@ -466,6 +468,7 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
               )}
             </div>
           )}
+      </div>
     </div>
   );
 }
