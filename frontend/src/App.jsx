@@ -307,13 +307,14 @@ export default function App() {
   const [currentProblem, setCurrentProblem] = useState('');
   const [currentLanguage, setCurrentLanguage] = useState('auto');
   const [autoFixAttempts, setAutoFixAttempts] = useState(0);
-  const MAX_AUTO_FIX_ATTEMPTS = 3;
+  const MAX_AUTO_FIX_ATTEMPTS = 1; // Only 1 attempt to keep it fast
 
-  // Auto-test and fix code until it works
+  // Auto-test and fix code - only fix runtime errors, not output mismatches
   const autoTestAndFix = async (code, language, examples, problem) => {
     const RUNNABLE = ['python', 'bash', 'javascript', 'typescript', 'sql'];
     const normalizedLang = language?.toLowerCase() || 'python';
 
+    // Skip auto-fix if language not runnable or no examples
     if (!RUNNABLE.includes(normalizedLang) || !examples || examples.length === 0) {
       return { code, fixed: false, attempts: 0 };
     }
@@ -321,62 +322,48 @@ export default function App() {
     let currentCode = code;
     let attempts = 0;
 
-    while (attempts < MAX_AUTO_FIX_ATTEMPTS) {
-      // Run the code with first example
-      const testInput = examples[0]?.input || '';
-      const expectedOutput = examples[0]?.expected?.trim();
+    // Only try once to keep it fast
+    const testInput = examples[0]?.input || '';
 
-      setLoadingType('testing');
+    setLoadingType('testing');
 
-      try {
-        const runResponse = await fetch(API_URL + '/api/run', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-          body: JSON.stringify({ code: currentCode, language: normalizedLang, input: testInput }),
-        });
-        const runResult = await runResponse.json();
+    try {
+      const runResponse = await fetch(API_URL + '/api/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify({ code: currentCode, language: normalizedLang, input: testInput }),
+      });
+      const runResult = await runResponse.json();
 
-        // Check if successful and output matches (if expected output exists)
-        if (runResult.success) {
-          const actualOutput = runResult.output?.trim();
-          if (!expectedOutput || actualOutput === expectedOutput || actualOutput?.includes(expectedOutput)) {
-            // Success!
-            return { code: currentCode, fixed: attempts > 0, attempts };
-          }
-          // Output doesn't match - fix it
-          var errorMsg = `Output mismatch.\nExpected: ${expectedOutput}\nGot: ${actualOutput}`;
-        } else {
-          // Runtime error - fix it
-          var errorMsg = runResult.error || 'Unknown error';
-        }
-
-        // Auto-fix the code
-        attempts++;
-        setAutoFixAttempts(attempts);
-        setLoadingType('fixing');
-
-        const fixResponse = await fetch(API_URL + '/api/fix', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-          body: JSON.stringify({
-            code: currentCode,
-            error: errorMsg,
-            language: normalizedLang,
-            problem: problem,
-            provider: provider
-          }),
-        });
-        const fixResult = await fixResponse.json();
-
-        if (fixResult.code) {
-          currentCode = fixResult.code;
-        } else {
-          break; // Fix failed
-        }
-      } catch (err) {
-        console.error('Auto-fix error:', err);
-        break;
+      // Only auto-fix on runtime errors, not output mismatches (too slow)
+      if (runResult.success) {
+        return { code: currentCode, fixed: false, attempts: 0 };
       }
+
+      // Runtime error - try one fix
+      const errorMsg = runResult.error || 'Unknown error';
+      attempts = 1;
+      setAutoFixAttempts(attempts);
+      setLoadingType('fixing');
+
+      const fixResponse = await fetch(API_URL + '/api/fix', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify({
+          code: currentCode,
+          error: errorMsg,
+          language: normalizedLang,
+          problem: problem,
+          provider: provider
+        }),
+      });
+      const fixResult = await fixResponse.json();
+
+      if (fixResult.code) {
+        return { code: fixResult.code, fixed: true, attempts: 1 };
+      }
+    } catch (err) {
+      console.error('Auto-fix error:', err);
     }
 
     return { code: currentCode, fixed: attempts > 0, attempts };
