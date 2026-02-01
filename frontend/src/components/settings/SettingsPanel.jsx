@@ -86,7 +86,7 @@ export default function SettingsPanel({ onClose }) {
         </div>
 
         {/* Content */}
-        <div className="p-6 max-h-[70vh] overflow-y-auto">
+        <div className="p-6">
           <div className="space-y-4">
             <h3 className="text-sm font-medium text-slate-300 uppercase tracking-wider mb-3">
               API Keys

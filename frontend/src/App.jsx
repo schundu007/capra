@@ -248,8 +248,8 @@ export default function App() {
   const [extractedText, setExtractedText] = useState('');
   const [clearScreenshot, setClearScreenshot] = useState(0);
 
-  // Resizable panel width
-  const [leftPanelWidth, setLeftPanelWidth] = useState(55);
+  // Resizable panel width (left panel has input+explanations, right has code)
+  const [leftPanelWidth, setLeftPanelWidth] = useState(40);
   const containerRef = useRef(null);
   const isDragging = useRef(false);
 
@@ -545,7 +545,7 @@ export default function App() {
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
-        {/* Left Panel */}
+        {/* Left Panel - Input & Explanations */}
         <div
           className="flex flex-col h-full"
           style={{ width: `${leftPanelWidth}%` }}
@@ -581,33 +581,7 @@ export default function App() {
             )}
           </div>
 
-          {/* Code Section - scrollable container for full code view */}
-          <div className="flex-1 overflow-auto scrollbar-thin">
-            <CodeDisplay
-              code={solution?.code || streamingContent.code}
-              language={solution?.language || streamingContent.language}
-              complexity={solution?.complexity || streamingContent.complexity}
-              onLineHover={setHighlightedLine}
-              examples={solution?.examples}
-              isStreaming={isLoading && loadingType === 'solve' && !solution}
-              onExplanationsUpdate={(explanations) => {
-                setSolution(prev => prev ? { ...prev, explanations } : null);
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Resize Handle */}
-        <div
-          onMouseDown={handleMouseDown}
-          className="resize-handle flex-shrink-0"
-        />
-
-        {/* Right Panel */}
-        <div
-          className="flex flex-col h-full border-l border-white/10"
-          style={{ width: `${100 - leftPanelWidth}%` }}
-        >
+          {/* Explanations Section */}
           <ExplanationPanel
             explanations={solution?.explanations}
             highlightedLine={highlightedLine}
@@ -616,6 +590,30 @@ export default function App() {
             isStreaming={isLoading && loadingType === 'solve' && !solution}
             onExpandSystemDesign={handleExpandSystemDesign}
             canExpandSystemDesign={!!currentProblem && !isLoading}
+          />
+        </div>
+
+        {/* Resize Handle */}
+        <div
+          onMouseDown={handleMouseDown}
+          className="resize-handle flex-shrink-0"
+        />
+
+        {/* Right Panel - Code */}
+        <div
+          className="flex flex-col h-full border-l border-white/10 overflow-auto scrollbar-thin"
+          style={{ width: `${100 - leftPanelWidth}%` }}
+        >
+          <CodeDisplay
+            code={solution?.code || streamingContent.code}
+            language={solution?.language || streamingContent.language}
+            complexity={solution?.complexity || streamingContent.complexity}
+            onLineHover={setHighlightedLine}
+            examples={solution?.examples}
+            isStreaming={isLoading && loadingType === 'solve' && !solution}
+            onExplanationsUpdate={(explanations) => {
+              setSolution(prev => prev ? { ...prev, explanations } : null);
+            }}
           />
         </div>
       </div>
