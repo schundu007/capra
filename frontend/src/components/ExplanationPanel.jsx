@@ -1,5 +1,78 @@
 import SystemDesignPanel from './SystemDesignPanel';
 
+// Format text with basic markdown-like styling
+function FormattedText({ text }) {
+  if (!text) return null;
+
+  // Split into paragraphs
+  const paragraphs = text.split(/\n\n+/);
+
+  return (
+    <div className="space-y-3">
+      {paragraphs.map((para, i) => {
+        // Check if it's a code block (starts with spaces/tabs or backticks)
+        if (para.trim().startsWith('```') || para.match(/^[\s]{4,}/m)) {
+          const code = para.replace(/^```\w*\n?|```$/g, '').trim();
+          return (
+            <pre key={i} className="p-3 rounded-lg bg-slate-900/60 border border-slate-700/30 text-xs font-mono text-slate-300 overflow-x-auto">
+              {code}
+            </pre>
+          );
+        }
+
+        // Check if it's a bullet list
+        if (para.match(/^[\s]*[-•*]\s/m)) {
+          const items = para.split(/\n/).filter(line => line.trim());
+          return (
+            <ul key={i} className="space-y-1.5 ml-4">
+              {items.map((item, j) => (
+                <li key={j} className="text-sm text-slate-300 leading-relaxed flex items-start gap-2">
+                  <span className="text-yellow-400 mt-1.5">•</span>
+                  <span>{item.replace(/^[\s]*[-•*]\s*/, '')}</span>
+                </li>
+              ))}
+            </ul>
+          );
+        }
+
+        // Check if it's a numbered list
+        if (para.match(/^[\s]*\d+[.)]\s/m)) {
+          const items = para.split(/\n/).filter(line => line.trim());
+          return (
+            <ol key={i} className="space-y-1.5 ml-4">
+              {items.map((item, j) => (
+                <li key={j} className="text-sm text-slate-300 leading-relaxed flex items-start gap-2">
+                  <span className="text-yellow-400 font-medium min-w-[1.5rem]">{j + 1}.</span>
+                  <span>{item.replace(/^[\s]*\d+[.)]\s*/, '')}</span>
+                </li>
+              ))}
+            </ol>
+          );
+        }
+
+        // Regular paragraph - handle inline formatting
+        const formatted = para
+          .split(/\n/)
+          .join(' ')
+          // Bold text **text** or __text__
+          .replace(/\*\*(.+?)\*\*|__(.+?)__/g, '<strong class="text-white font-semibold">$1$2</strong>')
+          // Inline code `code`
+          .replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-slate-800 text-yellow-400 text-xs font-mono">$1</code>')
+          // Italic *text* or _text_
+          .replace(/\*(.+?)\*|_(.+?)_/g, '<em class="text-slate-200">$1$2</em>');
+
+        return (
+          <p
+            key={i}
+            className="text-sm text-slate-300 leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: formatted }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
 export default function ExplanationPanel({ explanations, highlightedLine, pitch, systemDesign, isStreaming, onExpandSystemDesign, canExpandSystemDesign }) {
   const hasSystemDesign = systemDesign && systemDesign.included;
 
@@ -72,7 +145,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
           <div className="animate-fade-in">
             <div className="highlight-card">
               <span className="text-xs font-semibold text-yellow-400 uppercase tracking-wider mb-3 block">Solution Pitch</span>
-              <p className="text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">{pitch}</p>
+              <FormattedText text={pitch} />
             </div>
           </div>
         )}
@@ -130,9 +203,9 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                         <code className="block text-sm text-slate-300 font-mono truncate mb-2 p-2.5 rounded-lg bg-slate-900/60 border border-slate-700/30">
                           {item.code}
                         </code>
-                        <p className="text-sm text-slate-400 leading-relaxed">
-                          {item.explanation}
-                        </p>
+                        <div className="text-sm text-slate-400 leading-relaxed">
+                          <FormattedText text={item.explanation} />
+                        </div>
                       </div>
                     </div>
                   </div>
