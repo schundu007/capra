@@ -5,13 +5,11 @@ const providerConfig = {
     name: 'Anthropic (Claude)',
     placeholder: 'sk-ant-...',
     helpUrl: 'https://console.anthropic.com/settings/keys',
-    description: 'Powers Claude AI models for code generation',
   },
   openai: {
     name: 'OpenAI (GPT)',
     placeholder: 'sk-...',
     helpUrl: 'https://platform.openai.com/api-keys',
-    description: 'Powers GPT models for code generation',
   },
 };
 
@@ -74,11 +72,8 @@ export default function ApiKeyInput({
 
   return (
     <div className="bg-slate-800/50 rounded-xl p-5 border border-slate-700/50">
-      <div className="flex items-start justify-between mb-3">
-        <div>
-          <h3 className="text-white font-medium">{config.name}</h3>
-          <p className="text-slate-400 text-sm mt-0.5">{config.description}</p>
-        </div>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-white font-medium">{config.name}</h3>
         {hasKey && !isEditing && (
           <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-500/20 text-green-400 border border-green-500/30">
             Configured
