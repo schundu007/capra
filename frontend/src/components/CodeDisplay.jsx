@@ -49,8 +49,6 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
   const [selectedExample, setSelectedExample] = useState(0);
   const [fixAttempts, setFixAttempts] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
-  const [fixPrompt, setFixPrompt] = useState('');
-  const [showFixPrompt, setShowFixPrompt] = useState(false);
 
   useEffect(() => {
     setCode(initialCode);
@@ -95,8 +93,32 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
     }
   };
 
-  const handleManualFix = async () => {
-    if (!fixPrompt.trim()) return;
+  // Auto-fix based on output errors or expected mismatch
+  const handleAutoFix = async () => {
+    // Determine what to fix
+    let errorMsg = '';
+
+    if (output && !output.success) {
+      // Runtime error - fix based on error message
+      errorMsg = output.error || 'Unknown error';
+    } else if (output && output.success && examples && examples[selectedExample]?.expected) {
+      // Check if output matches expected
+      const expected = examples[selectedExample].expected.trim();
+      const actual = output.output?.trim() || '';
+      if (actual !== expected && !actual.includes(expected)) {
+        errorMsg = `Output mismatch.\nExpected: ${expected}\nGot: ${actual}\n\nFix the code to produce the exact expected output.`;
+      } else {
+        // Output matches - nothing to fix
+        return;
+      }
+    } else {
+      // No output yet - run first, then fix if needed
+      await handleRun();
+      return;
+    }
+
+    if (!errorMsg) return;
+
     setFixing(true);
     try {
       const response = await fetch(API_URL + '/api/fix', {
@@ -104,7 +126,7 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
         headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({
           code,
-          error: fixPrompt,
+          error: errorMsg,
           language: normalizedLanguage,
           provider: 'openai'
         }),
@@ -113,9 +135,7 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
       if (data.code) {
         setCode(data.code);
         setFixAttempts(prev => prev + 1);
-        setOutput({ success: true, output: `Fixed based on: "${fixPrompt}"` });
-        setFixPrompt('');
-        setShowFixPrompt(false);
+        setOutput(null); // Clear output so user can re-run
         if (onCodeUpdate) onCodeUpdate(data.code);
         if (onExplanationsUpdate && data.explanations) {
           onExplanationsUpdate(data.explanations);
@@ -211,50 +231,52 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
 
   return (
     <div className="flex flex-col panel-left h-full">
-      {/* Header - sticky */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-slate-900/95 backdrop-blur-sm sticky top-0 z-10">
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-semibold text-white">Code</span>
+      {/* Header - sticky, compact */}
+      <div className="flex items-center justify-between px-3 py-2 border-b border-white/10 bg-slate-900/95 backdrop-blur-sm sticky top-0 z-10">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-white">Code</span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
             {/* Edit toggle */}
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all duration-200 flex items-center gap-1.5 ${
+              className={`px-2 py-1 text-[10px] rounded font-medium transition-all duration-200 flex items-center gap-1 ${
                 isEditing
                   ? 'bg-white text-zinc-900'
-                  : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 border border-white/5'
+                  : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
               }`}
             >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
-              {isEditing ? 'Editing' : 'Edit'}
+              Edit
             </button>
 
-            {/* Fix with prompt */}
+            {/* Fix - auto-fix based on output */}
             <button
-              onClick={() => setShowFixPrompt(!showFixPrompt)}
-              className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all duration-200 flex items-center gap-1.5 ${
-                showFixPrompt
-                  ? 'bg-white text-zinc-900'
-                  : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 border border-white/5'
+              onClick={handleAutoFix}
+              disabled={fixing}
+              title="Auto-fix based on run output"
+              className={`px-2 py-1 text-[10px] rounded font-medium transition-all duration-200 flex items-center gap-1 ${
+                fixing
+                  ? 'bg-amber-500 text-white'
+                  : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
               }`}
             >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              Fix
+              {fixing ? 'Fixing...' : 'Fix'}
             </button>
 
             {/* Input toggle */}
             <button
               onClick={() => setShowInput(!showInput)}
-              className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all duration-200 ${
+              className={`px-2 py-1 text-[10px] rounded font-medium transition-all duration-200 ${
                 showInput
                   ? 'bg-white text-zinc-900'
-                  : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 border border-white/5'
+                  : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
               }`}
             >
               Input
@@ -265,19 +287,19 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
               onClick={handleRun}
               disabled={running || !canRun}
               title={!canRun ? `${language || 'This language'} cannot be run locally` : 'Run code'}
-              className="px-3 py-1.5 text-xs rounded-lg font-medium transition-all duration-200 flex items-center gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
+              className="px-2 py-1 text-[10px] rounded font-medium transition-all duration-200 flex items-center gap-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {running ? (
                 <>
-                  <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                  Running
+                  Run
                 </>
               ) : (
                 <>
-                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
                   </svg>
                   Run
@@ -288,18 +310,18 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
             {/* Copy button */}
             <button
               onClick={handleCopy}
-              className="px-3 py-1.5 text-xs rounded-lg font-medium transition-all duration-200 flex items-center gap-1.5 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 border border-white/5"
+              className="px-2 py-1 text-[10px] rounded font-medium transition-all duration-200 flex items-center gap-1 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10"
             >
               {copied ? (
                 <>
-                  <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   Copied
                 </>
               ) : (
                 <>
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
                   Copy
@@ -311,84 +333,44 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
 
       {/* Scrollable content area */}
       <div className="flex-1 overflow-auto scrollbar-thin">
-        {/* Fix prompt panel */}
-        {showFixPrompt && (
-            <div className="px-4 py-3 border-b border-white/5 bg-white/[0.02] animate-fade-in">
-              <label className="block text-xs mb-2 font-medium text-zinc-400">Describe what to fix or improve:</label>
-              <div className="flex gap-2">
-                <input
-                  value={fixPrompt}
-                  onChange={(e) => setFixPrompt(e.target.value)}
-                  placeholder="e.g., Handle edge case when input is empty, Add error handling..."
-                  className="input-field flex-1"
-                  onKeyDown={(e) => e.key === 'Enter' && handleManualFix()}
-                />
-                <button
-                  onClick={handleManualFix}
-                  disabled={fixing || !fixPrompt.trim()}
-                  className="btn-primary px-4 py-2 text-xs disabled:opacity-40"
-                >
-                  {fixing ? (
-                    <span className="flex items-center gap-1.5">
-                      <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                      </svg>
-                      Fixing...
-                    </span>
-                  ) : (
-                    'Apply Fix'
-                  )}
-                </button>
-              </div>
-            </div>
-          )}
 
-          {/* Input panel */}
+          {/* Input panel - compact */}
           {showInput && (
-            <div className="px-4 py-3 border-b border-white/5 bg-white/[0.02] space-y-3 animate-fade-in">
+            <div className="px-2 py-2 border-b border-white/5 bg-white/[0.02] space-y-1.5 animate-fade-in">
               {examples && examples.length > 0 && (
-                <div>
-                  <label className="block text-xs mb-2 font-medium text-zinc-400">Test Case</label>
-                  <div className="flex gap-1.5 flex-wrap">
-                    {examples.map((ex, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => handleExampleChange(idx)}
-                        className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all duration-200 ${
-                          selectedExample === idx
-                            ? 'bg-gradient-to-r from-amber-500 to-amber-700 text-white shadow-lg shadow-amber-500/20'
-                            : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 border border-white/5'
-                        }`}
-                      >
-                        Example {idx + 1}
-                      </button>
-                    ))}
-                  </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {examples.map((ex, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleExampleChange(idx)}
+                      className={`px-2 py-0.5 text-[10px] rounded font-medium transition-all duration-200 ${
+                        selectedExample === idx
+                          ? 'bg-amber-500 text-white'
+                          : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
+                      }`}
+                    >
+                      Ex {idx + 1}
+                    </button>
+                  ))}
                   {examples[selectedExample]?.expected && (
-                    <div className="mt-2 px-3 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                      <span className="text-xs text-emerald-400/70">Expected: </span>
-                      <span className="text-xs font-mono text-emerald-400">{examples[selectedExample].expected}</span>
-                    </div>
+                    <span className="text-[10px] text-emerald-400 font-mono">
+                      → {examples[selectedExample].expected}
+                    </span>
                   )}
                 </div>
               )}
-              <div>
-                <label className="block text-xs mb-2 font-medium text-zinc-400">Input (stdin)</label>
+              <div className="flex gap-1.5">
                 <textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Enter input for the program..."
-                  className="input-field h-16 resize-none font-mono text-sm"
+                  placeholder="Input..."
+                  className="input-field h-10 resize-none font-mono text-[11px] flex-1 py-1 px-2"
                 />
-              </div>
-              <div>
-                <label className="block text-xs mb-2 font-medium text-zinc-400">Arguments (command line)</label>
                 <input
                   value={args}
                   onChange={(e) => setArgs(e.target.value)}
-                  placeholder="e.g. arg1 arg2"
-                  className="input-field font-mono text-sm"
+                  placeholder="Args"
+                  className="input-field font-mono text-[11px] w-20 py-1 px-2"
                 />
               </div>
             </div>
@@ -400,8 +382,8 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
               <textarea
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                className="w-full font-mono text-xs p-4 resize-none focus:outline-none leading-relaxed bg-transparent text-zinc-100"
-                style={{ minHeight: '200px', height: `${Math.max(200, (code?.split('\n').length || 1) * 20 + 40)}px` }}
+                className="w-full font-mono text-[11px] p-2 resize-none focus:outline-none leading-snug bg-transparent text-zinc-100"
+                style={{ minHeight: '150px', height: `${Math.max(150, (code?.split('\n').length || 1) * 16 + 20)}px` }}
                 spellCheck={false}
               />
             ) : (
@@ -417,16 +399,17 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
                 })}
                 customStyle={{
                   margin: 0,
-                  padding: '1rem',
+                  padding: '0.5rem',
                   background: 'transparent',
-                  fontSize: '12px',
-                  lineHeight: '1.7',
+                  fontSize: '11px',
+                  lineHeight: '1.4',
                 }}
                 lineNumberStyle={{
-                  minWidth: '2.5em',
-                  paddingRight: '1em',
+                  minWidth: '2em',
+                  paddingRight: '0.5em',
                   color: '#3f3f46',
                   userSelect: 'none',
+                  fontSize: '10px',
                 }}
               >
                 {code}
@@ -434,34 +417,34 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
             )}
           </div>
 
-          {/* Output panel */}
+          {/* Output panel - compact */}
           {(output || fixing) && (
             <div className="border-t border-white/5 animate-fade-in">
-              <div className="px-4 py-2.5 flex items-center justify-between bg-white/[0.02]">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-zinc-200">Output</span>
+              <div className="px-2 py-1.5 flex items-center justify-between bg-white/[0.02]">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-medium text-zinc-200">Output</span>
                   {fixing && (
-                    <span className="px-2 py-0.5 text-xs rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 animate-pulse">
+                    <span className="px-1.5 py-0.5 text-[10px] rounded bg-amber-500/10 text-amber-400 animate-pulse">
                       Fixing...
                     </span>
                   )}
                   {fixAttempts > 0 && (
-                    <span className="px-2 py-0.5 text-xs rounded-lg bg-white/5 text-zinc-400 border border-white/5">
+                    <span className="px-1.5 py-0.5 text-[10px] rounded bg-white/5 text-zinc-400">
                       Fix #{fixAttempts}
                     </span>
                   )}
                 </div>
                 <button
                   onClick={() => { setOutput(null); }}
-                  className="p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-white/5 transition-colors"
+                  className="p-1 rounded text-zinc-500 hover:text-white hover:bg-white/5 transition-colors"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
               {output && (
-                <pre className={`p-4 text-sm font-mono overflow-auto max-h-[40vh] scrollbar-thin bg-zinc-900/50 ${
+                <pre className={`p-2 text-[11px] font-mono overflow-auto max-h-[30vh] scrollbar-thin bg-zinc-900/50 ${
                   output.success ? 'text-emerald-400' : 'text-red-400'
                 }`}>
                   {output.success ? output.output : output.error}
