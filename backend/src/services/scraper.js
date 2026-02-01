@@ -43,6 +43,18 @@ const PLATFORM_SELECTORS = {
     '.markdown-body',
     '[class*="task-content"]',
   ],
+  coderpad: [
+    '.question-prompt',
+    '.question-description',
+    '.problem-statement',
+    '.instructions',
+    '[class*="question-content"]',
+    '[class*="problem-description"]',
+    '.markdown-body',
+    '.challenge-description',
+    '[data-testid="question-prompt"]',
+    '.ql-editor',  // CoderPad may use Quill editor
+  ],
   codility: [
     '.task-description',
     '[class*="task-description"]',
@@ -70,6 +82,7 @@ function detectPlatform(url) {
   if (hostname.includes('glider')) return 'glider';
   if (hostname.includes('lark') || hostname.includes('larksuite')) return 'lark';
   if (hostname.includes('codesignal')) return 'codesignal';
+  if (hostname.includes('coderpad')) return 'coderpad';
   if (hostname.includes('codility')) return 'codility';
 
   return 'generic';
@@ -200,7 +213,14 @@ export async function fetchProblemFromUrl(url) {
     const examples = extractExamples($);
 
     if (!problemText || problemText.length < 20) {
-      throw new Error(`Could not extract problem content from ${platform}. Try using screenshot or copy-paste instead.`);
+      // Platform-specific error messages
+      const platformMessages = {
+        coderpad: 'CoderPad interviews are private sessions. Use screenshot or copy-paste the problem text instead.',
+        glider: 'Glider requires login. Use screenshot or copy-paste instead.',
+        lark: 'Lark requires login. Use screenshot or copy-paste instead.',
+      };
+      const hint = platformMessages[platform] || 'Try using screenshot or copy-paste instead.';
+      throw new Error(`Could not extract problem from ${platform}. ${hint}`);
     }
 
     // Limit size

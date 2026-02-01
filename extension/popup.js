@@ -3,6 +3,10 @@ const PLATFORM_CONFIG = {
   glider: { icon: 'G', name: 'Glider' },
   lark: { icon: 'L', name: 'Lark' },
   hackerrank: { icon: 'H', name: 'HackerRank' },
+  coderpad: { icon: 'C', name: 'CoderPad' },
+  codesignal: { icon: 'S', name: 'CodeSignal' },
+  codility: { icon: 'Y', name: 'Codility' },
+  leetcode: { icon: 'LC', name: 'LeetCode' },
 };
 
 // Render platforms list

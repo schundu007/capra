@@ -15,6 +15,31 @@ const PLATFORMS = {
     domains: ['hackerrank.com'],
     cookieNames: ['_hrank_session', 'hackerrank_mixpanel_token', 'remember_hrank_token'],
   },
+  coderpad: {
+    name: 'CoderPad',
+    domains: ['coderpad.io', '.coderpad.io', 'app.coderpad.io', 'www.coderpad.io'],
+    urls: ['https://coderpad.io', 'https://app.coderpad.io', 'https://www.coderpad.io'],
+    cookieNames: ['_coderpad_session', 'session', 'auth_token', 'remember_token', 'user_id', 'access_token', '_session_id', 'logged_in', 'token', 'jwt', 'sid', 'ajs_user_id', 'ajs_anonymous_id'],
+    // If no specific auth cookie found, consider authenticated if ANY cookies exist
+    anyAuthenticates: true,
+  },
+  codesignal: {
+    name: 'CodeSignal',
+    domains: ['codesignal.com', 'app.codesignal.com'],
+    cookieNames: ['session', 'auth_token', '_codesignal_session', 'connect.sid', 'token', 'jwt'],
+    anyAuthenticates: true,
+  },
+  codility: {
+    name: 'Codility',
+    domains: ['codility.com', 'app.codility.com'],
+    cookieNames: ['sessionid', 'csrftoken', '_codility_session', 'token', 'jwt'],
+    anyAuthenticates: true,
+  },
+  leetcode: {
+    name: 'LeetCode',
+    domains: ['leetcode.com'],
+    cookieNames: ['LEETCODE_SESSION', 'csrftoken', '__cfduid', 'token'],
+  },
 };
 
 // Get API URL from storage or use default
@@ -30,6 +55,20 @@ async function captureCookies(platformKey) {
 
   const allCookies = {};
 
+  // Try URL-based queries first (more reliable)
+  const urls = platform.urls || platform.domains.map(d => `https://${d}`);
+  for (const url of urls) {
+    try {
+      const cookies = await chrome.cookies.getAll({ url });
+      for (const cookie of cookies) {
+        allCookies[cookie.name] = cookie.value;
+      }
+    } catch (err) {
+      // Ignore errors, try next
+    }
+  }
+
+  // Also try domain-based queries
   for (const domain of platform.domains) {
     try {
       const cookies = await chrome.cookies.getAll({ domain });
@@ -37,10 +76,11 @@ async function captureCookies(platformKey) {
         allCookies[cookie.name] = cookie.value;
       }
     } catch (err) {
-      console.error(`Error getting cookies for ${domain}:`, err);
+      // Ignore errors
     }
   }
 
+  console.log(`[Capra] Cookies for ${platformKey}:`, Object.keys(allCookies));
   return Object.keys(allCookies).length > 0 ? allCookies : null;
 }
 
@@ -59,9 +99,13 @@ async function checkPlatformAuth(platformKey) {
   const platform = PLATFORMS[platformKey];
   const hasAuthCookie = platform.cookieNames.some(name => cookies[name]);
 
+  // Some platforms: if we have ANY cookies, consider it authenticated
+  const hasCookies = Object.keys(cookies).length > 0;
+  const isAuthenticated = hasAuthCookie || (platform.anyAuthenticates && hasCookies);
+
   return {
-    authenticated: hasAuthCookie,
-    cookies: hasAuthCookie ? cookies : null,
+    authenticated: isAuthenticated,
+    cookies: isAuthenticated ? cookies : null,
   };
 }
 
@@ -75,6 +119,7 @@ async function syncAuthToBackend(platformKey, cookies) {
       headers: {
         'Content-Type': 'application/json',
       },
+      mode: 'cors',
       body: JSON.stringify({
         platform: platformKey,
         cookies: buildCookieHeader(cookies),
@@ -85,7 +130,15 @@ async function syncAuthToBackend(platformKey, cookies) {
     return response.ok;
   } catch (err) {
     console.error('Failed to sync auth to backend:', err);
-    return false;
+    // Store locally as fallback
+    await chrome.storage.local.set({
+      [`cookies_${platformKey}`]: {
+        cookies: buildCookieHeader(cookies),
+        timestamp: Date.now(),
+      }
+    });
+    console.log(`Stored ${platformKey} cookies locally as fallback`);
+    return true; // Consider it a success if stored locally
   }
 }
 

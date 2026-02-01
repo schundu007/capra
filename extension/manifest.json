@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Capra Auth",
-  "version": "1.0.0",
-  "description": "Capture authentication for coding platforms (Glider, Lark, HackerRank)",
+  "version": "1.1.0",
+  "description": "Capture authentication for coding platforms (CoderPad, HackerRank, Glider, CodeSignal, Codility, LeetCode, Lark)",
   "permissions": [
     "cookies",
     "storage",
@@ -16,6 +16,9 @@
     "https://*.feishu.cn/*",
     "https://*.hackerrank.com/*",
     "https://*.leetcode.com/*",
+    "https://*.coderpad.io/*",
+    "https://*.codesignal.com/*",
+    "https://*.codility.com/*",
     "http://localhost:*/*"
   ],
   "background": {
@@ -42,7 +45,11 @@
         "https://*.lark.com/*",
         "https://*.larksuite.com/*",
         "https://*.feishu.cn/*",
-        "https://*.hackerrank.com/*"
+        "https://*.hackerrank.com/*",
+        "https://*.leetcode.com/*",
+        "https://*.coderpad.io/*",
+        "https://*.codesignal.com/*",
+        "https://*.codility.com/*"
       ],
       "js": ["content.js"],
       "run_at": "document_idle"
