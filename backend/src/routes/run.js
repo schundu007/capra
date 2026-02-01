@@ -14,27 +14,91 @@ const installedPackages = new Set();
 
 async function installPythonPackage(packageName) {
   if (installedPackages.has(packageName)) return true;
+
+  // Common safe packages that can be auto-installed
+  const safePackages = new Set([
+    'requests', 'numpy', 'pandas', 'beautifulsoup4', 'bs4', 'lxml',
+    'sortedcontainers', 'aiohttp', 'httpx', 'pillow', 'matplotlib',
+    'scipy', 'sklearn', 'networkx', 'sympy', 'cryptography', 'pyyaml',
+  ]);
+
+  if (!safePackages.has(packageName.toLowerCase())) {
+    console.log(`[CodeRunner] Package ${packageName} not in safe list, skipping auto-install`);
+    return false;
+  }
+
+  // Try different pip install strategies using python3 from PATH
+  const strategies = [
+    `python3 -m pip install --user --quiet ${packageName}`,
+    `pip3 install --user --quiet ${packageName}`,
+  ];
+
+  for (const cmd of strategies) {
+    try {
+      execSync(cmd, { timeout: 120000, stdio: 'pipe' });
+      installedPackages.add(packageName);
+      console.log(`[CodeRunner] Installed ${packageName}`);
+      return true;
+    } catch (err) {
+      continue;
+    }
+  }
+
+  console.log(`[CodeRunner] Failed to install ${packageName}`);
+  return false;
+}
+
+function extractMissingModule(error, language) {
+  // Python
+  if (language === 'python') {
+    const match = error.match(/ModuleNotFoundError: No module named '([^']+)'/);
+    if (match) return { name: match[1].split('.')[0], language: 'python' };
+  }
+
+  // JavaScript/TypeScript - various error formats
+  if (language === 'javascript' || language === 'typescript') {
+    // Cannot find module 'xxx'
+    let match = error.match(/Cannot find module '([^']+)'/);
+    if (match && !match[1].startsWith('.') && !match[1].startsWith('/')) {
+      return { name: match[1], language: 'node' };
+    }
+    // Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'xxx'
+    match = error.match(/Cannot find package '([^']+)'/);
+    if (match) return { name: match[1], language: 'node' };
+  }
+
+  return null;
+}
+
+const installedNpmPackages = new Set();
+
+async function installNpmPackage(packageName) {
+  if (installedNpmPackages.has(packageName)) return true;
+
+  const safePackages = new Set([
+    'axios', 'node-fetch', 'lodash', 'underscore', 'moment', 'dayjs',
+    'uuid', 'chalk', 'commander', 'inquirer', 'ora', 'got',
+  ]);
+
+  if (!safePackages.has(packageName.toLowerCase())) {
+    console.log(`[CodeRunner] npm package ${packageName} not in safe list`);
+    return false;
+  }
+
   try {
-    execSync(`/usr/bin/python3 -m pip install --break-system-packages ${packageName}`, { timeout: 60000, stdio: 'pipe' });
-    installedPackages.add(packageName);
+    execSync(`npm install -g ${packageName}`, { timeout: 120000, stdio: 'pipe' });
+    installedNpmPackages.add(packageName);
+    console.log(`[CodeRunner] Installed npm package: ${packageName}`);
     return true;
   } catch {
     return false;
   }
 }
 
-function extractMissingModule(error) {
-  const match = error.match(/ModuleNotFoundError: No module named '([^']+)'/);
-  if (match) {
-    return match[1].split('.')[0];
-  }
-  return null;
-}
-
 const RUNNERS = {
   python: {
     ext: '.py',
-    cmd: '/usr/bin/python3',
+    cmd: 'python3',  // Use python3 from PATH (user's installed Python with packages)
     args: (file, cliArgs) => [file, ...cliArgs],
   },
   bash: {
@@ -110,10 +174,16 @@ async function executeCode(code, language, input = '', args = [], retryCount = 0
         if (exitCode === 0) {
           resolve({ success: true, output: stdout || '(no output)' });
         } else {
-          if (language === 'python' && retryCount < 3) {
-            const missingModule = extractMissingModule(stderr);
-            if (missingModule) {
-              const installed = await installPythonPackage(missingModule);
+          // Try to auto-install missing packages
+          if (retryCount < 3) {
+            const missing = extractMissingModule(stderr, language);
+            if (missing) {
+              let installed = false;
+              if (missing.language === 'python') {
+                installed = await installPythonPackage(missing.name);
+              } else if (missing.language === 'node') {
+                installed = await installNpmPackage(missing.name);
+              }
               if (installed) {
                 const retryResult = await executeCode(code, language, input, args, retryCount + 1);
                 resolve(retryResult);

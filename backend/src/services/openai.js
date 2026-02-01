@@ -1,27 +1,68 @@
 import OpenAI from 'openai';
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Support for runtime API keys (used by Electron app)
+let runtimeApiKey = null;
 
-const SYSTEM_PROMPT = `You are an expert coding interview assistant. Your code MUST produce the EXACT expected output.
+export function setApiKey(key) {
+  runtimeApiKey = key;
+}
+
+export function getApiKey() {
+  return runtimeApiKey || process.env.OPENAI_API_KEY;
+}
+
+function getClient() {
+  return new OpenAI({
+    apiKey: getApiKey(),
+  });
+}
+
+const SYSTEM_PROMPT = `You are a Manager helping with coding problems.
+
+##############################################################################
+# MANDATORY OUTPUT REQUIREMENT - READ THIS FIRST - THIS IS NON-NEGOTIABLE
+##############################################################################
+YOUR CODE MUST ALWAYS PRINT/OUTPUT THE RESULT. THIS IS REQUIRED FOR EVERY SOLUTION.
+
+- Python: MUST end with print() statement(s) that output the answer
+- JavaScript: MUST end with console.log() statement(s) that output the answer
+- Bash: MUST end with echo statement(s) that output the answer
+- SQL: SELECT statements naturally output, but always include the query result
+
+FAILURE TO INCLUDE PRINT STATEMENTS = BROKEN CODE. The code runs but shows "no output".
+Every single solution you write MUST have print/console.log/echo at the end.
+
+Example - WRONG (no output):
+  def solve(n): return n * 2
+  result = solve(5)
+
+Example - CORRECT (has output):
+  def solve(n): return n * 2
+  result = solve(5)
+  print(result)
+
+##############################################################################
 
 CRITICAL RULES:
-1. Read ALL examples/test cases in the problem CAREFULLY
-2. Your code MUST produce output that EXACTLY matches the expected output format
-3. Pay attention to exact output format: spacing, newlines, case sensitivity, special characters
-4. Handle ALL edge cases mentioned or implied in the problem
-5. Test your logic mentally against EVERY example before writing code
+1. ALWAYS include print()/console.log()/echo to output the final answer
+2. Read ALL examples/test cases in the problem CAREFULLY
+3. Your code MUST produce output that EXACTLY matches the expected output format
+4. Pay attention to exact output format: spacing, newlines, case sensitivity, special characters
+5. Handle ALL edge cases mentioned or implied in the problem
 6. If output should be "V" for valid, it must be exactly "V" not "Valid" or "v"
-7. If output should be "X" for invalid, it must be exactly "X" not "Invalid" or "x"
+7. FOLLOW THE EXACT FORMAT IN EXAMPLES:
+   - If example shows random alphanumeric like "4e9iAk", use random.choices() with letters+digits
+   - If example shows sequential numbers, use a counter
+   - NEVER use sequential counters (1, 2, 3) when examples show random strings
+   - For TinyURL: Use 6-character random alphanumeric codes like the example shows
 
 Supported languages: Python, Bash, Terraform, Jenkins, YAML, SQL, JavaScript
 
 IMPORTANT: Respond with valid JSON in exactly this format:
 {
   "language": "python|bash|terraform|jenkins|yaml|sql|javascript",
-  "code": "the complete code as a string with \\n for newlines",
-  "pitch": "A 1-2 minute verbal explanation of your thought process and solution approach. Structure it as: 1) Problem understanding - what we're solving, 2) Key insight - the core idea/pattern, 3) Approach - step by step strategy, 4) Why this works - reasoning. Write in first person as if explaining to an interviewer.",
+  "code": "the complete code as a string with \\n for newlines - MUST include print statements",
+  "pitch": "A 1-2 minute verbal explanation of your thought process and solution approach.",
   "examples": [
     {"input": "example input 1 from problem", "expected": "expected output 1"},
     {"input": "example input 2 from problem", "expected": "expected output 2"}
@@ -33,8 +74,43 @@ IMPORTANT: Respond with valid JSON in exactly this format:
   "complexity": {
     "time": "O(n) or N/A for non-algorithmic",
     "space": "O(n) or N/A for non-algorithmic"
+  },
+  "systemDesign": {
+    "included": false
   }
 }
+
+SYSTEM DESIGN - INCLUDE FULL SYSTEM DESIGN when the problem involves ANY of these:
+- Designing a system (URL shortener, chat app, rate limiter, cache, Twitter, Instagram, etc.)
+- Keywords: "design", "architect", "scale", "distributed", "high availability", "microservices"
+- Infrastructure: databases, caching, load balancing, message queues, APIs at scale
+- System architecture questions in interviews
+
+ALWAYS include systemDesign for these types of problems:
+{
+  "systemDesign": {
+    "included": true,
+    "overview": "Brief problem overview and scale considerations",
+    "requirements": {
+      "functional": ["List of functional requirements"],
+      "nonFunctional": ["List of non-functional requirements like latency, availability, scalability"]
+    },
+    "apiDesign": [
+      {"method": "POST", "endpoint": "/api/shorten", "description": "Create short URL", "request": "{ url: string }", "response": "{ shortUrl: string }"}
+    ],
+    "dataModel": [
+      {"table": "urls", "fields": [{"name": "id", "type": "string", "description": "Short code"}, {"name": "original_url", "type": "string", "description": "Original URL"}]}
+    ],
+    "architecture": {
+      "components": ["Load Balancer", "Web Servers", "Redis Cache", "PostgreSQL Database"],
+      "description": "How components interact and data flows"
+    },
+    "diagram": "flowchart LR\n  A[Client] --> B[Load Balancer]\n  B --> C[Web Servers]\n  C --> D[(Redis Cache)]\n  C --> E[(PostgreSQL)]",
+    "scalability": ["Horizontal scaling of web servers", "Database read replicas", "Cache for hot URLs", "Database sharding by URL hash"]
+  }
+}
+
+ONLY for pure coding problems (algorithms, data structures, leetcode-style problems), use: "systemDesign": {"included": false}
 
 Rules:
 - Do NOT add any comments in the code
@@ -42,14 +118,9 @@ Rules:
 - The pitch should be conversational, suitable for verbal delivery in an interview
 - CRITICAL: Always generate COMPLETE, RUNNABLE code that includes:
   - All necessary imports
-  - Input reading code (using input() for Python, stdin for others) OR hardcoded test data if no stdin needed
+  - Input reading code (using input() for Python, stdin for others) OR hardcoded test data
   - Main execution logic
-  - MUST include print() or console.log() or echo statements to OUTPUT THE RESULT
-  - The code must be self-contained and produce visible output when run
-- IMPORTANT: Your code MUST print the final answer/result to stdout. Without print statements, the code will show "no output"
-- For Python: Always use print() to output the result
-- For JavaScript: Always use console.log() to output the result
-- For Bash: Always use echo to output the result
+  - MUST MUST MUST include print()/console.log()/echo to OUTPUT THE RESULT
 - For API-based problems:
   - Use the requests library for HTTP calls in Python
   - Use correct API endpoints and methods
@@ -76,10 +147,10 @@ export async function solveProblem(problemText, language = 'auto') {
     ? 'Detect the appropriate language from the problem context.'
     : `Write the solution in ${language.toUpperCase()}.`;
 
-  // Use GPT-5 for best quality code generation
-  const model = 'gpt-5';
+  // Use GPT-4o for reliable code generation
+  const model = 'gpt-4o';
 
-  const response = await client.chat.completions.create({
+  const response = await getClient().chat.completions.create({
     model,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
@@ -110,8 +181,8 @@ export async function* solveProblemStream(problemText, language = 'auto') {
     ? 'Detect the appropriate language from the problem context.'
     : `Write the solution in ${language.toUpperCase()}.`;
 
-  const stream = await client.chat.completions.create({
-    model: 'gpt-5',
+  const stream = await getClient().chat.completions.create({
+    model: 'gpt-4o',
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       {
@@ -120,6 +191,7 @@ export async function* solveProblemStream(problemText, language = 'auto') {
       },
     ],
     max_tokens: 4096,
+    response_format: { type: 'json_object' },
     stream: true,
   });
 
@@ -132,8 +204,8 @@ export async function* solveProblemStream(problemText, language = 'auto') {
 }
 
 export async function extractText(base64Image, mimeType) {
-  const response = await client.chat.completions.create({
-    model: 'gpt-5',
+  const response = await getClient().chat.completions.create({
+    model: 'gpt-4o',
     messages: [
       {
         role: 'user',
@@ -151,7 +223,7 @@ export async function extractText(base64Image, mimeType) {
         ],
       },
     ],
-    max_tokens: 4096,
+    max_completion_tokens: 4096,
   });
 
   return { text: response.choices[0].message.content };
@@ -162,8 +234,8 @@ export async function fixCode(code, error, language, problem = '') {
     ? `\nORIGINAL PROBLEM:\n${problem}\n`
     : '';
 
-  const response = await client.chat.completions.create({
-    model: 'gpt-5',
+  const response = await getClient().chat.completions.create({
+    model: 'gpt-4o',
     messages: [
       {
         role: 'user',
@@ -193,7 +265,7 @@ IMPORTANT:
 - Keep explanations concise`,
       },
     ],
-    max_tokens: 4096,
+    max_completion_tokens: 4096,
     response_format: { type: 'json_object' },
   });
 
@@ -208,8 +280,8 @@ IMPORTANT:
 }
 
 export async function analyzeImage(base64Image, mimeType) {
-  const response = await client.chat.completions.create({
-    model: 'gpt-5',
+  const response = await getClient().chat.completions.create({
+    model: 'gpt-4o',
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       {
@@ -228,7 +300,7 @@ export async function analyzeImage(base64Image, mimeType) {
         ],
       },
     ],
-    max_tokens: 4096,
+    max_completion_tokens: 4096,
   });
 
   const content = response.choices[0].message.content;

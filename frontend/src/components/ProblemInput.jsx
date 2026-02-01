@@ -17,6 +17,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
   const [url, setUrl] = useState('');
   const [activeTab, setActiveTab] = useState('text');
   const [language, setLanguage] = useState('auto');
+  const [detailLevel, setDetailLevel] = useState('detailed');
   const [isDragging, setIsDragging] = useState(false);
   const [preview, setPreview] = useState(null);
   const fileInputRef = useRef(null);
@@ -42,18 +43,17 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
   const handleTextSubmit = (e) => {
     e.preventDefault();
     if (problemText.trim() && !isLoading) {
-      onSubmit(problemText, language);
+      onSubmit(problemText, language, detailLevel);
     }
   };
 
   const handleUrlSubmit = (e) => {
     e.preventDefault();
     if (url.trim() && !isLoading) {
-      onFetchUrl(url, language);
+      onFetchUrl(url, language, detailLevel);
     }
   };
 
-  // Screenshot handlers
   const handleDragOver = (e) => { e.preventDefault(); setIsDragging(true); };
   const handleDragLeave = (e) => { e.preventDefault(); setIsDragging(false); };
 
@@ -81,141 +81,250 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  const handleTabSwitch = (tabId) => {
+    if (tabId === activeTab) return;
+    // Clear all inputs and solution when switching tabs
+    setProblemText('');
+    setUrl('');
+    setPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    setActiveTab(tabId);
+    onClear && onClear();
+  };
+
+  const tabs = [
+    { id: 'text', label: 'Text', icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+    )},
+    { id: 'url', label: 'URL', icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+      </svg>
+    )},
+    { id: 'screenshot', label: 'Screenshot', icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    )},
+  ];
+
   return (
-    <div className="flex flex-col h-full">
-      {/* Tabs + Language row */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex bg-neutral-100 dark:bg-neutral-800 rounded-lg p-1 border border-neutral-200 dark:border-neutral-700">
-          <button
-            onClick={() => setActiveTab('text')}
-            className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${activeTab === 'text' ? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-200 dark:hover:bg-neutral-700'}`}
-          >
-            Text
-          </button>
-          <button
-            onClick={() => setActiveTab('url')}
-            className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${activeTab === 'url' ? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-200 dark:hover:bg-neutral-700'}`}
-          >
-            URL
-          </button>
-          <button
-            onClick={() => setActiveTab('screenshot')}
-            className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${activeTab === 'screenshot' ? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-200 dark:hover:bg-neutral-700'}`}
-          >
-            Screenshot
-          </button>
-        </div>
-        <select
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-          disabled={isLoading}
-          className="px-3 py-1.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 rounded-md text-xs border border-neutral-200 dark:border-neutral-700 focus:outline-none focus:border-neutral-400 dark:focus:border-neutral-500 cursor-pointer"
-        >
-          {LANGUAGES.map((lang) => (
-            <option key={lang.value} value={lang.value}>{lang.label}</option>
+    <div className="flex flex-col">
+      {/* Tabs + Options */}
+      <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+        <div className="flex p-1 rounded-xl bg-gray-100 border border-gray-200">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => handleTabSwitch(tab.id)}
+              className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 ${
+                activeTab === tab.id
+                  ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              {tab.icon}
+              <span className="hidden sm:inline">{tab.label}</span>
+            </button>
           ))}
-        </select>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Detail Level Toggle */}
+          <div className="flex p-0.5 rounded-lg bg-gray-100 border border-gray-200">
+            <button
+              type="button"
+              onClick={() => setDetailLevel('high-level')}
+              disabled={isLoading}
+              className={`px-2 py-1 text-xs font-medium rounded-md transition-all ${
+                detailLevel === 'high-level'
+                  ? 'bg-white text-gray-800 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Brief
+            </button>
+            <button
+              type="button"
+              onClick={() => setDetailLevel('detailed')}
+              disabled={isLoading}
+              className={`px-2 py-1 text-xs font-medium rounded-md transition-all ${
+                detailLevel === 'detailed'
+                  ? 'bg-white text-gray-800 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Detailed
+            </button>
+          </div>
+
+          {/* Language Selector */}
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            disabled={isLoading}
+            className="px-2 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-medium text-gray-700 focus:outline-none focus:border-red-600 cursor-pointer"
+          >
+            {LANGUAGES.map((lang) => (
+              <option key={lang.value} value={lang.value}>{lang.label}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      {/* Content based on active tab */}
+      {/* Content */}
       <div className="flex-1 flex flex-col">
         {activeTab === 'text' && (
-          <form onSubmit={handleTextSubmit} className="flex-1 flex flex-col">
-            <textarea
-              value={problemText}
-              onChange={(e) => setProblemText(e.target.value)}
-              placeholder="Paste problem here..."
-              className="flex-1 min-h-[120px] px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-xs text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 resize-none focus:outline-none focus:border-neutral-400 dark:focus:border-neutral-500 focus:bg-white dark:focus:bg-neutral-800 font-mono leading-relaxed"
-              disabled={isLoading}
-            />
-            <div className="mt-2 flex gap-2">
-              <button
-                type="submit"
-                disabled={isLoading || !problemText.trim()}
-                className="flex-1 py-2 bg-neutral-900 dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 disabled:bg-neutral-200 dark:disabled:bg-neutral-700 disabled:text-neutral-400 dark:disabled:text-neutral-500 text-white dark:text-neutral-900 text-sm font-medium rounded transition-colors"
-              >
-                {isLoading ? 'Processing...' : 'Solve'}
-              </button>
-              {hasSolution && (
+          <form onSubmit={handleTextSubmit} className="flex-1 flex flex-col gap-2">
+            <div className="relative flex-1">
+              <textarea
+                value={problemText}
+                onChange={(e) => setProblemText(e.target.value)}
+                placeholder="Paste your coding problem here..."
+                className="w-full h-full min-h-[120px] px-4 py-3 bg-white border border-gray-300 rounded-xl text-sm text-gray-800 placeholder-gray-400 resize-none focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/20 font-mono leading-relaxed transition-all"
+                disabled={isLoading}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {problemText && (
+                  <span className="text-xs text-gray-400">{problemText.length} chars</span>
+                )}
+                {(problemText.trim() || hasSolution) && (
+                  <button
+                    type="button"
+                    onClick={onClear}
+                    disabled={isLoading}
+                    title="Clear all"
+                    className="text-xs text-gray-400 hover:text-red-600 transition-colors"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                {hasSolution && (
+                  <button
+                    type="button"
+                    onClick={() => onSubmit(problemText, language, detailLevel)}
+                    disabled={isLoading || !problemText.trim()}
+                    title="Re-solve"
+                    className="p-2 text-gray-400 hover:text-gray-700 transition-colors disabled:opacity-40"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  </button>
+                )}
                 <button
-                  type="button"
-                  onClick={() => onSubmit(problemText, language)}
+                  type="submit"
                   disabled={isLoading || !problemText.trim()}
-                  title="Re-solve with same input"
-                  className="px-3 py-2 bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 disabled:bg-neutral-100 dark:disabled:bg-neutral-800 disabled:text-neutral-400 dark:disabled:text-neutral-500 text-neutral-700 dark:text-neutral-300 text-sm font-medium rounded transition-colors flex items-center gap-1"
+                  className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
+                  {isLoading ? (
+                    <>
+                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      <span>Processing</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                      <span>Go</span>
+                    </>
+                  )}
                 </button>
-              )}
-              {(problemText.trim() || hasSolution) && (
-                <button
-                  type="button"
-                  onClick={onClear}
-                  disabled={isLoading}
-                  title="Clear all"
-                  className="px-3 py-2 bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 disabled:bg-neutral-100 dark:disabled:bg-neutral-800 disabled:text-neutral-400 dark:disabled:text-neutral-500 text-neutral-700 dark:text-neutral-300 text-sm font-medium rounded transition-colors flex items-center gap-1"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              )}
+              </div>
             </div>
           </form>
         )}
 
         {activeTab === 'url' && (
-          <form onSubmit={handleUrlSubmit} className="flex flex-col">
-            <input
-              type="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://leetcode.com/problems/..."
-              className="px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:border-neutral-400 dark:focus:border-neutral-500 focus:bg-white dark:focus:bg-neutral-800"
-              disabled={isLoading}
-            />
-            <div className="mt-2 flex gap-2">
+          <form onSubmit={handleUrlSubmit} className="flex flex-col gap-2">
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+              </div>
+              <input
+                type="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://leetcode.com/problems/..."
+                className="w-full pl-11 pr-4 py-3 bg-white border border-gray-300 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/20 transition-all"
+                disabled={isLoading}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                {(url.trim() || hasSolution) && (
+                  <button
+                    type="button"
+                    onClick={onClear}
+                    disabled={isLoading}
+                    title="Clear all"
+                    className="text-xs text-gray-400 hover:text-red-600 transition-colors"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
               <button
                 type="submit"
                 disabled={isLoading || !url.trim()}
-                className="flex-1 py-2 bg-neutral-900 dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 disabled:bg-neutral-200 dark:disabled:bg-neutral-700 disabled:text-neutral-400 dark:disabled:text-neutral-500 text-white dark:text-neutral-900 text-sm font-medium rounded transition-colors"
+                className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2"
               >
-                {isLoading ? 'Fetching...' : 'Fetch & Solve'}
+                {isLoading ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    <span>Fetching</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span>Go</span>
+                  </>
+                )}
               </button>
-              {(url.trim() || hasSolution) && (
-                <button
-                  type="button"
-                  onClick={onClear}
-                  disabled={isLoading}
-                  title="Clear all"
-                  className="px-3 py-2 bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 disabled:bg-neutral-100 dark:disabled:bg-neutral-800 disabled:text-neutral-400 dark:disabled:text-neutral-500 text-neutral-700 dark:text-neutral-300 text-sm font-medium rounded transition-colors flex items-center gap-1"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              )}
             </div>
           </form>
         )}
 
         {activeTab === 'screenshot' && (
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-3">
             {preview ? (
-              <div className="relative">
-                <img src={preview} alt="Preview" className="w-full max-h-32 object-contain rounded bg-neutral-100 dark:bg-neutral-800" />
+              <div className="relative rounded-xl overflow-hidden border border-gray-300">
+                <img src={preview} alt="Preview" className="w-full max-h-36 object-contain bg-gray-100" />
                 <button
                   onClick={clearPreview}
                   disabled={isLoading}
-                  className="absolute top-1 right-1 p-1 bg-white/80 dark:bg-neutral-800/80 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded text-neutral-600 dark:text-neutral-400 text-xs border border-neutral-200 dark:border-neutral-700"
+                  className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white rounded-lg text-gray-500 hover:text-gray-700 transition-colors shadow-sm"
                 >
-                  ✕
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </button>
                 {isLoading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white/70 dark:bg-neutral-900/70 rounded">
-                    <span className="text-xs text-neutral-700 dark:text-neutral-300">Analyzing...</span>
+                  <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm">
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      <span className="text-sm font-semibold">Analyzing...</span>
+                    </div>
                   </div>
                 )}
               </div>
@@ -225,14 +334,23 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
-                className={`h-24 border-2 border-dashed rounded flex flex-col items-center justify-center cursor-pointer transition-colors ${
-                  isDragging ? 'border-neutral-900 dark:border-white bg-neutral-100 dark:bg-neutral-800' : 'border-neutral-300 dark:border-neutral-600 hover:border-neutral-400 dark:hover:border-neutral-500'
+                className={`h-36 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 ${
+                  isDragging
+                    ? 'border-red-600 bg-yellow-50'
+                    : 'border-gray-300 hover:border-yellow-400 hover:bg-gray-50'
                 }`}
               >
-                <svg className="w-6 h-6 text-neutral-400 dark:text-neutral-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span className="text-neutral-400 dark:text-neutral-500 text-xs">Drop screenshot or click to upload</span>
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 transition-colors ${
+                  isDragging ? 'bg-yellow-100 text-red-700' : 'bg-gray-100 text-gray-500'
+                }`}>
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <span className={`text-sm font-semibold ${isDragging ? 'text-red-700' : 'text-gray-600'}`}>
+                  {isDragging ? 'Drop image here' : 'Drop screenshot or click to upload'}
+                </span>
+                <span className="text-sm text-gray-400 mt-1">PNG, JPG up to 10MB</span>
               </div>
             )}
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />

@@ -152,7 +152,7 @@ function extractExamples($) {
   return examples.slice(0, 3);
 }
 
-export async function fetchProblemFromUrl(url) {
+export async function fetchProblemFromUrl(url, electronCookies = null) {
   try {
     const platform = detectPlatform(url);
 
@@ -175,7 +175,14 @@ export async function fetchProblemFromUrl(url) {
     };
 
     // Add auth cookies if available for this platform
-    const cookies = getPlatformCookies(platform);
+    // First check electron cookies, then fall back to extension-synced cookies
+    let cookies = null;
+    if (electronCookies && electronCookies[platform]) {
+      cookies = electronCookies[platform];
+    } else {
+      cookies = getPlatformCookies(platform);
+    }
+
     if (cookies) {
       headers['Cookie'] = cookies;
     }

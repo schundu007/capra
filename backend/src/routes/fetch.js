@@ -9,7 +9,10 @@ router.post('/', validate('fetch'), async (req, res, next) => {
   try {
     const { url } = req.body;
 
-    const result = await fetchProblemFromUrl(url);
+    // Pass electron platform cookies if available (for desktop app)
+    const electronCookies = req.electronPlatformCookies || null;
+
+    const result = await fetchProblemFromUrl(url, electronCookies);
 
     if (!result.success) {
       throw new AppError(

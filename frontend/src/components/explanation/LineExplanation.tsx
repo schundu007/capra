@@ -52,7 +52,7 @@ export function LineExplanationCard({ line, onHover }: LineExplanationProps) {
 
           {/* Complexity note */}
           {line.complexity_note && (
-            <span className="inline-block mt-2 px-2 py-0.5 text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded">
+            <span className="inline-block mt-2 px-2 py-0.5 text-xs bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded">
               {line.complexity_note}
             </span>
           )}

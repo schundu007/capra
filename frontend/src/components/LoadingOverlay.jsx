@@ -5,7 +5,7 @@ export default function LoadingOverlay({ message = 'Processing...' }) {
         {/* Dual spinner */}
         <div className="relative">
           <div className="w-16 h-16 rounded-full border-4 border-indigo-500/30 border-t-indigo-500 animate-spin" />
-          <div className="absolute inset-0 w-16 h-16 rounded-full border-4 border-purple-500/30 border-b-purple-500 animate-spin-slow" style={{ animationDirection: 'reverse' }} />
+          <div className="absolute inset-0 w-16 h-16 rounded-full border-4 border-amber-600/30 border-b-amber-600 animate-spin-slow" style={{ animationDirection: 'reverse' }} />
         </div>
 
         {/* Message */}
