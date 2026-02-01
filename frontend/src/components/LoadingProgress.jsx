@@ -19,6 +19,16 @@ const STAGES = {
     { name: 'Adding explanations', percent: 80 },
     { name: 'Finalizing output', percent: 95 },
   ],
+  testing: [
+    { name: 'Running code', percent: 30 },
+    { name: 'Checking output', percent: 60 },
+    { name: 'Validating results', percent: 90 },
+  ],
+  fixing: [
+    { name: 'Analyzing error', percent: 25 },
+    { name: 'Generating fix', percent: 60 },
+    { name: 'Applying changes', percent: 90 },
+  ],
 };
 
 export default function LoadingProgress({ type = 'solve', isActive }) {

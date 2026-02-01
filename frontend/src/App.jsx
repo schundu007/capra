@@ -306,12 +306,88 @@ export default function App() {
 
   const [currentProblem, setCurrentProblem] = useState('');
   const [currentLanguage, setCurrentLanguage] = useState('auto');
+  const [autoFixAttempts, setAutoFixAttempts] = useState(0);
+  const MAX_AUTO_FIX_ATTEMPTS = 3;
+
+  // Auto-test and fix code until it works
+  const autoTestAndFix = async (code, language, examples, problem) => {
+    const RUNNABLE = ['python', 'bash', 'javascript', 'typescript', 'sql'];
+    const normalizedLang = language?.toLowerCase() || 'python';
+
+    if (!RUNNABLE.includes(normalizedLang) || !examples || examples.length === 0) {
+      return { code, fixed: false, attempts: 0 };
+    }
+
+    let currentCode = code;
+    let attempts = 0;
+
+    while (attempts < MAX_AUTO_FIX_ATTEMPTS) {
+      // Run the code with first example
+      const testInput = examples[0]?.input || '';
+      const expectedOutput = examples[0]?.expected?.trim();
+
+      setLoadingType('testing');
+
+      try {
+        const runResponse = await fetch(API_URL + '/api/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+          body: JSON.stringify({ code: currentCode, language: normalizedLang, input: testInput }),
+        });
+        const runResult = await runResponse.json();
+
+        // Check if successful and output matches (if expected output exists)
+        if (runResult.success) {
+          const actualOutput = runResult.output?.trim();
+          if (!expectedOutput || actualOutput === expectedOutput || actualOutput?.includes(expectedOutput)) {
+            // Success!
+            return { code: currentCode, fixed: attempts > 0, attempts };
+          }
+          // Output doesn't match - fix it
+          var errorMsg = `Output mismatch.\nExpected: ${expectedOutput}\nGot: ${actualOutput}`;
+        } else {
+          // Runtime error - fix it
+          var errorMsg = runResult.error || 'Unknown error';
+        }
+
+        // Auto-fix the code
+        attempts++;
+        setAutoFixAttempts(attempts);
+        setLoadingType('fixing');
+
+        const fixResponse = await fetch(API_URL + '/api/fix', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+          body: JSON.stringify({
+            code: currentCode,
+            error: errorMsg,
+            language: normalizedLang,
+            problem: problem,
+            provider: provider
+          }),
+        });
+        const fixResult = await fixResponse.json();
+
+        if (fixResult.code) {
+          currentCode = fixResult.code;
+        } else {
+          break; // Fix failed
+        }
+      } catch (err) {
+        console.error('Auto-fix error:', err);
+        break;
+      }
+    }
+
+    return { code: currentCode, fixed: attempts > 0, attempts };
+  };
 
   const handleSolve = async (problem, language, detailLevel = 'detailed') => {
     resetState();
     setCurrentProblem(problem);
     setCurrentLanguage(language);
     setStreamingText('');
+    setAutoFixAttempts(0);
     setStreamingContent({ code: null, language: null, pitch: null, explanations: null, complexity: null, systemDesign: null });
     setIsLoading(true);
     setLoadingType('solve');
@@ -324,8 +400,23 @@ export default function App() {
         const parsed = parseStreamingContent(fullText);
         setStreamingContent(parsed);
       });
+
       if (result) {
-        setSolution(result);
+        // Auto-test and fix the code
+        const { code: fixedCode, fixed, attempts } = await autoTestAndFix(
+          result.code,
+          result.language,
+          result.examples,
+          problem
+        );
+
+        // Update solution with fixed code
+        setSolution({
+          ...result,
+          code: fixedCode,
+          autoFixed: fixed,
+          fixAttempts: attempts
+        });
       }
     } catch (err) {
       setError(err.message);
@@ -333,6 +424,7 @@ export default function App() {
     } finally {
       setIsLoading(false);
       setLoadingType(null);
+      setAutoFixAttempts(0);
       setStreamingText('');
       setStreamingContent({ code: null, language: null, pitch: null, explanations: null, complexity: null, systemDesign: null });
     }
@@ -346,6 +438,7 @@ export default function App() {
   const handleFetchUrl = async (url, language, detailLevel = 'detailed') => {
     resetState();
     setStreamingText('');
+    setAutoFixAttempts(0);
     setStreamingContent({ code: null, language: null, pitch: null, explanations: null, complexity: null, systemDesign: null });
     setIsLoading(true);
     setLoadingType('fetch');
@@ -373,7 +466,19 @@ export default function App() {
         setStreamingContent(parsed);
       });
       if (result) {
-        setSolution(result);
+        // Auto-test and fix the code
+        const { code: fixedCode, fixed, attempts } = await autoTestAndFix(
+          result.code,
+          result.language,
+          result.examples,
+          fetchData.problemText
+        );
+        setSolution({
+          ...result,
+          code: fixedCode,
+          autoFixed: fixed,
+          fixAttempts: attempts
+        });
       }
     } catch (err) {
       setError(err.message);
@@ -381,6 +486,7 @@ export default function App() {
     } finally {
       setIsLoading(false);
       setLoadingType(null);
+      setAutoFixAttempts(0);
       setStreamingText('');
       setStreamingContent({ code: null, language: null, pitch: null, explanations: null, complexity: null, systemDesign: null });
     }
@@ -391,6 +497,7 @@ export default function App() {
     setError(null);
     setErrorType('default');
     setStreamingText('');
+    setAutoFixAttempts(0);
     setStreamingContent({ code: null, language: null, pitch: null, explanations: null, complexity: null, systemDesign: null });
     setIsLoading(true);
     setLoadingType('screenshot');
@@ -427,7 +534,19 @@ export default function App() {
           setStreamingContent(parsed);
         });
         if (result) {
-          setSolution(result);
+          // Auto-test and fix the code
+          const { code: fixedCode, fixed, attempts } = await autoTestAndFix(
+            result.code,
+            result.language,
+            result.examples,
+            extractedProblem
+          );
+          setSolution({
+            ...result,
+            code: fixedCode,
+            autoFixed: fixed,
+            fixAttempts: attempts
+          });
         }
       }
     } catch (err) {
@@ -436,6 +555,7 @@ export default function App() {
     } finally {
       setIsLoading(false);
       setLoadingType(null);
+      setAutoFixAttempts(0);
       setStreamingText('');
       setStreamingContent({ code: null, language: null, pitch: null, explanations: null, complexity: null, systemDesign: null });
     }

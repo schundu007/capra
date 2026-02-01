@@ -56,6 +56,7 @@ export default function CodeDisplay({ code: initialCode, language, complexity, o
     setCode(initialCode);
     setFixAttempts(0);
     setIsEditing(false);
+    setOutput(null); // Clear output when code changes
   }, [initialCode]);
 
   useEffect(() => {
