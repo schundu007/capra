@@ -274,21 +274,33 @@ IMPORTANT:
   }
 }
 
-export async function* solveProblemStream(problemText, language = 'auto') {
+const BRIEF_PROMPT = `You are an expert coding interview assistant. Return ONLY the code solution.
+
+RULES:
+1. Output ONLY valid JSON: {"language": "python", "code": "the code"}
+2. Code must be minimal and interview-ready
+3. NO comments, NO explanations, NO pitch
+4. Code MUST print the output
+5. Match expected output format exactly`;
+
+export async function* solveProblemStream(problemText, language = 'auto', detailLevel = 'detailed') {
   const languageInstruction = language === 'auto'
     ? 'Detect the appropriate language from the problem context.'
     : `Write the solution in ${language.toUpperCase()}.`;
 
+  const isBrief = detailLevel === 'brief' || detailLevel === 'high-level';
+  const systemPrompt = isBrief ? BRIEF_PROMPT : SYSTEM_PROMPT;
+
   const stream = await getClient().messages.stream({
     model: 'claude-sonnet-4-20250514',
-    max_tokens: 4096,
+    max_tokens: isBrief ? 1024 : 4096,
     messages: [
       {
         role: 'user',
         content: `${languageInstruction}\n\nSolve this problem and return the response as JSON:\n\n${problemText}`,
       },
     ],
-    system: SYSTEM_PROMPT,
+    system: systemPrompt,
   });
 
   for await (const event of stream) {
