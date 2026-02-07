@@ -158,30 +158,33 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                 return (
                   <div
                     key={index}
-                    className={`flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 ${
+                    className={`px-2 py-1.5 rounded transition-all duration-200 ${
                       isHighlighted
                         ? 'bg-[#1ba94c]/10'
                         : 'hover:bg-gray-50'
                     }`}
                   >
-                    {/* Line number */}
-                    <span
-                      className={`flex-shrink-0 w-5 h-5 flex items-center justify-center rounded text-xs font-mono font-medium ${
-                        isHighlighted
-                          ? 'bg-[#1ba94c] text-white'
-                          : 'bg-gray-100 text-gray-500'
-                      }`}
-                    >
-                      {item.line}
-                    </span>
-                    {/* Code snippet */}
-                    <code className="flex-shrink-0 text-xs font-mono px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 max-w-[140px] truncate">
-                      {item.code}
-                    </code>
-                    {/* Explanation */}
-                    <span className="text-xs text-gray-500 truncate">
-                      {item.explanation}
-                    </span>
+                    <div className="flex items-start gap-2">
+                      {/* Line number */}
+                      <span
+                        className={`flex-shrink-0 w-5 h-5 flex items-center justify-center rounded text-xs font-mono font-medium ${
+                          isHighlighted
+                            ? 'bg-[#1ba94c] text-white'
+                            : 'bg-gray-100 text-gray-500'
+                        }`}
+                      >
+                        {item.line}
+                      </span>
+                      {/* Code and explanation */}
+                      <div className="flex-1 min-w-0">
+                        <code className="text-xs font-mono text-gray-700 break-all">
+                          {item.code}
+                        </code>
+                        <span className="text-xs text-gray-500 ml-2">
+                          — {item.explanation}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 );
               })}
