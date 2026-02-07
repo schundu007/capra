@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["nodejs_20", "bash", "sqlite", "gcc"]
+nixPkgs = ["nodejs_20", "bash", "sqlite", "gcc", "gpp", "go", "rustc", "openjdk"]
 aptPkgs = ["python3-full", "python3-pip"]
 
 [phases.install]
