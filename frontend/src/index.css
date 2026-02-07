@@ -2,222 +2,102 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Modern AI Theme - Dark with Violet/Fuchsia accents */
+/* Clean White/Green Theme with Modern AI Fonts */
 :root {
-  /* Dark backgrounds */
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #0d0d12;
-  --bg-tertiary: #121218;
-  --bg-elevated: #16161d;
+  /* Colors */
+  --green-primary: #1ba94c;
+  --green-hover: #158f3f;
+  --green-light: rgba(27, 169, 76, 0.1);
 
-  /* Accent colors */
-  --accent-violet: #8b5cf6;
-  --accent-fuchsia: #d946ef;
-  --accent-cyan: #06b6d4;
+  /* Backgrounds */
+  --bg-white: #ffffff;
+  --bg-gray-50: #f9fafb;
+  --bg-gray-100: #f3f4f6;
+  --bg-code: #1e1e1e;
 
-  /* Text colors */
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --text-tertiary: rgba(255, 255, 255, 0.4);
+  /* Text */
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
 
   /* Borders */
-  --border-subtle: rgba(255, 255, 255, 0.05);
-  --border-default: rgba(255, 255, 255, 0.1);
+  --border-light: #e5e7eb;
+  --border-default: #d1d5db;
 }
 
+/* Base styles */
 * {
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+html {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-  font-size: 14px;
-  line-height: 1.5;
 }
 
-@layer components {
-  /* HackerRank Header */
-  .hr-header {
-    background: var(--hr-dark-bg);
-    border-bottom: 1px solid var(--hr-border-dark);
-    color: var(--hr-text-on-dark);
-  }
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: var(--bg-white);
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}
 
-  /* Problem panel (left side) */
-  .hr-problem-panel {
-    background: var(--hr-light-bg);
-    border-right: 1px solid var(--hr-border-light);
-  }
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
 
-  /* Code editor panel (right side) */
-  .hr-code-panel {
-    background: var(--hr-dark-secondary);
-  }
+/* Code - JetBrains Mono */
+code, pre, textarea.code, .font-mono, kbd, samp {
+  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  font-feature-settings: 'liga' 1, 'calt' 1;
+}
 
-  /* Code editor header */
-  .hr-code-header {
-    background: var(--hr-dark-bg);
-    border-bottom: 1px solid var(--hr-border-dark);
-    color: var(--hr-text-muted-dark);
-  }
+/* Buttons */
+button, input, select, textarea {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
 
-  /* Primary button - HackerRank Green */
-  .btn-primary {
-    @apply px-5 py-2 font-semibold rounded transition-colors duration-150;
-    background: var(--hr-green);
-    color: white;
-    border: none;
-  }
+/* Links */
+a {
+  color: var(--green-primary);
+  text-decoration: none;
+}
 
-  .btn-primary:hover {
-    background: var(--hr-green-hover);
-  }
+a:hover {
+  text-decoration: underline;
+}
 
-  .btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+/* Selection */
+::selection {
+  background: var(--green-light);
+  color: var(--text-primary);
+}
 
-  /* Secondary button */
-  .btn-secondary {
-    @apply px-5 py-2 font-medium rounded transition-colors duration-150;
-    background: var(--hr-light-bg);
-    border: 1px solid var(--hr-border-light);
-    color: var(--hr-text-dark);
-  }
-
-  .btn-secondary:hover {
-    background: var(--hr-light-secondary);
-    border-color: var(--hr-text-light);
-  }
-
-  /* Ghost button */
-  .btn-ghost {
-    @apply px-4 py-2 font-medium rounded transition-colors duration-150;
-    background: transparent;
-    color: var(--hr-text-medium);
-  }
-
-  .btn-ghost:hover {
-    background: var(--hr-light-secondary);
-    color: var(--hr-text-dark);
-  }
-
-  /* Input fields */
-  .input-field {
-    @apply w-full px-3 py-2 rounded transition-all duration-150;
-    background: var(--hr-light-bg);
-    border: 1px solid var(--hr-border-light);
-    color: var(--hr-text-dark);
-    font-size: 14px;
-  }
-
-  .input-field::placeholder {
-    color: var(--hr-text-light);
-  }
-
-  .input-field:focus {
-    outline: none;
-    border-color: var(--hr-green);
-    box-shadow: 0 0 0 2px var(--hr-green-light);
-  }
-
-  /* Dark input (for code editor area) */
-  .input-dark {
-    @apply w-full px-3 py-2 rounded transition-all duration-150;
-    background: var(--hr-dark-tertiary);
-    border: 1px solid var(--hr-border-dark);
-    color: var(--hr-text-on-dark);
-  }
-
-  .input-dark::placeholder {
-    color: var(--hr-text-muted-dark);
-  }
-
-  .input-dark:focus {
-    outline: none;
-    border-color: var(--hr-green);
-  }
-
-  /* Tabs - HackerRank style sidebar */
-  .hr-tab {
-    @apply relative px-4 py-3 text-sm font-medium transition-colors duration-150 cursor-pointer;
-    color: var(--hr-text-medium);
-    border-left: 3px solid transparent;
-  }
-
-  .hr-tab:hover {
-    background: var(--hr-light-secondary);
-    color: var(--hr-text-dark);
-  }
-
-  .hr-tab.active {
-    background: var(--hr-light-secondary);
-    color: var(--hr-green);
-    border-left-color: var(--hr-green);
-  }
-
-  /* Badges */
-  .badge {
-    @apply inline-flex items-center px-2 py-0.5 text-xs font-medium rounded;
-    background: var(--hr-light-secondary);
-    color: var(--hr-text-medium);
-  }
-
-  .badge-success {
-    background: var(--hr-green-light);
-    color: var(--hr-green);
-  }
-
-  .badge-error {
-    background: rgba(220, 38, 38, 0.1);
-    color: #dc2626;
-  }
-
-  /* Section headers */
-  .section-header {
-    @apply text-sm font-semibold uppercase tracking-wide;
-    color: var(--hr-text-dark);
-  }
-
-  /* Cards */
-  .hr-card {
-    @apply rounded-lg;
-    background: var(--hr-light-bg);
-    border: 1px solid var(--hr-border-light);
-  }
-
-  /* Code block container */
-  .code-block {
-    background: var(--hr-dark-secondary);
-    border-radius: 0;
-  }
-
-  /* Sample input/output boxes */
-  .sample-box {
-    @apply rounded p-3 font-mono text-sm;
-    background: var(--hr-light-secondary);
-    border: 1px solid var(--hr-border-light);
-    color: var(--hr-text-dark);
-  }
+/* Focus */
+:focus-visible {
+  outline: 2px solid var(--green-primary);
+  outline-offset: 2px;
 }
 
 /* Scrollbar - minimal */
 @layer utilities {
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: var(--hr-text-light) transparent;
+    scrollbar-color: #d1d5db transparent;
   }
 
   .scrollbar-thin::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
 
   .scrollbar-thin::-webkit-scrollbar-track {
@@ -225,18 +105,18 @@ body {
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: var(--hr-text-light);
-    border-radius: 4px;
+    background: #d1d5db;
+    border-radius: 3px;
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: var(--hr-text-medium);
+    background: #9ca3af;
   }
 
   /* Dark scrollbar for code editor */
   .scrollbar-dark {
     scrollbar-width: thin;
-    scrollbar-color: var(--hr-border-dark) transparent;
+    scrollbar-color: #4b5563 transparent;
   }
 
   .scrollbar-dark::-webkit-scrollbar {
@@ -249,17 +129,19 @@ body {
   }
 
   .scrollbar-dark::-webkit-scrollbar-thumb {
-    background: var(--hr-border-dark);
+    background: #4b5563;
     border-radius: 4px;
   }
-}
 
-/* Code styling - JetBrains Mono for that modern AI look */
-code, pre, textarea.code, .font-mono {
-  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Menlo', monospace;
-  font-size: 13px;
-  line-height: 1.6;
-  font-feature-settings: 'liga' 1;
+  .scrollbar-dark::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+  }
+
+  /* Text selection utility */
+  .select-text {
+    user-select: text;
+    -webkit-user-select: text;
+  }
 }
 
 /* Animations */
@@ -311,45 +193,72 @@ code, pre, textarea.code, .font-mono {
   animation: slideUp 0.2s ease-out;
 }
 
-/* Selection */
-::selection {
-  background: var(--hr-green-light);
-  color: var(--hr-text-dark);
+/* Component styles */
+@layer components {
+  /* Primary button */
+  .btn-primary {
+    @apply px-4 py-2 font-medium rounded-lg transition-colors;
+    background: var(--green-primary);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--green-hover);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Input fields */
+  .input-field {
+    @apply w-full px-3 py-2 rounded-lg transition-all;
+    background: var(--bg-gray-50);
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+  }
+
+  .input-field::placeholder {
+    color: var(--text-muted);
+  }
+
+  .input-field:focus {
+    outline: none;
+    border-color: var(--green-primary);
+    box-shadow: 0 0 0 3px var(--green-light);
+  }
+
+  /* Cards */
+  .card {
+    @apply rounded-lg;
+    background: var(--bg-white);
+    border: 1px solid var(--border-light);
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center px-2 py-0.5 text-xs font-medium rounded;
+    background: var(--bg-gray-100);
+    color: var(--text-secondary);
+  }
+
+  .badge-success {
+    background: var(--green-light);
+    color: var(--green-primary);
+  }
 }
 
-/* Focus */
-:focus-visible {
-  outline: 2px solid var(--hr-green);
-  outline-offset: 2px;
+/* Allotment panel borders */
+.allotment-module_splitView__L-yRc {
+  background: var(--bg-white);
 }
 
-/* Resize handle */
-.resize-handle {
-  @apply relative cursor-col-resize transition-colors duration-150;
-  width: 4px;
-  background: var(--hr-border-light);
+.allotment-module_sash__3P8EP {
+  background: var(--border-light) !important;
 }
 
-.resize-handle:hover {
-  background: var(--hr-green);
-}
-
-/* Legacy class support */
-.gradient-bg, .gradient-mesh, .gradient-hero, .glass-card {
-  background: var(--hr-light-bg);
-}
-
-.header-premium {
-  background: var(--hr-dark-bg);
-  border-bottom: 1px solid var(--hr-border-dark);
-}
-
-/* Remove unused visual effects */
-.glow-sm, .glow-md, .glow-lg, .animate-pulse-glow {
-  box-shadow: none;
-}
-
-.text-gradient, .text-gradient-accent {
-  background: none;
-  -webkit-text-fill-color: inherit;
+.allotment-module_sash__3P8EP:hover {
+  background: var(--green-primary) !important;
 }
