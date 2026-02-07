@@ -107,7 +107,7 @@ async function installNpmPackage(packageName) {
 const RUNNERS = {
   python: {
     ext: '.py',
-    cmd: 'python3',  // Use python3 from PATH (user's installed Python with packages)
+    cmd: 'python3',
     args: (file, cliArgs) => [file, ...cliArgs],
   },
   bash: {
@@ -130,7 +130,81 @@ const RUNNERS = {
     cmd: 'sqlite3',
     args: (file, cliArgs) => [':memory:', '-init', file, '.quit'],
   },
+  c: {
+    ext: '.c',
+    compile: true,
+    compileCmd: 'gcc',
+    compileArgs: (file, outFile) => [file, '-o', outFile, '-lm'],
+    cmd: (outFile) => outFile,
+    args: (file, cliArgs) => cliArgs,
+  },
+  cpp: {
+    ext: '.cpp',
+    compile: true,
+    compileCmd: 'g++',
+    compileArgs: (file, outFile) => [file, '-o', outFile, '-std=c++17'],
+    cmd: (outFile) => outFile,
+    args: (file, cliArgs) => cliArgs,
+  },
+  java: {
+    ext: '.java',
+    compile: true,
+    compileCmd: 'javac',
+    compileArgs: (file) => [file],
+    cmd: () => 'java',
+    args: (file, cliArgs, className) => ['-cp', join(tmpdir()), className, ...cliArgs],
+    extractClassName: (code) => {
+      const match = code.match(/public\s+class\s+(\w+)/);
+      return match ? match[1] : 'Main';
+    },
+  },
+  go: {
+    ext: '.go',
+    cmd: 'go',
+    args: (file, cliArgs) => ['run', file, ...cliArgs],
+  },
+  rust: {
+    ext: '.rs',
+    compile: true,
+    compileCmd: 'rustc',
+    compileArgs: (file, outFile) => [file, '-o', outFile],
+    cmd: (outFile) => outFile,
+    args: (file, cliArgs) => cliArgs,
+  },
 };
+
+async function compileCode(runner, filepath, outFile, className) {
+  return new Promise((resolve) => {
+    const compileArgs = runner.compileArgs(filepath, outFile, className);
+    const proc = spawn(runner.compileCmd, compileArgs, {
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+
+    let stderr = '';
+    proc.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
+
+    const timer = setTimeout(() => {
+      proc.kill('SIGKILL');
+      resolve({ success: false, error: 'Compilation timeout (30s limit)' });
+    }, 30000);
+
+    proc.on('close', (exitCode) => {
+      clearTimeout(timer);
+      if (exitCode === 0) {
+        resolve({ success: true });
+      } else {
+        resolve({ success: false, error: stderr || `Compilation failed with exit code: ${exitCode}` });
+      }
+    });
+
+    proc.on('error', (err) => {
+      clearTimeout(timer);
+      resolve({ success: false, error: `Compiler not found: ${err.message}` });
+    });
+  });
+}
 
 async function executeCode(code, language, input = '', args = [], retryCount = 0) {
   const runner = RUNNERS[language];
@@ -138,8 +212,10 @@ async function executeCode(code, language, input = '', args = [], retryCount = 0
     return { success: false, error: `Unsupported language: ${language}` };
   }
 
-  const filename = `code_${randomUUID()}${runner.ext}`;
+  const uuid = randomUUID();
+  const filename = `code_${uuid}${runner.ext}`;
   const filepath = join(tmpdir(), filename);
+  const outFile = join(tmpdir(), `code_${uuid}`);
 
   let processedCode = code.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
@@ -147,11 +223,35 @@ async function executeCode(code, language, input = '', args = [], retryCount = 0
     processedCode = '#!/bin/bash\n' + processedCode;
   }
 
+  // For Java, extract class name and rename file
+  let className = null;
+  let javaFilepath = filepath;
+  if (language === 'java' && runner.extractClassName) {
+    className = runner.extractClassName(processedCode);
+    javaFilepath = join(tmpdir(), `${className}.java`);
+  }
+
+  const actualFilepath = language === 'java' ? javaFilepath : filepath;
+
   try {
-    await writeFile(filepath, processedCode);
+    await writeFile(actualFilepath, processedCode);
+
+    // Handle compiled languages
+    if (runner.compile) {
+      const compileResult = await compileCode(runner, actualFilepath, outFile, className);
+      if (!compileResult.success) {
+        await unlink(actualFilepath).catch(() => {});
+        return compileResult;
+      }
+    }
 
     return new Promise((resolve) => {
-      const proc = spawn(runner.cmd, runner.args(filepath, args), {
+      const cmd = runner.compile ? runner.cmd(outFile) : runner.cmd;
+      const runArgs = runner.compile
+        ? runner.args(actualFilepath, args, className)
+        : runner.args(actualFilepath, args);
+
+      const proc = spawn(cmd, runArgs, {
         stdio: ['pipe', 'pipe', 'pipe'],
       });
 
@@ -178,7 +278,13 @@ async function executeCode(code, language, input = '', args = [], retryCount = 0
 
       proc.on('close', async (exitCode) => {
         clearTimeout(timer);
-        unlink(filepath).catch(() => {});
+        unlink(actualFilepath).catch(() => {});
+        if (runner.compile) {
+          unlink(outFile).catch(() => {});
+          if (language === 'java') {
+            unlink(join(tmpdir(), `${className}.class`)).catch(() => {});
+          }
+        }
 
         if (exitCode === 0) {
           resolve({ success: true, output: stdout || '(no output)' });
@@ -206,12 +312,14 @@ async function executeCode(code, language, input = '', args = [], retryCount = 0
 
       proc.on('error', (err) => {
         clearTimeout(timer);
-        unlink(filepath).catch(() => {});
+        unlink(actualFilepath).catch(() => {});
+        if (runner.compile) unlink(outFile).catch(() => {});
         resolve({ success: false, error: err.message });
       });
     });
   } catch (err) {
-    await unlink(filepath).catch(() => {});
+    await unlink(actualFilepath).catch(() => {});
+    if (runner.compile) await unlink(outFile).catch(() => {});
     return { success: false, error: err.message };
   }
 }
