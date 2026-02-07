@@ -36,10 +36,10 @@ async function installPythonPackage(packageName) {
     return false;
   }
 
-  // Try different pip install strategies using python3 from PATH
+  // Try different pip install strategies using system python
   const strategies = [
-    `python3 -m pip install --user --quiet ${packageName}`,
-    `pip3 install --user --quiet ${packageName}`,
+    `/usr/bin/python3 -m pip install --user --quiet ${packageName}`,
+    `/usr/bin/pip3 install --user --quiet ${packageName}`,
   ];
 
   for (const cmd of strategies) {
@@ -107,7 +107,7 @@ async function installNpmPackage(packageName) {
 const RUNNERS = {
   python: {
     ext: '.py',
-    cmd: 'python3',
+    cmd: '/usr/bin/python3',
     args: (file, cliArgs) => [file, ...cliArgs],
   },
   bash: {
