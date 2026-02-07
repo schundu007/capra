@@ -13,7 +13,7 @@ function FormattedText({ text }) {
         if (para.trim().startsWith('```') || para.match(/^[\s]{4,}/m)) {
           const code = para.replace(/^```\w*\n?|```$/g, '').trim();
           return (
-            <pre key={i} className="p-1.5 rounded text-[10px] font-mono overflow-x-auto bg-black/30 text-slate-300">
+            <pre key={i} className="p-1.5 rounded text-[10px] font-mono overflow-x-auto bg-gray-100 text-gray-800">
               {code}
             </pre>
           );
@@ -23,9 +23,9 @@ function FormattedText({ text }) {
         if (para.match(/^[\s]*[-•*]\s/m)) {
           const items = para.split(/\n/).filter(line => line.trim());
           return (
-            <ul key={i} className="space-y-0.5 ml-3 list-disc text-slate-300">
+            <ul key={i} className="space-y-0.5 ml-3 list-disc text-gray-900">
               {items.map((item, j) => (
-                <li key={j} className="text-[11px] leading-snug">
+                <li key={j} className="text-[11px] leading-snug font-medium">
                   {item.replace(/^[\s]*[-•*]\s*/, '')}
                 </li>
               ))}
@@ -37,9 +37,9 @@ function FormattedText({ text }) {
         if (para.match(/^[\s]*\d+[.)]\s/m)) {
           const items = para.split(/\n/).filter(line => line.trim());
           return (
-            <ol key={i} className="space-y-0.5 ml-3 list-decimal text-slate-300">
+            <ol key={i} className="space-y-0.5 ml-3 list-decimal text-gray-900">
               {items.map((item, j) => (
-                <li key={j} className="text-[11px] leading-snug">
+                <li key={j} className="text-[11px] leading-snug font-medium">
                   {item.replace(/^[\s]*\d+[.)]\s*/, '')}
                 </li>
               ))}
@@ -51,14 +51,14 @@ function FormattedText({ text }) {
         const formatted = para
           .split(/\n/)
           .join(' ')
-          .replace(/\*\*(.+?)\*\*|__(.+?)__/g, '<strong class="text-white font-semibold">$1$2</strong>')
-          .replace(/`([^`]+)`/g, '<code class="bg-black/30 px-1 py-0.5 rounded text-[10px] text-violet-300">$1</code>')
+          .replace(/\*\*(.+?)\*\*|__(.+?)__/g, '<strong class="text-black font-bold">$1$2</strong>')
+          .replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 py-0.5 rounded text-[10px] text-gray-800 font-semibold">$1</code>')
           .replace(/\*(.+?)\*|_(.+?)_/g, '<em>$1$2</em>');
 
         return (
           <p
             key={i}
-            className="text-[11px] leading-snug text-slate-300"
+            className="text-[11px] leading-snug text-gray-900 font-medium"
             dangerouslySetInnerHTML={{ __html: formatted }}
           />
         );
@@ -167,21 +167,21 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                     {/* Line number + Code */}
                     <div className="flex items-start gap-1.5 mb-0.5">
                       <span
-                        className={`flex-shrink-0 w-5 h-5 flex items-center justify-center rounded text-[10px] font-mono font-medium ${
+                        className={`flex-shrink-0 w-5 h-5 flex items-center justify-center rounded text-[10px] font-mono font-bold ${
                           isHighlighted
                             ? 'bg-[#1ba94c] text-white'
-                            : 'bg-gray-100 text-gray-500'
+                            : 'bg-gray-100 text-gray-700'
                         }`}
                       >
                         {item.line}
                       </span>
-                      <code className="flex-1 text-[11px] font-mono text-gray-800 select-text cursor-text whitespace-pre-wrap break-words">
+                      <code className="flex-1 text-[11px] font-mono text-gray-900 font-semibold select-text cursor-text whitespace-pre-wrap break-words">
                         {item.code}
                       </code>
                     </div>
                     {/* Explanation */}
                     <div className="pl-6">
-                      <p className="text-[10px] text-gray-500 select-text leading-tight">
+                      <p className="text-[10px] text-gray-800 font-medium select-text leading-tight">
                         {item.explanation}
                       </p>
                     </div>

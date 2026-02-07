@@ -748,83 +748,87 @@ export default function InterviewAssistantPanel({ onClose, provider, model }) {
         </div>
       )}
 
-      {/* Device Settings - Microphone selection with meeting tool setup */}
+      {/* Audio Setup Guide */}
       {showDeviceSettings && (
-        <div className="px-3 py-2 border-b border-slate-700/50 bg-slate-800/40 space-y-3">
-          <div>
-            <label className="text-[10px] text-slate-400 mb-1 block">Select Microphone</label>
-            <div className="flex gap-2">
-              <select
-                value={selectedMic}
-                onChange={(e) => setSelectedMic(e.target.value)}
-                disabled={isRecording}
-                className="flex-1 px-2 py-1.5 bg-slate-700 border border-slate-600 rounded text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-50"
-              >
-                {audioDevices.inputs.map((device) => (
-                  <option key={device.deviceId} value={device.deviceId}>
-                    {device.label || `Microphone ${device.deviceId.slice(0, 6)}`}
-                  </option>
-                ))}
-              </select>
+        <div className="px-3 py-2 border-b border-slate-700/50 bg-slate-800/40">
+          <div className="bg-slate-900/50 rounded p-2 space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="text-[10px] font-medium text-slate-300">Capture Interviewer Audio</div>
               <button
                 onClick={() => setShowDeviceSettings(false)}
-                className="px-2 py-1 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded"
+                className="text-slate-400 hover:text-white"
               >
-                Done
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
-          </div>
-
-          {/* Meeting Tools Setup Guide */}
-          <div className="bg-slate-900/50 rounded p-2 space-y-2">
-            <div className="text-[10px] font-medium text-slate-300">Capture Interviewer Audio from:</div>
-            <div className="grid grid-cols-2 gap-1.5 text-[9px]">
-              <div className="flex items-center gap-1.5 p-1.5 bg-slate-700/50 rounded">
+            <div className="grid grid-cols-4 gap-1 text-[9px]">
+              <div className="flex items-center gap-1 p-1 bg-slate-700/50 rounded">
                 <span className="text-blue-400 font-bold">Z</span>
                 <span className="text-slate-300">Zoom</span>
               </div>
-              <div className="flex items-center gap-1.5 p-1.5 bg-slate-700/50 rounded">
+              <div className="flex items-center gap-1 p-1 bg-slate-700/50 rounded">
                 <span className="text-purple-400 font-bold">T</span>
                 <span className="text-slate-300">Teams</span>
               </div>
-              <div className="flex items-center gap-1.5 p-1.5 bg-slate-700/50 rounded">
+              <div className="flex items-center gap-1 p-1 bg-slate-700/50 rounded">
                 <span className="text-green-400 font-bold">M</span>
                 <span className="text-slate-300">Meet</span>
               </div>
-              <div className="flex items-center gap-1.5 p-1.5 bg-slate-700/50 rounded">
+              <div className="flex items-center gap-1 p-1 bg-slate-700/50 rounded">
                 <span className="text-orange-400 font-bold">W</span>
                 <span className="text-slate-300">Webex</span>
               </div>
             </div>
             <div className="text-[9px] text-slate-400 leading-relaxed">
-              <strong className="text-slate-300">Setup:</strong> Install a virtual audio device to route meeting audio to mic input:
+              <strong className="text-slate-300">To capture meeting audio:</strong> Install a virtual audio device
               <br />• <strong>Mac:</strong> BlackHole or Loopback
               <br />• <strong>Windows:</strong> VB-Cable or VoiceMeeter
-              <br />• Then select it above as your microphone
+              <br />Then select it as your microphone above
             </div>
           </div>
         </div>
       )}
 
+      {/* Microphone Selection - Always Visible */}
+      <div className="px-3 py-2 border-b border-slate-700/50 bg-slate-800/30">
+        <div className="flex items-center gap-2">
+          <svg className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+          </svg>
+          <select
+            value={selectedMic}
+            onChange={(e) => setSelectedMic(e.target.value)}
+            disabled={isRecording}
+            className="flex-1 px-2 py-1 bg-slate-700 border border-slate-600 rounded text-[10px] text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-50 truncate"
+          >
+            {audioDevices.inputs.map((device) => (
+              <option key={device.deviceId} value={device.deviceId}>
+                {device.label || `Microphone ${device.deviceId.slice(0, 6)}`}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={() => setShowDeviceSettings(!showDeviceSettings)}
+            className={`p-1 rounded transition-colors ${
+              showDeviceSettings
+                ? 'bg-emerald-600 text-white'
+                : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+            }`}
+            title="Audio setup guide"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
       {/* Controls - Compact */}
       <div className="px-3 py-2 border-b border-slate-700/50 bg-slate-800/20">
         <div className="flex items-center gap-2">
-
-          {/* Device Settings Toggle */}
-          <button
-            onClick={() => setShowDeviceSettings(!showDeviceSettings)}
-            className={`p-1.5 rounded border transition-colors ${
-              showDeviceSettings
-                ? 'bg-slate-700 border-slate-600 text-white'
-                : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:text-white hover:border-slate-600'
-            }`}
-            title="Audio devices"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </button>
 
           {/* Record Button */}
           {!isRecording ? (

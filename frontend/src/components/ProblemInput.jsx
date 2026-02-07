@@ -112,10 +112,10 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
             <button
               key={tab.id}
               onClick={() => handleTabSwitch(tab.id)}
-              className={`px-1.5 py-0.5 text-[9px] font-medium rounded transition-colors ${
+              className={`px-1.5 py-0.5 text-[9px] font-semibold rounded transition-colors ${
                 activeTab === tab.id
                   ? 'bg-[#1ba94c]/10 text-[#1ba94c]'
-                  : 'text-gray-500 hover:text-gray-700'
+                  : 'text-gray-800 hover:text-black'
               }`}
             >
               {tab.label}

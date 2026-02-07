@@ -16,32 +16,61 @@ const upload = multer({
 });
 
 // Map mimetypes to file extensions that Whisper accepts
-function getFileExtension(mimetype) {
-  const mimeMap = {
-    'audio/webm': 'webm',
-    'audio/webm;codecs=opus': 'webm',
-    'audio/mp4': 'm4a',
-    'audio/mpeg': 'mp3',
-    'audio/mp3': 'mp3',
-    'audio/wav': 'wav',
-    'audio/wave': 'wav',
-    'audio/ogg': 'ogg',
-    'audio/flac': 'flac',
-  };
-
-  // Check for exact match first
-  if (mimeMap[mimetype]) {
-    return mimeMap[mimetype];
-  }
-
-  // Check for partial match (e.g., 'audio/webm;codecs=opus')
-  for (const [mime, ext] of Object.entries(mimeMap)) {
-    if (mimetype?.startsWith(mime.split(';')[0])) {
+function getFileExtension(mimetype, originalFilename) {
+  // First, try to get extension from original filename if provided
+  if (originalFilename) {
+    const ext = path.extname(originalFilename).toLowerCase().replace('.', '');
+    const validExtensions = ['flac', 'm4a', 'mp3', 'mp4', 'mpeg', 'mpga', 'oga', 'ogg', 'wav', 'webm'];
+    if (validExtensions.includes(ext)) {
       return ext;
     }
   }
 
-  return 'webm'; // default
+  const mimeMap = {
+    'audio/webm': 'webm',
+    'audio/webm;codecs=opus': 'webm',
+    'audio/mp4': 'm4a',
+    'audio/x-m4a': 'm4a',
+    'audio/m4a': 'm4a',
+    'audio/mpeg': 'mp3',
+    'audio/mp3': 'mp3',
+    'audio/wav': 'wav',
+    'audio/wave': 'wav',
+    'audio/x-wav': 'wav',
+    'audio/ogg': 'ogg',
+    'audio/ogg;codecs=opus': 'ogg',
+    'audio/oga': 'oga',
+    'audio/flac': 'flac',
+    'audio/x-flac': 'flac',
+    'video/webm': 'webm',  // Some browsers report video/webm for audio-only webm
+    'video/mp4': 'm4a',
+  };
+
+  // Normalize mimetype (remove spaces, lowercase)
+  const normalizedMime = (mimetype || '').toLowerCase().trim();
+
+  // Check for exact match first
+  if (mimeMap[normalizedMime]) {
+    return mimeMap[normalizedMime];
+  }
+
+  // Check for partial match (e.g., 'audio/webm;codecs=opus')
+  for (const [mime, ext] of Object.entries(mimeMap)) {
+    const baseMime = mime.split(';')[0];
+    if (normalizedMime.startsWith(baseMime)) {
+      return ext;
+    }
+  }
+
+  // Check if mimetype contains a known format hint
+  if (normalizedMime.includes('webm')) return 'webm';
+  if (normalizedMime.includes('ogg') || normalizedMime.includes('opus')) return 'ogg';
+  if (normalizedMime.includes('mp4') || normalizedMime.includes('m4a')) return 'm4a';
+  if (normalizedMime.includes('mp3') || normalizedMime.includes('mpeg')) return 'mp3';
+  if (normalizedMime.includes('wav')) return 'wav';
+  if (normalizedMime.includes('flac')) return 'flac';
+
+  return 'webm'; // default - widely supported
 }
 
 // POST /api/transcribe - Transcribe audio using Whisper API
@@ -64,9 +93,11 @@ router.post('/', upload.single('audio'), async (req, res, next) => {
       throw new AppError('OpenAI API key not configured', ErrorCode.UNAUTHORIZED);
     }
 
-    // Get proper file extension based on mimetype
-    const extension = getFileExtension(req.file.mimetype);
+    // Get proper file extension based on mimetype and original filename
+    const extension = getFileExtension(req.file.mimetype, req.file.originalname);
     const filename = `audio_${Date.now()}.${extension}`;
+
+    console.log('[Transcribe] Detected extension:', extension, 'from mimetype:', req.file.mimetype, 'originalname:', req.file.originalname);
 
     // Write to a temp file - this is the most reliable approach for Whisper
     tempFilePath = path.join(os.tmpdir(), filename);
