@@ -1,4 +1,7 @@
-import { app, BrowserWindow, ipcMain, Menu, shell, safeStorage, nativeTheme } from 'electron';
+// IMPORTANT: Import EPIPE handler first before any other imports
+import './epipe-handler.js';
+
+import { app, BrowserWindow, ipcMain, Menu, shell, safeStorage, nativeTheme, session } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { startBackendServer } from './backend-server.js';
@@ -11,6 +14,15 @@ import { openAuthWindow, getPlatformCookies, getAllPlatformStatus, clearPlatform
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Safe logging helpers (use console methods which are now EPIPE-safe from epipe-handler.js)
+function safeLog(...args) {
+  console.log(...args);
+}
+
+function safeError(...args) {
+  console.error(...args);
+}
 
 // Disable hardware acceleration if needed (helps with some GPU issues)
 // app.disableHardwareAcceleration();
@@ -39,12 +51,13 @@ async function createWindow() {
     title: 'Capra',
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     trafficLightPosition: { x: 16, y: 16 },
-    backgroundColor: '#0f172a', // slate-900
+    backgroundColor: '#0a1a10', // dark green
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: true,
+      sandbox: false, // Required for webview
+      webviewTag: true, // Enable webview tag for embedding external sites
     },
   });
 
@@ -57,9 +70,10 @@ async function createWindow() {
           "default-src 'self';" +
           "script-src 'self' 'unsafe-inline' 'unsafe-eval';" +
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;" +
-          `connect-src 'self' http://localhost:${BACKEND_PORT} http://127.0.0.1:${BACKEND_PORT} ws://localhost:${BACKEND_PORT} ws://127.0.0.1:${BACKEND_PORT};` +
-          "img-src 'self' data: blob:;" +
-          "font-src 'self' data: https://fonts.gstatic.com;"
+          `connect-src 'self' http://localhost:${BACKEND_PORT} http://127.0.0.1:${BACKEND_PORT} ws://localhost:${BACKEND_PORT} ws://127.0.0.1:${BACKEND_PORT} https://*.lockedinai.com;` +
+          "img-src 'self' data: blob: https://*.lockedinai.com;" +
+          "font-src 'self' data: https://fonts.gstatic.com;" +
+          "frame-src 'self' https://*.lockedinai.com https://app.lockedinai.com;"
         ]
       }
     });
@@ -69,23 +83,23 @@ async function createWindow() {
   if (isDev) {
     // In development, load from Vite dev server
     await mainWindow.loadURL('http://localhost:5173');
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
   } else {
     // In production, load the built frontend
     const indexPath = path.join(__dirname, '../frontend/dist/index.html');
-    console.log('[Electron] Loading frontend from:', indexPath);
+    safeLog('[Electron] Loading frontend from:', indexPath);
 
     // Log any renderer errors
     mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-      console.error('[Electron] Failed to load:', errorCode, errorDescription);
+      safeError('[Electron] Failed to load:', errorCode, errorDescription);
     });
 
     mainWindow.webContents.on('did-finish-load', () => {
-      console.log('[Electron] Frontend loaded successfully');
+      safeLog('[Electron] Frontend loaded successfully');
     });
 
     mainWindow.webContents.on('console-message', (event, level, message) => {
-      console.log('[Renderer]', message);
+      safeLog('[Renderer]', message);
     });
 
     await mainWindow.loadFile(indexPath);
@@ -102,6 +116,21 @@ async function createWindow() {
   // Handle window close
   mainWindow.on('closed', () => {
     mainWindow = null;
+  });
+
+  // Set up header modification for LockedIn AI webview to bypass X-Frame-Options
+  const lockedInSession = session.fromPartition('persist:lockedin');
+
+  lockedInSession.webRequest.onHeadersReceived((details, callback) => {
+    const responseHeaders = { ...details.responseHeaders };
+
+    // Remove frame-blocking headers
+    delete responseHeaders['x-frame-options'];
+    delete responseHeaders['X-Frame-Options'];
+    delete responseHeaders['content-security-policy'];
+    delete responseHeaders['Content-Security-Policy'];
+
+    callback({ responseHeaders });
   });
 }
 
@@ -348,4 +377,48 @@ ipcMain.handle('platform-logout', async (event, platform) => {
 
 ipcMain.handle('get-platform-cookies', (event, platform) => {
   return getPlatformCookies(platform);
+});
+
+// LockedIn AI window
+let lockedInWindow = null;
+
+ipcMain.handle('open-lockedin-ai', async () => {
+  // If window exists and is not destroyed, focus it
+  if (lockedInWindow && !lockedInWindow.isDestroyed()) {
+    lockedInWindow.focus();
+    return { success: true, alreadyOpen: true };
+  }
+
+  // Create new window for LockedIn AI
+  lockedInWindow = new BrowserWindow({
+    width: 500,
+    height: 800,
+    x: mainWindow ? mainWindow.getBounds().x + mainWindow.getBounds().width + 10 : undefined,
+    y: mainWindow ? mainWindow.getBounds().y : undefined,
+    title: 'LockedIn AI',
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+    },
+  });
+
+  lockedInWindow.loadURL('https://app.lockedinai.com/app/dashboard');
+
+  lockedInWindow.on('closed', () => {
+    lockedInWindow = null;
+  });
+
+  return { success: true };
+});
+
+ipcMain.handle('close-lockedin-ai', async () => {
+  if (lockedInWindow && !lockedInWindow.isDestroyed()) {
+    lockedInWindow.close();
+    lockedInWindow = null;
+  }
+  return { success: true };
+});
+
+ipcMain.handle('is-lockedin-open', () => {
+  return lockedInWindow && !lockedInWindow.isDestroyed();
 });

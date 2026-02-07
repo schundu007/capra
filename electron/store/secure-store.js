@@ -1,6 +1,23 @@
 import { safeStorage } from 'electron';
 import Store from 'electron-store';
 
+// Safe logging that ignores EPIPE errors
+function safeWarn(...args) {
+  try {
+    console.warn(...args);
+  } catch {
+    // Ignore EPIPE and other write errors
+  }
+}
+
+function safeError(...args) {
+  try {
+    console.error(...args);
+  } catch {
+    // Ignore EPIPE and other write errors
+  }
+}
+
 // Encrypted storage for sensitive data (API keys)
 // Uses Electron's safeStorage which leverages the OS keychain
 const encryptedStore = new Store({
@@ -14,7 +31,7 @@ const encryptedStore = new Store({
 function encrypt(text) {
   if (!text) return null;
   if (!safeStorage.isEncryptionAvailable()) {
-    console.warn('[SecureStore] Encryption not available, storing as plain text');
+    safeWarn('[SecureStore] Encryption not available, storing as plain text');
     return text;
   }
   const buffer = safeStorage.encryptString(text);
@@ -27,14 +44,14 @@ function encrypt(text) {
 function decrypt(encryptedBase64) {
   if (!encryptedBase64) return null;
   if (!safeStorage.isEncryptionAvailable()) {
-    console.warn('[SecureStore] Encryption not available, reading as plain text');
+    safeWarn('[SecureStore] Encryption not available, reading as plain text');
     return encryptedBase64;
   }
   try {
     const buffer = Buffer.from(encryptedBase64, 'base64');
     return safeStorage.decryptString(buffer);
   } catch (err) {
-    console.error('[SecureStore] Failed to decrypt:', err.message);
+    safeError('[SecureStore] Failed to decrypt:', err.message);
     return null;
   }
 }

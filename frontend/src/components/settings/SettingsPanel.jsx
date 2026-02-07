@@ -46,10 +46,10 @@ export default function SettingsPanel({ onClose }) {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-        <div className="bg-slate-900 rounded-2xl p-8 max-w-lg w-full mx-4 border border-slate-700/50">
+      <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
+        <div className="bg-white rounded-2xl p-8 max-w-lg w-full mx-4" style={{ border: '1px solid #d4e0d8' }}>
           <div className="flex items-center justify-center">
-            <div className="w-8 h-8 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#1ba94c', borderTopColor: 'transparent' }} />
           </div>
         </div>
       </div>
@@ -57,27 +57,28 @@ export default function SettingsPanel({ onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-slate-900 rounded-2xl max-w-lg w-full mx-4 border border-slate-700/50 shadow-2xl shadow-black/50 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
+      <div className="bg-white rounded-2xl max-w-lg w-full mx-4 overflow-hidden" style={{ border: '1px solid #d4e0d8', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/50">
+        <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #d4e0d8' }}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
-              <svg className="w-5 h-5 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#1ba94c' }}>
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-white">Settings</h2>
+              <h2 className="text-lg font-semibold" style={{ color: '#111111' }}>Settings</h2>
               {appVersion && (
-                <p className="text-sm text-slate-400">Capra v{appVersion}</p>
+                <p className="text-sm" style={{ color: '#7a7a7a' }}>Capra v{appVersion}</p>
               )}
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+            className="p-2 rounded-lg transition-colors hover:bg-gray-100"
+            style={{ color: '#7a7a7a' }}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -88,7 +89,7 @@ export default function SettingsPanel({ onClose }) {
         {/* Content */}
         <div className="p-6">
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-slate-300 uppercase tracking-wider mb-3">
+            <h3 className="text-sm font-medium uppercase tracking-wider mb-3" style={{ color: '#4a4a4a' }}>
               API Keys
             </h3>
 
@@ -110,7 +111,7 @@ export default function SettingsPanel({ onClose }) {
           </div>
 
           {/* Info */}
-          <div className="mt-6 flex items-center gap-2 text-xs text-slate-500">
+          <div className="mt-6 flex items-center gap-2 text-xs" style={{ color: '#7a7a7a' }}>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>

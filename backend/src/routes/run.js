@@ -7,6 +7,15 @@ import { randomUUID } from 'crypto';
 import { validate } from '../middleware/validators.js';
 import { AppError, ErrorCode } from '../middleware/errorHandler.js';
 
+// Safe logging that ignores EPIPE errors
+function safeLog(...args) {
+  try {
+    console.log(...args);
+  } catch {
+    // Ignore EPIPE and other write errors
+  }
+}
+
 const router = Router();
 
 const TIMEOUT = 10000;
@@ -23,7 +32,7 @@ async function installPythonPackage(packageName) {
   ]);
 
   if (!safePackages.has(packageName.toLowerCase())) {
-    console.log(`[CodeRunner] Package ${packageName} not in safe list, skipping auto-install`);
+    safeLog(`[CodeRunner] Package ${packageName} not in safe list, skipping auto-install`);
     return false;
   }
 
@@ -37,14 +46,14 @@ async function installPythonPackage(packageName) {
     try {
       execSync(cmd, { timeout: 120000, stdio: 'pipe' });
       installedPackages.add(packageName);
-      console.log(`[CodeRunner] Installed ${packageName}`);
+      safeLog(`[CodeRunner] Installed ${packageName}`);
       return true;
     } catch (err) {
       continue;
     }
   }
 
-  console.log(`[CodeRunner] Failed to install ${packageName}`);
+  safeLog(`[CodeRunner] Failed to install ${packageName}`);
   return false;
 }
 
@@ -81,14 +90,14 @@ async function installNpmPackage(packageName) {
   ]);
 
   if (!safePackages.has(packageName.toLowerCase())) {
-    console.log(`[CodeRunner] npm package ${packageName} not in safe list`);
+    safeLog(`[CodeRunner] npm package ${packageName} not in safe list`);
     return false;
   }
 
   try {
     execSync(`npm install -g ${packageName}`, { timeout: 120000, stdio: 'pipe' });
     installedNpmPackages.add(packageName);
-    console.log(`[CodeRunner] Installed npm package: ${packageName}`);
+    safeLog(`[CodeRunner] Installed npm package: ${packageName}`);
     return true;
   } catch {
     return false;

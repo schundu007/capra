@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 
 const PLATFORMS = {
-  coderpad: { name: 'CoderPad', icon: 'C', color: 'bg-purple-500' },
-  hackerrank: { name: 'HackerRank', icon: 'H', color: 'bg-green-500' },
-  leetcode: { name: 'LeetCode', icon: 'L', color: 'bg-orange-500' },
-  codesignal: { name: 'CodeSignal', icon: 'S', color: 'bg-blue-500' },
-  codility: { name: 'Codility', icon: 'Y', color: 'bg-yellow-500' },
-  glider: { name: 'Glider', icon: 'G', color: 'bg-pink-500' },
+  coderpad: { name: 'CoderPad', icon: 'C', color: '#6366f1' },
+  hackerrank: { name: 'HackerRank', icon: 'H', color: '#1ba94c' },
+  leetcode: { name: 'LeetCode', icon: 'L', color: '#f97316' },
+  codesignal: { name: 'CodeSignal', icon: 'S', color: '#3b82f6' },
+  codility: { name: 'Codility', icon: 'Y', color: '#eab308' },
+  glider: { name: 'Glider', icon: 'G', color: '#ec4899' },
 };
 
 export default function PlatformAuth({ onClose }) {
@@ -41,7 +41,6 @@ export default function PlatformAuth({ onClose }) {
     try {
       const result = await window.electronAPI.platformLogin(platform);
       if (result.success) {
-        // Refresh status after successful login
         await loadStatus();
       }
     } catch (err) {
@@ -63,39 +62,30 @@ export default function PlatformAuth({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-slate-900 rounded-2xl max-w-md w-full mx-4 border border-slate-700/50 shadow-2xl shadow-black/50 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.5)' }}>
+      <div className="w-full max-w-md mx-4 rounded-lg overflow-hidden" style={{ background: '#ffffff' }}>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/50">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-white">Platform Login</h2>
-              <p className="text-sm text-slate-400">Connect to coding platforms</p>
-            </div>
-          </div>
+        <div className="flex items-center justify-between px-4 py-3" style={{ background: '#1b2631' }}>
+          <span className="text-sm font-semibold text-white">Platform Login</span>
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+            className="p-1 rounded hover:bg-white/10 transition-colors"
+            style={{ color: '#ced4da' }}
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 max-h-[60vh] overflow-y-auto">
+        <div className="p-4 max-h-[60vh] overflow-y-auto">
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="w-8 h-8 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+              <div className="w-6 h-6 rounded-full animate-spin" style={{ border: '2px solid #e7e8eb', borderTopColor: '#1ba94c' }} />
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {Object.entries(PLATFORMS).map(([key, platform]) => {
                 const isAuthenticated = status[key]?.authenticated;
                 const isLoggingIn = loggingIn === key;
@@ -103,15 +93,19 @@ export default function PlatformAuth({ onClose }) {
                 return (
                   <div
                     key={key}
-                    className="flex items-center justify-between p-3 rounded-xl bg-slate-800/50 border border-slate-700/30"
+                    className="flex items-center justify-between p-3 rounded"
+                    style={{ background: '#f7f8fa', border: '1px solid #e7e8eb' }}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-lg ${platform.color} flex items-center justify-center text-white font-bold text-sm`}>
+                      <div
+                        className="w-8 h-8 rounded flex items-center justify-center text-white font-bold text-sm"
+                        style={{ background: platform.color }}
+                      >
                         {platform.icon}
                       </div>
                       <div>
-                        <div className="font-medium text-white">{platform.name}</div>
-                        <div className={`text-xs ${isAuthenticated ? 'text-green-400' : 'text-slate-500'}`}>
+                        <div className="text-sm font-medium" style={{ color: '#39424e' }}>{platform.name}</div>
+                        <div className="text-xs" style={{ color: isAuthenticated ? '#1ba94c' : '#8c9bab' }}>
                           {isAuthenticated ? 'Connected' : 'Not connected'}
                         </div>
                       </div>
@@ -120,7 +114,8 @@ export default function PlatformAuth({ onClose }) {
                     {isAuthenticated ? (
                       <button
                         onClick={() => handleLogout(key)}
-                        className="px-3 py-1.5 text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
+                        className="px-3 py-1 text-xs font-medium rounded transition-colors"
+                        style={{ color: '#dc2626' }}
                       >
                         Disconnect
                       </button>
@@ -128,19 +123,10 @@ export default function PlatformAuth({ onClose }) {
                       <button
                         onClick={() => handleLogin(key)}
                         disabled={isLoggingIn}
-                        className="px-4 py-1.5 text-xs font-medium bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors disabled:opacity-50"
+                        className="px-3 py-1 text-xs font-medium rounded transition-colors disabled:opacity-50"
+                        style={{ background: '#1ba94c', color: 'white' }}
                       >
-                        {isLoggingIn ? (
-                          <span className="flex items-center gap-2">
-                            <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                            </svg>
-                            Logging in...
-                          </span>
-                        ) : (
-                          'Login'
-                        )}
+                        {isLoggingIn ? 'Logging in...' : 'Login'}
                       </button>
                     )}
                   </div>
@@ -148,19 +134,6 @@ export default function PlatformAuth({ onClose }) {
               })}
             </div>
           )}
-
-          {/* Info */}
-          <div className="mt-6 p-4 bg-slate-800/30 rounded-xl border border-slate-700/30">
-            <div className="flex items-start gap-3">
-              <svg className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div className="text-sm text-slate-400">
-                <p className="font-medium text-slate-300 mb-1">How it works</p>
-                <p>Click "Login" to open a secure login window. After you log in, Capra will capture your session to fetch problems from that platform.</p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

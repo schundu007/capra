@@ -1,5 +1,14 @@
 import { BrowserWindow, session } from 'electron';
 
+// Safe logging that ignores EPIPE errors
+function safeLog(...args) {
+  try {
+    console.log(...args);
+  } catch {
+    // Ignore EPIPE and other write errors
+  }
+}
+
 // Platform login URLs
 const PLATFORM_URLS = {
   coderpad: 'https://coderpad.io/login',
@@ -11,14 +20,18 @@ const PLATFORM_URLS = {
 };
 
 // Platform dashboard URLs (to detect successful login)
+// Using broad patterns - will match any URL containing these strings after login
 const PLATFORM_DASHBOARDS = {
-  coderpad: ['coderpad.io/dashboard', 'app.coderpad.io'],
-  hackerrank: ['hackerrank.com/dashboard', 'hackerrank.com/domains'],
-  leetcode: ['leetcode.com/problemset', 'leetcode.com/problems'],
-  codesignal: ['app.codesignal.com/profile', 'app.codesignal.com/tasks'],
-  codility: ['app.codility.com/programmers', 'codility.com/c/'],
-  glider: ['glider.ai/dashboard', 'gliderassessment.com'],
+  coderpad: ['coderpad.io/dashboard', 'coderpad.io/pad', 'coderpad.io/sandbox'],
+  hackerrank: ['hackerrank.com/dashboard', 'hackerrank.com/domains', 'hackerrank.com/challenges', 'hackerrank.com/contests', 'hackerrank.com/interview'],
+  leetcode: ['leetcode.com/problemset', 'leetcode.com/problems', 'leetcode.com/explore', 'leetcode.com/contest', 'leetcode.com/discuss', 'leetcode.com/profile', 'leetcode.com/submissions', 'leetcode.com/progress'],
+  codesignal: ['codesignal.com/profile', 'codesignal.com/tasks', 'codesignal.com/coding-report', 'codesignal.com/test', 'codesignal.com/client-dashboard', 'codesignal.com/home', 'codesignal.com/company', 'codesignal.com/public-test', 'codesignal.com/interview', 'codesignal.com/learn/', 'codesignal.com/course', 'codesignal.com/path', 'codesignal.com/arcade'],
+  codility: ['codility.com/programmers', 'codility.com/c/', 'codility.com/demo', 'codility.com/test'],
+  glider: ['glider.ai/dashboard', 'gliderassessment.com', 'glider.ai/assessment', 'glider.ai/test'],
 };
+
+// Login page patterns to exclude
+const LOGIN_PATTERNS = ['/login', '/signin', '/auth', '/accounts/login', '/register', '/signup'];
 
 // Store cookies for each platform
 const platformCookies = {};
@@ -40,8 +53,9 @@ export async function openAuthWindow(platform, parentWindow) {
       width: 1000,
       height: 700,
       parent: parentWindow,
-      modal: true,
-      title: `Login to ${platform.charAt(0).toUpperCase() + platform.slice(1)}`,
+      modal: false,  // Not modal so user can close it easily
+      closable: true,
+      title: `Login to ${platform.charAt(0).toUpperCase() + platform.slice(1)} - Press ESC or click X to close`,
       webPreferences: {
         session: authSession,
         nodeIntegration: false,
@@ -52,16 +66,36 @@ export async function openAuthWindow(platform, parentWindow) {
     // Remove menu bar
     authWindow.setMenuBarVisibility(false);
 
+    // Allow ESC key to close window
+    authWindow.webContents.on('before-input-event', (event, input) => {
+      if (input.key === 'Escape') {
+        authWindow.close();
+      }
+    });
+
     // Track if login was successful
     let loginSuccess = false;
 
     // Check URL changes to detect successful login
     authWindow.webContents.on('did-navigate', async (event, url) => {
-      console.log(`[Auth] Navigated to: ${url}`);
+      safeLog(`[Auth] Navigated to: ${url}`);
 
       // Check if we've reached a dashboard/success page
       const dashboardUrls = PLATFORM_DASHBOARDS[platform] || [];
-      const isLoggedIn = dashboardUrls.some(d => url.includes(d));
+      let isLoggedIn = dashboardUrls.some(d => url.includes(d));
+
+      // Fallback: if not on a login page and we have cookies, consider logged in
+      if (!isLoggedIn) {
+        const isOnLoginPage = LOGIN_PATTERNS.some(p => url.toLowerCase().includes(p));
+        if (!isOnLoginPage) {
+          const cookies = await authSession.cookies.get({});
+          // If we have several cookies, likely logged in
+          if (cookies.length >= 3) {
+            safeLog(`[Auth] Fallback: Not on login page and have ${cookies.length} cookies`);
+            isLoggedIn = true;
+          }
+        }
+      }
 
       if (isLoggedIn) {
         loginSuccess = true;
@@ -76,7 +110,7 @@ export async function openAuthWindow(platform, parentWindow) {
           timestamp: Date.now(),
         };
 
-        console.log(`[Auth] Login successful for ${platform}, captured ${cookies.length} cookies`);
+        safeLog(`[Auth] Login successful for ${platform}, captured ${cookies.length} cookies`);
 
         // Close the window after a short delay
         setTimeout(() => {

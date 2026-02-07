@@ -7,21 +7,38 @@ import { createServer } from 'http';
 import * as claudeService from '../backend/src/services/claude.js';
 import * as openaiService from '../backend/src/services/openai.js';
 
+// Safe logging that ignores EPIPE errors (happens when pipe closes during shutdown)
+function safeLog(...args) {
+  try {
+    console.log(...args);
+  } catch {
+    // Ignore EPIPE and other write errors
+  }
+}
+
+function safeError(...args) {
+  try {
+    console.error(...args);
+  } catch {
+    // Ignore EPIPE and other write errors
+  }
+}
+
 /**
  * Update runtime API keys in the services
  */
 export function updateRuntimeApiKeys(keys) {
-  console.log('[Electron] Updating runtime API keys:', {
+  safeLog('[Electron] Updating runtime API keys:', {
     hasAnthropic: !!keys.anthropic,
     hasOpenai: !!keys.openai,
   });
   if (keys.anthropic !== undefined) {
     claudeService.setApiKey(keys.anthropic);
-    console.log('[Electron] Anthropic key set, current:', !!claudeService.getApiKey());
+    safeLog('[Electron] Anthropic key set, current:', !!claudeService.getApiKey());
   }
   if (keys.openai !== undefined) {
     openaiService.setApiKey(keys.openai);
-    console.log('[Electron] OpenAI key set, current:', !!openaiService.getApiKey());
+    safeLog('[Electron] OpenAI key set, current:', !!openaiService.getApiKey());
   }
 }
 
@@ -47,10 +64,10 @@ const platformCookies = {};
 export function setPlatformCookies(platform, cookies) {
   if (cookies) {
     platformCookies[platform] = cookies;
-    console.log(`[Electron] Set cookies for ${platform}`);
+    safeLog(`[Electron] Set cookies for ${platform}`);
   } else {
     delete platformCookies[platform];
-    console.log(`[Electron] Cleared cookies for ${platform}`);
+    safeLog(`[Electron] Cleared cookies for ${platform}`);
   }
 }
 
@@ -156,7 +173,7 @@ export async function startBackendServer(options = {}) {
 
   return new Promise((resolve, reject) => {
     server.listen(port, '127.0.0.1', () => {
-      console.log(`[Electron] Backend server running on http://127.0.0.1:${port}`);
+      safeLog(`[Electron] Backend server running on http://127.0.0.1:${port}`);
 
       resolve({
         port,
@@ -165,7 +182,7 @@ export async function startBackendServer(options = {}) {
         // Update API keys at runtime
         updateApiKeys: (keys) => {
           updateRuntimeApiKeys(keys);
-          console.log('[Electron] API keys updated');
+          safeLog('[Electron] API keys updated');
         },
 
         // Set platform cookies for authenticated scraping
@@ -177,7 +194,7 @@ export async function startBackendServer(options = {}) {
         close: () => {
           return new Promise((resolveClose) => {
             server.close(() => {
-              console.log('[Electron] Backend server closed');
+              safeLog('[Electron] Backend server closed');
               resolveClose();
             });
           });
@@ -186,7 +203,7 @@ export async function startBackendServer(options = {}) {
     });
 
     server.on('error', (err) => {
-      console.error('[Electron] Backend server error:', err);
+      safeError('[Electron] Backend server error:', err);
       reject(err);
     });
   });

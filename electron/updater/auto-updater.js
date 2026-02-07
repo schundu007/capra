@@ -2,8 +2,33 @@ import pkg from 'electron-updater';
 const { autoUpdater } = pkg;
 import { app, dialog, BrowserWindow } from 'electron';
 
+// Safe logging that ignores EPIPE errors
+function safeLog(...args) {
+  try {
+    console.log(...args);
+  } catch {
+    // Ignore EPIPE and other write errors
+  }
+}
+
+function safeError(...args) {
+  try {
+    console.error(...args);
+  } catch {
+    // Ignore EPIPE and other write errors
+  }
+}
+
+// Create a safe logger object for electron-updater
+const safeLogger = {
+  info: safeLog,
+  warn: safeLog,
+  error: safeError,
+  debug: safeLog,
+};
+
 // Configure logging
-autoUpdater.logger = console;
+autoUpdater.logger = safeLogger;
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
 
@@ -16,18 +41,18 @@ let updateAvailable = false;
 export function initAutoUpdater(mainWindow) {
   // Only check for updates in packaged app
   if (!app.isPackaged) {
-    console.log('[AutoUpdater] Skipping update check in development mode');
+    safeLog('[AutoUpdater] Skipping update check in development mode');
     return;
   }
 
   // Check for updates on startup
   autoUpdater.checkForUpdates().catch((err) => {
-    console.error('[AutoUpdater] Error checking for updates:', err.message);
+    safeError('[AutoUpdater] Error checking for updates:', err.message);
   });
 
   // Update available
   autoUpdater.on('update-available', (info) => {
-    console.log('[AutoUpdater] Update available:', info.version);
+    safeLog('[AutoUpdater] Update available:', info.version);
     updateAvailable = true;
 
     // Notify renderer
@@ -53,12 +78,12 @@ export function initAutoUpdater(mainWindow) {
 
   // No update available
   autoUpdater.on('update-not-available', () => {
-    console.log('[AutoUpdater] No update available');
+    safeLog('[AutoUpdater] No update available');
   });
 
   // Download progress
   autoUpdater.on('download-progress', (progress) => {
-    console.log(`[AutoUpdater] Download progress: ${progress.percent.toFixed(1)}%`);
+    safeLog(`[AutoUpdater] Download progress: ${progress.percent.toFixed(1)}%`);
     mainWindow?.webContents.send('update-download-progress', {
       percent: progress.percent,
       bytesPerSecond: progress.bytesPerSecond,
@@ -69,7 +94,7 @@ export function initAutoUpdater(mainWindow) {
 
   // Update downloaded
   autoUpdater.on('update-downloaded', (info) => {
-    console.log('[AutoUpdater] Update downloaded:', info.version);
+    safeLog('[AutoUpdater] Update downloaded:', info.version);
 
     // Notify renderer
     mainWindow?.webContents.send('update-downloaded', {
@@ -93,7 +118,7 @@ export function initAutoUpdater(mainWindow) {
 
   // Error
   autoUpdater.on('error', (err) => {
-    console.error('[AutoUpdater] Error:', err.message);
+    safeError('[AutoUpdater] Error:', err.message);
     mainWindow?.webContents.send('update-error', {
       error: err.message,
     });

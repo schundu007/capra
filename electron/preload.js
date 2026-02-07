@@ -40,6 +40,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   platformLogout: (platform) => ipcRenderer.invoke('platform-logout', platform),
   getPlatformStatus: () => ipcRenderer.invoke('platform-status'),
   getPlatformCookies: (platform) => ipcRenderer.invoke('get-platform-cookies', platform),
+
+  // LockedIn AI
+  openLockedInAI: () => ipcRenderer.invoke('open-lockedin-ai'),
+  closeLockedInAI: () => ipcRenderer.invoke('close-lockedin-ai'),
+  isLockedInOpen: () => ipcRenderer.invoke('is-lockedin-open'),
 });
 
 // Expose a flag to detect Electron environment
