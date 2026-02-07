@@ -17,6 +17,8 @@ const OPENAI_MODELS = [
 
 export default function ProviderToggle({ provider, model, onChange, onModelChange }) {
   const [showDropdown, setShowDropdown] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
+  const buttonRef = useRef(null);
   const dropdownRef = useRef(null);
 
   const models = provider === 'openai' ? OPENAI_MODELS : CLAUDE_MODELS;
@@ -24,7 +26,8 @@ export default function ProviderToggle({ provider, model, onChange, onModelChang
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target) &&
+          buttonRef.current && !buttonRef.current.contains(event.target)) {
         setShowDropdown(false);
       }
     }
@@ -36,6 +39,17 @@ export default function ProviderToggle({ provider, model, onChange, onModelChang
     onChange(newProvider);
     const defaultModel = newProvider === 'openai' ? OPENAI_MODELS[0].id : CLAUDE_MODELS[0].id;
     onModelChange(defaultModel);
+  };
+
+  const handleToggleDropdown = () => {
+    if (!showDropdown && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + 4,
+        right: window.innerWidth - rect.right
+      });
+    }
+    setShowDropdown(!showDropdown);
   };
 
   return (
@@ -63,9 +77,10 @@ export default function ProviderToggle({ provider, model, onChange, onModelChang
         </button>
       </div>
 
-      <div className="relative" ref={dropdownRef}>
+      <div className="relative">
         <button
-          onClick={() => setShowDropdown(!showDropdown)}
+          ref={buttonRef}
+          onClick={handleToggleDropdown}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors border"
           style={{
             background: 'rgba(27, 169, 76, 0.1)',
@@ -81,8 +96,15 @@ export default function ProviderToggle({ provider, model, onChange, onModelChang
 
         {showDropdown && (
           <div
-            className="absolute right-0 mt-1 w-48 rounded-lg shadow-xl z-50 py-1 border"
-            style={{ background: '#1a1a2e', borderColor: '#2a2a4e' }}
+            ref={dropdownRef}
+            className="fixed w-48 rounded-lg shadow-xl py-1 border"
+            style={{
+              background: '#1a1a2e',
+              borderColor: '#2a2a4e',
+              top: dropdownPosition.top,
+              right: dropdownPosition.right,
+              zIndex: 9999
+            }}
           >
             {models.map((m) => (
               <button

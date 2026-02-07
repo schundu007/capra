@@ -67,7 +67,7 @@ CODE STYLE REQUIREMENTS:
 5. Handle edge cases silently (no error messages unless required)
 6. Match the EXACT output format from examples
 
-Supported languages: Python, Bash, Terraform, Jenkins, YAML, SQL, JavaScript
+Supported languages: Python, JavaScript, TypeScript, C, C++, Java, Go, Rust, SQL, Bash, Terraform, Jenkins, YAML
 
 IMPORTANT: Respond with valid JSON in exactly this format:
 {

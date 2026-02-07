@@ -564,7 +564,7 @@ export default function App() {
 
       {/* Header */}
       <header
-        className="relative z-10 flex items-center justify-between px-6 py-3 border-b border-slate-700/50"
+        className="relative z-20 flex items-center justify-between px-6 py-3 border-b border-slate-700/50 overflow-visible"
         style={{ paddingLeft: isMacElectron ? '80px' : '24px' }}
       >
         {/* Left: Logo & Status */}
