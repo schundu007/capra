@@ -135,6 +135,7 @@ async function registerRoutes(app) {
   const { default: fixRouter } = await import('../backend/src/routes/fix.js');
   const { default: transcribeRouter } = await import('../backend/src/routes/transcribe.js');
   const { default: interviewRouter } = await import('../backend/src/routes/interview.js');
+  const { errorHandler } = await import('../backend/src/middleware/errorHandler.js');
 
   // In Electron mode, we skip authentication (user provides their own keys)
   // The routes will use getApiKey() to get keys from secure storage
@@ -150,6 +151,9 @@ async function registerRoutes(app) {
   app.get('/api/auth/check', (req, res) => {
     res.json({ authEnabled: false, mode: 'electron' });
   });
+
+  // Error handler (must be last)
+  app.use(errorHandler);
 }
 
 /**
