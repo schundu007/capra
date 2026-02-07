@@ -151,23 +151,23 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
               </span>
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-2">
               {explanations.map((item, index) => {
                 const isHighlighted = highlightedLine === item.line;
 
                 return (
                   <div
                     key={index}
-                    className={`px-2 py-1.5 rounded transition-all duration-200 ${
+                    className={`px-2 py-2 rounded transition-all duration-200 ${
                       isHighlighted
                         ? 'bg-[#1ba94c]/10'
                         : 'hover:bg-gray-50'
                     }`}
                   >
-                    <div className="flex items-start gap-2">
-                      {/* Line number */}
+                    {/* Line number + Code */}
+                    <div className="flex items-start gap-2 mb-1">
                       <span
-                        className={`flex-shrink-0 w-5 h-5 flex items-center justify-center rounded text-xs font-mono font-medium ${
+                        className={`flex-shrink-0 w-6 h-6 flex items-center justify-center rounded text-xs font-mono font-medium ${
                           isHighlighted
                             ? 'bg-[#1ba94c] text-white'
                             : 'bg-gray-100 text-gray-500'
@@ -175,15 +175,15 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                       >
                         {item.line}
                       </span>
-                      {/* Code and explanation */}
-                      <div className="flex-1 min-w-0 select-text">
-                        <code className="text-xs font-mono text-gray-700 break-all select-text cursor-text">
-                          {item.code}
-                        </code>
-                        <span className="text-xs text-gray-500 ml-2 select-text">
-                          — {item.explanation}
-                        </span>
-                      </div>
+                      <code className="flex-1 text-sm font-mono text-gray-800 select-text cursor-text whitespace-pre-wrap break-words">
+                        {item.code}
+                      </code>
+                    </div>
+                    {/* Explanation */}
+                    <div className="pl-8">
+                      <p className="text-xs text-gray-500 select-text">
+                        {item.explanation}
+                      </p>
                     </div>
                   </div>
                 );
