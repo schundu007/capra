@@ -53,7 +53,7 @@ async function createWindow() {
     trafficLightPosition: { x: 16, y: 16 },
     backgroundColor: '#0a1a10', // dark green
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false, // Required for webview
