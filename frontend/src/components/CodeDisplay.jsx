@@ -14,7 +14,7 @@ const LANGUAGE_MAP = {
   typescript: 'typescript',
 };
 
-const RUNNABLE = ['python', 'bash', 'javascript', 'typescript', 'sql'];
+const RUNNABLE = ['python', 'bash', 'javascript', 'typescript', 'sql', 'c', 'cpp', 'java', 'go', 'rust'];
 
 const API_URL = getApiUrl();
 
@@ -50,6 +50,8 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
   const [selectedExample, setSelectedExample] = useState(0);
   const [fixAttempts, setFixAttempts] = useState(0);
   const [showTestInput, setShowTestInput] = useState(false);
+  const [outputHeight, setOutputHeight] = useState(160);
+  const [isResizing, setIsResizing] = useState(false);
 
   useEffect(() => {
     setCode(initialCode);
@@ -130,23 +132,43 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
     }
   };
 
+  const handleResizeStart = (e) => {
+    e.preventDefault();
+    setIsResizing(true);
+    const startY = e.clientY;
+    const startHeight = outputHeight;
+
+    const handleMouseMove = (e) => {
+      const delta = startY - e.clientY;
+      const newHeight = Math.max(80, Math.min(400, startHeight + delta));
+      setOutputHeight(newHeight);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
   const syntaxLanguage = LANGUAGE_MAP[normalizedLanguage] || 'python';
   const canRun = RUNNABLE.includes(normalizedLanguage);
 
   // Empty state
   if (!code && !isStreaming) {
     return (
-      <div className="h-full flex flex-col" style={{ background: '#0f2518' }}>
-        <div className="px-4 py-3 flex items-center justify-between" style={{ background: '#0a1a10', borderBottom: '1px solid #1a3a25' }}>
-          <span className="text-sm font-medium" style={{ color: '#b0b0b0' }}>Code</span>
+      <div className="h-full flex flex-col bg-[#0a0a0f]">
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-white/5 flex-shrink-0">
+          <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+          <span className="text-xs font-medium text-white/70">Code</span>
         </div>
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-center" style={{ color: '#7a7a7a' }}>
-            <svg className="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-            </svg>
-            <p className="text-sm">Submit a problem to generate code</p>
-          </div>
+          <svg className="w-10 h-10 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+          </svg>
         </div>
       </div>
     );
@@ -155,41 +177,38 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
   // Streaming state
   if (isStreaming && !code) {
     return (
-      <div className="h-full flex flex-col" style={{ background: '#0f2518' }}>
-        <div className="px-4 py-3 flex items-center gap-3" style={{ background: '#0a1a10', borderBottom: '1px solid #1a3a25' }}>
-          <span className="text-sm font-medium" style={{ color: '#b0b0b0' }}>Generating...</span>
-          <div className="flex gap-1">
-            <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: '#1ba94c', animationDelay: '0ms' }} />
-            <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: '#1ba94c', animationDelay: '150ms' }} />
-            <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: '#1ba94c', animationDelay: '300ms' }} />
+      <div className="h-full flex flex-col bg-[#0a0a0f]">
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-white/5 flex-shrink-0">
+          <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+          <span className="text-xs font-medium text-white/70">Code</span>
+          <div className="flex gap-1 ml-2">
+            <span className="w-1 h-1 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+            <span className="w-1 h-1 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+            <span className="w-1 h-1 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: '300ms' }} />
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-sm" style={{ color: '#b0b0b0' }}>Analyzing problem...</div>
+          <div className="text-sm text-slate-500">Generating...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col" style={{ background: '#0f2518' }}>
+    <div className="h-full flex flex-col bg-[#0a0a0f]">
       {/* Header */}
-      <div className="px-4 py-2 flex items-center justify-between" style={{ background: '#0a1a10', borderBottom: '1px solid #1a3a25' }}>
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-medium" style={{ color: '#b0b0b0' }}>
-            Language: <span className="text-white">{normalizedLanguage}</span>
-          </span>
-        </div>
+      <div className="flex items-center justify-between px-3 py-2 border-b border-white/5 flex-shrink-0">
         <div className="flex items-center gap-2">
-          {/* Copy */}
-          <button
-            onClick={handleCopy}
-            className="px-3 py-1.5 text-xs font-medium rounded transition-colors"
-            style={{ color: '#b0b0b0' }}
-          >
-            {copied ? 'Copied!' : 'Copy'}
-          </button>
+          <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+          <span className="text-xs font-medium text-white/70">Code</span>
+          <span className="text-xs px-2 py-0.5 rounded bg-white/5 text-slate-400">{normalizedLanguage}</span>
         </div>
+        <button
+          onClick={handleCopy}
+          className="px-2 py-1 text-xs font-medium rounded transition-colors text-slate-400 hover:text-white hover:bg-white/5"
+        >
+          {copied ? 'Copied!' : 'Copy'}
+        </button>
       </div>
 
       {/* Code Editor */}
@@ -207,15 +226,15 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
           customStyle={{
             margin: 0,
             padding: '12px',
-            background: '#0f2518',
-            fontSize: '14px',
+            background: '#0a0a0f',
+            fontSize: '13px',
             lineHeight: '1.6',
             minHeight: '100%',
           }}
           lineNumberStyle={{
             minWidth: '3em',
             paddingRight: '1em',
-            color: '#5a7a65',
+            color: '#4a4a5a',
             userSelect: 'none',
           }}
         >
@@ -303,6 +322,14 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
       {/* Output Panel */}
       {output && (
         <div style={{ background: '#0a1a10', borderTop: '1px solid #1a3a25' }}>
+          {/* Resize Handle */}
+          <div
+            onMouseDown={handleResizeStart}
+            className="h-2 cursor-ns-resize flex items-center justify-center hover:bg-white/5 transition-colors"
+            style={{ borderBottom: '1px solid #1a3a25' }}
+          >
+            <div className="w-8 h-0.5 rounded-full bg-slate-600" />
+          </div>
           <div className="px-4 py-2 flex items-center justify-between">
             <span className="text-sm font-medium" style={{ color: output.success ? '#1ba94c' : '#ff6b6b' }}>
               {output.success ? 'Output' : 'Error'}
@@ -329,7 +356,16 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
               </button>
             </div>
           </div>
-          <pre className="px-4 py-3 text-sm font-mono overflow-auto max-h-40 select-text" style={{ color: output.success ? '#1ba94c' : '#ff6b6b' }}>
+          <pre
+            className="px-4 py-3 text-sm font-mono overflow-auto select-text"
+            style={{
+              color: output.success ? '#1ba94c' : '#ff6b6b',
+              height: `${outputHeight}px`,
+              minHeight: '80px',
+              maxHeight: '400px',
+              userSelect: isResizing ? 'none' : 'text'
+            }}
+          >
             {output.success ? output.output : output.error}
           </pre>
         </div>
