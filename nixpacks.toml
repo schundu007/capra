@@ -1,0 +1,12 @@
+[phases.setup]
+nixPkgs = ["nodejs_20", "bash", "sqlite", "gcc", "gpp", "go", "rustc", "openjdk", "python3"]
+aptPkgs = ["python3-full", "python3-pip"]
+
+[phases.install]
+cmds = ["cd backend && npm install", "pip3 install --break-system-packages requests numpy pandas httpx aiohttp beautifulsoup4 lxml sortedcontainers"]
+
+[phases.build]
+cmds = ["echo 'Backend only - no build required'"]
+
+[start]
+cmd = "cd backend && node src/index.js"
