@@ -5,7 +5,6 @@ import ProblemInput from './components/ProblemInput';
 import CodeDisplay from './components/CodeDisplay';
 import ExplanationPanel from './components/ExplanationPanel';
 import ProviderToggle from './components/ProviderToggle';
-import LoadingProgress from './components/LoadingProgress';
 import ErrorDisplay from './components/ErrorDisplay';
 import PlatformStatus from './components/PlatformStatus';
 import Login from './components/Login';
@@ -14,7 +13,7 @@ import CapraLogo from './components/CapraLogo';
 import SettingsPanel from './components/settings/SettingsPanel';
 import SetupWizard from './components/settings/SetupWizard';
 import PlatformAuth from './components/PlatformAuth';
-import LockedInPanel from './components/LockedInPanel';
+import InterviewAssistantPanel from './components/InterviewAssistantPanel';
 import { getApiUrl } from './hooks/useElectron';
 
 // Detect Electron environment
@@ -22,6 +21,16 @@ const isElectron = window.electronAPI?.isElectron || false;
 
 // Get API URL - uses dynamic resolution for Electron
 const API_URL = getApiUrl();
+
+// Coding Platforms
+const PLATFORMS = {
+  hackerrank: { name: 'HackerRank', icon: 'H', color: '#1ba94c' },
+  coderpad: { name: 'CoderPad', icon: 'C', color: '#6366f1' },
+  leetcode: { name: 'LeetCode', icon: 'L', color: '#f97316' },
+  codesignal: { name: 'CodeSignal', icon: 'S', color: '#3b82f6' },
+  codility: { name: 'Codility', icon: 'Y', color: '#eab308' },
+  glider: { name: 'Glider', icon: 'G', color: '#ec4899' },
+};
 
 // Get auth token from localStorage
 function getToken() {
@@ -147,7 +156,9 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [showSetupWizard, setShowSetupWizard] = useState(false);
   const [showPlatformAuth, setShowPlatformAuth] = useState(false);
-  const [showLockedInAI, setShowLockedInAI] = useState(false);
+  const [showInterviewAssistant, setShowInterviewAssistant] = useState(false);
+  const [showPlatformDropdown, setShowPlatformDropdown] = useState(false);
+  const [platformStatus, setPlatformStatus] = useState({});
 
   // Check if user is admin
   const isAdmin = user?.roles?.includes('admin');
@@ -231,6 +242,20 @@ export default function App() {
       removeOpenSettings?.();
       removeNewProblem?.();
     };
+  }, []);
+
+  // Load platform status
+  useEffect(() => {
+    async function loadPlatformStatus() {
+      if (!isElectron || !window.electronAPI?.getPlatformStatus) return;
+      try {
+        const status = await window.electronAPI.getPlatformStatus();
+        setPlatformStatus(status || {});
+      } catch (err) {
+        console.error('Failed to load platform status:', err);
+      }
+    }
+    loadPlatformStatus();
   }, []);
 
   const handleLogin = (token, userData) => {
@@ -555,103 +580,132 @@ export default function App() {
   const isMacElectron = isElectron && navigator.platform.toLowerCase().includes('mac');
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white overflow-hidden">
-      {/* Animated Background */}
+    <div className="h-screen flex flex-col bg-[#0a0a0f] text-white overflow-hidden">
+      {/* Animated Background Orbs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-emerald-500/5 to-transparent rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-cyan-500/5 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-violet-600/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-fuchsia-600/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600/5 rounded-full blur-3xl" />
       </div>
 
       {/* Header */}
       <header
-        className="relative z-20 flex items-center justify-between px-6 py-3 border-b border-slate-700/50 overflow-visible"
-        style={{ paddingLeft: isMacElectron ? '80px' : '24px' }}
+        className="relative z-20 flex items-center justify-between px-4 py-2 bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/5"
+        style={{ paddingLeft: isMacElectron ? '80px' : '16px' }}
       >
         {/* Left: Logo & Status */}
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 via-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="flex items-center gap-3">
+          <div className="relative group">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500 flex items-center justify-center shadow-lg shadow-fuchsia-500/25 group-hover:shadow-fuchsia-500/40 transition-shadow">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
               </svg>
             </div>
             {isLoading && (
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full animate-pulse" />
+              <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse ring-2 ring-[#0a0a0f]" />
             )}
           </div>
-          <div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent">
-              Capra
-            </h1>
-          </div>
+          <h1 className="text-lg font-bold bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
+            Capra
+          </h1>
 
-          {/* Status Badge */}
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/50 border border-slate-700/50">
-            <div className={`w-2 h-2 rounded-full ${isLoading ? 'bg-emerald-500 animate-pulse' : 'bg-slate-600'}`} />
-            <span className="text-sm text-slate-400">
-              {isLoading ? 'Generating...' : 'Ready'}
-            </span>
+          {/* Status Pill */}
+          <div className={`hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
+            isLoading
+              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+              : 'bg-white/5 text-white/40 border border-white/10'
+          }`}>
+            <div className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'bg-emerald-400 animate-pulse' : 'bg-white/30'}`} />
+            {isLoading ? 'Working' : 'Ready'}
           </div>
         </div>
 
         {/* Right: Controls */}
-        <div className="flex items-center gap-3">
-          {/* Keyboard Shortcut Hints */}
-          <div className="hidden lg:flex items-center gap-2 text-xs text-slate-500">
-            <kbd className="px-2 py-1 rounded bg-slate-800 border border-slate-700">⌘</kbd>
-            <span>+</span>
-            <kbd className="px-2 py-1 rounded bg-slate-800 border border-slate-700">Enter</kbd>
-          </div>
-
-          <div className="hidden lg:block w-px h-6 bg-slate-700" />
-
+        <div className="flex items-center gap-2">
           <ProviderToggle provider={provider} model={model} onChange={setProvider} onModelChange={setModel} />
 
           {/* Clear Button */}
           <button
             onClick={handleClearAll}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm text-slate-400 hover:text-white bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-slate-600 rounded-lg transition-all duration-200"
+            className="p-2 text-white/40 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+            title="Clear all"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-            Clear
-          </button>
-
-          {/* Platform Login */}
-          <button
-            onClick={() => setShowPlatformAuth(true)}
-            className="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-slate-600 transition-all"
-            title="Platform Login"
-          >
-            <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
           </button>
 
-          {/* LockedIn AI Toggle - Embedded Panel */}
+          {/* Platforms Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowPlatformDropdown(!showPlatformDropdown)}
+              className="p-2 text-white/40 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+              title="Coding Platforms"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+
+            {/* Dropdown Menu */}
+            {showPlatformDropdown && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowPlatformDropdown(false)} />
+                <div className="absolute right-0 mt-2 w-48 rounded-lg bg-[#16161d] border border-white/10 shadow-2xl z-50 py-1 backdrop-blur-xl">
+                  <div className="px-3 py-2 border-b border-white/5">
+                    <span className="text-[10px] font-medium text-white/40 uppercase tracking-wider">Platforms</span>
+                  </div>
+                  {Object.entries(PLATFORMS).map(([key, platform]) => {
+                    const isConnected = platformStatus[key]?.authenticated;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => {
+                          setShowPlatformDropdown(false);
+                          setShowPlatformAuth(true);
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-white/5 transition-colors"
+                      >
+                        <div
+                          className="w-5 h-5 rounded flex items-center justify-center text-white text-[10px] font-bold"
+                          style={{ background: platform.color }}
+                        >
+                          {platform.icon}
+                        </div>
+                        <span className="flex-1 text-xs text-left text-white/70">{platform.name}</span>
+                        <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-emerald-500' : 'bg-white/20'}`} />
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Interview Assistant Toggle */}
           <button
-            onClick={() => setShowLockedInAI(!showLockedInAI)}
-            className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg border transition-all ${
-              showLockedInAI
-                ? 'bg-purple-500/20 border-purple-500/50 text-purple-300'
-                : 'bg-purple-600 border-purple-500 text-white hover:bg-purple-700'
+            onClick={() => setShowInterviewAssistant(!showInterviewAssistant)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+              showInterviewAssistant
+                ? 'bg-fuchsia-500/20 text-fuchsia-300 ring-1 ring-fuchsia-500/30'
+                : 'bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:from-violet-600 hover:to-fuchsia-600'
             }`}
-            title="Toggle LockedIn AI"
+            title="Toggle Interview Assistant"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+              <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
             </svg>
-            LockedIn AI
+            Interview
           </button>
 
           {/* Settings */}
           <button
             onClick={() => setShowSettings(true)}
-            className="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-slate-600 transition-all"
+            className="p-2 text-white/40 hover:text-white hover:bg-white/5 rounded-lg transition-all"
             title="Settings"
           >
-            <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
@@ -705,37 +759,70 @@ export default function App() {
         </div>
       )}
 
-      {/* Loading Progress Bar */}
+      {/* Loading Progress Popup - Minimal Circle */}
       {isLoading && (
-        <div className="relative z-10 mx-4 mt-2">
-          <div className="h-1 bg-slate-800 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-emerald-500 via-cyan-500 to-emerald-500 rounded-full animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+          <div className="pointer-events-auto relative animate-fade-in">
+            {/* Circular Progress Ring */}
+            <svg className="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
+              {/* Background circle */}
+              <circle
+                cx="50" cy="50" r="42"
+                fill="none"
+                stroke="rgba(255,255,255,0.1)"
+                strokeWidth="6"
+              />
+              {/* Animated progress circle */}
+              <circle
+                cx="50" cy="50" r="42"
+                fill="none"
+                stroke="url(#progressGradient)"
+                strokeWidth="6"
+                strokeLinecap="round"
+                strokeDasharray="264"
+                strokeDashoffset="66"
+                className="animate-spin"
+                style={{ animationDuration: '2s' }}
+              />
+              <defs>
+                <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#8b5cf6" />
+                  <stop offset="50%" stopColor="#d946ef" />
+                  <stop offset="100%" stopColor="#06b6d4" />
+                </linearGradient>
+              </defs>
+            </svg>
+
+            {/* Brain Icon in Center */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-14 h-14 rounded-full bg-[#0d0d12] flex items-center justify-center">
+                <svg className="w-8 h-8 text-violet-400" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
       {/* Main Layout */}
-      <main className="flex-1 overflow-hidden p-4 relative z-10">
-        <div className="h-full rounded-xl overflow-hidden border border-slate-700/50 bg-slate-900/50 backdrop-blur-sm shadow-2xl">
-          <Allotment defaultSizes={showLockedInAI ? [1, 1, 1] : [1, 1]}>
+      <main className="flex-1 overflow-hidden p-1 relative z-10">
+        <div className="h-full rounded-lg overflow-hidden border border-white/5 bg-[#0d0d12]/80 backdrop-blur-xl">
+          <Allotment defaultSizes={showInterviewAssistant ? [1, 1, 1] : [1, 1]}>
             {/* Left Pane - Problem + Explanation (stacked vertically) */}
             <Allotment.Pane minSize={300}>
               <Allotment vertical defaultSizes={[1, 1]}>
                 {/* Top: Problem Input */}
-                <Allotment.Pane minSize={200}>
-                  <div className="h-full flex flex-col bg-slate-900 border-b border-slate-700/50">
+                <Allotment.Pane minSize={150}>
+                  <div className="h-full flex flex-col bg-[#0d0d12]">
                     {/* Pane Header */}
-                    <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700/50 bg-slate-800/30">
-                      <div className="flex items-center gap-2">
-                        <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <h2 className="text-sm font-semibold text-white">Problem</h2>
-                      </div>
+                    <div className="flex items-center gap-2 px-3 py-2 border-b border-white/5 flex-shrink-0">
+                      <div className="w-1.5 h-1.5 rounded-full bg-violet-500" />
+                      <span className="text-xs font-medium text-white/70">Problem</span>
                     </div>
 
-                    {/* Problem Input Content */}
-                    <div className="flex-1 overflow-y-auto p-4 scrollbar-dark">
+                    {/* Problem Input Content - fills remaining space */}
+                    <div className="flex-1 p-3 min-h-0">
                       <ProblemInput
                         onSubmit={handleSolve}
                         onFetchUrl={handleFetchUrl}
@@ -747,12 +834,6 @@ export default function App() {
                         shouldClear={clearScreenshot}
                         hasSolution={!!solution}
                       />
-
-                      {isLoading && (
-                        <div className="mt-4">
-                          <LoadingProgress type={loadingType} isActive={isLoading} />
-                        </div>
-                      )}
                     </div>
                   </div>
                 </Allotment.Pane>
@@ -774,7 +855,7 @@ export default function App() {
 
             {/* Center Pane - Code Editor (full height) */}
             <Allotment.Pane minSize={400}>
-              <div className="h-full border-l border-slate-700/50">
+              <div className="h-full border-l border-white/5">
                 <CodeDisplay
                   code={solution?.code || streamingContent.code}
                   language={solution?.language || streamingContent.language}
@@ -789,28 +870,32 @@ export default function App() {
               </div>
             </Allotment.Pane>
 
-            {/* Right Pane - LockedIn AI (conditional) */}
-            {showLockedInAI && (
+            {/* Right Pane - Interview Assistant (conditional) */}
+            {showInterviewAssistant && (
               <Allotment.Pane minSize={400}>
-                <LockedInPanel onClose={() => setShowLockedInAI(false)} />
+                <InterviewAssistantPanel
+                  onClose={() => setShowInterviewAssistant(false)}
+                  provider={provider}
+                  model={model}
+                />
               </Allotment.Pane>
             )}
           </Allotment>
         </div>
       </main>
 
-      {/* Footer Status */}
-      <footer className="relative z-10 px-4 py-2 flex items-center justify-between text-xs text-slate-500 border-t border-slate-800/50">
-        <div className="flex items-center gap-4">
-          <span className="flex items-center gap-1.5">
-            <span className={`w-2 h-2 rounded-full ${isLoading ? 'bg-emerald-500 animate-pulse' : 'bg-emerald-500'}`} />
-            Connected
+      {/* Footer - Minimal */}
+      <footer className="relative z-10 px-3 py-1.5 flex items-center justify-between text-[10px] text-white/30 border-t border-white/5">
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-1">
+            <span className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'bg-violet-500 animate-pulse' : 'bg-emerald-500'}`} />
+            {isLoading ? 'Processing' : 'Ready'}
           </span>
-          <span>Capra v1.0</span>
         </div>
-        <div className="flex items-center gap-4">
-          <span>⌘+Enter to analyze</span>
-          <span>Esc to clear</span>
+        <div className="flex items-center gap-3 font-mono">
+          <span>⌘ Enter</span>
+          <span>·</span>
+          <span>Esc clear</span>
         </div>
       </footer>
 
