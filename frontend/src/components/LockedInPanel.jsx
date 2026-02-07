@@ -94,16 +94,31 @@ export default function LockedInPanel({ onClose }) {
       {isElectron ? (
         <div ref={containerRef} className="flex-1 bg-white" />
       ) : (
-        <iframe
-          src={LOCKEDIN_URL}
-          className="flex-1 w-full border-0"
-          allow="camera; microphone; fullscreen"
-          onLoad={() => setLoading(false)}
-          onError={() => {
-            setLoading(false);
-            setError('Failed to load LockedIn AI');
-          }}
-        />
+        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-gradient-to-b from-slate-900 to-slate-800">
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-6 shadow-lg shadow-purple-500/25">
+            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-white mb-2">LockedIn AI</h3>
+          <p className="text-slate-400 text-sm mb-6 max-w-xs leading-relaxed">
+            AI-powered interview prep assistant. Opens in a new tab for the best experience.
+          </p>
+          <a
+            href={LOCKEDIN_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl font-semibold transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+            Open LockedIn AI
+          </a>
+          <p className="text-slate-500 text-xs mt-4">
+            Embedded view available in desktop app
+          </p>
+        </div>
       )}
     </div>
   );
