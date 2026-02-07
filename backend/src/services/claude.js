@@ -1,5 +1,14 @@
 import Anthropic from '@anthropic-ai/sdk';
 
+// Safe logging that ignores EPIPE errors (happens in Electron when pipe closes)
+function safeLog(...args) {
+  try {
+    console.log(...args);
+  } catch {
+    // Ignore EPIPE and other write errors
+  }
+}
+
 // Support for runtime API keys (used by Electron app)
 let runtimeApiKey = null;
 
@@ -13,7 +22,7 @@ export function getApiKey() {
 
 function getClient() {
   const apiKey = getApiKey();
-  console.log('[Claude] Creating client, has API key:', !!apiKey);
+  safeLog('[Claude] Creating client, has API key:', !!apiKey);
   if (!apiKey) {
     throw new Error('Anthropic API key not configured. Please add your API key in Settings (Cmd+,)');
   }
@@ -158,13 +167,12 @@ Rules:
 - For Terraform: use proper resource blocks
 - For Jenkins: use declarative pipeline syntax`;
 
-export async function solveProblem(problemText, language = 'auto', fast = true) {
+const DEFAULT_MODEL = 'claude-sonnet-4-20250514';
+
+export async function solveProblem(problemText, language = 'auto', fast = true, model = DEFAULT_MODEL) {
   const languageInstruction = language === 'auto'
     ? 'Detect the appropriate language from the problem context.'
     : `Write the solution in ${language.toUpperCase()}.`;
-
-  // Use Sonnet 4 (the original working model)
-  const model = 'claude-sonnet-4-20250514';
 
   const response = await getClient().messages.create({
     model,
@@ -194,9 +202,9 @@ export async function solveProblem(problemText, language = 'auto', fast = true) 
   }
 }
 
-export async function extractText(base64Image, mimeType) {
+export async function extractText(base64Image, mimeType, model = DEFAULT_MODEL) {
   const response = await getClient().messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model,
     max_tokens: 4096,
     messages: [
       {
@@ -222,13 +230,13 @@ export async function extractText(base64Image, mimeType) {
   return { text: response.content[0].text };
 }
 
-export async function fixCode(code, error, language, problem = '') {
+export async function fixCode(code, error, language, problem = '', model = DEFAULT_MODEL) {
   const problemContext = problem
     ? `\nORIGINAL PROBLEM:\n${problem}\n`
     : '';
 
   const response = await getClient().messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model,
     max_tokens: 4096,
     messages: [
       {
@@ -283,7 +291,7 @@ RULES:
 4. Code MUST print the output
 5. Match expected output format exactly`;
 
-export async function* solveProblemStream(problemText, language = 'auto', detailLevel = 'detailed') {
+export async function* solveProblemStream(problemText, language = 'auto', detailLevel = 'detailed', model = DEFAULT_MODEL) {
   const languageInstruction = language === 'auto'
     ? 'Detect the appropriate language from the problem context.'
     : `Write the solution in ${language.toUpperCase()}.`;
@@ -292,7 +300,7 @@ export async function* solveProblemStream(problemText, language = 'auto', detail
   const systemPrompt = isBrief ? BRIEF_PROMPT : SYSTEM_PROMPT;
 
   const stream = await getClient().messages.stream({
-    model: 'claude-sonnet-4-20250514',
+    model,
     max_tokens: isBrief ? 1024 : 4096,
     messages: [
       {
@@ -310,9 +318,9 @@ export async function* solveProblemStream(problemText, language = 'auto', detail
   }
 }
 
-export async function analyzeImage(base64Image, mimeType) {
+export async function analyzeImage(base64Image, mimeType, model = DEFAULT_MODEL) {
   const response = await getClient().messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model,
     max_tokens: 4096,
     messages: [
       {

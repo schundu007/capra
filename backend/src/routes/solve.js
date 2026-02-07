@@ -8,10 +8,10 @@ const router = Router();
 
 router.post('/', validate('solve'), async (req, res, next) => {
   try {
-    const { problem, provider = 'claude', language = 'auto', fast = true } = req.body;
+    const { problem, provider = 'claude', language = 'auto', fast = true, model } = req.body;
 
     const service = provider === 'openai' ? openai : claude;
-    const result = await service.solveProblem(problem, language, fast);
+    const result = await service.solveProblem(problem, language, fast, model);
 
     res.json(result);
   } catch (error) {
@@ -26,7 +26,7 @@ router.post('/', validate('solve'), async (req, res, next) => {
 // Streaming endpoint for faster perceived response
 router.post('/stream', validate('solve'), async (req, res, next) => {
   try {
-    const { problem, provider = 'claude', language = 'auto', detailLevel = 'detailed' } = req.body;
+    const { problem, provider = 'claude', language = 'auto', detailLevel = 'detailed', model } = req.body;
 
     // Set SSE headers
     res.setHeader('Content-Type', 'text/event-stream');
@@ -37,7 +37,7 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
     const service = provider === 'openai' ? openai : claude;
     let fullText = '';
 
-    for await (const chunk of service.solveProblemStream(problem, language, detailLevel)) {
+    for await (const chunk of service.solveProblemStream(problem, language, detailLevel, model)) {
       fullText += chunk;
       res.write(`data: ${JSON.stringify({ chunk, partial: true })}\n\n`);
     }

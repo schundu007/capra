@@ -3,6 +3,15 @@ import multer from 'multer';
 import * as claude from '../services/claude.js';
 import * as openai from '../services/openai.js';
 
+// Safe logging that ignores EPIPE errors
+function safeError(...args) {
+  try {
+    console.error(...args);
+  } catch {
+    // Ignore EPIPE and other write errors
+  }
+}
+
 const router = Router();
 
 const upload = multer({
@@ -23,7 +32,7 @@ const upload = multer({
 const handleUpload = (req, res, next) => {
   upload.single('image')(req, res, (err) => {
     if (err) {
-      console.error('Multer error:', err);
+      safeError('Multer error:', err);
       return res.status(400).json({
         error: 'Upload failed',
         details: err.message,
@@ -41,17 +50,17 @@ router.post('/', handleUpload, async (req, res) => {
       });
     }
 
-    const { provider = 'claude', mode = 'extract' } = req.body;
+    const { provider = 'claude', mode = 'extract', model } = req.body;
     const base64Image = req.file.buffer.toString('base64');
     const mimeType = req.file.mimetype;
 
     const service = provider === 'openai' ? openai : claude;
 
     if (mode === 'extract') {
-      const result = await service.extractText(base64Image, mimeType);
+      const result = await service.extractText(base64Image, mimeType, model);
       res.json(result);
     } else {
-      const result = await service.analyzeImage(base64Image, mimeType);
+      const result = await service.analyzeImage(base64Image, mimeType, model);
       res.json(result);
     }
   } catch (error) {

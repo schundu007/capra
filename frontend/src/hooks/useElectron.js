@@ -45,7 +45,7 @@ export function useElectron() {
 export function getApiUrl() {
   if (window.electronAPI?.isElectron) {
     // In Electron, use localhost with the backend port
-    return 'http://localhost:3009';
+    return 'http://localhost:3001';
   }
   return import.meta.env.VITE_API_URL || '';
 }

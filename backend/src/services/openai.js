@@ -153,13 +153,12 @@ Rules:
 - For Terraform: use proper resource blocks
 - For Jenkins: use declarative pipeline syntax`;
 
-export async function solveProblem(problemText, language = 'auto') {
+const DEFAULT_MODEL = 'gpt-4o';
+
+export async function solveProblem(problemText, language = 'auto', fast = true, model = DEFAULT_MODEL) {
   const languageInstruction = language === 'auto'
     ? 'Detect the appropriate language from the problem context.'
     : `Write the solution in ${language.toUpperCase()}.`;
-
-  // Use GPT-4o for reliable code generation
-  const model = 'gpt-4o';
 
   const response = await getClient().chat.completions.create({
     model,
@@ -196,7 +195,7 @@ RULES:
 4. Code MUST print the output
 5. Match expected output format exactly`;
 
-export async function* solveProblemStream(problemText, language = 'auto', detailLevel = 'detailed') {
+export async function* solveProblemStream(problemText, language = 'auto', detailLevel = 'detailed', model = DEFAULT_MODEL) {
   const languageInstruction = language === 'auto'
     ? 'Detect the appropriate language from the problem context.'
     : `Write the solution in ${language.toUpperCase()}.`;
@@ -205,7 +204,7 @@ export async function* solveProblemStream(problemText, language = 'auto', detail
   const systemPrompt = isBrief ? BRIEF_PROMPT : SYSTEM_PROMPT;
 
   const stream = await getClient().chat.completions.create({
-    model: 'gpt-4o',
+    model,
     messages: [
       { role: 'system', content: systemPrompt },
       {
@@ -226,9 +225,9 @@ export async function* solveProblemStream(problemText, language = 'auto', detail
   }
 }
 
-export async function extractText(base64Image, mimeType) {
+export async function extractText(base64Image, mimeType, model = DEFAULT_MODEL) {
   const response = await getClient().chat.completions.create({
-    model: 'gpt-4o',
+    model,
     messages: [
       {
         role: 'user',
@@ -252,13 +251,13 @@ export async function extractText(base64Image, mimeType) {
   return { text: response.choices[0].message.content };
 }
 
-export async function fixCode(code, error, language, problem = '') {
+export async function fixCode(code, error, language, problem = '', model = DEFAULT_MODEL) {
   const problemContext = problem
     ? `\nORIGINAL PROBLEM:\n${problem}\n`
     : '';
 
   const response = await getClient().chat.completions.create({
-    model: 'gpt-4o',
+    model,
     messages: [
       {
         role: 'user',
@@ -302,9 +301,9 @@ IMPORTANT:
   }
 }
 
-export async function analyzeImage(base64Image, mimeType) {
+export async function analyzeImage(base64Image, mimeType, model = DEFAULT_MODEL) {
   const response = await getClient().chat.completions.create({
-    model: 'gpt-4o',
+    model,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       {

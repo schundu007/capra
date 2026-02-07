@@ -1,32 +1,107 @@
-export default function ProviderToggle({ provider, onChange }) {
+import { useState, useRef, useEffect } from 'react';
+
+const CLAUDE_MODELS = [
+  { id: 'claude-sonnet-4-20250514', name: 'Claude Sonnet 4', description: 'Fast & capable' },
+  { id: 'claude-opus-4-20250514', name: 'Claude Opus 4', description: 'Most intelligent' },
+  { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet', description: 'Previous gen' },
+  { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku', description: 'Fastest' },
+];
+
+const OPENAI_MODELS = [
+  { id: 'gpt-4o', name: 'GPT-4o', description: 'Fast & capable' },
+  { id: 'gpt-4o-mini', name: 'GPT-4o Mini', description: 'Fastest' },
+  { id: 'o1', name: 'o1', description: 'Reasoning model' },
+  { id: 'o1-mini', name: 'o1-mini', description: 'Fast reasoning' },
+  { id: 'o3-mini', name: 'o3-mini', description: 'Latest reasoning' },
+];
+
+export default function ProviderToggle({ provider, model, onChange, onModelChange }) {
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const models = provider === 'openai' ? OPENAI_MODELS : CLAUDE_MODELS;
+  const currentModel = models.find(m => m.id === model) || models[0];
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleProviderChange = (newProvider) => {
+    onChange(newProvider);
+    const defaultModel = newProvider === 'openai' ? OPENAI_MODELS[0].id : CLAUDE_MODELS[0].id;
+    onModelChange(defaultModel);
+  };
+
   return (
-    <div className="flex items-center gap-1 p-1 rounded-lg bg-gray-100 border border-gray-200">
-      <button
-        onClick={() => onChange('claude')}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 ${
-          provider === 'claude'
-            ? 'bg-white text-gray-900 shadow-sm'
-            : 'text-gray-500 hover:text-gray-700'
-        }`}
-      >
-        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-        </svg>
-        Claude
-      </button>
-      <button
-        onClick={() => onChange('openai')}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 ${
-          provider === 'openai'
-            ? 'bg-white text-gray-900 shadow-sm'
-            : 'text-gray-500 hover:text-gray-700'
-        }`}
-      >
-        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.8956zm16.5963 3.8558L13.1038 8.364l2.0201-1.1638a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.4043-.6813zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997z"/>
-        </svg>
-        GPT-5
-      </button>
+    <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 p-0.5 rounded" style={{ background: '#15322a' }}>
+        <button
+          onClick={() => handleProviderChange('claude')}
+          className="flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-colors"
+          style={{
+            background: provider === 'claude' ? '#1ba94c' : 'transparent',
+            color: provider === 'claude' ? 'white' : '#b0b0b0'
+          }}
+        >
+          Claude
+        </button>
+        <button
+          onClick={() => handleProviderChange('openai')}
+          className="flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-colors"
+          style={{
+            background: provider === 'openai' ? '#1ba94c' : 'transparent',
+            color: provider === 'openai' ? 'white' : '#b0b0b0'
+          }}
+        >
+          GPT
+        </button>
+      </div>
+
+      <div className="relative" ref={dropdownRef}>
+        <button
+          onClick={() => setShowDropdown(!showDropdown)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors border"
+          style={{
+            background: 'rgba(27, 169, 76, 0.1)',
+            borderColor: 'rgba(27, 169, 76, 0.3)',
+            color: '#1ba94c'
+          }}
+        >
+          {currentModel.name}
+          <svg className={`w-3 h-3 transition-transform ${showDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        {showDropdown && (
+          <div
+            className="absolute right-0 mt-1 w-48 rounded-lg shadow-xl z-50 py-1 border"
+            style={{ background: '#1a1a2e', borderColor: '#2a2a4e' }}
+          >
+            {models.map((m) => (
+              <button
+                key={m.id}
+                onClick={() => {
+                  onModelChange(m.id);
+                  setShowDropdown(false);
+                }}
+                className={`w-full px-3 py-2 text-left text-xs transition-colors hover:bg-slate-700/50 ${
+                  m.id === model ? 'bg-slate-700/30' : ''
+                }`}
+              >
+                <div className="font-medium text-white">{m.name}</div>
+                <div className="text-slate-400 text-[10px]">{m.description}</div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
