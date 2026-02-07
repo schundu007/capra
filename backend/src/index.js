@@ -13,6 +13,8 @@ import fetchRouter from './routes/fetch.js';
 import runRouter from './routes/run.js';
 import fixRouter from './routes/fix.js';
 import authRouter from './routes/auth.js';
+import transcribeRouter from './routes/transcribe.js';
+import interviewRouter from './routes/interview.js';
 import { authenticate } from './middleware/authenticate.js';
 
 const app = express();
@@ -67,6 +69,8 @@ app.use('/api/analyze', authenticate, analyzeRouter);
 app.use('/api/fetch', authenticate, fetchRouter);
 app.use('/api/run', authenticate, runRouter);
 app.use('/api/fix', authenticate, fixRouter);
+app.use('/api/transcribe', authenticate, transcribeRouter);
+app.use('/api/interview', authenticate, interviewRouter);
 
 // Enhanced health check
 app.get('/api/health', (req, res) => {

@@ -176,11 +176,11 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                         {item.line}
                       </span>
                       {/* Code and explanation */}
-                      <div className="flex-1 min-w-0">
-                        <code className="text-xs font-mono text-gray-700 break-all">
+                      <div className="flex-1 min-w-0 select-text">
+                        <code className="text-xs font-mono text-gray-700 break-all select-text cursor-text">
                           {item.code}
                         </code>
-                        <span className="text-xs text-gray-500 ml-2">
+                        <span className="text-xs text-gray-500 ml-2 select-text">
                           — {item.explanation}
                         </span>
                       </div>

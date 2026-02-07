@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, desktopCapturer } = require('electron');
 
 // Expose protected methods to the renderer process
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -41,10 +41,46 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getPlatformStatus: () => ipcRenderer.invoke('platform-status'),
   getPlatformCookies: (platform) => ipcRenderer.invoke('get-platform-cookies', platform),
 
-  // LockedIn AI
-  openLockedInAI: () => ipcRenderer.invoke('open-lockedin-ai'),
-  closeLockedInAI: () => ipcRenderer.invoke('close-lockedin-ai'),
-  isLockedInOpen: () => ipcRenderer.invoke('is-lockedin-open'),
+  // Audio capture for Interview Assistant (Electron-specific, works on macOS)
+  getDesktopAudioSources: async () => {
+    try {
+      const sources = await desktopCapturer.getSources({
+        types: ['window', 'screen'],
+        fetchWindowIcons: false,
+      });
+      return sources.map(source => ({
+        id: source.id,
+        name: source.name,
+        thumbnail: source.thumbnail?.toDataURL(),
+      }));
+    } catch (err) {
+      console.error('Failed to get desktop sources:', err);
+      return [];
+    }
+  },
+
+  // Get system audio stream constraint for Electron
+  getSystemAudioConstraint: (sourceId) => {
+    return {
+      audio: {
+        mandatory: {
+          chromeMediaSource: 'desktop',
+          chromeMediaSourceId: sourceId,
+        },
+      },
+      video: {
+        mandatory: {
+          chromeMediaSource: 'desktop',
+          chromeMediaSourceId: sourceId,
+          minWidth: 1,
+          maxWidth: 1,
+          minHeight: 1,
+          maxHeight: 1,
+        },
+      },
+    };
+  },
+
 });
 
 // Expose a flag to detect Electron environment

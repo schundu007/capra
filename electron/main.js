@@ -1,7 +1,7 @@
 // IMPORTANT: Import EPIPE handler first before any other imports
 import './epipe-handler.js';
 
-import { app, BrowserWindow, ipcMain, Menu, shell, safeStorage, nativeTheme, session } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu, shell, safeStorage, nativeTheme, session, desktopCapturer } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { startBackendServer } from './backend-server.js';
@@ -75,6 +75,31 @@ async function createWindow() {
           "font-src 'self' data: https://fonts.gstatic.com;" +
           "frame-src 'self' https://*.lockedinai.com https://app.lockedinai.com;"
         ]
+      }
+    });
+  });
+
+  // Grant media permissions for audio/video capture (Interview Assistant)
+  mainWindow.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
+    const allowedPermissions = ['media', 'audioCapture', 'desktopCapture', 'mediaKeySystem'];
+    if (allowedPermissions.includes(permission)) {
+      safeLog('[Electron] Granting permission:', permission);
+      callback(true);
+    } else {
+      safeLog('[Electron] Denying permission:', permission);
+      callback(false);
+    }
+  });
+
+  // Handle media access for desktopCapturer
+  mainWindow.webContents.session.setDisplayMediaRequestHandler((request, callback) => {
+    safeLog('[Electron] Display media request');
+    // Allow all display media requests (for system audio capture)
+    desktopCapturer.getSources({ types: ['screen', 'window'] }).then((sources) => {
+      if (sources.length > 0) {
+        callback({ video: sources[0] });
+      } else {
+        callback({});
       }
     });
   });
@@ -379,46 +404,4 @@ ipcMain.handle('get-platform-cookies', (event, platform) => {
   return getPlatformCookies(platform);
 });
 
-// LockedIn AI window
-let lockedInWindow = null;
-
-ipcMain.handle('open-lockedin-ai', async () => {
-  // If window exists and is not destroyed, focus it
-  if (lockedInWindow && !lockedInWindow.isDestroyed()) {
-    lockedInWindow.focus();
-    return { success: true, alreadyOpen: true };
-  }
-
-  // Create new window for LockedIn AI
-  lockedInWindow = new BrowserWindow({
-    width: 500,
-    height: 800,
-    x: mainWindow ? mainWindow.getBounds().x + mainWindow.getBounds().width + 10 : undefined,
-    y: mainWindow ? mainWindow.getBounds().y : undefined,
-    title: 'LockedIn AI',
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
-    },
-  });
-
-  lockedInWindow.loadURL('https://app.lockedinai.com/app/dashboard');
-
-  lockedInWindow.on('closed', () => {
-    lockedInWindow = null;
-  });
-
-  return { success: true };
-});
-
-ipcMain.handle('close-lockedin-ai', async () => {
-  if (lockedInWindow && !lockedInWindow.isDestroyed()) {
-    lockedInWindow.close();
-    lockedInWindow = null;
-  }
-  return { success: true };
-});
-
-ipcMain.handle('is-lockedin-open', () => {
-  return lockedInWindow && !lockedInWindow.isDestroyed();
-});
+// LockedIn AI is now embedded via webview in the frontend - no separate window needed
