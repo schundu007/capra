@@ -114,8 +114,8 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               onClick={() => handleTabSwitch(tab.id)}
               className={`px-2 py-1 text-xs font-medium rounded transition-colors ${
                 activeTab === tab.id
-                  ? 'bg-violet-500/20 text-violet-300'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-[#1ba94c]/10 text-[#1ba94c]'
+                  : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               {tab.label}
@@ -125,15 +125,15 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
 
         <div className="flex items-center gap-2">
           {/* Detail Toggle */}
-          <div className="flex rounded overflow-hidden border border-slate-600">
+          <div className="flex rounded overflow-hidden border border-gray-300">
             <button
               type="button"
               onClick={() => setDetailLevel('basic')}
               disabled={isLoading}
               className={`px-2 py-0.5 text-xs transition-colors ${
                 detailLevel === 'basic'
-                  ? 'bg-violet-500 text-white'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-[#1ba94c] text-white'
+                  : 'text-gray-500 hover:text-gray-700 bg-white'
               }`}
             >
               Basic
@@ -144,8 +144,8 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               disabled={isLoading}
               className={`px-2 py-0.5 text-xs transition-colors ${
                 detailLevel === 'detailed'
-                  ? 'bg-violet-500 text-white'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-[#1ba94c] text-white'
+                  : 'text-gray-500 hover:text-gray-700 bg-white'
               }`}
             >
               Full
@@ -157,7 +157,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
             disabled={isLoading}
-            className="px-2 py-0.5 text-xs rounded bg-slate-800 border border-slate-600 text-white"
+            className="px-2 py-0.5 text-xs rounded bg-white border border-gray-300 text-gray-700"
           >
             {LANGUAGES.map((lang) => (
               <option key={lang.value} value={lang.value}>{lang.label}</option>
@@ -174,17 +174,17 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               value={problemText}
               onChange={(e) => setProblemText(e.target.value)}
               placeholder="Paste coding problem..."
-              className="flex-1 w-full px-3 py-2 text-sm font-mono resize-none rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500"
+              className="flex-1 w-full px-3 py-2 text-sm font-mono resize-none rounded-lg bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#1ba94c]"
               disabled={isLoading}
             />
             <div className="flex items-center justify-between mt-2 flex-shrink-0">
-              <span className="text-xs text-slate-500">
+              <span className="text-xs text-gray-400">
                 {problemText.length > 0 && `${problemText.length} chars`}
               </span>
               <button
                 type="submit"
                 disabled={isLoading || !problemText.trim()}
-                className="px-4 py-1.5 text-sm font-medium rounded-lg bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:from-violet-600 hover:to-fuchsia-600 disabled:opacity-50 transition-all"
+                className="px-4 py-1.5 text-sm font-medium rounded-lg bg-[#1ba94c] text-white hover:bg-[#158f3f] disabled:opacity-50 transition-all"
               >
                 {isLoading ? '...' : 'Solve'}
               </button>
@@ -199,14 +199,14 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://leetcode.com/problems/..."
-              className="w-full px-3 py-2 text-sm rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500"
+              className="w-full px-3 py-2 text-sm rounded-lg bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#1ba94c]"
               disabled={isLoading}
             />
             <div className="flex justify-end">
               <button
                 type="submit"
                 disabled={isLoading || !url.trim()}
-                className="px-4 py-1.5 text-sm font-medium rounded-lg bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:from-violet-600 hover:to-fuchsia-600 disabled:opacity-50 transition-all"
+                className="px-4 py-1.5 text-sm font-medium rounded-lg bg-[#1ba94c] text-white hover:bg-[#158f3f] disabled:opacity-50 transition-all"
               >
                 {isLoading ? '...' : 'Fetch'}
               </button>
@@ -217,7 +217,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
         {activeTab === 'screenshot' && (
           <div className="flex-1 flex flex-col min-h-0">
             {preview ? (
-              <div className="relative flex-1 rounded-lg overflow-hidden border border-slate-700 bg-slate-800/50">
+              <div className="relative flex-1 rounded-lg overflow-hidden border border-gray-300 bg-gray-50">
                 <img src={preview} alt="Preview" className="w-full h-full object-contain" />
                 <button
                   onClick={clearPreview}
@@ -237,14 +237,14 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                 onClick={() => fileInputRef.current?.click()}
                 className={`flex-1 rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all border-2 border-dashed ${
                   isDragging
-                    ? 'border-violet-500 bg-violet-500/10'
-                    : 'border-slate-700 bg-slate-800/30 hover:border-slate-600'
+                    ? 'border-[#1ba94c] bg-[#1ba94c]/5'
+                    : 'border-gray-300 bg-gray-50 hover:border-gray-400'
                 }`}
               >
-                <svg className="w-8 h-8 mb-2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-8 h-8 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span className="text-sm text-slate-400">Drop image or click</span>
+                <span className="text-sm text-gray-500">Drop image or click</span>
               </div>
             )}
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />

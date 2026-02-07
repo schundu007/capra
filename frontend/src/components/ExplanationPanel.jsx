@@ -73,13 +73,13 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
   // Empty state
   if ((!explanations || explanations.length === 0) && !pitch && !hasSystemDesign && !isStreaming) {
     return (
-      <div className="h-full flex flex-col overflow-hidden bg-[#0d0d12]">
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-white/5 flex-shrink-0">
-          <div className="w-1.5 h-1.5 rounded-full bg-fuchsia-500" />
-          <span className="text-xs font-medium text-white/70">Explanation</span>
+      <div className="h-full flex flex-col overflow-hidden bg-white">
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 flex-shrink-0">
+          <div className="w-1.5 h-1.5 rounded-full bg-[#1ba94c]" />
+          <span className="text-xs font-medium text-gray-600">Explanation</span>
         </div>
         <div className="flex-1 flex items-center justify-center">
-          <svg className="w-8 h-8 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-8 h-8 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
           </svg>
         </div>
@@ -90,37 +90,37 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
   // Streaming state
   if (isStreaming && !pitch && (!explanations || explanations.length === 0)) {
     return (
-      <div className="h-full flex flex-col overflow-hidden bg-[#0d0d12]">
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-white/5 flex-shrink-0">
-          <div className="w-1.5 h-1.5 rounded-full bg-fuchsia-500" />
-          <span className="text-xs font-medium text-white/70">Explanation</span>
+      <div className="h-full flex flex-col overflow-hidden bg-white">
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 flex-shrink-0">
+          <div className="w-1.5 h-1.5 rounded-full bg-[#1ba94c]" />
+          <span className="text-xs font-medium text-gray-600">Explanation</span>
           <div className="flex gap-1 ml-2">
-            <span className="w-1 h-1 rounded-full bg-violet-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-            <span className="w-1 h-1 rounded-full bg-violet-400 animate-bounce" style={{ animationDelay: '150ms' }} />
-            <span className="w-1 h-1 rounded-full bg-violet-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+            <span className="w-1 h-1 rounded-full bg-[#1ba94c] animate-bounce" style={{ animationDelay: '0ms' }} />
+            <span className="w-1 h-1 rounded-full bg-[#1ba94c] animate-bounce" style={{ animationDelay: '150ms' }} />
+            <span className="w-1 h-1 rounded-full bg-[#1ba94c] animate-bounce" style={{ animationDelay: '300ms' }} />
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center">
-          <p className="text-sm text-slate-500">Generating...</p>
+          <p className="text-sm text-gray-400">Generating...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col overflow-hidden bg-[#0d0d12]">
+    <div className="h-full flex flex-col overflow-hidden bg-white">
       {/* Header */}
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-white/5 flex-shrink-0">
-        <div className="w-1.5 h-1.5 rounded-full bg-fuchsia-500" />
-        <span className="text-xs font-medium text-white/70">Explanation</span>
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 flex-shrink-0">
+        <div className="w-1.5 h-1.5 rounded-full bg-[#1ba94c]" />
+        <span className="text-xs font-medium text-gray-600">Explanation</span>
       </div>
 
       {/* Content */}
       <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin p-3 space-y-3">
         {/* Solution Pitch */}
         {pitch && (
-          <div className="p-3 rounded-lg bg-violet-500/10 border-l-2 border-violet-500">
-            <span className="text-xs font-semibold uppercase tracking-wide mb-2 block text-violet-400">
+          <div className="p-3 rounded-lg bg-[#1ba94c]/5 border-l-2 border-[#1ba94c]">
+            <span className="text-xs font-semibold uppercase tracking-wide mb-2 block text-[#1ba94c]">
               Approach
             </span>
             <FormattedText text={pitch} />
@@ -134,7 +134,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
             {canExpandSystemDesign && onExpandSystemDesign && (
               <button
                 onClick={onExpandSystemDesign}
-                className="mt-2 w-full px-3 py-2 text-xs font-medium rounded-lg bg-violet-500/10 text-violet-400 border border-violet-500/20 hover:bg-violet-500/20 transition-colors"
+                className="mt-2 w-full px-3 py-2 text-xs font-medium rounded-lg bg-[#1ba94c]/10 text-[#1ba94c] border border-[#1ba94c]/20 hover:bg-[#1ba94c]/20 transition-colors"
               >
                 Expand System Design
               </button>
@@ -146,7 +146,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
         {explanations && explanations.length > 0 && (
           <div>
             <div className="mb-2">
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+              <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                 Line Breakdown
               </span>
             </div>
@@ -160,26 +160,26 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                     key={index}
                     className={`flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 ${
                       isHighlighted
-                        ? 'bg-violet-500/20'
-                        : 'hover:bg-white/5'
+                        ? 'bg-[#1ba94c]/10'
+                        : 'hover:bg-gray-50'
                     }`}
                   >
                     {/* Line number */}
                     <span
                       className={`flex-shrink-0 w-5 h-5 flex items-center justify-center rounded text-xs font-mono font-medium ${
                         isHighlighted
-                          ? 'bg-violet-500 text-white'
-                          : 'bg-white/10 text-slate-500'
+                          ? 'bg-[#1ba94c] text-white'
+                          : 'bg-gray-100 text-gray-500'
                       }`}
                     >
                       {item.line}
                     </span>
                     {/* Code snippet */}
-                    <code className="flex-shrink-0 text-xs font-mono px-1.5 py-0.5 rounded bg-black/30 text-slate-400 max-w-[140px] truncate">
+                    <code className="flex-shrink-0 text-xs font-mono px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 max-w-[140px] truncate">
                       {item.code}
                     </code>
                     {/* Explanation */}
-                    <span className="text-xs text-slate-400 truncate">
+                    <span className="text-xs text-gray-500 truncate">
                       {item.explanation}
                     </span>
                   </div>

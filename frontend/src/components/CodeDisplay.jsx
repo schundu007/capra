@@ -160,13 +160,13 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
   // Empty state
   if (!code && !isStreaming) {
     return (
-      <div className="h-full flex flex-col bg-[#0a0a0f]">
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-white/5 flex-shrink-0">
-          <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
-          <span className="text-xs font-medium text-white/70">Code</span>
+      <div className="h-full flex flex-col bg-[#1e1e1e]">
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-700 flex-shrink-0">
+          <div className="w-1.5 h-1.5 rounded-full bg-[#1ba94c]" />
+          <span className="text-xs font-medium text-gray-400">Code</span>
         </div>
         <div className="flex-1 flex items-center justify-center">
-          <svg className="w-10 h-10 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
           </svg>
         </div>
@@ -177,35 +177,35 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
   // Streaming state
   if (isStreaming && !code) {
     return (
-      <div className="h-full flex flex-col bg-[#0a0a0f]">
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-white/5 flex-shrink-0">
-          <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
-          <span className="text-xs font-medium text-white/70">Code</span>
+      <div className="h-full flex flex-col bg-[#1e1e1e]">
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-700 flex-shrink-0">
+          <div className="w-1.5 h-1.5 rounded-full bg-[#1ba94c]" />
+          <span className="text-xs font-medium text-gray-400">Code</span>
           <div className="flex gap-1 ml-2">
-            <span className="w-1 h-1 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-            <span className="w-1 h-1 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: '150ms' }} />
-            <span className="w-1 h-1 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+            <span className="w-1 h-1 rounded-full bg-[#1ba94c] animate-bounce" style={{ animationDelay: '0ms' }} />
+            <span className="w-1 h-1 rounded-full bg-[#1ba94c] animate-bounce" style={{ animationDelay: '150ms' }} />
+            <span className="w-1 h-1 rounded-full bg-[#1ba94c] animate-bounce" style={{ animationDelay: '300ms' }} />
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-sm text-slate-500">Generating...</div>
+          <div className="text-sm text-gray-500">Generating...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col bg-[#0a0a0f]">
+    <div className="h-full flex flex-col bg-[#1e1e1e]">
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-white/5 flex-shrink-0">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-gray-700 flex-shrink-0">
         <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
-          <span className="text-xs font-medium text-white/70">Code</span>
-          <span className="text-xs px-2 py-0.5 rounded bg-white/5 text-slate-400">{normalizedLanguage}</span>
+          <div className="w-1.5 h-1.5 rounded-full bg-[#1ba94c]" />
+          <span className="text-xs font-medium text-gray-400">Code</span>
+          <span className="text-xs px-2 py-0.5 rounded bg-gray-700 text-gray-300">{normalizedLanguage}</span>
         </div>
         <button
           onClick={handleCopy}
-          className="px-2 py-1 text-xs font-medium rounded transition-colors text-slate-400 hover:text-white hover:bg-white/5"
+          className="px-2 py-1 text-xs font-medium rounded transition-colors text-gray-400 hover:text-white hover:bg-gray-700"
         >
           {copied ? 'Copied!' : 'Copy'}
         </button>
@@ -226,7 +226,7 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
           customStyle={{
             margin: 0,
             padding: '12px',
-            background: '#0a0a0f',
+            background: '#1e1e1e',
             fontSize: '13px',
             lineHeight: '1.6',
             minHeight: '100%',
@@ -234,7 +234,7 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
           lineNumberStyle={{
             minWidth: '3em',
             paddingRight: '1em',
-            color: '#4a4a5a',
+            color: '#6e7681',
             userSelect: 'none',
           }}
         >

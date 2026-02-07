@@ -580,42 +580,35 @@ export default function App() {
   const isMacElectron = isElectron && navigator.platform.toLowerCase().includes('mac');
 
   return (
-    <div className="h-screen flex flex-col bg-[#0a0a0f] text-white overflow-hidden">
-      {/* Animated Background Orbs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-violet-600/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-fuchsia-600/10 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600/5 rounded-full blur-3xl" />
-      </div>
-
+    <div className="h-screen flex flex-col bg-white text-gray-900 overflow-hidden">
       {/* Header */}
       <header
-        className="relative z-20 flex items-center justify-between px-4 py-2 bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/5"
+        className="relative z-20 flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200"
         style={{ paddingLeft: isMacElectron ? '80px' : '16px' }}
       >
         {/* Left: Logo & Status */}
         <div className="flex items-center gap-3">
           <div className="relative group">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500 flex items-center justify-center shadow-lg shadow-fuchsia-500/25 group-hover:shadow-fuchsia-500/40 transition-shadow">
+            <div className="w-9 h-9 rounded-lg bg-[#1ba94c] flex items-center justify-center">
               <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
               </svg>
             </div>
             {isLoading && (
-              <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse ring-2 ring-[#0a0a0f]" />
+              <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-[#1ba94c] rounded-full animate-pulse ring-2 ring-white" />
             )}
           </div>
-          <h1 className="text-lg font-bold bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
+          <h1 className="text-lg font-bold text-[#1ba94c]">
             Capra
           </h1>
 
           {/* Status Pill */}
           <div className={`hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
             isLoading
-              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-              : 'bg-white/5 text-white/40 border border-white/10'
+              ? 'bg-[#1ba94c]/10 text-[#1ba94c] border border-[#1ba94c]/20'
+              : 'bg-gray-100 text-gray-500 border border-gray-200'
           }`}>
-            <div className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'bg-emerald-400 animate-pulse' : 'bg-white/30'}`} />
+            <div className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'bg-[#1ba94c] animate-pulse' : 'bg-gray-400'}`} />
             {isLoading ? 'Working' : 'Ready'}
           </div>
         </div>
@@ -627,7 +620,7 @@ export default function App() {
           {/* Clear Button */}
           <button
             onClick={handleClearAll}
-            className="p-2 text-white/40 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+            className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
             title="Clear all"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -639,7 +632,7 @@ export default function App() {
           <div className="relative">
             <button
               onClick={() => setShowPlatformDropdown(!showPlatformDropdown)}
-              className="p-2 text-white/40 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+              className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
               title="Coding Platforms"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -651,9 +644,9 @@ export default function App() {
             {showPlatformDropdown && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowPlatformDropdown(false)} />
-                <div className="absolute right-0 mt-2 w-48 rounded-lg bg-[#16161d] border border-white/10 shadow-2xl z-50 py-1 backdrop-blur-xl">
-                  <div className="px-3 py-2 border-b border-white/5">
-                    <span className="text-[10px] font-medium text-white/40 uppercase tracking-wider">Platforms</span>
+                <div className="absolute right-0 mt-2 w-48 rounded-lg bg-white border border-gray-200 shadow-xl z-50 py-1">
+                  <div className="px-3 py-2 border-b border-gray-100">
+                    <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">Platforms</span>
                   </div>
                   {Object.entries(PLATFORMS).map(([key, platform]) => {
                     const isConnected = platformStatus[key]?.authenticated;
@@ -664,7 +657,7 @@ export default function App() {
                           setShowPlatformDropdown(false);
                           setShowPlatformAuth(true);
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-white/5 transition-colors"
+                        className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 transition-colors"
                       >
                         <div
                           className="w-5 h-5 rounded flex items-center justify-center text-white text-[10px] font-bold"
@@ -672,8 +665,8 @@ export default function App() {
                         >
                           {platform.icon}
                         </div>
-                        <span className="flex-1 text-xs text-left text-white/70">{platform.name}</span>
-                        <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-emerald-500' : 'bg-white/20'}`} />
+                        <span className="flex-1 text-xs text-left text-gray-600">{platform.name}</span>
+                        <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-[#1ba94c]' : 'bg-gray-300'}`} />
                       </button>
                     );
                   })}
@@ -687,8 +680,8 @@ export default function App() {
             onClick={() => setShowInterviewAssistant(!showInterviewAssistant)}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
               showInterviewAssistant
-                ? 'bg-fuchsia-500/20 text-fuchsia-300 ring-1 ring-fuchsia-500/30'
-                : 'bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:from-violet-600 hover:to-fuchsia-600'
+                ? 'bg-[#1ba94c]/10 text-[#1ba94c] ring-1 ring-[#1ba94c]/30'
+                : 'bg-[#1ba94c] text-white hover:bg-[#158f3f]'
             }`}
             title="Toggle Interview Assistant"
           >
@@ -702,7 +695,7 @@ export default function App() {
           {/* Settings */}
           <button
             onClick={() => setShowSettings(true)}
-            className="p-2 text-white/40 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+            className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
             title="Settings"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -713,28 +706,28 @@ export default function App() {
 
           {/* User menu */}
           {authRequired && user && (
-            <div className="flex items-center gap-2 ml-2 pl-3 border-l border-slate-700">
+            <div className="flex items-center gap-2 ml-2 pl-3 border-l border-gray-200">
               {isAdmin && (
                 <button
                   onClick={() => setShowAdminPanel(true)}
-                  className="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-slate-600 transition-all"
+                  className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-all"
                   title="User management"
                 >
-                  <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                   </svg>
                 </button>
               )}
               <button
                 onClick={handleLogout}
-                className="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-slate-600 transition-all"
+                className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-all"
                 title="Sign out"
               >
-                <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
               </button>
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center text-xs font-bold text-white shadow-lg">
+              <div className="w-8 h-8 rounded-full bg-[#1ba94c] flex items-center justify-center text-xs font-bold text-white">
                 {(user.name || user.username || 'U')[0].toUpperCase()}
               </div>
             </div>
@@ -744,13 +737,13 @@ export default function App() {
 
       {/* Error Banner */}
       {error && (
-        <div className="relative z-10 mx-4 mt-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg backdrop-blur-sm animate-fade-in">
+        <div className="relative z-10 mx-4 mt-2 p-3 bg-red-50 border border-red-200 rounded-lg animate-fade-in">
           <div className="flex items-center gap-3">
-            <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="text-red-300 text-sm">{error}</span>
-            <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-300 transition-colors">
+            <span className="text-red-600 text-sm">{error}</span>
+            <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-600 transition-colors">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -769,14 +762,14 @@ export default function App() {
               <circle
                 cx="50" cy="50" r="42"
                 fill="none"
-                stroke="rgba(255,255,255,0.1)"
+                stroke="#e5e7eb"
                 strokeWidth="6"
               />
               {/* Animated progress circle */}
               <circle
                 cx="50" cy="50" r="42"
                 fill="none"
-                stroke="url(#progressGradient)"
+                stroke="#1ba94c"
                 strokeWidth="6"
                 strokeLinecap="round"
                 strokeDasharray="264"
@@ -784,19 +777,12 @@ export default function App() {
                 className="animate-spin"
                 style={{ animationDuration: '2s' }}
               />
-              <defs>
-                <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#8b5cf6" />
-                  <stop offset="50%" stopColor="#d946ef" />
-                  <stop offset="100%" stopColor="#06b6d4" />
-                </linearGradient>
-              </defs>
             </svg>
 
             {/* Brain Icon in Center */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-14 h-14 rounded-full bg-[#0d0d12] flex items-center justify-center">
-                <svg className="w-8 h-8 text-violet-400" fill="currentColor" viewBox="0 0 24 24">
+              <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-sm">
+                <svg className="w-8 h-8 text-[#1ba94c]" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
                 </svg>
               </div>
@@ -807,18 +793,18 @@ export default function App() {
 
       {/* Main Layout */}
       <main className="flex-1 overflow-hidden p-1 relative z-10">
-        <div className="h-full rounded-lg overflow-hidden border border-white/5 bg-[#0d0d12]/80 backdrop-blur-xl">
+        <div className="h-full rounded-lg overflow-hidden border border-gray-200 bg-white">
           <Allotment defaultSizes={showInterviewAssistant ? [1, 1, 1] : [1, 1]}>
             {/* Left Pane - Problem + Explanation (stacked vertically) */}
             <Allotment.Pane minSize={300}>
               <Allotment vertical defaultSizes={[1, 1]}>
                 {/* Top: Problem Input */}
                 <Allotment.Pane minSize={150}>
-                  <div className="h-full flex flex-col bg-[#0d0d12]">
+                  <div className="h-full flex flex-col bg-white">
                     {/* Pane Header */}
-                    <div className="flex items-center gap-2 px-3 py-2 border-b border-white/5 flex-shrink-0">
-                      <div className="w-1.5 h-1.5 rounded-full bg-violet-500" />
-                      <span className="text-xs font-medium text-white/70">Problem</span>
+                    <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 flex-shrink-0">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#1ba94c]" />
+                      <span className="text-xs font-medium text-gray-600">Problem</span>
                     </div>
 
                     {/* Problem Input Content - fills remaining space */}
@@ -855,7 +841,7 @@ export default function App() {
 
             {/* Center Pane - Code Editor (full height) */}
             <Allotment.Pane minSize={400}>
-              <div className="h-full border-l border-white/5">
+              <div className="h-full border-l border-gray-200">
                 <CodeDisplay
                   code={solution?.code || streamingContent.code}
                   language={solution?.language || streamingContent.language}
@@ -885,10 +871,10 @@ export default function App() {
       </main>
 
       {/* Footer - Minimal */}
-      <footer className="relative z-10 px-3 py-1.5 flex items-center justify-between text-[10px] text-white/30 border-t border-white/5">
+      <footer className="relative z-10 px-3 py-1.5 flex items-center justify-between text-[10px] text-gray-400 border-t border-gray-200 bg-white">
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1">
-            <span className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'bg-violet-500 animate-pulse' : 'bg-emerald-500'}`} />
+            <span className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'bg-[#1ba94c] animate-pulse' : 'bg-[#1ba94c]'}`} />
             {isLoading ? 'Processing' : 'Ready'}
           </span>
         </div>
