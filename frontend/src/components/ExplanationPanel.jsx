@@ -23,9 +23,9 @@ function FormattedText({ text }) {
         if (para.match(/^[\s]*[-•*]\s/m)) {
           const items = para.split(/\n/).filter(line => line.trim());
           return (
-            <ul key={i} className="space-y-0.5 ml-3 list-disc text-gray-900">
+            <ul key={i} className="space-y-0.5 ml-3 list-disc text-black">
               {items.map((item, j) => (
-                <li key={j} className="text-[11px] leading-snug font-medium">
+                <li key={j} className="text-[11px] leading-snug font-semibold">
                   {item.replace(/^[\s]*[-•*]\s*/, '')}
                 </li>
               ))}
@@ -37,9 +37,9 @@ function FormattedText({ text }) {
         if (para.match(/^[\s]*\d+[.)]\s/m)) {
           const items = para.split(/\n/).filter(line => line.trim());
           return (
-            <ol key={i} className="space-y-0.5 ml-3 list-decimal text-gray-900">
+            <ol key={i} className="space-y-0.5 ml-3 list-decimal text-black">
               {items.map((item, j) => (
-                <li key={j} className="text-[11px] leading-snug font-medium">
+                <li key={j} className="text-[11px] leading-snug font-semibold">
                   {item.replace(/^[\s]*\d+[.)]\s*/, '')}
                 </li>
               ))}
@@ -51,14 +51,14 @@ function FormattedText({ text }) {
         const formatted = para
           .split(/\n/)
           .join(' ')
-          .replace(/\*\*(.+?)\*\*|__(.+?)__/g, '<strong class="text-black font-bold">$1$2</strong>')
-          .replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 py-0.5 rounded text-[10px] text-gray-800 font-semibold">$1</code>')
+          .replace(/\*\*(.+?)\*\*|__(.+?)__/g, '<strong class="font-bold">$1$2</strong>')
+          .replace(/`([^`]+)`/g, '<code class="bg-gray-200 px-1 py-0.5 rounded text-[10px] font-bold">$1</code>')
           .replace(/\*(.+?)\*|_(.+?)_/g, '<em>$1$2</em>');
 
         return (
           <p
             key={i}
-            className="text-[11px] leading-snug text-gray-900 font-medium"
+            className="text-[11px] leading-snug text-black font-semibold"
             dangerouslySetInnerHTML={{ __html: formatted }}
           />
         );
