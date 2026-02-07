@@ -13,7 +13,7 @@ function FormattedText({ text }) {
         if (para.trim().startsWith('```') || para.match(/^[\s]{4,}/m)) {
           const code = para.replace(/^```\w*\n?|```$/g, '').trim();
           return (
-            <pre key={i} className="p-2 rounded text-xs font-mono overflow-x-auto bg-black/30 text-slate-300">
+            <pre key={i} className="p-1.5 rounded text-[10px] font-mono overflow-x-auto bg-black/30 text-slate-300">
               {code}
             </pre>
           );
@@ -23,9 +23,9 @@ function FormattedText({ text }) {
         if (para.match(/^[\s]*[-•*]\s/m)) {
           const items = para.split(/\n/).filter(line => line.trim());
           return (
-            <ul key={i} className="space-y-1 ml-4 list-disc text-slate-300">
+            <ul key={i} className="space-y-0.5 ml-3 list-disc text-slate-300">
               {items.map((item, j) => (
-                <li key={j} className="text-sm leading-relaxed">
+                <li key={j} className="text-[11px] leading-snug">
                   {item.replace(/^[\s]*[-•*]\s*/, '')}
                 </li>
               ))}
@@ -37,9 +37,9 @@ function FormattedText({ text }) {
         if (para.match(/^[\s]*\d+[.)]\s/m)) {
           const items = para.split(/\n/).filter(line => line.trim());
           return (
-            <ol key={i} className="space-y-1 ml-4 list-decimal text-slate-300">
+            <ol key={i} className="space-y-0.5 ml-3 list-decimal text-slate-300">
               {items.map((item, j) => (
-                <li key={j} className="text-sm leading-relaxed">
+                <li key={j} className="text-[11px] leading-snug">
                   {item.replace(/^[\s]*\d+[.)]\s*/, '')}
                 </li>
               ))}
@@ -52,13 +52,13 @@ function FormattedText({ text }) {
           .split(/\n/)
           .join(' ')
           .replace(/\*\*(.+?)\*\*|__(.+?)__/g, '<strong class="text-white font-semibold">$1$2</strong>')
-          .replace(/`([^`]+)`/g, '<code class="bg-black/30 px-1.5 py-0.5 rounded text-xs text-violet-300">$1</code>')
+          .replace(/`([^`]+)`/g, '<code class="bg-black/30 px-1 py-0.5 rounded text-[10px] text-violet-300">$1</code>')
           .replace(/\*(.+?)\*|_(.+?)_/g, '<em>$1$2</em>');
 
         return (
           <p
             key={i}
-            className="text-sm leading-relaxed text-slate-300"
+            className="text-[11px] leading-snug text-slate-300"
             dangerouslySetInnerHTML={{ __html: formatted }}
           />
         );
@@ -74,9 +74,9 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
   if ((!explanations || explanations.length === 0) && !pitch && !hasSystemDesign && !isStreaming) {
     return (
       <div className="h-full flex flex-col overflow-hidden bg-white">
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 flex-shrink-0">
-          <div className="w-1.5 h-1.5 rounded-full bg-[#1ba94c]" />
-          <span className="text-xs font-medium text-gray-600">Explanation</span>
+        <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-gray-200 flex-shrink-0">
+          <div className="w-1 h-1 rounded-full bg-[#1ba94c]" />
+          <span className="text-[10px] font-medium text-gray-600">Explanation</span>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <svg className="w-8 h-8 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,17 +91,17 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
   if (isStreaming && !pitch && (!explanations || explanations.length === 0)) {
     return (
       <div className="h-full flex flex-col overflow-hidden bg-white">
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 flex-shrink-0">
-          <div className="w-1.5 h-1.5 rounded-full bg-[#1ba94c]" />
-          <span className="text-xs font-medium text-gray-600">Explanation</span>
-          <div className="flex gap-1 ml-2">
-            <span className="w-1 h-1 rounded-full bg-[#1ba94c] animate-bounce" style={{ animationDelay: '0ms' }} />
-            <span className="w-1 h-1 rounded-full bg-[#1ba94c] animate-bounce" style={{ animationDelay: '150ms' }} />
-            <span className="w-1 h-1 rounded-full bg-[#1ba94c] animate-bounce" style={{ animationDelay: '300ms' }} />
+        <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-gray-200 flex-shrink-0">
+          <div className="w-1 h-1 rounded-full bg-[#1ba94c]" />
+          <span className="text-[10px] font-medium text-gray-600">Explanation</span>
+          <div className="flex gap-0.5 ml-1.5">
+            <span className="w-0.5 h-0.5 rounded-full bg-[#1ba94c] animate-bounce" style={{ animationDelay: '0ms' }} />
+            <span className="w-0.5 h-0.5 rounded-full bg-[#1ba94c] animate-bounce" style={{ animationDelay: '150ms' }} />
+            <span className="w-0.5 h-0.5 rounded-full bg-[#1ba94c] animate-bounce" style={{ animationDelay: '300ms' }} />
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center">
-          <p className="text-sm text-gray-400">Generating...</p>
+          <p className="text-[11px] text-gray-400">Generating...</p>
         </div>
       </div>
     );
@@ -110,17 +110,17 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
   return (
     <div className="h-full flex flex-col overflow-hidden bg-white">
       {/* Header */}
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 flex-shrink-0">
-        <div className="w-1.5 h-1.5 rounded-full bg-[#1ba94c]" />
-        <span className="text-xs font-medium text-gray-600">Explanation</span>
+      <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-gray-200 flex-shrink-0">
+        <div className="w-1 h-1 rounded-full bg-[#1ba94c]" />
+        <span className="text-[10px] font-medium text-gray-600">Explanation</span>
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin p-3 space-y-3">
+      <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin p-2 space-y-2">
         {/* Solution Pitch */}
         {pitch && (
-          <div className="p-3 rounded-lg bg-[#1ba94c]/5 border-l-2 border-[#1ba94c]">
-            <span className="text-xs font-semibold uppercase tracking-wide mb-2 block text-[#1ba94c]">
+          <div className="p-2 rounded-lg bg-[#1ba94c]/5 border-l-2 border-[#1ba94c]">
+            <span className="text-[9px] font-semibold uppercase tracking-wide mb-1 block text-[#1ba94c]">
               Approach
             </span>
             <FormattedText text={pitch} />
@@ -134,7 +134,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
             {canExpandSystemDesign && onExpandSystemDesign && (
               <button
                 onClick={onExpandSystemDesign}
-                className="mt-2 w-full px-3 py-2 text-xs font-medium rounded-lg bg-[#1ba94c]/10 text-[#1ba94c] border border-[#1ba94c]/20 hover:bg-[#1ba94c]/20 transition-colors"
+                className="mt-1.5 w-full px-2 py-1.5 text-[10px] font-medium rounded-lg bg-[#1ba94c]/10 text-[#1ba94c] border border-[#1ba94c]/20 hover:bg-[#1ba94c]/20 transition-colors"
               >
                 Expand System Design
               </button>
@@ -145,29 +145,29 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
         {/* Line-by-line Explanations */}
         {explanations && explanations.length > 0 && (
           <div>
-            <div className="mb-2">
-              <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+            <div className="mb-1">
+              <span className="text-[9px] font-medium text-gray-500 uppercase tracking-wide">
                 Line Breakdown
               </span>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1">
               {explanations.map((item, index) => {
                 const isHighlighted = highlightedLine === item.line;
 
                 return (
                   <div
                     key={index}
-                    className={`px-2 py-2 rounded transition-all duration-200 ${
+                    className={`px-1.5 py-1 rounded transition-all duration-200 ${
                       isHighlighted
                         ? 'bg-[#1ba94c]/10'
                         : 'hover:bg-gray-50'
                     }`}
                   >
                     {/* Line number + Code */}
-                    <div className="flex items-start gap-2 mb-1">
+                    <div className="flex items-start gap-1.5 mb-0.5">
                       <span
-                        className={`flex-shrink-0 w-6 h-6 flex items-center justify-center rounded text-xs font-mono font-medium ${
+                        className={`flex-shrink-0 w-5 h-5 flex items-center justify-center rounded text-[10px] font-mono font-medium ${
                           isHighlighted
                             ? 'bg-[#1ba94c] text-white'
                             : 'bg-gray-100 text-gray-500'
@@ -175,13 +175,13 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                       >
                         {item.line}
                       </span>
-                      <code className="flex-1 text-sm font-mono text-gray-800 select-text cursor-text whitespace-pre-wrap break-words">
+                      <code className="flex-1 text-[11px] font-mono text-gray-800 select-text cursor-text whitespace-pre-wrap break-words">
                         {item.code}
                       </code>
                     </div>
                     {/* Explanation */}
-                    <div className="pl-8">
-                      <p className="text-xs text-gray-500 select-text">
+                    <div className="pl-6">
+                      <p className="text-[10px] text-gray-500 select-text leading-tight">
                         {item.explanation}
                       </p>
                     </div>
