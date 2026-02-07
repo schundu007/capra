@@ -1,40 +1,28 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Capra Theme - Green, White, Black */
+/* Modern AI Theme - Dark with Violet/Fuchsia accents */
 :root {
-  /* Dark backgrounds (header, code editor) - dark green, not black */
-  --hr-dark-bg: #0a1a10;
-  --hr-dark-secondary: #0f2518;
-  --hr-dark-tertiary: #15322a;
+  /* Dark backgrounds */
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #0d0d12;
+  --bg-tertiary: #121218;
+  --bg-elevated: #16161d;
 
-  /* Light backgrounds (problem panel) */
-  --hr-light-bg: #ffffff;
-  --hr-light-secondary: #f5f9f7;
-  --hr-light-tertiary: #e8f0ec;
-
-  /* Green accent */
-  --hr-green: #1ba94c;
-  --hr-green-hover: #169c46;
-  --hr-green-light: rgba(27, 169, 76, 0.1);
+  /* Accent colors */
+  --accent-violet: #8b5cf6;
+  --accent-fuchsia: #d946ef;
+  --accent-cyan: #06b6d4;
 
   /* Text colors */
-  --hr-text-dark: #111111;
-  --hr-text-medium: #4a4a4a;
-  --hr-text-light: #7a7a7a;
-  --hr-text-on-dark: #ffffff;
-  --hr-text-muted-dark: #b0b0b0;
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-tertiary: rgba(255, 255, 255, 0.4);
 
   /* Borders */
-  --hr-border-light: #d4e0d8;
-  --hr-border-dark: #1a3a25;
-
-  /* Code editor */
-  --hr-line-number: #5a7a65;
-  --hr-line-highlight: rgba(27, 169, 76, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-default: rgba(255, 255, 255, 0.1);
 }
 
 * {
@@ -46,8 +34,9 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--hr-light-bg);
-  color: var(--hr-text-dark);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   font-size: 14px;
   line-height: 1.5;
 }
@@ -265,11 +254,12 @@ body {
   }
 }
 
-/* Code styling */
+/* Code styling - JetBrains Mono for that modern AI look */
 code, pre, textarea.code, .font-mono {
-  font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
-  font-size: 14px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Menlo', monospace;
+  font-size: 13px;
   line-height: 1.6;
+  font-feature-settings: 'liga' 1;
 }
 
 /* Animations */

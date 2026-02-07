@@ -9,17 +9,12 @@ export default function SettingsPanel({ onClose }) {
     hasOpenai: false,
   });
   const [loading, setLoading] = useState(true);
-  const [appVersion, setAppVersion] = useState(null);
 
   useEffect(() => {
     async function loadSettings() {
       if (window.electronAPI) {
-        const [keys, version] = await Promise.all([
-          window.electronAPI.getApiKeys(),
-          window.electronAPI.getAppVersion(),
-        ]);
+        const keys = await window.electronAPI.getApiKeys();
         setApiKeys(keys);
-        setAppVersion(version);
       }
       setLoading(false);
     }
@@ -28,28 +23,23 @@ export default function SettingsPanel({ onClose }) {
 
   const handleSaveKey = async (provider, key) => {
     if (!window.electronAPI) return;
-
     const updated = await window.electronAPI.setApiKeys({ [provider]: key });
     setApiKeys(updated);
-
-    // Notify main process to update backend server
     window.electronAPI.setApiKeys({ [provider]: key });
   };
 
   const handleDeleteKey = async (provider) => {
     if (!window.electronAPI) return;
-
-    // Set to null to delete
     const updated = await window.electronAPI.setApiKeys({ [provider]: null });
     setApiKeys(updated);
   };
 
   if (loading) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
-        <div className="bg-white rounded-2xl p-8 max-w-lg w-full mx-4" style={{ border: '1px solid #d4e0d8' }}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div className="bg-white rounded-lg p-6 w-72">
           <div className="flex items-center justify-center">
-            <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#1ba94c', borderTopColor: 'transparent' }} />
+            <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
           </div>
         </div>
       </div>
@@ -57,66 +47,40 @@ export default function SettingsPanel({ onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
-      <div className="bg-white rounded-2xl max-w-lg w-full mx-4 overflow-hidden" style={{ border: '1px solid #d4e0d8', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="bg-white rounded-lg w-80 overflow-hidden shadow-xl">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #d4e0d8' }}>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#1ba94c' }}>
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold" style={{ color: '#111111' }}>Settings</h2>
-              {appVersion && (
-                <p className="text-sm" style={{ color: '#7a7a7a' }}>Capra v{appVersion}</p>
-              )}
-            </div>
-          </div>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+          <span className="text-sm font-semibold text-slate-800">Settings</span>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg transition-colors hover:bg-gray-100"
-            style={{ color: '#7a7a7a' }}
+            className="text-slate-400 hover:text-slate-600"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6">
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium uppercase tracking-wider mb-3" style={{ color: '#4a4a4a' }}>
-              API Keys
-            </h3>
+        <div className="px-4 py-3">
+          <p className="text-xs text-slate-500 mb-2">API Keys</p>
 
-            <ApiKeyInput
-              provider="anthropic"
-              currentKey={apiKeys.anthropic}
-              hasKey={apiKeys.hasAnthropic}
-              onSave={(key) => handleSaveKey('anthropic', key)}
-              onDelete={() => handleDeleteKey('anthropic')}
-            />
+          <ApiKeyInput
+            provider="anthropic"
+            currentKey={apiKeys.anthropic}
+            hasKey={apiKeys.hasAnthropic}
+            onSave={(key) => handleSaveKey('anthropic', key)}
+            onDelete={() => handleDeleteKey('anthropic')}
+          />
 
-            <ApiKeyInput
-              provider="openai"
-              currentKey={apiKeys.openai}
-              hasKey={apiKeys.hasOpenai}
-              onSave={(key) => handleSaveKey('openai', key)}
-              onDelete={() => handleDeleteKey('openai')}
-            />
-          </div>
-
-          {/* Info */}
-          <div className="mt-6 flex items-center gap-2 text-xs" style={{ color: '#7a7a7a' }}>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-            <span>Keys stored in system keychain</span>
-          </div>
+          <ApiKeyInput
+            provider="openai"
+            currentKey={apiKeys.openai}
+            hasKey={apiKeys.hasOpenai}
+            onSave={(key) => handleSaveKey('openai', key)}
+            onDelete={() => handleDeleteKey('openai')}
+          />
         </div>
       </div>
     </div>
