@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 const LANGUAGES = [
   { value: 'auto', label: 'Auto' },
@@ -26,6 +26,38 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
   const [isDragging, setIsDragging] = useState(false);
   const [preview, setPreview] = useState(null);
   const fileInputRef = useRef(null);
+  const textareaRef = useRef(null);
+
+  // Auto-resize textarea based on content
+  const adjustTextareaHeight = useCallback((shrink = false) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const lineHeight = 18; // approx line height for text-[11px]
+    const minRows = 2;
+    const maxRows = 12;
+    const minHeight = lineHeight * minRows + 12; // 12px for padding
+    const maxHeight = lineHeight * maxRows + 12;
+
+    if (shrink) {
+      // Shrink to minimum height
+      textarea.style.height = `${minHeight}px`;
+    } else {
+      // Reset height to auto to get scrollHeight
+      textarea.style.height = 'auto';
+      const scrollHeight = textarea.scrollHeight;
+      // Clamp between min and max
+      const newHeight = Math.min(Math.max(scrollHeight, minHeight), maxHeight);
+      textarea.style.height = `${newHeight}px`;
+    }
+  }, []);
+
+  // Shrink textarea when solution is generated
+  useEffect(() => {
+    if (hasSolution) {
+      adjustTextareaHeight(true);
+    }
+  }, [hasSolution, adjustTextareaHeight]);
 
   useEffect(() => {
     if (extractedText) {
@@ -42,8 +74,10 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
       setUrl('');
       setPreview(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
+      // Reset textarea height
+      adjustTextareaHeight(true);
     }
-  }, [shouldClear]);
+  }, [shouldClear, adjustTextareaHeight]);
 
   const handleTextSubmit = (e) => {
     e.preventDefault();
@@ -166,15 +200,24 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
         </div>
       </div>
 
-      {/* Content - Fills remaining space */}
-      <div className="flex-1 flex flex-col min-h-0">
+      {/* Content */}
+      <div className="flex flex-col">
         {activeTab === 'text' && (
-          <form onSubmit={handleTextSubmit} className="flex-1 flex flex-col min-h-0">
+          <form onSubmit={handleTextSubmit} className="flex flex-col">
             <textarea
+              ref={textareaRef}
               value={problemText}
-              onChange={(e) => setProblemText(e.target.value)}
+              onChange={(e) => {
+                setProblemText(e.target.value);
+                adjustTextareaHeight(false);
+              }}
+              onPaste={() => {
+                // Delay to allow paste to complete
+                setTimeout(() => adjustTextareaHeight(false), 0);
+              }}
               placeholder="Paste coding problem..."
-              className="flex-1 w-full px-2 py-1.5 text-[11px] font-mono resize-none rounded-lg bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#1ba94c]"
+              className="w-full px-2 py-1.5 text-[11px] font-mono resize-none rounded-lg bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#1ba94c]"
+              style={{ minHeight: '48px', maxHeight: '228px' }}
               disabled={isLoading}
             />
             <div className="flex items-center justify-between mt-1.5 flex-shrink-0">
