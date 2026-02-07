@@ -76,7 +76,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
       <div className="h-full flex flex-col overflow-hidden bg-white">
         <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-gray-200 flex-shrink-0">
           <div className="w-1 h-1 rounded-full bg-[#1ba94c]" />
-          <span className="text-[10px] font-medium text-gray-600">Explanation</span>
+          <span className="text-[10px] font-bold text-black">Explanation</span>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <svg className="w-8 h-8 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,7 +93,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
       <div className="h-full flex flex-col overflow-hidden bg-white">
         <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-gray-200 flex-shrink-0">
           <div className="w-1 h-1 rounded-full bg-[#1ba94c]" />
-          <span className="text-[10px] font-medium text-gray-600">Explanation</span>
+          <span className="text-[10px] font-bold text-black">Explanation</span>
           <div className="flex gap-0.5 ml-1.5">
             <span className="w-0.5 h-0.5 rounded-full bg-[#1ba94c] animate-bounce" style={{ animationDelay: '0ms' }} />
             <span className="w-0.5 h-0.5 rounded-full bg-[#1ba94c] animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -112,7 +112,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
       {/* Header */}
       <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-gray-200 flex-shrink-0">
         <div className="w-1 h-1 rounded-full bg-[#1ba94c]" />
-        <span className="text-[10px] font-medium text-gray-600">Explanation</span>
+        <span className="text-[10px] font-bold text-black">Explanation</span>
       </div>
 
       {/* Content */}
@@ -120,7 +120,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
         {/* Solution Pitch */}
         {pitch && (
           <div className="p-2 rounded-lg bg-[#1ba94c]/5 border-l-2 border-[#1ba94c]">
-            <span className="text-[9px] font-semibold uppercase tracking-wide mb-1 block text-[#1ba94c]">
+            <span className="text-[10px] font-bold uppercase tracking-wide mb-1 block text-black">
               Approach
             </span>
             <FormattedText text={pitch} />
@@ -146,7 +146,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
         {explanations && explanations.length > 0 && (
           <div>
             <div className="mb-1">
-              <span className="text-[9px] font-medium text-gray-500 uppercase tracking-wide">
+              <span className="text-[10px] font-bold text-black uppercase tracking-wide">
                 Line Breakdown
               </span>
             </div>
