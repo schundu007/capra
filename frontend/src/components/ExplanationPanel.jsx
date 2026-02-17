@@ -25,7 +25,7 @@ function FormattedText({ text }) {
           return (
             <ul key={i} className="space-y-0.5 ml-3 list-disc text-gray-800">
               {items.map((item, j) => (
-                <li key={j} className="text-[13px] leading-snug font-medium">
+                <li key={j} className="text-[15px] leading-snug font-medium">
                   {item.replace(/^[\s]*[-•*]\s*/, '')}
                 </li>
               ))}
@@ -39,7 +39,7 @@ function FormattedText({ text }) {
           return (
             <ol key={i} className="space-y-0.5 ml-3 list-decimal text-gray-800">
               {items.map((item, j) => (
-                <li key={j} className="text-[13px] leading-snug font-medium">
+                <li key={j} className="text-[15px] leading-snug font-medium">
                   {item.replace(/^[\s]*\d+[.)]\s*/, '')}
                 </li>
               ))}
@@ -58,7 +58,7 @@ function FormattedText({ text }) {
         return (
           <p
             key={i}
-            className="text-[13px] leading-relaxed font-medium text-gray-700"
+            className="text-[15px] leading-relaxed font-medium text-gray-700"
             dangerouslySetInnerHTML={{ __html: formatted }}
           />
         );
@@ -123,7 +123,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
         {/* Solution Pitch */}
         {pitch && (
           <div className="p-3 rounded-lg bg-[#10b981]/5 border-l-2 border-[#10b981]">
-            <span className="text-[11px] font-bold uppercase tracking-wide mb-2 block text-[#10b981]">
+            <span className="text-[14px] font-bold uppercase tracking-wide mb-2 block text-[#10b981]">
               Approach
             </span>
             <FormattedText text={pitch} />
