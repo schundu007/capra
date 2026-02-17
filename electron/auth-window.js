@@ -11,12 +11,20 @@ function safeLog(...args) {
 
 // Platform login URLs
 const PLATFORM_URLS = {
+  // Coding platforms
   coderpad: 'https://coderpad.io/login',
   hackerrank: 'https://www.hackerrank.com/auth/login',
   leetcode: 'https://leetcode.com/accounts/login/',
   codesignal: 'https://app.codesignal.com/login',
   codility: 'https://app.codility.com/accounts/login/',
   glider: 'https://glider.ai/login',
+  // Interview prep platforms
+  techprep: 'https://www.techprep.app/login',
+  algomaster: 'https://www.algomaster.io/login',
+  neetcode: 'https://neetcode.io/login',
+  interviewbit: 'https://www.interviewbit.com/login/',
+  educative: 'https://www.educative.io/login',
+  designgurus: 'https://www.designgurus.io/login',
 };
 
 // Platform dashboard URLs (to detect successful login)
@@ -28,6 +36,13 @@ const PLATFORM_DASHBOARDS = {
   codesignal: ['codesignal.com/profile', 'codesignal.com/tasks', 'codesignal.com/coding-report', 'codesignal.com/test', 'codesignal.com/client-dashboard', 'codesignal.com/home', 'codesignal.com/company', 'codesignal.com/public-test', 'codesignal.com/interview', 'codesignal.com/learn/', 'codesignal.com/course', 'codesignal.com/path', 'codesignal.com/arcade'],
   codility: ['codility.com/programmers', 'codility.com/c/', 'codility.com/demo', 'codility.com/test'],
   glider: ['glider.ai/dashboard', 'gliderassessment.com', 'glider.ai/assessment', 'glider.ai/test'],
+  // Interview prep platforms
+  techprep: ['techprep.app/full-stack', 'techprep.app/system-design', 'techprep.app/data-structures', 'techprep.app/dashboard'],
+  algomaster: ['algomaster.io/dashboard', 'algomaster.io/problems', 'algomaster.io/roadmap'],
+  neetcode: ['neetcode.io/practice', 'neetcode.io/roadmap', 'neetcode.io/problems'],
+  interviewbit: ['interviewbit.com/courses', 'interviewbit.com/practice', 'interviewbit.com/dashboard'],
+  educative: ['educative.io/learn', 'educative.io/courses', 'educative.io/profile'],
+  designgurus: ['designgurus.io/course', 'designgurus.io/path', 'designgurus.io/dashboard'],
 };
 
 // Login page patterns to exclude

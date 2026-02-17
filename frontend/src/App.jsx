@@ -15,6 +15,7 @@ import SetupWizard from './components/settings/SetupWizard';
 import PlatformAuth from './components/PlatformAuth';
 import InterviewAssistantPanel from './components/InterviewAssistantPanel';
 import InterviewModeSelector from './components/InterviewModeSelector';
+import PrepTab from './components/PrepTab';
 import { getApiUrl } from './hooks/useElectron';
 
 // Detect Electron environment
@@ -188,6 +189,7 @@ export default function App() {
   const [showInterviewAssistant, setShowInterviewAssistant] = useState(false);
   const [showPlatformDropdown, setShowPlatformDropdown] = useState(false);
   const [platformStatus, setPlatformStatus] = useState({});
+  const [showPrepTab, setShowPrepTab] = useState(false);
 
   // Check if user is admin
   const isAdmin = user?.roles?.includes('admin');
@@ -802,6 +804,24 @@ export default function App() {
             />
             {isLoading ? 'Processing' : 'Ready'}
           </div>
+
+          {/* Prep Hub Button - Highlighted */}
+          {isElectron && (
+            <button
+              onClick={() => setShowPrepTab(true)}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl transition-all hover:scale-105"
+              style={{
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 50%, #0d9488 100%)',
+                color: 'white',
+                boxShadow: '0 4px 20px rgba(16, 185, 129, 0.4), 0 0 40px rgba(16, 185, 129, 0.2)',
+                border: '2px solid rgba(255,255,255,0.2)'
+              }}
+              title="Interview Prep Hub"
+            >
+              <span className="text-lg">🚀</span>
+              <span>Prep Hub</span>
+            </button>
+          )}
         </div>
 
         {/* Right: Controls */}
@@ -1150,6 +1170,11 @@ export default function App() {
       {/* Platform Auth (Electron) */}
       {showPlatformAuth && (
         <PlatformAuth onClose={() => setShowPlatformAuth(false)} />
+      )}
+
+      {/* Interview Prep Hub (Electron) */}
+      {showPrepTab && (
+        <PrepTab isOpen={showPrepTab} onClose={() => setShowPrepTab(false)} />
       )}
     </div>
   );

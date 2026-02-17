@@ -147,9 +147,14 @@ export default function InterviewAssistantPanel({ onClose, provider, model }) {
   useEffect(() => {
     async function loadDevices() {
       try {
-        // Request permission first to get device labels
-        await navigator.mediaDevices.getUserMedia({ audio: true })
-          .then(stream => stream.getTracks().forEach(track => track.stop()));
+        // Try to request permission first to get device labels
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          stream.getTracks().forEach(track => track.stop());
+        } catch (permErr) {
+          console.warn('Initial audio permission request failed:', permErr.message);
+          // Continue anyway - we'll handle permission errors when recording starts
+        }
 
         const devices = await navigator.mediaDevices.enumerateDevices();
         const inputs = devices.filter(d => d.kind === 'audioinput');
@@ -163,17 +168,23 @@ export default function InterviewAssistantPanel({ onClose, provider, model }) {
 
         if (savedMic && inputs.find(d => d.deviceId === savedMic)) {
           setSelectedMic(savedMic);
-        } else if (!selectedMic && inputs.length > 0) {
+        } else if (inputs.length > 0) {
           setSelectedMic(inputs[0].deviceId);
         }
 
         if (savedSpeaker && outputs.find(d => d.deviceId === savedSpeaker)) {
           setSelectedSpeaker(savedSpeaker);
-        } else if (!selectedSpeaker && outputs.length > 0) {
+        } else if (outputs.length > 0) {
           setSelectedSpeaker(outputs[0].deviceId);
+        }
+
+        // Show warning if no inputs found
+        if (inputs.length === 0) {
+          setError('No microphone detected. Please connect a microphone.');
         }
       } catch (err) {
         console.error('Failed to enumerate devices:', err);
+        setError('Could not detect audio devices. Please check permissions.');
       }
     }
 
@@ -339,22 +350,50 @@ export default function InterviewAssistantPanel({ onClose, provider, model }) {
       setError(null);
       setRecordingDuration(0);
 
+      // First, refresh device list to ensure we have current info
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const inputs = devices.filter(d => d.kind === 'audioinput');
+      setAudioDevices(prev => ({ ...prev, inputs }));
+
+      // Check if selected mic still exists
+      const selectedMicExists = inputs.find(d => d.deviceId === selectedMic);
+
       const audioConstraints = {
         echoCancellation: true,
         noiseSuppression: true,
         autoGainControl: true,
       };
 
-      // Use selected microphone if available
-      if (selectedMic) {
+      // Use selected microphone if it exists, otherwise use default
+      if (selectedMic && selectedMicExists) {
         audioConstraints.deviceId = { exact: selectedMic };
+        console.log('[Recording] Using selected mic:', selectedMic);
+      } else if (inputs.length > 0) {
+        // Fall back to first available device
+        const fallbackDevice = inputs[0].deviceId;
+        audioConstraints.deviceId = { ideal: fallbackDevice };
+        setSelectedMic(fallbackDevice);
+        console.log('[Recording] Selected mic not found, using fallback:', fallbackDevice);
       }
 
-      console.log('[Recording] Getting microphone stream with device:', selectedMic || 'default');
+      console.log('[Recording] Getting microphone stream...');
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: audioConstraints,
-      });
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: audioConstraints,
+        });
+      } catch (firstErr) {
+        // If exact device fails, try without device constraint
+        console.log('[Recording] First attempt failed, trying default mic');
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          },
+        });
+      }
       streamRef.current = stream;
 
       console.log('[Recording] Started successfully');
@@ -445,7 +484,14 @@ export default function InterviewAssistantPanel({ onClose, provider, model }) {
       console.log('[Recording] Started successfully');
     } catch (err) {
       console.error('[Recording] Error:', err);
-      setError('Microphone access denied: ' + err.message);
+      // Provide helpful error messages
+      if (err.name === 'NotFoundError' || err.message.includes('not found')) {
+        setError('No microphone found. Please connect a microphone and try again.');
+      } else if (err.name === 'NotAllowedError' || err.message.includes('denied')) {
+        setError('Microphone permission denied. Please allow microphone access in your browser/system settings.');
+      } else {
+        setError('Microphone error: ' + err.message);
+      }
     }
   };
 
