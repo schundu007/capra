@@ -26,6 +26,9 @@ function sanitizeMermaidChart(chart) {
     .replace(/\r\n/g, '\n')
     .trim();
 
+  // Remove markdown code blocks if present
+  clean = clean.replace(/^```mermaid\s*/i, '').replace(/```\s*$/, '').trim();
+
   // Add flowchart directive if missing
   if (!clean.match(/^(flowchart|graph|sequenceDiagram|classDiagram|stateDiagram|erDiagram|gantt|pie|journey)/i)) {
     clean = 'flowchart LR\n' + clean;
@@ -36,22 +39,97 @@ function sanitizeMermaidChart(chart) {
 
   // Fix common syntax issues for mermaid v11
   const lines = clean.split('\n');
-  const fixedLines = lines.map((line, i) => {
-    if (i === 0) return line; // Keep directive line as-is
+  const fixedLines = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+
+    // Skip empty lines and comments
+    if (!line.trim() || line.trim().startsWith('%%')) {
+      continue;
+    }
+
+    // Keep directive line as-is (first non-empty line)
+    if (fixedLines.length === 0 && line.match(/^(flowchart|graph|sequenceDiagram)/i)) {
+      fixedLines.push(line);
+      continue;
+    }
+
+    // Skip invalid lines that are just text without structure
+    if (!line.includes('[') && !line.includes('(') && !line.includes('{') &&
+        !line.includes('-->') && !line.includes('---') && !line.includes('-.->') &&
+        !line.trim().startsWith('subgraph') && !line.trim().startsWith('end') &&
+        !line.trim().startsWith('style') && !line.trim().startsWith('class') &&
+        !line.trim().startsWith('linkStyle')) {
+      continue;
+    }
 
     // Fix arrows: ensure proper spacing
     line = line.replace(/\s*-->\s*/g, ' --> ');
     line = line.replace(/\s*---\s*/g, ' --- ');
     line = line.replace(/\s*-\.->\s*/g, ' -.-> ');
+    line = line.replace(/\s*==>\s*/g, ' ==> ');
+
+    // Fix arrow labels - |label| format
+    line = line.replace(/-->\|([^|]+)\|/g, '--> |$1|');
+    line = line.replace(/\|->\|/g, '|-->|');
+
+    // Fix subgraph syntax
+    if (line.trim().startsWith('subgraph')) {
+      // Ensure proper subgraph format: subgraph ID[Label] or subgraph ID
+      line = line.replace(/subgraph\s+"([^"]+)"/g, 'subgraph $1');
+      line = line.replace(/subgraph\s+'([^']+)'/g, 'subgraph $1');
+    }
 
     // Fix node definitions with special characters in IDs
     // Replace spaces in node IDs with underscores
     line = line.replace(/([A-Za-z])(\s+)(\[|\(|\{)/g, '$1$3');
 
-    return line;
-  });
+    // Fix node IDs with special characters - replace with underscores
+    line = line.replace(/([A-Za-z0-9_]+)\s*-\s*([A-Za-z0-9_]+)/g, (match, p1, p2) => {
+      // Only fix if it's a node ID pattern (not an arrow)
+      if (match.includes('->')) return match;
+      return `${p1}_${p2}`;
+    });
 
-  return fixedLines.join('\n');
+    // Fix labels with special characters - ensure they're properly quoted
+    // Replace problematic characters in labels
+    line = line.replace(/\[([^\]]*)\]/g, (match, label) => {
+      // Remove or escape problematic characters in labels
+      let fixedLabel = label
+        .replace(/"/g, "'")  // Replace double quotes
+        .replace(/;/g, ',')  // Replace semicolons
+        .replace(/\n/g, ' ') // Replace newlines
+        .trim();
+      return `[${fixedLabel}]`;
+    });
+
+    line = line.replace(/\(([^)]*)\)/g, (match, label) => {
+      // Only fix if it looks like a node label (contains letters)
+      if (!/[a-zA-Z]/.test(label)) return match;
+      let fixedLabel = label
+        .replace(/"/g, "'")
+        .replace(/;/g, ',')
+        .replace(/\n/g, ' ')
+        .trim();
+      return `(${fixedLabel})`;
+    });
+
+    // Ensure line doesn't have trailing special characters
+    line = line.replace(/;\s*$/, '');
+
+    fixedLines.push(line);
+  }
+
+  const result = fixedLines.join('\n');
+
+  // Final validation - if it's too short, it's probably broken
+  if (fixedLines.length < 2) {
+    console.warn('Mermaid chart too short after sanitization:', result);
+    return 'flowchart LR\n  A[System] --> B[Component]';
+  }
+
+  return result;
 }
 
 function MermaidDiagram({ chart }) {
@@ -65,6 +143,7 @@ function MermaidDiagram({ chart }) {
     const renderDiagram = async () => {
       try {
         const cleanChart = sanitizeMermaidChart(chart);
+        console.log('[Mermaid] Sanitized chart:', cleanChart);
 
         // Generate unique ID
         const id = `mermaid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -75,6 +154,8 @@ function MermaidDiagram({ chart }) {
         setError(null);
       } catch (err) {
         console.error('Mermaid render error:', err);
+        console.error('Original chart:', chart);
+        console.error('Sanitized chart:', sanitizeMermaidChart(chart));
         setError(err.message || 'Failed to render diagram');
       }
     };
@@ -110,6 +191,43 @@ function MermaidDiagram({ chart }) {
   );
 }
 
+// Modal component for full-screen diagram view
+function DiagramModal({ isOpen, onClose, title, children }) {
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="relative bg-white rounded-xl shadow-2xl w-[95vw] h-[90vh] flex flex-col"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+          <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-purple-500" />
+            {title}
+          </h3>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        {/* Content */}
+        <div className="flex-1 overflow-auto p-4 flex items-center justify-center bg-gray-50">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Collapsible section component
 function CollapsibleSection({ title, icon, color, children, defaultOpen = true, badge }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -141,6 +259,8 @@ function CollapsibleSection({ title, icon, color, children, defaultOpen = true, 
 
 export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGenerateEraserDiagram }) {
   const [generatingEraser, setGeneratingEraser] = useState(false);
+  const [flowDiagramModal, setFlowDiagramModal] = useState(false);
+  const [proDiagramModal, setProDiagramModal] = useState(false);
 
   const handleGenerateEraser = async () => {
     if (!onGenerateEraserDiagram) return;
@@ -274,93 +394,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
           )}
         </div>
 
-        {/* Row 3: Diagrams - Stacked vertically for better readability */}
-        <div className="space-y-2">
-          {/* Architecture Diagram (Mermaid) - Full width */}
-          {systemDesign.diagram && (
-            <div className="rounded-lg p-3 bg-white border border-gray-200">
-              <h4 className="text-[10px] font-semibold text-gray-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-                Flow Diagram
-              </h4>
-              <div className="overflow-auto" style={{ maxHeight: '500px' }}>
-                <MermaidDiagram chart={systemDesign.diagram} />
-              </div>
-            </div>
-          )}
-
-          {/* Professional Diagram (Eraser.io) - Full width */}
-          <div className="rounded-lg p-3 bg-white border border-gray-200">
-            <h4 className="text-[10px] font-semibold text-gray-600 uppercase tracking-wide mb-2 flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-                Pro Diagram
-              </span>
-              {onGenerateEraserDiagram && !eraserDiagram && (
-                <button
-                  onClick={handleGenerateEraser}
-                  disabled={generatingEraser}
-                  className="flex items-center gap-1 px-2 py-1 text-[9px] font-medium rounded transition-all"
-                  style={{
-                    background: generatingEraser ? '#e5e7eb' : 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-                    color: generatingEraser ? '#9ca3af' : 'white',
-                  }}
-                >
-                  {generatingEraser ? (
-                    <>
-                      <svg className="w-2.5 h-2.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                      </svg>
-                      ...
-                    </>
-                  ) : (
-                    <>
-                      <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      Generate
-                    </>
-                  )}
-                </button>
-              )}
-            </h4>
-
-            {eraserDiagram ? (
-              <div>
-                <div className="rounded-lg overflow-hidden border border-gray-200">
-                  <img
-                    src={eraserDiagram.imageUrl}
-                    alt="Architecture Diagram"
-                    className="w-full h-auto"
-                  />
-                </div>
-                {eraserDiagram.editUrl && (
-                  <a
-                    href={eraserDiagram.editUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 text-[9px] font-medium rounded bg-purple-50 text-purple-600 border border-purple-200 hover:bg-purple-100"
-                  >
-                    <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                    Edit
-                  </a>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-4 text-gray-400">
-                <svg className="w-6 h-6 mx-auto mb-1 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <p className="text-[9px]">Click Generate for pro diagram</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Row 4: API Design - Collapsible */}
+        {/* Row 3: API Design - Collapsible */}
         {systemDesign.apiDesign && systemDesign.apiDesign.length > 0 && (
           <CollapsibleSection
             title="API Design"
@@ -390,7 +424,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
           </CollapsibleSection>
         )}
 
-        {/* Row 5: Data Model - Collapsible */}
+        {/* Row 4: Data Model - Collapsible */}
         {systemDesign.dataModel && systemDesign.dataModel.length > 0 && (
           <CollapsibleSection
             title="Data Model"
@@ -420,6 +454,160 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
             </div>
           </CollapsibleSection>
         )}
+
+        {/* Row 5: Diagrams - Full width, no scrolling */}
+        <div className="space-y-2">
+          {/* Architecture Diagram (Mermaid) - Full width, clickable */}
+          {systemDesign.diagram && (
+            <div
+              className="rounded-lg p-3 bg-white border border-gray-200 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all group"
+              onClick={() => setFlowDiagramModal(true)}
+            >
+              <h4 className="text-[10px] font-semibold text-gray-600 uppercase tracking-wide mb-2 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                  Flow Diagram
+                </span>
+                <span className="text-[8px] text-gray-400 group-hover:text-purple-500 flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                  </svg>
+                  Click to expand
+                </span>
+              </h4>
+              <div className="w-full">
+                <MermaidDiagram chart={systemDesign.diagram} />
+              </div>
+            </div>
+          )}
+
+          {/* Professional Diagram (Eraser.io) - Full width, clickable when has diagram */}
+          <div
+            className={`rounded-lg p-3 bg-white border border-gray-200 ${eraserDiagram ? 'cursor-pointer hover:border-purple-300 hover:shadow-md group' : ''} transition-all`}
+            onClick={() => eraserDiagram && setProDiagramModal(true)}
+          >
+            <h4 className="text-[10px] font-semibold text-gray-600 uppercase tracking-wide mb-2 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                Pro Diagram
+              </span>
+              <div className="flex items-center gap-2">
+                {eraserDiagram && (
+                  <span className="text-[8px] text-gray-400 group-hover:text-purple-500 flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    </svg>
+                    Click to expand
+                  </span>
+                )}
+                {onGenerateEraserDiagram && !eraserDiagram && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleGenerateEraser(); }}
+                    disabled={generatingEraser}
+                    className="flex items-center gap-1 px-2 py-1 text-[9px] font-medium rounded transition-all"
+                    style={{
+                      background: generatingEraser ? '#e5e7eb' : 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                      color: generatingEraser ? '#9ca3af' : 'white',
+                    }}
+                  >
+                    {generatingEraser ? (
+                      <>
+                        <svg className="w-2.5 h-2.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        ...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Generate
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            </h4>
+
+            {eraserDiagram ? (
+              <div className="w-full">
+                <div className="rounded-lg overflow-hidden border border-gray-200">
+                  <img
+                    src={eraserDiagram.imageUrl}
+                    alt="Architecture Diagram"
+                    className="w-full h-auto"
+                  />
+                </div>
+                {eraserDiagram.editUrl && (
+                  <a
+                    href={eraserDiagram.editUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 text-[9px] font-medium rounded bg-purple-50 text-purple-600 border border-purple-200 hover:bg-purple-100"
+                  >
+                    <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    Edit
+                  </a>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-4 text-gray-400">
+                <svg className="w-6 h-6 mx-auto mb-1 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="text-[9px]">Click Generate for pro diagram</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Flow Diagram Modal */}
+        <DiagramModal
+          isOpen={flowDiagramModal}
+          onClose={() => setFlowDiagramModal(false)}
+          title="Flow Diagram"
+        >
+          <div className="w-full h-full flex items-center justify-center">
+            <MermaidDiagram chart={systemDesign.diagram} />
+          </div>
+        </DiagramModal>
+
+        {/* Pro Diagram Modal */}
+        <DiagramModal
+          isOpen={proDiagramModal}
+          onClose={() => setProDiagramModal(false)}
+          title="Pro Diagram"
+        >
+          {eraserDiagram && (
+            <div className="max-w-full max-h-full">
+              <img
+                src={eraserDiagram.imageUrl}
+                alt="Architecture Diagram"
+                className="max-w-full max-h-[80vh] object-contain"
+              />
+              {eraserDiagram.editUrl && (
+                <div className="mt-3 text-center">
+                  <a
+                    href={eraserDiagram.editUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    Edit in Eraser.io
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
+        </DiagramModal>
       </div>
     </div>
   );

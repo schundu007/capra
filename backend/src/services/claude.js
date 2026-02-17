@@ -229,12 +229,21 @@ For this BASIC system design interview:
 
 IMPORTANT: Do NOT generate code. Focus entirely on system design.
 
-DIAGRAM STYLE - Create a CLEAN, WHITEBOARD-STYLE diagram like a Google/FAANG interview:
+DIAGRAM STYLE - Create a CLEAN, WHITEBOARD-STYLE diagram:
 - Keep it SIMPLE - only 5-10 boxes maximum
-- Use clear, readable labels (e.g., "User", "API Gateway", "Database")
-- Show the main data flow with arrows
-- Group related components in subgraphs when needed
-- Make it something you could draw on a whiteboard in 5 minutes
+- Use SIMPLE node IDs (single words, no spaces or special chars): User, API, DB, Cache
+- Use clear labels in brackets: User[Client], API[API Server], DB[(Database)]
+- Show data flow with simple arrows: -->
+- NO subgraphs for basic diagrams
+- NO special characters in node IDs or labels
+
+DIAGRAM SYNTAX RULES (CRITICAL - must follow exactly):
+- Start with: flowchart LR (or TB for vertical)
+- Node format: NodeID[Label] or NodeID[(Database Label)] or NodeID((Circle))
+- Arrow format: NodeA --> NodeB
+- Each connection on its own line
+- NO semicolons, NO quotes around labels
+- Keep labels short (1-3 words max)
 
 Respond with valid JSON in exactly this format:
 {
@@ -261,7 +270,7 @@ Respond with valid JSON in exactly this format:
       "components": ["Load Balancer", "Web Server", "Database", "Cache"],
       "description": "Simple architecture flow description"
     },
-    "diagram": "flowchart LR\\n  User[User] --> API[API Server]\\n  API --> DB[(Database)]\\n  API --> Cache[(Cache)]",
+    "diagram": "flowchart LR\\n  User[Client] --> LB[Load Balancer]\\n  LB --> API[API Server]\\n  API --> Cache[(Redis)]\\n  API --> DB[(Database)]",
     "scalability": ["Basic horizontal scaling strategies"]
   }
 }`;
@@ -282,21 +291,21 @@ For this FULL/DETAILED system design interview:
 
 IMPORTANT: Do NOT generate code. Focus entirely on system design.
 
-DIAGRAM STYLE - Create a CLEAN, WHITEBOARD-STYLE diagram like a Google/FAANG interview:
+DIAGRAM STYLE - Create a CLEAN, WHITEBOARD-STYLE diagram:
 - Keep it READABLE - maximum 15-20 boxes
-- Use clear, concise labels (e.g., "CDN", "API Gateway", "Kafka", "Redis")
-- Group related components using subgraphs (e.g., "Data Pipeline", "Storage Layer")
-- Show the main data flow paths clearly
-- Use dashed arrows (-.->)for async/replication flows
-- Make it something you could draw and explain on a whiteboard in 10-15 minutes
-- Focus on the MOST IMPORTANT components, don't include every microservice
+- Use SIMPLE node IDs (single words): User, CDN, LB, API, Cache, DB, Queue
+- Use clear labels in brackets: CDN[Content Delivery], DB[(Primary Database)]
+- Show data flow with arrows: --> for sync, -.-> for async
+- Use subgraphs sparingly: subgraph Storage followed by nodes, then end
 
-Example clean diagram structure:
-- User/Client at the top or left
-- Load balancing/CDN layer
-- API/Application layer
-- Processing pipeline (if applicable)
-- Storage layer at the bottom
+DIAGRAM SYNTAX RULES (CRITICAL - must follow exactly):
+- Start with: flowchart TB (top to bottom) or flowchart LR (left to right)
+- Node format: NodeID[Label] or NodeID[(Database)] or NodeID((Circle))
+- Arrow format: A --> B or A -.-> B for dashed
+- Subgraph format: subgraph Name on its own line, nodes indented, end on its own line
+- Each connection on its own line
+- NO semicolons, NO quotes, NO special characters in IDs
+- Keep labels short (1-3 words)
 
 Respond with valid JSON in exactly this format:
 {
@@ -323,7 +332,7 @@ Respond with valid JSON in exactly this format:
       "components": ["CDN", "Load Balancer", "API Gateway", "App Servers", "Cache", "Database", "Message Queue"],
       "description": "Detailed architecture with clear data flow"
     },
-    "diagram": "flowchart TB\\n  User[User] --> CDN[CDN]\\n  CDN --> LB[Load Balancer]\\n  LB --> API[API Gateway]\\n  API --> App[App Servers]\\n  App --> Cache[(Redis)]\\n  App --> DB[(Primary DB)]\\n  App --> Queue[Message Queue]\\n  Queue --> Workers[Workers]\\n  DB -.-> Replica[(Read Replica)]",
+    "diagram": "flowchart TB\\n  User[Client] --> CDN[CDN]\\n  CDN --> LB[Load Balancer]\\n  LB --> API[API Gateway]\\n  API --> App[App Servers]\\n  App --> Cache[(Redis)]\\n  App --> DB[(Primary DB)]\\n  App --> Queue[Kafka]\\n  Queue --> Workers[Workers]\\n  DB -.-> Replica[(Read Replica)]",
     "scalability": ["Horizontal scaling with auto-scaling groups", "Database sharding by user_id/hash", "Cache cluster with consistent hashing", "CDN for static content", "Async processing via message queues", "Read replicas for read-heavy workloads"]
   }
 }`;
