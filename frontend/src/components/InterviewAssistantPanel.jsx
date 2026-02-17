@@ -124,7 +124,6 @@ export default function InterviewAssistantPanel({ onClose, provider, model }) {
   const streamRef = useRef(null);
   const analyserRef = useRef(null);
   const animationRef = useRef(null);
-  const transcriptionRef = useRef('');
   const durationIntervalRef = useRef(null);
   const isRecordingRef = useRef(false);
   const isPausedRef = useRef(false);
@@ -135,13 +134,17 @@ export default function InterviewAssistantPanel({ onClose, provider, model }) {
   const isSpeakingRef = useRef(false);
   const speechStartTimeRef = useRef(null);
   const silenceStartTimeRef = useRef(null);
-  const speechChunksRef = useRef([]);
+  const allChunksRef = useRef([]); // ALL chunks for complete audio file
   const lastTranscriptionRef = useRef(''); // Track last transcription to avoid duplicates
   const autoAnswerTimeoutRef = useRef(null); // Debounce auto-answer generation
   const lastAnsweredTextRef = useRef(''); // Track what we've already answered
-  const VAD_THRESHOLD = 0.06; // Audio level threshold for speech detection (lowered for sensitivity)
-  const SILENCE_DURATION = 2000; // ms of silence to end speech segment (increased for complete sentences)
+  const lastTranscribedSizeRef = useRef(0); // Track how much audio we've transcribed
+  const VAD_THRESHOLD = 0.06; // Audio level threshold for speech detection
+  const SILENCE_DURATION = 2000; // ms of silence to end speech segment
   const MIN_SPEECH_DURATION = 800; // minimum ms of speech to transcribe
+
+  // Store questions as array for separate lines
+  const [questions, setQuestions] = useState([]);
 
   // Load available audio devices and persist selection
   useEffect(() => {
@@ -252,19 +255,22 @@ export default function InterviewAssistantPanel({ onClose, provider, model }) {
 
           if (speechDuration > MIN_SPEECH_DURATION) {
             console.log('[VAD] Speech ended, duration:', speechDuration, 'ms');
-            // Trigger transcription of this completed speech segment
-            if (speechChunksRef.current.length > 0) {
+            // Trigger transcription using ALL chunks (complete audio file with headers)
+            if (allChunksRef.current.length > 0) {
               const mimeType = currentMimeTypeRef.current;
-              const audioBlob = new Blob(speechChunksRef.current, { type: mimeType });
-              console.log('[VAD] Transcribing speech segment, size:', audioBlob.size);
-              transcribeAudio(audioBlob, true); // true = segment ended, append to transcription
+              const audioBlob = new Blob(allChunksRef.current, { type: mimeType });
+              // Only transcribe if we have new audio since last transcription
+              if (audioBlob.size > lastTranscribedSizeRef.current + 5000) {
+                console.log('[VAD] Transcribing, total size:', audioBlob.size, 'new since last:', audioBlob.size - lastTranscribedSizeRef.current);
+                transcribeAudio(audioBlob, true);
+                lastTranscribedSizeRef.current = audioBlob.size;
+              }
             }
           } else {
             console.log('[VAD] Speech too short, ignoring:', speechDuration, 'ms');
           }
 
-          // Reset for next speech segment
-          speechChunksRef.current = [];
+          // Reset speech tracking (but keep collecting chunks!)
           isSpeakingRef.current = false;
           speechStartTimeRef.current = null;
           silenceStartTimeRef.current = null;
@@ -323,14 +329,15 @@ export default function InterviewAssistantPanel({ onClose, provider, model }) {
         if (isSegmentEnd) {
           // Check for duplicates - don't add if same as last transcription
           if (newText !== lastTranscriptionRef.current &&
-              !transcriptionRef.current.endsWith(newText)) {
+              !newText.toLowerCase().includes(lastTranscriptionRef.current.toLowerCase().slice(-50))) {
             lastTranscriptionRef.current = newText;
-            transcriptionRef.current += (transcriptionRef.current ? ' ' : '') + newText;
-            setTranscription(transcriptionRef.current);
-            console.log('[Transcribe] Added to transcription:', newText);
+            // Add as new question on separate line
+            setQuestions(prev => [...prev, newText]);
+            setTranscription(newText); // Show current question
+            console.log('[Transcribe] Added question:', newText);
 
-            // Auto-generate answer after transcription
-            autoGenerateAnswer(transcriptionRef.current);
+            // Auto-generate answer immediately
+            autoGenerateAnswer(newText);
           } else {
             console.log('[Transcribe] Skipping duplicate:', newText);
           }
@@ -434,29 +441,29 @@ export default function InterviewAssistantPanel({ onClose, provider, model }) {
       mediaRecorderRef.current = mediaRecorder;
 
       // Reset speech tracking
-      speechChunksRef.current = [];
+      allChunksRef.current = [];
+      lastTranscribedSizeRef.current = 0;
       isSpeakingRef.current = false;
       speechStartTimeRef.current = null;
       silenceStartTimeRef.current = null;
 
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
-          // Always collect chunks - VAD will decide when to transcribe
-          speechChunksRef.current.push(event.data);
+          // Always collect ALL chunks for complete audio file
+          allChunksRef.current.push(event.data);
         }
       };
 
       mediaRecorder.onstop = async () => {
         console.log('[Recording] Stopped');
         // Transcribe any remaining speech when stopped
-        if (speechChunksRef.current.length > 0 && isSpeakingRef.current) {
-          const audioBlob = new Blob(speechChunksRef.current, { type: mimeType });
-          if (audioBlob.size > 5000) {
+        if (allChunksRef.current.length > 0 && isSpeakingRef.current) {
+          const audioBlob = new Blob(allChunksRef.current, { type: mimeType });
+          if (audioBlob.size > lastTranscribedSizeRef.current + 5000) {
             console.log('[Recording] Final transcription, size:', audioBlob.size);
-            await transcribeAudio(audioBlob, true); // true = final segment
+            await transcribeAudio(audioBlob, true);
           }
         }
-        speechChunksRef.current = [];
       };
 
       // Request data frequently for responsive VAD
@@ -728,9 +735,11 @@ export default function InterviewAssistantPanel({ onClose, provider, model }) {
   const clearAll = () => {
     setTranscription('');
     setAnswer('');
-    transcriptionRef.current = '';
+    setQuestions([]);
     lastTranscriptionRef.current = '';
     lastAnsweredTextRef.current = '';
+    lastTranscribedSizeRef.current = 0;
+    allChunksRef.current = [];
     if (autoAnswerTimeoutRef.current) {
       clearTimeout(autoAnswerTimeoutRef.current);
     }
@@ -949,22 +958,29 @@ export default function InterviewAssistantPanel({ onClose, provider, model }) {
 
       {/* Content - Compact */}
       <div className="flex-1 overflow-hidden flex flex-col">
-        {/* Transcription Section */}
+        {/* Questions Section - Each on separate line */}
         <div className="flex-1 min-h-0 border-b border-slate-700/50">
           <div className="h-full flex flex-col">
             <div className="px-3 py-1 border-b border-slate-700/30 bg-slate-800/20 flex items-center justify-between">
               <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
-                Transcription
+                Questions
               </span>
-              {transcription && (
+              {questions.length > 0 && (
                 <span className="text-[10px] text-slate-500">
-                  {transcription.split(' ').length}w
+                  {questions.length} question{questions.length > 1 ? 's' : ''}
                 </span>
               )}
             </div>
             <div className="flex-1 overflow-y-auto p-2 scrollbar-dark">
-              {transcription ? (
-                <p className="text-xs text-slate-200 leading-relaxed whitespace-pre-wrap">{transcription}</p>
+              {questions.length > 0 ? (
+                <div className="space-y-2">
+                  {questions.map((q, idx) => (
+                    <div key={idx} className="p-2 rounded bg-slate-800/50 border-l-2 border-blue-500">
+                      <div className="text-[9px] text-blue-400 font-medium mb-0.5">Q{idx + 1}</div>
+                      <p className="text-xs text-slate-200 leading-relaxed">{q}</p>
+                    </div>
+                  ))}
+                </div>
               ) : (
                 <div className="text-xs text-slate-500 italic">
                   {isRecording ? (
@@ -985,24 +1001,12 @@ export default function InterviewAssistantPanel({ onClose, provider, model }) {
               <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
                 Answer
               </span>
-              <button
-                onClick={generateAnswer}
-                disabled={!transcription.trim() || isGenerating}
-                className={`flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium rounded transition-colors ${
-                  !transcription.trim() || isGenerating
-                    ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
-                    : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                }`}
-              >
-                {isGenerating ? (
-                  <div className="w-2.5 h-2.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                )}
-                {isGenerating ? 'Wait' : 'Go'}
-              </button>
+              {isGenerating && (
+                <div className="flex items-center gap-1 text-[10px] text-emerald-400">
+                  <div className="w-2.5 h-2.5 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+                  <span>Generating...</span>
+                </div>
+              )}
             </div>
             <div className="flex-1 overflow-y-auto p-2 scrollbar-dark">
               {answer ? (
@@ -1011,7 +1015,7 @@ export default function InterviewAssistantPanel({ onClose, provider, model }) {
                 </div>
               ) : (
                 <p className="text-xs text-slate-500 italic">
-                  {transcription ? 'Auto-generating...' : 'Transcribe first'}
+                  {questions.length > 0 ? (isGenerating ? 'Generating...' : 'Waiting for question...') : 'Start recording to ask questions'}
                 </p>
               )}
             </div>
