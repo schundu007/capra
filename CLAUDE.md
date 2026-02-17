@@ -42,15 +42,22 @@ pm2 start ecosystem.config.cjs
 
 ## Deployment
 
+**CRITICAL: After EVERY code change, you MUST:**
+1. Commit the changes with a descriptive message
+2. Push to GitHub: `git push origin main`
+3. This triggers auto-deployment to Vercel (frontend) and Railway (backend)
+4. Wait 1-3 minutes for deployments to complete
+
 **IMPORTANT: Never suggest deploying locally. This project uses cloud deployment:**
 
 - **Frontend**: Deployed to **Vercel** (auto-deploys from git push)
 - **Backend**: Deployed to **Railway** (auto-deploys from git push)
 
 To deploy changes:
-1. Commit and push to git repository
-2. Vercel and Railway will auto-deploy
-3. Or manually trigger deploy from their dashboards
+1. `git add -A && git commit -m "description"`
+2. `git push origin main`
+3. Vercel and Railway will auto-deploy (1-3 minutes)
+4. Verify deployment status on their dashboards if needed
 
 ## Architecture
 
