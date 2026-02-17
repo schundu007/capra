@@ -229,6 +229,13 @@ For this BASIC system design interview:
 
 IMPORTANT: Do NOT generate code. Focus entirely on system design.
 
+DIAGRAM STYLE - Create a CLEAN, WHITEBOARD-STYLE diagram like a Google/FAANG interview:
+- Keep it SIMPLE - only 5-10 boxes maximum
+- Use clear, readable labels (e.g., "User", "API Gateway", "Database")
+- Show the main data flow with arrows
+- Group related components in subgraphs when needed
+- Make it something you could draw on a whiteboard in 5 minutes
+
 Respond with valid JSON in exactly this format:
 {
   "language": "text",
@@ -254,7 +261,7 @@ Respond with valid JSON in exactly this format:
       "components": ["Load Balancer", "Web Server", "Database", "Cache"],
       "description": "Simple architecture flow description"
     },
-    "diagram": "flowchart LR\\n  A[Client] --> B[Load Balancer]\\n  B --> C[Web Server]\\n  C --> D[(Database)]\\n  C --> E[(Cache)]",
+    "diagram": "flowchart LR\\n  User[User] --> API[API Server]\\n  API --> DB[(Database)]\\n  API --> Cache[(Cache)]",
     "scalability": ["Basic horizontal scaling strategies"]
   }
 }`;
@@ -274,6 +281,22 @@ For this FULL/DETAILED system design interview:
 - Add backup and disaster recovery strategies
 
 IMPORTANT: Do NOT generate code. Focus entirely on system design.
+
+DIAGRAM STYLE - Create a CLEAN, WHITEBOARD-STYLE diagram like a Google/FAANG interview:
+- Keep it READABLE - maximum 15-20 boxes
+- Use clear, concise labels (e.g., "CDN", "API Gateway", "Kafka", "Redis")
+- Group related components using subgraphs (e.g., "Data Pipeline", "Storage Layer")
+- Show the main data flow paths clearly
+- Use dashed arrows (-.->)for async/replication flows
+- Make it something you could draw and explain on a whiteboard in 10-15 minutes
+- Focus on the MOST IMPORTANT components, don't include every microservice
+
+Example clean diagram structure:
+- User/Client at the top or left
+- Load balancing/CDN layer
+- API/Application layer
+- Processing pipeline (if applicable)
+- Storage layer at the bottom
 
 Respond with valid JSON in exactly this format:
 {
@@ -297,10 +320,10 @@ Respond with valid JSON in exactly this format:
       {"table": "tablename", "fields": [{"name": "field", "type": "type", "description": "desc with indexing strategy"}]}
     ],
     "architecture": {
-      "components": ["CDN", "Global Load Balancer", "Regional LBs", "Web Servers", "Cache Cluster", "Primary DB", "Read Replicas", "Message Queue", "Workers", "Object Storage"],
-      "description": "Detailed multi-region architecture with failover"
+      "components": ["CDN", "Load Balancer", "API Gateway", "App Servers", "Cache", "Database", "Message Queue"],
+      "description": "Detailed architecture with clear data flow"
     },
-    "diagram": "flowchart TB\\n  subgraph Region1[Region 1]\\n    LB1[Load Balancer] --> WS1[Web Servers]\\n    WS1 --> Cache1[(Redis Cluster)]\\n    WS1 --> DB1[(Primary DB)]\\n  end\\n  subgraph Region2[Region 2]\\n    LB2[Load Balancer] --> WS2[Web Servers]\\n    WS2 --> Cache2[(Redis Cluster)]\\n    WS2 --> DB2[(Read Replica)]\\n  end\\n  CDN[CDN] --> LB1\\n  CDN --> LB2\\n  DB1 -.-> DB2",
+    "diagram": "flowchart TB\\n  User[User] --> CDN[CDN]\\n  CDN --> LB[Load Balancer]\\n  LB --> API[API Gateway]\\n  API --> App[App Servers]\\n  App --> Cache[(Redis)]\\n  App --> DB[(Primary DB)]\\n  App --> Queue[Message Queue]\\n  Queue --> Workers[Workers]\\n  DB -.-> Replica[(Read Replica)]",
     "scalability": ["Horizontal scaling with auto-scaling groups", "Database sharding by user_id/hash", "Cache cluster with consistent hashing", "CDN for static content", "Async processing via message queues", "Read replicas for read-heavy workloads"]
   }
 }`;
