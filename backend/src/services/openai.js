@@ -110,6 +110,8 @@ IMPORTANT: Respond with valid JSON in exactly this format:
   }
 }
 
+FOR SYSTEM DESIGN PROBLEMS: Do NOT generate code. Set "code": "", "examples": [], "explanations": [], and focus entirely on the systemDesign object. The pitch should explain your system design approach.
+
 SYSTEM DESIGN - INCLUDE FULL SYSTEM DESIGN when the problem involves ANY of these:
 - Designing a system (URL shortener, chat app, rate limiter, cache, Twitter, Instagram, etc.)
 - Keywords: "design", "architect", "scale", "distributed", "high availability", "microservices"
@@ -146,7 +148,8 @@ Rules:
 - Do NOT add any comments in the code
 - Match the EXACT output format from examples
 - The pitch should be conversational, suitable for verbal delivery in an interview
-- CRITICAL: Always generate COMPLETE, RUNNABLE code that includes:
+- FOR SYSTEM DESIGN: Do NOT generate code - leave code empty (""), focus on systemDesign object
+- FOR CODING PROBLEMS: Generate COMPLETE, RUNNABLE code that includes:
   - All necessary imports
   - Input reading code (using input() for Python, stdin for others) OR hardcoded test data
   - Main execution logic
