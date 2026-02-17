@@ -208,6 +208,96 @@ export async function solveProblem(problemText, language = 'auto', fast = true, 
   }
 }
 
+// System Design Basic Prompt - Single region, minimal architecture
+const SYSTEM_DESIGN_BASIC_PROMPT = `You are an expert system design interview assistant.
+
+For this BASIC system design interview:
+- Design a SINGLE-REGION, minimal architecture
+- Focus on CORE functionality only - get the basics right
+- Use SIMPLE database setup (single instance, no replication)
+- Basic caching layer (single Redis instance)
+- Straightforward API design with essential endpoints only
+- NO redundancy complexity - keep it simple
+- Skip advanced features like multi-region, sharding, etc.
+
+IMPORTANT: Do NOT generate code. Focus entirely on system design.
+
+Respond with valid JSON in exactly this format:
+{
+  "language": "text",
+  "code": "",
+  "pitch": "A 2-3 minute verbal explanation of your basic system design approach.",
+  "examples": [],
+  "explanations": [],
+  "complexity": {"time": "N/A", "space": "N/A"},
+  "systemDesign": {
+    "included": true,
+    "overview": "Brief problem overview focusing on core requirements",
+    "requirements": {
+      "functional": ["Core functional requirements only"],
+      "nonFunctional": ["Basic performance requirements"]
+    },
+    "apiDesign": [
+      {"method": "POST", "endpoint": "/api/endpoint", "description": "Description", "request": "{}", "response": "{}"}
+    ],
+    "dataModel": [
+      {"table": "tablename", "fields": [{"name": "field", "type": "type", "description": "desc"}]}
+    ],
+    "architecture": {
+      "components": ["Load Balancer", "Web Server", "Database", "Cache"],
+      "description": "Simple architecture flow description"
+    },
+    "diagram": "flowchart LR\\n  A[Client] --> B[Load Balancer]\\n  B --> C[Web Server]\\n  C --> D[(Database)]\\n  C --> E[(Cache)]",
+    "scalability": ["Basic horizontal scaling strategies"]
+  }
+}`;
+
+// System Design Full Prompt - Multi-region, highly available
+const SYSTEM_DESIGN_FULL_PROMPT = `You are an expert system design interview assistant.
+
+For this FULL/DETAILED system design interview:
+- Design a MULTI-REGION, highly available architecture
+- Include database REPLICATION and SHARDING strategies
+- Add CDN, edge caching, global load balancing
+- Include FAILURE HANDLING, circuit breakers, retry logic
+- Add RATE LIMITING, monitoring, observability
+- Provide DETAILED scalability analysis with numbers
+- Consider data consistency models (eventual vs strong)
+- Include message queues for async processing
+- Add backup and disaster recovery strategies
+
+IMPORTANT: Do NOT generate code. Focus entirely on system design.
+
+Respond with valid JSON in exactly this format:
+{
+  "language": "text",
+  "code": "",
+  "pitch": "A 5-7 minute comprehensive verbal explanation of your full system design.",
+  "examples": [],
+  "explanations": [],
+  "complexity": {"time": "N/A", "space": "N/A"},
+  "systemDesign": {
+    "included": true,
+    "overview": "Comprehensive problem overview with scale considerations (QPS, storage, bandwidth)",
+    "requirements": {
+      "functional": ["Detailed functional requirements"],
+      "nonFunctional": ["Latency targets", "Availability (99.9%+)", "Scalability goals", "Data consistency requirements"]
+    },
+    "apiDesign": [
+      {"method": "POST", "endpoint": "/api/endpoint", "description": "Full description with rate limits", "request": "{detailed request}", "response": "{detailed response}"}
+    ],
+    "dataModel": [
+      {"table": "tablename", "fields": [{"name": "field", "type": "type", "description": "desc with indexing strategy"}]}
+    ],
+    "architecture": {
+      "components": ["CDN", "Global Load Balancer", "Regional LBs", "Web Servers", "Cache Cluster", "Primary DB", "Read Replicas", "Message Queue", "Workers", "Object Storage"],
+      "description": "Detailed multi-region architecture with failover"
+    },
+    "diagram": "flowchart TB\\n  subgraph Region1[Region 1]\\n    LB1[Load Balancer] --> WS1[Web Servers]\\n    WS1 --> Cache1[(Redis Cluster)]\\n    WS1 --> DB1[(Primary DB)]\\n  end\\n  subgraph Region2[Region 2]\\n    LB2[Load Balancer] --> WS2[Web Servers]\\n    WS2 --> Cache2[(Redis Cluster)]\\n    WS2 --> DB2[(Read Replica)]\\n  end\\n  CDN[CDN] --> LB1\\n  CDN --> LB2\\n  DB1 -.-> DB2",
+    "scalability": ["Horizontal scaling with auto-scaling groups", "Database sharding by user_id/hash", "Cache cluster with consistent hashing", "CDN for static content", "Async processing via message queues", "Read replicas for read-heavy workloads"]
+  }
+}`;
+
 const BRIEF_PROMPT = `You are an expert coding interview assistant. Return ONLY the code solution.
 
 ##############################################################################
@@ -244,13 +334,24 @@ INTEGRITY:
 - NEVER hardcode outputs or fake data
 - Solution must be genuinely correct`;
 
-export async function* solveProblemStream(problemText, language = 'auto', detailLevel = 'detailed', model = DEFAULT_MODEL) {
+export async function* solveProblemStream(problemText, language = 'auto', detailLevel = 'detailed', model = DEFAULT_MODEL, interviewMode = 'coding', designDetailLevel = 'basic') {
   const languageInstruction = language === 'auto'
     ? 'Detect the appropriate language from the problem context.'
     : `Write the solution in ${language.toUpperCase()}.`;
 
   const isBrief = detailLevel === 'brief' || detailLevel === 'high-level';
-  const systemPrompt = isBrief ? BRIEF_PROMPT : SYSTEM_PROMPT;
+
+  // Select appropriate prompt based on interview mode
+  let systemPrompt;
+  let userMessage;
+
+  if (interviewMode === 'system-design') {
+    systemPrompt = designDetailLevel === 'full' ? SYSTEM_DESIGN_FULL_PROMPT : SYSTEM_DESIGN_BASIC_PROMPT;
+    userMessage = `Design the following system and return the response as JSON:\n\n${problemText}`;
+  } else {
+    systemPrompt = isBrief ? BRIEF_PROMPT : SYSTEM_PROMPT;
+    userMessage = `${languageInstruction}\n\nSolve this problem and return the response as JSON:\n\n${problemText}`;
+  }
 
   const stream = await getClient().chat.completions.create({
     model,
@@ -258,10 +359,10 @@ export async function* solveProblemStream(problemText, language = 'auto', detail
       { role: 'system', content: systemPrompt },
       {
         role: 'user',
-        content: `${languageInstruction}\n\nSolve this problem and return the response as JSON:\n\n${problemText}`,
+        content: userMessage,
       },
     ],
-    max_tokens: isBrief ? 1024 : 4096,
+    max_tokens: interviewMode === 'system-design' ? 8192 : (isBrief ? 1024 : 4096),
     response_format: { type: 'json_object' },
     stream: true,
   });

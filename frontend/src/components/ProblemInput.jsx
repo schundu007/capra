@@ -17,7 +17,7 @@ const LANGUAGES = [
   { value: 'yaml', label: 'YAML' },
 ];
 
-export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onClear, isLoading, extractedText, onExtractedTextClear, shouldClear, hasSolution, expanded, onToggleExpand }) {
+export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onClear, isLoading, extractedText, onExtractedTextClear, shouldClear, hasSolution, expanded, onToggleExpand, interviewMode }) {
   const [problemText, setProblemText] = useState('');
   const [url, setUrl] = useState('');
   const [activeTab, setActiveTab] = useState('text');
@@ -232,17 +232,19 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
             </button>
           </div>
 
-          {/* Language */}
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            disabled={isLoading}
-            className="px-2 py-1 text-[10px] rounded-lg bg-white border border-gray-200 text-gray-600"
-          >
-            {LANGUAGES.map((lang) => (
-              <option key={lang.value} value={lang.value}>{lang.label}</option>
-            ))}
-          </select>
+          {/* Language - hide in system-design mode */}
+          {interviewMode !== 'system-design' && (
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              disabled={isLoading}
+              className="px-2 py-1 text-[10px] rounded-lg bg-white border border-gray-200 text-gray-600"
+            >
+              {LANGUAGES.map((lang) => (
+                <option key={lang.value} value={lang.value}>{lang.label}</option>
+              ))}
+            </select>
+          )}
         </div>
       </div>
 

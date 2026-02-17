@@ -26,7 +26,7 @@ router.post('/', validate('solve'), async (req, res, next) => {
 // Streaming endpoint for faster perceived response
 router.post('/stream', validate('solve'), async (req, res, next) => {
   try {
-    const { problem, provider = 'claude', language = 'auto', detailLevel = 'detailed', model } = req.body;
+    const { problem, provider = 'claude', language = 'auto', detailLevel = 'detailed', model, interviewMode = 'coding', designDetailLevel = 'basic' } = req.body;
 
     // Set SSE headers
     res.setHeader('Content-Type', 'text/event-stream');
@@ -37,7 +37,7 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
     const service = provider === 'openai' ? openai : claude;
     let fullText = '';
 
-    for await (const chunk of service.solveProblemStream(problem, language, detailLevel, model)) {
+    for await (const chunk of service.solveProblemStream(problem, language, detailLevel, model, interviewMode, designDetailLevel)) {
       fullText += chunk;
       res.write(`data: ${JSON.stringify({ chunk, partial: true })}\n\n`);
     }

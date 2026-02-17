@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import mermaid from 'mermaid';
+import { getApiUrl } from '../hooks/useElectron';
+
+const API_URL = getApiUrl();
 
 // Initialize mermaid once
 mermaid.initialize({
@@ -107,7 +110,19 @@ function MermaidDiagram({ chart }) {
   );
 }
 
-export default function SystemDesignPanel({ systemDesign }) {
+export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGenerateEraserDiagram }) {
+  const [generatingEraser, setGeneratingEraser] = useState(false);
+
+  const handleGenerateEraser = async () => {
+    if (!onGenerateEraserDiagram) return;
+    setGeneratingEraser(true);
+    try {
+      await onGenerateEraserDiagram();
+    } finally {
+      setGeneratingEraser(false);
+    }
+  };
+
   if (!systemDesign || !systemDesign.included) {
     return null;
   }
@@ -174,7 +189,7 @@ export default function SystemDesignPanel({ systemDesign }) {
         </div>
       )}
 
-      {/* Architecture Diagram */}
+      {/* Architecture Diagram (Mermaid) */}
       {systemDesign.diagram && (
         <div className="rounded-lg p-4 bg-white border border-gray-200">
           <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3 flex items-center gap-2">
@@ -184,6 +199,80 @@ export default function SystemDesignPanel({ systemDesign }) {
           <MermaidDiagram chart={systemDesign.diagram} />
         </div>
       )}
+
+      {/* Professional Diagram (Eraser.io) */}
+      <div className="rounded-lg p-4 bg-white border border-gray-200">
+        <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3 flex items-center justify-between">
+          <span className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+            Professional Diagram
+          </span>
+          {onGenerateEraserDiagram && !eraserDiagram && (
+            <button
+              onClick={handleGenerateEraser}
+              disabled={generatingEraser}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium rounded-lg transition-all"
+              style={{
+                background: generatingEraser ? '#e5e7eb' : 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                color: generatingEraser ? '#9ca3af' : 'white',
+                boxShadow: generatingEraser ? 'none' : '0 0 12px rgba(139, 92, 246, 0.3)'
+              }}
+            >
+              {generatingEraser ? (
+                <>
+                  <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Generate with Eraser
+                </>
+              )}
+            </button>
+          )}
+        </h4>
+
+        {eraserDiagram ? (
+          <div className="space-y-3">
+            <div className="rounded-xl overflow-hidden border border-gray-200">
+              <img
+                src={eraserDiagram.imageUrl}
+                alt="Architecture Diagram"
+                className="w-full h-auto"
+              />
+            </div>
+            {eraserDiagram.editUrl && (
+              <div className="flex justify-end">
+                <a
+                  href={eraserDiagram.editUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium rounded-lg transition-all bg-purple-50 text-purple-600 border border-purple-200 hover:bg-purple-100"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  Edit in Eraser
+                </a>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="text-center py-6 text-gray-400">
+            <svg className="w-10 h-10 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <p className="text-[11px]">Click "Generate with Eraser" for a professional diagram</p>
+            <p className="text-[10px] text-gray-300 mt-1">Requires Eraser API key</p>
+          </div>
+        )}
+      </div>
 
       {/* Architecture Description */}
       {systemDesign.architecture && (

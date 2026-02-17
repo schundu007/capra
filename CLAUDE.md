@@ -40,6 +40,18 @@ cd frontend && npm run preview
 pm2 start ecosystem.config.cjs
 ```
 
+## Deployment
+
+**IMPORTANT: Never suggest deploying locally. This project uses cloud deployment:**
+
+- **Frontend**: Deployed to **Vercel** (auto-deploys from git push)
+- **Backend**: Deployed to **Railway** (auto-deploys from git push)
+
+To deploy changes:
+1. Commit and push to git repository
+2. Vercel and Railway will auto-deploy
+3. Or manually trigger deploy from their dashboards
+
 ## Architecture
 
 ### Desktop App vs Webapp

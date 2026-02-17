@@ -14,6 +14,7 @@ import SettingsPanel from './components/settings/SettingsPanel';
 import SetupWizard from './components/settings/SetupWizard';
 import PlatformAuth from './components/PlatformAuth';
 import InterviewAssistantPanel from './components/InterviewAssistantPanel';
+import InterviewModeSelector from './components/InterviewModeSelector';
 import { getApiUrl } from './hooks/useElectron';
 
 // Detect Electron environment
@@ -119,11 +120,11 @@ function parseStreamingContent(text) {
 }
 
 // Stream solve request using SSE
-async function solveWithStream(problem, provider, language, detailLevel, model, onChunk) {
+async function solveWithStream(problem, provider, language, detailLevel, model, onChunk, interviewMode = 'coding', designDetailLevel = 'basic') {
   const response = await fetch(API_URL + '/api/solve/stream', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-    body: JSON.stringify({ problem, provider, language, detailLevel, model }),
+    body: JSON.stringify({ problem, provider, language, detailLevel, model, interviewMode, designDetailLevel }),
   });
 
   if (!response.ok) {
@@ -341,6 +342,11 @@ export default function App() {
   const [autoRunOutput, setAutoRunOutput] = useState(null); // Store auto-run output
   const MAX_AUTO_FIX_ATTEMPTS = 1; // Only 1 attempt to keep it fast
 
+  // Interview mode state
+  const [interviewMode, setInterviewMode] = useState('coding'); // 'coding' | 'system-design'
+  const [designDetailLevel, setDesignDetailLevel] = useState('basic'); // 'basic' | 'full'
+  const [eraserDiagram, setEraserDiagram] = useState(null); // { imageUrl, editUrl }
+
   // Auto-test, fix, and run code - returns code and final output
   const autoTestAndFix = async (code, language, examples, problem, currentModel) => {
     const RUNNABLE = ['python', 'bash', 'javascript', 'typescript', 'sql'];
@@ -426,6 +432,7 @@ export default function App() {
     setCurrentLanguage(language);
     setStreamingText('');
     setAutoFixAttempts(0);
+    setEraserDiagram(null);
     setStreamingContent({ code: null, language: null, pitch: null, explanations: null, complexity: null, systemDesign: null });
     setIsLoading(true);
     setLoadingType('solve');
@@ -437,28 +444,32 @@ export default function App() {
         // Parse and extract content progressively
         const parsed = parseStreamingContent(fullText);
         setStreamingContent(parsed);
-      });
+      }, interviewMode, designDetailLevel);
 
       if (result) {
-        // Auto-test, fix, and run the code
-        const { code: fixedCode, fixed, attempts, output } = await autoTestAndFix(
-          result.code,
-          result.language,
-          result.examples,
-          problem,
-          model
-        );
+        // Auto-test, fix, and run the code (skip for system design mode)
+        if (interviewMode !== 'system-design' && result.code) {
+          const { code: fixedCode, fixed, attempts, output } = await autoTestAndFix(
+            result.code,
+            result.language,
+            result.examples,
+            problem,
+            model
+          );
 
-        // Store auto-run output for CodeDisplay
-        setAutoRunOutput(output);
+          // Store auto-run output for CodeDisplay
+          setAutoRunOutput(output);
 
-        // Update solution with fixed code
-        setSolution({
-          ...result,
-          code: fixedCode,
-          autoFixed: fixed,
-          fixAttempts: attempts
-        });
+          // Update solution with fixed code
+          setSolution({
+            ...result,
+            code: fixedCode,
+            autoFixed: fixed,
+            fixAttempts: attempts
+          });
+        } else {
+          setSolution(result);
+        }
       }
     } catch (err) {
       setError(err.message);
@@ -508,26 +519,30 @@ export default function App() {
         setStreamingText(fullText);
         const parsed = parseStreamingContent(fullText);
         setStreamingContent(parsed);
-      });
+      }, interviewMode, designDetailLevel);
       if (result) {
-        // Auto-test, fix, and run the code
-        const { code: fixedCode, fixed, attempts, output } = await autoTestAndFix(
-          result.code,
-          result.language,
-          result.examples,
-          fetchData.problemText,
-          model
-        );
+        // Auto-test, fix, and run the code (skip for system design mode)
+        if (interviewMode !== 'system-design' && result.code) {
+          const { code: fixedCode, fixed, attempts, output } = await autoTestAndFix(
+            result.code,
+            result.language,
+            result.examples,
+            fetchData.problemText,
+            model
+          );
 
-        // Store auto-run output for CodeDisplay
-        setAutoRunOutput(output);
+          // Store auto-run output for CodeDisplay
+          setAutoRunOutput(output);
 
-        setSolution({
-          ...result,
-          code: fixedCode,
-          autoFixed: fixed,
-          fixAttempts: attempts
-        });
+          setSolution({
+            ...result,
+            code: fixedCode,
+            autoFixed: fixed,
+            fixAttempts: attempts
+          });
+        } else {
+          setSolution(result);
+        }
       }
     } catch (err) {
       setError(err.message);
@@ -583,26 +598,30 @@ export default function App() {
           setStreamingText(fullText);
           const parsed = parseStreamingContent(fullText);
           setStreamingContent(parsed);
-        });
+        }, interviewMode, designDetailLevel);
         if (result) {
-          // Auto-test, fix, and run the code
-          const { code: fixedCode, fixed, attempts, output } = await autoTestAndFix(
-            result.code,
-            result.language,
-            result.examples,
-            extractedProblem,
-            model
-          );
+          // Auto-test, fix, and run the code (skip for system design mode)
+          if (interviewMode !== 'system-design' && result.code) {
+            const { code: fixedCode, fixed, attempts, output } = await autoTestAndFix(
+              result.code,
+              result.language,
+              result.examples,
+              extractedProblem,
+              model
+            );
 
-          // Store auto-run output for CodeDisplay
-          setAutoRunOutput(output);
+            // Store auto-run output for CodeDisplay
+            setAutoRunOutput(output);
 
-          setSolution({
-            ...result,
-            code: fixedCode,
-            autoFixed: fixed,
-            fixAttempts: attempts
-          });
+            setSolution({
+              ...result,
+              code: fixedCode,
+              autoFixed: fixed,
+              fixAttempts: attempts
+            });
+          } else {
+            setSolution(result);
+          }
         }
       }
     } catch (err) {
@@ -706,6 +725,13 @@ export default function App() {
 
         {/* Right: Controls */}
         <div className="flex items-center gap-2">
+          <InterviewModeSelector
+            interviewMode={interviewMode}
+            onModeChange={setInterviewMode}
+            designDetailLevel={designDetailLevel}
+            onDetailLevelChange={setDesignDetailLevel}
+          />
+          <div className="w-px h-5 bg-gray-200" />
           <ProviderToggle provider={provider} model={model} onChange={setProvider} onModelChange={setModel} />
 
           {/* Clear Button */}
@@ -931,6 +957,7 @@ export default function App() {
                       hasSolution={!!solution}
                       expanded={problemExpanded}
                       onToggleExpand={() => setProblemExpanded(prev => !prev)}
+                      interviewMode={interviewMode}
                     />
                   </div>
                 </div>
@@ -963,6 +990,27 @@ export default function App() {
                   autoRunOutput={autoRunOutput}
                   onExplanationsUpdate={(explanations) => {
                     setSolution(prev => prev ? { ...prev, explanations } : null);
+                  }}
+                  interviewMode={interviewMode}
+                  systemDesign={solution?.systemDesign || streamingContent.systemDesign}
+                  eraserDiagram={eraserDiagram}
+                  onGenerateEraserDiagram={async () => {
+                    const sd = solution?.systemDesign || streamingContent.systemDesign;
+                    if (!sd?.included) return;
+                    try {
+                      const description = `${sd.overview || ''}\n\nComponents: ${sd.architecture?.components?.join(', ') || ''}\n\n${sd.architecture?.description || ''}`;
+                      const response = await fetch(API_URL + '/api/diagram/eraser', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+                        body: JSON.stringify({ description }),
+                      });
+                      if (response.ok) {
+                        const data = await response.json();
+                        setEraserDiagram(data);
+                      }
+                    } catch (err) {
+                      console.error('Failed to generate Eraser diagram:', err);
+                    }
                   }}
                 />
               </div>
