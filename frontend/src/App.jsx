@@ -798,13 +798,6 @@ export default function App() {
 
         {/* Right: Controls */}
         <div className="flex items-center gap-2">
-          <InterviewModeSelector
-            interviewMode={interviewMode}
-            onModeChange={setInterviewMode}
-            designDetailLevel={designDetailLevel}
-            onDetailLevelChange={setDesignDetailLevel}
-          />
-          <div className="w-px h-5 bg-gray-200" />
           <ProviderToggle provider={provider} model={model} onChange={setProvider} onModelChange={setModel} />
 
           {/* Clear Button */}
@@ -1011,9 +1004,17 @@ export default function App() {
                 {/* Top: Problem Input - auto height based on content */}
                 <div className="flex-shrink-0 border-b border-gray-200">
                   {/* Pane Header */}
-                  <div className="flex items-center gap-2 px-3 py-1.5 border-b border-gray-100">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
-                    <span className="text-xs font-medium text-gray-600">Problem</span>
+                  <div className="flex items-center justify-between px-3 py-1.5 border-b border-gray-100">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
+                      <span className="text-xs font-medium text-gray-600">Problem</span>
+                    </div>
+                    <InterviewModeSelector
+                      interviewMode={interviewMode}
+                      onModeChange={setInterviewMode}
+                      designDetailLevel={designDetailLevel}
+                      onDetailLevelChange={setDesignDetailLevel}
+                    />
                   </div>
 
                   {/* Problem Input Content - compact, no flex grow */}
