@@ -797,35 +797,33 @@ export default function App() {
           <Allotment defaultSizes={showInterviewAssistant ? [1, 1, 1] : [1, 1]}>
             {/* Left Pane - Problem + Explanation (stacked vertically) */}
             <Allotment.Pane minSize={300}>
-              <Allotment vertical defaultSizes={[1, 2]}>
-                {/* Top: Problem Input */}
-                <Allotment.Pane minSize={120} preferredSize={200}>
-                  <div className="h-full flex flex-col bg-white overflow-hidden">
-                    {/* Pane Header */}
-                    <div className="flex items-center gap-2 px-3 py-1.5 border-b border-gray-200 flex-shrink-0">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#1ba94c]" />
-                      <span className="text-xs font-medium text-gray-600">Problem</span>
-                    </div>
-
-                    {/* Problem Input Content - compact */}
-                    <div className="flex-1 p-2 min-h-0 overflow-auto">
-                      <ProblemInput
-                        onSubmit={handleSolve}
-                        onFetchUrl={handleFetchUrl}
-                        onScreenshot={handleScreenshot}
-                        onClear={handleClearAll}
-                        isLoading={isLoading}
-                        extractedText={extractedText}
-                        onExtractedTextClear={() => setExtractedText('')}
-                        shouldClear={clearScreenshot}
-                        hasSolution={!!solution}
-                      />
-                    </div>
+              <div className="h-full flex flex-col bg-white overflow-hidden">
+                {/* Top: Problem Input - auto height based on content */}
+                <div className="flex-shrink-0 border-b border-gray-200">
+                  {/* Pane Header */}
+                  <div className="flex items-center gap-2 px-3 py-1.5 border-b border-gray-100">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#1ba94c]" />
+                    <span className="text-xs font-medium text-gray-600">Problem</span>
                   </div>
-                </Allotment.Pane>
 
-                {/* Bottom: Explanations */}
-                <Allotment.Pane minSize={100}>
+                  {/* Problem Input Content - compact, no flex grow */}
+                  <div className="p-2">
+                    <ProblemInput
+                      onSubmit={handleSolve}
+                      onFetchUrl={handleFetchUrl}
+                      onScreenshot={handleScreenshot}
+                      onClear={handleClearAll}
+                      isLoading={isLoading}
+                      extractedText={extractedText}
+                      onExtractedTextClear={() => setExtractedText('')}
+                      shouldClear={clearScreenshot}
+                      hasSolution={!!solution}
+                    />
+                  </div>
+                </div>
+
+                {/* Bottom: Explanations - takes remaining space */}
+                <div className="flex-1 min-h-0 overflow-hidden">
                   <ExplanationPanel
                     explanations={solution?.explanations}
                     highlightedLine={highlightedLine}
@@ -835,8 +833,8 @@ export default function App() {
                     onExpandSystemDesign={handleExpandSystemDesign}
                     canExpandSystemDesign={!!currentProblem && !isLoading}
                   />
-                </Allotment.Pane>
-              </Allotment>
+                </div>
+              </div>
             </Allotment.Pane>
 
             {/* Center Pane - Code Editor (full height) */}
