@@ -69,7 +69,7 @@ const PLATFORM_DASHBOARDS = {
   glider: ['glider.ai/dashboard', 'gliderassessment.com', 'glider.ai/assessment', 'glider.ai/test'],
   // Interview prep platforms (broader patterns - detect logged-in state)
   techprep: ['techprep.app/full-stack', 'techprep.app/system-design', 'techprep.app/data-structures', 'techprep.app/dashboard', 'techprep.app/profile', 'techprep.app/topics'],
-  algomaster: ['algomaster.io/dashboard', 'algomaster.io/problems', 'algomaster.io/roadmap', 'algomaster.io/practice', 'algomaster.io/courses'],
+  algomaster: ['algomaster.io/dashboard', 'algomaster.io/problems', 'algomaster.io/roadmap', 'algomaster.io/practice', 'algomaster.io/courses', 'algomaster.io/learn', 'algomaster.io/profile', 'algomaster.io/account'],
   neetcode: ['neetcode.io/practice', 'neetcode.io/roadmap', 'neetcode.io/problems', 'neetcode.io/courses'],
   interviewbit: ['interviewbit.com/courses', 'interviewbit.com/practice', 'interviewbit.com/dashboard', 'interviewbit.com/problems'],
   educative: ['educative.io/learn', 'educative.io/courses', 'educative.io/profile', 'educative.io/explore'],
@@ -178,24 +178,38 @@ export async function openAuthWindow(platform, parentWindow) {
     // Track if login was successful
     let loginSuccess = false;
 
+    // Track if we've been to an OAuth provider
+    let visitedOAuth = false;
+    const oauthProviders = ['accounts.google.com', 'github.com/login', 'auth0.com', 'clerk.', 'supabase.'];
+
     // Check URL changes to detect successful login
     authWindow.webContents.on('did-navigate', async (event, url) => {
       safeLog(`[Auth] Navigated to: ${url}`);
+
+      // Track OAuth visits
+      if (oauthProviders.some(p => url.includes(p))) {
+        visitedOAuth = true;
+        safeLog(`[Auth] Detected OAuth provider visit`);
+      }
 
       // Check if we've reached a dashboard/success page
       const dashboardUrls = PLATFORM_DASHBOARDS[platform] || [];
       let isLoggedIn = dashboardUrls.some(d => url.includes(d));
 
-      // Fallback: if not on a login page and we have cookies, consider logged in
-      if (!isLoggedIn) {
-        const isOnLoginPage = LOGIN_PATTERNS.some(p => url.toLowerCase().includes(p));
-        if (!isOnLoginPage) {
-          const cookies = await authSession.cookies.get({});
-          // If we have several cookies, likely logged in
-          if (cookies.length >= 3) {
-            safeLog(`[Auth] Fallback: Not on login page and have ${cookies.length} cookies`);
-            isLoggedIn = true;
-          }
+      // Check if we returned to the platform after OAuth with cookies
+      const platformDomain = PLATFORM_URLS[platform].replace(/https?:\/\/(www\.)?/, '').split('/')[0];
+      const isBackOnPlatform = url.includes(platformDomain);
+      const isOnLoginPage = LOGIN_PATTERNS.some(p => url.toLowerCase().includes(p));
+
+      if (!isLoggedIn && isBackOnPlatform && !isOnLoginPage) {
+        const cookies = await authSession.cookies.get({});
+        // If we returned from OAuth or have session cookies, likely logged in
+        if (visitedOAuth && cookies.length >= 2) {
+          safeLog(`[Auth] Returned from OAuth with ${cookies.length} cookies`);
+          isLoggedIn = true;
+        } else if (cookies.length >= 5) {
+          safeLog(`[Auth] Fallback: On platform with ${cookies.length} cookies`);
+          isLoggedIn = true;
         }
       }
 
