@@ -58,6 +58,19 @@ export const schemas = {
       Joi.string().allow('')
     ).allow(null, '').default([]),
   }),
+
+  followup: Joi.object({
+    question: Joi.string().required().min(1).max(5000).messages({
+      'string.empty': 'Question is required',
+      'any.required': 'Question is required',
+    }),
+    problem: Joi.string().allow('', null).max(50000),
+    code: Joi.string().allow('', null).max(100000),
+    pitch: Joi.string().allow('', null).max(10000),
+    currentDesign: Joi.object().allow(null),
+    provider: Joi.string().valid('claude', 'openai').default('claude'),
+    model: Joi.string().allow('', null),
+  }),
 };
 
 /**
