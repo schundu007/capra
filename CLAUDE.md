@@ -121,8 +121,13 @@ PORT=3001
 1. **Desktop App**: `npm run dev:electron` - test locally
 2. **Webapp**: Push to GitHub → Vercel/Railway auto-deploy → test on production URL
 
+## UI Guidelines
+
+- **NEVER use generic icons** - Always use specific, meaningful icons or text labels instead of generic placeholder icons
+- Use TailwindCSS for styling
+- Follow existing code style (no ESLint/Prettier configured)
+
 ## Notes
 
 - No automated tests configured
-- No ESLint/Prettier - follow existing code style
-- TailwindCSS for styling
+- Push to git after EVERY change to deploy webapp
