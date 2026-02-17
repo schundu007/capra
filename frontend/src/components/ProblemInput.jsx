@@ -216,8 +216,22 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                 setTimeout(() => adjustTextareaHeight(false), 0);
               }}
               placeholder="Paste coding problem..."
-              className="w-full px-2 py-1.5 text-[12px] resize-none rounded-lg bg-white border border-gray-300 text-black placeholder-gray-400 focus:outline-none focus:border-[#1ba94c] focus:ring-1 focus:ring-[#1ba94c]/20"
-              style={{ minHeight: '48px', maxHeight: '228px', fontFamily: 'system-ui, -apple-system, sans-serif', lineHeight: '1.5' }}
+              className="w-full px-3 py-2 resize-none rounded-lg border border-gray-300 placeholder-gray-400 focus:outline-none focus:border-[#1ba94c] focus:ring-2 focus:ring-[#1ba94c]/20"
+              style={{
+                minHeight: '80px',
+                maxHeight: '228px',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                fontSize: '14px',
+                lineHeight: '1.6',
+                color: '#000000',
+                backgroundColor: '#ffffff',
+                textDecoration: 'none',
+                WebkitTextDecorationLine: 'none',
+                textDecorationLine: 'none',
+              }}
+              spellCheck="false"
+              autoCorrect="off"
+              autoCapitalize="off"
               disabled={isLoading}
             />
             <div className="flex items-center justify-between mt-1.5 flex-shrink-0">
