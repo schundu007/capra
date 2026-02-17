@@ -65,10 +65,13 @@ function FormattedText({ text }) {
 
 export default function ExplanationPanel({ explanations, highlightedLine, pitch, systemDesign, isStreaming, onExpandSystemDesign, canExpandSystemDesign, onFollowUpQuestion, isProcessingFollowUp }) {
   const hasSystemDesign = systemDesign && systemDesign.included;
+  const hasSolution = pitch || (explanations && explanations.length > 0) || hasSystemDesign;
 
   // Q&A state
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
+  const [textInput, setTextInput] = useState(''); // Fallback text input
+  const [speechSupported, setSpeechSupported] = useState(true);
   const [qaHistory, setQaHistory] = useState([]);
   const recognitionRef = useRef(null);
   const isListeningRef = useRef(false); // Track listening state without causing re-renders
@@ -78,7 +81,10 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
     if (typeof window === 'undefined') return;
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
+    if (!SpeechRecognition) {
+      setSpeechSupported(false);
+      return;
+    }
 
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
@@ -158,13 +164,14 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
     }
   }, []);
 
-  const handleSubmitQuestion = async () => {
-    const q = transcript.trim();
+  const handleSubmitQuestion = async (inputQuestion = null) => {
+    const q = inputQuestion || transcript.trim() || textInput.trim();
     if (!q || !onFollowUpQuestion || isProcessingFollowUp) return;
 
     stopListening();
     const currentQ = q;
     setTranscript('');
+    setTextInput('');
 
     // Add to history with pending state
     setQaHistory(prev => [...prev, { question: currentQ, answer: null, pending: true }]);
@@ -252,39 +259,63 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
           </div>
         )}
 
-        {/* Interviewer Q&A Section */}
-        {hasSystemDesign && (
+        {/* Interviewer Q&A Section - available for all solutions */}
+        {hasSolution && onFollowUpQuestion && (
           <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span className="text-[12px] font-bold uppercase tracking-wide text-blue-600">
-                  Interviewer Q&A
+                  Ask Follow-up Question
                 </span>
               </div>
 
-              {/* Big Listen Button */}
-              <button
-                onClick={isListening ? stopListening : startListening}
-                disabled={isProcessingFollowUp}
-                className={`px-4 py-2 text-sm font-bold rounded-full transition-all ${
-                  isListening
-                    ? 'bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/50'
-                    : 'bg-blue-500 text-white hover:bg-blue-600 shadow-lg shadow-blue-500/30'
-                }`}
-              >
-                {isListening ? '🎤 LISTENING...' : '🎤 START LISTENING'}
-              </button>
+              {/* Voice Button - only show if speech is supported */}
+              {speechSupported && (
+                <button
+                  onClick={isListening ? stopListening : startListening}
+                  disabled={isProcessingFollowUp}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-full transition-all ${
+                    isListening
+                      ? 'bg-red-500 text-white animate-pulse'
+                      : 'bg-blue-500 text-white hover:bg-blue-600'
+                  }`}
+                >
+                  {isListening ? 'Stop' : 'Voice'}
+                </button>
+              )}
             </div>
 
-            {/* Live Transcript */}
-            {(isListening || transcript) && (
+            {/* Text Input - always available */}
+            <div className="mb-3">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={textInput}
+                  onChange={(e) => setTextInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSubmitQuestion()}
+                  placeholder="Type your question here..."
+                  disabled={isProcessingFollowUp}
+                  className="flex-1 px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
+                />
+                <button
+                  onClick={() => handleSubmitQuestion()}
+                  disabled={isProcessingFollowUp || (!textInput.trim() && !transcript.trim())}
+                  className="px-4 py-2 text-sm font-bold rounded-lg transition-all disabled:opacity-50 bg-emerald-500 text-white hover:bg-emerald-600"
+                >
+                  {isProcessingFollowUp ? 'Asking...' : 'Ask'}
+                </button>
+              </div>
+            </div>
+
+            {/* Live Transcript - only show when using voice */}
+            {speechSupported && (isListening || transcript) && (
               <div className="mb-3 p-3 rounded-lg bg-white border-2 border-blue-300">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[10px] font-semibold text-blue-600 uppercase">
-                    {isListening ? '🔴 Live Transcript' : 'Captured Question'}
+                    {isListening ? 'Listening...' : 'Voice Input'}
                   </span>
                   {transcript && (
                     <button
@@ -295,21 +326,10 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                     </button>
                   )}
                 </div>
-                <p className="text-[14px] text-gray-800 min-h-[40px]">
-                  {transcript || (isListening ? 'Speak now...' : '')}
+                <p className="text-[14px] text-gray-800 min-h-[20px]">
+                  {transcript || 'Speak now...'}
                 </p>
               </div>
-            )}
-
-            {/* Get Answer Button */}
-            {transcript && !isListening && (
-              <button
-                onClick={handleSubmitQuestion}
-                disabled={isProcessingFollowUp || !transcript.trim()}
-                className="w-full mb-3 px-4 py-3 text-sm font-bold rounded-lg transition-all disabled:opacity-50 bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg"
-              >
-                {isProcessingFollowUp ? '⏳ GENERATING ANSWER...' : '⚡ GET ANSWER'}
-              </button>
             )}
 
             {/* Q&A History */}
@@ -318,11 +338,11 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                 {qaHistory.map((qa, i) => (
                   <div key={i} className="p-3 rounded-lg bg-white border border-gray-200">
                     <div className="mb-2">
-                      <span className="text-[10px] font-bold text-blue-600 uppercase">INTERVIEWER:</span>
+                      <span className="text-[10px] font-bold text-blue-600 uppercase">Q:</span>
                       <p className="text-[13px] text-gray-800 font-medium">{qa.question}</p>
                     </div>
                     <div>
-                      <span className="text-[10px] font-bold text-emerald-600 uppercase">YOUR ANSWER:</span>
+                      <span className="text-[10px] font-bold text-emerald-600 uppercase">A:</span>
                       {qa.pending ? (
                         <p className="text-[13px] text-gray-400 italic animate-pulse">Generating answer...</p>
                       ) : (
