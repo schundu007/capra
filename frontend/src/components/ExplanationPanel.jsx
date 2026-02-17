@@ -234,8 +234,8 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
           </div>
         )}
 
-        {/* Interviewer Q&A Section - Only shown for system design */}
-        {hasSystemDesign && onFollowUpQuestion && (
+        {/* Interviewer Q&A Section - Always shown for system design */}
+        {hasSystemDesign && (
           <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
             <div className="flex items-center justify-between mb-3">
               <span className="text-[12px] font-bold uppercase tracking-wide text-blue-600 flex items-center gap-2">
@@ -302,7 +302,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
             {/* Submit Button */}
             <button
               onClick={handleSubmitQuestion}
-              disabled={isProcessingFollowUp || !transcript.trim()}
+              disabled={isProcessingFollowUp || !transcript.trim() || !onFollowUpQuestion}
               className="w-full flex items-center justify-center gap-2 px-4 py-2 text-[11px] font-medium rounded-lg transition-all disabled:opacity-50"
               style={{
                 background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
