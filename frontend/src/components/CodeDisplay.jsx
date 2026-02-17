@@ -167,13 +167,13 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
   // Empty state
   if (!code && !isStreaming) {
     return (
-      <div className="h-full flex flex-col" style={{ background: '#0a0a0b' }}>
-        <div className="flex items-center gap-1.5 px-2 py-1.5 flex-shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <div className="w-1 h-1 rounded-full" style={{ background: '#52525b' }} />
-          <span className="text-[10px] font-medium" style={{ color: '#52525b' }}>Code</span>
+      <div className="h-full flex flex-col bg-[#1e1e1e]">
+        <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-gray-700 flex-shrink-0">
+          <div className="w-1 h-1 rounded-full bg-gray-500" />
+          <span className="text-[10px] font-medium text-gray-500">Code</span>
         </div>
         <div className="flex-1 flex items-center justify-center">
-          <svg className="w-10 h-10" style={{ color: '#3f3f46' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
           </svg>
         </div>
@@ -184,18 +184,18 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
   // Streaming state
   if (isStreaming && !code) {
     return (
-      <div className="h-full flex flex-col" style={{ background: '#0a0a0b' }}>
-        <div className="flex items-center gap-1.5 px-2 py-1.5 flex-shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <div className="w-1 h-1 rounded-full" style={{ background: '#10b981', boxShadow: '0 0 6px #10b981' }} />
-          <span className="text-[10px] font-medium" style={{ color: '#a1a1aa' }}>Code</span>
+      <div className="h-full flex flex-col bg-[#1e1e1e]">
+        <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-gray-700 flex-shrink-0">
+          <div className="w-1 h-1 rounded-full bg-[#10b981]" />
+          <span className="text-[10px] font-medium text-gray-400">Code</span>
           <div className="flex gap-0.5 ml-1.5">
-            <span className="w-0.5 h-0.5 rounded-full animate-bounce" style={{ background: '#10b981', animationDelay: '0ms' }} />
-            <span className="w-0.5 h-0.5 rounded-full animate-bounce" style={{ background: '#10b981', animationDelay: '150ms' }} />
-            <span className="w-0.5 h-0.5 rounded-full animate-bounce" style={{ background: '#10b981', animationDelay: '300ms' }} />
+            <span className="w-0.5 h-0.5 rounded-full bg-[#10b981] animate-bounce" style={{ animationDelay: '0ms' }} />
+            <span className="w-0.5 h-0.5 rounded-full bg-[#10b981] animate-bounce" style={{ animationDelay: '150ms' }} />
+            <span className="w-0.5 h-0.5 rounded-full bg-[#10b981] animate-bounce" style={{ animationDelay: '300ms' }} />
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-[11px]" style={{ color: '#71717a' }}>Generating...</div>
+          <div className="text-[11px] text-gray-500">Generating...</div>
         </div>
       </div>
     );

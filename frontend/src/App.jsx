@@ -592,13 +592,13 @@ export default function App() {
   // Loading state while checking auth
   if (!authChecked) {
     return (
-      <div className="h-screen flex items-center justify-center" style={{ background: '#0a0a0b' }}>
+      <div className="h-screen flex items-center justify-center bg-white">
         <div className="flex flex-col items-center gap-4">
           <div
             className="w-12 h-12 rounded-xl flex items-center justify-center"
             style={{
               background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-              boxShadow: '0 0 40px rgba(16, 185, 129, 0.3)'
+              boxShadow: '0 0 40px rgba(16, 185, 129, 0.2)'
             }}
           >
             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -606,11 +606,8 @@ export default function App() {
             </svg>
           </div>
           <div className="flex items-center gap-2">
-            <div
-              className="w-2 h-2 rounded-full animate-pulse"
-              style={{ background: '#10b981', boxShadow: '0 0 8px #10b981' }}
-            />
-            <span style={{ color: '#71717a' }}>Loading...</span>
+            <div className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse" />
+            <span className="text-gray-500">Loading...</span>
           </div>
         </div>
       </div>
@@ -626,15 +623,15 @@ export default function App() {
   const isMacElectron = isElectron && navigator.platform.toLowerCase().includes('mac');
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden" style={{ background: '#0a0a0b', color: '#fafafa' }}>
+    <div className="h-screen flex flex-col overflow-hidden" style={{ background: '#ffffff', color: '#111827' }}>
       {/* Header */}
       <header
         className="relative z-20 flex items-center justify-between px-4 py-3"
         style={{
           paddingLeft: isMacElectron ? '80px' : '16px',
-          background: 'rgba(17, 17, 19, 0.8)',
+          background: 'rgba(255, 255, 255, 0.9)',
           backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(255,255,255,0.06)'
+          borderBottom: '1px solid rgba(0,0,0,0.08)'
         }}
       >
         {/* Left: Logo & Status */}
@@ -654,7 +651,7 @@ export default function App() {
             {isLoading && (
               <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full animate-pulse" style={{ background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
             )}
-            <h1 className="text-lg font-semibold tracking-tight" style={{ color: '#fafafa' }}>
+            <h1 className="text-lg font-semibold tracking-tight" style={{ color: '#111827' }}>
               Capra
             </h1>
           </div>
@@ -663,15 +660,15 @@ export default function App() {
           <div
             className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all"
             style={{
-              background: isLoading ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.03)',
-              border: isLoading ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid rgba(255,255,255,0.06)',
-              color: isLoading ? '#10b981' : '#71717a'
+              background: isLoading ? 'rgba(16, 185, 129, 0.1)' : '#f3f4f6',
+              border: isLoading ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid rgba(0,0,0,0.06)',
+              color: isLoading ? '#10b981' : '#6b7280'
             }}
           >
             <div
               className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'animate-pulse' : ''}`}
               style={{
-                background: isLoading ? '#10b981' : '#52525b',
+                background: isLoading ? '#10b981' : '#9ca3af',
                 boxShadow: isLoading ? '0 0 8px #10b981' : 'none'
               }}
             />
@@ -687,9 +684,9 @@ export default function App() {
           <button
             onClick={handleClearAll}
             className="p-2 rounded-lg transition-all"
-            style={{ color: '#71717a' }}
-            onMouseEnter={(e) => { e.target.style.background = 'rgba(255,255,255,0.06)'; e.target.style.color = '#fafafa'; }}
-            onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = '#71717a'; }}
+            style={{ color: '#6b7280' }}
+            onMouseEnter={(e) => { e.target.style.background = '#f3f4f6'; e.target.style.color = '#111827'; }}
+            onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = '#6b7280'; }}
             title="Clear all"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -702,9 +699,9 @@ export default function App() {
             <button
               onClick={() => setShowPlatformDropdown(!showPlatformDropdown)}
               className="p-2 rounded-lg transition-all"
-              style={{ color: '#71717a' }}
-              onMouseEnter={(e) => { e.target.style.background = 'rgba(255,255,255,0.06)'; e.target.style.color = '#fafafa'; }}
-              onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = '#71717a'; }}
+              style={{ color: '#6b7280' }}
+              onMouseEnter={(e) => { e.target.style.background = '#f3f4f6'; e.target.style.color = '#111827'; }}
+              onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = '#6b7280'; }}
               title="Coding Platforms"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -719,13 +716,13 @@ export default function App() {
                 <div
                   className="absolute right-0 mt-2 w-48 rounded-xl z-50 py-1 animate-slideDown"
                   style={{
-                    background: '#18181b',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.5)'
+                    background: '#ffffff',
+                    border: '1px solid rgba(0,0,0,0.1)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.15)'
                   }}
                 >
-                  <div className="px-3 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                    <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: '#71717a' }}>Platforms</span>
+                  <div className="px-3 py-2" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+                    <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: '#6b7280' }}>Platforms</span>
                   </div>
                   {Object.entries(PLATFORMS).map(([key, platform]) => {
                     const isConnected = platformStatus[key]?.authenticated;
@@ -737,9 +734,9 @@ export default function App() {
                           setShowPlatformAuth(true);
                         }}
                         className="w-full flex items-center gap-2 px-3 py-1.5 transition-colors"
-                        style={{ color: '#a1a1aa' }}
-                        onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#fafafa'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#a1a1aa'; }}
+                        style={{ color: '#4b5563' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.color = '#111827'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#4b5563'; }}
                       >
                         <div
                           className="w-5 h-5 rounded flex items-center justify-center text-white text-[10px] font-bold"
@@ -748,7 +745,7 @@ export default function App() {
                           {platform.icon}
                         </div>
                         <span className="flex-1 text-xs text-left">{platform.name}</span>
-                        <span className={`w-1.5 h-1.5 rounded-full`} style={{ background: isConnected ? '#10b981' : '#52525b', boxShadow: isConnected ? '0 0 6px #10b981' : 'none' }} />
+                        <span className={`w-1.5 h-1.5 rounded-full`} style={{ background: isConnected ? '#10b981' : '#d1d5db', boxShadow: isConnected ? '0 0 6px #10b981' : 'none' }} />
                       </button>
                     );
                   })}
@@ -780,9 +777,9 @@ export default function App() {
           <button
             onClick={() => setShowSettings(true)}
             className="p-2 rounded-lg transition-all"
-            style={{ color: '#71717a' }}
-            onMouseEnter={(e) => { e.target.style.background = 'rgba(255,255,255,0.06)'; e.target.style.color = '#fafafa'; }}
-            onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = '#71717a'; }}
+            style={{ color: '#6b7280' }}
+            onMouseEnter={(e) => { e.target.style.background = '#f3f4f6'; e.target.style.color = '#111827'; }}
+            onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = '#6b7280'; }}
             title="Settings"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -793,14 +790,14 @@ export default function App() {
 
           {/* User menu */}
           {authRequired && user && (
-            <div className="flex items-center gap-2 ml-2 pl-3" style={{ borderLeft: '1px solid rgba(255,255,255,0.1)' }}>
+            <div className="flex items-center gap-2 ml-2 pl-3" style={{ borderLeft: '1px solid rgba(0,0,0,0.1)' }}>
               {isAdmin && (
                 <button
                   onClick={() => setShowAdminPanel(true)}
                   className="p-2 rounded-lg transition-all"
-                  style={{ background: 'rgba(255,255,255,0.03)', color: '#a1a1aa' }}
-                  onMouseEnter={(e) => { e.target.style.background = 'rgba(255,255,255,0.06)'; e.target.style.color = '#fafafa'; }}
-                  onMouseLeave={(e) => { e.target.style.background = 'rgba(255,255,255,0.03)'; e.target.style.color = '#a1a1aa'; }}
+                  style={{ background: '#f3f4f6', color: '#6b7280' }}
+                  onMouseEnter={(e) => { e.target.style.background = '#e5e7eb'; e.target.style.color = '#111827'; }}
+                  onMouseLeave={(e) => { e.target.style.background = '#f3f4f6'; e.target.style.color = '#6b7280'; }}
                   title="User management"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -811,9 +808,9 @@ export default function App() {
               <button
                 onClick={handleLogout}
                 className="p-2 rounded-lg transition-all"
-                style={{ background: 'rgba(255,255,255,0.03)', color: '#a1a1aa' }}
-                onMouseEnter={(e) => { e.target.style.background = 'rgba(255,255,255,0.06)'; e.target.style.color = '#fafafa'; }}
-                onMouseLeave={(e) => { e.target.style.background = 'rgba(255,255,255,0.03)'; e.target.style.color = '#a1a1aa'; }}
+                style={{ background: '#f3f4f6', color: '#6b7280' }}
+                onMouseEnter={(e) => { e.target.style.background = '#e5e7eb'; e.target.style.color = '#111827'; }}
+                onMouseLeave={(e) => { e.target.style.background = '#f3f4f6'; e.target.style.color = '#6b7280'; }}
                 title="Sign out"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -833,25 +830,13 @@ export default function App() {
 
       {/* Error Banner */}
       {error && (
-        <div
-          className="relative z-10 mx-4 mt-2 p-3 rounded-lg animate-fade-in"
-          style={{
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.2)'
-          }}
-        >
+        <div className="relative z-10 mx-4 mt-2 p-3 bg-red-50 border border-red-200 rounded-lg animate-fade-in">
           <div className="flex items-center gap-3">
-            <svg className="w-5 h-5 flex-shrink-0" style={{ color: '#ef4444' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="text-sm" style={{ color: '#fca5a5' }}>{error}</span>
-            <button
-              onClick={() => setError(null)}
-              className="ml-auto transition-colors"
-              style={{ color: '#f87171' }}
-              onMouseEnter={(e) => { e.target.style.color = '#ef4444'; }}
-              onMouseLeave={(e) => { e.target.style.color = '#f87171'; }}
-            >
+            <span className="text-red-600 text-sm">{error}</span>
+            <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-600 transition-colors">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -864,27 +849,19 @@ export default function App() {
       {isLoading && (
         <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
           {/* Progress bar */}
-          <div className="h-0.5 overflow-hidden" style={{ background: 'rgba(16, 185, 129, 0.2)' }}>
+          <div className="h-1 bg-gray-200 overflow-hidden">
             <div
-              className="h-full"
+              className="h-full bg-[#10b981]"
               style={{
                 width: '100%',
-                background: 'linear-gradient(90deg, #10b981 0%, #059669 50%, #10b981 100%)',
                 animation: 'progressSlide 1.5s ease-in-out infinite',
               }}
             />
           </div>
           {/* Status pill */}
-          <div
-            className="absolute top-3 right-4 flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-sm"
-            style={{
-              background: 'rgba(17, 17, 19, 0.9)',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.4), 0 0 20px rgba(16, 185, 129, 0.1)'
-            }}
-          >
-            <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
-            <span className="text-xs font-medium" style={{ color: '#10b981' }}>
+          <div className="absolute top-2 right-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/95 shadow-lg border border-gray-200 backdrop-blur-sm">
+            <div className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse" />
+            <span className="text-xs font-medium text-gray-700">
               {loadingType === 'fetch' && 'Fetching...'}
               {loadingType === 'screenshot' && 'Extracting...'}
               {loadingType === 'solve' && 'Solving...'}
@@ -899,23 +876,17 @@ export default function App() {
 
       {/* Main Layout */}
       <main className="flex-1 overflow-hidden p-1 relative z-10">
-        <div
-          className="h-full rounded-xl overflow-hidden"
-          style={{
-            background: '#111113',
-            border: '1px solid rgba(255,255,255,0.06)'
-          }}
-        >
+        <div className="h-full rounded-lg overflow-hidden border border-gray-200 bg-white">
           <Allotment defaultSizes={showInterviewAssistant ? [1, 1, 1] : [1, 1]}>
             {/* Left Pane - Problem + Explanation (stacked vertically) */}
             <Allotment.Pane minSize={300}>
-              <div className="h-full flex flex-col overflow-hidden" style={{ background: '#111113' }}>
+              <div className="h-full flex flex-col bg-white overflow-hidden">
                 {/* Top: Problem Input - auto height based on content */}
-                <div className="flex-shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="flex-shrink-0 border-b border-gray-200">
                   {/* Pane Header */}
-                  <div className="flex items-center gap-2 px-3 py-1.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                    <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#10b981', boxShadow: '0 0 6px #10b981' }} />
-                    <span className="text-xs font-medium" style={{ color: '#a1a1aa' }}>Problem</span>
+                  <div className="flex items-center gap-2 px-3 py-1.5 border-b border-gray-100">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
+                    <span className="text-xs font-medium text-gray-600">Problem</span>
                   </div>
 
                   {/* Problem Input Content - compact, no flex grow */}
@@ -953,7 +924,7 @@ export default function App() {
 
             {/* Center Pane - Code Editor (full height) */}
             <Allotment.Pane minSize={400}>
-              <div className="h-full" style={{ borderLeft: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className="h-full border-l border-gray-200">
                 <CodeDisplay
                   code={solution?.code || streamingContent.code}
                   language={solution?.language || streamingContent.language}
@@ -984,29 +955,14 @@ export default function App() {
       </main>
 
       {/* Footer - Minimal */}
-      <footer
-        className="relative z-10 px-3 py-1.5 flex items-center justify-between text-[10px]"
-        style={{
-          color: '#52525b',
-          borderTop: '1px solid rgba(255,255,255,0.06)',
-          background: 'rgba(17, 17, 19, 0.8)'
-        }}
-      >
+      <footer className="relative z-10 px-3 py-1.5 flex items-center justify-between text-[10px] text-gray-400 border-t border-gray-200 bg-white">
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1">
-            <span
-              className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'animate-pulse' : ''}`}
-              style={{
-                background: '#10b981',
-                boxShadow: isLoading ? '0 0 8px #10b981' : '0 0 4px #10b981'
-              }}
-            />
-            <span style={{ color: isLoading ? '#10b981' : '#71717a' }}>
-              {isLoading ? 'Processing' : 'Ready'}
-            </span>
+            <span className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'bg-[#10b981] animate-pulse' : 'bg-[#10b981]'}`} />
+            {isLoading ? 'Processing' : 'Ready'}
           </span>
         </div>
-        <div className="flex items-center gap-3 font-mono" style={{ color: '#52525b' }}>
+        <div className="flex items-center gap-3 font-mono">
           <span>⌘ Enter</span>
           <span>·</span>
           <span>Esc clear</span>
