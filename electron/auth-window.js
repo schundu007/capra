@@ -51,7 +51,7 @@ const PLATFORM_URLS = {
   glider: 'https://glider.ai/login',
   // Interview prep platforms (many use OAuth popups, so use homepage)
   techprep: 'https://www.techprep.app/',
-  algomaster: 'https://www.algomaster.io/',
+  algomaster: 'https://algomaster.io/',
   neetcode: 'https://neetcode.io/',
   interviewbit: 'https://www.interviewbit.com/',
   educative: 'https://www.educative.io/login',
@@ -159,6 +159,14 @@ export async function openAuthWindow(platform, parentWindow) {
 
     // Remove menu bar
     authWindow.setMenuBarVisibility(false);
+
+    // Handle OAuth popups (Google, GitHub, etc.)
+    authWindow.webContents.setWindowOpenHandler(({ url }) => {
+      safeLog(`[Auth] Popup requested: ${url}`);
+      // Allow OAuth popups to open in the same window
+      authWindow.loadURL(url);
+      return { action: 'deny' }; // We handle it ourselves
+    });
 
     // Allow ESC key to close window
     authWindow.webContents.on('before-input-event', (event, input) => {
