@@ -797,18 +797,18 @@ export default function App() {
           <Allotment defaultSizes={showInterviewAssistant ? [1, 1, 1] : [1, 1]}>
             {/* Left Pane - Problem + Explanation (stacked vertically) */}
             <Allotment.Pane minSize={300}>
-              <Allotment vertical defaultSizes={[1, 1]}>
+              <Allotment vertical defaultSizes={[1, 2]}>
                 {/* Top: Problem Input */}
-                <Allotment.Pane minSize={150}>
-                  <div className="h-full flex flex-col bg-white">
+                <Allotment.Pane minSize={120} preferredSize={200}>
+                  <div className="h-full flex flex-col bg-white overflow-hidden">
                     {/* Pane Header */}
-                    <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 flex-shrink-0">
+                    <div className="flex items-center gap-2 px-3 py-1.5 border-b border-gray-200 flex-shrink-0">
                       <div className="w-1.5 h-1.5 rounded-full bg-[#1ba94c]" />
                       <span className="text-xs font-medium text-gray-600">Problem</span>
                     </div>
 
-                    {/* Problem Input Content - fills remaining space */}
-                    <div className="flex-1 p-3 min-h-0">
+                    {/* Problem Input Content - compact */}
+                    <div className="flex-1 p-2 min-h-0 overflow-auto">
                       <ProblemInput
                         onSubmit={handleSolve}
                         onFetchUrl={handleFetchUrl}
@@ -825,7 +825,7 @@ export default function App() {
                 </Allotment.Pane>
 
                 {/* Bottom: Explanations */}
-                <Allotment.Pane minSize={150}>
+                <Allotment.Pane minSize={100}>
                   <ExplanationPanel
                     explanations={solution?.explanations}
                     highlightedLine={highlightedLine}
