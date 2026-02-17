@@ -267,7 +267,7 @@ export default function PrepTab({ isOpen, onClose }) {
         {/* Footer */}
         <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
           <p className="text-xs text-gray-500 text-center">
-            Connect to platforms to auto-fetch problems • Sessions last 4 hours
+            Connect to platforms to auto-fetch problems • Sessions persist across restarts
           </p>
         </div>
       </div>
