@@ -272,16 +272,21 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
         )}
 
         {activeTab === 'screenshot' && (
-          <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
             {preview ? (
-              <div className="relative flex-1 rounded-lg overflow-hidden border border-gray-300 bg-gray-50">
-                <img src={preview} alt="Preview" className="w-full h-full object-contain" />
+              <div className="relative rounded-lg overflow-hidden border border-gray-300 bg-gray-100" style={{ maxHeight: '300px' }}>
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className="w-full h-auto object-contain"
+                  style={{ maxHeight: '300px', display: 'block' }}
+                />
                 <button
                   onClick={clearPreview}
                   disabled={isLoading}
-                  className="absolute top-1.5 right-1.5 p-0.5 rounded bg-black/50 text-white hover:bg-black/70"
+                  className="absolute top-2 right-2 p-1 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
                 >
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
