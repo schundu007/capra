@@ -103,7 +103,7 @@ function MermaidDiagram({ chart }) {
   return (
     <div
       ref={containerRef}
-      className="rounded-lg bg-gray-50 border border-gray-200 overflow-auto max-h-48"
+      className="rounded-lg bg-gray-50 border border-gray-200 overflow-auto"
       style={{ padding: '8px' }}
       dangerouslySetInnerHTML={{ __html: svg }}
     />
@@ -177,24 +177,46 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
             </div>
           )}
 
-          {/* Requirements - Compact inline */}
+          {/* Requirements - Full display */}
           {systemDesign.requirements && (
             <div className="rounded-lg p-2.5 bg-white border border-gray-200">
               <h4 className="text-[10px] font-semibold text-gray-600 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                 Requirements
               </h4>
-              <div className="flex flex-wrap gap-1">
-                {systemDesign.requirements.functional?.slice(0, 4).map((req, i) => (
-                  <span key={`f-${i}`} className="px-1.5 py-0.5 bg-emerald-50 text-emerald-700 text-[9px] rounded border border-emerald-200 truncate max-w-[150px]" title={req}>
-                    {req.length > 25 ? req.slice(0, 25) + '...' : req}
-                  </span>
-                ))}
-                {systemDesign.requirements.nonFunctional?.slice(0, 3).map((req, i) => (
-                  <span key={`nf-${i}`} className="px-1.5 py-0.5 bg-blue-50 text-blue-700 text-[9px] rounded border border-blue-200 truncate max-w-[150px]" title={req}>
-                    {req.length > 25 ? req.slice(0, 25) + '...' : req}
-                  </span>
-                ))}
+              <div className="space-y-2">
+                {systemDesign.requirements.functional && systemDesign.requirements.functional.length > 0 && (
+                  <div>
+                    <span className="text-[9px] font-semibold text-emerald-600 uppercase tracking-wide flex items-center gap-1 mb-1">
+                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                      Functional
+                    </span>
+                    <ul className="space-y-0.5">
+                      {systemDesign.requirements.functional.map((req, i) => (
+                        <li key={i} className="text-[10px] text-gray-700 flex items-start gap-1.5">
+                          <span className="text-emerald-400 mt-0.5">•</span>
+                          {req}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {systemDesign.requirements.nonFunctional && systemDesign.requirements.nonFunctional.length > 0 && (
+                  <div>
+                    <span className="text-[9px] font-semibold text-blue-600 uppercase tracking-wide flex items-center gap-1 mb-1">
+                      <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                      Non-Functional
+                    </span>
+                    <ul className="space-y-0.5">
+                      {systemDesign.requirements.nonFunctional.map((req, i) => (
+                        <li key={i} className="text-[10px] text-gray-700 flex items-start gap-1.5">
+                          <span className="text-blue-400 mt-0.5">•</span>
+                          {req}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -304,7 +326,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
 
             {eraserDiagram ? (
               <div>
-                <div className="rounded-lg overflow-hidden border border-gray-200 max-h-40">
+                <div className="rounded-lg overflow-hidden border border-gray-200">
                   <img
                     src={eraserDiagram.imageUrl}
                     alt="Architecture Diagram"
