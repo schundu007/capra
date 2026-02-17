@@ -65,13 +65,17 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
   }
 });
 
-// Follow-up question endpoint for system design interviews
+// Follow-up question endpoint for any interview problem
 router.post('/followup', validate('solve'), async (req, res, next) => {
   try {
-    const { question, currentDesign, provider = 'claude', model } = req.body;
+    const { question, problem, code, pitch, currentDesign, provider = 'claude', model } = req.body;
 
-    if (!question || !currentDesign) {
-      return res.status(400).json({ error: 'Question and current design are required' });
+    if (!question) {
+      return res.status(400).json({ error: 'Question is required' });
+    }
+
+    if (!problem && !code && !pitch && !currentDesign) {
+      return res.status(400).json({ error: 'Need problem context (problem, code, pitch, or currentDesign)' });
     }
 
     const service = provider === 'openai' ? openai : claude;
@@ -84,26 +88,21 @@ router.post('/followup', validate('solve'), async (req, res, next) => {
 
     let fullText = '';
 
-    for await (const chunk of service.answerFollowUpQuestion(question, currentDesign, model)) {
+    // Build context for the question
+    const context = {
+      problem,
+      code,
+      pitch,
+      systemDesign: currentDesign
+    };
+
+    for await (const chunk of service.answerFollowUpQuestion(question, context, model)) {
       fullText += chunk;
       res.write(`data: ${JSON.stringify({ chunk, partial: true })}\n\n`);
     }
 
-    // Parse and send final result
-    try {
-      const jsonMatch = fullText.match(/```json\s*([\s\S]*?)\s*```/) ||
-                        fullText.match(/```\s*([\s\S]*?)\s*```/);
-      const jsonStr = jsonMatch ? jsonMatch[1] : fullText;
-      const result = JSON.parse(jsonStr);
-      res.write(`data: ${JSON.stringify({ done: true, result })}\n\n`);
-    } catch {
-      try {
-        const result = JSON.parse(fullText);
-        res.write(`data: ${JSON.stringify({ done: true, result })}\n\n`);
-      } catch {
-        res.write(`data: ${JSON.stringify({ done: true, result: { answer: fullText, updatedDesign: currentDesign } })}\n\n`);
-      }
-    }
+    // Send the answer directly (no JSON parsing needed for simple answers)
+    res.write(`data: ${JSON.stringify({ done: true, result: { answer: fullText.trim() } })}\n\n`);
     res.end();
   } catch (error) {
     res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);

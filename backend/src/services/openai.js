@@ -497,24 +497,42 @@ Respond with valid JSON:
   "changesApplied": ["List of specific changes made to the design based on this question"]
 }`;
 
-export async function* answerFollowUpQuestion(question, currentDesign, model = DEFAULT_MODEL) {
+export async function* answerFollowUpQuestion(question, context, model = DEFAULT_MODEL) {
+  // Build context string based on what's available
+  let contextStr = '';
+
+  if (context.problem) {
+    contextStr += `PROBLEM:\n${context.problem}\n\n`;
+  }
+  if (context.pitch) {
+    contextStr += `APPROACH:\n${context.pitch}\n\n`;
+  }
+  if (context.code) {
+    contextStr += `CODE SOLUTION:\n${context.code}\n\n`;
+  }
+  if (context.systemDesign) {
+    contextStr += `SYSTEM DESIGN:\n${JSON.stringify(context.systemDesign, null, 2)}\n\n`;
+  }
+
   const stream = await getClient().chat.completions.create({
     model,
     messages: [
-      { role: 'system', content: FOLLOW_UP_PROMPT },
+      {
+        role: 'system',
+        content: `You are helping a candidate answer follow-up questions during a technical interview.
+Give clear, concise answers that demonstrate understanding.
+Speak naturally as if explaining to an interviewer.
+Keep answers focused - typically 2-4 sentences unless more detail is needed.
+Do NOT use markdown formatting or code blocks - just plain text.`
+      },
       {
         role: 'user',
-        content: `CURRENT SYSTEM DESIGN:
-${JSON.stringify(currentDesign, null, 2)}
+        content: `${contextStr}INTERVIEWER'S QUESTION: "${question}"
 
-INTERVIEWER'S QUESTION:
-"${question}"
-
-Answer this question directly and specifically. Update the system design if the question implies changes are needed. Return JSON as specified.`,
+Answer this interview follow-up question directly and concisely. Explain your reasoning clearly as if speaking to an interviewer.`,
       },
     ],
-    max_tokens: 8192,
-    response_format: { type: 'json_object' },
+    max_tokens: 2048,
     stream: true,
   });
 

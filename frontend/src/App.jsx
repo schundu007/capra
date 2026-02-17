@@ -491,16 +491,18 @@ export default function App() {
     handleSolve(currentProblem + '\n\nProvide a DETAILED system design with all components, data models, API design, scalability considerations, and architecture diagram.', currentLanguage, 'detailed');
   };
 
-  // Handle follow-up questions for system design interviews
+  // Handle follow-up questions for any interview problem
   const handleFollowUpQuestion = async (question) => {
     console.log('[App Q&A] handleFollowUpQuestion called with:', question);
-    const currentDesign = solution?.systemDesign || streamingContent.systemDesign;
-    console.log('[App Q&A] currentDesign:', currentDesign);
-    console.log('[App Q&A] currentDesign.included:', currentDesign?.included);
 
-    if (!currentDesign?.included) {
-      console.log('[App Q&A] No system design, returning null');
-      return null;
+    // Get current context - works for both coding and system design
+    const currentCode = solution?.code || streamingContent.code;
+    const currentPitch = solution?.pitch || streamingContent.pitch;
+    const currentDesign = solution?.systemDesign || streamingContent.systemDesign;
+
+    if (!currentCode && !currentPitch && !currentDesign?.included) {
+      console.log('[App Q&A] No solution context, returning null');
+      return { answer: 'Please solve a problem first before asking follow-up questions.' };
     }
 
     setIsProcessingFollowUp(true);
@@ -512,7 +514,10 @@ export default function App() {
         headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({
           question,
-          currentDesign,
+          problem: currentProblem,
+          code: currentCode,
+          pitch: currentPitch,
+          currentDesign: currentDesign?.included ? currentDesign : null,
           provider,
           model
         }),

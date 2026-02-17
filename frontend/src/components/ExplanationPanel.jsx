@@ -70,8 +70,9 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
   // Q&A state
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const [textInput, setTextInput] = useState(''); // Fallback text input
   const [speechSupported, setSpeechSupported] = useState(true);
+  const silenceTimeoutRef = useRef(null);
+  const lastTranscriptRef = useRef('');
   const [qaHistory, setQaHistory] = useState([]);
   const recognitionRef = useRef(null);
   const isListeningRef = useRef(false); // Track listening state without causing re-renders
@@ -93,19 +94,33 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
 
     recognition.onresult = (event) => {
       let finalTranscript = '';
-      let interimTranscript = '';
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
           finalTranscript += result[0].transcript + ' ';
-        } else {
-          interimTranscript += result[0].transcript;
         }
       }
 
       if (finalTranscript) {
-        setTranscript(prev => (prev + ' ' + finalTranscript).trim());
+        const newTranscript = (lastTranscriptRef.current + ' ' + finalTranscript).trim();
+        lastTranscriptRef.current = newTranscript;
+        setTranscript(newTranscript);
+
+        // Clear any existing silence timeout
+        if (silenceTimeoutRef.current) {
+          clearTimeout(silenceTimeoutRef.current);
+        }
+
+        // Auto-submit after 2 seconds of silence
+        silenceTimeoutRef.current = setTimeout(() => {
+          if (lastTranscriptRef.current && isListeningRef.current) {
+            // Stop listening and submit
+            isListeningRef.current = false;
+            try { recognition.stop(); } catch (e) {}
+            setIsListening(false);
+          }
+        }, 2000);
       }
     };
 
@@ -145,6 +160,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
       return;
     }
     setTranscript('');
+    lastTranscriptRef.current = '';
     setIsListening(true);
     isListeningRef.current = true;
     try {
@@ -154,9 +170,19 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
     }
   }, []);
 
-  const stopListening = useCallback(() => {
+  // Auto-submit when listening stops and there's a transcript
+  useEffect(() => {
+    if (!isListening && transcript && !isProcessingFollowUp) {
+      handleSubmitQuestion(transcript);
+    }
+  }, [isListening]);
+
+  const stopListening = useCallback((autoSubmit = false) => {
     setIsListening(false);
     isListeningRef.current = false;
+    if (silenceTimeoutRef.current) {
+      clearTimeout(silenceTimeoutRef.current);
+    }
     if (recognitionRef.current) {
       try {
         recognitionRef.current.stop();
@@ -259,63 +285,41 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
           </div>
         )}
 
-        {/* Interviewer Q&A Section - available for all solutions */}
-        {hasSolution && onFollowUpQuestion && (
+        {/* Interviewer Q&A Section - voice-based with auto-answer */}
+        {hasSolution && onFollowUpQuestion && speechSupported && (
           <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                 </svg>
                 <span className="text-[12px] font-bold uppercase tracking-wide text-blue-600">
-                  Ask Follow-up Question
+                  Interviewer Q&A
                 </span>
               </div>
 
-              {/* Voice Button - only show if speech is supported */}
-              {speechSupported && (
-                <button
-                  onClick={isListening ? stopListening : startListening}
-                  disabled={isProcessingFollowUp}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-full transition-all ${
-                    isListening
-                      ? 'bg-red-500 text-white animate-pulse'
-                      : 'bg-blue-500 text-white hover:bg-blue-600'
-                  }`}
-                >
-                  {isListening ? 'Stop' : 'Voice'}
-                </button>
-              )}
+              {/* Listen Button */}
+              <button
+                onClick={isListening ? stopListening : startListening}
+                disabled={isProcessingFollowUp}
+                className={`px-4 py-2 text-sm font-bold rounded-full transition-all ${
+                  isListening
+                    ? 'bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/50'
+                    : isProcessingFollowUp
+                      ? 'bg-gray-400 text-white'
+                      : 'bg-blue-500 text-white hover:bg-blue-600 shadow-lg shadow-blue-500/30'
+                }`}
+              >
+                {isProcessingFollowUp ? 'Answering...' : isListening ? 'Listening...' : 'Start Listening'}
+              </button>
             </div>
 
-            {/* Text Input - always available */}
-            <div className="mb-3">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={textInput}
-                  onChange={(e) => setTextInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSubmitQuestion()}
-                  placeholder="Type your question here..."
-                  disabled={isProcessingFollowUp}
-                  className="flex-1 px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
-                />
-                <button
-                  onClick={() => handleSubmitQuestion()}
-                  disabled={isProcessingFollowUp || (!textInput.trim() && !transcript.trim())}
-                  className="px-4 py-2 text-sm font-bold rounded-lg transition-all disabled:opacity-50 bg-emerald-500 text-white hover:bg-emerald-600"
-                >
-                  {isProcessingFollowUp ? 'Asking...' : 'Ask'}
-                </button>
-              </div>
-            </div>
-
-            {/* Live Transcript - only show when using voice */}
-            {speechSupported && (isListening || transcript) && (
+            {/* Live Transcript */}
+            {(isListening || transcript) && (
               <div className="mb-3 p-3 rounded-lg bg-white border-2 border-blue-300">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[10px] font-semibold text-blue-600 uppercase">
-                    {isListening ? 'Listening...' : 'Voice Input'}
+                    {isListening ? 'Listening... (auto-submits after pause)' : 'Question'}
                   </span>
                   {transcript && (
                     <button
