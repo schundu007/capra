@@ -817,8 +817,7 @@ export default function App() {
             }}
             title="Interview Prep Hub"
           >
-            <span className="text-lg">🚀</span>
-            <span>Prep Hub</span>
+            Prep Hub
           </button>
         </div>
 
