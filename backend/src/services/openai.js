@@ -85,7 +85,7 @@ export async function solveProblem(problemText, language = 'auto', fast = true, 
   const response = await getClient().chat.completions.create({
     model,
     messages: [
-      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'system', content: CODING_PROMPT },
       {
         role: 'user',
         content: `${languageInstruction}\n\nSolve this problem and return the response as JSON:\n\n${problemText}`,
@@ -453,7 +453,7 @@ export async function analyzeImage(base64Image, mimeType, model = DEFAULT_MODEL)
   const response = await getClient().chat.completions.create({
     model,
     messages: [
-      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'system', content: CODING_PROMPT },
       {
         role: 'user',
         content: [

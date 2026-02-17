@@ -105,7 +105,7 @@ export async function solveProblem(problemText, language = 'auto', fast = true, 
         content: `${languageInstruction}\n\nSolve this problem and return the response as JSON:\n\n${problemText}`,
       },
     ],
-    system: SYSTEM_PROMPT,
+    system: CODING_PROMPT,
   });
 
   const content = response.content[0].text;
@@ -484,7 +484,7 @@ export async function analyzeImage(base64Image, mimeType, model = DEFAULT_MODEL)
         ],
       },
     ],
-    system: SYSTEM_PROMPT,
+    system: CODING_PROMPT,
   });
 
   const content = response.content[0].text;
