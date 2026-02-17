@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 // Format text with basic markdown-like styling (light theme)
 function FormattedText({ text }) {
@@ -9,7 +9,6 @@ function FormattedText({ text }) {
   return (
     <div className="space-y-2">
       {paragraphs.map((para, i) => {
-        // Code block
         if (para.trim().startsWith('```') || para.match(/^[\s]{4,}/m)) {
           const code = para.replace(/^```\w*\n?|```$/g, '').trim();
           return (
@@ -19,7 +18,6 @@ function FormattedText({ text }) {
           );
         }
 
-        // Bullet list
         if (para.match(/^[\s]*[-•*]\s/m)) {
           const items = para.split(/\n/).filter(line => line.trim());
           return (
@@ -33,7 +31,6 @@ function FormattedText({ text }) {
           );
         }
 
-        // Numbered list
         if (para.match(/^[\s]*\d+[.)]\s/m)) {
           const items = para.split(/\n/).filter(line => line.trim());
           return (
@@ -47,7 +44,6 @@ function FormattedText({ text }) {
           );
         }
 
-        // Regular paragraph
         const formatted = para
           .split(/\n/)
           .join(' ')
@@ -70,36 +66,131 @@ function FormattedText({ text }) {
 export default function ExplanationPanel({ explanations, highlightedLine, pitch, systemDesign, isStreaming, onExpandSystemDesign, canExpandSystemDesign, onFollowUpQuestion, isProcessingFollowUp }) {
   const hasSystemDesign = systemDesign && systemDesign.included;
 
-  // Q&A state - simplified, no speech recognition
-  const [question, setQuestion] = useState('');
+  // Q&A state
+  const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState('');
   const [qaHistory, setQaHistory] = useState([]);
+  const recognitionRef = useRef(null);
+  const isListeningRef = useRef(false); // Track listening state without causing re-renders
+
+  // Initialize speech recognition once on mount
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = (event) => {
+      let finalTranscript = '';
+      let interimTranscript = '';
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        if (result.isFinal) {
+          finalTranscript += result[0].transcript + ' ';
+        } else {
+          interimTranscript += result[0].transcript;
+        }
+      }
+
+      if (finalTranscript) {
+        setTranscript(prev => (prev + ' ' + finalTranscript).trim());
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.error('Speech error:', event.error);
+      if (event.error !== 'no-speech') {
+        setIsListening(false);
+        isListeningRef.current = false;
+      }
+    };
+
+    recognition.onend = () => {
+      // Auto-restart if still supposed to be listening
+      if (isListeningRef.current) {
+        try {
+          recognition.start();
+        } catch (e) {
+          // Already started or other error
+        }
+      }
+    };
+
+    recognitionRef.current = recognition;
+
+    return () => {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {}
+      }
+    };
+  }, []); // Empty deps - only run once
+
+  const startListening = useCallback(() => {
+    if (!recognitionRef.current) {
+      alert('Speech recognition not supported in this browser');
+      return;
+    }
+    setTranscript('');
+    setIsListening(true);
+    isListeningRef.current = true;
+    try {
+      recognitionRef.current.start();
+    } catch (e) {
+      console.error('Failed to start:', e);
+    }
+  }, []);
+
+  const stopListening = useCallback(() => {
+    setIsListening(false);
+    isListeningRef.current = false;
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {}
+    }
+  }, []);
 
   const handleSubmitQuestion = async () => {
-    const q = question.trim();
+    const q = transcript.trim();
     if (!q || !onFollowUpQuestion || isProcessingFollowUp) return;
 
+    stopListening();
     const currentQ = q;
-    setQuestion(''); // Clear input immediately
+    setTranscript('');
 
-    // Add question to history with pending answer
+    // Add to history with pending state
     setQaHistory(prev => [...prev, { question: currentQ, answer: null, pending: true }]);
 
     try {
       const result = await onFollowUpQuestion(currentQ);
-      // Update the last item with the answer
       setQaHistory(prev => {
         const updated = [...prev];
         if (updated.length > 0) {
-          updated[updated.length - 1] = { question: currentQ, answer: result?.answer || 'No answer received', pending: false };
+          updated[updated.length - 1] = {
+            question: currentQ,
+            answer: result?.answer || 'No answer received',
+            pending: false
+          };
         }
         return updated;
       });
     } catch (err) {
-      console.error('Follow-up failed:', err);
       setQaHistory(prev => {
         const updated = [...prev];
         if (updated.length > 0) {
-          updated[updated.length - 1] = { question: currentQ, answer: 'Error: ' + err.message, pending: false };
+          updated[updated.length - 1] = {
+            question: currentQ,
+            answer: 'Error: ' + err.message,
+            pending: false
+          };
         }
         return updated;
       });
@@ -115,12 +206,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
           <span className="text-[10px] font-medium text-gray-400">Explanation</span>
         </div>
         <div className="flex-1 flex items-center justify-center p-4">
-          <div className="text-center">
-            <svg className="w-6 h-6 text-gray-300 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-            </svg>
-            <p className="text-[10px] text-gray-400">Solve a problem to see explanations</p>
-          </div>
+          <p className="text-[10px] text-gray-400">Solve a problem to see explanations</p>
         </div>
       </div>
     );
@@ -169,52 +255,78 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
         {/* Interviewer Q&A Section */}
         {hasSystemDesign && (
           <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
-            <div className="flex items-center gap-2 mb-3">
-              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-[12px] font-bold uppercase tracking-wide text-blue-600">
-                Interviewer Q&A
-              </span>
-            </div>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+                <span className="text-[12px] font-bold uppercase tracking-wide text-blue-600">
+                  Interviewer Q&A
+                </span>
+              </div>
 
-            {/* Question Input */}
-            <div className="flex gap-2 mb-3">
-              <input
-                type="text"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSubmitQuestion()}
-                placeholder="Type interviewer's question..."
-                className="flex-1 px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
-                disabled={isProcessingFollowUp}
-              />
+              {/* Big Listen Button */}
               <button
-                onClick={handleSubmitQuestion}
-                disabled={isProcessingFollowUp || !question.trim()}
-                className="px-4 py-2 text-sm font-medium rounded-lg transition-all disabled:opacity-50 bg-blue-500 text-white hover:bg-blue-600"
+                onClick={isListening ? stopListening : startListening}
+                disabled={isProcessingFollowUp}
+                className={`px-4 py-2 text-sm font-bold rounded-full transition-all ${
+                  isListening
+                    ? 'bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/50'
+                    : 'bg-blue-500 text-white hover:bg-blue-600 shadow-lg shadow-blue-500/30'
+                }`}
               >
-                {isProcessingFollowUp ? '...' : 'Ask'}
+                {isListening ? '🎤 LISTENING...' : '🎤 START LISTENING'}
               </button>
             </div>
+
+            {/* Live Transcript */}
+            {(isListening || transcript) && (
+              <div className="mb-3 p-3 rounded-lg bg-white border-2 border-blue-300">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] font-semibold text-blue-600 uppercase">
+                    {isListening ? '🔴 Live Transcript' : 'Captured Question'}
+                  </span>
+                  {transcript && (
+                    <button
+                      onClick={() => setTranscript('')}
+                      className="text-[9px] text-gray-400 hover:text-red-500"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+                <p className="text-[14px] text-gray-800 min-h-[40px]">
+                  {transcript || (isListening ? 'Speak now...' : '')}
+                </p>
+              </div>
+            )}
+
+            {/* Get Answer Button */}
+            {transcript && !isListening && (
+              <button
+                onClick={handleSubmitQuestion}
+                disabled={isProcessingFollowUp || !transcript.trim()}
+                className="w-full mb-3 px-4 py-3 text-sm font-bold rounded-lg transition-all disabled:opacity-50 bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg"
+              >
+                {isProcessingFollowUp ? '⏳ GENERATING ANSWER...' : '⚡ GET ANSWER'}
+              </button>
+            )}
 
             {/* Q&A History */}
             {qaHistory.length > 0 && (
               <div className="space-y-3">
                 {qaHistory.map((qa, i) => (
                   <div key={i} className="p-3 rounded-lg bg-white border border-gray-200">
-                    {/* Question */}
                     <div className="mb-2">
-                      <span className="text-[10px] font-semibold text-blue-600 uppercase">Q:</span>
-                      <p className="text-[12px] text-gray-800 font-medium">{qa.question}</p>
+                      <span className="text-[10px] font-bold text-blue-600 uppercase">INTERVIEWER:</span>
+                      <p className="text-[13px] text-gray-800 font-medium">{qa.question}</p>
                     </div>
-                    {/* Answer */}
                     <div>
-                      <span className="text-[10px] font-semibold text-emerald-600 uppercase">A:</span>
+                      <span className="text-[10px] font-bold text-emerald-600 uppercase">YOUR ANSWER:</span>
                       {qa.pending ? (
-                        <p className="text-[12px] text-gray-400 italic">Generating answer...</p>
+                        <p className="text-[13px] text-gray-400 italic animate-pulse">Generating answer...</p>
                       ) : (
-                        <p className="text-[12px] text-gray-700 whitespace-pre-wrap">{qa.answer}</p>
+                        <p className="text-[13px] text-gray-700 whitespace-pre-wrap">{qa.answer}</p>
                       )}
                     </div>
                   </div>
@@ -232,11 +344,9 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                 Line Breakdown
               </span>
             </div>
-
             <div className="space-y-1">
               {explanations.map((item, index) => {
                 const isHighlighted = highlightedLine === item.line;
-
                 return (
                   <div
                     key={index}
@@ -244,7 +354,6 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                       isHighlighted ? 'bg-[#10b981]/10' : 'hover:bg-gray-50'
                     }`}
                   >
-                    {/* Line number + Code */}
                     <div className="flex items-start gap-1.5 mb-0.5">
                       <span
                         className={`flex-shrink-0 w-5 h-5 flex items-center justify-center rounded text-[10px] font-mono font-bold ${
@@ -257,7 +366,6 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                         {item.code}
                       </code>
                     </div>
-                    {/* Explanation */}
                     <div className="pl-6">
                       <p className="text-[11px] text-gray-600 font-medium select-text leading-tight">
                         {item.explanation}
