@@ -274,22 +274,24 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
           )}
         </div>
 
-        {/* Row 3: Diagrams - Mermaid and Eraser side by side */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-          {/* Architecture Diagram (Mermaid) */}
+        {/* Row 3: Diagrams - Stacked vertically for better readability */}
+        <div className="space-y-2">
+          {/* Architecture Diagram (Mermaid) - Full width */}
           {systemDesign.diagram && (
-            <div className="rounded-lg p-2.5 bg-white border border-gray-200">
-              <h4 className="text-[10px] font-semibold text-gray-600 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+            <div className="rounded-lg p-3 bg-white border border-gray-200">
+              <h4 className="text-[10px] font-semibold text-gray-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
                 Flow Diagram
               </h4>
-              <MermaidDiagram chart={systemDesign.diagram} />
+              <div className="overflow-auto" style={{ maxHeight: '500px' }}>
+                <MermaidDiagram chart={systemDesign.diagram} />
+              </div>
             </div>
           )}
 
-          {/* Professional Diagram (Eraser.io) */}
-          <div className="rounded-lg p-2.5 bg-white border border-gray-200">
-            <h4 className="text-[10px] font-semibold text-gray-600 uppercase tracking-wide mb-1.5 flex items-center justify-between">
+          {/* Professional Diagram (Eraser.io) - Full width */}
+          <div className="rounded-lg p-3 bg-white border border-gray-200">
+            <h4 className="text-[10px] font-semibold text-gray-600 uppercase tracking-wide mb-2 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
                 Pro Diagram
