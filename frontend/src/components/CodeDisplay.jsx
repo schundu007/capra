@@ -23,18 +23,18 @@ function getAuthHeaders() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-// Capra dark green theme
+// AI-inspired dark theme
 const hackerRankTheme = {
   ...vscDarkPlus,
   'pre[class*="language-"]': {
     ...vscDarkPlus['pre[class*="language-"]'],
-    background: '#0f2518',
+    background: '#0a0a0b',
     margin: 0,
     padding: '12px',
   },
   'code[class*="language-"]': {
     ...vscDarkPlus['code[class*="language-"]'],
-    color: '#e0e0e0',
+    color: '#e4e4e7',
     background: 'transparent',
   },
 };
@@ -167,13 +167,13 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
   // Empty state
   if (!code && !isStreaming) {
     return (
-      <div className="h-full flex flex-col bg-[#1e1e1e]">
-        <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-gray-700 flex-shrink-0">
-          <div className="w-1 h-1 rounded-full bg-[#1ba94c]" />
-          <span className="text-[10px] font-medium text-gray-400">Code</span>
+      <div className="h-full flex flex-col" style={{ background: '#0a0a0b' }}>
+        <div className="flex items-center gap-1.5 px-2 py-1.5 flex-shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="w-1 h-1 rounded-full" style={{ background: '#52525b' }} />
+          <span className="text-[10px] font-medium" style={{ color: '#52525b' }}>Code</span>
         </div>
         <div className="flex-1 flex items-center justify-center">
-          <svg className="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-10 h-10" style={{ color: '#3f3f46' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
           </svg>
         </div>
@@ -184,35 +184,43 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
   // Streaming state
   if (isStreaming && !code) {
     return (
-      <div className="h-full flex flex-col bg-[#1e1e1e]">
-        <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-gray-700 flex-shrink-0">
-          <div className="w-1 h-1 rounded-full bg-[#1ba94c]" />
-          <span className="text-[10px] font-medium text-gray-400">Code</span>
+      <div className="h-full flex flex-col" style={{ background: '#0a0a0b' }}>
+        <div className="flex items-center gap-1.5 px-2 py-1.5 flex-shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="w-1 h-1 rounded-full" style={{ background: '#10b981', boxShadow: '0 0 6px #10b981' }} />
+          <span className="text-[10px] font-medium" style={{ color: '#a1a1aa' }}>Code</span>
           <div className="flex gap-0.5 ml-1.5">
-            <span className="w-0.5 h-0.5 rounded-full bg-[#1ba94c] animate-bounce" style={{ animationDelay: '0ms' }} />
-            <span className="w-0.5 h-0.5 rounded-full bg-[#1ba94c] animate-bounce" style={{ animationDelay: '150ms' }} />
-            <span className="w-0.5 h-0.5 rounded-full bg-[#1ba94c] animate-bounce" style={{ animationDelay: '300ms' }} />
+            <span className="w-0.5 h-0.5 rounded-full animate-bounce" style={{ background: '#10b981', animationDelay: '0ms' }} />
+            <span className="w-0.5 h-0.5 rounded-full animate-bounce" style={{ background: '#10b981', animationDelay: '150ms' }} />
+            <span className="w-0.5 h-0.5 rounded-full animate-bounce" style={{ background: '#10b981', animationDelay: '300ms' }} />
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-[11px] text-gray-500">Generating...</div>
+          <div className="text-[11px]" style={{ color: '#71717a' }}>Generating...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col bg-[#1e1e1e]">
+    <div className="h-full flex flex-col" style={{ background: '#0a0a0b' }}>
       {/* Header */}
-      <div className="flex items-center justify-between px-2 py-1.5 border-b border-gray-700 flex-shrink-0">
+      <div className="flex items-center justify-between px-2 py-1.5 flex-shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="flex items-center gap-1.5">
-          <div className="w-1 h-1 rounded-full bg-[#1ba94c]" />
-          <span className="text-[10px] font-medium text-gray-400">Code</span>
-          <span className="text-[9px] px-1.5 py-0.5 rounded bg-gray-700 text-gray-300">{normalizedLanguage}</span>
+          <div className="w-1 h-1 rounded-full" style={{ background: '#10b981', boxShadow: '0 0 6px #10b981' }} />
+          <span className="text-[10px] font-medium" style={{ color: '#a1a1aa' }}>Code</span>
+          <span
+            className="text-[9px] px-1.5 py-0.5 rounded"
+            style={{ background: 'rgba(255,255,255,0.06)', color: '#a1a1aa' }}
+          >
+            {normalizedLanguage}
+          </span>
         </div>
         <button
           onClick={handleCopy}
-          className="px-1.5 py-0.5 text-[10px] font-medium rounded transition-colors text-gray-400 hover:text-white hover:bg-gray-700"
+          className="px-1.5 py-0.5 text-[10px] font-medium rounded transition-colors"
+          style={{ color: '#71717a' }}
+          onMouseEnter={(e) => { e.target.style.background = 'rgba(255,255,255,0.06)'; e.target.style.color = '#fafafa'; }}
+          onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = '#71717a'; }}
         >
           {copied ? 'Copied!' : 'Copy'}
         </button>
@@ -233,7 +241,7 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
           customStyle={{
             margin: 0,
             padding: '8px',
-            background: '#1e1e1e',
+            background: '#0a0a0b',
             fontSize: '11px',
             lineHeight: '1.5',
             minHeight: '100%',
@@ -241,7 +249,7 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
           lineNumberStyle={{
             minWidth: '3em',
             paddingRight: '1em',
-            color: '#6e7681',
+            color: '#52525b',
             userSelect: 'none',
           }}
         >
@@ -250,16 +258,16 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
       </div>
 
       {/* Footer - Run/Submit buttons */}
-      <div className="px-2 py-2 flex items-center justify-between" style={{ background: '#0a1a10', borderTop: '1px solid #1a3a25' }}>
+      <div className="px-2 py-2 flex items-center justify-between" style={{ background: '#111113', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="flex items-center gap-2">
           {/* Test input toggle */}
-          <label className="flex items-center gap-1.5 text-[10px] cursor-pointer" style={{ color: '#b0b0b0' }}>
+          <label className="flex items-center gap-1.5 text-[10px] cursor-pointer" style={{ color: '#71717a' }}>
             <input
               type="checkbox"
               checked={showTestInput}
               onChange={(e) => setShowTestInput(e.target.checked)}
               className="rounded w-3 h-3"
-              style={{ borderColor: '#1a3a25' }}
+              style={{ borderColor: 'rgba(255,255,255,0.1)' }}
             />
             Test custom input
           </label>
@@ -274,8 +282,8 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
               className="px-2 py-1 text-[10px] font-medium rounded transition-colors"
               style={{
                 background: 'transparent',
-                border: '1px solid #1ba94c',
-                color: '#1ba94c'
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                color: '#10b981'
               }}
             >
               {fixing ? 'Fixing...' : 'Auto Fix'}
@@ -287,7 +295,11 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
             onClick={handleRun}
             disabled={running || !canRun}
             className="px-2 py-1 text-[10px] font-semibold rounded transition-colors disabled:opacity-50"
-            style={{ background: '#1ba94c', color: 'white' }}
+            style={{
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              color: 'white',
+              boxShadow: '0 0 12px rgba(16, 185, 129, 0.2)'
+            }}
           >
             {running ? 'Running...' : 'Run Code'}
           </button>
@@ -296,7 +308,7 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
 
       {/* Test Input Panel */}
       {showTestInput && (
-        <div className="px-2 py-2" style={{ background: '#0a1a10', borderTop: '1px solid #1a3a25' }}>
+        <div className="px-2 py-2" style={{ background: '#111113', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           <div className="flex items-center gap-1.5 mb-1.5">
             {examples?.map((ex, idx) => (
               <button
@@ -304,8 +316,8 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
                 onClick={() => handleExampleSelect(idx)}
                 className="px-2 py-0.5 text-[9px] font-medium rounded transition-colors"
                 style={{
-                  background: selectedExample === idx ? '#1ba94c' : '#15322a',
-                  color: selectedExample === idx ? 'white' : '#b0b0b0'
+                  background: selectedExample === idx ? '#10b981' : 'rgba(255,255,255,0.03)',
+                  color: selectedExample === idx ? 'white' : '#71717a'
                 }}
               >
                 Ex {idx + 1}
@@ -318,9 +330,9 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
             placeholder="Enter custom input..."
             className="w-full h-16 px-2 py-1.5 rounded font-mono text-[10px] resize-none"
             style={{
-              background: '#15322a',
-              border: '1px solid #1a3a25',
-              color: '#e0e0e0'
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              color: '#e4e4e7'
             }}
           />
         </div>
@@ -328,22 +340,25 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
 
       {/* Output Panel */}
       {output && (
-        <div style={{ background: '#0a1a10', borderTop: '1px solid #1a3a25' }}>
+        <div style={{ background: '#111113', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           {/* Resize Handle */}
           <div
             onMouseDown={handleResizeStart}
             className="h-1.5 cursor-ns-resize flex items-center justify-center hover:bg-white/5 transition-colors"
-            style={{ borderBottom: '1px solid #1a3a25' }}
+            style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
           >
-            <div className="w-6 h-0.5 rounded-full bg-slate-600" />
+            <div className="w-6 h-0.5 rounded-full" style={{ background: '#3f3f46' }} />
           </div>
           <div className="px-2 py-1 flex items-center justify-between">
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-medium" style={{ color: output.success ? '#1ba94c' : '#ff6b6b' }}>
+              <span className="text-[10px] font-medium" style={{ color: output.success ? '#10b981' : '#ef4444' }}>
                 {output.success ? 'Output' : 'Error'}
               </span>
               {autoRunOutput && output === autoRunOutput && (
-                <span className="text-[8px] px-1 py-0.5 rounded bg-[#1ba94c]/20 text-[#1ba94c] font-medium">
+                <span
+                  className="text-[8px] px-1 py-0.5 rounded font-medium"
+                  style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}
+                >
                   Auto
                 </span>
               )}
@@ -354,14 +369,14 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
                   navigator.clipboard.writeText(output.success ? output.output : output.error);
                 }}
                 className="text-[9px] px-1.5 py-0.5 rounded hover:bg-white/10 transition-colors"
-                style={{ color: '#b0b0b0' }}
+                style={{ color: '#71717a' }}
                 title="Copy output"
               >
                 Copy
               </button>
               <button
                 onClick={() => setOutput(null)}
-                style={{ color: '#7a7a7a' }}
+                style={{ color: '#52525b' }}
                 className="hover:text-white transition-colors"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -373,7 +388,7 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
           <pre
             className="px-2 py-1.5 text-[10px] font-mono overflow-auto select-text scrollbar-dark"
             style={{
-              color: output.success ? '#1ba94c' : '#ff6b6b',
+              color: output.success ? '#10b981' : '#ef4444',
               height: `${outputHeight}px`,
               minHeight: '50px',
               maxHeight: '200px',
