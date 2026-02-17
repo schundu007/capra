@@ -28,45 +28,50 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
   const fileInputRef = useRef(null);
   const textareaRef = useRef(null);
 
+  // Clean up text - remove extra empty lines and whitespace
+  const cleanupText = useCallback((text) => {
+    if (!text) return '';
+    return text
+      .split('\n')
+      .map(line => line.trimEnd()) // Remove trailing whitespace from each line
+      .join('\n')
+      .replace(/\n{3,}/g, '\n\n') // Replace 3+ newlines with 2
+      .trim();
+  }, []);
+
   // Auto-resize textarea based on content
-  const adjustTextareaHeight = useCallback((shrink = false) => {
+  const adjustTextareaHeight = useCallback(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
 
-    const lineHeight = 18; // approx line height for text-[11px]
-    const minRows = 2;
-    const maxRows = 12;
-    const minHeight = lineHeight * minRows + 12; // 12px for padding
-    const maxHeight = lineHeight * maxRows + 12;
+    const lineHeight = 22; // line height for 14px font
+    const minHeight = lineHeight * 2 + 16; // 2 rows minimum + padding
+    const maxHeight = 400; // max height before scrolling
 
-    if (shrink) {
-      // Shrink to minimum height
-      textarea.style.height = `${minHeight}px`;
-    } else {
-      // Reset height to auto to get scrollHeight
-      textarea.style.height = 'auto';
-      const scrollHeight = textarea.scrollHeight;
-      // Clamp between min and max
-      const newHeight = Math.min(Math.max(scrollHeight, minHeight), maxHeight);
-      textarea.style.height = `${newHeight}px`;
-    }
+    // Reset height to auto to measure content
+    textarea.style.height = 'auto';
+    const scrollHeight = textarea.scrollHeight;
+
+    // Set height to fit content, clamped between min and max
+    const newHeight = Math.min(Math.max(scrollHeight, minHeight), maxHeight);
+    textarea.style.height = `${newHeight}px`;
   }, []);
 
-  // Shrink textarea when solution is generated
+  // Resize textarea when problem text changes
   useEffect(() => {
-    if (hasSolution) {
-      adjustTextareaHeight(true);
-    }
-  }, [hasSolution, adjustTextareaHeight]);
+    adjustTextareaHeight();
+  }, [problemText, adjustTextareaHeight]);
 
   useEffect(() => {
     if (extractedText) {
-      setProblemText(extractedText);
+      // Clean up extracted text and set it
+      const cleaned = cleanupText(extractedText);
+      setProblemText(cleaned);
       setUrl('');
       setActiveTab('text');
       onExtractedTextClear?.();
     }
-  }, [extractedText, onExtractedTextClear]);
+  }, [extractedText, onExtractedTextClear, cleanupText]);
 
   useEffect(() => {
     if (shouldClear) {
@@ -74,10 +79,8 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
       setUrl('');
       setPreview(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
-      // Reset textarea height
-      adjustTextareaHeight(true);
     }
-  }, [shouldClear, adjustTextareaHeight]);
+  }, [shouldClear]);
 
   const handleTextSubmit = (e) => {
     e.preventDefault();
@@ -207,27 +210,17 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
             <textarea
               ref={textareaRef}
               value={problemText}
-              onChange={(e) => {
-                setProblemText(e.target.value);
-                adjustTextareaHeight(false);
-              }}
-              onPaste={() => {
-                // Delay to allow paste to complete
-                setTimeout(() => adjustTextareaHeight(false), 0);
-              }}
+              onChange={(e) => setProblemText(e.target.value)}
               placeholder="Paste coding problem..."
               className="w-full px-3 py-2 resize-none rounded-lg border border-gray-300 placeholder-gray-400 focus:outline-none focus:border-[#1ba94c] focus:ring-2 focus:ring-[#1ba94c]/20"
               style={{
-                minHeight: '80px',
-                maxHeight: '228px',
+                minHeight: '60px',
+                maxHeight: '400px',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                fontSize: '14px',
-                lineHeight: '1.6',
+                fontSize: '13px',
+                lineHeight: '1.5',
                 color: '#000000',
                 backgroundColor: '#ffffff',
-                textDecoration: 'none',
-                WebkitTextDecorationLine: 'none',
-                textDecorationLine: 'none',
               }}
               spellCheck="false"
               autoCorrect="off"

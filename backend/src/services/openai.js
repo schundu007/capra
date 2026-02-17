@@ -240,7 +240,18 @@ export async function extractText(base64Image, mimeType, model = DEFAULT_MODEL) 
           },
           {
             type: 'text',
-            text: 'Extract all text from this image. Return ONLY the extracted text, nothing else. Preserve the formatting and structure as much as possible.',
+            text: `Extract the coding problem from this image and format it clearly.
+
+Format the output as follows:
+- Start with the problem title/description
+- Use "Input:" and "Output:" headings for I/O format
+- Use "Example:" or "Examples:" for test cases
+- Use "Constraints:" for any constraints
+- Use bullet points (•) for lists
+- Remove any extra blank lines
+- Keep it concise and readable
+
+Return ONLY the formatted problem text, nothing else.`,
           },
         ],
       },
