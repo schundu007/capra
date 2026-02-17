@@ -26,9 +26,12 @@ router.post('/', validate('solve'), async (req, res, next) => {
 // Streaming endpoint for faster perceived response
 router.post('/stream', validate('solve'), async (req, res, next) => {
   try {
+    // Log the ENTIRE validated request body
+    console.log('[Solve Stream] FULL req.body after validation:', JSON.stringify(req.body, null, 2));
+
     const { problem, provider = 'claude', language = 'auto', detailLevel = 'detailed', model, interviewMode = 'coding', designDetailLevel = 'basic' } = req.body;
 
-    console.log('[Solve Stream] interviewMode:', interviewMode, 'designDetailLevel:', designDetailLevel, 'provider:', provider);
+    console.log('[Solve Stream] EXTRACTED VALUES - interviewMode:', interviewMode, 'designDetailLevel:', designDetailLevel, 'provider:', provider);
 
     // Set SSE headers
     res.setHeader('Content-Type', 'text/event-stream');
