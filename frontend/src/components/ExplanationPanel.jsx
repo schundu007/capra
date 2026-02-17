@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 
 // Format text with basic markdown-like styling (light theme)
 function FormattedText({ text }) {
@@ -70,134 +70,40 @@ function FormattedText({ text }) {
 export default function ExplanationPanel({ explanations, highlightedLine, pitch, systemDesign, isStreaming, onExpandSystemDesign, canExpandSystemDesign, onFollowUpQuestion, isProcessingFollowUp }) {
   const hasSystemDesign = systemDesign && systemDesign.included;
 
-  // Debug logging
-  console.log('[Q&A Debug] systemDesign:', systemDesign);
-  console.log('[Q&A Debug] hasSystemDesign:', hasSystemDesign);
-  console.log('[Q&A Debug] onFollowUpQuestion:', !!onFollowUpQuestion);
-
-  // Speech recognition state
-  const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const [interimTranscript, setInterimTranscript] = useState('');
-  const [currentQuestion, setCurrentQuestion] = useState(null); // Question being processed
-  const [followUpAnswer, setFollowUpAnswer] = useState(null);
+  // Q&A state - simplified, no speech recognition
+  const [question, setQuestion] = useState('');
   const [qaHistory, setQaHistory] = useState([]);
-  const recognitionRef = useRef(null);
-
-  // Initialize speech recognition
-  useEffect(() => {
-    if (typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = 'en-US';
-
-      recognitionRef.current.onresult = (event) => {
-        let interim = '';
-        let final = '';
-
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const result = event.results[i];
-          if (result.isFinal) {
-            final += result[0].transcript;
-          } else {
-            interim += result[0].transcript;
-          }
-        }
-
-        if (final) {
-          setTranscript(prev => prev + ' ' + final);
-        }
-        setInterimTranscript(interim);
-      };
-
-      recognitionRef.current.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
-        setIsListening(false);
-      };
-
-      recognitionRef.current.onend = () => {
-        if (isListening) {
-          // Restart if still supposed to be listening
-          try {
-            recognitionRef.current.start();
-          } catch (e) {
-            setIsListening(false);
-          }
-        }
-      };
-    }
-
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-    };
-  }, [isListening]);
-
-  const toggleListening = () => {
-    if (!recognitionRef.current) {
-      alert('Speech recognition is not supported in this browser');
-      return;
-    }
-
-    if (isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-    } else {
-      setTranscript('');
-      setInterimTranscript('');
-      recognitionRef.current.start();
-      setIsListening(true);
-    }
-  };
 
   const handleSubmitQuestion = async () => {
-    const question = transcript.trim();
-    console.log('[Q&A Debug] handleSubmitQuestion called');
-    console.log('[Q&A Debug] question:', question);
-    console.log('[Q&A Debug] onFollowUpQuestion exists:', !!onFollowUpQuestion);
-    console.log('[Q&A Debug] isProcessingFollowUp:', isProcessingFollowUp);
+    const q = question.trim();
+    if (!q || !onFollowUpQuestion || isProcessingFollowUp) return;
 
-    if (!question || !onFollowUpQuestion || isProcessingFollowUp) {
-      console.log('[Q&A Debug] Early return - missing requirements');
-      return;
-    }
+    const currentQ = q;
+    setQuestion(''); // Clear input immediately
 
-    // Stop listening while processing
-    if (isListening) {
-      recognitionRef.current?.stop();
-      setIsListening(false);
-    }
-
-    // Set current question immediately so it's visible during processing
-    console.log('[Q&A Debug] Setting currentQuestion:', question);
-    setCurrentQuestion(question);
-    setTranscript('');
-    setInterimTranscript('');
+    // Add question to history with pending answer
+    setQaHistory(prev => [...prev, { question: currentQ, answer: null, pending: true }]);
 
     try {
-      console.log('[Q&A Debug] Calling onFollowUpQuestion...');
-      const result = await onFollowUpQuestion(question);
-      console.log('[Q&A Debug] Result:', result);
-      if (result) {
-        setFollowUpAnswer(result.answer);
-        setQaHistory(prev => [...prev, { question, answer: result.answer }]);
-        console.log('[Q&A Debug] Q&A added to history');
-      }
+      const result = await onFollowUpQuestion(currentQ);
+      // Update the last item with the answer
+      setQaHistory(prev => {
+        const updated = [...prev];
+        if (updated.length > 0) {
+          updated[updated.length - 1] = { question: currentQ, answer: result?.answer || 'No answer received', pending: false };
+        }
+        return updated;
+      });
     } catch (err) {
-      console.error('[Q&A Debug] Follow-up question failed:', err);
-      // On error, put the question back in transcript
-      setTranscript(question);
-    } finally {
-      setCurrentQuestion(null);
+      console.error('Follow-up failed:', err);
+      setQaHistory(prev => {
+        const updated = [...prev];
+        if (updated.length > 0) {
+          updated[updated.length - 1] = { question: currentQ, answer: 'Error: ' + err.message, pending: false };
+        }
+        return updated;
+      });
     }
-  };
-
-  const clearTranscript = () => {
-    setTranscript('');
-    setInterimTranscript('');
   };
 
   // Empty state
@@ -260,154 +166,59 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
           </div>
         )}
 
-        {/* Interviewer Q&A Section - Always shown for system design */}
+        {/* Interviewer Q&A Section */}
         {hasSystemDesign && (
           <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[12px] font-bold uppercase tracking-wide text-blue-600 flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                </svg>
+            <div className="flex items-center gap-2 mb-3">
+              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-[12px] font-bold uppercase tracking-wide text-blue-600">
                 Interviewer Q&A
               </span>
+            </div>
+
+            {/* Question Input */}
+            <div className="flex gap-2 mb-3">
+              <input
+                type="text"
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSubmitQuestion()}
+                placeholder="Type interviewer's question..."
+                className="flex-1 px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                disabled={isProcessingFollowUp}
+              />
               <button
-                onClick={toggleListening}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium rounded-full transition-all ${
-                  isListening
-                    ? 'bg-red-500 text-white animate-pulse'
-                    : 'bg-blue-500 text-white hover:bg-blue-600'
-                }`}
+                onClick={handleSubmitQuestion}
+                disabled={isProcessingFollowUp || !question.trim()}
+                className="px-4 py-2 text-sm font-medium rounded-lg transition-all disabled:opacity-50 bg-blue-500 text-white hover:bg-blue-600"
               >
-                {isListening ? (
-                  <>
-                    <span className="w-2 h-2 bg-white rounded-full animate-ping" />
-                    Listening...
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
-                      <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
-                    </svg>
-                    Start Listening
-                  </>
-                )}
+                {isProcessingFollowUp ? '...' : 'Ask'}
               </button>
             </div>
 
-            {/* Transcript Display */}
-            <div className="mb-3">
-              <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1 block">
-                Interviewer's Question
-              </label>
-              <div className="relative">
-                <textarea
-                  value={transcript + interimTranscript}
-                  onChange={(e) => setTranscript(e.target.value)}
-                  placeholder={isListening ? "Listening to interviewer..." : "Click 'Start Listening' or type the question..."}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none bg-white"
-                  rows={2}
-                  disabled={isProcessingFollowUp}
-                />
-                {interimTranscript && (
-                  <span className="absolute bottom-2 right-2 text-[9px] text-gray-400">
-                    (listening...)
-                  </span>
-                )}
-              </div>
-              {transcript && (
-                <button
-                  onClick={clearTranscript}
-                  className="mt-1 text-[9px] text-gray-400 hover:text-gray-600"
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-
-            {/* Submit Button */}
-            <button
-              onClick={handleSubmitQuestion}
-              disabled={isProcessingFollowUp || !transcript.trim() || !onFollowUpQuestion}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 text-[11px] font-medium rounded-lg transition-all disabled:opacity-50"
-              style={{
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                color: 'white',
-                boxShadow: '0 0 12px rgba(16, 185, 129, 0.3)'
-              }}
-            >
-              {isProcessingFollowUp ? (
-                <>
-                  <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  Generating Answer...
-                </>
-              ) : (
-                <>
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                  Answer Question
-                </>
-              )}
-            </button>
-
-            {/* Current Question Being Processed */}
-            {currentQuestion && isProcessingFollowUp && (
-              <div className="mt-3 pt-3 border-t border-blue-200">
-                <div className="p-3 rounded-lg bg-amber-50 border border-amber-200">
-                  <label className="text-[10px] font-semibold text-amber-600 uppercase tracking-wide mb-1 block flex items-center gap-1">
-                    <svg className="w-3 h-3 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Processing Question
-                  </label>
-                  <p className="text-[12px] text-amber-800 font-medium">{currentQuestion}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Latest Q&A Result */}
-            {qaHistory.length > 0 && !isProcessingFollowUp && (
-              <div className="mt-3 pt-3 border-t border-blue-200">
-                <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200">
-                  <label className="text-[10px] font-semibold text-blue-600 uppercase tracking-wide mb-1 block flex items-center gap-1">
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Interviewer Asked
-                  </label>
-                  <p className="text-[12px] text-blue-800 font-medium mb-2">{qaHistory[qaHistory.length - 1].question}</p>
-
-                  <label className="text-[10px] font-semibold text-emerald-600 uppercase tracking-wide mb-1 block flex items-center gap-1">
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Your Answer
-                  </label>
-                  <div className="text-[12px] text-gray-700 leading-relaxed whitespace-pre-wrap">
-                    {qaHistory[qaHistory.length - 1].answer}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Previous Q&A History */}
-            {qaHistory.length > 1 && (
-              <div className="mt-3 pt-3 border-t border-blue-200">
-                <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-2 block">
-                  Previous Q&A ({qaHistory.length - 1})
-                </label>
-                <div className="space-y-2 max-h-40 overflow-y-auto">
-                  {qaHistory.slice(0, -1).reverse().map((qa, i) => (
-                    <div key={i} className="text-[10px] p-2 bg-gray-50 rounded border border-gray-200">
-                      <p className="font-semibold text-blue-600 mb-1">Q: {qa.question}</p>
-                      <p className="text-gray-600">A: {qa.answer}</p>
+            {/* Q&A History */}
+            {qaHistory.length > 0 && (
+              <div className="space-y-3">
+                {qaHistory.map((qa, i) => (
+                  <div key={i} className="p-3 rounded-lg bg-white border border-gray-200">
+                    {/* Question */}
+                    <div className="mb-2">
+                      <span className="text-[10px] font-semibold text-blue-600 uppercase">Q:</span>
+                      <p className="text-[12px] text-gray-800 font-medium">{qa.question}</p>
                     </div>
-                  ))}
-                </div>
+                    {/* Answer */}
+                    <div>
+                      <span className="text-[10px] font-semibold text-emerald-600 uppercase">A:</span>
+                      {qa.pending ? (
+                        <p className="text-[12px] text-gray-400 italic">Generating answer...</p>
+                      ) : (
+                        <p className="text-[12px] text-gray-700 whitespace-pre-wrap">{qa.answer}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
