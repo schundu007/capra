@@ -119,7 +119,7 @@ export default function PrepTab({ isOpen, onClose }) {
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-500">
           <div className="flex items-center gap-3">
-            <span className="text-lg font-bold text-white">🚀 Interview Prep Hub</span>
+            <span className="text-lg font-bold text-white">Interview Prep Hub</span>
             <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-white/20 text-white">
               {connectedCount} connected
             </span>
@@ -144,7 +144,7 @@ export default function PrepTab({ isOpen, onClose }) {
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            💻 Coding Platforms
+            Coding Platforms
           </button>
           <button
             onClick={() => setActiveTab('prep')}
@@ -154,7 +154,7 @@ export default function PrepTab({ isOpen, onClose }) {
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            📚 Interview Prep Sites
+            Interview Prep Sites
           </button>
         </div>
 
@@ -197,7 +197,7 @@ export default function PrepTab({ isOpen, onClose }) {
                           <div>
                             <div className="font-semibold text-gray-800">{platform.name}</div>
                             <div className={`text-xs ${isAuthenticated ? 'text-emerald-600' : 'text-gray-400'}`}>
-                              {isAuthenticated ? '✓ Connected' : 'Not connected'}
+                              {isAuthenticated ? 'Connected' : 'Not connected'}
                             </div>
                           </div>
                         </div>
@@ -228,7 +228,7 @@ export default function PrepTab({ isOpen, onClose }) {
               {/* Pre-fetch Content Section */}
               <div className="p-4 rounded-xl bg-gray-100 border border-gray-200">
                 <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                  ⚡ Pre-fetch Interview Content
+                  Pre-fetch Interview Content
                 </h3>
                 <div className="flex gap-2 mb-3">
                   <input
@@ -250,10 +250,10 @@ export default function PrepTab({ isOpen, onClose }) {
                 {fetchedContent && (
                   <div className={`p-3 rounded-lg text-sm ${fetchedContent.error ? 'bg-red-50 text-red-600' : 'bg-white border border-gray-200'}`}>
                     {fetchedContent.error ? (
-                      <p>❌ {fetchedContent.error}</p>
+                      <p>{fetchedContent.error}</p>
                     ) : (
                       <div>
-                        <p className="text-emerald-600 font-medium mb-2">✓ Content fetched successfully!</p>
+                        <p className="text-emerald-600 font-medium mb-2">Content fetched successfully!</p>
                         <p className="text-gray-600 text-xs line-clamp-3">{fetchedContent.problemText?.slice(0, 200)}...</p>
                       </div>
                     )}
