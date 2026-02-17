@@ -122,10 +122,13 @@ function parseStreamingContent(text) {
 
 // Stream solve request using SSE
 async function solveWithStream(problem, provider, language, detailLevel, model, onChunk, interviewMode = 'coding', designDetailLevel = 'basic') {
+  console.log('[Frontend] solveWithStream called with interviewMode:', interviewMode, 'designDetailLevel:', designDetailLevel);
+  const requestBody = { problem, provider, language, detailLevel, model, interviewMode, designDetailLevel };
+  console.log('[Frontend] Request body:', JSON.stringify(requestBody, null, 2));
   const response = await fetch(API_URL + '/api/solve/stream', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-    body: JSON.stringify({ problem, provider, language, detailLevel, model, interviewMode, designDetailLevel }),
+    body: JSON.stringify(requestBody),
   });
 
   if (!response.ok) {
@@ -430,6 +433,7 @@ export default function App() {
   };
 
   const handleSolve = async (problem, language, detailLevel = 'detailed') => {
+    console.log('[handleSolve] Called with interviewMode from state:', interviewMode, 'designDetailLevel:', designDetailLevel);
     resetState();
     setCurrentProblem(problem);
     setCurrentLanguage(language);
@@ -441,6 +445,7 @@ export default function App() {
     setLoadingType('solve');
     try {
       let fullText = '';
+      console.log('[handleSolve] About to call solveWithStream with interviewMode:', interviewMode);
       const result = await solveWithStream(problem, provider, language, detailLevel, model, (chunk) => {
         fullText += chunk;
         setStreamingText(fullText);

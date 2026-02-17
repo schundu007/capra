@@ -342,6 +342,16 @@ INTEGRITY:
 - Solution must be genuinely correct`;
 
 export async function* solveProblemStream(problemText, language = 'auto', detailLevel = 'detailed', model = DEFAULT_MODEL, interviewMode = 'coding', designDetailLevel = 'basic') {
+  // DEBUG: Log all parameters
+  console.log('[Claude solveProblemStream] PARAMS:', {
+    interviewMode,
+    designDetailLevel,
+    language,
+    detailLevel,
+    model,
+    problemTextLength: problemText?.length
+  });
+
   const languageInstruction = language === 'auto'
     ? 'Detect the appropriate language from the problem context.'
     : `Write the solution in ${language.toUpperCase()}.`;
@@ -352,12 +362,17 @@ export async function* solveProblemStream(problemText, language = 'auto', detail
   let systemPrompt;
   let userMessage;
 
+  console.log('[Claude] Checking interviewMode:', interviewMode, '=== "system-design":', interviewMode === 'system-design');
+
   if (interviewMode === 'system-design') {
     // DESIGN MODE - System design only, no code
+    console.log('[Claude] DESIGN MODE SELECTED - using system design prompt');
     systemPrompt = designDetailLevel === 'full' ? SYSTEM_DESIGN_FULL_PROMPT : SYSTEM_DESIGN_BASIC_PROMPT;
     userMessage = `Design the following system and return the response as JSON:\n\n${problemText}`;
+    console.log('[Claude] Using prompt:', designDetailLevel === 'full' ? 'FULL' : 'BASIC');
   } else {
     // CODING MODE - Code only, no system design
+    console.log('[Claude] CODING MODE SELECTED - using coding prompt');
     systemPrompt = isBrief ? BRIEF_PROMPT : CODING_PROMPT;
     userMessage = `${languageInstruction}\n\nSolve this coding problem and return the response as JSON:\n\n${problemText}`;
   }

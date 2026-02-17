@@ -61,14 +61,24 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
     setOutput(null);
   }, [initialCode]);
 
-  // Auto-switch to design tab when system design is included
+  // Auto-switch tabs based on interview mode
+  useEffect(() => {
+    console.log('[CodeDisplay] interviewMode changed to:', interviewMode, 'systemDesign?.included:', systemDesign?.included);
+    if (interviewMode === 'system-design') {
+      // Always show design tab in system-design mode
+      setActiveTab('design');
+    } else if (interviewMode === 'coding') {
+      // Always show code tab in coding mode
+      setActiveTab('code');
+    }
+  }, [interviewMode]);
+
+  // Also switch to design tab when design content arrives
   useEffect(() => {
     if (systemDesign?.included) {
       setActiveTab('design');
-    } else if (interviewMode === 'coding' || initialCode) {
-      setActiveTab('code');
     }
-  }, [systemDesign?.included, interviewMode, initialCode]);
+  }, [systemDesign?.included]);
 
   // Display auto-run output when it arrives
   useEffect(() => {
