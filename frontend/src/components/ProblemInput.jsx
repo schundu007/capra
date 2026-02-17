@@ -17,7 +17,7 @@ const LANGUAGES = [
   { value: 'yaml', label: 'YAML' },
 ];
 
-export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onClear, isLoading, extractedText, onExtractedTextClear, shouldClear, hasSolution }) {
+export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onClear, isLoading, extractedText, onExtractedTextClear, shouldClear, hasSolution, expanded, onToggleExpand }) {
   const [problemText, setProblemText] = useState('');
   const [url, setUrl] = useState('');
   const [activeTab, setActiveTab] = useState('text');
@@ -27,6 +27,13 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
   const [preview, setPreview] = useState(null);
   const fileInputRef = useRef(null);
   const textareaRef = useRef(null);
+
+  // Get first line for collapsed preview
+  const getPreviewText = () => {
+    if (!problemText) return '';
+    const firstLine = problemText.split('\n')[0];
+    return firstLine.length > 60 ? firstLine.substring(0, 60) + '...' : firstLine;
+  };
 
   // Clean up text - remove extra empty lines and whitespace
   const cleanupText = useCallback((text) => {
@@ -139,25 +146,60 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
     { id: 'screenshot', label: 'Image' },
   ];
 
+  // Collapsed view - minimal display with expand button
+  if (expanded === false && problemText) {
+    return (
+      <div className="flex items-center gap-2 py-1">
+        <div className="flex-1 min-w-0">
+          <p className="text-[11px] text-gray-600 truncate">{getPreviewText()}</p>
+        </div>
+        <button
+          onClick={onToggleExpand}
+          className="flex-shrink-0 px-2 py-1 text-[9px] font-medium rounded bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors flex items-center gap-1"
+          title="Expand problem"
+        >
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+          Expand
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="h-full flex flex-col">
       {/* Compact Header Row */}
       <div className="flex items-center justify-between gap-2 mb-2 flex-shrink-0">
         {/* Tabs */}
-        <div className="flex gap-0.5">
-          {tabs.map(tab => (
+        <div className="flex items-center gap-1">
+          <div className="flex gap-0.5">
+            {tabs.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => handleTabSwitch(tab.id)}
+                className={`px-1.5 py-0.5 text-[9px] font-semibold rounded transition-colors ${
+                  activeTab === tab.id
+                    ? 'bg-[#1ba94c]/10 text-[#1ba94c]'
+                    : 'text-gray-800 hover:text-black'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          {/* Collapse button - only show when there's content */}
+          {problemText && onToggleExpand && (
             <button
-              key={tab.id}
-              onClick={() => handleTabSwitch(tab.id)}
-              className={`px-1.5 py-0.5 text-[9px] font-semibold rounded transition-colors ${
-                activeTab === tab.id
-                  ? 'bg-[#1ba94c]/10 text-[#1ba94c]'
-                  : 'text-gray-800 hover:text-black'
-              }`}
+              onClick={onToggleExpand}
+              className="ml-1 p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+              title="Collapse problem"
             >
-              {tab.label}
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+              </svg>
             </button>
-          ))}
+          )}
         </div>
 
         <div className="flex items-center gap-1.5">

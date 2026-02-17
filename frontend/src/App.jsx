@@ -277,6 +277,7 @@ export default function App() {
   const [highlightedLine, setHighlightedLine] = useState(null);
   const [extractedText, setExtractedText] = useState('');
   const [clearScreenshot, setClearScreenshot] = useState(0);
+  const [problemExpanded, setProblemExpanded] = useState(true); // Controls problem area expand/collapse
 
   const resetState = () => {
     setSolution(null);
@@ -292,6 +293,7 @@ export default function App() {
     setExtractedText('');
     setStreamingText('');
     setAutoRunOutput(null);
+    setProblemExpanded(true);
     setClearScreenshot(c => c + 1);
   };
 
@@ -467,6 +469,8 @@ export default function App() {
 
       const fetchData = await fetchResponse.json();
       setCurrentProblem(fetchData.problemText);
+      setExtractedText(fetchData.problemText); // Show fetched problem in input
+      setProblemExpanded(true); // Auto-expand to show full problem
       setCurrentLanguage(language);
       setLoadingType('solve');
 
@@ -539,6 +543,7 @@ export default function App() {
       const data = await response.json();
       const extractedProblem = data.text || '';
       setExtractedText(extractedProblem);
+      setProblemExpanded(true); // Auto-expand to show full problem
 
       if (extractedProblem.trim()) {
         setCurrentProblem(extractedProblem);
@@ -840,6 +845,8 @@ export default function App() {
                       onExtractedTextClear={() => setExtractedText('')}
                       shouldClear={clearScreenshot}
                       hasSolution={!!solution}
+                      expanded={problemExpanded}
+                      onToggleExpand={() => setProblemExpanded(prev => !prev)}
                     />
                   </div>
                 </div>
