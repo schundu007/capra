@@ -216,8 +216,8 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                 setTimeout(() => adjustTextareaHeight(false), 0);
               }}
               placeholder="Paste coding problem..."
-              className="w-full px-2 py-1.5 text-[11px] font-mono resize-none rounded-lg bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#1ba94c]"
-              style={{ minHeight: '48px', maxHeight: '228px' }}
+              className="w-full px-2 py-1.5 text-[12px] resize-none rounded-lg bg-white border border-gray-300 text-black placeholder-gray-400 focus:outline-none focus:border-[#1ba94c] focus:ring-1 focus:ring-[#1ba94c]/20"
+              style={{ minHeight: '48px', maxHeight: '228px', fontFamily: 'system-ui, -apple-system, sans-serif', lineHeight: '1.5' }}
               disabled={isLoading}
             />
             <div className="flex items-center justify-between mt-1.5 flex-shrink-0">

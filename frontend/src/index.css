@@ -54,11 +54,18 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Code - JetBrains Mono */
-code, pre, textarea.code, .font-mono, kbd, samp {
+code, pre, kbd, samp {
   font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', 'Monaco', monospace;
   font-size: 11px;
   line-height: 1.5;
   font-feature-settings: 'liga' 1, 'calt' 1;
+}
+
+/* Textarea should use system monospace without ligatures for clarity */
+textarea {
+  font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
+  font-feature-settings: 'liga' 0, 'calt' 0;
+  text-decoration: none !important;
 }
 
 /* Buttons */
