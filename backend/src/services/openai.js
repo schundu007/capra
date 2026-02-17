@@ -50,6 +50,16 @@ GOOD (interview-ready):
 - NO extra text, NO labels, NO formatting - just the raw answer
 
 ##############################################################################
+# RULE #2.5: NEVER FAKE OR HALLUCINATE DATA
+##############################################################################
+- NEVER hardcode expected outputs just to pass test cases
+- NEVER use fake, hallucinated, or made-up data to produce correct-looking output
+- NEVER guess what API responses or external data should look like
+- If the problem requires real external data (APIs, databases), write genuine code that works
+- Your solution must be GENUINELY CORRECT through proper logic, not by cheating
+- If you cannot solve it correctly, say so - do not fake the output
+
+##############################################################################
 # RULE #3: ALWAYS PRINT THE RESULT
 ##############################################################################
 - Python: end with print()
@@ -188,12 +198,24 @@ export async function solveProblem(problemText, language = 'auto', fast = true, 
 
 const BRIEF_PROMPT = `You are an expert coding interview assistant. Return ONLY the code solution.
 
-RULES:
+CRITICAL RULES:
 1. Output ONLY valid JSON: {"language": "python", "code": "the code"}
-2. Code must be minimal and interview-ready
-3. NO comments, NO explanations, NO pitch
+2. MINIMAL CODE: Write the absolute minimum lines needed - no extra variables, no helper functions unless required
+3. NO comments, NO explanations, NO pitch, NO debug prints
 4. Code MUST print the output
-5. Match expected output format exactly`;
+
+OUTPUT ACCURACY - MOST IMPORTANT:
+- Your output MUST match EXACTLY what the problem expects
+- Study the expected output format carefully: spacing, case, punctuation, newlines
+- If expected is "YES", output "YES" not "Yes" or "yes" or "True"
+- If expected is "5", output "5" not "Answer: 5" or "Result = 5"
+
+INTEGRITY - NEVER FAKE DATA:
+- NEVER hardcode expected outputs to pass test cases
+- NEVER use fake/hallucinated data to produce correct-looking output
+- NEVER guess API responses or external data
+- If the problem requires external data you don't have, write code that would work with real data
+- Your solution must be GENUINELY CORRECT, not just producing the right output by cheating`;
 
 export async function* solveProblemStream(problemText, language = 'auto', detailLevel = 'detailed', model = DEFAULT_MODEL) {
   const languageInstruction = language === 'auto'

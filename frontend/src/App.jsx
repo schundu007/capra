@@ -282,6 +282,7 @@ export default function App() {
     setSolution(null);
     setError(null);
     setErrorType('default');
+    setAutoRunOutput(null);
   };
 
   const handleClearAll = () => {
@@ -290,6 +291,7 @@ export default function App() {
     setErrorType('default');
     setExtractedText('');
     setStreamingText('');
+    setAutoRunOutput(null);
     setClearScreenshot(c => c + 1);
   };
 
@@ -306,20 +308,22 @@ export default function App() {
   const [currentProblem, setCurrentProblem] = useState('');
   const [currentLanguage, setCurrentLanguage] = useState('auto');
   const [autoFixAttempts, setAutoFixAttempts] = useState(0);
+  const [autoRunOutput, setAutoRunOutput] = useState(null); // Store auto-run output
   const MAX_AUTO_FIX_ATTEMPTS = 1; // Only 1 attempt to keep it fast
 
-  // Auto-test and fix code - only fix runtime errors, not output mismatches
+  // Auto-test, fix, and run code - returns code and final output
   const autoTestAndFix = async (code, language, examples, problem, currentModel) => {
     const RUNNABLE = ['python', 'bash', 'javascript', 'typescript', 'sql'];
     const normalizedLang = language?.toLowerCase() || 'python';
 
     // Skip auto-fix if language not runnable or no examples
     if (!RUNNABLE.includes(normalizedLang) || !examples || examples.length === 0) {
-      return { code, fixed: false, attempts: 0 };
+      return { code, fixed: false, attempts: 0, output: null };
     }
 
     let currentCode = code;
     let attempts = 0;
+    let finalOutput = null;
 
     // Only try once to keep it fast
     const testInput = examples[0]?.input || '';
@@ -334,9 +338,10 @@ export default function App() {
       });
       const runResult = await runResponse.json();
 
-      // Only auto-fix on runtime errors, not output mismatches (too slow)
+      // If successful, store the output
       if (runResult.success) {
-        return { code: currentCode, fixed: false, attempts: 0 };
+        finalOutput = { success: true, output: runResult.output, input: testInput };
+        return { code: currentCode, fixed: false, attempts: 0, output: finalOutput };
       }
 
       // Runtime error - try one fix
@@ -360,13 +365,29 @@ export default function App() {
       const fixResult = await fixResponse.json();
 
       if (fixResult.code) {
-        return { code: fixResult.code, fixed: true, attempts: 1 };
+        currentCode = fixResult.code;
+
+        // Run the fixed code to get output
+        setLoadingType('running');
+        const finalRunResponse = await fetch(API_URL + '/api/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+          body: JSON.stringify({ code: currentCode, language: normalizedLang, input: testInput }),
+        });
+        const finalRunResult = await finalRunResponse.json();
+        finalOutput = {
+          success: finalRunResult.success,
+          output: finalRunResult.success ? finalRunResult.output : finalRunResult.error,
+          input: testInput
+        };
+
+        return { code: currentCode, fixed: true, attempts: 1, output: finalOutput };
       }
     } catch (err) {
       console.error('Auto-fix error:', err);
     }
 
-    return { code: currentCode, fixed: attempts > 0, attempts };
+    return { code: currentCode, fixed: attempts > 0, attempts, output: finalOutput };
   };
 
   const handleSolve = async (problem, language, detailLevel = 'detailed') => {
@@ -389,14 +410,17 @@ export default function App() {
       });
 
       if (result) {
-        // Auto-test and fix the code
-        const { code: fixedCode, fixed, attempts } = await autoTestAndFix(
+        // Auto-test, fix, and run the code
+        const { code: fixedCode, fixed, attempts, output } = await autoTestAndFix(
           result.code,
           result.language,
           result.examples,
           problem,
           model
         );
+
+        // Store auto-run output for CodeDisplay
+        setAutoRunOutput(output);
 
         // Update solution with fixed code
         setSolution({
@@ -454,14 +478,18 @@ export default function App() {
         setStreamingContent(parsed);
       });
       if (result) {
-        // Auto-test and fix the code
-        const { code: fixedCode, fixed, attempts } = await autoTestAndFix(
+        // Auto-test, fix, and run the code
+        const { code: fixedCode, fixed, attempts, output } = await autoTestAndFix(
           result.code,
           result.language,
           result.examples,
           fetchData.problemText,
           model
         );
+
+        // Store auto-run output for CodeDisplay
+        setAutoRunOutput(output);
+
         setSolution({
           ...result,
           code: fixedCode,
@@ -524,14 +552,18 @@ export default function App() {
           setStreamingContent(parsed);
         });
         if (result) {
-          // Auto-test and fix the code
-          const { code: fixedCode, fixed, attempts } = await autoTestAndFix(
+          // Auto-test, fix, and run the code
+          const { code: fixedCode, fixed, attempts, output } = await autoTestAndFix(
             result.code,
             result.language,
             result.examples,
             extractedProblem,
             model
           );
+
+          // Store auto-run output for CodeDisplay
+          setAutoRunOutput(output);
+
           setSolution({
             ...result,
             code: fixedCode,
@@ -752,41 +784,31 @@ export default function App() {
         </div>
       )}
 
-      {/* Loading Progress Popup - Minimal Circle */}
+      {/* Smart Loading Progress - Top Bar */}
       {isLoading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-          <div className="pointer-events-auto relative animate-fade-in">
-            {/* Circular Progress Ring */}
-            <svg className="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
-              {/* Background circle */}
-              <circle
-                cx="50" cy="50" r="42"
-                fill="none"
-                stroke="#e5e7eb"
-                strokeWidth="6"
-              />
-              {/* Animated progress circle */}
-              <circle
-                cx="50" cy="50" r="42"
-                fill="none"
-                stroke="#1ba94c"
-                strokeWidth="6"
-                strokeLinecap="round"
-                strokeDasharray="264"
-                strokeDashoffset="66"
-                className="animate-spin"
-                style={{ animationDuration: '2s' }}
-              />
-            </svg>
-
-            {/* Brain Icon in Center */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-sm">
-                <svg className="w-8 h-8 text-[#1ba94c]" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-                </svg>
-              </div>
-            </div>
+        <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
+          {/* Progress bar */}
+          <div className="h-1 bg-gray-200 overflow-hidden">
+            <div
+              className="h-full bg-[#1ba94c] animate-pulse"
+              style={{
+                width: '100%',
+                animation: 'progressSlide 1.5s ease-in-out infinite',
+              }}
+            />
+          </div>
+          {/* Status pill */}
+          <div className="absolute top-2 right-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/95 shadow-lg border border-gray-200 backdrop-blur-sm">
+            <div className="w-2 h-2 rounded-full bg-[#1ba94c] animate-pulse" />
+            <span className="text-xs font-medium text-gray-700">
+              {loadingType === 'fetch' && 'Fetching...'}
+              {loadingType === 'screenshot' && 'Extracting...'}
+              {loadingType === 'solve' && 'Solving...'}
+              {loadingType === 'testing' && 'Testing...'}
+              {loadingType === 'fixing' && 'Fixing...'}
+              {loadingType === 'running' && 'Running...'}
+              {!loadingType && 'Processing...'}
+            </span>
           </div>
         </div>
       )}
@@ -847,6 +869,7 @@ export default function App() {
                   onLineHover={setHighlightedLine}
                   examples={solution?.examples}
                   isStreaming={isLoading && loadingType === 'solve' && !solution}
+                  autoRunOutput={autoRunOutput}
                   onExplanationsUpdate={(explanations) => {
                     setSolution(prev => prev ? { ...prev, explanations } : null);
                   }}

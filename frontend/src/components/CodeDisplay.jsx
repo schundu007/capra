@@ -39,7 +39,7 @@ const hackerRankTheme = {
   },
 };
 
-export default function CodeDisplay({ code: initialCode, language, onLineHover, examples, onCodeUpdate, onExplanationsUpdate, isStreaming }) {
+export default function CodeDisplay({ code: initialCode, language, onLineHover, examples, onCodeUpdate, onExplanationsUpdate, isStreaming, autoRunOutput }) {
   const normalizedLanguage = language?.toLowerCase() || 'python';
   const [code, setCode] = useState(initialCode);
   const [copied, setCopied] = useState(false);
@@ -50,7 +50,7 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
   const [selectedExample, setSelectedExample] = useState(0);
   const [fixAttempts, setFixAttempts] = useState(0);
   const [showTestInput, setShowTestInput] = useState(false);
-  const [outputHeight, setOutputHeight] = useState(160);
+  const [outputHeight, setOutputHeight] = useState(120);
   const [isResizing, setIsResizing] = useState(false);
 
   useEffect(() => {
@@ -58,6 +58,13 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
     setFixAttempts(0);
     setOutput(null);
   }, [initialCode]);
+
+  // Display auto-run output when it arrives
+  useEffect(() => {
+    if (autoRunOutput) {
+      setOutput(autoRunOutput);
+    }
+  }, [autoRunOutput]);
 
   useEffect(() => {
     if (examples && examples.length > 0 && code) {
@@ -330,10 +337,17 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
           >
             <div className="w-6 h-0.5 rounded-full bg-slate-600" />
           </div>
-          <div className="px-2 py-1.5 flex items-center justify-between">
-            <span className="text-[10px] font-medium" style={{ color: output.success ? '#1ba94c' : '#ff6b6b' }}>
-              {output.success ? 'Output' : 'Error'}
-            </span>
+          <div className="px-2 py-1 flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-medium" style={{ color: output.success ? '#1ba94c' : '#ff6b6b' }}>
+                {output.success ? 'Output' : 'Error'}
+              </span>
+              {autoRunOutput && output === autoRunOutput && (
+                <span className="text-[8px] px-1 py-0.5 rounded bg-[#1ba94c]/20 text-[#1ba94c] font-medium">
+                  Auto
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => {
@@ -357,12 +371,12 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
             </div>
           </div>
           <pre
-            className="px-2 py-2 text-[10px] font-mono overflow-auto select-text"
+            className="px-2 py-1.5 text-[10px] font-mono overflow-auto select-text scrollbar-dark"
             style={{
               color: output.success ? '#1ba94c' : '#ff6b6b',
               height: `${outputHeight}px`,
-              minHeight: '60px',
-              maxHeight: '300px',
+              minHeight: '50px',
+              maxHeight: '200px',
               userSelect: isResizing ? 'none' : 'text'
             }}
           >
