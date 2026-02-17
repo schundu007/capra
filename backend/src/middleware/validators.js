@@ -16,9 +16,13 @@ export const schemas = {
     provider: Joi.string().valid('claude', 'openai').default('claude'),
     language: Joi.string().valid(
       'auto', 'python', 'bash', 'javascript', 'typescript',
-      'sql', 'terraform', 'jenkins', 'yaml'
+      'sql', 'terraform', 'jenkins', 'yaml', 'c', 'cpp', 'java', 'go', 'rust'
     ).default('auto'),
     fast: Joi.boolean().default(true),
+    detailLevel: Joi.string().valid('basic', 'detailed', 'brief', 'high-level').default('detailed'),
+    model: Joi.string().allow('', null),
+    interviewMode: Joi.string().valid('coding', 'system-design').default('coding'),
+    designDetailLevel: Joi.string().valid('basic', 'full').default('basic'),
   }),
 
   fetch: Joi.object({
