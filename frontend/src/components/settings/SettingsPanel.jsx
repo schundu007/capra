@@ -5,8 +5,10 @@ export default function SettingsPanel({ onClose }) {
   const [apiKeys, setApiKeys] = useState({
     anthropic: null,
     openai: null,
+    eraser: null,
     hasAnthropic: false,
     hasOpenai: false,
+    hasEraser: false,
   });
   const [loading, setLoading] = useState(true);
 
@@ -80,6 +82,14 @@ export default function SettingsPanel({ onClose }) {
             hasKey={apiKeys.hasOpenai}
             onSave={(key) => handleSaveKey('openai', key)}
             onDelete={() => handleDeleteKey('openai')}
+          />
+
+          <ApiKeyInput
+            provider="eraser"
+            currentKey={apiKeys.eraser}
+            hasKey={apiKeys.hasEraser}
+            onSave={(key) => handleSaveKey('eraser', key)}
+            onDelete={() => handleDeleteKey('eraser')}
           />
         </div>
       </div>

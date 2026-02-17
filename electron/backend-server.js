@@ -6,6 +6,7 @@ import { createServer } from 'http';
 // Import services to set API keys
 import * as claudeService from '../backend/src/services/claude.js';
 import * as openaiService from '../backend/src/services/openai.js';
+import * as eraserService from '../backend/src/services/eraser.js';
 
 // Safe logging that ignores EPIPE errors (happens when pipe closes during shutdown)
 function safeLog(...args) {
@@ -31,6 +32,7 @@ export function updateRuntimeApiKeys(keys) {
   safeLog('[Electron] Updating runtime API keys:', {
     hasAnthropic: !!keys.anthropic,
     hasOpenai: !!keys.openai,
+    hasEraser: !!keys.eraser,
   });
   if (keys.anthropic !== undefined) {
     claudeService.setApiKey(keys.anthropic);
@@ -39,6 +41,10 @@ export function updateRuntimeApiKeys(keys) {
   if (keys.openai !== undefined) {
     openaiService.setApiKey(keys.openai);
     safeLog('[Electron] OpenAI key set, current:', !!openaiService.getApiKey());
+  }
+  if (keys.eraser !== undefined) {
+    eraserService.setApiKey(keys.eraser);
+    safeLog('[Electron] Eraser key set, current:', !!eraserService.getApiKey());
   }
 }
 
@@ -51,6 +57,9 @@ export function getApiKey(provider) {
   }
   if (provider === 'openai' || provider === 'gpt') {
     return openaiService.getApiKey();
+  }
+  if (provider === 'eraser') {
+    return eraserService.getApiKey();
   }
   return null;
 }
@@ -109,6 +118,7 @@ function createApp() {
       mode: 'electron',
       hasAnthropicKey: !!getApiKey('anthropic'),
       hasOpenAIKey: !!getApiKey('openai'),
+      hasEraserKey: !!getApiKey('eraser'),
     });
   });
 
@@ -135,6 +145,7 @@ async function registerRoutes(app) {
   const { default: fixRouter } = await import('../backend/src/routes/fix.js');
   const { default: transcribeRouter } = await import('../backend/src/routes/transcribe.js');
   const { default: interviewRouter } = await import('../backend/src/routes/interview.js');
+  const { default: diagramRouter } = await import('../backend/src/routes/diagram.js');
   const { errorHandler } = await import('../backend/src/middleware/errorHandler.js');
 
   // In Electron mode, we skip authentication (user provides their own keys)
@@ -146,6 +157,7 @@ async function registerRoutes(app) {
   app.use('/api/fix', fixRouter);
   app.use('/api/transcribe', transcribeRouter);
   app.use('/api/interview', interviewRouter);
+  app.use('/api/diagram', diagramRouter);
 
   // Auth endpoints return Electron-specific responses
   app.get('/api/auth/check', (req, res) => {
@@ -172,6 +184,9 @@ export async function startBackendServer(options = {}) {
   }
   if (apiKeys.openai) {
     openaiService.setApiKey(apiKeys.openai);
+  }
+  if (apiKeys.eraser) {
+    eraserService.setApiKey(apiKeys.eraser);
   }
 
   const app = createApp();

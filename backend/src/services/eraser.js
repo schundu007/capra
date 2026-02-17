@@ -1,13 +1,25 @@
 /**
  * Eraser.io API Integration for Architecture Diagrams
  *
- * Requires ERASER_API_KEY environment variable
+ * Requires ERASER_API_KEY environment variable or runtime API key
  * API Documentation: https://docs.eraser.io/docs/api
  */
 
-// Get API key from environment
-function getApiKey() {
-  return process.env.ERASER_API_KEY;
+// Runtime API key storage (for Electron mode)
+let runtimeApiKey = null;
+
+/**
+ * Set API key at runtime (used by Electron secure storage)
+ */
+export function setApiKey(key) {
+  runtimeApiKey = key;
+}
+
+/**
+ * Get API key (runtime takes precedence over environment)
+ */
+export function getApiKey() {
+  return runtimeApiKey || process.env.ERASER_API_KEY;
 }
 
 /**

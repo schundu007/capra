@@ -11,6 +11,11 @@ const providerConfig = {
     placeholder: 'sk-...',
     helpUrl: 'https://platform.openai.com/api-keys',
   },
+  eraser: {
+    name: 'Eraser.io',
+    placeholder: 'eraser_...',
+    helpUrl: 'https://app.eraser.io/settings/api',
+  },
 };
 
 export default function ApiKeyInput({

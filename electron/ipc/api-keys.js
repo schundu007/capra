@@ -49,6 +49,15 @@ async function validateOpenAIKey(key) {
   }
 }
 
+async function validateEraserKey(key) {
+  // Eraser doesn't have a simple validation endpoint, so we just check format
+  if (!key || key.length < 10) {
+    return { valid: false, error: 'Invalid API key format' };
+  }
+  // For now, accept any key that looks valid - actual validation happens on use
+  return { valid: true };
+}
+
 /**
  * Set up IPC handlers for API key management
  */
@@ -59,8 +68,10 @@ export function setupApiKeyHandlers() {
     return {
       anthropic: keys.anthropic ? maskKey(keys.anthropic) : null,
       openai: keys.openai ? maskKey(keys.openai) : null,
+      eraser: keys.eraser ? maskKey(keys.eraser) : null,
       hasAnthropic: !!keys.anthropic,
       hasOpenai: !!keys.openai,
+      hasEraser: !!keys.eraser,
     };
   });
 
@@ -74,6 +85,9 @@ export function setupApiKeyHandlers() {
     if (keys.openai !== undefined) {
       toStore.openai = keys.openai;
     }
+    if (keys.eraser !== undefined) {
+      toStore.eraser = keys.eraser;
+    }
 
     await secureStore.setApiKeys(toStore);
 
@@ -85,8 +99,10 @@ export function setupApiKeyHandlers() {
     return {
       anthropic: stored.anthropic ? maskKey(stored.anthropic) : null,
       openai: stored.openai ? maskKey(stored.openai) : null,
+      eraser: stored.eraser ? maskKey(stored.eraser) : null,
       hasAnthropic: !!stored.anthropic,
       hasOpenai: !!stored.openai,
+      hasEraser: !!stored.eraser,
     };
   });
 
@@ -97,6 +113,9 @@ export function setupApiKeyHandlers() {
     }
     if (provider === 'openai' || provider === 'gpt') {
       return validateOpenAIKey(key);
+    }
+    if (provider === 'eraser') {
+      return validateEraserKey(key);
     }
     return { valid: false, error: 'Unknown provider' };
   });
