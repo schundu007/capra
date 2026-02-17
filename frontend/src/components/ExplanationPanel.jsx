@@ -70,6 +70,11 @@ function FormattedText({ text }) {
 export default function ExplanationPanel({ explanations, highlightedLine, pitch, systemDesign, isStreaming, onExpandSystemDesign, canExpandSystemDesign, onFollowUpQuestion, isProcessingFollowUp }) {
   const hasSystemDesign = systemDesign && systemDesign.included;
 
+  // Debug logging
+  console.log('[Q&A Debug] systemDesign:', systemDesign);
+  console.log('[Q&A Debug] hasSystemDesign:', hasSystemDesign);
+  console.log('[Q&A Debug] onFollowUpQuestion:', !!onFollowUpQuestion);
+
   // Speech recognition state
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -150,7 +155,15 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
 
   const handleSubmitQuestion = async () => {
     const question = transcript.trim();
-    if (!question || !onFollowUpQuestion || isProcessingFollowUp) return;
+    console.log('[Q&A Debug] handleSubmitQuestion called');
+    console.log('[Q&A Debug] question:', question);
+    console.log('[Q&A Debug] onFollowUpQuestion exists:', !!onFollowUpQuestion);
+    console.log('[Q&A Debug] isProcessingFollowUp:', isProcessingFollowUp);
+
+    if (!question || !onFollowUpQuestion || isProcessingFollowUp) {
+      console.log('[Q&A Debug] Early return - missing requirements');
+      return;
+    }
 
     // Stop listening while processing
     if (isListening) {
@@ -159,18 +172,22 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
     }
 
     // Set current question immediately so it's visible during processing
+    console.log('[Q&A Debug] Setting currentQuestion:', question);
     setCurrentQuestion(question);
     setTranscript('');
     setInterimTranscript('');
 
     try {
+      console.log('[Q&A Debug] Calling onFollowUpQuestion...');
       const result = await onFollowUpQuestion(question);
+      console.log('[Q&A Debug] Result:', result);
       if (result) {
         setFollowUpAnswer(result.answer);
         setQaHistory(prev => [...prev, { question, answer: result.answer }]);
+        console.log('[Q&A Debug] Q&A added to history');
       }
     } catch (err) {
-      console.error('Follow-up question failed:', err);
+      console.error('[Q&A Debug] Follow-up question failed:', err);
       // On error, put the question back in transcript
       setTranscript(question);
     } finally {

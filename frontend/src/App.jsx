@@ -491,10 +491,18 @@ export default function App() {
 
   // Handle follow-up questions for system design interviews
   const handleFollowUpQuestion = async (question) => {
+    console.log('[App Q&A] handleFollowUpQuestion called with:', question);
     const currentDesign = solution?.systemDesign || streamingContent.systemDesign;
-    if (!currentDesign?.included) return null;
+    console.log('[App Q&A] currentDesign:', currentDesign);
+    console.log('[App Q&A] currentDesign.included:', currentDesign?.included);
+
+    if (!currentDesign?.included) {
+      console.log('[App Q&A] No system design, returning null');
+      return null;
+    }
 
     setIsProcessingFollowUp(true);
+    console.log('[App Q&A] Making API call to /api/solve/followup');
 
     try {
       const response = await fetch(API_URL + '/api/solve/followup', {
