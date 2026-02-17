@@ -74,6 +74,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [interimTranscript, setInterimTranscript] = useState('');
+  const [currentQuestion, setCurrentQuestion] = useState(null); // Question being processed
   const [followUpAnswer, setFollowUpAnswer] = useState(null);
   const [qaHistory, setQaHistory] = useState([]);
   const recognitionRef = useRef(null);
@@ -157,15 +158,23 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
       setIsListening(false);
     }
 
+    // Set current question immediately so it's visible during processing
+    setCurrentQuestion(question);
+    setTranscript('');
+    setInterimTranscript('');
+
     try {
       const result = await onFollowUpQuestion(question);
       if (result) {
         setFollowUpAnswer(result.answer);
         setQaHistory(prev => [...prev, { question, answer: result.answer }]);
-        setTranscript('');
       }
     } catch (err) {
       console.error('Follow-up question failed:', err);
+      // On error, put the question back in transcript
+      setTranscript(question);
+    } finally {
+      setCurrentQuestion(null);
     }
   };
 
@@ -328,32 +337,57 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
               )}
             </button>
 
-            {/* Latest Answer */}
-            {followUpAnswer && (
+            {/* Current Question Being Processed */}
+            {currentQuestion && isProcessingFollowUp && (
               <div className="mt-3 pt-3 border-t border-blue-200">
-                <label className="text-[10px] font-semibold text-emerald-600 uppercase tracking-wide mb-1 block flex items-center gap-1">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Your Answer
-                </label>
-                <div className="text-[13px] text-gray-700 leading-relaxed whitespace-pre-wrap bg-emerald-50 rounded-lg p-3 border border-emerald-200">
-                  {followUpAnswer}
+                <div className="p-3 rounded-lg bg-amber-50 border border-amber-200">
+                  <label className="text-[10px] font-semibold text-amber-600 uppercase tracking-wide mb-1 block flex items-center gap-1">
+                    <svg className="w-3 h-3 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Processing Question
+                  </label>
+                  <p className="text-[12px] text-amber-800 font-medium">{currentQuestion}</p>
                 </div>
               </div>
             )}
 
-            {/* Q&A History */}
+            {/* Latest Q&A Result */}
+            {qaHistory.length > 0 && !isProcessingFollowUp && (
+              <div className="mt-3 pt-3 border-t border-blue-200">
+                <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200">
+                  <label className="text-[10px] font-semibold text-blue-600 uppercase tracking-wide mb-1 block flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Interviewer Asked
+                  </label>
+                  <p className="text-[12px] text-blue-800 font-medium mb-2">{qaHistory[qaHistory.length - 1].question}</p>
+
+                  <label className="text-[10px] font-semibold text-emerald-600 uppercase tracking-wide mb-1 block flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Your Answer
+                  </label>
+                  <div className="text-[12px] text-gray-700 leading-relaxed whitespace-pre-wrap">
+                    {qaHistory[qaHistory.length - 1].answer}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Previous Q&A History */}
             {qaHistory.length > 1 && (
               <div className="mt-3 pt-3 border-t border-blue-200">
                 <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-2 block">
                   Previous Q&A ({qaHistory.length - 1})
                 </label>
-                <div className="space-y-2 max-h-32 overflow-y-auto">
+                <div className="space-y-2 max-h-40 overflow-y-auto">
                   {qaHistory.slice(0, -1).reverse().map((qa, i) => (
                     <div key={i} className="text-[10px] p-2 bg-gray-50 rounded border border-gray-200">
-                      <p className="font-semibold text-gray-600 mb-1">Q: {qa.question}</p>
-                      <p className="text-gray-500 line-clamp-2">A: {qa.answer}</p>
+                      <p className="font-semibold text-blue-600 mb-1">Q: {qa.question}</p>
+                      <p className="text-gray-600">A: {qa.answer}</p>
                     </div>
                   ))}
                 </div>
