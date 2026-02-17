@@ -33,6 +33,9 @@ npm run dist:mac    # macOS DMG/ZIP
 npm run dist:win    # Windows NSIS
 npm run dist:linux  # Linux AppImage/DEB
 
+# Preview production build locally
+cd frontend && npm run preview
+
 # Run with PM2 (optional, webapp mode)
 pm2 start ecosystem.config.cjs
 ```
@@ -90,10 +93,10 @@ pm2 start ecosystem.config.cjs
 - `backend/src/index.js` - Main entry, configures Express with routes and middleware
 - `backend/src/routes/` - API endpoints:
   - `solve.js` - POST /api/solve/stream - SSE streaming for problem solutions
-  - `analyze.js` - POST /api/analyze - Screenshot OCR extraction
-  - `fetch.js` - POST /api/fetch - Scrape problems from URLs
-  - `run.js` - Code execution
-  - `fix.js` - Code fixing
+  - `analyze.js` - POST /api/analyze - Screenshot OCR extraction (uses OpenAI Vision)
+  - `fetch.js` - POST /api/fetch - Scrape problems from URLs (requires platform cookies for auth)
+  - `run.js` - POST /api/run - Sandboxed code execution via Piston API
+  - `fix.js` - POST /api/fix - AI-powered code fixing based on error output
   - `auth.js` - Platform authentication for extension
 - `backend/src/services/` - AI provider integrations:
   - `claude.js` - Anthropic SDK wrapper
@@ -115,10 +118,11 @@ Chrome extension that captures session cookies from coding platforms (Glider, La
 
 ## Key Patterns
 
-- **SSE Streaming**: The solve endpoint uses Server-Sent Events to stream AI responses in real-time
+- **SSE Streaming**: The solve endpoint uses Server-Sent Events to stream AI responses in real-time. Frontend uses `EventSource` or `fetch` with stream reading.
 - **Provider Abstraction**: Both `claude.js` and `openai.js` services share the same interface for solving problems
-- **Scraper Strategy**: `scraper.js` has platform-specific scraping logic for different coding sites
+- **Scraper Strategy**: `scraper.js` has platform-specific scraping logic for different coding sites (Glider, Lark, HackerRank, LeetCode)
 - **Platform Detection**: `isElectron = window.electronAPI?.isElectron` determines runtime environment
+- **Auth Headers**: Use `getAuthHeaders()` helper to include JWT token in API requests (webapp only)
 
 ## Environment Variables
 
@@ -257,4 +261,9 @@ if (isElectron && window.electronAPI) {
 - [ ] No console errors in either mode
 - [ ] Platform-specific code properly guarded
 - [ ] Documented webapp equivalents for Electron-only features
-- [ ] Updated this file if adding new platform-specific patterns
+
+## Notes
+
+- **No tests configured**: This project currently has no automated test suite
+- **No linting configured**: No ESLint/Prettier setup - follow existing code style
+- **Styling**: Uses TailwindCSS with custom theme in `frontend/src/index.css` (CSS variables for colors)

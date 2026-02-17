@@ -87,6 +87,34 @@ function parseStreamingContent(text) {
     result.complexity = { time: complexityMatch[1], space: complexityMatch[2] };
   }
 
+  // Try to extract systemDesign
+  const systemDesignMatch = text.match(/"systemDesign"\s*:\s*(\{[\s\S]*?\})\s*(?:,|\})/);
+  if (systemDesignMatch) {
+    try {
+      // Try to parse the systemDesign object
+      const sdText = systemDesignMatch[1];
+      // Check if it's a complete object (has "included")
+      const includedMatch = sdText.match(/"included"\s*:\s*(true|false)/);
+      if (includedMatch) {
+        result.systemDesign = { included: includedMatch[1] === 'true' };
+        // Try to parse full systemDesign if it seems complete
+        if (includedMatch[1] === 'true') {
+          try {
+            // Look for the full systemDesign block
+            const fullMatch = text.match(/"systemDesign"\s*:\s*(\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})/s);
+            if (fullMatch) {
+              result.systemDesign = JSON.parse(fullMatch[1]);
+            }
+          } catch {
+            // Keep partial result
+          }
+        }
+      }
+    } catch {
+      // Ignore parse errors during streaming
+    }
+  }
+
   return result;
 }
 
