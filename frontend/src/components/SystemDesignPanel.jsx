@@ -130,7 +130,9 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
   return (
     <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 animate-fade-in">
       {/* Header */}
-      <span className="text-sm font-bold text-blue-600 uppercase tracking-wider mb-4 block">System Design</span>
+      <div className="mb-4">
+        <span className="text-sm font-bold text-blue-600 uppercase tracking-wider">System Design</span>
+      </div>
 
       <div className="space-y-4">
 

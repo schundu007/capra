@@ -346,6 +346,7 @@ export default function App() {
   const [interviewMode, setInterviewMode] = useState('coding'); // 'coding' | 'system-design'
   const [designDetailLevel, setDesignDetailLevel] = useState('basic'); // 'basic' | 'full'
   const [eraserDiagram, setEraserDiagram] = useState(null); // { imageUrl, editUrl }
+  const [isProcessingFollowUp, setIsProcessingFollowUp] = useState(false); // Follow-up question state
 
   // Auto-test, fix, and run code - returns code and final output
   const autoTestAndFix = async (code, language, examples, problem, currentModel) => {
@@ -486,6 +487,78 @@ export default function App() {
   const handleExpandSystemDesign = async () => {
     if (!currentProblem) return;
     handleSolve(currentProblem + '\n\nProvide a DETAILED system design with all components, data models, API design, scalability considerations, and architecture diagram.', currentLanguage, 'detailed');
+  };
+
+  // Handle follow-up questions for system design interviews
+  const handleFollowUpQuestion = async (question) => {
+    const currentDesign = solution?.systemDesign || streamingContent.systemDesign;
+    if (!currentDesign?.included) return null;
+
+    setIsProcessingFollowUp(true);
+
+    try {
+      const response = await fetch(API_URL + '/api/solve/followup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify({
+          question,
+          currentDesign,
+          provider,
+          model
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to process follow-up question');
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let result = null;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.done && data.result) {
+                result = data.result;
+              }
+              if (data.error) {
+                throw new Error(data.error);
+              }
+            } catch (e) {
+              if (e.message !== 'Unexpected end of JSON input') {
+                console.error('SSE parse error:', e);
+              }
+            }
+          }
+        }
+      }
+
+      // Update the system design with the new data
+      if (result?.updatedDesign) {
+        setSolution(prev => ({
+          ...prev,
+          systemDesign: result.updatedDesign
+        }));
+      }
+
+      return result;
+    } catch (err) {
+      console.error('Follow-up question error:', err);
+      return null;
+    } finally {
+      setIsProcessingFollowUp(false);
+    }
   };
 
   const handleFetchUrl = async (url, language, detailLevel = 'detailed') => {
@@ -968,10 +1041,12 @@ export default function App() {
                     explanations={solution?.explanations}
                     highlightedLine={highlightedLine}
                     pitch={solution?.pitch || streamingContent.pitch}
-                    systemDesign={solution?.systemDesign}
+                    systemDesign={solution?.systemDesign || streamingContent.systemDesign}
                     isStreaming={isLoading && loadingType === 'solve' && !solution}
                     onExpandSystemDesign={handleExpandSystemDesign}
                     canExpandSystemDesign={!!currentProblem && !isLoading}
+                    onFollowUpQuestion={handleFollowUpQuestion}
+                    isProcessingFollowUp={isProcessingFollowUp}
                   />
                 </div>
               </div>

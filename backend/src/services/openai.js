@@ -462,6 +462,70 @@ IMPORTANT:
   }
 }
 
+// Follow-up question prompt for system design interviews
+const FOLLOW_UP_PROMPT = `You are an expert system design interviewer assistant. The candidate has presented a system design, and the interviewer is asking a follow-up question.
+
+Your job is to:
+1. ANSWER the interviewer's question DIRECTLY and SPECIFICALLY - match your answer exactly to what was asked
+2. UPDATE the system design to incorporate any changes implied by the question/answer
+3. Be CONCISE but THOROUGH - answer like a senior engineer in an interview
+
+IMPORTANT GUIDELINES:
+- Answer the EXACT question asked - don't go off-topic
+- If asked about failure handling, focus on failure scenarios
+- If asked about scaling, focus on scaling strategies
+- If asked about a specific component, deep-dive on that component
+- If asked "how would you...", give a specific approach, not generic advice
+- Update ONLY the relevant parts of the system design
+- Keep the answer conversational - suitable for verbal delivery
+
+Respond with valid JSON:
+{
+  "answer": "Your direct, specific answer to the interviewer's question. This should be 2-4 paragraphs, conversational, and exactly match what was asked. Include specific technical details.",
+  "updatedDesign": {
+    // The COMPLETE updated system design object with any modifications
+    // Include ALL fields from the original design, updating only what changed
+    "included": true,
+    "overview": "...",
+    "requirements": {...},
+    "apiDesign": [...],
+    "dataModel": [...],
+    "architecture": {...},
+    "diagram": "...",
+    "scalability": [...]
+  },
+  "changesApplied": ["List of specific changes made to the design based on this question"]
+}`;
+
+export async function* answerFollowUpQuestion(question, currentDesign, model = DEFAULT_MODEL) {
+  const stream = await getClient().chat.completions.create({
+    model,
+    messages: [
+      { role: 'system', content: FOLLOW_UP_PROMPT },
+      {
+        role: 'user',
+        content: `CURRENT SYSTEM DESIGN:
+${JSON.stringify(currentDesign, null, 2)}
+
+INTERVIEWER'S QUESTION:
+"${question}"
+
+Answer this question directly and specifically. Update the system design if the question implies changes are needed. Return JSON as specified.`,
+      },
+    ],
+    max_tokens: 8192,
+    response_format: { type: 'json_object' },
+    stream: true,
+  });
+
+  for await (const chunk of stream) {
+    const content = chunk.choices[0]?.delta?.content;
+    if (content) {
+      yield content;
+    }
+  }
+}
+
 export async function analyzeImage(base64Image, mimeType, model = DEFAULT_MODEL) {
   const response = await getClient().chat.completions.create({
     model,
