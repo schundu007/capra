@@ -532,6 +532,26 @@ export default function App() {
       let buffer = '';
       let result = null;
 
+      const processLine = (line) => {
+        if (line.startsWith('data: ')) {
+          try {
+            const data = JSON.parse(line.slice(6));
+            console.log('[App Q&A] SSE data:', data);
+            if (data.done && data.result) {
+              result = data.result;
+              console.log('[App Q&A] Got result:', result);
+            }
+            if (data.error) {
+              throw new Error(data.error);
+            }
+          } catch (e) {
+            if (e.message !== 'Unexpected end of JSON input') {
+              console.error('SSE parse error:', e);
+            }
+          }
+        }
+      };
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -541,23 +561,19 @@ export default function App() {
         buffer = lines.pop() || '';
 
         for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            try {
-              const data = JSON.parse(line.slice(6));
-              if (data.done && data.result) {
-                result = data.result;
-              }
-              if (data.error) {
-                throw new Error(data.error);
-              }
-            } catch (e) {
-              if (e.message !== 'Unexpected end of JSON input') {
-                console.error('SSE parse error:', e);
-              }
-            }
-          }
+          processLine(line);
         }
       }
+
+      // Process any remaining content in the buffer after stream ends
+      if (buffer.trim()) {
+        const remainingLines = buffer.split('\n');
+        for (const line of remainingLines) {
+          processLine(line);
+        }
+      }
+
+      console.log('[App Q&A] Final result:', result);
 
       // Update the system design with the new data
       if (result?.updatedDesign) {
@@ -567,10 +583,16 @@ export default function App() {
         }));
       }
 
+      // If no result was captured, return an error message
+      if (!result || !result.answer) {
+        console.log('[App Q&A] No result captured, buffer was:', buffer);
+        return { answer: 'Failed to get answer. Please try again.' };
+      }
+
       return result;
     } catch (err) {
       console.error('Follow-up question error:', err);
-      return null;
+      return { answer: 'Error: ' + err.message };
     } finally {
       setIsProcessingFollowUp(false);
     }
@@ -759,18 +781,19 @@ export default function App() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden" style={{ background: '#ffffff', color: '#111827' }}>
-      {/* Header */}
+      {/* Header - draggable on macOS Electron */}
       <header
         className="relative z-20 flex items-center justify-between px-4 py-3"
         style={{
           paddingLeft: isMacElectron ? '80px' : '16px',
           background: 'rgba(255, 255, 255, 0.9)',
           backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(0,0,0,0.08)'
+          borderBottom: '1px solid rgba(0,0,0,0.08)',
+          WebkitAppRegion: isMacElectron ? 'drag' : 'no-drag',
         }}
       >
-        {/* Left: Logo & Status */}
-        <div className="flex items-center gap-4">
+        {/* Left: Logo & Status - no-drag so elements remain clickable */}
+        <div className="flex items-center gap-4" style={{ WebkitAppRegion: 'no-drag' }}>
           <div className="relative group flex items-center gap-3">
             <div
               className="w-9 h-9 rounded-xl flex items-center justify-center"
@@ -826,8 +849,11 @@ export default function App() {
           </button>
         </div>
 
-        {/* Right: Controls */}
-        <div className="flex items-center gap-2">
+        {/* Spacer - draggable area in the middle */}
+        <div className="flex-1 h-full" style={{ WebkitAppRegion: isMacElectron ? 'drag' : 'no-drag', minHeight: '32px' }} />
+
+        {/* Right: Controls - no-drag so they're clickable */}
+        <div className="flex items-center gap-2" style={{ WebkitAppRegion: 'no-drag' }}>
           <ProviderToggle provider={provider} model={model} onChange={setProvider} onModelChange={setModel} />
 
           {/* Clear Button */}

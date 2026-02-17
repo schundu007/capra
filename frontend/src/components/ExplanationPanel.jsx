@@ -1,4 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { getApiUrl } from '../hooks/useElectron';
+
+const API_URL = getApiUrl();
+const isElectron = window.electronAPI?.isElectron || false;
 
 // Format text with basic markdown-like styling (light theme)
 function FormattedText({ text }) {
@@ -68,165 +72,359 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
   const hasSolution = pitch || (explanations && explanations.length > 0) || hasSystemDesign;
 
   // Q&A state
-  const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const [speechSupported, setSpeechSupported] = useState(true);
-  const silenceTimeoutRef = useRef(null);
-  const lastTranscriptRef = useRef('');
+  const [autoListenEnabled, setAutoListenEnabled] = useState(false);
+  const [listeningState, setListeningState] = useState('idle'); // 'idle' | 'listening' | 'recording' | 'transcribing' | 'answering'
   const [qaHistory, setQaHistory] = useState([]);
-  const recognitionRef = useRef(null);
-  const isListeningRef = useRef(false); // Track listening state without causing re-renders
+  const [error, setError] = useState(null);
+  const [audioLevel, setAudioLevel] = useState(0);
 
-  // Initialize speech recognition once on mount
+  // Audio device selection
+  const [audioDevices, setAudioDevices] = useState([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState(null);
+  const [showDeviceSelector, setShowDeviceSelector] = useState(false);
+
+  // Audio refs
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const streamRef = useRef(null);
+  const audioContextRef = useRef(null);
+  const analyserRef = useRef(null);
+  const animationFrameRef = useRef(null);
+  const silenceStartRef = useRef(null);
+  const speechDetectedRef = useRef(false);
+  const isProcessingRef = useRef(false);
+
+  // Cleanup on unmount
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      setSpeechSupported(false);
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-
-    recognition.onresult = (event) => {
-      let finalTranscript = '';
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const result = event.results[i];
-        if (result.isFinal) {
-          finalTranscript += result[0].transcript + ' ';
-        }
-      }
-
-      if (finalTranscript) {
-        const newTranscript = (lastTranscriptRef.current + ' ' + finalTranscript).trim();
-        lastTranscriptRef.current = newTranscript;
-        setTranscript(newTranscript);
-
-        // Clear any existing silence timeout
-        if (silenceTimeoutRef.current) {
-          clearTimeout(silenceTimeoutRef.current);
-        }
-
-        // Auto-submit after 2 seconds of silence
-        silenceTimeoutRef.current = setTimeout(() => {
-          if (lastTranscriptRef.current && isListeningRef.current) {
-            // Stop listening and submit
-            isListeningRef.current = false;
-            try { recognition.stop(); } catch (e) {}
-            setIsListening(false);
-          }
-        }, 2000);
-      }
-    };
-
-    recognition.onerror = (event) => {
-      console.error('Speech error:', event.error);
-      if (event.error !== 'no-speech') {
-        setIsListening(false);
-        isListeningRef.current = false;
-      }
-    };
-
-    recognition.onend = () => {
-      // Auto-restart if still supposed to be listening
-      if (isListeningRef.current) {
-        try {
-          recognition.start();
-        } catch (e) {
-          // Already started or other error
-        }
-      }
-    };
-
-    recognitionRef.current = recognition;
-
     return () => {
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.stop();
-        } catch (e) {}
+      stopEverything();
+    };
+  }, []);
+
+  // Load available audio devices
+  useEffect(() => {
+    const loadDevices = async () => {
+      try {
+        // Request permission first to get device labels
+        await navigator.mediaDevices.getUserMedia({ audio: true }).then(s => {
+          s.getTracks().forEach(t => t.stop());
+        }).catch(() => {});
+
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const audioInputs = devices.filter(d => d.kind === 'audioinput');
+        setAudioDevices(audioInputs);
+
+        // Try to find a good default device (virtual audio device or external)
+        const virtualDevice = audioInputs.find(d =>
+          d.label.toLowerCase().includes('blackhole') ||
+          d.label.toLowerCase().includes('loopback') ||
+          d.label.toLowerCase().includes('soundflower') ||
+          d.label.toLowerCase().includes('aggregate')
+        );
+        const externalDevice = audioInputs.find(d =>
+          d.label.toLowerCase().includes('jabra') ||
+          d.label.toLowerCase().includes('usb') ||
+          d.label.toLowerCase().includes('external')
+        );
+
+        if (virtualDevice) {
+          setSelectedDeviceId(virtualDevice.deviceId);
+        } else if (externalDevice) {
+          setSelectedDeviceId(externalDevice.deviceId);
+        } else if (audioInputs.length > 0) {
+          setSelectedDeviceId(audioInputs[0].deviceId);
+        }
+      } catch (e) {
+        console.error('[Q&A] Failed to enumerate devices:', e);
       }
     };
-  }, []); // Empty deps - only run once
+    loadDevices();
+  }, []);
 
-  const startListening = useCallback(() => {
-    if (!recognitionRef.current) {
-      alert('Speech recognition not supported in this browser');
-      return;
+  const stopEverything = useCallback(() => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
     }
-    setTranscript('');
-    lastTranscriptRef.current = '';
-    setIsListening(true);
-    isListeningRef.current = true;
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      try { mediaRecorderRef.current.stop(); } catch (e) {}
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    if (audioContextRef.current) {
+      try { audioContextRef.current.close(); } catch (e) {}
+      audioContextRef.current = null;
+    }
+    setListeningState('idle');
+    setAudioLevel(0);
+  }, []);
+
+  const transcribeAudio = async (audioBlob) => {
+    if (!audioBlob || audioBlob.size < 1000) {
+      console.log('[Q&A] Audio too small, skipping');
+      return null;
+    }
+
     try {
-      recognitionRef.current.start();
-    } catch (e) {
-      console.error('Failed to start:', e);
-    }
-  }, []);
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'recording.webm');
 
-  // Auto-submit when listening stops and there's a transcript
-  useEffect(() => {
-    if (!isListening && transcript && !isProcessingFollowUp) {
-      handleSubmitQuestion(transcript);
-    }
-  }, [isListening]);
+      const response = await fetch(API_URL + '/api/transcribe', {
+        method: 'POST',
+        body: formData,
+      });
 
-  const stopListening = useCallback((autoSubmit = false) => {
-    setIsListening(false);
-    isListeningRef.current = false;
-    if (silenceTimeoutRef.current) {
-      clearTimeout(silenceTimeoutRef.current);
-    }
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.stop();
-      } catch (e) {}
-    }
-  }, []);
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || 'Transcription failed');
+      }
 
-  const handleSubmitQuestion = async (inputQuestion = null) => {
-    const q = inputQuestion || transcript.trim() || textInput.trim();
-    if (!q || !onFollowUpQuestion || isProcessingFollowUp) return;
+      const data = await response.json();
+      return data.text?.trim() || null;
+    } catch (err) {
+      console.error('[Q&A] Transcription error:', err);
+      setError(err.message);
+      return null;
+    }
+  };
 
-    stopListening();
-    const currentQ = q;
-    setTranscript('');
-    setTextInput('');
+  const handleSubmitQuestion = async (question) => {
+    const q = question?.trim();
+    if (!q || !onFollowUpQuestion) return false;
+
+    // Filter out Whisper hallucinations
+    const hallucinations = [
+      'bye', 'bye-bye', 'bye bye', 'goodbye', 'thank you', 'thanks',
+      'thanks for watching', 'see you', 'you', 'the', 'a', 'i', 'it',
+      'um', 'uh', 'hmm', 'ah', 'oh', 'okay', 'ok', 'so', 'yeah', 'yes', 'no',
+      'silence', 'music', 'applause', 'laughter'
+    ];
+    const cleanQ = q.toLowerCase().replace(/[.,!?]/g, '').trim();
+    const isHallucination = q.length < 8 || hallucinations.includes(cleanQ);
+
+    if (isHallucination) {
+      console.log('[Q&A] Filtered hallucination:', q);
+      return false;
+    }
+
+    isProcessingRef.current = true;
+    setListeningState('answering');
 
     // Add to history with pending state
-    setQaHistory(prev => [...prev, { question: currentQ, answer: null, pending: true }]);
+    setQaHistory(prev => [...prev, { question: q, answer: null, pending: true }]);
 
     try {
-      const result = await onFollowUpQuestion(currentQ);
+      console.log('[Q&A] Submitting question:', q);
+      const result = await onFollowUpQuestion(q);
+      console.log('[Q&A] Got result:', result);
+
       setQaHistory(prev => {
         const updated = [...prev];
         if (updated.length > 0) {
           updated[updated.length - 1] = {
-            question: currentQ,
+            question: q,
             answer: result?.answer || 'No answer received',
             pending: false
           };
         }
         return updated;
       });
+      return true;
     } catch (err) {
+      console.error('[Q&A] Submit error:', err);
       setQaHistory(prev => {
         const updated = [...prev];
         if (updated.length > 0) {
           updated[updated.length - 1] = {
-            question: currentQ,
+            question: q,
             answer: 'Error: ' + err.message,
             pending: false
           };
         }
         return updated;
       });
+      return false;
+    } finally {
+      isProcessingRef.current = false;
+    }
+  };
+
+  const startSystemAudioCapture = async () => {
+    if (isProcessingRef.current) return;
+
+    setError(null);
+    audioChunksRef.current = [];
+    speechDetectedRef.current = false;
+    silenceStartRef.current = null;
+
+    try {
+      let stream;
+
+      // Use selected audio device (could be virtual device like BlackHole for system audio)
+      const deviceConstraints = {
+        audio: {
+          deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined,
+          echoCancellation: false,
+          noiseSuppression: true,
+          autoGainControl: true,
+        }
+      };
+
+      const selectedDevice = audioDevices.find(d => d.deviceId === selectedDeviceId);
+      console.log('[Q&A] Using audio device:', selectedDevice?.label || 'default');
+
+      stream = await navigator.mediaDevices.getUserMedia(deviceConstraints);
+
+      streamRef.current = stream;
+
+      // Set up audio analysis
+      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioContextRef.current.createMediaStreamSource(stream);
+      analyserRef.current = audioContextRef.current.createAnalyser();
+      analyserRef.current.fftSize = 256;
+      analyserRef.current.smoothingTimeConstant = 0.8;
+      source.connect(analyserRef.current);
+
+      // Find supported mime type
+      let mimeType = 'audio/webm';
+      const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg', 'audio/mp4'];
+      for (const type of types) {
+        if (MediaRecorder.isTypeSupported(type)) {
+          mimeType = type;
+          break;
+        }
+      }
+
+      // Create MediaRecorder
+      const mediaRecorder = new MediaRecorder(stream, { mimeType });
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        if (speechDetectedRef.current && audioChunksRef.current.length > 0) {
+          setListeningState('transcribing');
+          const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+          const text = await transcribeAudio(audioBlob);
+
+          if (text) {
+            const submitted = await handleSubmitQuestion(text);
+            if (!submitted) {
+              // Hallucination filtered, restart listening
+              if (autoListenEnabled && !isProcessingRef.current) {
+                setTimeout(() => startSystemAudioCapture(), 300);
+              }
+            } else {
+              // Question answered, restart listening
+              if (autoListenEnabled && !isProcessingRef.current) {
+                setTimeout(() => startSystemAudioCapture(), 500);
+              }
+            }
+          } else {
+            // No transcription, restart listening
+            if (autoListenEnabled && !isProcessingRef.current) {
+              setTimeout(() => startSystemAudioCapture(), 300);
+            }
+          }
+        } else {
+          // No speech detected, restart listening
+          if (autoListenEnabled && !isProcessingRef.current) {
+            setTimeout(() => startSystemAudioCapture(), 300);
+          }
+        }
+        audioChunksRef.current = [];
+        speechDetectedRef.current = false;
+      };
+
+      // Start in listening mode
+      setListeningState('listening');
+
+      // Voice Activity Detection loop
+      const SPEECH_THRESHOLD = 20;
+      const SILENCE_DURATION = 1500; // 1.5 seconds of silence to stop
+
+      const detectVoice = () => {
+        if (!analyserRef.current || !autoListenEnabled) {
+          return;
+        }
+
+        const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+        analyserRef.current.getByteFrequencyData(dataArray);
+        const average = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+
+        setAudioLevel(Math.min(100, average * 3));
+
+        const isSpeaking = average > SPEECH_THRESHOLD;
+
+        if (isSpeaking) {
+          if (!speechDetectedRef.current) {
+            // Start recording
+            speechDetectedRef.current = true;
+            audioChunksRef.current = [];
+            if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'inactive') {
+              mediaRecorderRef.current.start(100);
+            }
+            setListeningState('recording');
+          }
+          silenceStartRef.current = null;
+        } else if (speechDetectedRef.current) {
+          // Silence after speech
+          if (!silenceStartRef.current) {
+            silenceStartRef.current = Date.now();
+          } else if (Date.now() - silenceStartRef.current > SILENCE_DURATION) {
+            // Enough silence, stop recording
+            if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+              mediaRecorderRef.current.stop();
+            }
+            return;
+          }
+        }
+
+        animationFrameRef.current = requestAnimationFrame(detectVoice);
+      };
+
+      detectVoice();
+
+    } catch (err) {
+      console.error('[Q&A] Audio capture error:', err);
+      setError('Audio capture failed: ' + err.message);
+      setListeningState('idle');
+    }
+  };
+
+  const toggleAutoListen = () => {
+    if (autoListenEnabled) {
+      setAutoListenEnabled(false);
+      stopEverything();
+    } else {
+      setAutoListenEnabled(true);
+      startSystemAudioCapture();
+    }
+  };
+
+  const getStatusText = () => {
+    switch (listeningState) {
+      case 'listening': return 'Waiting for interviewer...';
+      case 'recording': return 'Recording question...';
+      case 'transcribing': return 'Transcribing...';
+      case 'answering': return 'Generating answer...';
+      default: return 'Click to start';
+    }
+  };
+
+  const getStatusColor = () => {
+    switch (listeningState) {
+      case 'listening': return 'bg-green-500';
+      case 'recording': return 'bg-red-500 animate-pulse';
+      case 'transcribing': return 'bg-yellow-500';
+      case 'answering': return 'bg-blue-500';
+      default: return 'bg-gray-400';
     }
   };
 
@@ -285,8 +483,8 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
           </div>
         )}
 
-        {/* Interviewer Q&A Section - voice-based with auto-answer */}
-        {hasSolution && onFollowUpQuestion && speechSupported && (
+        {/* Interviewer Q&A Section */}
+        {hasSolution && onFollowUpQuestion && (
           <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
@@ -298,48 +496,122 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                 </span>
               </div>
 
-              {/* Listen Button */}
-              <button
-                onClick={isListening ? stopListening : startListening}
-                disabled={isProcessingFollowUp}
-                className={`px-4 py-2 text-sm font-bold rounded-full transition-all ${
-                  isListening
-                    ? 'bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/50'
-                    : isProcessingFollowUp
-                      ? 'bg-gray-400 text-white'
+              <div className="flex items-center gap-2">
+                {/* Clear Q&A Button */}
+                {qaHistory.length > 0 && (
+                  <button
+                    onClick={() => setQaHistory([])}
+                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                    title="Clear Q&A history"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                )}
+
+                {/* Device Selector */}
+                <button
+                  onClick={() => setShowDeviceSelector(!showDeviceSelector)}
+                  className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-all"
+                  title="Select audio input device"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </button>
+
+                {/* Auto-Listen Toggle */}
+                <button
+                  onClick={toggleAutoListen}
+                  disabled={isProcessingFollowUp}
+                  className={`px-4 py-2 text-sm font-bold rounded-full transition-all flex items-center gap-2 ${
+                    autoListenEnabled
+                      ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
                       : 'bg-blue-500 text-white hover:bg-blue-600 shadow-lg shadow-blue-500/30'
-                }`}
-              >
-                {isProcessingFollowUp ? 'Answering...' : isListening ? 'Listening...' : 'Start Listening'}
-              </button>
+                  }`}
+                >
+                  {autoListenEnabled && (
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                    </span>
+                  )}
+                  {autoListenEnabled ? 'Stop' : 'Auto-Listen'}
+                </button>
+              </div>
             </div>
 
-            {/* Live Transcript */}
-            {(isListening || transcript) && (
-              <div className="mb-3 p-3 rounded-lg bg-white border-2 border-blue-300">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] font-semibold text-blue-600 uppercase">
-                    {isListening ? 'Listening... (auto-submits after pause)' : 'Question'}
-                  </span>
-                  {transcript && (
-                    <button
-                      onClick={() => setTranscript('')}
-                      className="text-[9px] text-gray-400 hover:text-red-500"
-                    >
-                      Clear
-                    </button>
-                  )}
-                </div>
-                <p className="text-[14px] text-gray-800 min-h-[20px]">
-                  {transcript || 'Speak now...'}
+            {/* Device Selector Dropdown */}
+            {showDeviceSelector && (
+              <div className="mb-3 p-3 rounded-lg bg-gray-50 border border-gray-200">
+                <label className="text-[11px] font-bold text-gray-600 uppercase mb-2 block">
+                  Audio Input Device
+                </label>
+                <select
+                  value={selectedDeviceId || ''}
+                  onChange={(e) => setSelectedDeviceId(e.target.value)}
+                  className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {audioDevices.map(device => (
+                    <option key={device.deviceId} value={device.deviceId}>
+                      {device.label || `Device ${device.deviceId.slice(0, 8)}`}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[10px] text-gray-500 mt-2">
+                  <strong>Tip:</strong> For best results capturing interviewer voice from Zoom/Meet/Teams:
+                  <br />• Install <a href="https://existential.audio/blackhole/" target="_blank" rel="noopener" className="text-blue-600 underline">BlackHole</a> (free virtual audio device)
+                  <br />• Create Multi-Output Device in Audio MIDI Setup
+                  <br />• Route system audio through BlackHole
+                  <br />• Select BlackHole here as input
                 </p>
               </div>
             )}
 
-            {/* Q&A History */}
+            {/* Status/Error */}
+            {error && (
+              <div className="mb-3 p-2 rounded bg-red-100 text-red-600 text-xs">
+                {error}
+              </div>
+            )}
+
+            {/* Live status */}
+            {autoListenEnabled && (
+              <div className="mb-3 p-3 rounded-lg bg-white border-2 border-blue-300">
+                <div className="flex items-center gap-3">
+                  <div className={`w-3 h-3 rounded-full ${getStatusColor()}`} />
+                  <span className="text-[12px] text-gray-700 font-medium flex-1">
+                    {getStatusText()}
+                  </span>
+                  {/* Audio level indicator */}
+                  {(listeningState === 'listening' || listeningState === 'recording') && (
+                    <div className="flex items-center gap-1">
+                      {[...Array(5)].map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-1 rounded-full transition-all ${
+                            audioLevel > i * 20 ? 'bg-green-500' : 'bg-gray-300'
+                          }`}
+                          style={{ height: `${8 + i * 3}px` }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <p className="text-[10px] text-gray-500 mt-1">
+                  {audioDevices.find(d => d.deviceId === selectedDeviceId)?.label?.toLowerCase().includes('blackhole')
+                    ? 'Capturing system audio via BlackHole'
+                    : 'Using: ' + (audioDevices.find(d => d.deviceId === selectedDeviceId)?.label || 'default mic')}
+                </p>
+              </div>
+            )}
+
+            {/* Q&A History - newest first */}
             {qaHistory.length > 0 && (
               <div className="space-y-3">
-                {qaHistory.map((qa, i) => (
+                {[...qaHistory].reverse().map((qa, i) => (
                   <div key={i} className="p-3 rounded-lg bg-white border border-gray-200">
                     <div className="mb-2">
                       <span className="text-[10px] font-bold text-blue-600 uppercase">Q:</span>
