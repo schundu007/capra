@@ -285,13 +285,31 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
       </div>
 
       {/* Design Tab Content */}
-      {activeTab === 'design' && hasSystemDesign && (
+      {activeTab === 'design' && (
         <div className="flex-1 overflow-auto p-4 bg-white">
-          <SystemDesignPanel
-            systemDesign={systemDesign}
-            eraserDiagram={eraserDiagram}
-            onGenerateEraserDiagram={onGenerateEraserDiagram}
-          />
+          {hasSystemDesign ? (
+            <SystemDesignPanel
+              systemDesign={systemDesign}
+              eraserDiagram={eraserDiagram}
+              onGenerateEraserDiagram={onGenerateEraserDiagram}
+            />
+          ) : isStreaming ? (
+            <div className="flex flex-col items-center justify-center h-full text-gray-500">
+              <div className="flex gap-1 mb-2">
+                <span className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+              <span className="text-sm">Generating system design...</span>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full text-gray-400">
+              <svg className="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              <span className="text-sm">Submit a problem to see system design</span>
+            </div>
+          )}
         </div>
       )}
 

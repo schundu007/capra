@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Capra is an AI-powered coding assistant that solves programming problems from text input, screenshots, or URLs (HackerRank/LeetCode). It supports both Claude and GPT-4 providers.
+Capra is an AI-powered coding assistant that solves programming problems from text input, screenshots, or URLs (HackerRank/LeetCode). It supports both Claude and GPT-4 providers and includes an Interview Assistant feature with voice transcription.
 
 ## Two Platforms
 
@@ -31,10 +31,15 @@ npm run dist:win    # Windows NSIS
 npm run dist:linux  # Linux AppImage/DEB
 ```
 
-## Deployment (Webapp)
+## Deployment
 
-**CRITICAL: After EVERY code change:**
+**CRITICAL: After EVERY code change, ALWAYS deploy to BOTH platforms:**
+
+1. **Desktop App**: Restart with `npm run dev:electron` (or rebuild for distribution)
+2. **Webapp**: Commit and push to trigger auto-deployment
+
 ```bash
+# Always commit and push after changes
 git add -A && git commit -m "description"
 git push origin main
 ```
@@ -43,7 +48,27 @@ This triggers auto-deployment:
 - **Frontend** → Vercel (auto-deploys in ~1 min)
 - **Backend** → Railway (auto-deploys in ~2 min)
 
-**NEVER suggest running the webapp locally. Always push to deploy.**
+**NEVER forget to deploy to both platforms. Changes must be live on webapp AND desktop app.**
+
+## Architecture
+
+### Data Flow
+```
+User Input → Frontend (React) → Backend API → AI Provider (Claude/OpenAI) → Streaming Response → Frontend
+```
+
+### SSE Streaming Pattern
+The `/api/solve/stream` endpoint uses Server-Sent Events for real-time code generation:
+1. Frontend initiates fetch with SSE headers
+2. Backend streams chunks as `data: {chunk, partial: true}\n\n`
+3. Final response: `data: {done: true, result: {...}}\n\n`
+4. Frontend parses JSON progressively for instant feedback
+
+### Electron Embedded Backend
+In the desktop app, `electron/backend-server.js` runs an Express server that:
+- Imports and reuses all routes from `backend/src/routes/`
+- Skips authentication (users provide their own API keys)
+- Gets API keys from OS keychain via `secure-store.js`
 
 ## Project Structure
 
@@ -51,47 +76,57 @@ This triggers auto-deployment:
 /
 ├── electron/              # Desktop app only
 │   ├── main.js            # Main process, window management
-│   ├── preload.js         # IPC bridge
-│   ├── backend-server.js  # Embedded Express server
+│   ├── preload.cjs        # IPC bridge (exposes electronAPI)
+│   ├── backend-server.js  # Embedded Express server (reuses backend routes)
+│   ├── auth-window.js     # Platform OAuth windows (HackerRank, LeetCode)
 │   └── store/
-│       ├── config-store.js   # General config
-│       └── secure-store.js   # Encrypted API keys (keychain)
+│       ├── config-store.js   # General config (electron-store)
+│       └── secure-store.js   # Encrypted API keys (OS keychain via safeStorage)
 │
 ├── frontend/              # React app (shared by both platforms)
 │   └── src/
-│       ├── App.jsx
-│       ├── hooks/useElectron.js  # Platform detection
+│       ├── App.jsx                     # Main app, state management
+│       ├── hooks/useElectron.js        # Platform detection, getApiUrl()
 │       └── components/
+│           ├── CodeDisplay.jsx         # Code panel with Code/Design tabs
+│           ├── ExplanationPanel.jsx    # Approach + Interviewer Q&A
+│           ├── InterviewAssistantPanel.jsx  # Voice Q&A for interviews
+│           ├── SystemDesignPanel.jsx   # System design diagrams
+│           └── ProblemInput.jsx        # Text/URL/Screenshot input
 │
 ├── backend/               # Express API (shared by both platforms)
 │   └── src/
-│       ├── index.js
+│       ├── index.js       # Server setup, route registration
 │       ├── routes/        # API endpoints
 │       └── services/      # AI providers (claude.js, openai.js)
 │
 └── extension/             # Chrome extension (webapp cookie sync)
+    ├── manifest.json      # Extension config (v3)
+    ├── background.js      # Cookie extraction and sync
+    └── popup.js           # Extension UI
 ```
 
 ## Key Files
 
 ### Backend Routes
-- `solve.js` - POST /api/solve/stream - SSE streaming solutions
-- `analyze.js` - POST /api/analyze - Screenshot OCR
-- `fetch.js` - POST /api/fetch - Scrape problems from URLs
-- `run.js` - POST /api/run - Code execution (Piston API)
-- `fix.js` - POST /api/fix - AI code fixing
-- `diagram.js` - POST /api/diagram/eraser - Eraser.io diagrams
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/solve/stream` | POST | SSE streaming solutions |
+| `/api/solve/followup` | POST | Follow-up Q&A for any interview problem |
+| `/api/analyze` | POST | Screenshot OCR via AI vision |
+| `/api/fetch` | POST | Scrape problems from HackerRank/LeetCode URLs |
+| `/api/run` | POST | Code execution (Piston API) |
+| `/api/fix` | POST | AI code fixing |
+| `/api/transcribe` | POST | Audio transcription |
+| `/api/interview` | POST | Interview assistant endpoints |
+| `/api/diagram/eraser` | POST | Eraser.io diagram generation |
+| `/api/auth/*` | Various | Authentication (webapp only) |
 
 ### Backend Services
-- `claude.js` - Anthropic API integration
-- `openai.js` - OpenAI API integration
+- `claude.js` - Anthropic API with streaming, setApiKey()/getApiKey() for runtime updates
+- `openai.js` - OpenAI API with streaming, same pattern as claude.js
 - `eraser.js` - Eraser.io diagram generation
-
-### Frontend Components
-- `App.jsx` - Main app, state management
-- `CodeDisplay.jsx` - Code panel with Code/Design tabs
-- `SystemDesignPanel.jsx` - System design display
-- `ExplanationPanel.jsx` - Approach + Interviewer Q&A
+- `scraper.js` - HackerRank/LeetCode problem extraction
 
 ## Platform Detection
 
@@ -116,6 +151,13 @@ ERASER_API_KEY=...
 PORT=3001
 ```
 
+Frontend `.env` (for Vercel):
+```
+VITE_API_URL=https://your-railway-url.railway.app
+```
+
+**Note:** In Electron, API keys come from the OS keychain, not environment variables.
+
 ## Testing Changes
 
 1. **Desktop App**: `npm run dev:electron` - test locally
@@ -123,11 +165,12 @@ PORT=3001
 
 ## UI Guidelines
 
-- **NEVER use generic icons** - Always use specific, meaningful icons or text labels instead of generic placeholder icons
+- **NEVER use generic icons** - Always use specific, meaningful icons or text labels
 - Use TailwindCSS for styling
 - Follow existing code style (no ESLint/Prettier configured)
 
 ## Notes
 
+- Node.js ≥20 required for backend
 - No automated tests configured
 - Push to git after EVERY change to deploy webapp
