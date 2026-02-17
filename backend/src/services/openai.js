@@ -110,40 +110,6 @@ IMPORTANT: Respond with valid JSON in exactly this format:
   }
 }
 
-FOR SYSTEM DESIGN PROBLEMS: Do NOT generate code. Set "code": "", "examples": [], "explanations": [], and focus entirely on the systemDesign object. The pitch should explain your system design approach.
-
-SYSTEM DESIGN - INCLUDE FULL SYSTEM DESIGN when the problem involves ANY of these:
-- Designing a system (URL shortener, chat app, rate limiter, cache, Twitter, Instagram, etc.)
-- Keywords: "design", "architect", "scale", "distributed", "high availability", "microservices"
-- Infrastructure: databases, caching, load balancing, message queues, APIs at scale
-- System architecture questions in interviews
-
-ALWAYS include systemDesign for these types of problems:
-{
-  "systemDesign": {
-    "included": true,
-    "overview": "Brief problem overview and scale considerations",
-    "requirements": {
-      "functional": ["List of functional requirements"],
-      "nonFunctional": ["List of non-functional requirements like latency, availability, scalability"]
-    },
-    "apiDesign": [
-      {"method": "POST", "endpoint": "/api/shorten", "description": "Create short URL", "request": "{ url: string }", "response": "{ shortUrl: string }"}
-    ],
-    "dataModel": [
-      {"table": "urls", "fields": [{"name": "id", "type": "string", "description": "Short code"}, {"name": "original_url", "type": "string", "description": "Original URL"}]}
-    ],
-    "architecture": {
-      "components": ["Load Balancer", "Web Servers", "Redis Cache", "PostgreSQL Database"],
-      "description": "How components interact and data flows"
-    },
-    "diagram": "flowchart LR\n  A[Client] --> B[Load Balancer]\n  B --> C[Web Servers]\n  C --> D[(Redis Cache)]\n  C --> E[(PostgreSQL)]",
-    "scalability": ["Horizontal scaling of web servers", "Database read replicas", "Cache for hot URLs", "Database sharding by URL hash"]
-  }
-}
-
-ONLY for pure coding problems (algorithms, data structures, leetcode-style problems), use: "systemDesign": {"included": false}
-
 Rules:
 - Do NOT add any comments in the code
 - Match the EXACT output format from examples
@@ -514,8 +480,11 @@ export async function* answerFollowUpQuestion(question, context, model = DEFAULT
     contextStr += `SYSTEM DESIGN:\n${JSON.stringify(context.systemDesign, null, 2)}\n\n`;
   }
 
+  // Use gpt-4o-mini for faster responses (Q&A doesn't need the smartest model)
+  const fastModel = 'gpt-4o-mini';
+
   const stream = await getClient().chat.completions.create({
-    model,
+    model: fastModel,
     messages: [
       {
         role: 'system',
@@ -532,7 +501,7 @@ Do NOT use markdown formatting or code blocks - just plain text.`
 Answer this interview follow-up question directly and concisely. Explain your reasoning clearly as if speaking to an interviewer.`,
       },
     ],
-    max_tokens: 2048,
+    max_tokens: 1024,
     stream: true,
   });
 
