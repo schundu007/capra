@@ -28,6 +28,8 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
   try {
     const { problem, provider = 'claude', language = 'auto', detailLevel = 'detailed', model, interviewMode = 'coding', designDetailLevel = 'basic' } = req.body;
 
+    console.log('[Solve Stream] interviewMode:', interviewMode, 'designDetailLevel:', designDetailLevel, 'provider:', provider);
+
     // Set SSE headers
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
@@ -66,9 +68,11 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
 });
 
 // Follow-up question endpoint for any interview problem
-router.post('/followup', validate('solve'), async (req, res, next) => {
+router.post('/followup', validate('followup'), async (req, res, next) => {
   try {
     const { question, problem, code, pitch, currentDesign, provider = 'claude', model } = req.body;
+
+    console.log('[Followup] Received request:', { question, hasCode: !!code, hasPitch: !!pitch, hasDesign: !!currentDesign, provider, model });
 
     if (!question) {
       return res.status(400).json({ error: 'Question is required' });
@@ -96,15 +100,21 @@ router.post('/followup', validate('solve'), async (req, res, next) => {
       systemDesign: currentDesign
     };
 
+    console.log('[Followup] Starting stream...');
     for await (const chunk of service.answerFollowUpQuestion(question, context, model)) {
       fullText += chunk;
       res.write(`data: ${JSON.stringify({ chunk, partial: true })}\n\n`);
     }
 
+    console.log('[Followup] Stream complete, sending final result, length:', fullText.length);
     // Send the answer directly (no JSON parsing needed for simple answers)
-    res.write(`data: ${JSON.stringify({ done: true, result: { answer: fullText.trim() } })}\n\n`);
+    const finalMsg = `data: ${JSON.stringify({ done: true, result: { answer: fullText.trim() } })}\n\n`;
+    console.log('[Followup] Final message:', finalMsg.substring(0, 200));
+    res.write(finalMsg);
     res.end();
+    console.log('[Followup] Response ended');
   } catch (error) {
+    console.error('[Followup] Error:', error);
     res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
     res.end();
   }
