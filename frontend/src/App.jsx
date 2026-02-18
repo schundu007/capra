@@ -392,30 +392,23 @@ export default function App() {
   const [eraserDiagram, setEraserDiagram] = useState(null); // { imageUrl, editUrl }
   const [isProcessingFollowUp, setIsProcessingFollowUp] = useState(false); // Follow-up question state
 
-  // Auto-test, fix, and run code - returns code and final output
-  // Now compares output with expected and fixes until it matches
+  // Auto-test and fix code - only fixes RUNTIME ERRORS, not output mismatches
+  // For API-based problems, we just run and show real output
   const autoTestAndFix = async (code, language, examples, problem, currentModel) => {
     const RUNNABLE = ['python', 'bash', 'javascript', 'typescript', 'sql'];
     const normalizedLang = language?.toLowerCase() || 'python';
 
-    // Skip auto-fix if language not runnable or no examples
-    if (!RUNNABLE.includes(normalizedLang) || !examples || examples.length === 0) {
+    // Skip if language not runnable
+    if (!RUNNABLE.includes(normalizedLang)) {
       return { code, fixed: false, attempts: 0, output: null };
     }
 
     let currentCode = code;
     let attempts = 0;
     let finalOutput = null;
-    const MAX_ATTEMPTS = 3; // Try up to 3 times to get correct output
+    const MAX_ATTEMPTS = 3;
 
-    const testInput = examples[0]?.input || '';
-    const expectedOutput = examples[0]?.expected?.trim() || '';
-
-    // Helper to normalize output for comparison
-    const normalizeOutput = (str) => {
-      if (!str) return '';
-      return str.trim().replace(/\r\n/g, '\n').replace(/\s+$/gm, '');
-    };
+    const testInput = examples?.[0]?.input || '';
 
     setLoadingType('testing');
 
@@ -429,55 +422,16 @@ export default function App() {
         const runResult = await runResponse.json();
 
         if (runResult.success) {
-          const actualOutput = normalizeOutput(runResult.output);
-          const expected = normalizeOutput(expectedOutput);
-
+          // Code ran successfully - return the REAL output
           finalOutput = { success: true, output: runResult.output, input: testInput };
-
-          // Check if output matches expected (if we have expected output)
-          if (!expectedOutput || actualOutput === expected || actualOutput.includes(expected) || expected.includes(actualOutput)) {
-            // Output matches or no expected output to compare
-            return { code: currentCode, fixed: attempts > 0, attempts, output: finalOutput };
-          }
-
-          // Output doesn't match - try to fix
-          attempts++;
-          if (attempts >= MAX_ATTEMPTS) {
-            // Max attempts reached, return what we have
-            return { code: currentCode, fixed: attempts > 1, attempts, output: finalOutput };
-          }
-
-          setAutoFixAttempts(attempts);
-          setLoadingType('fixing');
-
-          const fixResponse = await fetch(API_URL + '/api/fix', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-            body: JSON.stringify({
-              code: currentCode,
-              error: `Wrong output.\n\nExpected:\n${expectedOutput}\n\nGot:\n${runResult.output}\n\nPlease fix the code to produce the expected output.`,
-              language: normalizedLang,
-              problem: problem,
-              provider: provider,
-              model: currentModel
-            }),
-          });
-          const fixResult = await fixResponse.json();
-
-          if (fixResult.code) {
-            currentCode = fixResult.code;
-            setLoadingType('testing');
-          } else {
-            // Fix failed, return what we have
-            return { code: currentCode, fixed: false, attempts, output: finalOutput };
-          }
+          return { code: currentCode, fixed: attempts > 0, attempts, output: finalOutput };
         } else {
           // Runtime error - try to fix
           const errorMsg = runResult.error || 'Unknown error';
           attempts++;
 
           if (attempts >= MAX_ATTEMPTS) {
-            finalOutput = { success: false, output: errorMsg, input: testInput };
+            finalOutput = { success: false, error: errorMsg, input: testInput };
             return { code: currentCode, fixed: false, attempts, output: finalOutput };
           }
 
