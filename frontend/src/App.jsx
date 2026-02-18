@@ -393,7 +393,6 @@ export default function App() {
   const [isProcessingFollowUp, setIsProcessingFollowUp] = useState(false); // Follow-up question state
 
   // Auto-test and fix code - only fixes RUNTIME ERRORS, not output mismatches
-  // For API-based problems, we just run and show real output
   const autoTestAndFix = async (code, language, examples, problem, currentModel) => {
     const RUNNABLE = ['python', 'bash', 'javascript', 'typescript', 'sql'];
     const normalizedLang = language?.toLowerCase() || 'python';
@@ -401,6 +400,17 @@ export default function App() {
     // Skip if language not runnable
     if (!RUNNABLE.includes(normalizedLang)) {
       return { code, fixed: false, attempts: 0, output: null };
+    }
+
+    // Skip auto-run for code with network calls (sandbox doesn't support)
+    const hasNetworkCalls = /requests\.|fetch\(|http\.|urllib|axios/.test(code);
+    if (hasNetworkCalls) {
+      return {
+        code,
+        fixed: false,
+        attempts: 0,
+        output: { success: true, output: '⚠️ Code makes network calls - run locally to see output', input: '' }
+      };
     }
 
     let currentCode = code;
