@@ -766,11 +766,12 @@ export default function App() {
           paddingLeft: isMacElectron ? '80px' : '16px',
           background: 'rgba(255, 255, 255, 0.9)',
           backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(0,0,0,0.08)'
+          borderBottom: '1px solid rgba(0,0,0,0.08)',
+          WebkitAppRegion: 'drag'
         }}
       >
         {/* Left: Logo & Status */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4" style={{ WebkitAppRegion: 'no-drag' }}>
           <div className="relative group flex items-center gap-3">
             <div
               className="w-9 h-9 rounded-xl flex items-center justify-center"
@@ -827,7 +828,7 @@ export default function App() {
         </div>
 
         {/* Right: Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" style={{ WebkitAppRegion: 'no-drag' }}>
           <ProviderToggle provider={provider} model={model} onChange={setProvider} onModelChange={setModel} />
 
           {/* Clear Button */}
