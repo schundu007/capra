@@ -53,32 +53,11 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
   const [showTestInput, setShowTestInput] = useState(false);
   const [outputHeight, setOutputHeight] = useState(120);
   const [isResizing, setIsResizing] = useState(false);
-  const [activeTab, setActiveTab] = useState('code'); // 'code' | 'design'
-
   useEffect(() => {
     setCode(initialCode);
     setFixAttempts(0);
     setOutput(null);
   }, [initialCode]);
-
-  // Auto-switch tabs based on interview mode
-  useEffect(() => {
-    console.log('[CodeDisplay] interviewMode changed to:', interviewMode, 'systemDesign?.included:', systemDesign?.included);
-    if (interviewMode === 'system-design') {
-      // Always show design tab in system-design mode
-      setActiveTab('design');
-    } else if (interviewMode === 'coding') {
-      // Always show code tab in coding mode
-      setActiveTab('code');
-    }
-  }, [interviewMode]);
-
-  // Also switch to design tab when design content arrives
-  useEffect(() => {
-    if (systemDesign?.included) {
-      setActiveTab('design');
-    }
-  }, [systemDesign?.included]);
 
   // Display auto-run output when it arrives
   useEffect(() => {
@@ -185,118 +164,28 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
   const syntaxLanguage = LANGUAGE_MAP[normalizedLanguage] || 'python';
   const canRun = RUNNABLE.includes(normalizedLanguage);
 
-  // Check if we have system design content
+  // Determine which mode we're in - completely isolated
+  const isDesignMode = interviewMode === 'system-design';
   const hasSystemDesign = systemDesign?.included;
-  // Show tabs when in system-design mode OR when we have system design content
-  const showTabs = interviewMode === 'system-design' || hasSystemDesign;
 
-  // Empty state - but show tabs if in system-design mode
-  if (!code && !isStreaming && !hasSystemDesign && interviewMode !== 'system-design') {
+  // DESIGN MODE: Show only system design content
+  if (isDesignMode) {
     return (
-      <div className="h-full flex flex-col bg-[#1e1e1e]">
-        <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-gray-700 flex-shrink-0">
-          <div className="w-1 h-1 rounded-full bg-gray-500" />
-          <span className="text-[10px] font-medium text-gray-500">Code</span>
-        </div>
-        <div className="flex-1 flex items-center justify-center">
-          <svg className="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-          </svg>
-        </div>
-      </div>
-    );
-  }
-
-  // Streaming state
-  if (isStreaming && !code) {
-    return (
-      <div className="h-full flex flex-col bg-[#1e1e1e]">
-        <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-gray-700 flex-shrink-0">
-          <div className="w-1 h-1 rounded-full bg-[#10b981]" />
-          <span className="text-[10px] font-medium text-gray-400">Code</span>
-          <div className="flex gap-0.5 ml-1.5">
-            <span className="w-0.5 h-0.5 rounded-full bg-[#10b981] animate-bounce" style={{ animationDelay: '0ms' }} />
-            <span className="w-0.5 h-0.5 rounded-full bg-[#10b981] animate-bounce" style={{ animationDelay: '150ms' }} />
-            <span className="w-0.5 h-0.5 rounded-full bg-[#10b981] animate-bounce" style={{ animationDelay: '300ms' }} />
+      <div className="h-full flex flex-col bg-white">
+        {/* Header for Design Mode */}
+        <div className="flex items-center justify-between px-2 py-1.5 flex-shrink-0 border-b border-gray-200">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-blue-500 text-white">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              <span className="text-[10px] font-medium">System Design</span>
+            </div>
           </div>
         </div>
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-[11px] text-gray-500">Generating...</div>
-        </div>
-      </div>
-    );
-  }
 
-  return (
-    <div className="h-full flex flex-col" style={{ background: activeTab === 'design' ? '#ffffff' : '#0a0a0b' }}>
-      {/* Header with Tabs */}
-      <div className="flex items-center justify-between px-2 py-1.5 flex-shrink-0" style={{ borderBottom: activeTab === 'design' ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.06)' }}>
-        <div className="flex items-center gap-2">
-          {showTabs ? (
-            <>
-              {/* Code Tab */}
-              <button
-                onClick={() => setActiveTab('code')}
-                className="flex items-center gap-1.5 px-2 py-1 rounded transition-colors"
-                style={{
-                  background: activeTab === 'code' ? (activeTab === 'design' ? '#f3f4f6' : 'rgba(255,255,255,0.1)') : 'transparent',
-                  color: activeTab === 'code' ? (activeTab === 'design' ? '#111827' : '#fafafa') : (activeTab === 'design' ? '#6b7280' : '#71717a'),
-                }}
-              >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                </svg>
-                <span className="text-[10px] font-medium">Code</span>
-                {code && (
-                  <span className="text-[9px] px-1 py-0.5 rounded" style={{ background: activeTab === 'design' ? '#e5e7eb' : 'rgba(255,255,255,0.1)', color: activeTab === 'design' ? '#6b7280' : '#a1a1aa' }}>
-                    {normalizedLanguage}
-                  </span>
-                )}
-              </button>
-              {/* Design Tab */}
-              <button
-                onClick={() => setActiveTab('design')}
-                className="flex items-center gap-1.5 px-2 py-1 rounded transition-colors"
-                style={{
-                  background: activeTab === 'design' ? '#3b82f6' : 'transparent',
-                  color: activeTab === 'design' ? 'white' : (activeTab === 'design' ? '#6b7280' : '#71717a'),
-                }}
-              >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-                <span className="text-[10px] font-medium">Design</span>
-              </button>
-            </>
-          ) : (
-            <>
-              <div className="w-1 h-1 rounded-full" style={{ background: '#10b981', boxShadow: '0 0 6px #10b981' }} />
-              <span className="text-[10px] font-medium" style={{ color: '#a1a1aa' }}>Code</span>
-              <span
-                className="text-[9px] px-1.5 py-0.5 rounded"
-                style={{ background: 'rgba(255,255,255,0.06)', color: '#a1a1aa' }}
-              >
-                {normalizedLanguage}
-              </span>
-            </>
-          )}
-        </div>
-        {activeTab === 'code' && (
-          <button
-            onClick={handleCopy}
-            className="px-1.5 py-0.5 text-[10px] font-medium rounded transition-colors"
-            style={{ color: '#71717a' }}
-            onMouseEnter={(e) => { e.target.style.background = 'rgba(255,255,255,0.06)'; e.target.style.color = '#fafafa'; }}
-            onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = '#71717a'; }}
-          >
-            {copied ? 'Copied!' : 'Copy'}
-          </button>
-        )}
-      </div>
-
-      {/* Design Tab Content */}
-      {activeTab === 'design' && (
-        <div className="flex-1 overflow-auto p-4 bg-white">
+        {/* Design Content */}
+        <div className="flex-1 overflow-auto p-4">
           {hasSystemDesign ? (
             <SystemDesignPanel
               systemDesign={systemDesign}
@@ -321,57 +210,107 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
             </div>
           )}
         </div>
-      )}
+      </div>
+    );
+  }
 
-      {/* Code Editor - Only show when code tab is active */}
-      {activeTab === 'code' && (
-        <>
-          <div className="flex-1 overflow-auto scrollbar-dark">
-            {code ? (
-              <SyntaxHighlighter
-                language={syntaxLanguage}
-                style={hackerRankTheme}
-                showLineNumbers
-                wrapLines
-                lineProps={(lineNumber) => ({
-                  style: { cursor: 'pointer' },
-                  onMouseEnter: () => onLineHover?.(lineNumber),
-                  onMouseLeave: () => onLineHover?.(null),
-                })}
-                customStyle={{
-                  margin: 0,
-                  padding: '8px',
-                  background: '#0a0a0b',
-                  fontSize: '11px',
-                  lineHeight: '1.5',
-                  minHeight: '100%',
-                }}
-                lineNumberStyle={{
-                  minWidth: '3em',
-                  paddingRight: '1em',
-                  color: '#52525b',
-                  userSelect: 'none',
-                }}
-              >
-                {code}
-              </SyntaxHighlighter>
-            ) : (
-              <div className="flex-1 flex items-center justify-center h-full">
-                <div className="text-center text-gray-500">
-                  <svg className="w-8 h-8 mx-auto mb-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                  </svg>
-                  <p className="text-[11px]">No code generated</p>
-                  <p className="text-[10px] text-gray-600 mt-1">System design problems focus on architecture</p>
-                </div>
-              </div>
-            )}
+  // CODING MODE: Show only code content
+  // Empty state for coding mode
+  if (!code && !isStreaming) {
+    return (
+      <div className="h-full flex flex-col bg-[#1e1e1e]">
+        <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-gray-700 flex-shrink-0">
+          <div className="w-1 h-1 rounded-full bg-gray-500" />
+          <span className="text-[10px] font-medium text-gray-500">Code</span>
+        </div>
+        <div className="flex-1 flex items-center justify-center">
+          <svg className="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+          </svg>
+        </div>
+      </div>
+    );
+  }
+
+  // Streaming state for coding mode
+  if (isStreaming && !code) {
+    return (
+      <div className="h-full flex flex-col bg-[#0a0a0b]">
+        <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-gray-800 flex-shrink-0">
+          <div className="w-1 h-1 rounded-full bg-[#10b981]" style={{ boxShadow: '0 0 6px #10b981' }} />
+          <span className="text-[10px] font-medium text-gray-400">Code</span>
+          <div className="flex gap-0.5 ml-1.5">
+            <span className="w-0.5 h-0.5 rounded-full bg-[#10b981] animate-bounce" style={{ animationDelay: '0ms' }} />
+            <span className="w-0.5 h-0.5 rounded-full bg-[#10b981] animate-bounce" style={{ animationDelay: '150ms' }} />
+            <span className="w-0.5 h-0.5 rounded-full bg-[#10b981] animate-bounce" style={{ animationDelay: '300ms' }} />
           </div>
-        </>
-      )}
+        </div>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-[11px] text-gray-500">Generating code...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // CODING MODE: Full code display with all features
+  return (
+    <div className="h-full flex flex-col bg-[#0a0a0b]">
+      {/* Header - Coding mode (no tabs) */}
+      <div className="flex items-center justify-between px-2 py-1.5 flex-shrink-0 border-b border-gray-800">
+        <div className="flex items-center gap-2">
+          <div className="w-1 h-1 rounded-full" style={{ background: '#10b981', boxShadow: '0 0 6px #10b981' }} />
+          <span className="text-[10px] font-medium" style={{ color: '#a1a1aa' }}>Code</span>
+          <span
+            className="text-[9px] px-1.5 py-0.5 rounded"
+            style={{ background: 'rgba(255,255,255,0.06)', color: '#a1a1aa' }}
+          >
+            {normalizedLanguage}
+          </span>
+        </div>
+        <button
+          onClick={handleCopy}
+          className="px-1.5 py-0.5 text-[10px] font-medium rounded transition-colors"
+          style={{ color: '#71717a' }}
+          onMouseEnter={(e) => { e.target.style.background = 'rgba(255,255,255,0.06)'; e.target.style.color = '#fafafa'; }}
+          onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = '#71717a'; }}
+        >
+          {copied ? 'Copied!' : 'Copy'}
+        </button>
+      </div>
+
+      {/* Code Editor */}
+      <div className="flex-1 overflow-auto scrollbar-dark">
+        <SyntaxHighlighter
+          language={syntaxLanguage}
+          style={hackerRankTheme}
+          showLineNumbers
+          wrapLines
+          lineProps={(lineNumber) => ({
+            style: { cursor: 'pointer' },
+            onMouseEnter: () => onLineHover?.(lineNumber),
+            onMouseLeave: () => onLineHover?.(null),
+          })}
+          customStyle={{
+            margin: 0,
+            padding: '8px',
+            background: '#0a0a0b',
+            fontSize: '11px',
+            lineHeight: '1.5',
+            minHeight: '100%',
+          }}
+          lineNumberStyle={{
+            minWidth: '3em',
+            paddingRight: '1em',
+            color: '#52525b',
+            userSelect: 'none',
+          }}
+        >
+          {code}
+        </SyntaxHighlighter>
+      </div>
 
       {/* Footer - Run/Submit buttons (only for code tab) */}
-      {activeTab === 'code' && code && (
+      { code && (
       <div className="px-2 py-2 flex items-center justify-between" style={{ background: '#111113', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="flex items-center gap-2">
           {/* Test input toggle */}
@@ -422,7 +361,7 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
       )}
 
       {/* Test Input Panel - only for code tab */}
-      {activeTab === 'code' && code && showTestInput && (
+      { code && showTestInput && (
         <div className="px-2 py-2" style={{ background: '#111113', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           <div className="flex items-center gap-1.5 mb-1.5">
             {examples?.map((ex, idx) => (
@@ -454,7 +393,7 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
       )}
 
       {/* Output Panel - only for code tab */}
-      {activeTab === 'code' && output && (
+      { output && (
         <div style={{ background: '#111113', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           {/* Resize Handle */}
           <div
