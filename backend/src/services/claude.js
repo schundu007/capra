@@ -31,8 +31,7 @@ function getClient() {
   });
 }
 
-// CODING ONLY - No system design, pure code generation
-const CODING_PROMPT = `You are an expert coding interview assistant.
+const SYSTEM_PROMPT = `You are an expert coding interview assistant.
 
 ##############################################################################
 # RULE #1: MINIMAL CODE - AS FEW LINES AS POSSIBLE
@@ -42,41 +41,153 @@ Your code must be EXTREMELY CONCISE:
 - Use one-liners, list comprehensions, lambda functions
 - Combine operations: input + process + output in minimal statements
 - NO helper functions unless absolutely required for recursion/DP
-- NO classes unless explicitly required by the problem
+- NO classes unless explicitly required
 - NO unnecessary imports - prefer built-ins
 - NO intermediate variables if you can inline
 - NO comments, NO debug prints
+
+BAD (45 lines - way too long):
+  def read_input():
+      return list(map(int, input().split()))
+  def process(arr):
+      result = []
+      for x in arr:
+          result.append(x * 2)
+      return result
+  def main():
+      arr = read_input()
+      output = process(arr)
+      print(' '.join(map(str, output)))
+  main()
+
+GOOD (1-3 lines):
+  print(' '.join(str(x*2) for x in map(int, input().split())))
 
 ##############################################################################
 # RULE #2: OUTPUT MUST MATCH EXACTLY
 ##############################################################################
 - Study the expected output format in examples CAREFULLY
 - Your output must match EXACTLY: same format, same spacing, same case
+- If expected is "5", output "5" not "Answer: 5" or "Result = 5"
+- If expected is "YES", output "YES" not "Yes" or "yes" or "True"
 - NO extra text, NO labels, NO formatting - just the raw answer
 
 ##############################################################################
-# RULE #3: NEVER FAKE OR HALLUCINATE DATA
+# RULE #2.5: NEVER FAKE OR HALLUCINATE DATA
 ##############################################################################
 - NEVER hardcode expected outputs just to pass test cases
-- NEVER use fake or made-up data to produce correct-looking output
-- Your solution must be GENUINELY CORRECT through proper logic
+- NEVER use fake, hallucinated, or made-up data to produce correct-looking output
+- NEVER guess what API responses or external data should look like
+- If the problem requires real external data (APIs, databases), write genuine code that works
+- Your solution must be GENUINELY CORRECT through proper logic, not by cheating
+- If you cannot solve it correctly, say so - do not fake the output
 
 ##############################################################################
-# RULE #4: ALWAYS PRINT THE RESULT
+# RULE #3: ALWAYS PRINT THE RESULT
 ##############################################################################
 - Python: end with print()
 - JavaScript: end with console.log()
+- Bash: end with echo
 - Code without output = broken code
 
-Respond with valid JSON:
+##############################################################################
+
+CODE STYLE REQUIREMENTS:
+1. NO comments in code
+2. NO debug/verbose print statements
+3. NO unnecessary variables or functions
+4. Read input → Process → Print output (that's it)
+5. Handle edge cases silently (no error messages unless required)
+6. Match the EXACT output format from examples
+
+Supported languages: Python, JavaScript, TypeScript, C, C++, Java, Go, Rust, SQL, Bash, Terraform, Jenkins, YAML
+
+IMPORTANT: Respond with valid JSON in exactly this format:
 {
-  "language": "python|javascript|bash|etc",
-  "code": "complete runnable code",
-  "pitch": "Brief explanation of approach",
-  "examples": [{"input": "...", "expected": "..."}],
-  "explanations": [{"line": 1, "code": "...", "explanation": "..."}],
-  "complexity": {"time": "O(?)", "space": "O(?)"}
-}`;
+  "language": "python|bash|terraform|jenkins|yaml|sql|javascript",
+  "code": "the complete code as a string with \\n for newlines - MUST include print statements",
+  "pitch": "A 1-2 minute verbal explanation of your thought process and solution approach.",
+  "examples": [
+    {"input": "example input 1 from problem", "expected": "expected output 1"},
+    {"input": "example input 2 from problem", "expected": "expected output 2"}
+  ],
+  "explanations": [
+    {"line": 1, "code": "first line of code", "explanation": "explanation for line 1"},
+    {"line": 2, "code": "second line of code", "explanation": "explanation for line 2"}
+  ],
+  "complexity": {
+    "time": "O(n) or N/A for non-algorithmic",
+    "space": "O(n) or N/A for non-algorithmic"
+  },
+  "systemDesign": {
+    "included": false
+  }
+}
+
+FOR SYSTEM DESIGN PROBLEMS: Do NOT generate code. Set "code": "", "examples": [], "explanations": [], and focus entirely on the systemDesign object. The pitch should explain your system design approach.
+
+SYSTEM DESIGN - INCLUDE FULL SYSTEM DESIGN when the problem involves ANY of these:
+- Designing a system (URL shortener, chat app, rate limiter, cache, Twitter, Instagram, etc.)
+- Keywords: "design", "architect", "scale", "distributed", "high availability", "microservices"
+- Infrastructure: databases, caching, load balancing, message queues, APIs at scale
+- System architecture questions in interviews
+
+ALWAYS include systemDesign for these types of problems:
+{
+  "systemDesign": {
+    "included": true,
+    "overview": "Brief problem overview and scale considerations",
+    "requirements": {
+      "functional": ["List of functional requirements"],
+      "nonFunctional": ["List of non-functional requirements like latency, availability, scalability"]
+    },
+    "apiDesign": [
+      {"method": "POST", "endpoint": "/api/shorten", "description": "Create short URL", "request": "{ url: string }", "response": "{ shortUrl: string }"}
+    ],
+    "dataModel": [
+      {"table": "urls", "fields": [{"name": "id", "type": "string", "description": "Short code"}, {"name": "original_url", "type": "string", "description": "Original URL"}]}
+    ],
+    "architecture": {
+      "components": ["Load Balancer", "Web Servers", "Redis Cache", "PostgreSQL Database"],
+      "description": "How components interact and data flows"
+    },
+    "diagram": "flowchart LR\n  A[Client] --> B[Load Balancer]\n  B --> C[Web Servers]\n  C --> D[(Redis Cache)]\n  C --> E[(PostgreSQL)]",
+    "scalability": ["Horizontal scaling of web servers", "Database read replicas", "Cache for hot URLs", "Database sharding by URL hash"]
+  }
+}
+
+ONLY for pure coding problems (algorithms, data structures, leetcode-style problems), use: "systemDesign": {"included": false}
+
+Rules:
+- Do NOT add any comments in the code
+- Match the EXACT output format from examples
+- The pitch should be conversational, suitable for verbal delivery in an interview
+- FOR SYSTEM DESIGN: Do NOT generate code - leave code empty (""), focus on systemDesign object
+- FOR CODING PROBLEMS: Generate COMPLETE, RUNNABLE code that includes:
+  - All necessary imports
+  - Input reading code (using input() for Python, stdin for others) OR hardcoded test data
+  - Main execution logic
+  - MUST MUST MUST include print()/console.log()/echo to OUTPUT THE RESULT
+- For API-based problems:
+  - Use the requests library for HTTP calls in Python
+  - Use correct API endpoints and methods
+  - Handle HTTP errors and missing keys with try/except or .get()
+  - GITHUB API REFERENCE:
+    * Combined status: GET /repos/{owner}/{repo}/commits/{ref}/status
+      Response: {"state": "success|failure|pending", "statuses": [...]}
+      Use: response.json()["state"] NOT response.json()[0]["status"]
+    * Check runs: GET /repos/{owner}/{repo}/commits/{ref}/check-runs
+      Response: {"total_count": N, "check_runs": [{"status": "completed", "conclusion": "success"}, ...]}
+      Use: response.json()["check_runs"][0]["conclusion"] NOT ["status"]["state"]
+    * Pull requests: GET /repos/{owner}/{repo}/pulls/{number}
+      Response: {"number": N, "state": "open|closed", "merged": bool, ...}
+    * Always check response.ok or response.status_code before parsing JSON
+    * Always use .get("key", default) for optional fields
+  - Parse JSON responses correctly - always verify structure first
+  - Match the EXACT output format specified
+- For Bash: use proper shebang, handle all error cases
+- For Terraform: use proper resource blocks
+- For Jenkins: use declarative pipeline syntax`;
 
 const DEFAULT_MODEL = 'claude-sonnet-4-20250514';
 
@@ -94,7 +205,7 @@ export async function solveProblem(problemText, language = 'auto', fast = true, 
         content: `${languageInstruction}\n\nSolve this problem and return the response as JSON:\n\n${problemText}`,
       },
     ],
-    system: CODING_PROMPT,
+    system: SYSTEM_PROMPT,
   });
 
   const content = response.content[0].text;
@@ -218,22 +329,6 @@ For this BASIC system design interview:
 
 IMPORTANT: Do NOT generate code. Focus entirely on system design.
 
-DIAGRAM STYLE - Create a CLEAN, WHITEBOARD-STYLE diagram:
-- Keep it SIMPLE - only 5-10 boxes maximum
-- Use SIMPLE node IDs (single words, no spaces or special chars): User, API, DB, Cache
-- Use clear labels in brackets: User[Client], API[API Server], DB[(Database)]
-- Show data flow with simple arrows: -->
-- NO subgraphs for basic diagrams
-- NO special characters in node IDs or labels
-
-DIAGRAM SYNTAX RULES (CRITICAL - must follow exactly):
-- Start with: flowchart LR (or TB for vertical)
-- Node format: NodeID[Label] or NodeID[(Database Label)] or NodeID((Circle))
-- Arrow format: NodeA --> NodeB
-- Each connection on its own line
-- NO semicolons, NO quotes around labels
-- Keep labels short (1-3 words max)
-
 Respond with valid JSON in exactly this format:
 {
   "language": "text",
@@ -259,7 +354,7 @@ Respond with valid JSON in exactly this format:
       "components": ["Load Balancer", "Web Server", "Database", "Cache"],
       "description": "Simple architecture flow description"
     },
-    "diagram": "flowchart LR\\n  User[Client] --> LB[Load Balancer]\\n  LB --> API[API Server]\\n  API --> Cache[(Redis)]\\n  API --> DB[(Database)]",
+    "diagram": "flowchart LR\\n  A[Client] --> B[Load Balancer]\\n  B --> C[Web Server]\\n  C --> D[(Database)]\\n  C --> E[(Cache)]",
     "scalability": ["Basic horizontal scaling strategies"]
   }
 }`;
@@ -279,22 +374,6 @@ For this FULL/DETAILED system design interview:
 - Add backup and disaster recovery strategies
 
 IMPORTANT: Do NOT generate code. Focus entirely on system design.
-
-DIAGRAM STYLE - Create a CLEAN, WHITEBOARD-STYLE diagram:
-- Keep it READABLE - maximum 15-20 boxes
-- Use SIMPLE node IDs (single words): User, CDN, LB, API, Cache, DB, Queue
-- Use clear labels in brackets: CDN[Content Delivery], DB[(Primary Database)]
-- Show data flow with arrows: --> for sync, -.-> for async
-- Use subgraphs sparingly: subgraph Storage followed by nodes, then end
-
-DIAGRAM SYNTAX RULES (CRITICAL - must follow exactly):
-- Start with: flowchart TB (top to bottom) or flowchart LR (left to right)
-- Node format: NodeID[Label] or NodeID[(Database)] or NodeID((Circle))
-- Arrow format: A --> B or A -.-> B for dashed
-- Subgraph format: subgraph Name on its own line, nodes indented, end on its own line
-- Each connection on its own line
-- NO semicolons, NO quotes, NO special characters in IDs
-- Keep labels short (1-3 words)
 
 Respond with valid JSON in exactly this format:
 {
@@ -318,10 +397,10 @@ Respond with valid JSON in exactly this format:
       {"table": "tablename", "fields": [{"name": "field", "type": "type", "description": "desc with indexing strategy"}]}
     ],
     "architecture": {
-      "components": ["CDN", "Load Balancer", "API Gateway", "App Servers", "Cache", "Database", "Message Queue"],
-      "description": "Detailed architecture with clear data flow"
+      "components": ["CDN", "Global Load Balancer", "Regional LBs", "Web Servers", "Cache Cluster", "Primary DB", "Read Replicas", "Message Queue", "Workers", "Object Storage"],
+      "description": "Detailed multi-region architecture with failover"
     },
-    "diagram": "flowchart TB\\n  User[Client] --> CDN[CDN]\\n  CDN --> LB[Load Balancer]\\n  LB --> API[API Gateway]\\n  API --> App[App Servers]\\n  App --> Cache[(Redis)]\\n  App --> DB[(Primary DB)]\\n  App --> Queue[Kafka]\\n  Queue --> Workers[Workers]\\n  DB -.-> Replica[(Read Replica)]",
+    "diagram": "flowchart TB\\n  subgraph Region1[Region 1]\\n    LB1[Load Balancer] --> WS1[Web Servers]\\n    WS1 --> Cache1[(Redis Cluster)]\\n    WS1 --> DB1[(Primary DB)]\\n  end\\n  subgraph Region2[Region 2]\\n    LB2[Load Balancer] --> WS2[Web Servers]\\n    WS2 --> Cache2[(Redis Cluster)]\\n    WS2 --> DB2[(Read Replica)]\\n  end\\n  CDN[CDN] --> LB1\\n  CDN --> LB2\\n  DB1 -.-> DB2",
     "scalability": ["Horizontal scaling with auto-scaling groups", "Database sharding by user_id/hash", "Cache cluster with consistent hashing", "CDN for static content", "Async processing via message queues", "Read replicas for read-heavy workloads"]
   }
 }`;
@@ -363,16 +442,6 @@ INTEGRITY:
 - Solution must be genuinely correct`;
 
 export async function* solveProblemStream(problemText, language = 'auto', detailLevel = 'detailed', model = DEFAULT_MODEL, interviewMode = 'coding', designDetailLevel = 'basic') {
-  // DEBUG: Log all parameters
-  console.log('[Claude solveProblemStream] PARAMS:', {
-    interviewMode,
-    designDetailLevel,
-    language,
-    detailLevel,
-    model,
-    problemTextLength: problemText?.length
-  });
-
   const languageInstruction = language === 'auto'
     ? 'Detect the appropriate language from the problem context.'
     : `Write the solution in ${language.toUpperCase()}.`;
@@ -383,19 +452,12 @@ export async function* solveProblemStream(problemText, language = 'auto', detail
   let systemPrompt;
   let userMessage;
 
-  console.log('[Claude] Checking interviewMode:', interviewMode, '=== "system-design":', interviewMode === 'system-design');
-
   if (interviewMode === 'system-design') {
-    // DESIGN MODE - System design only, no code
-    console.log('[Claude] DESIGN MODE SELECTED - using system design prompt');
     systemPrompt = designDetailLevel === 'full' ? SYSTEM_DESIGN_FULL_PROMPT : SYSTEM_DESIGN_BASIC_PROMPT;
     userMessage = `Design the following system and return the response as JSON:\n\n${problemText}`;
-    console.log('[Claude] Using prompt:', designDetailLevel === 'full' ? 'FULL' : 'BASIC');
   } else {
-    // CODING MODE - Code only, no system design
-    console.log('[Claude] CODING MODE SELECTED - using coding prompt');
-    systemPrompt = isBrief ? BRIEF_PROMPT : CODING_PROMPT;
-    userMessage = `${languageInstruction}\n\nSolve this coding problem and return the response as JSON:\n\n${problemText}`;
+    systemPrompt = isBrief ? BRIEF_PROMPT : SYSTEM_PROMPT;
+    userMessage = `${languageInstruction}\n\nSolve this problem and return the response as JSON:\n\n${problemText}`;
   }
 
   const stream = await getClient().messages.stream({
@@ -469,12 +531,9 @@ export async function* answerFollowUpQuestion(question, context, model = DEFAULT
     contextStr += `SYSTEM DESIGN:\n${JSON.stringify(context.systemDesign, null, 2)}\n\n`;
   }
 
-  // Use Haiku for faster responses (Q&A doesn't need the smartest model)
-  const fastModel = 'claude-3-haiku-20240307';
-
   const stream = await getClient().messages.stream({
-    model: fastModel,
-    max_tokens: 1024,
+    model,
+    max_tokens: 2048,
     messages: [
       {
         role: 'user',
@@ -520,7 +579,7 @@ export async function analyzeImage(base64Image, mimeType, model = DEFAULT_MODEL)
         ],
       },
     ],
-    system: CODING_PROMPT,
+    system: SYSTEM_PROMPT,
   });
 
   const content = response.content[0].text;

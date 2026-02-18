@@ -58,46 +58,7 @@ function parseStreamingContent(text) {
 
   if (!text) return result;
 
-  // First, try to parse as complete JSON (works better for final result)
-  try {
-    // Remove markdown code blocks if present
-    let jsonText = text.trim();
-    const codeBlockMatch = jsonText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-    if (codeBlockMatch) {
-      jsonText = codeBlockMatch[1].trim();
-    }
-
-    const parsed = JSON.parse(jsonText);
-    if (parsed && typeof parsed === 'object') {
-      // Successfully parsed - extract fields
-      if (typeof parsed.code === 'string') {
-        result.code = parsed.code;
-      }
-      if (typeof parsed.language === 'string') {
-        result.language = parsed.language;
-      }
-      if (typeof parsed.pitch === 'string') {
-        result.pitch = parsed.pitch;
-      }
-      if (parsed.complexity) {
-        result.complexity = parsed.complexity;
-      }
-      if (parsed.explanations) {
-        result.explanations = parsed.explanations;
-      }
-      if (parsed.systemDesign) {
-        result.systemDesign = parsed.systemDesign;
-      }
-      return result;
-    }
-  } catch {
-    // JSON not complete yet, fall back to regex extraction
-  }
-
-  // Fallback: Try regex extraction for partial JSON during streaming
-
   // Try to extract code - look for "code": "..." pattern
-  // This regex handles escaped characters in the string value
   const codeMatch = text.match(/"code"\s*:\s*"((?:[^"\\]|\\.)*)"/s);
   if (codeMatch) {
     result.code = codeMatch[1]
@@ -161,13 +122,10 @@ function parseStreamingContent(text) {
 
 // Stream solve request using SSE
 async function solveWithStream(problem, provider, language, detailLevel, model, onChunk, interviewMode = 'coding', designDetailLevel = 'basic') {
-  console.log('[Frontend] solveWithStream called with interviewMode:', interviewMode, 'designDetailLevel:', designDetailLevel);
-  const requestBody = { problem, provider, language, detailLevel, model, interviewMode, designDetailLevel };
-  console.log('[Frontend] Request body:', JSON.stringify(requestBody, null, 2));
   const response = await fetch(API_URL + '/api/solve/stream', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-    body: JSON.stringify(requestBody),
+    body: JSON.stringify({ problem, provider, language, detailLevel, model, interviewMode, designDetailLevel }),
   });
 
   if (!response.ok) {
@@ -392,7 +350,7 @@ export default function App() {
   const [eraserDiagram, setEraserDiagram] = useState(null); // { imageUrl, editUrl }
   const [isProcessingFollowUp, setIsProcessingFollowUp] = useState(false); // Follow-up question state
 
-  // Auto-test and fix code - runs once, fixes once if error
+  // Auto-test, fix, and run code - returns code and final output
   const autoTestAndFix = async (code, language, examples, problem, currentModel) => {
     const RUNNABLE = ['python', 'bash', 'javascript', 'typescript', 'sql'];
     const normalizedLang = language?.toLowerCase() || 'python';
@@ -406,6 +364,7 @@ export default function App() {
     let attempts = 0;
     let finalOutput = null;
 
+    // Only try once to keep it fast
     const testInput = examples[0]?.input || '';
 
     setLoadingType('testing');
@@ -418,6 +377,7 @@ export default function App() {
       });
       const runResult = await runResponse.json();
 
+      // If successful, store the output
       if (runResult.success) {
         finalOutput = { success: true, output: runResult.output, input: testInput };
         return { code: currentCode, fixed: false, attempts: 0, output: finalOutput };
@@ -446,6 +406,7 @@ export default function App() {
       if (fixResult.code) {
         currentCode = fixResult.code;
 
+        // Run the fixed code to get output
         setLoadingType('running');
         const finalRunResponse = await fetch(API_URL + '/api/run', {
           method: 'POST',
@@ -469,7 +430,6 @@ export default function App() {
   };
 
   const handleSolve = async (problem, language, detailLevel = 'detailed') => {
-    console.log('[handleSolve] Called with interviewMode from state:', interviewMode, 'designDetailLevel:', designDetailLevel);
     resetState();
     setCurrentProblem(problem);
     setCurrentLanguage(language);
@@ -481,7 +441,6 @@ export default function App() {
     setLoadingType('solve');
     try {
       let fullText = '';
-      console.log('[handleSolve] About to call solveWithStream with interviewMode:', interviewMode);
       const result = await solveWithStream(problem, provider, language, detailLevel, model, (chunk) => {
         fullText += chunk;
         setStreamingText(fullText);
@@ -573,26 +532,6 @@ export default function App() {
       let buffer = '';
       let result = null;
 
-      const processLine = (line) => {
-        if (line.startsWith('data: ')) {
-          try {
-            const data = JSON.parse(line.slice(6));
-            console.log('[App Q&A] SSE data:', data);
-            if (data.done && data.result) {
-              result = data.result;
-              console.log('[App Q&A] Got result:', result);
-            }
-            if (data.error) {
-              throw new Error(data.error);
-            }
-          } catch (e) {
-            if (e.message !== 'Unexpected end of JSON input') {
-              console.error('SSE parse error:', e);
-            }
-          }
-        }
-      };
-
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -602,19 +541,23 @@ export default function App() {
         buffer = lines.pop() || '';
 
         for (const line of lines) {
-          processLine(line);
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.done && data.result) {
+                result = data.result;
+              }
+              if (data.error) {
+                throw new Error(data.error);
+              }
+            } catch (e) {
+              if (e.message !== 'Unexpected end of JSON input') {
+                console.error('SSE parse error:', e);
+              }
+            }
+          }
         }
       }
-
-      // Process any remaining content in the buffer after stream ends
-      if (buffer.trim()) {
-        const remainingLines = buffer.split('\n');
-        for (const line of remainingLines) {
-          processLine(line);
-        }
-      }
-
-      console.log('[App Q&A] Final result:', result);
 
       // Update the system design with the new data
       if (result?.updatedDesign) {
@@ -624,16 +567,10 @@ export default function App() {
         }));
       }
 
-      // If no result was captured, return an error message
-      if (!result || !result.answer) {
-        console.log('[App Q&A] No result captured, buffer was:', buffer);
-        return { answer: 'Failed to get answer. Please try again.' };
-      }
-
       return result;
     } catch (err) {
       console.error('Follow-up question error:', err);
-      return { answer: 'Error: ' + err.message };
+      return null;
     } finally {
       setIsProcessingFollowUp(false);
     }
@@ -822,19 +759,18 @@ export default function App() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden" style={{ background: '#ffffff', color: '#111827' }}>
-      {/* Header - draggable on macOS Electron */}
+      {/* Header */}
       <header
         className="relative z-20 flex items-center justify-between px-4 py-3"
         style={{
           paddingLeft: isMacElectron ? '80px' : '16px',
           background: 'rgba(255, 255, 255, 0.9)',
           backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(0,0,0,0.08)',
-          WebkitAppRegion: isMacElectron ? 'drag' : 'no-drag',
+          borderBottom: '1px solid rgba(0,0,0,0.08)'
         }}
       >
-        {/* Left: Logo & Status - no-drag so elements remain clickable */}
-        <div className="flex items-center gap-4" style={{ WebkitAppRegion: 'no-drag' }}>
+        {/* Left: Logo & Status */}
+        <div className="flex items-center gap-4">
           <div className="relative group flex items-center gap-3">
             <div
               className="w-9 h-9 rounded-xl flex items-center justify-center"
@@ -890,11 +826,8 @@ export default function App() {
           </button>
         </div>
 
-        {/* Spacer - draggable area in the middle */}
-        <div className="flex-1 h-full" style={{ WebkitAppRegion: isMacElectron ? 'drag' : 'no-drag', minHeight: '32px' }} />
-
-        {/* Right: Controls - no-drag so they're clickable */}
-        <div className="flex items-center gap-2" style={{ WebkitAppRegion: 'no-drag' }}>
+        {/* Right: Controls */}
+        <div className="flex items-center gap-2">
           <ProviderToggle provider={provider} model={model} onChange={setProvider} onModelChange={setModel} />
 
           {/* Clear Button */}
