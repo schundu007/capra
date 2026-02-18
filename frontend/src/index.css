@@ -177,7 +177,8 @@ a:hover {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.animate-fade-in {
+.animate-fade-in,
+.animate-fadeIn {
   animation: fade-in 0.2s ease-out;
 }
 

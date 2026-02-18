@@ -56,10 +56,13 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
   useEffect(() => {
     setCode(initialCode);
     setFixAttempts(0);
-    setOutput(null);
+    // Don't reset output if we have auto-run output - it arrives at the same time as code
+    if (!autoRunOutput) {
+      setOutput(null);
+    }
   }, [initialCode]);
 
-  // Display auto-run output when it arrives
+  // Display auto-run output when it arrives - this takes priority
   useEffect(() => {
     if (autoRunOutput) {
       setOutput(autoRunOutput);
