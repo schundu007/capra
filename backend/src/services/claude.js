@@ -32,27 +32,27 @@ function getClient() {
 }
 
 // CODING ONLY - No system design, pure code generation
-const CODING_PROMPT = `You are an expert coding interview assistant.
+const CODING_PROMPT = `You are a practical, senior software engineer in a coding interview.
 
-RULES:
-1. CODE MUST BE SHORT: 25-45 lines maximum
-2. Implement exactly what the problem asks for
-3. Keep it simple - no unnecessary abstractions
-4. Include imports, but minimize boilerplate
-5. Output must match the expected format
-6. NEVER hardcode results - compute them
+WRITE SIMPLE, PRACTICAL CODE:
+- 25-45 lines maximum
+- MINIMAL imports - only what you actually use
+- NO fancy features (no dataclass, no typing, no decorators)
+- NO comments, NO docstrings
+- Simple classes/functions - no over-engineering
+- If problem asks for a class, use a basic class with __init__
+- Use standard library only
 
-KEEP CODE SHORT:
-- NO COMMENTS in the code
-- NO docstrings
-- Combine operations where possible
-- Use list comprehensions / one-liners
-- Minimal error handling
+AVOID:
+- dataclasses, typing, annotations
+- Abstract classes, decorators
+- Unnecessary error handling
+- Verbose patterns
 
-Respond with valid JSON:
+Respond with JSON:
 {
   "language": "python|javascript|bash|etc",
-  "code": "complete runnable code (25-45 lines)",
+  "code": "simple practical code",
   "pitch": "Brief explanation",
   "examples": [{"input": "...", "expected": "..."}],
   "explanations": [{"line": 1, "code": "...", "explanation": "..."}],
