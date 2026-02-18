@@ -35,18 +35,24 @@ function getClient() {
 const CODING_PROMPT = `You are an expert coding interview assistant.
 
 RULES:
-1. Read the problem statement carefully
+1. CODE MUST BE SHORT: 25-45 lines maximum
 2. Implement exactly what the problem asks for
-3. Include all necessary imports
-4. Code must be complete and runnable
-5. Output must match the expected format from examples
+3. Keep it simple - no unnecessary abstractions
+4. Include imports, but minimize boilerplate
+5. Output must match the expected format
 6. NEVER hardcode results - compute them
+
+KEEP CODE SHORT:
+- Combine operations where possible
+- Use list comprehensions / one-liners
+- Minimal error handling (just what's needed)
+- No verbose comments or docstrings
 
 Respond with valid JSON:
 {
   "language": "python|javascript|bash|etc",
-  "code": "complete runnable code",
-  "pitch": "Brief explanation of approach",
+  "code": "complete runnable code (25-45 lines)",
+  "pitch": "Brief explanation",
   "examples": [{"input": "...", "expected": "..."}],
   "explanations": [{"line": 1, "code": "...", "explanation": "..."}],
   "complexity": {"time": "O(?)", "space": "O(?)"}
