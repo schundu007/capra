@@ -43,10 +43,11 @@ RULES:
 6. NEVER hardcode results - compute them
 
 KEEP CODE SHORT:
+- NO COMMENTS in the code
+- NO docstrings
 - Combine operations where possible
 - Use list comprehensions / one-liners
-- Minimal error handling (just what's needed)
-- No verbose comments or docstrings
+- Minimal error handling
 
 Respond with valid JSON:
 {
