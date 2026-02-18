@@ -360,6 +360,16 @@ export default function App() {
       return { code, fixed: false, attempts: 0, output: null };
     }
 
+    // Skip auto-run for code with network calls (sandbox doesn't support)
+    if (/requests\.|fetch\(|http\.|urllib|axios|aiohttp/.test(code)) {
+      return {
+        code,
+        fixed: false,
+        attempts: 0,
+        output: { success: true, output: '⚠️ Code makes API calls - run locally to test', input: '' }
+      };
+    }
+
     let currentCode = code;
     let attempts = 0;
     let finalOutput = null;
