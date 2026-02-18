@@ -58,7 +58,46 @@ function parseStreamingContent(text) {
 
   if (!text) return result;
 
+  // First, try to parse as complete JSON (works better for final result)
+  try {
+    // Remove markdown code blocks if present
+    let jsonText = text.trim();
+    const codeBlockMatch = jsonText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+    if (codeBlockMatch) {
+      jsonText = codeBlockMatch[1].trim();
+    }
+
+    const parsed = JSON.parse(jsonText);
+    if (parsed && typeof parsed === 'object') {
+      // Successfully parsed - extract fields
+      if (typeof parsed.code === 'string') {
+        result.code = parsed.code;
+      }
+      if (typeof parsed.language === 'string') {
+        result.language = parsed.language;
+      }
+      if (typeof parsed.pitch === 'string') {
+        result.pitch = parsed.pitch;
+      }
+      if (parsed.complexity) {
+        result.complexity = parsed.complexity;
+      }
+      if (parsed.explanations) {
+        result.explanations = parsed.explanations;
+      }
+      if (parsed.systemDesign) {
+        result.systemDesign = parsed.systemDesign;
+      }
+      return result;
+    }
+  } catch {
+    // JSON not complete yet, fall back to regex extraction
+  }
+
+  // Fallback: Try regex extraction for partial JSON during streaming
+
   // Try to extract code - look for "code": "..." pattern
+  // This regex handles escaped characters in the string value
   const codeMatch = text.match(/"code"\s*:\s*"((?:[^"\\]|\\.)*)"/s);
   if (codeMatch) {
     result.code = codeMatch[1]

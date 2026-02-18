@@ -48,18 +48,41 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
     }
 
     // Parse and send final result
+    console.log('[Solve Stream] Parsing fullText, length:', fullText.length);
+    console.log('[Solve Stream] First 500 chars:', fullText.substring(0, 500));
+
     try {
+      // Try to extract JSON from markdown code blocks first
       const jsonMatch = fullText.match(/```json\s*([\s\S]*?)\s*```/) ||
                         fullText.match(/```\s*([\s\S]*?)\s*```/);
-      const jsonStr = jsonMatch ? jsonMatch[1] : fullText;
+      const jsonStr = jsonMatch ? jsonMatch[1].trim() : fullText.trim();
+
+      console.log('[Solve Stream] jsonMatch found:', !!jsonMatch);
+
       const result = JSON.parse(jsonStr);
+
+      // Validate result has expected structure
+      if (result && typeof result === 'object') {
+        console.log('[Solve Stream] Parsed result keys:', Object.keys(result));
+        console.log('[Solve Stream] result.code type:', typeof result.code, 'length:', result.code?.length);
+
+        // Ensure code is a string, not an object
+        if (result.code && typeof result.code !== 'string') {
+          console.warn('[Solve Stream] result.code is not a string, converting');
+          result.code = JSON.stringify(result.code);
+        }
+      }
+
       res.write(`data: ${JSON.stringify({ done: true, result })}\n\n`);
-    } catch {
+    } catch (parseErr) {
+      console.error('[Solve Stream] First parse error:', parseErr.message);
       // For OpenAI with json_object mode, try parsing directly
       try {
-        const result = JSON.parse(fullText);
+        const result = JSON.parse(fullText.trim());
+        console.log('[Solve Stream] Direct parse succeeded, keys:', Object.keys(result));
         res.write(`data: ${JSON.stringify({ done: true, result })}\n\n`);
-      } catch {
+      } catch (directParseErr) {
+        console.error('[Solve Stream] Direct parse also failed:', directParseErr.message);
         res.write(`data: ${JSON.stringify({ done: true, result: { code: fullText, language: 'unknown' } })}\n\n`);
       }
     }
