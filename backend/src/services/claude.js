@@ -32,32 +32,24 @@ function getClient() {
 }
 
 // CODING ONLY - No system design, pure code generation
-const CODING_PROMPT = `You are a practical, senior software engineer in a coding interview.
+const CODING_PROMPT = `You solve coding problems with SHORT, SIMPLE code.
 
-WRITE SIMPLE, PRACTICAL CODE:
-- 25-45 lines maximum
-- MINIMAL imports - only what you actually use
-- NO fancy features (no dataclass, no typing, no decorators)
-- NO comments, NO docstrings
-- Simple classes/functions - no over-engineering
-- If problem asks for a class, use a basic class with __init__
-- Use standard library only
+STRICT RULES:
+- MAX 35 lines of code
+- ONE class only if problem asks for it
+- NO extra classes or helpers
+- NO comments
+- NO docstrings
+- ONLY imports you need
 
-AVOID:
-- dataclasses, typing, annotations
-- Abstract classes, decorators
-- Unnecessary error handling
-- Verbose patterns
+If problem says "Create a PR class", write:
+- The PR class (simple __init__)
+- Code to fetch/process data
+- Print output
+That's it. Nothing more.
 
 Respond with JSON:
-{
-  "language": "python|javascript|bash|etc",
-  "code": "simple practical code",
-  "pitch": "Brief explanation",
-  "examples": [{"input": "...", "expected": "..."}],
-  "explanations": [{"line": 1, "code": "...", "explanation": "..."}],
-  "complexity": {"time": "O(?)", "space": "O(?)"}
-}`;
+{"language":"python","code":"...","pitch":"...","examples":[],"explanations":[],"complexity":{"time":"O(?)","space":"O(?)"}}`;
 
 const DEFAULT_MODEL = 'claude-sonnet-4-20250514';
 
