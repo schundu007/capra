@@ -392,88 +392,77 @@ export default function App() {
   const [eraserDiagram, setEraserDiagram] = useState(null); // { imageUrl, editUrl }
   const [isProcessingFollowUp, setIsProcessingFollowUp] = useState(false); // Follow-up question state
 
-  // Auto-test and fix code - only fixes RUNTIME ERRORS, not output mismatches
+  // Auto-test and fix code - runs once, fixes once if error
   const autoTestAndFix = async (code, language, examples, problem, currentModel) => {
     const RUNNABLE = ['python', 'bash', 'javascript', 'typescript', 'sql'];
     const normalizedLang = language?.toLowerCase() || 'python';
 
-    // Skip if language not runnable
-    if (!RUNNABLE.includes(normalizedLang)) {
+    // Skip auto-fix if language not runnable or no examples
+    if (!RUNNABLE.includes(normalizedLang) || !examples || examples.length === 0) {
       return { code, fixed: false, attempts: 0, output: null };
-    }
-
-    // Skip auto-run for code with network calls (sandbox doesn't support)
-    const hasNetworkCalls = /requests\.|fetch\(|http\.|urllib|axios/.test(code);
-    if (hasNetworkCalls) {
-      return {
-        code,
-        fixed: false,
-        attempts: 0,
-        output: { success: true, output: '⚠️ Code makes network calls - run locally to see output', input: '' }
-      };
     }
 
     let currentCode = code;
     let attempts = 0;
     let finalOutput = null;
-    const MAX_ATTEMPTS = 3;
 
-    const testInput = examples?.[0]?.input || '';
+    const testInput = examples[0]?.input || '';
 
     setLoadingType('testing');
 
-    while (attempts < MAX_ATTEMPTS) {
-      try {
-        const runResponse = await fetch(API_URL + '/api/run', {
+    try {
+      const runResponse = await fetch(API_URL + '/api/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify({ code: currentCode, language: normalizedLang, input: testInput }),
+      });
+      const runResult = await runResponse.json();
+
+      if (runResult.success) {
+        finalOutput = { success: true, output: runResult.output, input: testInput };
+        return { code: currentCode, fixed: false, attempts: 0, output: finalOutput };
+      }
+
+      // Runtime error - try one fix
+      const errorMsg = runResult.error || 'Unknown error';
+      attempts = 1;
+      setAutoFixAttempts(attempts);
+      setLoadingType('fixing');
+
+      const fixResponse = await fetch(API_URL + '/api/fix', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify({
+          code: currentCode,
+          error: errorMsg,
+          language: normalizedLang,
+          problem: problem,
+          provider: provider,
+          model: currentModel
+        }),
+      });
+      const fixResult = await fixResponse.json();
+
+      if (fixResult.code) {
+        currentCode = fixResult.code;
+
+        setLoadingType('running');
+        const finalRunResponse = await fetch(API_URL + '/api/run', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
           body: JSON.stringify({ code: currentCode, language: normalizedLang, input: testInput }),
         });
-        const runResult = await runResponse.json();
+        const finalRunResult = await finalRunResponse.json();
+        finalOutput = {
+          success: finalRunResult.success,
+          output: finalRunResult.success ? finalRunResult.output : finalRunResult.error,
+          input: testInput
+        };
 
-        if (runResult.success) {
-          // Code ran successfully - return the REAL output
-          finalOutput = { success: true, output: runResult.output, input: testInput };
-          return { code: currentCode, fixed: attempts > 0, attempts, output: finalOutput };
-        } else {
-          // Runtime error - try to fix
-          const errorMsg = runResult.error || 'Unknown error';
-          attempts++;
-
-          if (attempts >= MAX_ATTEMPTS) {
-            finalOutput = { success: false, error: errorMsg, input: testInput };
-            return { code: currentCode, fixed: false, attempts, output: finalOutput };
-          }
-
-          setAutoFixAttempts(attempts);
-          setLoadingType('fixing');
-
-          const fixResponse = await fetch(API_URL + '/api/fix', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-            body: JSON.stringify({
-              code: currentCode,
-              error: errorMsg,
-              language: normalizedLang,
-              problem: problem,
-              provider: provider,
-              model: currentModel
-            }),
-          });
-          const fixResult = await fixResponse.json();
-
-          if (fixResult.code) {
-            currentCode = fixResult.code;
-            setLoadingType('testing');
-          } else {
-            finalOutput = { success: false, error: errorMsg, input: testInput };
-            return { code: currentCode, fixed: false, attempts, output: finalOutput };
-          }
-        }
-      } catch (err) {
-        console.error('Auto-fix error:', err);
-        return { code: currentCode, fixed: attempts > 0, attempts, output: finalOutput };
+        return { code: currentCode, fixed: true, attempts: 1, output: finalOutput };
       }
+    } catch (err) {
+      console.error('Auto-fix error:', err);
     }
 
     return { code: currentCode, fixed: attempts > 0, attempts, output: finalOutput };
