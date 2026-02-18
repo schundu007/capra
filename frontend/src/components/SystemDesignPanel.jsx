@@ -261,6 +261,14 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
   const [generatingEraser, setGeneratingEraser] = useState(false);
   const [flowDiagramModal, setFlowDiagramModal] = useState(false);
   const [proDiagramModal, setProDiagramModal] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  // Reset image error when new diagram is generated
+  useEffect(() => {
+    if (eraserDiagram?.imageUrl) {
+      setImageError(false);
+    }
+  }, [eraserDiagram?.imageUrl]);
 
   const handleGenerateEraser = async () => {
     if (!onGenerateEraserDiagram) return;
@@ -533,14 +541,36 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
 
             {eraserDiagram ? (
               <div className="w-full">
-                <div className="rounded-lg overflow-hidden border border-gray-200">
-                  <img
-                    src={eraserDiagram.imageUrl}
-                    alt="Architecture Diagram"
-                    className="w-full h-auto"
-                  />
-                </div>
-                {eraserDiagram.editUrl && (
+                {imageError ? (
+                  <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                    <p className="text-[10px] text-red-600 mb-2">Failed to load diagram image</p>
+                    <p className="text-[9px] text-gray-500 mb-2 break-all">URL: {eraserDiagram.imageUrl?.substring(0, 100)}...</p>
+                    {eraserDiagram.editUrl && (
+                      <a
+                        href={eraserDiagram.editUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-1 px-2 py-1 text-[9px] font-medium rounded bg-purple-100 text-purple-700 hover:bg-purple-200"
+                      >
+                        View on Eraser.io
+                      </a>
+                    )}
+                  </div>
+                ) : (
+                  <div className="rounded-lg overflow-hidden border border-gray-200">
+                    <img
+                      src={eraserDiagram.imageUrl}
+                      alt="Architecture Diagram"
+                      className="w-full h-auto"
+                      onError={(e) => {
+                        console.error('Eraser image failed to load:', eraserDiagram.imageUrl);
+                        setImageError(true);
+                      }}
+                    />
+                  </div>
+                )}
+                {!imageError && eraserDiagram.editUrl && (
                   <a
                     href={eraserDiagram.editUrl}
                     target="_blank"
