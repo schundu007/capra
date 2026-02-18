@@ -456,7 +456,7 @@ export default function App() {
             currentCode = fixResult.code;
             setLoadingType('testing');
           } else {
-            finalOutput = { success: false, output: errorMsg, input: testInput };
+            finalOutput = { success: false, error: errorMsg, input: testInput };
             return { code: currentCode, fixed: false, attempts, output: finalOutput };
           }
         }
