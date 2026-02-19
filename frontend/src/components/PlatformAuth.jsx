@@ -5,8 +5,6 @@ const PLATFORMS = {
   hackerrank: { name: 'HackerRank', icon: '🏆', color: '#1ba94c' },
   leetcode: { name: 'LeetCode', icon: '🧩', color: '#f97316' },
   codesignal: { name: 'CodeSignal', icon: '📡', color: '#3b82f6' },
-  codility: { name: 'Codility', icon: '✅', color: '#eab308' },
-  glider: { name: 'Glider', icon: '🎯', color: '#ec4899' },
 };
 
 export default function PlatformAuth({ onClose }) {
