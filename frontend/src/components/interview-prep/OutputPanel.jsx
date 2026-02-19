@@ -213,6 +213,132 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                   </div>
                 )}
 
+                {/* Technologies - for Tech Stack section */}
+                {displayContent.technologies && displayContent.technologies.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-gray-800 mb-2">Technologies</h4>
+                    <div className="space-y-3">
+                      {displayContent.technologies.map((tech, i) => (
+                        <div key={i} className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-semibold text-purple-800 text-sm">{tech.name}</span>
+                            {tech.importance && (
+                              <span className={`text-xs px-2 py-0.5 rounded ${
+                                tech.importance === 'high' ? 'bg-red-100 text-red-700' :
+                                tech.importance === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                                'bg-gray-100 text-gray-600'
+                              }`}>
+                                {tech.importance}
+                              </span>
+                            )}
+                          </div>
+                          {tech.questions && tech.questions.length > 0 && (
+                            <div className="space-y-2 mt-2">
+                              {tech.questions.map((q, j) => (
+                                <div key={j} className="bg-white p-2 rounded border border-purple-100">
+                                  <p className="font-medium text-gray-800 text-xs">{q.question}</p>
+                                  {q.answer && (
+                                    <p className="mt-1 text-gray-600 text-xs">{q.answer}</p>
+                                  )}
+                                  {q.followUps && q.followUps.length > 0 && (
+                                    <div className="mt-1">
+                                      <span className="text-xs text-purple-600">Follow-ups: </span>
+                                      <span className="text-xs text-gray-500">{q.followUps.join(', ')}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Architecture Topics - for Tech Stack section */}
+                {displayContent.architectureTopics && displayContent.architectureTopics.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-gray-800 mb-2">Architecture Topics</h4>
+                    <ul className="space-y-1">
+                      {displayContent.architectureTopics.filter(t => t?.trim()).map((topic, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="text-purple-500 mt-0.5 text-sm">•</span>
+                          <span className="text-gray-700 text-sm">{topic?.trim()}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Key Topics - for Coding/System Design sections */}
+                {displayContent.keyTopics && displayContent.keyTopics.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-gray-800 mb-2">Key Topics</h4>
+                    <ul className="space-y-1">
+                      {displayContent.keyTopics.filter(t => t?.trim()).map((topic, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="text-blue-500 mt-0.5 text-sm">•</span>
+                          <span className="text-gray-700 text-sm">{topic?.trim()}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Practice Recommendations - for Coding section */}
+                {displayContent.practiceRecommendations && displayContent.practiceRecommendations.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-gray-800 mb-2">Practice Recommendations</h4>
+                    <ul className="space-y-1">
+                      {displayContent.practiceRecommendations.filter(r => r?.trim()).map((rec, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="text-amber-500 mt-0.5 text-sm">•</span>
+                          <span className="text-gray-700 text-sm">{rec?.trim()}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Questions to Ask - for Hiring Manager section */}
+                {displayContent.questionsToAsk && displayContent.questionsToAsk.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-gray-800 mb-2">Questions to Ask</h4>
+                    <ul className="space-y-1">
+                      {displayContent.questionsToAsk.filter(q => q?.trim()).map((question, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="text-indigo-500 mt-0.5 text-sm">•</span>
+                          <span className="text-gray-700 text-sm">{question?.trim()}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Framework Tips - for System Design section */}
+                {displayContent.frameworkTips && displayContent.frameworkTips.trim() && (
+                  <div className="p-3 bg-indigo-50 rounded-lg border border-indigo-200">
+                    <h4 className="font-semibold text-indigo-800 mb-1 text-sm">Framework Tips</h4>
+                    <p className="text-indigo-700 text-sm">{displayContent.frameworkTips.trim()}</p>
+                  </div>
+                )}
+
+                {/* Key Themes - for Behavioral section */}
+                {displayContent.keyThemes && displayContent.keyThemes.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-gray-800 mb-2">Key Themes</h4>
+                    <ul className="space-y-1">
+                      {displayContent.keyThemes.filter(t => t?.trim()).map((theme, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="text-teal-500 mt-0.5 text-sm">•</span>
+                          <span className="text-gray-700 text-sm">{theme?.trim()}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
                 {/* Handle rawContent from AI when JSON parsing failed */}
                 {displayContent.rawContent && displayContent.rawContent.trim() && (
                   <div className="text-gray-700 text-sm leading-relaxed">
