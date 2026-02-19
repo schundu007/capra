@@ -741,41 +741,37 @@ export default function InterviewPrepModal({ isOpen, onClose, provider, model })
 
             {/* Footer Actions */}
             <div className="p-4 border-t border-gray-800 space-y-2">
-              {/* Generate All Button */}
-              {hasInputs && completedSections < SECTIONS.length && (
-                <button
-                  onClick={handleGenerateAll}
-                  disabled={isGenerating}
-                  className="w-full py-2.5 px-4 rounded-lg text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {isGenerating ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Generating {generatingSections.size} sections...
-                    </>
-                  ) : (
-                    <>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                      Generate All ({SECTIONS.length - completedSections} sections)
-                    </>
-                  )}
-                </button>
-              )}
-
-              {completedSections === SECTIONS.length && (
-                <div className="text-xs text-emerald-400 text-center py-2 flex items-center justify-center gap-1">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  All sections ready!
-                </div>
-              )}
+              {/* Generate All Button - Always visible */}
+              <button
+                onClick={handleGenerateAll}
+                disabled={isGenerating || !hasInputs || completedSections === SECTIONS.length}
+                className="w-full py-2.5 px-4 rounded-lg text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isGenerating ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Generating {generatingSections.size} sections...
+                  </>
+                ) : completedSections === SECTIONS.length ? (
+                  <>
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    All Sections Ready!
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    Generate All ({SECTIONS.length - completedSections} sections)
+                  </>
+                )}
+              </button>
 
               {!hasInputs && (
-                <div className="text-xs text-gray-500 text-center py-2">
-                  Add JD & Resume to generate
+                <div className="text-xs text-gray-500 text-center">
+                  Add JD & Resume first
                 </div>
               )}
 
