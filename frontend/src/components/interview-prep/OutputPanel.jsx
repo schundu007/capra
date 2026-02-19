@@ -222,9 +222,38 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                   </div>
                 )}
 
-                {displayContent.pitch && displayContent.pitch.trim() && (
-                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                    <h4 className="font-semibold text-blue-800 mb-1 text-sm flex items-center justify-between">
+                {/* Elevator Pitch - multiple paragraphs */}
+                {displayContent.pitchParagraphs && displayContent.pitchParagraphs.length > 0 && (
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <h4 className="font-semibold text-blue-800 mb-3 text-sm flex items-center justify-between">
+                      <span>Your Elevator Pitch</span>
+                      <button
+                        onClick={() => handleCopy(displayContent.pitchParagraphs.join('\n\n'), 'pitch')}
+                        className="p-1 rounded hover:bg-blue-100 text-blue-400 hover:text-blue-600"
+                      >
+                        {copiedField === 'pitch' ? (
+                          <svg className="w-3.5 h-3.5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        ) : (
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                        )}
+                      </button>
+                    </h4>
+                    <div className="space-y-3">
+                      {displayContent.pitchParagraphs.filter(p => p?.trim()).map((paragraph, i) => (
+                        <p key={i} className="text-blue-700 text-sm leading-relaxed">{paragraph.trim()}</p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Fallback for old pitch format (single string) */}
+                {displayContent.pitch && !displayContent.pitchParagraphs && displayContent.pitch.trim() && (
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <h4 className="font-semibold text-blue-800 mb-3 text-sm flex items-center justify-between">
                       <span>Your Elevator Pitch</span>
                       <button
                         onClick={() => handleCopy(displayContent.pitch.trim(), 'pitch')}
@@ -413,7 +442,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
 
                 {/* Fallback for other unstructured content */}
                 {!displayContent.summary && !displayContent.keyPoints && !displayContent.questions &&
-                 !displayContent.talkingPoints && !displayContent.pitch && !displayContent.rawContent &&
+                 !displayContent.talkingPoints && !displayContent.pitch && !displayContent.pitchParagraphs && !displayContent.rawContent &&
                  !displayContent.technologies && !displayContent.keyTopics && !displayContent.keyThemes &&
                  !displayContent.questionsToAsk && !displayContent.tips && !displayContent.abbreviations && (
                   <pre className="whitespace-pre-wrap text-gray-700 text-sm">

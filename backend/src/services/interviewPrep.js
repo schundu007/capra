@@ -29,20 +29,29 @@ const SECTION_PROMPTS = {
   pitch: `Generate a compelling 2-3 minute elevator pitch for this candidate based on their resume and the job description.
 
 The pitch should:
-- Open with a memorable hook
-- Highlight 2-3 key achievements most relevant to this role
-- Show enthusiasm for the specific company/role
-- End with a clear statement of value
+- Open with a memorable hook (Opening paragraph)
+- Highlight 2-3 key achievements most relevant to this role (Body paragraphs)
+- Show enthusiasm for the specific company/role (Why this company paragraph)
+- End with a clear statement of value (Closing paragraph)
 
 Return JSON:
 {
-  "pitch": "The full 2-3 minute pitch text, written in first person",
+  "pitchParagraphs": [
+    "Opening hook paragraph - introduce yourself memorably",
+    "Key achievement #1 - your most relevant accomplishment",
+    "Key achievement #2 - another strong example",
+    "Why this company - show enthusiasm and research",
+    "Closing - clear value statement and call to action"
+  ],
   "talkingPoints": ["Key point 1 to emphasize", "Key point 2", "Key point 3"],
   "tips": "Delivery tips and what to emphasize",
   "abbreviations": [{"abbr": "API", "full": "Application Programming Interface"}]
 }
 
-IMPORTANT: Include an "abbreviations" array with ALL technical terms, acronyms, and abbreviations used in your response.`,
+IMPORTANT:
+- Structure the pitch as separate paragraphs in "pitchParagraphs" array (4-6 paragraphs)
+- Each paragraph should be a distinct section of the pitch
+- Include an "abbreviations" array with ALL technical terms, acronyms, and abbreviations used`,
 
   hr: `Generate HR screening interview preparation based on the job description and candidate's background.
 
