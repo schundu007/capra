@@ -28,30 +28,33 @@ const MAX_TOKENS_PER_SECTION = 1500; // Reduced for faster response
 const SECTION_PROMPTS = {
   pitch: `Generate a compelling 2-3 minute elevator pitch for this candidate based on their resume and the job description.
 
-The pitch should:
-- Open with a memorable hook (Opening paragraph)
-- Highlight 2-3 key achievements most relevant to this role (Body paragraphs)
-- Show enthusiasm for the specific company/role (Why this company paragraph)
-- End with a clear statement of value (Closing paragraph)
+The pitch MUST be structured as 5 SEPARATE paragraphs:
+1. Opening Hook - A memorable introduction that grabs attention
+2. Key Achievement #1 - Your most impressive relevant accomplishment
+3. Key Achievement #2 - Another strong example demonstrating your skills
+4. Why This Company - Show genuine enthusiasm and company research
+5. Closing - Clear value statement and call to action
+
+CRITICAL: Return the pitch as an ARRAY of strings called "pitchParagraphs", NOT as a single "pitch" string.
 
 Return JSON:
 {
   "pitchParagraphs": [
-    "Opening hook paragraph - introduce yourself memorably",
-    "Key achievement #1 - your most relevant accomplishment",
-    "Key achievement #2 - another strong example",
-    "Why this company - show enthusiasm and research",
-    "Closing - clear value statement and call to action"
+    "Paragraph 1: Opening hook...",
+    "Paragraph 2: First key achievement...",
+    "Paragraph 3: Second key achievement...",
+    "Paragraph 4: Why I'm excited about this company...",
+    "Paragraph 5: Closing value statement..."
   ],
-  "talkingPoints": ["Key point 1 to emphasize", "Key point 2", "Key point 3"],
-  "tips": "Delivery tips and what to emphasize",
-  "abbreviations": [{"abbr": "API", "full": "Application Programming Interface"}]
+  "talkingPoints": ["Key point 1", "Key point 2", "Key point 3"],
+  "tips": "Delivery tips",
+  "abbreviations": [{"abbr": "ABBR", "full": "Full term"}]
 }
 
 IMPORTANT:
-- Structure the pitch as separate paragraphs in "pitchParagraphs" array (4-6 paragraphs)
-- Each paragraph should be a distinct section of the pitch
-- Include an "abbreviations" array with ALL technical terms, acronyms, and abbreviations used`,
+- DO NOT use "pitch" key - use "pitchParagraphs" array
+- Each paragraph must be a separate string in the array
+- Include abbreviations for all technical terms`,
 
   hr: `Generate HR screening interview preparation based on the job description and candidate's background.
 
