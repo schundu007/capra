@@ -150,7 +150,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                           <div className="flex items-start justify-between gap-2">
                             <p className="font-medium text-gray-800 text-sm">{q.question?.trim()}</p>
                             <button
-                              onClick={() => handleCopy(q.answer || q.suggestedAnswer, `q-${i}`)}
+                              onClick={() => handleCopy(q.answer || q.suggestedAnswer || q.approach, `q-${i}`)}
                               className="flex-shrink-0 p-1 rounded hover:bg-gray-200 text-gray-400 hover:text-gray-600"
                             >
                               {copiedField === `q-${i}` ? (
@@ -164,8 +164,40 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                               )}
                             </button>
                           </div>
+                          {/* Answer or Suggested Answer */}
                           {(q.answer || q.suggestedAnswer) && (
                             <p className="mt-1.5 text-gray-600 text-xs">{(q.answer || q.suggestedAnswer)?.trim()}</p>
+                          )}
+                          {/* Approach - for Coding/System Design */}
+                          {q.approach && (
+                            <div className="mt-1.5">
+                              <span className="text-xs font-medium text-blue-700">Approach: </span>
+                              <span className="text-gray-600 text-xs">{q.approach?.trim()}</span>
+                            </div>
+                          )}
+                          {/* Key Considerations - for System Design */}
+                          {q.keyConsiderations && q.keyConsiderations.length > 0 && (
+                            <div className="mt-1.5">
+                              <span className="text-xs font-medium text-indigo-700">Key Considerations: </span>
+                              <span className="text-gray-600 text-xs">{q.keyConsiderations.join(', ')}</span>
+                            </div>
+                          )}
+                          {/* STAR Format - for Behavioral */}
+                          {(q.situation || q.task || q.action || q.result) && (
+                            <div className="mt-2 space-y-1 pl-2 border-l-2 border-teal-300">
+                              {q.situation && (
+                                <p className="text-xs"><span className="font-semibold text-teal-700">S:</span> <span className="text-gray-600">{q.situation?.trim()}</span></p>
+                              )}
+                              {q.task && (
+                                <p className="text-xs"><span className="font-semibold text-teal-700">T:</span> <span className="text-gray-600">{q.task?.trim()}</span></p>
+                              )}
+                              {q.action && (
+                                <p className="text-xs"><span className="font-semibold text-teal-700">A:</span> <span className="text-gray-600">{q.action?.trim()}</span></p>
+                              )}
+                              {q.result && (
+                                <p className="text-xs"><span className="font-semibold text-teal-700">R:</span> <span className="text-gray-600">{q.result?.trim()}</span></p>
+                              )}
+                            </div>
                           )}
                           {q.tips && (
                             <p className="mt-1 text-xs text-emerald-600 italic">Tip: {q.tips?.trim()}</p>
@@ -210,6 +242,14 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                       </button>
                     </h4>
                     <p className="text-blue-700 text-sm leading-relaxed">{displayContent.pitch.trim()}</p>
+                  </div>
+                )}
+
+                {/* Delivery Tips - for Pitch section */}
+                {displayContent.tips && displayContent.tips.trim() && (
+                  <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
+                    <h4 className="font-semibold text-amber-800 mb-1 text-sm">Delivery Tips</h4>
+                    <p className="text-amber-700 text-sm">{displayContent.tips.trim()}</p>
                   </div>
                 )}
 
@@ -348,7 +388,9 @@ export default function OutputPanel({ section, content, streamingContent, isGene
 
                 {/* Fallback for other unstructured content */}
                 {!displayContent.summary && !displayContent.keyPoints && !displayContent.questions &&
-                 !displayContent.talkingPoints && !displayContent.pitch && !displayContent.rawContent && (
+                 !displayContent.talkingPoints && !displayContent.pitch && !displayContent.rawContent &&
+                 !displayContent.technologies && !displayContent.keyTopics && !displayContent.keyThemes &&
+                 !displayContent.questionsToAsk && !displayContent.tips && (
                   <pre className="whitespace-pre-wrap text-gray-700 text-sm">
                     {JSON.stringify(displayContent, null, 2)}
                   </pre>
