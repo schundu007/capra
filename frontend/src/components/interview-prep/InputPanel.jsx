@@ -9,28 +9,28 @@ const INPUT_FIELDS = [
     label: 'Job Description',
     placeholder: 'Paste the full job description here...',
     required: true,
-    icon: '📋',
+    icon: '✨',
   },
   {
     id: 'resume',
     label: 'Resume',
     placeholder: 'Paste your resume content here...',
     required: true,
-    icon: '📄',
+    icon: '✨',
   },
   {
     id: 'coverLetter',
     label: 'Cover Letter',
     placeholder: 'Paste your cover letter (optional)...',
     required: false,
-    icon: '✉️',
+    icon: '✨',
   },
   {
     id: 'prepMaterials',
     label: 'Additional Prep Materials',
     placeholder: 'Company research, notes, questions to ask (optional)...',
     required: false,
-    icon: '📚',
+    icon: '✨',
   },
 ];
 

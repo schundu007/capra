@@ -6,21 +6,21 @@ const isElectron = window.electronAPI?.isElectron || false;
 
 // Platform categories
 const CODING_PLATFORMS = {
-  hackerrank: { name: 'HackerRank', icon: '🏆', color: '#1ba94c', url: 'hackerrank.com' },
-  leetcode: { name: 'LeetCode', icon: '🧩', color: '#f97316', url: 'leetcode.com' },
-  coderpad: { name: 'CoderPad', icon: '👥', color: '#6366f1', url: 'coderpad.io' },
-  codesignal: { name: 'CodeSignal', icon: '📡', color: '#3b82f6', url: 'codesignal.com' },
+  hackerrank: { name: 'HackerRank', icon: '✨', color: '#1ba94c', url: 'hackerrank.com' },
+  leetcode: { name: 'LeetCode', icon: '✨', color: '#f97316', url: 'leetcode.com' },
+  coderpad: { name: 'CoderPad', icon: '✨', color: '#6366f1', url: 'coderpad.io' },
+  codesignal: { name: 'CodeSignal', icon: '✨', color: '#3b82f6', url: 'codesignal.com' },
 };
 
 const PREP_PLATFORMS = {
-  techprep: { name: 'TechPrep', icon: '🚀', color: '#8b5cf6', url: 'techprep.app' },
-  algomaster: { name: 'AlgoMaster', icon: '🎓', color: '#14b8a6', url: 'algomaster.io' },
-  neetcode: { name: 'NeetCode', icon: '📊', color: '#f43f5e', url: 'neetcode.io' },
-  designgurus: { name: 'DesignGurus', icon: '🏛️', color: '#0ea5e9', url: 'designgurus.io' },
-  educative: { name: 'Educative', icon: '📖', color: '#22c55e', url: 'educative.io' },
-  interviewbit: { name: 'InterviewBit', icon: '💡', color: '#a855f7', url: 'interviewbit.com' },
-  interviewingio: { name: 'Interviewing.io', icon: '🎤', color: '#4a90d9', url: 'interviewing.io', googleAuth: true },
-  exponent: { name: 'Exponent', icon: '📈', color: '#1a1a2e', url: 'tryexponent.com', googleAuth: true },
+  techprep: { name: 'TechPrep', icon: '✨', color: '#8b5cf6', url: 'techprep.app' },
+  algomaster: { name: 'AlgoMaster', icon: '✨', color: '#14b8a6', url: 'algomaster.io' },
+  neetcode: { name: 'NeetCode', icon: '✨', color: '#f43f5e', url: 'neetcode.io' },
+  designgurus: { name: 'DesignGurus', icon: '✨', color: '#0ea5e9', url: 'designgurus.io' },
+  educative: { name: 'Educative', icon: '✨', color: '#22c55e', url: 'educative.io' },
+  interviewbit: { name: 'InterviewBit', icon: '✨', color: '#a855f7', url: 'interviewbit.com' },
+  interviewingio: { name: 'Interviewing.io', icon: '✨', color: '#4a90d9', url: 'interviewing.io', googleAuth: true },
+  exponent: { name: 'Exponent', icon: '✨', color: '#1a1a2e', url: 'tryexponent.com', googleAuth: true },
 };
 
 export default function PrepTab({ isOpen, onClose }) {

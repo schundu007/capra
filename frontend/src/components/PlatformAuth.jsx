@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 
 const PLATFORMS = {
-  coderpad: { name: 'CoderPad', icon: '👥', color: '#6366f1' },
-  hackerrank: { name: 'HackerRank', icon: '🏆', color: '#1ba94c' },
-  leetcode: { name: 'LeetCode', icon: '🧩', color: '#f97316' },
-  codesignal: { name: 'CodeSignal', icon: '📡', color: '#3b82f6' },
+  coderpad: { name: 'CoderPad', icon: '✨', color: '#6366f1' },
+  hackerrank: { name: 'HackerRank', icon: '✨', color: '#1ba94c' },
+  leetcode: { name: 'LeetCode', icon: '✨', color: '#f97316' },
+  codesignal: { name: 'CodeSignal', icon: '✨', color: '#3b82f6' },
 };
 
 export default function PlatformAuth({ onClose }) {

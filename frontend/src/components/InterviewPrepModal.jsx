@@ -7,13 +7,13 @@ const API_URL = getApiUrl();
 
 // Section definitions
 const SECTIONS = [
-  { id: 'pitch', name: 'Elevator Pitch', icon: '🎯', description: '2-3 minute interview pitch' },
-  { id: 'hr', name: 'HR Questions', icon: '👔', description: 'Salary, culture, availability' },
-  { id: 'hiring-manager', name: 'Hiring Manager', icon: '💼', description: 'Role-specific questions' },
-  { id: 'coding', name: 'Coding', icon: '💻', description: 'Algorithm & coding challenges' },
-  { id: 'system-design', name: 'System Design', icon: '🏗️', description: 'Architecture questions' },
-  { id: 'behavioral', name: 'Behavioral', icon: '🧠', description: 'STAR method questions' },
-  { id: 'techstack', name: 'Tech Stack', icon: '🛠️', description: 'Technology-specific questions' },
+  { id: 'pitch', name: 'Elevator Pitch', icon: '✨', description: '2-3 minute interview pitch' },
+  { id: 'hr', name: 'HR Questions', icon: '✨', description: 'Salary, culture, availability' },
+  { id: 'hiring-manager', name: 'Hiring Manager', icon: '✨', description: 'Role-specific questions' },
+  { id: 'coding', name: 'Coding', icon: '✨', description: 'Algorithm & coding challenges' },
+  { id: 'system-design', name: 'System Design', icon: '✨', description: 'Architecture questions' },
+  { id: 'behavioral', name: 'Behavioral', icon: '✨', description: 'STAR method questions' },
+  { id: 'techstack', name: 'Tech Stack', icon: '✨', description: 'Technology-specific questions' },
 ];
 
 // Get auth headers
