@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 
 const PLATFORMS = {
-  coderpad: { name: 'CoderPad', icon: 'C', color: '#6366f1' },
-  hackerrank: { name: 'HackerRank', icon: 'H', color: '#1ba94c' },
-  leetcode: { name: 'LeetCode', icon: 'L', color: '#f97316' },
-  codesignal: { name: 'CodeSignal', icon: 'S', color: '#3b82f6' },
-  codility: { name: 'Codility', icon: 'Y', color: '#eab308' },
-  glider: { name: 'Glider', icon: 'G', color: '#ec4899' },
+  coderpad: { name: 'CoderPad', icon: '👥', color: '#6366f1' },
+  hackerrank: { name: 'HackerRank', icon: '🏆', color: '#1ba94c' },
+  leetcode: { name: 'LeetCode', icon: '🧩', color: '#f97316' },
+  codesignal: { name: 'CodeSignal', icon: '📡', color: '#3b82f6' },
+  codility: { name: 'Codility', icon: '✅', color: '#eab308' },
+  glider: { name: 'Glider', icon: '🎯', color: '#ec4899' },
 };
 
 export default function PlatformAuth({ onClose }) {

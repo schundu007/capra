@@ -13,7 +13,7 @@ const SECTIONS = [
   { id: 'coding', name: 'Coding', icon: '💻', description: 'Algorithm & coding challenges' },
   { id: 'system-design', name: 'System Design', icon: '🏗️', description: 'Architecture questions' },
   { id: 'behavioral', name: 'Behavioral', icon: '🧠', description: 'STAR method questions' },
-  { id: 'techstack', name: 'Tech Stack', icon: '⚙️', description: 'Technology-specific questions' },
+  { id: 'techstack', name: 'Tech Stack', icon: '🛠️', description: 'Technology-specific questions' },
 ];
 
 // Get auth headers
