@@ -48,12 +48,23 @@ Return JSON:
   ],
   "talkingPoints": ["Key point 1", "Key point 2", "Key point 3"],
   "tips": "Delivery tips",
+  "techStack": [
+    {
+      "technology": "Technology name (e.g., Kubernetes)",
+      "category": "Category (e.g., Container Orchestration)",
+      "experience": "Years or level (e.g., 5+ years, Expert)",
+      "relevance": "How it relates to JD (e.g., Core requirement for the role)"
+    }
+  ],
   "abbreviations": [{"abbr": "ABBR", "full": "Full term"}]
 }
 
 IMPORTANT:
 - DO NOT use "pitch" key - use "pitchParagraphs" array
 - Each paragraph must be a separate string in the array
+- techStack MUST include ALL technologies mentioned in the pitch AND from the JD
+- For each technology: name, category, experience level, and relevance to the job
+- This is critical for HR screening - they report technologies to hiring managers
 - Include abbreviations for all technical terms`,
 
   hr: `Generate HR screening interview preparation based on the job description and candidate's background.

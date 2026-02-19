@@ -282,6 +282,42 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                   </div>
                 )}
 
+                {/* Tech Stack Table - for Pitch section (HR screening report) */}
+                {displayContent.techStack && displayContent.techStack.length > 0 && (
+                  <div className="mt-4">
+                    <h4 className="font-semibold text-gray-800 mb-2 text-sm flex items-center gap-2">
+                      Tech Stack Summary
+                      <span className="text-xs font-normal text-gray-500">(For HR Discussion Report)</span>
+                    </h4>
+                    <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="bg-gradient-to-r from-indigo-50 to-purple-50">
+                            <th className="px-3 py-2 text-left font-semibold text-gray-700">Technology</th>
+                            <th className="px-3 py-2 text-left font-semibold text-gray-700">Category</th>
+                            <th className="px-3 py-2 text-left font-semibold text-gray-700">Experience</th>
+                            <th className="px-3 py-2 text-left font-semibold text-gray-700">Relevance to JD</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {displayContent.techStack.map((tech, i) => (
+                            <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                              <td className="px-3 py-2 font-semibold text-indigo-700">{tech.technology}</td>
+                              <td className="px-3 py-2 text-gray-600">{tech.category}</td>
+                              <td className="px-3 py-2">
+                                <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded text-xs">
+                                  {tech.experience}
+                                </span>
+                              </td>
+                              <td className="px-3 py-2 text-gray-700">{tech.relevance}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
                 {/* Technologies - for Tech Stack section */}
                 {displayContent.technologies && displayContent.technologies.length > 0 && (
                   <div>
