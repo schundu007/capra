@@ -490,9 +490,8 @@ export default function InterviewPrepModal({ isOpen, onClose, provider, model })
   };
 
   const handleClearAll = () => {
-    if (!confirm('Clear all content for this company?')) return;
+    if (!confirm('Clear generated content? (Your inputs will be kept)')) return;
 
-    setInputs({ ...EMPTY_INPUTS });
     setGenerated({ ...EMPTY_GENERATED });
     setActiveTab('input');
   };
@@ -780,7 +779,7 @@ export default function InterviewPrepModal({ isOpen, onClose, provider, model })
                 disabled={isGenerating}
                 className="w-full py-2 px-4 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-gray-800 transition-colors disabled:opacity-50"
               >
-                Clear All
+                Clear Generated
               </button>
             </div>
           </>
