@@ -73,7 +73,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
             </div>
           </div>
         ) : (
-          <div className="max-w-3xl mx-auto rounded-lg p-5" style={{ background: colors.paper, border: `1px solid ${colors.border}`, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+          <div className="rounded-lg p-5" style={{ background: colors.paper, border: `1px solid ${colors.border}` }}>
             {typeof displayContent === 'string' ? (
               <div className="whitespace-pre-wrap text-[13px] leading-relaxed" style={{ color: colors.text }}>
                 {displayContent}
