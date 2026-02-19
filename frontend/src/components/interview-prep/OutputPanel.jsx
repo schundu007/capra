@@ -386,11 +386,36 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                   </div>
                 )}
 
+                {/* Abbreviations Table - displayed at the end of each section */}
+                {displayContent.abbreviations && displayContent.abbreviations.length > 0 && (
+                  <div className="mt-6 pt-4 border-t border-gray-200">
+                    <h4 className="font-semibold text-gray-800 mb-2 text-sm">Abbreviations & Terms</h4>
+                    <div className="bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="bg-gray-100">
+                            <th className="px-3 py-2 text-left font-semibold text-gray-700 w-1/4">Abbreviation</th>
+                            <th className="px-3 py-2 text-left font-semibold text-gray-700">Full Term</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {displayContent.abbreviations.map((item, i) => (
+                            <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                              <td className="px-3 py-2 font-mono font-semibold text-indigo-600">{item.abbr}</td>
+                              <td className="px-3 py-2 text-gray-700">{item.full}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
                 {/* Fallback for other unstructured content */}
                 {!displayContent.summary && !displayContent.keyPoints && !displayContent.questions &&
                  !displayContent.talkingPoints && !displayContent.pitch && !displayContent.rawContent &&
                  !displayContent.technologies && !displayContent.keyTopics && !displayContent.keyThemes &&
-                 !displayContent.questionsToAsk && !displayContent.tips && (
+                 !displayContent.questionsToAsk && !displayContent.tips && !displayContent.abbreviations && (
                   <pre className="whitespace-pre-wrap text-gray-700 text-sm">
                     {JSON.stringify(displayContent, null, 2)}
                   </pre>

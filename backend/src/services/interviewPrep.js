@@ -38,8 +38,11 @@ Return JSON:
 {
   "pitch": "The full 2-3 minute pitch text, written in first person",
   "talkingPoints": ["Key point 1 to emphasize", "Key point 2", "Key point 3"],
-  "tips": "Delivery tips and what to emphasize"
-}`,
+  "tips": "Delivery tips and what to emphasize",
+  "abbreviations": [{"abbr": "API", "full": "Application Programming Interface"}]
+}
+
+IMPORTANT: Include an "abbreviations" array with ALL technical terms, acronyms, and abbreviations used in your response.`,
 
   hr: `Generate HR screening interview preparation based on the job description and candidate's background.
 
@@ -59,8 +62,11 @@ Return JSON:
       "suggestedAnswer": "A thoughtful answer based on the role level",
       "tips": "Negotiation tips"
     }
-  ]
-}`,
+  ],
+  "abbreviations": [{"abbr": "PTO", "full": "Paid Time Off"}]
+}
+
+IMPORTANT: Include an "abbreviations" array with ALL technical terms, acronyms, and abbreviations used in your response.`,
 
   'hiring-manager': `Generate hiring manager interview preparation tailored to this specific role.
 
@@ -81,8 +87,11 @@ Return JSON:
       "tips": "What they're really looking for"
     }
   ],
-  "questionsToAsk": ["Smart questions to ask the hiring manager"]
-}`,
+  "questionsToAsk": ["Smart questions to ask the hiring manager"],
+  "abbreviations": [{"abbr": "KPI", "full": "Key Performance Indicator"}]
+}
+
+IMPORTANT: Include an "abbreviations" array with ALL technical terms, acronyms, and abbreviations used in your response.`,
 
   coding: `Generate coding interview preparation based on the job requirements.
 
@@ -103,8 +112,11 @@ Return JSON:
       "tips": "What interviewers look for"
     }
   ],
-  "practiceRecommendations": ["Specific areas to practice"]
-}`,
+  "practiceRecommendations": ["Specific areas to practice"],
+  "abbreviations": [{"abbr": "DSA", "full": "Data Structures and Algorithms"}]
+}
+
+IMPORTANT: Include an "abbreviations" array with ALL technical terms, acronyms, and abbreviations used in your response.`,
 
   'system-design': `Generate system design interview preparation based on the role requirements.
 
@@ -125,8 +137,11 @@ Return JSON:
       "keyConsiderations": ["Scale", "Availability", "etc"]
     }
   ],
-  "frameworkTips": "How to structure system design answers"
-}`,
+  "frameworkTips": "How to structure system design answers",
+  "abbreviations": [{"abbr": "CAP", "full": "Consistency, Availability, Partition tolerance"}]
+}
+
+IMPORTANT: Include an "abbreviations" array with ALL technical terms, acronyms, and abbreviations used in your response.`,
 
   behavioral: `Generate behavioral interview preparation using the STAR method.
 
@@ -150,8 +165,11 @@ Return JSON:
       "result": "Quantified results"
     }
   ],
-  "keyThemes": ["Themes from their experience to emphasize"]
-}`,
+  "keyThemes": ["Themes from their experience to emphasize"],
+  "abbreviations": [{"abbr": "STAR", "full": "Situation, Task, Action, Result"}]
+}
+
+IMPORTANT: Include an "abbreviations" array with ALL technical terms, acronyms, and abbreviations used in your response.`,
 
   techstack: `Generate technology-specific interview preparation based on the job requirements.
 
@@ -177,8 +195,11 @@ Return JSON:
       ]
     }
   ],
-  "architectureTopics": ["Relevant architecture patterns to know"]
-}`
+  "architectureTopics": ["Relevant architecture patterns to know"],
+  "abbreviations": [{"abbr": "API", "full": "Application Programming Interface"}]
+}
+
+IMPORTANT: Include an "abbreviations" array with ALL technical terms, acronyms, and abbreviations used in your response.`
 };
 
 // Clean up text content - remove extra whitespace and empty lines
