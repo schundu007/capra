@@ -463,7 +463,52 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
           </CollapsibleSection>
         )}
 
-        {/* Row 5: Diagrams - Full width, no scrolling */}
+        {/* Row 5: Tech Justifications - Why each technology */}
+        {systemDesign.techJustifications && systemDesign.techJustifications.length > 0 && (
+          <CollapsibleSection
+            title="Why These Technologies?"
+            color="bg-violet-500"
+            defaultOpen={true}
+            badge={`${systemDesign.techJustifications.length} choices explained`}
+          >
+            <div className="space-y-2">
+              {systemDesign.techJustifications.map((item, i) => (
+                <div key={i} className="bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 rounded-lg p-2.5">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="px-2 py-0.5 bg-violet-600 text-white text-[9px] font-bold rounded">
+                      {item.tech}
+                    </span>
+                    {item.category && (
+                      <span className="px-1.5 py-0.5 bg-violet-100 text-violet-600 text-[8px] font-medium rounded">
+                        {item.category}
+                      </span>
+                    )}
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="flex items-start gap-1.5">
+                      <span className="text-[8px] font-semibold text-emerald-600 uppercase tracking-wide flex-shrink-0 mt-0.5 w-12">WHY:</span>
+                      <p className="text-[10px] text-gray-700 leading-snug">{item.why}</p>
+                    </div>
+                    {item.without && (
+                      <div className="flex items-start gap-1.5">
+                        <span className="text-[8px] font-semibold text-red-500 uppercase tracking-wide flex-shrink-0 mt-0.5 w-12">WITHOUT:</span>
+                        <p className="text-[10px] text-gray-600 leading-snug italic">{item.without}</p>
+                      </div>
+                    )}
+                    {item.alternatives && (
+                      <div className="flex items-start gap-1.5">
+                        <span className="text-[8px] font-semibold text-blue-500 uppercase tracking-wide flex-shrink-0 mt-0.5 w-12">ALTS:</span>
+                        <p className="text-[10px] text-gray-500 leading-snug">{item.alternatives}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CollapsibleSection>
+        )}
+
+        {/* Row 6: Diagrams - Full width, no scrolling */}
         <div className="space-y-2">
           {/* Architecture Diagram (Mermaid) - Full width, clickable */}
           {systemDesign.diagram && (
@@ -529,7 +574,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
                     ) : (
                       <>
                         <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
                         </svg>
                         Generate
                       </>
@@ -588,7 +633,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
             ) : (
               <div className="text-center py-4 text-gray-400">
                 <svg className="w-6 h-6 mx-auto mb-1 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
                 </svg>
                 <p className="text-[9px]">Click Generate for pro diagram</p>
               </div>

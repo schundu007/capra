@@ -60,6 +60,16 @@ const PLATFORM_SELECTORS = {
     '[class*="task-description"]',
     '.brinza-task-description',
   ],
+  neetcode: [
+    '.problem-description',
+    '.problem-statement',
+    '.question-description',
+    '.problem-content',
+    '[class*="problem-desc"]',
+    '[class*="question-content"]',
+    '.markdown-body',
+    '.description-content',
+  ],
   generic: [
     'article',
     'main',
@@ -84,6 +94,7 @@ function detectPlatform(url) {
   if (hostname.includes('codesignal')) return 'codesignal';
   if (hostname.includes('coderpad')) return 'coderpad';
   if (hostname.includes('codility')) return 'codility';
+  if (hostname.includes('neetcode')) return 'neetcode';
 
   return 'generic';
 }
@@ -225,6 +236,7 @@ export async function fetchProblemFromUrl(url, electronCookies = null) {
         coderpad: 'CoderPad interviews are private sessions. Use screenshot or copy-paste the problem text instead.',
         glider: 'Glider requires login. Use screenshot or copy-paste instead.',
         lark: 'Lark requires login. Use screenshot or copy-paste instead.',
+        neetcode: 'NeetCode loads content dynamically. Use screenshot or copy-paste the problem text instead.',
       };
       const hint = platformMessages[platform] || 'Try using screenshot or copy-paste instead.';
       throw new Error(`Could not extract problem from ${platform}. ${hint}`);

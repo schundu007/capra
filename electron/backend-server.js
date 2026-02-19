@@ -145,7 +145,9 @@ async function registerRoutes(app) {
   const { default: fixRouter } = await import('../backend/src/routes/fix.js');
   const { default: transcribeRouter } = await import('../backend/src/routes/transcribe.js');
   const { default: interviewRouter } = await import('../backend/src/routes/interview.js');
+  const { default: interviewPrepRouter } = await import('../backend/src/routes/interviewPrep.js');
   const { default: diagramRouter } = await import('../backend/src/routes/diagram.js');
+  const { default: extractRouter } = await import('../backend/src/routes/extract.js');
   const { errorHandler } = await import('../backend/src/middleware/errorHandler.js');
 
   // In Electron mode, we skip authentication (user provides their own keys)
@@ -156,8 +158,10 @@ async function registerRoutes(app) {
   app.use('/api/run', runRouter);
   app.use('/api/fix', fixRouter);
   app.use('/api/transcribe', transcribeRouter);
+  app.use('/api/interview/prep', interviewPrepRouter);
   app.use('/api/interview', interviewRouter);
   app.use('/api/diagram', diagramRouter);
+  app.use('/api/extract', extractRouter);
 
   // Auth endpoints return Electron-specific responses
   app.get('/api/auth/check', (req, res) => {

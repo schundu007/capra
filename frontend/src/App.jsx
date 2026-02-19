@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Allotment } from 'allotment';
 import 'allotment/dist/style.css';
 import ProblemInput from './components/ProblemInput';
@@ -16,6 +16,7 @@ import PlatformAuth from './components/PlatformAuth';
 import InterviewAssistantPanel from './components/InterviewAssistantPanel';
 import InterviewModeSelector from './components/InterviewModeSelector';
 import PrepTab from './components/PrepTab';
+import InterviewPrepModal from './components/InterviewPrepModal';
 import { getApiUrl } from './hooks/useElectron';
 
 // Detect Electron environment
@@ -30,8 +31,6 @@ const PLATFORMS = {
   coderpad: { name: 'CoderPad', icon: 'C', color: '#6366f1' },
   leetcode: { name: 'LeetCode', icon: 'L', color: '#f97316' },
   codesignal: { name: 'CodeSignal', icon: 'S', color: '#3b82f6' },
-  codility: { name: 'Codility', icon: 'Y', color: '#eab308' },
-  glider: { name: 'Glider', icon: 'G', color: '#ec4899' },
 };
 
 // Get auth token from localStorage
@@ -43,6 +42,17 @@ function getToken() {
 function getAuthHeaders() {
   const token = getToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+// Clean up text - remove double spaces, extra empty lines
+function cleanupText(text) {
+  if (!text) return text;
+  return text
+    .replace(/[ \t]+/g, ' ')           // Replace multiple spaces/tabs with single space
+    .replace(/\n\s*\n\s*\n/g, '\n\n')  // Replace 3+ newlines with 2
+    .replace(/^\s+$/gm, '')            // Remove whitespace-only lines
+    .replace(/\n{3,}/g, '\n\n')        // Ensure max 2 consecutive newlines
+    .trim();
 }
 
 // Parse partial JSON to extract fields as they stream in
@@ -77,10 +87,10 @@ function parseStreamingContent(text) {
   // Extract pitch
   const pitchMatch = text.match(/"pitch"\s*:\s*"((?:[^"\\]|\\.)*)"/s);
   if (pitchMatch) {
-    result.pitch = pitchMatch[1]
+    result.pitch = cleanupText(pitchMatch[1]
       .replace(/\\n/g, '\n')
       .replace(/\\"/g, '"')
-      .replace(/\\\\/g, '\\');
+      .replace(/\\\\/g, '\\'));
   }
 
   // Try to extract complexity
@@ -121,11 +131,12 @@ function parseStreamingContent(text) {
 }
 
 // Stream solve request using SSE
-async function solveWithStream(problem, provider, language, detailLevel, model, onChunk, interviewMode = 'coding', designDetailLevel = 'basic') {
+async function solveWithStream(problem, provider, language, detailLevel, model, onChunk, interviewMode = 'coding', designDetailLevel = 'basic', signal = null) {
   const response = await fetch(API_URL + '/api/solve/stream', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify({ problem, provider, language, detailLevel, model, interviewMode, designDetailLevel }),
+    signal,
   });
 
   if (!response.ok) {
@@ -154,6 +165,16 @@ async function solveWithStream(problem, provider, language, detailLevel, model, 
           }
           if (data.done && data.result) {
             result = data.result;
+            // Clean up text fields in the result
+            if (result.pitch) {
+              result.pitch = cleanupText(result.pitch);
+            }
+            if (result.systemDesign?.overview) {
+              result.systemDesign.overview = cleanupText(result.systemDesign.overview);
+            }
+            if (result.systemDesign?.architecture?.description) {
+              result.systemDesign.architecture.description = cleanupText(result.systemDesign.architecture.description);
+            }
           }
           if (data.error) {
             throw new Error(data.error);
@@ -175,6 +196,9 @@ export default function App() {
   const [model, setModel] = useState('claude-sonnet-4-20250514');
   const [isLoading, setIsLoading] = useState(false);
 
+  // AbortController ref for cancelling ongoing operations
+  const abortControllerRef = useRef(null);
+
   // Auth state
   const [authChecked, setAuthChecked] = useState(false);
   const [authRequired, setAuthRequired] = useState(false);
@@ -190,6 +214,7 @@ export default function App() {
   const [showPlatformDropdown, setShowPlatformDropdown] = useState(false);
   const [platformStatus, setPlatformStatus] = useState({});
   const [showPrepTab, setShowPrepTab] = useState(false);
+  const [showInterviewPrep, setShowInterviewPrep] = useState(false);
 
   // Check if user is admin
   const isAdmin = user?.roles?.includes('admin');
@@ -348,7 +373,44 @@ export default function App() {
   const [interviewMode, setInterviewMode] = useState('coding'); // 'coding' | 'system-design'
   const [designDetailLevel, setDesignDetailLevel] = useState('basic'); // 'basic' | 'full'
   const [eraserDiagram, setEraserDiagram] = useState(null); // { imageUrl, editUrl }
+  const [autoGenerateEraser, setAutoGenerateEraser] = useState(false); // Auto-generate pro diagram
   const [isProcessingFollowUp, setIsProcessingFollowUp] = useState(false); // Follow-up question state
+
+  // Handle mode change with state reset
+  const handleModeChange = (newMode) => {
+    if (newMode !== interviewMode) {
+      // Abort any ongoing operations
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+
+      // Reset loading states immediately
+      setIsLoading(false);
+      setLoadingType(null);
+
+      // Reset all state when switching modes
+      setSolution(null);
+      setError(null);
+      setErrorType('default');
+      setStreamingText('');
+      setStreamingContent({
+        code: null,
+        language: null,
+        pitch: null,
+        explanations: null,
+        complexity: null,
+        systemDesign: null,
+      });
+      setAutoRunOutput(null);
+      setEraserDiagram(null);
+      setExtractedText('');
+      setCurrentProblem('');
+      setProblemExpanded(true);
+      setClearScreenshot(c => c + 1);
+      setInterviewMode(newMode);
+    }
+  };
 
   // Auto-test, fix, and run code - returns code and final output
   const autoTestAndFix = async (code, language, examples, problem, currentModel) => {
@@ -440,6 +502,13 @@ export default function App() {
   };
 
   const handleSolve = async (problem, language, detailLevel = 'detailed') => {
+    // Abort any previous operation
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
+
     resetState();
     setCurrentProblem(problem);
     setCurrentLanguage(language);
@@ -457,7 +526,7 @@ export default function App() {
         // Parse and extract content progressively
         const parsed = parseStreamingContent(fullText);
         setStreamingContent(parsed);
-      }, interviewMode, designDetailLevel);
+      }, interviewMode, designDetailLevel, signal);
 
       if (result) {
         // Auto-test, fix, and run the code (skip for system design mode)
@@ -482,9 +551,27 @@ export default function App() {
           });
         } else {
           setSolution(result);
+
+          // Auto-generate Eraser diagram if enabled and in system design mode
+          if (autoGenerateEraser && interviewMode === 'system-design' && result?.systemDesign?.included) {
+            const sd = result.systemDesign;
+            const description = `${sd.overview || ''}\n\nComponents: ${sd.architecture?.components?.join(', ') || ''}\n\n${sd.architecture?.description || ''}`;
+            fetch(API_URL + '/api/diagram/eraser', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+              body: JSON.stringify({ description }),
+            })
+              .then(res => res.ok ? res.json() : null)
+              .then(data => { if (data) setEraserDiagram(data); })
+              .catch(err => console.error('Auto Eraser diagram failed:', err));
+          }
         }
       }
     } catch (err) {
+      // Ignore abort errors (user switched modes or cancelled)
+      if (err.name === 'AbortError') {
+        return;
+      }
       setError(err.message);
       setErrorType('solve');
     } finally {
@@ -821,19 +908,34 @@ export default function App() {
             {isLoading ? 'Processing' : 'Ready'}
           </div>
 
-          {/* Prep Hub Button - Highlighted */}
+          {/* Interview Prep Button - Highlighted */}
           <button
-            onClick={() => setShowPrepTab(true)}
+            onClick={() => setShowInterviewPrep(true)}
             className="flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl transition-all hover:scale-105"
             style={{
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 50%, #0d9488 100%)',
+              background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%)',
               color: 'white',
-              boxShadow: '0 4px 20px rgba(16, 185, 129, 0.4), 0 0 40px rgba(16, 185, 129, 0.2)',
+              boxShadow: '0 4px 20px rgba(139, 92, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.2)',
               border: '2px solid rgba(255,255,255,0.2)'
             }}
-            title="Interview Prep Hub"
+            title="Interview Prep"
           >
-            Prep Hub
+            Interview Prep
+          </button>
+
+          {/* Prep Hub Button */}
+          <button
+            onClick={() => setShowPrepTab(true)}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-all"
+            style={{
+              background: '#f3f4f6',
+              color: '#374151',
+            }}
+            onMouseEnter={(e) => { e.target.style.background = '#e5e7eb'; }}
+            onMouseLeave={(e) => { e.target.style.background = '#f3f4f6'; }}
+            title="Platform Connections"
+          >
+            Platforms
           </button>
         </div>
 
@@ -1052,9 +1154,11 @@ export default function App() {
                     </div>
                     <InterviewModeSelector
                       interviewMode={interviewMode}
-                      onModeChange={setInterviewMode}
+                      onModeChange={handleModeChange}
                       designDetailLevel={designDetailLevel}
                       onDetailLevelChange={setDesignDetailLevel}
+                      autoGenerateEraser={autoGenerateEraser}
+                      onAutoGenerateEraserChange={setAutoGenerateEraser}
                     />
                   </div>
 
@@ -1185,9 +1289,19 @@ export default function App() {
         <PlatformAuth onClose={() => setShowPlatformAuth(false)} />
       )}
 
-      {/* Interview Prep Hub (Electron) */}
+      {/* Platform Prep Hub (Electron) */}
       {showPrepTab && (
         <PrepTab isOpen={showPrepTab} onClose={() => setShowPrepTab(false)} />
+      )}
+
+      {/* Interview Prep Modal */}
+      {showInterviewPrep && (
+        <InterviewPrepModal
+          isOpen={showInterviewPrep}
+          onClose={() => setShowInterviewPrep(false)}
+          provider={provider}
+          model={model}
+        />
       )}
     </div>
   );

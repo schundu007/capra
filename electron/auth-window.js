@@ -47,8 +47,6 @@ const PLATFORM_URLS = {
   hackerrank: 'https://www.hackerrank.com/auth/login',
   leetcode: 'https://leetcode.com/accounts/login/',
   codesignal: 'https://app.codesignal.com/login',
-  codility: 'https://app.codility.com/accounts/login/',
-  glider: 'https://glider.ai/login',
   // Interview prep platforms (many use OAuth popups, so use homepage)
   techprep: 'https://www.techprep.app/',
   algomaster: 'https://algomaster.io/',
@@ -56,17 +54,18 @@ const PLATFORM_URLS = {
   interviewbit: 'https://www.interviewbit.com/',
   educative: 'https://www.educative.io/login',
   designgurus: 'https://www.designgurus.io/',
+  // System design / mock interview platforms (Google OAuth - use homepage, user clicks Sign in)
+  interviewingio: 'https://interviewing.io/',
+  exponent: 'https://www.tryexponent.com/',
 };
 
 // Platform dashboard URLs (to detect successful login)
 // Using broad patterns - will match any URL containing these strings after login
 const PLATFORM_DASHBOARDS = {
   coderpad: ['coderpad.io/dashboard', 'coderpad.io/pad', 'coderpad.io/sandbox'],
-  hackerrank: ['hackerrank.com/dashboard', 'hackerrank.com/domains', 'hackerrank.com/challenges', 'hackerrank.com/contests', 'hackerrank.com/interview'],
+  hackerrank: ['hackerrank.com/dashboard', 'hackerrank.com/domains', 'hackerrank.com/challenges', 'hackerrank.com/contests', 'hackerrank.com/interview', 'hackerrank.com/home', 'hackerrank.com/work', 'hackerrank.com/profile', 'hackerrank.com/submissions', 'hackerrank.com/settings', 'hackerrank.com/feed', 'hackerrank.com/leaderboard'],
   leetcode: ['leetcode.com/problemset', 'leetcode.com/problems', 'leetcode.com/explore', 'leetcode.com/contest', 'leetcode.com/discuss', 'leetcode.com/profile', 'leetcode.com/submissions', 'leetcode.com/progress'],
   codesignal: ['codesignal.com/profile', 'codesignal.com/tasks', 'codesignal.com/coding-report', 'codesignal.com/test', 'codesignal.com/client-dashboard', 'codesignal.com/home', 'codesignal.com/company', 'codesignal.com/public-test', 'codesignal.com/interview', 'codesignal.com/learn/', 'codesignal.com/course', 'codesignal.com/path', 'codesignal.com/arcade'],
-  codility: ['codility.com/programmers', 'codility.com/c/', 'codility.com/demo', 'codility.com/test'],
-  glider: ['glider.ai/dashboard', 'gliderassessment.com', 'glider.ai/assessment', 'glider.ai/test'],
   // Interview prep platforms (broader patterns - detect logged-in state)
   techprep: ['techprep.app/full-stack', 'techprep.app/system-design', 'techprep.app/data-structures', 'techprep.app/dashboard', 'techprep.app/profile', 'techprep.app/topics'],
   algomaster: ['algomaster.io/dashboard', 'algomaster.io/problems', 'algomaster.io/roadmap', 'algomaster.io/practice', 'algomaster.io/courses', 'algomaster.io/learn', 'algomaster.io/profile', 'algomaster.io/account'],
@@ -74,6 +73,9 @@ const PLATFORM_DASHBOARDS = {
   interviewbit: ['interviewbit.com/courses', 'interviewbit.com/practice', 'interviewbit.com/dashboard', 'interviewbit.com/problems'],
   educative: ['educative.io/learn', 'educative.io/courses', 'educative.io/profile', 'educative.io/explore'],
   designgurus: ['designgurus.io/course', 'designgurus.io/path', 'designgurus.io/dashboard', 'designgurus.io/learn'],
+  // System design / mock interview platforms
+  interviewingio: ['interviewing.io/dashboard', 'interviewing.io/interviews', 'interviewing.io/recordings', 'interviewing.io/profile', 'interviewing.io/schedule'],
+  exponent: ['tryexponent.com/dashboard', 'tryexponent.com/courses', 'tryexponent.com/practice', 'tryexponent.com/profile', 'tryexponent.com/questions', 'tryexponent.com/pm', 'tryexponent.com/system-design'],
 };
 
 // Login page patterns to exclude
@@ -182,9 +184,9 @@ export async function openAuthWindow(platform, parentWindow) {
     let visitedOAuth = false;
     const oauthProviders = ['accounts.google.com', 'github.com/login', 'auth0.com', 'clerk.', 'supabase.'];
 
-    // Check URL changes to detect successful login
-    authWindow.webContents.on('did-navigate', async (event, url) => {
-      safeLog(`[Auth] Navigated to: ${url}`);
+    // Function to check login status
+    const checkLoginStatus = async (url) => {
+      safeLog(`[Auth] Checking URL: ${url}`);
 
       // Track OAuth visits
       if (oauthProviders.some(p => url.includes(p))) {
@@ -238,7 +240,13 @@ export async function openAuthWindow(platform, parentWindow) {
           }
         }, 1000);
       }
-    });
+    };
+
+    // Check URL changes to detect successful login
+    authWindow.webContents.on('did-navigate', (event, url) => checkLoginStatus(url));
+
+    // Also check in-page navigation (SPA-style redirects)
+    authWindow.webContents.on('did-navigate-in-page', (event, url) => checkLoginStatus(url));
 
     // Handle window close
     authWindow.on('closed', () => {

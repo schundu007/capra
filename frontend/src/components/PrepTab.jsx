@@ -10,8 +10,6 @@ const CODING_PLATFORMS = {
   leetcode: { name: 'LeetCode', icon: 'L', color: '#f97316', url: 'leetcode.com' },
   coderpad: { name: 'CoderPad', icon: 'C', color: '#6366f1', url: 'coderpad.io' },
   codesignal: { name: 'CodeSignal', icon: 'S', color: '#3b82f6', url: 'codesignal.com' },
-  codility: { name: 'Codility', icon: 'Y', color: '#eab308', url: 'codility.com' },
-  glider: { name: 'Glider', icon: 'G', color: '#ec4899', url: 'glider.ai' },
 };
 
 const PREP_PLATFORMS = {
@@ -21,6 +19,8 @@ const PREP_PLATFORMS = {
   designgurus: { name: 'DesignGurus', icon: 'D', color: '#0ea5e9', url: 'designgurus.io' },
   educative: { name: 'Educative', icon: 'E', color: '#22c55e', url: 'educative.io' },
   interviewbit: { name: 'InterviewBit', icon: 'I', color: '#a855f7', url: 'interviewbit.com' },
+  interviewingio: { name: 'Interviewing.io', icon: 'V', color: '#4a90d9', url: 'interviewing.io', googleAuth: true },
+  exponent: { name: 'Exponent', icon: 'X', color: '#1a1a2e', url: 'tryexponent.com', googleAuth: true },
 };
 
 export default function PrepTab({ isOpen, onClose }) {

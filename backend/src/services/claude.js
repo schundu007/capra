@@ -327,6 +327,8 @@ For this BASIC system design interview:
 - NO redundancy complexity - keep it simple
 - Skip advanced features like multi-region, sharding, etc.
 
+CRITICAL: For EVERY technology/service you include (databases, caches, queues, etc.), you MUST explain WHY it's needed.
+
 IMPORTANT: Do NOT generate code. Focus entirely on system design.
 
 Respond with valid JSON in exactly this format:
@@ -355,6 +357,11 @@ Respond with valid JSON in exactly this format:
       "description": "Simple architecture flow description"
     },
     "diagram": "flowchart LR\\n  A[Client] --> B[Load Balancer]\\n  B --> C[Web Server]\\n  C --> D[(Database)]\\n  C --> E[(Cache)]",
+    "techJustifications": [
+      {"tech": "PostgreSQL", "why": "ACID compliance for transactional data, strong consistency for user data", "alternatives": "MySQL (similar), MongoDB (if schema flexibility needed)"},
+      {"tech": "Redis", "why": "Sub-millisecond latency for hot data, reduces DB load by 80%+", "alternatives": "Memcached (simpler), local cache (if single server)"},
+      {"tech": "Load Balancer", "why": "Distributes traffic, enables horizontal scaling, health checks", "alternatives": "DNS round-robin (simpler but less control)"}
+    ],
     "scalability": ["Basic horizontal scaling strategies"]
   }
 }`;
@@ -372,6 +379,11 @@ For this FULL/DETAILED system design interview:
 - Consider data consistency models (eventual vs strong)
 - Include message queues for async processing
 - Add backup and disaster recovery strategies
+
+CRITICAL: For EVERY technology/service you include, you MUST explain:
+1. WHY this technology is needed (what problem it solves)
+2. WHY this specific choice over alternatives
+3. What happens WITHOUT this component
 
 IMPORTANT: Do NOT generate code. Focus entirely on system design.
 
@@ -401,6 +413,15 @@ Respond with valid JSON in exactly this format:
       "description": "Detailed multi-region architecture with failover"
     },
     "diagram": "flowchart TB\\n  subgraph Region1[Region 1]\\n    LB1[Load Balancer] --> WS1[Web Servers]\\n    WS1 --> Cache1[(Redis Cluster)]\\n    WS1 --> DB1[(Primary DB)]\\n  end\\n  subgraph Region2[Region 2]\\n    LB2[Load Balancer] --> WS2[Web Servers]\\n    WS2 --> Cache2[(Redis Cluster)]\\n    WS2 --> DB2[(Read Replica)]\\n  end\\n  CDN[CDN] --> LB1\\n  CDN --> LB2\\n  DB1 -.-> DB2",
+    "techJustifications": [
+      {"tech": "Kafka", "category": "Message Queue", "why": "High-throughput event streaming (millions/sec), durability with replication, replay capability for data recovery", "without": "Direct DB writes would bottleneck at 10K writes/sec, losing async processing capability", "alternatives": "RabbitMQ (lower throughput), SQS (simpler but AWS-only), Redis Streams (lighter but less durable)"},
+      {"tech": "Redis Cluster", "category": "Cache", "why": "Sub-millisecond reads (<1ms), reduces DB load by 90%, supports distributed locking and rate limiting", "without": "DB would handle 10x more reads, p99 latency jumps from 5ms to 50ms+", "alternatives": "Memcached (no persistence), Hazelcast (more features, more complex)"},
+      {"tech": "PostgreSQL", "category": "Primary Database", "why": "ACID transactions, complex queries with JOINs, strong consistency for financial/user data, mature replication", "without": "NoSQL would require application-level transactions, eventual consistency issues", "alternatives": "MySQL (similar), CockroachDB (distributed SQL), Vitess (MySQL sharding)"},
+      {"tech": "Elasticsearch", "category": "Search", "why": "Full-text search with relevance scoring, sub-100ms search across billions of documents, faceted search", "without": "SQL LIKE queries are O(n), unusable beyond 1M rows", "alternatives": "Solr (similar), Algolia (managed, expensive), PostgreSQL FTS (limited scale)"},
+      {"tech": "InfluxDB", "category": "Time-Series DB", "why": "Optimized for time-series writes (100K+ points/sec), automatic downsampling, efficient range queries", "without": "PostgreSQL time-series queries are 10-100x slower, storage 5x larger", "alternatives": "TimescaleDB (PostgreSQL extension), Prometheus (pull-based), ClickHouse (analytics)"},
+      {"tech": "CDN", "category": "Edge Cache", "why": "Serves static content from 200+ edge locations, reduces origin load by 95%, improves global latency from 200ms to 20ms", "without": "All requests hit origin, 10x higher infrastructure cost, poor global UX", "alternatives": "CloudFront, Fastly, Akamai - all similar capabilities"},
+      {"tech": "Load Balancer", "category": "Traffic Management", "why": "Distributes load across servers, health checks with automatic failover, SSL termination, rate limiting", "without": "Single server = single point of failure, no horizontal scaling", "alternatives": "HAProxy (OSS), Nginx (OSS), cloud LBs (managed)"}
+    ],
     "scalability": ["Horizontal scaling with auto-scaling groups", "Database sharding by user_id/hash", "Cache cluster with consistent hashing", "CDN for static content", "Async processing via message queues", "Read replicas for read-heavy workloads"]
   }
 }`;

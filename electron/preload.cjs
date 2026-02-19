@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer, desktopCapturer } = require('electron');
+const { contextBridge, ipcRenderer, desktopCapturer, clipboard } = require('electron');
 
 // Expose protected methods to the renderer process
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -34,6 +34,17 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // Check if running in Electron
   isElectron: true,
+
+  // Clipboard support
+  copyToClipboard: (text) => {
+    try {
+      clipboard.writeText(text);
+      return true;
+    } catch (err) {
+      console.error('Clipboard write failed:', err);
+      return false;
+    }
+  },
 
   // Platform authentication
   platformLogin: (platform) => ipcRenderer.invoke('platform-login', platform),

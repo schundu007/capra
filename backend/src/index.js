@@ -16,6 +16,8 @@ import authRouter from './routes/auth.js';
 import transcribeRouter from './routes/transcribe.js';
 import interviewRouter from './routes/interview.js';
 import diagramRouter from './routes/diagram.js';
+import interviewPrepRouter from './routes/interviewPrep.js';
+import extractRouter from './routes/extract.js';
 import { authenticate } from './middleware/authenticate.js';
 
 const app = express();
@@ -71,8 +73,10 @@ app.use('/api/fetch', authenticate, fetchRouter);
 app.use('/api/run', authenticate, runRouter);
 app.use('/api/fix', authenticate, fixRouter);
 app.use('/api/transcribe', authenticate, transcribeRouter);
+app.use('/api/interview/prep', authenticate, interviewPrepRouter);
 app.use('/api/interview', authenticate, interviewRouter);
 app.use('/api/diagram', authenticate, diagramRouter);
+app.use('/api/extract', authenticate, extractRouter);
 
 // Enhanced health check
 app.get('/api/health', (req, res) => {

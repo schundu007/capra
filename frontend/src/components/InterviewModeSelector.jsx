@@ -2,7 +2,9 @@ export default function InterviewModeSelector({
   interviewMode,
   onModeChange,
   designDetailLevel,
-  onDetailLevelChange
+  onDetailLevelChange,
+  autoGenerateEraser,
+  onAutoGenerateEraserChange
 }) {
   return (
     <div className="flex items-center gap-3">
@@ -91,6 +93,35 @@ export default function InterviewModeSelector({
             Full
           </button>
         </div>
+      )}
+
+      {/* Auto Pro Diagram Toggle - Only show when in system-design mode */}
+      {interviewMode === 'system-design' && (
+        <button
+          type="button"
+          onClick={() => onAutoGenerateEraserChange(!autoGenerateEraser)}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold transition-all animate-fadeIn"
+          style={{
+            background: autoGenerateEraser
+              ? 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)'
+              : 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+            color: autoGenerateEraser ? 'white' : '#6b7280',
+            boxShadow: autoGenerateEraser
+              ? '0 2px 8px rgba(139, 92, 246, 0.35)'
+              : 'inset 0 1px 2px rgba(0,0,0,0.05)',
+          }}
+          title={autoGenerateEraser ? 'Pro diagram will auto-generate (uses Eraser API credits)' : 'Pro diagram disabled - click Generate manually'}
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          Auto Pro
+          {autoGenerateEraser && (
+            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+          )}
+        </button>
       )}
     </div>
   );
