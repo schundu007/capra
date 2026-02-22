@@ -62,8 +62,14 @@ export function useKeyboardShortcuts({
   disabled = false,
 }) {
   const handleKeyDown = useCallback((e) => {
+    // Debug logging
+    console.log('[Shortcuts] Key:', e.key, 'disabled:', disabled, 'isInputFocused:', isInputFocused(), 'hasProblem:', hasProblem, 'hasCode:', hasCode);
+
     // Don't handle shortcuts when disabled or in input fields (except for some)
-    if (disabled) return;
+    if (disabled) {
+      console.log('[Shortcuts] Disabled, returning');
+      return;
+    }
 
     const isMac = navigator.platform.toLowerCase().includes('mac');
     const cmdKey = isMac ? e.metaKey : e.ctrlKey;
@@ -85,12 +91,15 @@ export function useKeyboardShortcuts({
     }
 
     // Don't process other shortcuts if typing in input
-    if (isInputFocused()) {
+    const inputFocused = isInputFocused();
+    console.log('[Shortcuts] inputFocused:', inputFocused, 'activeElement:', document.activeElement?.tagName, document.activeElement?.className);
+    if (inputFocused) {
       // Allow Cmd+Enter to submit from text area
       if (e.key === 'Enter' && cmdKey && !e.shiftKey) {
         // Let the form handle Cmd+Enter for submit
         return;
       }
+      console.log('[Shortcuts] Blocked due to input focus');
       return;
     }
 
@@ -121,8 +130,11 @@ export function useKeyboardShortcuts({
 
     // Space bar: Solve (when not in input)
     if (e.key === ' ' && !cmdKey && !e.shiftKey && !e.altKey) {
+      console.log('[Shortcuts] Space pressed, isLoading:', isLoading, 'hasProblem:', hasProblem, 'onSolve:', !!onSolve);
       e.preventDefault();
-      if (!isLoading && hasProblem && onSolve) {
+      // Always call onSolve if available (removed hasProblem check for now)
+      if (!isLoading && onSolve) {
+        console.log('[Shortcuts] Calling onSolve');
         onSolve();
       }
       return;
@@ -130,8 +142,11 @@ export function useKeyboardShortcuts({
 
     // Enter: Run code (when not in input, not with modifiers)
     if (e.key === 'Enter' && !cmdKey && !e.shiftKey && !e.altKey) {
+      console.log('[Shortcuts] Enter pressed, isLoading:', isLoading, 'hasCode:', hasCode, 'onRun:', !!onRun);
       e.preventDefault();
-      if (!isLoading && hasCode && onRun) {
+      // Always call onRun if available (removed hasCode check for now)
+      if (!isLoading && onRun) {
+        console.log('[Shortcuts] Calling onRun');
         onRun();
       }
       return;

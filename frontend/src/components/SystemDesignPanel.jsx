@@ -224,12 +224,13 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
 
   // Helper to create a box around text
   const makeBox = (text, width = null) => {
-    const w = width || text.length + 2;
-    const padded = text.substring(0, w - 2).padStart(Math.floor((w - 2 + text.length) / 2)).padEnd(w - 2);
+    const t = str(text); // Ensure it's a string
+    const w = width || t.length + 2;
+    const padded = t.substring(0, w - 2).padStart(Math.floor((w - 2 + t.length) / 2)).padEnd(w - 2);
     return {
-      top: '┌' + '─'.repeat(w - 2) + '┐',
+      top: '┌' + '─'.repeat(Math.max(0, w - 2)) + '┐',
       mid: '│' + padded + '│',
-      bot: '└' + '─'.repeat(w - 2) + '┘',
+      bot: '└' + '─'.repeat(Math.max(0, w - 2)) + '┘',
       width: w
     };
   };
@@ -278,12 +279,12 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
     }
 
     // Compute Layer - show multiple servers
-    const computeItems = tiers.compute.slice(0, detailed ? 3 : 2);
+    const computeItems = tiers.compute.slice(0, detailed ? 3 : 2).map(str);
     if (computeItems.length >= 2) {
-      const box1 = makeBox(computeItems[0].substring(0, 12), 16);
-      const box2 = makeBox(computeItems[1].substring(0, 12), 16);
+      const c0 = computeItems[0];
+      const c1 = computeItems[1];
       lines.push('┌' + '─'.repeat(14) + '┐   ┌' + '─'.repeat(14) + '┐');
-      lines.push('│' + computeItems[0].substring(0, 14).padStart(Math.floor((14 + computeItems[0].length) / 2)).padEnd(14) + '│   │' + computeItems[1].substring(0, 14).padStart(Math.floor((14 + computeItems[1].length) / 2)).padEnd(14) + '│');
+      lines.push('│' + c0.substring(0, 14).padStart(Math.floor((14 + Math.min(c0.length, 14)) / 2)).padEnd(14) + '│   │' + c1.substring(0, 14).padStart(Math.floor((14 + Math.min(c1.length, 14)) / 2)).padEnd(14) + '│');
       lines.push('└' + '─'.repeat(14) + '┘   └' + '─'.repeat(14) + '┘');
       lines.push('       │              │');
       lines.push('       └──────┬───────┘');
@@ -308,22 +309,22 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
         lines.push('    │                 │');
         lines.push('    ▼                 ▼');
         // Cache and DB side by side
-        const cacheLabel = tiers.cache[0].substring(0, 12);
-        const dbLabel = tiers.database[0].substring(0, 14);
+        const cacheLabel = str(tiers.cache[0]).substring(0, 12);
+        const dbLabel = str(tiers.database[0]).substring(0, 14);
         lines.push('┌' + '─'.repeat(14) + '┐   ┌' + '─'.repeat(16) + '┐');
         lines.push('│' + ('🔴 ' + cacheLabel).substring(0, 14).padStart(Math.floor((14 + cacheLabel.length + 3) / 2)).padEnd(14) + '│   │' + ('💾 ' + dbLabel).substring(0, 16).padStart(Math.floor((16 + dbLabel.length + 3) / 2)).padEnd(16) + '│');
         lines.push('└' + '─'.repeat(14) + '┘   └' + '─'.repeat(16) + '┘');
       } else if (hasDb) {
         lines.push('              │');
         lines.push('              ▼');
-        const dbBox = makeBox('💾 ' + tiers.database[0], 22);
+        const dbBox = makeBox('💾 ' + str(tiers.database[0]), 22);
         lines.push('     ' + dbBox.top);
         lines.push('     ' + dbBox.mid);
         lines.push('     ' + dbBox.bot);
       } else if (hasCache) {
         lines.push('              │');
         lines.push('              ▼');
-        const cacheBox = makeBox('🔴 ' + tiers.cache[0], 20);
+        const cacheBox = makeBox('🔴 ' + str(tiers.cache[0]), 20);
         lines.push('     ' + cacheBox.top);
         lines.push('     ' + cacheBox.mid);
         lines.push('     ' + cacheBox.bot);
@@ -334,7 +335,7 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
     if (hasStorage && detailed) {
       lines.push('');
       lines.push('         ┌───────────────────┐');
-      lines.push('         │ 📦 ' + tiers.storage[0].substring(0, 14).padEnd(14) + '│');
+      lines.push('         │ 📦 ' + str(tiers.storage[0]).substring(0, 14).padEnd(14) + '│');
       lines.push('         └───────────────────┘');
     }
 
@@ -342,7 +343,7 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
     if (hasQueue && detailed) {
       lines.push('');
       lines.push('  ╔══════════════════════════╗');
-      lines.push('  ║ ⚡ ASYNC: ' + tiers.queue.slice(0, 2).join(', ').substring(0, 15).padEnd(15) + '║');
+      lines.push('  ║ ⚡ ASYNC: ' + tiers.queue.map(str).slice(0, 2).join(', ').substring(0, 15).padEnd(15) + '║');
       lines.push('  ╚══════════════════════════╝');
     }
 
@@ -351,15 +352,14 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
       lines.push('');
       lines.push('  ┄┄┄ DATA FLOW ┄┄┄');
       dataFlow.slice(0, 3).forEach((flow, i) => {
-        const flowStr = str(flow);
-        lines.push('  ' + (i + 1) + '. ' + flowStr.substring(0, 50));
+        lines.push('  ' + (i + 1) + '. ' + str(flow).substring(0, 50));
       });
     }
 
     // Tech Stack footer
     lines.push('');
     lines.push('  ════════════════════════════════════════');
-    lines.push('  TECH: ' + techStack.slice(0, 6).join(' • ').substring(0, 45));
+    lines.push('  TECH: ' + techStack.map(str).slice(0, 6).join(' • ').substring(0, 45));
     lines.push('');
 
     return lines.join('\n');
