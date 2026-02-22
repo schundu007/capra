@@ -1171,7 +1171,7 @@ export default function App() {
       <div className="flex-1 flex flex-col overflow-hidden">
       {/* Header - Minimal when sidebar visible, full when collapsed */}
       <header
-        className="relative z-20 flex items-center justify-between px-4 py-2"
+        className="relative z-20 flex items-center px-4 py-2"
         style={{
           paddingLeft: (isMacElectron && !showSidebar) ? '80px' : '16px',
           background: '#ffffff',
@@ -1211,40 +1211,39 @@ export default function App() {
             </div>
           )}
 
-        </div>
-
-        {/* Center: Mode Tabs */}
-        <div className="flex items-center gap-1" style={{ WebkitAppRegion: 'no-drag' }}>
-          {[
-            { id: 'coding', label: 'Coding' },
-            { id: 'system-design', label: 'System Design' },
-            { id: 'behavioral', label: 'Behavioral' },
-          ].map((mode) => (
-            <button
-              key={mode.id}
-              onClick={() => handleModeChange(mode.id)}
-              className="px-4 py-1.5 text-sm font-medium rounded-lg transition-all"
-              style={{
-                background: interviewMode === mode.id ? '#10b981' : 'transparent',
-                color: interviewMode === mode.id ? 'white' : '#666666',
-                border: interviewMode === mode.id ? 'none' : '1px solid transparent',
-              }}
-              onMouseEnter={(e) => {
-                if (interviewMode !== mode.id) {
-                  e.currentTarget.style.background = '#f5f5f5';
-                  e.currentTarget.style.color = '#333333';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (interviewMode !== mode.id) {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.color = '#666666';
-                }
-              }}
-            >
-              {mode.label}
-            </button>
-          ))}
+          {/* Mode Tabs - Left aligned */}
+          <div className="flex items-center gap-1 ml-2">
+            {[
+              { id: 'coding', label: 'Coding' },
+              { id: 'system-design', label: 'Design' },
+              { id: 'behavioral', label: 'Behavioral' },
+            ].map((mode) => (
+              <button
+                key={mode.id}
+                onClick={() => handleModeChange(mode.id)}
+                className="px-4 py-1.5 text-sm font-medium rounded-lg transition-all"
+                style={{
+                  background: interviewMode === mode.id ? '#10b981' : 'transparent',
+                  color: interviewMode === mode.id ? 'white' : '#666666',
+                  border: interviewMode === mode.id ? 'none' : '1px solid transparent',
+                }}
+                onMouseEnter={(e) => {
+                  if (interviewMode !== mode.id) {
+                    e.currentTarget.style.background = '#f5f5f5';
+                    e.currentTarget.style.color = '#333333';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (interviewMode !== mode.id) {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = '#666666';
+                  }
+                }}
+              >
+                {mode.label}
+              </button>
+            ))}
+          </div>
         </div>
 
       </header>
