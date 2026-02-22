@@ -162,12 +162,8 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
     }
   }, [eraserDiagram?.imageUrl]);
 
-  // Auto-generate cloud diagram when systemDesign is available
-  useEffect(() => {
-    if (systemDesign?.included && question && !diagramData && !generatingDiagram && !diagramError) {
-      handleGenerateDiagram();
-    }
-  }, [systemDesign?.included, question]);
+  // Don't auto-generate - let user click the button
+  // This avoids issues with auth/timing on webapp
 
   const handleGenerateEraser = async () => {
     if (!onGenerateEraserDiagram) return;
@@ -202,8 +198,16 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate diagram');
+        // Try to parse error as JSON, fallback to status text
+        let errorMessage = `Failed to generate diagram (${response.status})`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // Response wasn't JSON (might be HTML error page)
+          errorMessage = `Server error: ${response.status} ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
