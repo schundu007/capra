@@ -173,15 +173,16 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
   }, [eraserDiagram?.imageUrl]);
 
   // Auto-generate cloud diagram when systemDesign is available (desktop only)
+  // Auto-generate diagram when system design is included
   useEffect(() => {
-    if (isElectron && systemDesign?.included && question && !diagramData && !generatingDiagram && !diagramError) {
+    if (systemDesign?.included && question && !diagramData && !generatingDiagram && !diagramError) {
       // Small delay to ensure component is fully mounted and auth is ready
       const timer = setTimeout(() => {
         handleGenerateDiagram();
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [isElectron, systemDesign?.included, question]);
+  }, [systemDesign?.included, question]);
 
   const handleGenerateEraser = async () => {
     if (!onGenerateEraserDiagram) return;
@@ -540,8 +541,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
 
         {/* Row 6: Diagrams - Full width */}
         <div className="space-y-3">
-          {/* Cloud Architecture Diagram (desktop only - requires Python + graphviz) */}
-          {isElectron && (
+          {/* Cloud Architecture Diagram (Python diagrams with real cloud icons) */}
           <div
             className={`rounded-lg p-3 bg-gray-50 border border-gray-200 ${diagramData ? 'cursor-pointer hover:border-emerald-300 group' : ''} transition-all`}
             onClick={() => diagramData && setDiagramModal(true)}
@@ -586,7 +586,6 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
               />
             </div>
           </div>
-          )}
 
           {/* Professional Diagram (Eraser.io) - Full width, clickable when has diagram */}
           <div
