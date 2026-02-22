@@ -1656,16 +1656,6 @@ export default function App() {
         <PrepTab isOpen={showPrepTab} onClose={() => setShowPrepTab(false)} />
       )}
 
-      {/* Interview Prep Modal */}
-      {showInterviewPrep && (
-        <InterviewPrepModal
-          isOpen={showInterviewPrep}
-          onClose={() => setShowInterviewPrep(false)}
-          provider={provider}
-          model={model}
-        />
-      )}
-
       {/* Saved System Designs Modal */}
       <SavedSystemDesignsModal
         isOpen={showSavedDesigns}
@@ -1676,6 +1666,16 @@ export default function App() {
         onClearAll={systemDesignStorage.clearAllSessions}
       />
       </div>{/* End Main Content wrapper */}
+
+      {/* Interview Prep Modal - rendered outside main content to avoid overflow clipping */}
+      {showInterviewPrep && (
+        <InterviewPrepModal
+          isOpen={showInterviewPrep}
+          onClose={() => setShowInterviewPrep(false)}
+          provider={provider}
+          model={model}
+        />
+      )}
     </div>
   );
 }
