@@ -58,7 +58,7 @@ CRITICAL RULES:
 3. Use `show=False` — diagrams will be rendered server-side.
 4. Use the provided `filename` variable: filename=DIAGRAM_FILENAME
 5. Use the provided format variable: outformat=DIAGRAM_FORMAT
-6. Use direction="LR" for most diagrams (left-to-right flow).
+6. ALWAYS use direction="LR" for HORIZONTAL left-to-right flow. NEVER use "TB" (top-bottom). Architecture diagrams must flow horizontally.
 7. Group related services into Clusters — VPCs, subnets, AZs, regions, logical tiers.
 
 DETAIL REQUIREMENTS (IMPORTANT - interviewers will deep dive):
@@ -207,13 +207,15 @@ Cloud Provider: {cloud_provider}
 OVERVIEW DIAGRAM REQUIREMENTS (for initial interview explanation):
 - 10-15 nodes MAXIMUM - keep it simple and explainable
 - Show ONLY the core components: Users, CDN, Load Balancer, App Servers, Cache, Database, Storage
-- Use clear left-to-right flow (direction="LR")
+- CRITICAL: Use direction="LR" for HORIZONTAL left-to-right flow (NOT vertical)
 - Group into 3 clusters max: Ingress, Application, Data
 - Label key connections only: "HTTPS", "Read/Write", "Cache"
 - NO security details, NO monitoring, NO edge cases
 - This diagram should be explainable in 2-3 minutes
 
-Remember: ONLY output valid Python code. Use filename=DIAGRAM_FILENAME and outformat=DIAGRAM_FORMAT and show=False. Use real {cloud_provider} service icons. Keep it SIMPLE and CLEAR."""
+LAYOUT RULE: Always use direction="LR" in the Diagram() call for horizontal architecture flow.
+
+Remember: ONLY output valid Python code. Use filename=DIAGRAM_FILENAME and outformat=DIAGRAM_FORMAT and show=False and direction="LR". Use real {cloud_provider} service icons. Keep it SIMPLE and CLEAR."""
 
 USER_PROMPT_DETAILED = """Generate a COMPREHENSIVE Python diagram for this system design interview question:
 
@@ -222,8 +224,11 @@ Cloud Provider: {cloud_provider}
 Difficulty: {difficulty}
 Category: {category}
 
+CRITICAL LAYOUT: Use direction="LR" for HORIZONTAL left-to-right architecture flow (NOT vertical/TB).
+
 REQUIREMENTS FOR INTERVIEW-READY DIAGRAM:
 - 25-40 nodes showing ALL major components (not a simplified overview)
+- MUST use direction="LR" in Diagram() call for horizontal flow
 - Include: Load Balancers, CDN, API Gateway, Application Servers, Caches, Databases (primary + replicas), Message Queues, Workers, Object Storage, Search, Monitoring
 - Show data flow with labeled edges (e.g., "REST API", "gRPC", "Events", "Metrics")
 - Group into logical clusters: Ingress, Application Tier, Data Tier, Async Processing, Observability
