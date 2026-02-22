@@ -113,13 +113,111 @@ export default function PrepTab({ isOpen, onClose }) {
 
   const platforms = activeTab === 'coding' ? CODING_PLATFORMS : PREP_PLATFORMS;
 
+  // Simplified webapp view - just URL fetch
+  if (!isElectron) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="w-full max-w-md mx-4 rounded-lg overflow-hidden shadow-2xl" style={{ background: '#ffffff' }}>
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-3" style={{ background: '#1a1a1a' }}>
+            <span className="text-lg font-bold" style={{ color: '#ffffff' }}>Fetch Problem</span>
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded transition-colors"
+              style={{ color: '#ffffff' }}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="p-4" style={{ background: '#ffffff' }}>
+            <p className="text-sm mb-4" style={{ color: '#666666' }}>
+              Paste a problem URL from LeetCode, HackerRank, or other coding platforms to extract and solve it.
+            </p>
+            <div className="flex gap-2 mb-3">
+              <input
+                type="url"
+                value={fetchUrl}
+                onChange={(e) => setFetchUrl(e.target.value)}
+                placeholder="https://leetcode.com/problems/two-sum"
+                className="flex-1 px-3 py-2.5 text-sm rounded-lg"
+                style={{ background: '#f5f5f5', border: '1px solid #e5e5e5', color: '#333333' }}
+              />
+              <button
+                onClick={async () => {
+                  if (!fetchUrl.trim()) return;
+                  setFetching(true);
+                  setFetchedContent(null);
+                  try {
+                    const token = localStorage.getItem('capra_token');
+                    const headers = { 'Content-Type': 'application/json' };
+                    if (token) headers.Authorization = `Bearer ${token}`;
+                    const res = await fetch(API_URL + '/api/fetch', {
+                      method: 'POST',
+                      headers,
+                      body: JSON.stringify({ url: fetchUrl }),
+                    });
+                    const data = await res.json();
+                    if (data.success || data.problemText) {
+                      setFetchedContent({ success: true, title: data.title || 'Problem fetched!', text: data.problemText });
+                    } else {
+                      setFetchedContent({ error: data.error || 'Failed to fetch problem' });
+                    }
+                  } catch (err) {
+                    setFetchedContent({ error: 'Failed to fetch: ' + err.message });
+                  } finally {
+                    setFetching(false);
+                  }
+                }}
+                disabled={fetching || !fetchUrl.trim()}
+                className="px-5 py-2.5 text-sm font-medium rounded-lg transition-all disabled:opacity-50"
+                style={{ background: '#10b981', color: 'white' }}
+              >
+                {fetching ? 'Fetching...' : 'Fetch'}
+              </button>
+            </div>
+
+            {fetchedContent && (
+              <div
+                className="p-3 rounded-lg text-sm"
+                style={{
+                  background: fetchedContent.error ? '#fef2f2' : '#ecfdf5',
+                  border: fetchedContent.error ? '1px solid #fecaca' : '1px solid #a7f3d0'
+                }}
+              >
+                {fetchedContent.error ? (
+                  <p style={{ color: '#dc2626' }}>{fetchedContent.error}</p>
+                ) : (
+                  <>
+                    <div className="font-medium mb-1" style={{ color: '#059669' }}>{fetchedContent.title}</div>
+                    <p className="text-xs" style={{ color: '#666666' }}>
+                      Problem extracted! Close this and use the URL tab in Problem Input to solve it.
+                    </p>
+                  </>
+                )}
+              </div>
+            )}
+
+            <p className="mt-4 text-xs text-center" style={{ color: '#999999' }}>
+              Supports LeetCode, HackerRank, CoderPad, CodeSignal, and more
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop (Electron) view with full platform login
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="w-full max-w-2xl mx-4 rounded-lg overflow-hidden shadow-2xl" style={{ background: '#ffffff' }}>
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3" style={{ background: '#1a1a1a' }}>
           <div className="flex items-center gap-3">
-            <span className="text-lg font-bold" style={{ color: '#ffffff' }}>Interview Prep Hub</span>
+            <span className="text-lg font-bold" style={{ color: '#ffffff' }}>Coding Platforms</span>
             <span className="px-2 py-0.5 text-xs font-medium rounded" style={{ background: '#10b981', color: '#ffffff' }}>
               {connectedCount} connected
             </span>
@@ -163,87 +261,7 @@ export default function PrepTab({ isOpen, onClose }) {
 
         {/* Content */}
         <div className="p-4 max-h-[60vh] overflow-y-auto" style={{ background: '#f5f5f5' }}>
-          {!isElectron ? (
-            <div className="py-4">
-              {/* URL Fetch for webapp */}
-              <div className="mb-4 p-4 rounded-lg" style={{ background: '#ffffff', border: '1px solid #e5e5e5' }}>
-                <h3 className="font-semibold mb-2" style={{ color: '#333333' }}>Fetch Problem from URL</h3>
-                <p className="text-xs mb-3" style={{ color: '#666666' }}>
-                  Paste a HackerRank, LeetCode, or other platform URL to extract the problem
-                </p>
-                <div className="flex gap-2">
-                  <input
-                    type="url"
-                    value={fetchUrl}
-                    onChange={(e) => setFetchUrl(e.target.value)}
-                    placeholder="https://leetcode.com/problems/..."
-                    className="flex-1 px-3 py-2 text-sm rounded-lg"
-                    style={{ background: '#f5f5f5', border: '1px solid #e5e5e5', color: '#333333' }}
-                  />
-                  <button
-                    onClick={async () => {
-                      if (!fetchUrl.trim()) return;
-                      setFetching(true);
-                      try {
-                        const token = localStorage.getItem('capra_token');
-                        const headers = { 'Content-Type': 'application/json' };
-                        if (token) headers.Authorization = `Bearer ${token}`;
-                        const res = await fetch(API_URL + '/api/fetch', {
-                          method: 'POST',
-                          headers,
-                          body: JSON.stringify({ url: fetchUrl }),
-                        });
-                        const data = await res.json();
-                        if (data.success && data.problem) {
-                          setFetchedContent(data.problem);
-                        } else {
-                          alert(data.error || 'Failed to fetch problem');
-                        }
-                      } catch (err) {
-                        alert('Failed to fetch: ' + err.message);
-                      } finally {
-                        setFetching(false);
-                      }
-                    }}
-                    disabled={fetching || !fetchUrl.trim()}
-                    className="px-4 py-2 text-sm font-medium rounded-lg transition-all disabled:opacity-50"
-                    style={{ background: '#10b981', color: 'white' }}
-                  >
-                    {fetching ? '...' : 'Fetch'}
-                  </button>
-                </div>
-                {fetchedContent && (
-                  <div className="mt-3 p-3 rounded-lg text-sm" style={{ background: '#ecfdf5', border: '1px solid #a7f3d0' }}>
-                    <div className="font-medium mb-1" style={{ color: '#059669' }}>{fetchedContent.title || 'Problem fetched!'}</div>
-                    <p className="text-xs" style={{ color: '#666666' }}>
-                      Problem extracted. Use the URL tab in the main input to solve it.
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Supported Platforms Info */}
-              <div className="p-4 rounded-lg" style={{ background: '#ffffff', border: '1px solid #e5e5e5' }}>
-                <h3 className="font-semibold mb-2" style={{ color: '#333333' }}>Supported Platforms</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  {Object.entries({...CODING_PLATFORMS, ...PREP_PLATFORMS}).slice(0, 8).map(([key, platform]) => (
-                    <div key={key} className="flex items-center gap-2 p-2 rounded" style={{ background: '#f5f5f5' }}>
-                      <div
-                        className="w-6 h-6 rounded flex items-center justify-center text-white font-bold text-[10px]"
-                        style={{ background: platform.color }}
-                      >
-                        {platform.name.split(/(?=[A-Z])/).map(w => w[0]).join('').slice(0, 2)}
-                      </div>
-                      <span className="text-xs" style={{ color: '#555555' }}>{platform.name}</span>
-                    </div>
-                  ))}
-                </div>
-                <p className="mt-3 text-xs" style={{ color: '#999999' }}>
-                  For authenticated access to private problems, use the desktop app.
-                </p>
-              </div>
-            </div>
-          ) : loading ? (
+          {loading ? (
             <div className="flex items-center justify-center py-8">
               <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#10b981', borderTopColor: 'transparent' }} />
             </div>
