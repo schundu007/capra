@@ -47,6 +47,7 @@ function sanitizeMermaidChart(chart) {
     // Fix common syntax issues for mermaid v11
     const lines = clean.split('\n');
     const fixedLines = [];
+    let subgraphCounter = 0;
 
     for (let i = 0; i < lines.length; i++) {
       let line = lines[i];
@@ -76,6 +77,24 @@ function sanitizeMermaidChart(chart) {
         continue;
       }
 
+      // Fix subgraph syntax FIRST - convert quoted labels to proper format
+      if (line.trim().startsWith('subgraph')) {
+        subgraphCounter++;
+        // subgraph "Label" -> subgraph SG1[Label]
+        line = line.replace(/subgraph\s+"([^"]+)"/g, (match, label) => {
+          const cleanLabel = label.replace(/[^a-zA-Z0-9 ]/g, '').trim();
+          return `subgraph SG${subgraphCounter}[${cleanLabel}]`;
+        });
+        line = line.replace(/subgraph\s+'([^']+)'/g, (match, label) => {
+          const cleanLabel = label.replace(/[^a-zA-Z0-9 ]/g, '').trim();
+          return `subgraph SG${subgraphCounter}[${cleanLabel}]`;
+        });
+        // If still has spaces after subgraph keyword without brackets, fix it
+        line = line.replace(/subgraph\s+([A-Za-z][A-Za-z0-9_]*)\s*$/g, 'subgraph $1');
+        fixedLines.push(line);
+        continue;
+      }
+
       // Fix arrows: ensure proper spacing
       line = line.replace(/\s*-->\s*/g, ' --> ');
       line = line.replace(/\s*---\s*/g, ' --- ');
@@ -86,12 +105,16 @@ function sanitizeMermaidChart(chart) {
       line = line.replace(/-->\|([^|]+)\|/g, '--> |$1|');
       line = line.replace(/\|->\|/g, '|-->|');
 
-      // Fix subgraph syntax
-      if (line.trim().startsWith('subgraph')) {
-        // Ensure proper subgraph format: subgraph ID[Label] or subgraph ID
-        line = line.replace(/subgraph\s+"([^"]+)"/g, 'subgraph $1');
-        line = line.replace(/subgraph\s+'([^']+)'/g, 'subgraph $1');
-      }
+      // Replace hyphens in node IDs (like us-west1) with underscores
+      // But preserve hyphens inside labels [...]
+      line = line.replace(/^(\s*)([A-Za-z][A-Za-z0-9_-]*)/g, (match, space, id) => {
+        return space + id.replace(/-/g, '_');
+      });
+
+      // Fix node IDs after arrows
+      line = line.replace(/--> ([A-Za-z][A-Za-z0-9_-]*)/g, (match, id) => {
+        return '--> ' + id.replace(/-/g, '_');
+      });
 
       // Fix node definitions with special characters in IDs
       // Replace spaces in node IDs with underscores

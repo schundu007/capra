@@ -213,14 +213,19 @@ Example for "global vs non-global":
 
 DIAGRAM RULES (CRITICAL - Mermaid v11 syntax):
 - ALWAYS start with "flowchart LR" or "flowchart TB" (NOT "graph")
-- Use simple node IDs: A, B, C or short names like Client, LB, DB (NO spaces in IDs)
-- Node labels in square brackets: A[Label Here]
-- Database nodes: D[(Database Name)]
+- Use ONLY simple node IDs: A, B, C, D, E, F (single letters or short alphanumeric like LB, DB, API)
+- NO hyphens in node IDs (use DB1 not db-1, use USWest not us-west)
+- Node labels in square brackets: A[Client Browser]
+- Database nodes: D[(PostgreSQL)]
 - Simple arrows only: --> or -.->
-- NO quotes around labels
-- NO special characters in node IDs
-- Keep diagrams simple: 5-10 nodes max
-- Example: "flowchart LR\n  A[Client] --> B[API]\n  B --> C[(Database)]"
+- NO subgraphs - keep it flat and simple
+- NO quotes anywhere in the diagram
+- Keep diagrams SIMPLE: 5-8 nodes max, single flow
+- Example: "flowchart LR\n  A[Client] --> B[Load Balancer]\n  B --> C[API Server]\n  C --> D[(Database)]\n  C --> E[(Redis Cache)]"
+
+For COMPARISON questions, make TWO separate simple diagrams:
+- diagram: "flowchart LR\n  A[Users] --> B[Server]\n  B --> C[(Single DB)]"
+- comparisonDiagram: "flowchart LR\n  A[Users] --> B[CDN]\n  B --> C[Global LB]\n  C --> D[Region1]\n  C --> E[Region2]\n  D --> F[(DB Primary)]\n  E --> G[(DB Replica)]"
 
 ONLY for pure coding problems (algorithms, data structures, leetcode-style problems), use: "systemDesign": {"included": false}
 
