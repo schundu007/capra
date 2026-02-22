@@ -62,10 +62,14 @@ export default function PlatformStatus() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/[0.06] transition-colors text-zinc-500 hover:text-zinc-300"
+        className="flex items-center gap-2 px-3 py-1.5 rounded transition-colors"
+        style={{ color: '#666666' }}
       >
-        <span className={`w-1.5 h-1.5 rounded-full ${connectedCount > 0 ? 'bg-emerald-400' : 'bg-zinc-600'}`} />
-        <span className="text-xs">
+        <span
+          className="w-1.5 h-1.5 rounded-full"
+          style={{ background: connectedCount > 0 ? '#10b981' : '#999999' }}
+        />
+        <span className="text-xs font-medium">
           {loading ? '...' : `${connectedCount} sources`}
         </span>
         <svg
@@ -79,10 +83,17 @@ export default function PlatformStatus() {
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 top-full mt-2 w-56 bg-[#1e1e20] border border-white/[0.08] rounded-lg p-3 z-50 animate-fade-in shadow-2xl shadow-black/50">
-          <div className="text-xs font-medium text-zinc-400 mb-2">Data Sources</div>
+        <div
+          className="absolute left-0 top-full mt-2 w-56 rounded shadow-lg z-50 animate-fade-in"
+          style={{ background: '#ffffff', border: '1px solid #e5e5e5' }}
+        >
+          <div className="px-3 py-2" style={{ borderBottom: '1px solid #e5e5e5' }}>
+            <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#666666' }}>
+              Data Sources
+            </span>
+          </div>
 
-          <div className="space-y-1.5 mb-3">
+          <div className="p-2 space-y-1">
             {Object.entries(PLATFORM_NAMES).map(([key, name]) => {
               const platformStatus = status[key];
               const isConnected = platformStatus?.authenticated;
@@ -90,10 +101,14 @@ export default function PlatformStatus() {
               return (
                 <div
                   key={key}
-                  className="flex items-center justify-between px-2 py-1.5 rounded-md bg-white/[0.02]"
+                  className="flex items-center justify-between px-3 py-2 rounded"
+                  style={{ background: '#f5f5f5' }}
                 >
-                  <span className="text-xs text-zinc-400">{name}</span>
-                  <span className={`text-xs ${isConnected ? 'text-emerald-400' : 'text-zinc-600'}`}>
+                  <span className="text-xs font-medium" style={{ color: '#333333' }}>{name}</span>
+                  <span
+                    className="text-xs font-medium"
+                    style={{ color: isConnected ? '#10b981' : '#999999' }}
+                  >
                     {isConnected ? 'Active' : 'Inactive'}
                   </span>
                 </div>
@@ -101,8 +116,8 @@ export default function PlatformStatus() {
             })}
           </div>
 
-          <div className="pt-2 border-t border-white/[0.06]">
-            <p className="text-xs text-zinc-600">
+          <div className="px-3 py-2" style={{ borderTop: '1px solid #e5e5e5' }}>
+            <p className="text-xs" style={{ color: '#999999' }}>
               Install extension for additional sources
             </p>
           </div>

@@ -1,10 +1,9 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { createRequire } from 'module';
 import mammoth from 'mammoth';
+import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
-const pdfParse = require('pdf-parse');
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB limit
@@ -22,9 +21,11 @@ router.post('/', upload.single('file'), async (req, res) => {
     let text = '';
 
     if (filename.endsWith('.pdf')) {
-      // Extract text from PDF
-      const data = await pdfParse(file.buffer);
-      text = data.text;
+      // Extract text from PDF using pdf-parse v2 API
+      const { PDFParse } = require('pdf-parse');
+      const parser = new PDFParse({ data: file.buffer });
+      const result = await parser.getText();
+      text = result.text;
     } else if (filename.endsWith('.docx')) {
       // Extract text from DOCX
       const result = await mammoth.extractRawText({ buffer: file.buffer });

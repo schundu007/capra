@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { getApiUrl } from '../hooks/useElectron';
@@ -40,7 +40,7 @@ const hackerRankTheme = {
   },
 };
 
-export default function CodeDisplay({ code: initialCode, language, onLineHover, examples, onCodeUpdate, onExplanationsUpdate, isStreaming, autoRunOutput, interviewMode, systemDesign, eraserDiagram, onGenerateEraserDiagram }) {
+const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, language, onLineHover, examples, onCodeUpdate, onExplanationsUpdate, isStreaming, autoRunOutput, interviewMode, systemDesign, eraserDiagram, onGenerateEraserDiagram }, ref) {
   const normalizedLanguage = language?.toLowerCase() || 'python';
   const [code, setCode] = useState(initialCode);
   const [copied, setCopied] = useState(false);
@@ -53,6 +53,7 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
   const [showTestInput, setShowTestInput] = useState(false);
   const [outputHeight, setOutputHeight] = useState(120);
   const [isResizing, setIsResizing] = useState(false);
+
   useEffect(() => {
     setCode(initialCode);
     setFixAttempts(0);
@@ -94,6 +95,11 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
       setRunning(false);
     }
   };
+
+  // Expose runCode to parent via ref for keyboard shortcuts
+  useImperativeHandle(ref, () => ({
+    runCode: handleRun,
+  }), [code, normalizedLanguage, input]);
 
   const handleFix = async () => {
     if (!output || output.success) return;
@@ -176,13 +182,13 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
     return (
       <div className="h-full flex flex-col bg-white">
         {/* Header for Design Mode */}
-        <div className="flex items-center justify-between px-2 py-1.5 flex-shrink-0 border-b border-gray-200">
+        <div className="flex items-center justify-between px-3 py-2 flex-shrink-0" style={{ borderBottom: '1px solid #e5e5e5' }}>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-blue-500 text-white">
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded" style={{ background: '#f5f5f5', border: '1px solid #e5e5e5' }}>
+              <svg className="w-3 h-3" style={{ color: '#666666' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
               </svg>
-              <span className="text-[10px] font-medium">System Design</span>
+              <span className="text-[10px] font-medium" style={{ color: '#333333' }}>System Design</span>
             </div>
           </div>
         </div>
@@ -196,16 +202,16 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
               onGenerateEraserDiagram={onGenerateEraserDiagram}
             />
           ) : isStreaming ? (
-            <div className="flex flex-col items-center justify-center h-full text-gray-500">
+            <div className="flex flex-col items-center justify-center h-full" style={{ color: '#999999' }}>
               <div className="flex gap-1 mb-2">
-                <span className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                <span className="w-2 h-2 rounded-full animate-bounce" style={{ background: '#10b981', animationDelay: '0ms' }} />
+                <span className="w-2 h-2 rounded-full animate-bounce" style={{ background: '#10b981', animationDelay: '150ms' }} />
+                <span className="w-2 h-2 rounded-full animate-bounce" style={{ background: '#10b981', animationDelay: '300ms' }} />
               </div>
               <span className="text-sm">Generating system design...</span>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-full text-gray-400">
+            <div className="flex flex-col items-center justify-center h-full" style={{ color: '#b3b3b3' }}>
               <svg className="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
               </svg>
@@ -350,11 +356,10 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
           <button
             onClick={handleRun}
             disabled={running || !canRun}
-            className="px-2 py-1 text-[10px] font-semibold rounded transition-colors disabled:opacity-50"
+            className="px-2.5 py-1 text-[10px] font-semibold rounded transition-colors disabled:opacity-50 hover:opacity-90"
             style={{
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              background: '#10b981',
               color: 'white',
-              boxShadow: '0 0 12px rgba(16, 185, 129, 0.2)'
             }}
           >
             {running ? 'Running...' : 'Run Code'}
@@ -458,4 +463,6 @@ export default function CodeDisplay({ code: initialCode, language, onLineHover, 
       )}
     </div>
   );
-}
+});
+
+export default CodeDisplay;

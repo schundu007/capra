@@ -1,15 +1,15 @@
 import { useState } from 'react';
 
-// Claude-inspired warm color palette
+// Oracle-inspired clean color palette
 const colors = {
-  bg: '#FAF9F7',
-  paper: '#FFFFFF',
-  accent: '#D4714C',
-  accentLight: '#FDF4F0',
-  text: '#2D2D2D',
-  textMuted: '#555555',
-  textLight: '#777777',
-  border: '#E5E1DC',
+  bg: '#f5f5f5',
+  paper: '#ffffff',
+  accent: '#10b981',
+  accentLight: '#ecfdf5',
+  text: '#333333',
+  textMuted: '#666666',
+  textLight: '#999999',
+  border: '#e5e5e5',
 };
 
 export default function OutputPanel({ section, content, streamingContent, isGenerating, onRegenerate, onGenerate, hasInputs }) {
@@ -17,7 +17,9 @@ export default function OutputPanel({ section, content, streamingContent, isGene
 
   const handleCopy = async () => {
     try {
-      const text = typeof content === 'string' ? content : content?.rawContent || JSON.stringify(content, null, 2);
+      let text = typeof content === 'string' ? content : content?.rawContent || JSON.stringify(content, null, 2);
+      // Clean up: trim and remove excessive newlines
+      text = text.trim().replace(/\n{3,}/g, '\n\n');
       if (window.electronAPI?.copyToClipboard) {
         window.electronAPI.copyToClipboard(text);
       } else {

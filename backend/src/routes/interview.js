@@ -29,7 +29,10 @@ Remember: The candidate will read this aloud, so keep it natural and speakable.`
 router.post('/answer', async (req, res) => {
   const { question, context = '', provider = 'claude', model } = req.body;
 
+  console.log('[Interview] Answer request received:', { questionLength: question?.length, provider, model });
+
   if (!question) {
+    console.log('[Interview] No question provided');
     return res.status(400).json({ error: 'Question is required' });
   }
 

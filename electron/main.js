@@ -1,7 +1,7 @@
 // IMPORTANT: Import EPIPE handler first before any other imports
 import './epipe-handler.js';
 
-import { app, BrowserWindow, ipcMain, Menu, shell, safeStorage, nativeTheme, session, desktopCapturer } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu, shell, safeStorage, nativeTheme, session, desktopCapturer, screen } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { startBackendServer } from './backend-server.js';
@@ -28,6 +28,7 @@ function safeError(...args) {
 // app.disableHardwareAcceleration();
 
 let mainWindow = null;
+let interviewPrepWindow = null;
 let backendServer = null;
 const isDev = !app.isPackaged;
 
@@ -141,6 +142,37 @@ async function createWindow() {
   // Handle window close
   mainWindow.on('closed', () => {
     mainWindow = null;
+  });
+
+  // Enable right-click context menu with copy/paste
+  mainWindow.webContents.on('context-menu', (event, params) => {
+    const { editFlags, isEditable, selectionText } = params;
+
+    const menuTemplate = [];
+
+    // Add cut/copy/paste based on context
+    if (isEditable) {
+      menuTemplate.push(
+        { role: 'undo', enabled: editFlags.canUndo },
+        { role: 'redo', enabled: editFlags.canRedo },
+        { type: 'separator' },
+        { role: 'cut', enabled: editFlags.canCut },
+        { role: 'copy', enabled: editFlags.canCopy },
+        { role: 'paste', enabled: editFlags.canPaste },
+        { type: 'separator' },
+        { role: 'selectAll', enabled: editFlags.canSelectAll }
+      );
+    } else if (selectionText) {
+      // Text is selected but not in an editable field
+      menuTemplate.push(
+        { role: 'copy', enabled: editFlags.canCopy }
+      );
+    }
+
+    if (menuTemplate.length > 0) {
+      const contextMenu = Menu.buildFromTemplate(menuTemplate);
+      contextMenu.popup({ window: mainWindow });
+    }
   });
 
   // Set up header modification for LockedIn AI webview to bypass X-Frame-Options
@@ -319,10 +351,17 @@ app.whenReady().then(async () => {
     initAutoUpdater(mainWindow);
   }
 
-  // macOS: Re-create window when dock icon is clicked
+  // macOS: Re-create window when dock icon is clicked, or show existing window
   app.on('activate', async () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       await createWindow();
+    } else if (mainWindow) {
+      // Show and focus the existing window
+      if (mainWindow.isMinimized()) {
+        mainWindow.restore();
+      }
+      mainWindow.show();
+      mainWindow.focus();
     }
   });
 });
@@ -402,6 +441,88 @@ ipcMain.handle('platform-logout', async (event, platform) => {
 
 ipcMain.handle('get-platform-cookies', (event, platform) => {
   return getPlatformCookies(platform);
+});
+
+// Open Interview Prep in dedicated window
+ipcMain.handle('open-interview-prep', async () => {
+  // If window already exists, focus it
+  if (interviewPrepWindow && !interviewPrepWindow.isDestroyed()) {
+    interviewPrepWindow.focus();
+    return { success: true };
+  }
+
+  // Get screen dimensions
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
+
+  // Calculate window dimensions: 100% width, 50% height, positioned at bottom
+  const windowWidth = screenWidth;
+  const windowHeight = Math.floor(screenHeight * 0.5);
+  const windowX = 0;
+  const windowY = screenHeight - windowHeight;
+
+  // Create new window for Interview Prep
+  interviewPrepWindow = new BrowserWindow({
+    width: windowWidth,
+    height: windowHeight,
+    x: windowX,
+    y: windowY,
+    minWidth: 800,
+    minHeight: 300,
+    title: 'Interview Prep - Capra',
+    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
+    trafficLightPosition: { x: 16, y: 16 },
+    backgroundColor: '#1f2937', // Dark background to match sidebar
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.cjs'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+    },
+  });
+
+  // Load the app with interview-prep hash
+  if (isDev) {
+    await interviewPrepWindow.loadURL('http://localhost:5173/#interview-prep');
+  } else {
+    const indexPath = path.join(__dirname, '../frontend/dist/index.html');
+    await interviewPrepWindow.loadFile(indexPath, { hash: 'interview-prep' });
+  }
+
+  // Enable right-click context menu with copy/paste for Interview Prep window
+  interviewPrepWindow.webContents.on('context-menu', (event, params) => {
+    const { editFlags, isEditable, selectionText } = params;
+
+    const menuTemplate = [];
+
+    if (isEditable) {
+      menuTemplate.push(
+        { role: 'undo', enabled: editFlags.canUndo },
+        { role: 'redo', enabled: editFlags.canRedo },
+        { type: 'separator' },
+        { role: 'cut', enabled: editFlags.canCut },
+        { role: 'copy', enabled: editFlags.canCopy },
+        { role: 'paste', enabled: editFlags.canPaste },
+        { type: 'separator' },
+        { role: 'selectAll', enabled: editFlags.canSelectAll }
+      );
+    } else if (selectionText) {
+      menuTemplate.push(
+        { role: 'copy', enabled: editFlags.canCopy }
+      );
+    }
+
+    if (menuTemplate.length > 0) {
+      const contextMenu = Menu.buildFromTemplate(menuTemplate);
+      contextMenu.popup({ window: interviewPrepWindow });
+    }
+  });
+
+  interviewPrepWindow.on('closed', () => {
+    interviewPrepWindow = null;
+  });
+
+  return { success: true };
 });
 
 // LockedIn AI is now embedded via webview in the frontend - no separate window needed

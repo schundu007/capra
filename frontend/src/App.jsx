@@ -17,10 +17,18 @@ import InterviewAssistantPanel from './components/InterviewAssistantPanel';
 import InterviewModeSelector from './components/InterviewModeSelector';
 import PrepTab from './components/PrepTab';
 import InterviewPrepModal from './components/InterviewPrepModal';
+import SavedSystemDesignsModal from './components/SavedSystemDesignsModal';
 import { getApiUrl } from './hooks/useElectron';
+import useKeyboardShortcuts from './hooks/useKeyboardShortcuts';
+import { useSystemDesignStorage } from './hooks/useSystemDesignStorage';
+import { useCodingHistory } from './hooks/useCodingHistory';
+import Sidebar from './components/Sidebar';
 
 // Detect Electron environment
 const isElectron = window.electronAPI?.isElectron || false;
+
+// Check if this is the dedicated Interview Prep window
+const isInterviewPrepWindow = window.location.hash === '#interview-prep';
 
 // Get API URL - uses dynamic resolution for Electron
 const API_URL = getApiUrl();
@@ -68,10 +76,32 @@ function parseStreamingContent(text) {
 
   if (!text) return result;
 
-  // Try to extract code - look for "code": "..." pattern
-  const codeMatch = text.match(/"code"\s*:\s*"((?:[^"\\]|\\.)*)"/s);
+  // Try to extract top-level code field (not the "code" inside explanations array)
+  // Look for "code" that comes after "language" or at the start of the JSON object
+  // First, try to find "language" followed by "code" pattern
+  let codeMatch = text.match(/"language"\s*:\s*"[^"]*"\s*,\s*"code"\s*:\s*"((?:[^"\\]|\\.)*)"/s);
+
+  // If that doesn't work, look for "code" that is NOT inside an explanations object
+  // (explanations objects have {"line": before "code")
+  if (!codeMatch) {
+    // Find all "code": "..." matches and filter out ones inside explanations
+    const allCodeMatches = [...text.matchAll(/"code"\s*:\s*"((?:[^"\\]|\\.)*)"/gs)];
+    for (const match of allCodeMatches) {
+      // Check if this "code" is preceded by {"line": (which means it's in explanations)
+      const beforeMatch = text.substring(0, match.index);
+      const lastBrace = beforeMatch.lastIndexOf('{');
+      const contextBefore = beforeMatch.substring(lastBrace);
+      // If the context before doesn't contain "line", this is likely the top-level code
+      if (!contextBefore.match(/"line"\s*:/)) {
+        codeMatch = match;
+        break;
+      }
+    }
+  }
+
   if (codeMatch) {
-    result.code = codeMatch[1]
+    const codeValue = codeMatch[1] || codeMatch[1];
+    result.code = codeValue
       .replace(/\\n/g, '\n')
       .replace(/\\t/g, '\t')
       .replace(/\\"/g, '"')
@@ -215,6 +245,34 @@ export default function App() {
   const [platformStatus, setPlatformStatus] = useState({});
   const [showPrepTab, setShowPrepTab] = useState(false);
   const [showInterviewPrep, setShowInterviewPrep] = useState(false);
+  const [showSavedDesigns, setShowSavedDesigns] = useState(false);
+
+  // System design storage hook
+  const systemDesignStorage = useSystemDesignStorage();
+
+  // Coding history hook
+  const codingHistory = useCodingHistory();
+
+  // Sidebar state (Electron only, persisted)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (!isElectron) return true;
+    try {
+      return localStorage.getItem('capra_sidebar_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  // Toggle sidebar and persist state
+  const toggleSidebar = () => {
+    const newState = !sidebarCollapsed;
+    setSidebarCollapsed(newState);
+    try {
+      localStorage.setItem('capra_sidebar_collapsed', String(newState));
+    } catch {
+      // Ignore storage errors
+    }
+  };
 
   // Check if user is admin
   const isAdmin = user?.roles?.includes('admin');
@@ -347,6 +405,7 @@ export default function App() {
     setError(null);
     setErrorType('default');
     setExtractedText('');
+    setLoadedProblem(''); // Clear loaded problem from history
     setStreamingText('');
     setAutoRunOutput(null);
     setProblemExpanded(true);
@@ -365,6 +424,7 @@ export default function App() {
 
   const [currentProblem, setCurrentProblem] = useState('');
   const [currentLanguage, setCurrentLanguage] = useState('auto');
+  const [loadedProblem, setLoadedProblem] = useState(''); // Problem loaded from history
   const [autoFixAttempts, setAutoFixAttempts] = useState(0);
   const [autoRunOutput, setAutoRunOutput] = useState(null); // Store auto-run output
   const MAX_AUTO_FIX_ATTEMPTS = 1; // Only 1 attempt to keep it fast
@@ -375,6 +435,9 @@ export default function App() {
   const [eraserDiagram, setEraserDiagram] = useState(null); // { imageUrl, editUrl }
   const [autoGenerateEraser, setAutoGenerateEraser] = useState(false); // Auto-generate pro diagram
   const [isProcessingFollowUp, setIsProcessingFollowUp] = useState(false); // Follow-up question state
+
+  // Ref for CodeDisplay run function
+  const codeDisplayRef = useRef(null);
 
   // Handle mode change with state reset
   const handleModeChange = (newMode) => {
@@ -411,6 +474,111 @@ export default function App() {
       setInterviewMode(newMode);
     }
   };
+
+  // Load a saved system design session
+  const handleLoadSavedSession = (sessionId) => {
+    const session = systemDesignStorage.loadSession(sessionId);
+    if (session) {
+      // Switch to system design mode if not already
+      if (interviewMode !== 'system-design') {
+        setInterviewMode('system-design');
+      }
+
+      // Set the detail level
+      setDesignDetailLevel(session.detailLevel || 'full');
+
+      // Load the problem and solution
+      setCurrentProblem(session.problem || '');
+      setExtractedText(session.problem || '');
+      setProblemExpanded(true);
+
+      // Set the solution with system design
+      setSolution({
+        systemDesign: session.systemDesign,
+        code: null,
+        language: null,
+        pitch: null,
+        explanations: null,
+        complexity: null
+      });
+
+      // Load Eraser diagram if saved
+      if (session.eraserDiagram) {
+        setEraserDiagram(session.eraserDiagram);
+      }
+
+      // Clear any errors
+      setError(null);
+      setErrorType('default');
+    }
+  };
+
+  // Load a coding history entry
+  const handleLoadHistoryEntry = (entryId) => {
+    const entry = codingHistory.getEntry(entryId);
+    if (entry) {
+      // Switch to coding mode if not already
+      if (interviewMode !== 'coding') {
+        setInterviewMode('coding');
+      }
+
+      // Load the problem and solution
+      setCurrentProblem(entry.problem || '');
+      setLoadedProblem(entry.problem || ''); // Use dedicated prop for loaded problems
+      setProblemExpanded(true);
+      setCurrentLanguage(entry.language || 'auto');
+
+      // Set the solution (including pitch and explanations from history)
+      setSolution({
+        code: entry.code,
+        language: entry.language,
+        complexity: entry.complexity,
+        pitch: entry.pitch || null,
+        explanations: entry.explanations || null,
+        systemDesign: null
+      });
+
+      // Clear any errors
+      setError(null);
+      setErrorType('default');
+    }
+  };
+
+  // Keyboard shortcut callbacks
+  const handleKeyboardSolve = () => {
+    if (currentProblem || extractedText) {
+      handleSolve(currentProblem || extractedText, currentLanguage, 'detailed');
+    }
+  };
+
+  const handleKeyboardRun = () => {
+    if (codeDisplayRef.current?.runCode) {
+      codeDisplayRef.current.runCode();
+    }
+  };
+
+  const handleKeyboardCopy = () => {
+    const code = solution?.code || streamingContent.code;
+    if (code) {
+      navigator.clipboard.writeText(code);
+    }
+  };
+
+  // Check if any modal is open (disable shortcuts when modals are open)
+  const isModalOpen = showSettings || showSetupWizard || showPlatformAuth ||
+                      showPrepTab || showInterviewPrep || showAdminPanel || showSavedDesigns;
+
+  // Global keyboard shortcuts
+  useKeyboardShortcuts({
+    onSolve: handleKeyboardSolve,
+    onRun: handleKeyboardRun,
+    onClear: handleClearAll,
+    onCopyCode: handleKeyboardCopy,
+    isLoading,
+    hasProblem: !!(currentProblem || extractedText),
+    hasCode: !!(solution?.code || streamingContent.code),
+    disabled: isModalOpen,
+  });
 
   // Auto-test, fix, and run code - returns code and final output
   const autoTestAndFix = async (code, language, examples, problem, currentModel) => {
@@ -549,8 +717,31 @@ export default function App() {
             autoFixed: fixed,
             fixAttempts: attempts
           });
+
+          // Save to coding history (only for coding mode)
+          if (interviewMode === 'coding' && fixedCode) {
+            codingHistory.addEntry({
+              problem,
+              language: result.language || language,
+              code: fixedCode,
+              complexity: result.complexity,
+              source: 'text',
+              pitch: result.pitch,
+              explanations: result.explanations
+            });
+          }
         } else {
           setSolution(result);
+
+          // Auto-save system design session
+          if (interviewMode === 'system-design' && result?.systemDesign?.included) {
+            systemDesignStorage.saveSession({
+              problem,
+              source: 'text',
+              systemDesign: result.systemDesign,
+              detailLevel: designDetailLevel
+            });
+          }
 
           // Auto-generate Eraser diagram if enabled and in system design mode
           if (autoGenerateEraser && interviewMode === 'system-design' && result?.systemDesign?.included) {
@@ -562,7 +753,15 @@ export default function App() {
               body: JSON.stringify({ description }),
             })
               .then(res => res.ok ? res.json() : null)
-              .then(data => { if (data) setEraserDiagram(data); })
+              .then(data => {
+                if (data) {
+                  setEraserDiagram(data);
+                  // Auto-save Eraser diagram to current session
+                  if (systemDesignStorage.currentSessionId) {
+                    systemDesignStorage.updateEraserDiagram(systemDesignStorage.currentSessionId, data);
+                  }
+                }
+              })
               .catch(err => console.error('Auto Eraser diagram failed:', err));
           }
         }
@@ -664,6 +863,22 @@ export default function App() {
         }));
       }
 
+      // Auto-save Q&A to current session (for system design mode)
+      if (interviewMode === 'system-design' && systemDesignStorage.currentSessionId && result?.answer) {
+        systemDesignStorage.addQAToSession(
+          systemDesignStorage.currentSessionId,
+          question,
+          result.answer
+        );
+
+        // Also update system design if it was modified
+        if (result?.updatedDesign) {
+          systemDesignStorage.updateSession(systemDesignStorage.currentSessionId, {
+            systemDesign: result.updatedDesign
+          });
+        }
+      }
+
       return result;
     } catch (err) {
       console.error('Follow-up question error:', err);
@@ -725,8 +940,31 @@ export default function App() {
             autoFixed: fixed,
             fixAttempts: attempts
           });
+
+          // Save to coding history for URL-fetched problems
+          if (interviewMode === 'coding' && fixedCode) {
+            codingHistory.addEntry({
+              problem: fetchData.problemText,
+              language: result.language || language,
+              code: fixedCode,
+              complexity: result.complexity,
+              source: 'url',
+              pitch: result.pitch,
+              explanations: result.explanations
+            });
+          }
         } else {
           setSolution(result);
+
+          // Auto-save system design session for URL-fetched problems
+          if (interviewMode === 'system-design' && result?.systemDesign?.included) {
+            systemDesignStorage.saveSession({
+              problem: fetchData.problemText,
+              source: 'url',
+              systemDesign: result.systemDesign,
+              detailLevel: designDetailLevel
+            });
+          }
         }
       }
     } catch (err) {
@@ -804,8 +1042,31 @@ export default function App() {
               autoFixed: fixed,
               fixAttempts: attempts
             });
+
+            // Save to coding history for screenshot problems
+            if (interviewMode === 'coding' && fixedCode) {
+              codingHistory.addEntry({
+                problem: extractedProblem,
+                language: result.language || language,
+                code: fixedCode,
+                complexity: result.complexity,
+                source: 'image',
+                pitch: result.pitch,
+                explanations: result.explanations
+              });
+            }
           } else {
             setSolution(result);
+
+            // Auto-save system design session for screenshot problems
+            if (interviewMode === 'system-design' && result?.systemDesign?.included) {
+              systemDesignStorage.saveSession({
+                problem: extractedProblem,
+                source: 'image',
+                systemDesign: result.systemDesign,
+                detailLevel: designDetailLevel
+              });
+            }
           }
         }
       }
@@ -851,74 +1112,133 @@ export default function App() {
     return <Login onLogin={handleLogin} />;
   }
 
+  // If this is the dedicated Interview Prep window, render only that
+  if (isInterviewPrepWindow) {
+    return (
+      <div className="h-screen flex flex-col overflow-hidden bg-white">
+        <InterviewPrepModal
+          isOpen={true}
+          onClose={() => window.close()}
+          provider={provider}
+          model={model}
+          isDedicatedWindow={true}
+        />
+      </div>
+    );
+  }
+
   // Check if running on macOS in Electron (needs extra padding for traffic lights)
   const isMacElectron = isElectron && navigator.platform.toLowerCase().includes('mac');
 
+  // Determine if sidebar should be shown
+  const showSidebar = isElectron && !sidebarCollapsed;
+
   return (
-    <div className="h-screen flex flex-col overflow-hidden" style={{ background: '#ffffff', color: '#111827' }}>
-      {/* Header */}
+    <div className="h-screen flex overflow-hidden" style={{ background: '#ffffff', color: '#111827' }}>
+      {/* Sidebar (Electron only) */}
+      {showSidebar && (
+        <Sidebar
+          interviewMode={interviewMode}
+          onModeChange={handleModeChange}
+          savedDesigns={systemDesignStorage.getAllSessions()}
+          codingHistory={codingHistory.getAllEntries()}
+          onLoadDesign={handleLoadSavedSession}
+          onLoadHistory={handleLoadHistoryEntry}
+          onDeleteDesign={systemDesignStorage.deleteSession}
+          onDeleteHistory={codingHistory.deleteEntry}
+          onCollapse={toggleSidebar}
+          onViewAllDesigns={() => setShowSavedDesigns(true)}
+          onViewAllHistory={() => {/* Could add a history modal later */}}
+        />
+      )}
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Header - Light Oracle-inspired */}
       <header
         className="relative z-20 flex items-center justify-between px-4 py-3"
         style={{
-          paddingLeft: isMacElectron ? '80px' : '16px',
-          background: 'rgba(255, 255, 255, 0.9)',
-          backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(0,0,0,0.08)',
+          // Only add traffic light padding when sidebar is collapsed/hidden
+          paddingLeft: (isMacElectron && !showSidebar) ? '80px' : '16px',
+          background: '#ffffff',
+          borderBottom: '1px solid #e5e5e5',
           WebkitAppRegion: 'drag'
         }}
       >
         {/* Left: Logo & Status */}
         <div className="flex items-center gap-4" style={{ WebkitAppRegion: 'no-drag' }}>
-          <div className="relative group flex items-center gap-3">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                boxShadow: '0 0 20px rgba(16, 185, 129, 0.3)'
-              }}
+          {/* Sidebar Toggle (Electron only) */}
+          {isElectron && sidebarCollapsed && (
+            <button
+              onClick={toggleSidebar}
+              className="p-2 rounded-lg transition-all"
+              style={{ color: '#666666' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#333333'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#666666'; }}
+              title="Show sidebar"
             >
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
+            </button>
+          )}
+
+          {/* Only show logo in header when sidebar is hidden */}
+          {!showSidebar && (
+            <div className="relative group flex items-center gap-2">
+              <img
+                src="/ascend-logo.png"
+                alt="Ascend"
+                className="h-8 w-auto object-contain"
+              />
+              {isLoading && (
+                <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full animate-pulse" style={{ background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
+              )}
             </div>
-            {isLoading && (
-              <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full animate-pulse" style={{ background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
-            )}
-            <h1 className="text-lg font-semibold tracking-tight" style={{ color: '#111827' }}>
-              Capra
-            </h1>
-          </div>
+          )}
+          {/* Loading indicator when sidebar is visible */}
+          {showSidebar && isLoading && (
+            <div className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
+              <span className="text-sm" style={{ color: '#666666' }}>Processing...</span>
+            </div>
+          )}
 
           {/* Status Pill */}
           <div
             className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all"
             style={{
-              background: isLoading ? 'rgba(16, 185, 129, 0.1)' : '#f3f4f6',
-              border: isLoading ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid rgba(0,0,0,0.06)',
-              color: isLoading ? '#10b981' : '#6b7280'
+              background: isLoading ? '#ecfdf5' : '#f5f5f5',
+              border: isLoading ? '1px solid #a7f3d0' : '1px solid #e5e5e5',
+              color: isLoading ? '#10b981' : '#666666'
             }}
           >
             <div
               className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'animate-pulse' : ''}`}
               style={{
-                background: isLoading ? '#10b981' : '#9ca3af',
+                background: isLoading ? '#10b981' : '#999999',
                 boxShadow: isLoading ? '0 0 8px #10b981' : 'none'
               }}
             />
             {isLoading ? 'Processing' : 'Ready'}
           </div>
 
-          {/* Interview Prep Button - Highlighted */}
+          {/* Interview Prep Button - Clean solid style */}
           <button
-            onClick={() => setShowInterviewPrep(true)}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl transition-all hover:scale-105"
-            style={{
-              background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%)',
-              color: 'white',
-              boxShadow: '0 4px 20px rgba(139, 92, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.2)',
-              border: '2px solid rgba(255,255,255,0.2)'
+            onClick={async () => {
+              // In Electron, open dedicated window; otherwise show modal
+              if (isElectron && window.electronAPI?.openInterviewPrep) {
+                await window.electronAPI.openInterviewPrep();
+              } else {
+                setShowInterviewPrep(true);
+              }
             }}
-            title="Interview Prep"
+            className="flex items-center gap-2 px-4 py-1.5 text-sm font-semibold rounded-lg transition-all hover:opacity-90"
+            style={{
+              background: '#8b5cf6',
+              color: 'white',
+            }}
+            title="Interview Prep (opens in new window)"
           >
             Interview Prep
           </button>
@@ -928,11 +1248,12 @@ export default function App() {
             onClick={() => setShowPrepTab(true)}
             className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-all"
             style={{
-              background: '#f3f4f6',
-              color: '#374151',
+              background: '#f5f5f5',
+              color: '#666666',
+              border: '1px solid #e5e5e5',
             }}
-            onMouseEnter={(e) => { e.target.style.background = '#e5e7eb'; }}
-            onMouseLeave={(e) => { e.target.style.background = '#f3f4f6'; }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#e5e5e5'; e.currentTarget.style.color = '#333333'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#666666'; }}
             title="Platform Connections"
           >
             Platforms
@@ -947,9 +1268,9 @@ export default function App() {
           <button
             onClick={handleClearAll}
             className="p-2 rounded-lg transition-all"
-            style={{ color: '#6b7280' }}
-            onMouseEnter={(e) => { e.target.style.background = '#f3f4f6'; e.target.style.color = '#111827'; }}
-            onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = '#6b7280'; }}
+            style={{ color: '#666666' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#333333'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#666666'; }}
             title="Clear all"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -962,9 +1283,9 @@ export default function App() {
             <button
               onClick={() => setShowPlatformDropdown(!showPlatformDropdown)}
               className="p-2 rounded-lg transition-all"
-              style={{ color: '#6b7280' }}
-              onMouseEnter={(e) => { e.target.style.background = '#f3f4f6'; e.target.style.color = '#111827'; }}
-              onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = '#6b7280'; }}
+              style={{ color: '#666666' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#333333'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#666666'; }}
               title="Coding Platforms"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1022,10 +1343,9 @@ export default function App() {
             onClick={() => setShowInterviewAssistant(!showInterviewAssistant)}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
             style={{
-              background: showInterviewAssistant ? 'rgba(16, 185, 129, 0.1)' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              background: showInterviewAssistant ? 'rgba(16, 185, 129, 0.2)' : '#10b981',
               color: showInterviewAssistant ? '#10b981' : 'white',
-              border: showInterviewAssistant ? '1px solid rgba(16, 185, 129, 0.3)' : 'none',
-              boxShadow: showInterviewAssistant ? 'none' : '0 0 20px rgba(16, 185, 129, 0.3)'
+              border: showInterviewAssistant ? '1px solid rgba(16, 185, 129, 0.4)' : 'none',
             }}
             title="Toggle Interview Assistant"
           >
@@ -1040,9 +1360,9 @@ export default function App() {
           <button
             onClick={() => setShowSettings(true)}
             className="p-2 rounded-lg transition-all"
-            style={{ color: '#6b7280' }}
-            onMouseEnter={(e) => { e.target.style.background = '#f3f4f6'; e.target.style.color = '#111827'; }}
-            onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = '#6b7280'; }}
+            style={{ color: '#666666' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#333333'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#666666'; }}
             title="Settings"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1053,14 +1373,14 @@ export default function App() {
 
           {/* User menu */}
           {authRequired && user && (
-            <div className="flex items-center gap-2 ml-2 pl-3" style={{ borderLeft: '1px solid rgba(0,0,0,0.1)' }}>
+            <div className="flex items-center gap-2 ml-2 pl-3" style={{ borderLeft: '1px solid #e5e5e5' }}>
               {isAdmin && (
                 <button
                   onClick={() => setShowAdminPanel(true)}
                   className="p-2 rounded-lg transition-all"
-                  style={{ background: '#f3f4f6', color: '#6b7280' }}
-                  onMouseEnter={(e) => { e.target.style.background = '#e5e7eb'; e.target.style.color = '#111827'; }}
-                  onMouseLeave={(e) => { e.target.style.background = '#f3f4f6'; e.target.style.color = '#6b7280'; }}
+                  style={{ background: '#f5f5f5', color: '#666666' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = '#e5e5e5'; e.currentTarget.style.color = '#333333'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#666666'; }}
                   title="User management"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1071,9 +1391,9 @@ export default function App() {
               <button
                 onClick={handleLogout}
                 className="p-2 rounded-lg transition-all"
-                style={{ background: '#f3f4f6', color: '#6b7280' }}
-                onMouseEnter={(e) => { e.target.style.background = '#e5e7eb'; e.target.style.color = '#111827'; }}
-                onMouseLeave={(e) => { e.target.style.background = '#f3f4f6'; e.target.style.color = '#6b7280'; }}
+                style={{ background: '#f5f5f5', color: '#666666' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#e5e5e5'; e.currentTarget.style.color = '#333333'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#666666'; }}
                 title="Sign out"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1082,7 +1402,7 @@ export default function App() {
               </button>
               <div
                 className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
+                style={{ background: '#10b981' }}
               >
                 {(user.name || user.username || 'U')[0].toUpperCase()}
               </div>
@@ -1138,9 +1458,21 @@ export default function App() {
       )}
 
       {/* Main Layout */}
-      <main className="flex-1 overflow-hidden p-1 relative z-10">
-        <div className="h-full rounded-lg overflow-hidden border border-gray-200 bg-white">
-          <Allotment defaultSizes={showInterviewAssistant ? [1, 1, 1] : [1, 1]}>
+      <main className="flex-1 overflow-hidden p-4 relative z-10" style={{ background: '#f5f5f5' }}>
+        {/* Behavioral Mode - Show embedded Interview Prep */}
+        {interviewMode === 'behavioral' ? (
+          <div className="h-full rounded-lg overflow-hidden bg-white" style={{ border: '1px solid #e5e5e5' }}>
+            <InterviewPrepModal
+              isOpen={true}
+              onClose={() => {}}
+              provider={provider}
+              model={model}
+              embedded={true}
+            />
+          </div>
+        ) : (
+        <div className="h-full rounded-lg overflow-hidden bg-white" style={{ border: '1px solid #e5e5e5' }}>
+          <Allotment defaultSizes={showInterviewAssistant ? [30, 40, 30] : [30, 70]}>
             {/* Left Pane - Problem + Explanation (stacked vertically) */}
             <Allotment.Pane minSize={300}>
               <div className="h-full flex flex-col bg-white overflow-hidden">
@@ -1151,15 +1483,88 @@ export default function App() {
                     <div className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
                       <span className="text-xs font-medium text-gray-600">Problem</span>
+                      {/* Saved System Designs Button - only show in system-design mode */}
+                      {interviewMode === 'system-design' && (
+                        <button
+                          onClick={() => setShowSavedDesigns(true)}
+                          className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium rounded-md transition-colors"
+                          style={{
+                            background: systemDesignStorage.getAllSessions().length > 0 ? '#f3f4f6' : 'transparent',
+                            color: '#6b7280',
+                          }}
+                          onMouseEnter={(e) => { e.target.style.background = '#e5e7eb'; e.target.style.color = '#374151'; }}
+                          onMouseLeave={(e) => { e.target.style.background = systemDesignStorage.getAllSessions().length > 0 ? '#f3f4f6' : 'transparent'; e.target.style.color = '#6b7280'; }}
+                          title="View saved system designs"
+                        >
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                          </svg>
+                          Saved ({systemDesignStorage.getAllSessions().length})
+                        </button>
+                      )}
                     </div>
-                    <InterviewModeSelector
-                      interviewMode={interviewMode}
-                      onModeChange={handleModeChange}
-                      designDetailLevel={designDetailLevel}
-                      onDetailLevelChange={setDesignDetailLevel}
-                      autoGenerateEraser={autoGenerateEraser}
-                      onAutoGenerateEraserChange={setAutoGenerateEraser}
-                    />
+                    {/* Hide mode selector when sidebar is visible (mode switching is in sidebar) */}
+                    {!showSidebar && (
+                      <InterviewModeSelector
+                        interviewMode={interviewMode}
+                        onModeChange={handleModeChange}
+                        designDetailLevel={designDetailLevel}
+                        onDetailLevelChange={setDesignDetailLevel}
+                        autoGenerateEraser={autoGenerateEraser}
+                        onAutoGenerateEraserChange={setAutoGenerateEraser}
+                      />
+                    )}
+                    {/* Show only detail level options when sidebar is visible and in system-design mode */}
+                    {showSidebar && interviewMode === 'system-design' && (
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="flex rounded-lg overflow-hidden p-0.5"
+                          style={{
+                            background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+                          }}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => setDesignDetailLevel('basic')}
+                            className="px-2.5 py-1 text-[10px] font-semibold transition-all rounded-md"
+                            style={{
+                              background: designDetailLevel === 'basic' ? '#3b82f6' : 'transparent',
+                              color: designDetailLevel === 'basic' ? 'white' : '#3b82f6',
+                            }}
+                            title="Single-region, minimal architecture"
+                          >
+                            Basic
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDesignDetailLevel('full')}
+                            className="px-2.5 py-1 text-[10px] font-semibold transition-all rounded-md"
+                            style={{
+                              background: designDetailLevel === 'full' ? '#3b82f6' : 'transparent',
+                              color: designDetailLevel === 'full' ? 'white' : '#3b82f6',
+                            }}
+                            title="Multi-region, HA, detailed scalability"
+                          >
+                            Full
+                          </button>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setAutoGenerateEraser(!autoGenerateEraser)}
+                          className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-semibold transition-all"
+                          style={{
+                            background: autoGenerateEraser ? '#8b5cf6' : '#f3f4f6',
+                            color: autoGenerateEraser ? 'white' : '#6b7280',
+                          }}
+                          title={autoGenerateEraser ? 'Pro diagram auto-enabled' : 'Pro diagram disabled'}
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                          Auto
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   {/* Problem Input Content - compact, no flex grow */}
@@ -1177,6 +1582,7 @@ export default function App() {
                       expanded={problemExpanded}
                       onToggleExpand={() => setProblemExpanded(prev => !prev)}
                       interviewMode={interviewMode}
+                      loadedProblem={loadedProblem}
                     />
                   </div>
                 </div>
@@ -1202,6 +1608,7 @@ export default function App() {
             <Allotment.Pane minSize={400}>
               <div className="h-full border-l border-gray-200">
                 <CodeDisplay
+                  ref={codeDisplayRef}
                   code={solution?.code || streamingContent.code}
                   language={solution?.language || streamingContent.language}
                   complexity={solution?.complexity || streamingContent.complexity}
@@ -1228,6 +1635,11 @@ export default function App() {
                       if (response.ok) {
                         const data = await response.json();
                         setEraserDiagram(data);
+
+                        // Auto-save Eraser diagram to current session
+                        if (systemDesignStorage.currentSessionId) {
+                          systemDesignStorage.updateEraserDiagram(systemDesignStorage.currentSessionId, data);
+                        }
                       }
                     } catch (err) {
                       console.error('Failed to generate Eraser diagram:', err);
@@ -1249,20 +1661,25 @@ export default function App() {
             )}
           </Allotment>
         </div>
+        )}
       </main>
 
-      {/* Footer - Minimal */}
-      <footer className="relative z-10 px-3 py-1.5 flex items-center justify-between text-[10px] text-gray-400 border-t border-gray-200 bg-white">
+      {/* Footer - Clean Oracle-inspired */}
+      <footer className="relative z-10 px-4 py-2 flex items-center justify-between text-[11px] border-t" style={{ borderColor: '#e5e5e5', background: '#ffffff', color: '#999999' }}>
         <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1">
+          <span className="flex items-center gap-1.5">
             <span className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'bg-[#10b981] animate-pulse' : 'bg-[#10b981]'}`} />
             {isLoading ? 'Processing' : 'Ready'}
           </span>
         </div>
-        <div className="flex items-center gap-3 font-mono">
-          <span>⌘ Enter</span>
+        <div className="flex items-center gap-3 font-mono" style={{ color: '#b3b3b3' }}>
+          <span title="Solve problem">Space solve</span>
           <span>·</span>
-          <span>Esc clear</span>
+          <span title="Run code">Enter run</span>
+          <span>·</span>
+          <span title="Clear all">Esc clear</span>
+          <span>·</span>
+          <span title="Copy code">⌘⇧C copy</span>
         </div>
       </footer>
 
@@ -1303,6 +1720,17 @@ export default function App() {
           model={model}
         />
       )}
+
+      {/* Saved System Designs Modal */}
+      <SavedSystemDesignsModal
+        isOpen={showSavedDesigns}
+        onClose={() => setShowSavedDesigns(false)}
+        sessions={systemDesignStorage.getAllSessions()}
+        onLoadSession={handleLoadSavedSession}
+        onDeleteSession={systemDesignStorage.deleteSession}
+        onClearAll={systemDesignStorage.clearAllSessions}
+      />
+      </div>{/* End Main Content wrapper */}
     </div>
   );
 }

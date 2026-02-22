@@ -54,38 +54,43 @@ export default function ProviderToggle({ provider, model, onChange, onModelChang
 
   return (
     <div className="flex items-center gap-2">
-      <div className="flex items-center gap-1 p-0.5 rounded" style={{ background: '#15322a' }}>
+      {/* Provider Toggle */}
+      <div
+        className="flex items-center gap-1 p-0.5 rounded"
+        style={{ background: '#f5f5f5', border: '1px solid #e5e5e5' }}
+      >
         <button
           onClick={() => handleProviderChange('claude')}
-          className="flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1 rounded text-xs font-semibold transition-colors"
           style={{
-            background: provider === 'claude' ? '#1ba94c' : 'transparent',
-            color: provider === 'claude' ? 'white' : '#b0b0b0'
+            background: provider === 'claude' ? '#10b981' : 'transparent',
+            color: provider === 'claude' ? '#ffffff' : '#666666'
           }}
         >
           Claude
         </button>
         <button
           onClick={() => handleProviderChange('openai')}
-          className="flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1 rounded text-xs font-semibold transition-colors"
           style={{
-            background: provider === 'openai' ? '#1ba94c' : 'transparent',
-            color: provider === 'openai' ? 'white' : '#b0b0b0'
+            background: provider === 'openai' ? '#10b981' : 'transparent',
+            color: provider === 'openai' ? '#ffffff' : '#666666'
           }}
         >
           GPT
         </button>
       </div>
 
+      {/* Model Selector */}
       <div className="relative">
         <button
           ref={buttonRef}
           onClick={handleToggleDropdown}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors border"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors"
           style={{
-            background: 'rgba(27, 169, 76, 0.1)',
-            borderColor: 'rgba(27, 169, 76, 0.3)',
-            color: '#1ba94c'
+            background: '#ecfdf5',
+            border: '1px solid #a7f3d0',
+            color: '#10b981'
           }}
         >
           {currentModel.name}
@@ -97,10 +102,10 @@ export default function ProviderToggle({ provider, model, onChange, onModelChang
         {showDropdown && (
           <div
             ref={dropdownRef}
-            className="fixed w-48 rounded-lg shadow-xl py-1 border"
+            className="fixed w-48 rounded shadow-lg py-1"
             style={{
-              background: '#1a1a2e',
-              borderColor: '#2a2a4e',
+              background: '#ffffff',
+              border: '1px solid #e5e5e5',
               top: dropdownPosition.top,
               right: dropdownPosition.right,
               zIndex: 9999
@@ -113,12 +118,13 @@ export default function ProviderToggle({ provider, model, onChange, onModelChang
                   onModelChange(m.id);
                   setShowDropdown(false);
                 }}
-                className={`w-full px-3 py-2 text-left text-xs transition-colors hover:bg-slate-700/50 ${
-                  m.id === model ? 'bg-slate-700/30' : ''
-                }`}
+                className="w-full px-3 py-2 text-left text-xs transition-colors"
+                style={{
+                  background: m.id === model ? '#f5f5f5' : 'transparent',
+                }}
               >
-                <div className="font-medium text-white">{m.name}</div>
-                <div className="text-slate-400 text-[10px]">{m.description}</div>
+                <div className="font-medium" style={{ color: '#333333' }}>{m.name}</div>
+                <div className="text-[10px]" style={{ color: '#999999' }}>{m.description}</div>
               </button>
             ))}
           </div>

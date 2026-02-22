@@ -2,43 +2,51 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Modern AI Enterprise Theme - Light */
+/* Oracle Cloud Console-Inspired Clean Theme */
 :root {
-  /* Primary Brand Colors */
+  /* Primary Brand Colors - Keep green per user preference */
   --accent-primary: #10b981;
   --accent-secondary: #059669;
   --accent-glow: rgba(16, 185, 129, 0.15);
   --accent-subtle: rgba(16, 185, 129, 0.08);
 
+  /* Oracle-inspired Layout Colors */
+  --header-bg: #1a1a1a;
+  --header-text: #ffffff;
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e5e5e5;
+  --content-bg: #ffffff;
+  --section-bg: #f5f5f5;
+
   /* Light Backgrounds */
   --bg-primary: #ffffff;
   --bg-secondary: #f9fafb;
-  --bg-tertiary: #f3f4f6;
+  --bg-tertiary: #f5f5f5;
   --bg-elevated: #ffffff;
-  --bg-glass: rgba(255, 255, 255, 0.8);
-  --bg-glass-hover: rgba(255, 255, 255, 0.95);
+  --bg-glass: rgba(255, 255, 255, 0.95);
+  --bg-glass-hover: #ffffff;
 
-  /* Text Colors */
-  --text-primary: #111827;
-  --text-secondary: #4b5563;
-  --text-muted: #6b7280;
-  --text-subtle: #9ca3af;
+  /* Text Colors - Oracle-inspired */
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --text-subtle: #b3b3b3;
 
-  /* Borders */
-  --border-subtle: rgba(0, 0, 0, 0.06);
-  --border-default: rgba(0, 0, 0, 0.1);
-  --border-accent: rgba(16, 185, 129, 0.3);
+  /* Borders - Very light, almost invisible */
+  --border-subtle: #f0f0f0;
+  --border-default: #e5e5e5;
+  --border-accent: rgba(16, 185, 129, 0.4);
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
-  --shadow-glow: 0 0 40px rgba(16, 185, 129, 0.15);
+  /* Shadows - Minimal */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 20px rgba(16, 185, 129, 0.1);
 
-  /* Gradients */
-  --gradient-subtle: linear-gradient(180deg, rgba(0,0,0,0.02) 0%, transparent 100%);
-  --gradient-accent: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  --gradient-glass: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.6) 100%);
+  /* Gradients - Removed heavy gradients, use solid colors */
+  --gradient-subtle: linear-gradient(180deg, rgba(0,0,0,0.01) 0%, transparent 100%);
+  --gradient-accent: #10b981;
+  --gradient-glass: #ffffff;
 }
 
 /* Base Styles */
@@ -57,8 +65,8 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 13px;
   line-height: 1.5;
-  color: #111827;
-  background: #ffffff;
+  color: var(--text-primary);
+  background: var(--bg-primary);
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
@@ -250,27 +258,26 @@ a:hover {
     border-color: var(--border-default);
   }
 
-  /* Primary Button */
+  /* Primary Button - Oracle-inspired solid style */
   .btn-primary {
     @apply px-4 py-2 font-medium rounded-lg transition-all duration-200;
-    background: var(--gradient-accent);
+    background: var(--accent-primary);
     color: white;
-    box-shadow: var(--shadow-sm), 0 0 20px rgba(16, 185, 129, 0.2);
+    border: none;
   }
 
   .btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md), 0 0 30px rgba(16, 185, 129, 0.3);
+    background: var(--accent-secondary);
   }
 
   .btn-primary:active {
-    transform: translateY(0);
+    background: #047857;
   }
 
   .btn-primary:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    transform: none;
+    background: var(--text-muted);
   }
 
   /* Ghost Button */
@@ -371,4 +378,42 @@ a:hover {
 /* Glow Effect */
 .glow-accent {
   box-shadow: var(--shadow-glow);
+}
+
+/* Oracle-inspired Sidebar Styles */
+.sidebar-section-header {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  padding: 12px 16px 8px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  margin: 2px 8px;
+  border-radius: 6px;
+  color: var(--text-primary);
+  border: 1px solid transparent;
+  background: transparent;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.sidebar-item:hover {
+  background: var(--section-bg);
+}
+
+/* Active state - Oracle-style dashed border outline */
+.sidebar-item-active {
+  border: 1px dashed var(--accent-primary);
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.sidebar-item-active:hover {
+  background: var(--accent-subtle);
 }

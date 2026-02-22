@@ -38,7 +38,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Clipboard support
   copyToClipboard: (text) => {
     try {
-      clipboard.writeText(text);
+      // Trim and clean up text before copying
+      const cleanText = (text || '').trim().replace(/\n{3,}/g, '\n\n');
+      clipboard.writeText(cleanText);
       return true;
     } catch (err) {
       console.error('Clipboard write failed:', err);
@@ -51,6 +53,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   platformLogout: (platform) => ipcRenderer.invoke('platform-logout', platform),
   getPlatformStatus: () => ipcRenderer.invoke('platform-status'),
   getPlatformCookies: (platform) => ipcRenderer.invoke('get-platform-cookies', platform),
+
+  // Open Interview Prep in dedicated window
+  openInterviewPrep: () => ipcRenderer.invoke('open-interview-prep'),
 
   // Audio capture for Interview Assistant (Electron-specific, works on macOS)
   getDesktopAudioSources: async () => {

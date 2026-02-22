@@ -141,7 +141,7 @@ export function CodePane() {
               <pre className={`flex-1 overflow-auto p-4 text-sm font-mono terminal-output ${
                 output.isError ? 'text-red-400' : 'text-emerald-400'
               }`}>
-                {output.text || '(no output)'}
+                {output.text}
               </pre>
             </div>
           )}
@@ -301,7 +301,7 @@ export function CodePane() {
           <pre className={`h-full overflow-auto p-4 text-sm font-mono terminal-output ${
             output.isError ? 'text-red-400' : 'text-emerald-400'
           }`}>
-            {output.text || '(no output)'}
+            {output.text}
           </pre>
         </div>
       )}

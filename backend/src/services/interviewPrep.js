@@ -22,7 +22,7 @@ function getOpenAIClient() {
 
 const DEFAULT_CLAUDE_MODEL = 'claude-sonnet-4-20250514';
 const DEFAULT_OPENAI_MODEL = 'gpt-4o';
-const MAX_TOKENS_PER_SECTION = 1500; // Reduced for faster response
+const MAX_TOKENS_PER_SECTION = 4000; // Increased to prevent truncation
 
 // Section-specific prompts
 const SECTION_PROMPTS = {
@@ -294,9 +294,9 @@ export async function* generateSectionClaude(section, inputs, model = DEFAULT_CL
     throw new Error(`Unknown section: ${section}`);
   }
 
-  const systemPrompt = `You are a concise interview coach. Give specific, actionable advice based on the resume and job description. Be direct and practical. Keep responses focused - quality over quantity.`;
+  const systemPrompt = `You are a concise interview coach. Give specific, actionable advice based on the resume and job description. Be direct and practical. Return ONLY valid JSON - no markdown, no code blocks, no explanations before or after. Start your response with { and end with }.`;
 
-  const userMessage = `${context}\n\n${sectionPrompt}\n\nIMPORTANT: Be concise. Focus on the 3-5 most important points only.`;
+  const userMessage = `${context}\n\n${sectionPrompt}\n\nCRITICAL: Return ONLY the JSON object. Do NOT wrap in \`\`\`json code blocks. Start directly with { and end with }.`;
 
   const stream = await getClaudeClient().messages.stream({
     model,

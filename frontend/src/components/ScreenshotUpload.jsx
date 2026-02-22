@@ -43,17 +43,26 @@ export default function ScreenshotUpload({ onUpload, isLoading, shouldClear }) {
     <div>
       {preview ? (
         <div className="relative">
-          <img src={preview} alt="Preview" className="w-full h-24 object-contain rounded bg-neutral-800" />
+          <img
+            src={preview}
+            alt="Preview"
+            className="w-full h-24 object-contain rounded"
+            style={{ background: '#f5f5f5' }}
+          />
           <button
             onClick={clearPreview}
             disabled={isLoading}
-            className="absolute top-1 right-1 p-1 bg-neutral-900/80 hover:bg-neutral-700 rounded text-neutral-300 text-xs"
+            className="absolute top-1 right-1 px-2 py-0.5 rounded text-xs font-medium transition-colors"
+            style={{ background: '#ffffff', color: '#666666', border: '1px solid #e5e5e5' }}
           >
-            ✕
+            Clear
           </button>
           {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-neutral-900/70 rounded">
-              <span className="text-xs text-white">Analyzing...</span>
+            <div
+              className="absolute inset-0 flex items-center justify-center rounded"
+              style={{ background: 'rgba(255,255,255,0.9)' }}
+            >
+              <span className="text-xs font-medium" style={{ color: '#10b981' }}>Analyzing...</span>
             </div>
           )}
         </div>
@@ -63,11 +72,15 @@ export default function ScreenshotUpload({ onUpload, isLoading, shouldClear }) {
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`h-20 border-2 border-dashed rounded flex items-center justify-center cursor-pointer transition-colors ${
-            isDragging ? 'border-white bg-neutral-800' : 'border-neutral-700 hover:border-neutral-500'
-          }`}
+          className="h-20 border-2 border-dashed rounded flex items-center justify-center cursor-pointer transition-colors"
+          style={{
+            borderColor: isDragging ? '#10b981' : '#e5e5e5',
+            background: isDragging ? '#ecfdf5' : '#ffffff',
+          }}
         >
-          <span className="text-neutral-500 text-xs">Drop screenshot or click</span>
+          <span className="text-xs font-medium" style={{ color: '#999999' }}>
+            Drop screenshot or click
+          </span>
         </div>
       )}
       <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />

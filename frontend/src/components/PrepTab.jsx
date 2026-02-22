@@ -4,23 +4,23 @@ import { getApiUrl } from '../hooks/useElectron';
 const API_URL = getApiUrl();
 const isElectron = window.electronAPI?.isElectron || false;
 
-// Platform categories
+// Platform categories - using initials instead of generic icons
 const CODING_PLATFORMS = {
-  hackerrank: { name: 'HackerRank', icon: '✨', color: '#1ba94c', url: 'hackerrank.com' },
-  leetcode: { name: 'LeetCode', icon: '✨', color: '#f97316', url: 'leetcode.com' },
-  coderpad: { name: 'CoderPad', icon: '✨', color: '#6366f1', url: 'coderpad.io' },
-  codesignal: { name: 'CodeSignal', icon: '✨', color: '#3b82f6', url: 'codesignal.com' },
+  hackerrank: { name: 'HackerRank', color: '#1ba94c', url: 'hackerrank.com' },
+  leetcode: { name: 'LeetCode', color: '#f97316', url: 'leetcode.com' },
+  coderpad: { name: 'CoderPad', color: '#6366f1', url: 'coderpad.io' },
+  codesignal: { name: 'CodeSignal', color: '#3b82f6', url: 'codesignal.com' },
 };
 
 const PREP_PLATFORMS = {
-  techprep: { name: 'TechPrep', icon: '✨', color: '#8b5cf6', url: 'techprep.app' },
-  algomaster: { name: 'AlgoMaster', icon: '✨', color: '#14b8a6', url: 'algomaster.io' },
-  neetcode: { name: 'NeetCode', icon: '✨', color: '#f43f5e', url: 'neetcode.io' },
-  designgurus: { name: 'DesignGurus', icon: '✨', color: '#0ea5e9', url: 'designgurus.io' },
-  educative: { name: 'Educative', icon: '✨', color: '#22c55e', url: 'educative.io' },
-  interviewbit: { name: 'InterviewBit', icon: '✨', color: '#a855f7', url: 'interviewbit.com' },
-  interviewingio: { name: 'Interviewing.io', icon: '✨', color: '#4a90d9', url: 'interviewing.io', googleAuth: true },
-  exponent: { name: 'Exponent', icon: '✨', color: '#1a1a2e', url: 'tryexponent.com', googleAuth: true },
+  techprep: { name: 'TechPrep', color: '#8b5cf6', url: 'techprep.app' },
+  algomaster: { name: 'AlgoMaster', color: '#14b8a6', url: 'algomaster.io' },
+  neetcode: { name: 'NeetCode', color: '#f43f5e', url: 'neetcode.io' },
+  designgurus: { name: 'DesignGurus', color: '#0ea5e9', url: 'designgurus.io' },
+  educative: { name: 'Educative', color: '#22c55e', url: 'educative.io' },
+  interviewbit: { name: 'InterviewBit', color: '#a855f7', url: 'interviewbit.com' },
+  interviewingio: { name: 'Interviewing.io', color: '#4a90d9', url: 'interviewing.io', googleAuth: true },
+  exponent: { name: 'Exponent', color: '#1a1a2e', url: 'tryexponent.com', googleAuth: true },
 };
 
 export default function PrepTab({ isOpen, onClose }) {
@@ -115,18 +115,19 @@ export default function PrepTab({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-2xl mx-4 rounded-xl overflow-hidden bg-white shadow-2xl">
+      <div className="w-full max-w-2xl mx-4 rounded-lg overflow-hidden shadow-2xl" style={{ background: '#ffffff' }}>
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-500">
+        <div className="flex items-center justify-between px-4 py-3" style={{ background: '#1a1a1a' }}>
           <div className="flex items-center gap-3">
-            <span className="text-lg font-bold text-white">Interview Prep Hub</span>
-            <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-white/20 text-white">
+            <span className="text-lg font-bold" style={{ color: '#ffffff' }}>Interview Prep Hub</span>
+            <span className="px-2 py-0.5 text-xs font-medium rounded" style={{ background: '#10b981', color: '#ffffff' }}>
               {connectedCount} connected
             </span>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-white/20 transition-colors text-white"
+            className="p-1.5 rounded transition-colors"
+            style={{ color: '#ffffff' }}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -135,39 +136,41 @@ export default function PrepTab({ isOpen, onClose }) {
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-200">
+        <div className="flex" style={{ borderBottom: '1px solid #e5e5e5' }}>
           <button
             onClick={() => setActiveTab('coding')}
-            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-              activeTab === 'coding'
-                ? 'text-emerald-600 border-b-2 border-emerald-500 bg-emerald-50'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
+            className="flex-1 px-4 py-3 text-sm font-medium transition-colors"
+            style={{
+              color: activeTab === 'coding' ? '#10b981' : '#666666',
+              borderBottom: activeTab === 'coding' ? '2px solid #10b981' : '2px solid transparent',
+              background: activeTab === 'coding' ? '#ecfdf5' : 'transparent',
+            }}
           >
             Coding Platforms
           </button>
           <button
             onClick={() => setActiveTab('prep')}
-            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-              activeTab === 'prep'
-                ? 'text-emerald-600 border-b-2 border-emerald-500 bg-emerald-50'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
+            className="flex-1 px-4 py-3 text-sm font-medium transition-colors"
+            style={{
+              color: activeTab === 'prep' ? '#10b981' : '#666666',
+              borderBottom: activeTab === 'prep' ? '2px solid #10b981' : '2px solid transparent',
+              background: activeTab === 'prep' ? '#ecfdf5' : 'transparent',
+            }}
           >
             Interview Prep Sites
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-4 max-h-[60vh] overflow-y-auto">
+        <div className="p-4 max-h-[60vh] overflow-y-auto" style={{ background: '#f5f5f5' }}>
           {!isElectron ? (
             <div className="text-center py-8">
-              <p className="text-gray-500 mb-2">Platform login requires the desktop app</p>
-              <p className="text-sm text-gray-400">Use the Electron app to connect to platforms</p>
+              <p className="mb-2" style={{ color: '#666666' }}>Platform login requires the desktop app</p>
+              <p className="text-sm" style={{ color: '#999999' }}>Use the Electron app to connect to platforms</p>
             </div>
           ) : loading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="w-8 h-8 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin" />
+              <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#10b981', borderTopColor: 'transparent' }} />
             </div>
           ) : (
             <>
@@ -176,27 +179,29 @@ export default function PrepTab({ isOpen, onClose }) {
                 {Object.entries(platforms).map(([key, platform]) => {
                   const isAuthenticated = platformStatus[key]?.authenticated;
                   const isLoggingIn = loggingIn === key;
+                  // Get initials from platform name
+                  const initials = platform.name.split(/(?=[A-Z])/).map(w => w[0]).join('').slice(0, 2);
 
                   return (
                     <div
                       key={key}
-                      className={`p-4 rounded-xl border-2 transition-all ${
-                        isAuthenticated
-                          ? 'border-emerald-300 bg-emerald-50'
-                          : 'border-gray-200 bg-gray-50 hover:border-gray-300'
-                      }`}
+                      className="p-3 rounded transition-all"
+                      style={{
+                        border: isAuthenticated ? '1px solid #10b981' : '1px solid #e5e5e5',
+                        background: '#ffffff',
+                      }}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div
-                            className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md"
+                            className="w-9 h-9 rounded flex items-center justify-center text-white font-bold text-sm"
                             style={{ background: platform.color }}
                           >
-                            {platform.icon}
+                            {initials}
                           </div>
                           <div>
-                            <div className="font-semibold text-gray-800">{platform.name}</div>
-                            <div className={`text-xs ${isAuthenticated ? 'text-emerald-600' : 'text-gray-400'}`}>
+                            <div className="font-semibold text-sm" style={{ color: '#333333' }}>{platform.name}</div>
+                            <div className="text-xs" style={{ color: isAuthenticated ? '#10b981' : '#999999' }}>
                               {isAuthenticated ? 'Connected' : 'Not connected'}
                             </div>
                           </div>
@@ -205,7 +210,8 @@ export default function PrepTab({ isOpen, onClose }) {
                         {isAuthenticated ? (
                           <button
                             onClick={() => handleLogout(key)}
-                            className="px-3 py-1.5 text-xs font-medium rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+                            className="px-2 py-1 text-xs font-medium rounded transition-colors"
+                            style={{ color: '#ef4444', background: 'transparent' }}
                           >
                             Disconnect
                           </button>
@@ -213,8 +219,8 @@ export default function PrepTab({ isOpen, onClose }) {
                           <button
                             onClick={() => handleLogin(key)}
                             disabled={isLoggingIn}
-                            className="px-3 py-1.5 text-xs font-medium rounded-lg text-white transition-colors disabled:opacity-50"
-                            style={{ background: platform.color }}
+                            className="px-2 py-1 text-xs font-medium rounded transition-colors disabled:opacity-50"
+                            style={{ background: platform.color, color: '#ffffff' }}
                           >
                             {isLoggingIn ? '...' : 'Login'}
                           </button>
@@ -226,8 +232,8 @@ export default function PrepTab({ isOpen, onClose }) {
               </div>
 
               {/* Pre-fetch Content Section */}
-              <div className="p-4 rounded-xl bg-gray-100 border border-gray-200">
-                <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+              <div className="p-4 rounded" style={{ background: '#ffffff', border: '1px solid #e5e5e5' }}>
+                <h3 className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: '#666666' }}>
                   Pre-fetch Interview Content
                 </h3>
                 <div className="flex gap-2 mb-3">
@@ -236,25 +242,27 @@ export default function PrepTab({ isOpen, onClose }) {
                     value={fetchUrl}
                     onChange={(e) => setFetchUrl(e.target.value)}
                     placeholder="Paste URL from any connected platform..."
-                    className="flex-1 px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                    className="flex-1 px-3 py-2 text-sm rounded focus:outline-none"
+                    style={{ border: '1px solid #e5e5e5', color: '#333333' }}
                   />
                   <button
                     onClick={handleFetchContent}
                     disabled={fetching || !fetchUrl.trim()}
-                    className="px-4 py-2 text-sm font-medium rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors disabled:opacity-50"
+                    className="px-4 py-2 text-sm font-medium rounded transition-colors disabled:opacity-50"
+                    style={{ background: '#10b981', color: '#ffffff' }}
                   >
                     {fetching ? 'Fetching...' : 'Fetch'}
                   </button>
                 </div>
 
                 {fetchedContent && (
-                  <div className={`p-3 rounded-lg text-sm ${fetchedContent.error ? 'bg-red-50 text-red-600' : 'bg-white border border-gray-200'}`}>
+                  <div className="p-3 rounded text-sm" style={{ background: fetchedContent.error ? '#fef2f2' : '#ffffff', border: '1px solid #e5e5e5', color: fetchedContent.error ? '#ef4444' : '#333333' }}>
                     {fetchedContent.error ? (
                       <p>{fetchedContent.error}</p>
                     ) : (
                       <div>
-                        <p className="text-emerald-600 font-medium mb-2">Content fetched successfully!</p>
-                        <p className="text-gray-600 text-xs line-clamp-3">{fetchedContent.problemText?.slice(0, 200)}...</p>
+                        <p className="font-medium mb-2" style={{ color: '#10b981' }}>Content fetched successfully!</p>
+                        <p className="text-xs line-clamp-3" style={{ color: '#666666' }}>{fetchedContent.problemText?.slice(0, 200)}...</p>
                       </div>
                     )}
                   </div>
@@ -265,8 +273,8 @@ export default function PrepTab({ isOpen, onClose }) {
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
-          <p className="text-xs text-gray-500 text-center">
+        <div className="px-4 py-3" style={{ background: '#ffffff', borderTop: '1px solid #e5e5e5' }}>
+          <p className="text-xs text-center" style={{ color: '#666666' }}>
             Connect to platforms to auto-fetch problems • Sessions persist across restarts
           </p>
         </div>

@@ -162,7 +162,8 @@ export default function Login({ onLogin }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 rounded-lg bg-gradient-to-r from-red-600 to-red-700 text-white text-base font-bold hover:from-red-700 hover:to-red-800 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-2.5 rounded-lg text-base font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ background: '#10b981', color: '#ffffff' }}
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">

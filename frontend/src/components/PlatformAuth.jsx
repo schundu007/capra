@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 
 const PLATFORMS = {
-  coderpad: { name: 'CoderPad', icon: '✨', color: '#6366f1' },
-  hackerrank: { name: 'HackerRank', icon: '✨', color: '#1ba94c' },
-  leetcode: { name: 'LeetCode', icon: '✨', color: '#f97316' },
-  codesignal: { name: 'CodeSignal', icon: '✨', color: '#3b82f6' },
+  coderpad: { name: 'CoderPad', color: '#6366f1' },
+  hackerrank: { name: 'HackerRank', color: '#1ba94c' },
+  leetcode: { name: 'LeetCode', color: '#f97316' },
+  codesignal: { name: 'CodeSignal', color: '#3b82f6' },
 };
 
 export default function PlatformAuth({ onClose }) {
@@ -59,16 +59,21 @@ export default function PlatformAuth({ onClose }) {
     }
   };
 
+  // Generate initials from platform name
+  const getInitials = (name) => {
+    return name.split(/(?=[A-Z])/).map(w => w[0]).join('').slice(0, 2);
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.5)' }}>
-      <div className="w-full max-w-md mx-4 rounded-lg overflow-hidden" style={{ background: '#ffffff' }}>
+      <div className="w-full max-w-md mx-4 rounded-lg overflow-hidden shadow-xl" style={{ background: '#ffffff', border: '1px solid #e5e5e5' }}>
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3" style={{ background: '#1b2631' }}>
-          <span className="text-sm font-semibold text-white">Platform Login</span>
+        <div className="flex items-center justify-between px-4 py-3" style={{ background: '#1a1a1a' }}>
+          <span className="text-sm font-semibold" style={{ color: '#ffffff' }}>Platform Login</span>
           <button
             onClick={onClose}
-            className="p-1 rounded hover:bg-white/10 transition-colors"
-            style={{ color: '#ced4da' }}
+            className="p-1 rounded transition-colors hover:bg-white/10"
+            style={{ color: '#ffffff' }}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -77,33 +82,34 @@ export default function PlatformAuth({ onClose }) {
         </div>
 
         {/* Content */}
-        <div className="p-4 max-h-[60vh] overflow-y-auto">
+        <div className="p-4 max-h-[60vh] overflow-y-auto" style={{ background: '#f5f5f5' }}>
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="w-6 h-6 rounded-full animate-spin" style={{ border: '2px solid #e7e8eb', borderTopColor: '#1ba94c' }} />
+              <div className="w-6 h-6 rounded-full animate-spin" style={{ border: '2px solid #e5e5e5', borderTopColor: '#10b981' }} />
             </div>
           ) : (
             <div className="space-y-2">
               {Object.entries(PLATFORMS).map(([key, platform]) => {
                 const isAuthenticated = status[key]?.authenticated;
                 const isLoggingIn = loggingIn === key;
+                const initials = getInitials(platform.name);
 
                 return (
                   <div
                     key={key}
                     className="flex items-center justify-between p-3 rounded"
-                    style={{ background: '#f7f8fa', border: '1px solid #e7e8eb' }}
+                    style={{ background: '#ffffff', border: '1px solid #e5e5e5' }}
                   >
                     <div className="flex items-center gap-3">
                       <div
                         className="w-8 h-8 rounded flex items-center justify-center text-white font-bold text-sm"
                         style={{ background: platform.color }}
                       >
-                        {platform.icon}
+                        {initials}
                       </div>
                       <div>
-                        <div className="text-sm font-medium" style={{ color: '#39424e' }}>{platform.name}</div>
-                        <div className="text-xs" style={{ color: isAuthenticated ? '#1ba94c' : '#8c9bab' }}>
+                        <div className="text-sm font-medium" style={{ color: '#333333' }}>{platform.name}</div>
+                        <div className="text-xs" style={{ color: isAuthenticated ? '#10b981' : '#999999' }}>
                           {isAuthenticated ? 'Connected' : 'Not connected'}
                         </div>
                       </div>
@@ -113,7 +119,7 @@ export default function PlatformAuth({ onClose }) {
                       <button
                         onClick={() => handleLogout(key)}
                         className="px-3 py-1 text-xs font-medium rounded transition-colors"
-                        style={{ color: '#dc2626' }}
+                        style={{ color: '#ef4444' }}
                       >
                         Disconnect
                       </button>
@@ -122,7 +128,7 @@ export default function PlatformAuth({ onClose }) {
                         onClick={() => handleLogin(key)}
                         disabled={isLoggingIn}
                         className="px-3 py-1 text-xs font-medium rounded transition-colors disabled:opacity-50"
-                        style={{ background: '#1ba94c', color: 'white' }}
+                        style={{ background: '#10b981', color: '#ffffff' }}
                       >
                         {isLoggingIn ? 'Logging in...' : 'Login'}
                       </button>

@@ -17,7 +17,7 @@ const LANGUAGES = [
   { value: 'yaml', label: 'YAML' },
 ];
 
-export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onClear, isLoading, extractedText, onExtractedTextClear, shouldClear, hasSolution, expanded, onToggleExpand, interviewMode }) {
+export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onClear, isLoading, extractedText, onExtractedTextClear, shouldClear, hasSolution, expanded, onToggleExpand, interviewMode, loadedProblem }) {
   const [problemText, setProblemText] = useState('');
   const [url, setUrl] = useState('');
   const [activeTab, setActiveTab] = useState('text');
@@ -25,6 +25,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
   const [detailLevel, setDetailLevel] = useState('basic');
   const [isDragging, setIsDragging] = useState(false);
   const [preview, setPreview] = useState(null);
+  const [isSelectingFile, setIsSelectingFile] = useState(false);
   const fileInputRef = useRef(null);
   const textareaRef = useRef(null);
 
@@ -81,6 +82,16 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
     }
   }, [extractedText, onExtractedTextClear, cleanupText]);
 
+  // Handle loaded problem from history (separate from extractedText)
+  useEffect(() => {
+    if (loadedProblem) {
+      const cleaned = cleanupText(loadedProblem);
+      setProblemText(cleaned);
+      setUrl('');
+      setActiveTab('text');
+    }
+  }, [loadedProblem, cleanupText]);
+
   useEffect(() => {
     if (shouldClear) {
       setProblemText('');
@@ -89,6 +100,23 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   }, [shouldClear]);
+
+  // Detect file picker cancel (window gets focus back without file selection)
+  useEffect(() => {
+    if (!isSelectingFile) return;
+
+    const handleFocus = () => {
+      // Small delay to let file change event fire first if file was selected
+      setTimeout(() => {
+        if (!fileInputRef.current?.files?.length) {
+          setIsSelectingFile(false);
+        }
+      }, 300);
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [isSelectingFile]);
 
   const handleTextSubmit = (e) => {
     e.preventDefault();
@@ -115,6 +143,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
   };
 
   const handleFileChange = (e) => {
+    setIsSelectingFile(false);
     const file = e.target.files[0];
     if (file) processFile(file);
   };
@@ -132,13 +161,26 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
   };
 
   const handleTabSwitch = (tabId) => {
-    if (tabId === activeTab) return;
+    if (tabId === activeTab) {
+      // If already on Image tab, clicking again opens file picker
+      if (tabId === 'screenshot' && !preview) {
+        setIsSelectingFile(true);
+        fileInputRef.current?.click();
+      }
+      return;
+    }
     setProblemText('');
     setUrl('');
     setPreview(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
     setActiveTab(tabId);
     onClear?.();
+
+    // Auto-open file picker when switching to Image tab
+    if (tabId === 'screenshot') {
+      setIsSelectingFile(true);
+      setTimeout(() => fileInputRef.current?.click(), 50);
+    }
   };
 
   const tabs = [
@@ -150,13 +192,14 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
   // Collapsed view - minimal display with expand button
   if (expanded === false && problemText) {
     return (
-      <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-gray-50 border border-gray-200">
+      <div className="flex items-center gap-2 py-2 px-3 rounded-lg" style={{ background: '#f5f5f5', border: '1px solid #e5e5e5' }}>
         <div className="flex-1 min-w-0">
-          <p className="text-[11px] truncate text-gray-500">{getPreviewText()}</p>
+          <p className="text-[11px] truncate" style={{ color: '#666666' }}>{getPreviewText()}</p>
         </div>
         <button
           onClick={onToggleExpand}
-          className="flex-shrink-0 px-3 py-1.5 text-[10px] font-medium rounded-lg transition-all flex items-center gap-1.5 bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/20"
+          className="flex-shrink-0 px-3 py-1.5 text-[10px] font-medium rounded-lg transition-all flex items-center gap-1.5"
+          style={{ background: 'transparent', color: '#10b981', border: '1px dashed #10b981' }}
           title="Expand problem"
         >
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -174,15 +217,16 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
       <div className="flex items-center justify-between gap-2 mb-3 flex-shrink-0">
         {/* Tabs */}
         <div className="flex items-center gap-1">
-          <div className="flex gap-1 p-1 rounded-lg bg-gray-100">
+          <div className="flex gap-1 p-1 rounded-lg" style={{ background: '#f5f5f5' }}>
             {tabs.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => handleTabSwitch(tab.id)}
                 className="px-2.5 py-1 text-[10px] font-medium rounded-md transition-all"
                 style={{
-                  background: activeTab === tab.id ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
-                  color: activeTab === tab.id ? '#10b981' : '#6b7280',
+                  background: activeTab === tab.id ? '#ffffff' : 'transparent',
+                  color: activeTab === tab.id ? '#333333' : '#999999',
+                  border: activeTab === tab.id ? '1px solid #e5e5e5' : '1px solid transparent',
                 }}
               >
                 {tab.label}
@@ -222,33 +266,35 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Detail Toggle */}
-          <div className="flex rounded-lg overflow-hidden border border-gray-200">
-            <button
-              type="button"
-              onClick={() => setDetailLevel('basic')}
-              disabled={isLoading}
-              className="px-2 py-1 text-[10px] font-medium transition-all"
-              style={{
-                background: detailLevel === 'basic' ? '#10b981' : 'transparent',
-                color: detailLevel === 'basic' ? 'white' : '#6b7280',
-              }}
-            >
-              Basic
-            </button>
-            <button
-              type="button"
-              onClick={() => setDetailLevel('detailed')}
-              disabled={isLoading}
-              className="px-2 py-1 text-[10px] font-medium transition-all"
-              style={{
-                background: detailLevel === 'detailed' ? '#10b981' : 'transparent',
-                color: detailLevel === 'detailed' ? 'white' : '#6b7280',
-              }}
-            >
-              Full
-            </button>
-          </div>
+          {/* Detail Toggle - hide in system-design mode (shown in InterviewModeSelector instead) */}
+          {interviewMode !== 'system-design' && (
+            <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid #e5e5e5' }}>
+              <button
+                type="button"
+                onClick={() => setDetailLevel('basic')}
+                disabled={isLoading}
+                className="px-2 py-1 text-[10px] font-medium transition-all"
+                style={{
+                  background: detailLevel === 'basic' ? '#333333' : 'transparent',
+                  color: detailLevel === 'basic' ? 'white' : '#666666',
+                }}
+              >
+                Basic
+              </button>
+              <button
+                type="button"
+                onClick={() => setDetailLevel('detailed')}
+                disabled={isLoading}
+                className="px-2 py-1 text-[10px] font-medium transition-all"
+                style={{
+                  background: detailLevel === 'detailed' ? '#333333' : 'transparent',
+                  color: detailLevel === 'detailed' ? 'white' : '#666666',
+                }}
+              >
+                Full
+              </button>
+            </div>
+          )}
 
           {/* Language - hide in system-design mode */}
           {interviewMode !== 'system-design' && (
@@ -275,13 +321,16 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               value={problemText}
               onChange={(e) => setProblemText(e.target.value)}
               placeholder="Paste coding problem..."
-              className="w-full px-3 py-2 resize-none rounded-lg border border-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#10b981] scrollbar-thin bg-white text-gray-800"
+              className="w-full px-3 py-2 resize-none rounded-lg placeholder-gray-400 focus:outline-none focus:ring-1 scrollbar-thin"
               style={{
                 minHeight: '60px',
                 maxHeight: expanded !== false ? '600px' : '400px',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                 fontSize: '13px',
                 lineHeight: '1.6',
+                background: '#ffffff',
+                border: '1px solid #e5e5e5',
+                color: '#333333',
               }}
               spellCheck="false"
               autoCorrect="off"
@@ -295,11 +344,10 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               <button
                 type="submit"
                 disabled={isLoading || !problemText.trim()}
-                className="px-4 py-1.5 text-[11px] font-medium rounded-lg transition-all disabled:opacity-50"
+                className="px-4 py-1.5 text-[11px] font-semibold rounded-lg transition-all disabled:opacity-50 hover:opacity-90"
                 style={{
-                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  background: '#10b981',
                   color: 'white',
-                  boxShadow: '0 0 20px rgba(16, 185, 129, 0.2)'
                 }}
               >
                 {isLoading ? '...' : 'Solve'}
@@ -315,18 +363,18 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://leetcode.com/problems/..."
-              className="w-full px-3 py-2 text-[12px] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#10b981] bg-white border border-gray-200 text-gray-800"
+              className="w-full px-3 py-2 text-[12px] rounded-lg focus:outline-none focus:ring-1"
+              style={{ background: '#ffffff', border: '1px solid #e5e5e5', color: '#333333' }}
               disabled={isLoading}
             />
             <div className="flex justify-end">
               <button
                 type="submit"
                 disabled={isLoading || !url.trim()}
-                className="px-4 py-1.5 text-[11px] font-medium rounded-lg transition-all disabled:opacity-50"
+                className="px-4 py-1.5 text-[11px] font-semibold rounded-lg transition-all disabled:opacity-50 hover:opacity-90"
                 style={{
-                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  background: '#10b981',
                   color: 'white',
-                  boxShadow: '0 0 20px rgba(16, 185, 129, 0.2)'
                 }}
               >
                 {isLoading ? '...' : 'Fetch & Solve'}
@@ -355,12 +403,16 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                   </svg>
                 </button>
               </div>
+            ) : isSelectingFile ? (
+              <div className="flex-1 flex items-center justify-center py-8 text-sm" style={{ color: '#999999' }}>
+                Select an image...
+              </div>
             ) : (
               <div
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => { setIsSelectingFile(true); fileInputRef.current?.click(); }}
                 className="flex-1 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all py-8"
                 style={{
                   border: isDragging ? '2px dashed #10b981' : '2px dashed #d1d5db',

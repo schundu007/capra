@@ -132,7 +132,7 @@ function sanitizeMermaidChart(chart) {
   return result;
 }
 
-function MermaidDiagram({ chart }) {
+function MermaidDiagram({ chart, expanded = false }) {
   const containerRef = useRef(null);
   const [svg, setSvg] = useState('');
   const [error, setError] = useState(null);
@@ -150,7 +150,21 @@ function MermaidDiagram({ chart }) {
 
         // Render with mermaid v11 API
         const { svg: svgContent } = await mermaid.render(id, cleanChart);
-        setSvg(svgContent);
+
+        // If expanded, modify SVG to remove max-width constraint and scale up
+        let finalSvg = svgContent;
+        if (expanded) {
+          // Remove max-width and set larger dimensions
+          finalSvg = svgContent
+            .replace(/max-width:\s*[\d.]+px;?/gi, '')
+            .replace(/style="([^"]*)"/, (match, styles) => {
+              // Remove max-width from inline styles, set min dimensions
+              const cleanedStyles = styles.replace(/max-width:\s*[\d.]+px;?/gi, '');
+              return `style="${cleanedStyles} min-width: 800px; min-height: 400px;"`;
+            });
+        }
+
+        setSvg(finalSvg);
         setError(null);
       } catch (err) {
         console.error('Mermaid render error:', err);
@@ -161,21 +175,21 @@ function MermaidDiagram({ chart }) {
     };
 
     renderDiagram();
-  }, [chart]);
+  }, [chart, expanded]);
 
   // Always show the text representation when there's an error
   if (error) {
     const cleanChart = chart.replace(/\\n/g, '\n').replace(/\\t/g, '  ').trim();
     return (
       <div className="p-2 rounded-lg bg-gray-100 border border-gray-200">
-        <pre className="text-[10px] text-gray-700 overflow-auto whitespace-pre-wrap font-mono leading-tight">{cleanChart}</pre>
+        <pre className={`${expanded ? 'text-sm' : 'text-[10px]'} text-gray-700 overflow-auto whitespace-pre-wrap font-mono leading-tight`}>{cleanChart}</pre>
       </div>
     );
   }
 
   if (!svg) {
     return (
-      <div className="p-2 rounded-lg bg-gray-50 border border-gray-200 text-gray-500 text-[10px] animate-pulse">
+      <div className={`p-2 rounded-lg bg-gray-50 border border-gray-200 text-gray-500 ${expanded ? 'text-sm' : 'text-[10px]'} animate-pulse`}>
         Rendering...
       </div>
     );
@@ -184,8 +198,8 @@ function MermaidDiagram({ chart }) {
   return (
     <div
       ref={containerRef}
-      className="rounded-lg bg-gray-50 border border-gray-200 overflow-auto"
-      style={{ padding: '8px' }}
+      className={`rounded-lg bg-gray-50 border border-gray-200 overflow-auto ${expanded ? 'p-6' : 'p-2'}`}
+      style={expanded ? { minWidth: '100%', minHeight: '60vh' } : { padding: '8px' }}
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   );
@@ -285,70 +299,63 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
   }
 
   return (
-    <div className="p-2 rounded-lg bg-blue-50/50 border border-blue-200 animate-fade-in">
+    <div className="p-2 rounded-lg animate-fade-in" style={{ background: '#f5f5f5', border: '1px solid #e5e5e5' }}>
       {/* Header */}
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-xs font-bold text-blue-600 uppercase tracking-wider">System Design</span>
+        <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#333333' }}>System Design</span>
       </div>
 
       <div className="space-y-2">
-        {/* Row 1: Overview + Requirements side by side */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-          {/* Overview */}
-          {systemDesign.overview && (
-            <div className="rounded-lg p-2.5 bg-white border border-gray-200">
-              <h4 className="text-[10px] font-semibold text-gray-600 uppercase tracking-wide mb-1 flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                Overview
-              </h4>
-              <p className="text-[11px] text-gray-700 leading-snug">{systemDesign.overview}</p>
-            </div>
-          )}
+        {/* Row 1: Overview - Full width */}
+        {systemDesign.overview && (
+          <div className="rounded-lg p-2.5 bg-white border border-gray-200">
+            <h4 className="text-[10px] font-semibold text-gray-600 uppercase tracking-wide mb-1 flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+              Overview
+            </h4>
+            <p className="text-[11px] text-gray-700 leading-snug">{systemDesign.overview}</p>
+          </div>
+        )}
 
-          {/* Requirements - Full display */}
-          {systemDesign.requirements && (
-            <div className="rounded-lg p-2.5 bg-white border border-gray-200">
-              <h4 className="text-[10px] font-semibold text-gray-600 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                Requirements
-              </h4>
-              <div className="space-y-2">
-                {systemDesign.requirements.functional && systemDesign.requirements.functional.length > 0 && (
-                  <div>
-                    <span className="text-[9px] font-semibold text-emerald-600 uppercase tracking-wide flex items-center gap-1 mb-1">
-                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                      Functional
-                    </span>
-                    <ul className="space-y-0.5">
-                      {systemDesign.requirements.functional.map((req, i) => (
-                        <li key={i} className="text-[10px] text-gray-700 flex items-start gap-1.5">
-                          <span className="text-emerald-400 mt-0.5">•</span>
-                          {req}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {systemDesign.requirements.nonFunctional && systemDesign.requirements.nonFunctional.length > 0 && (
-                  <div>
-                    <span className="text-[9px] font-semibold text-blue-600 uppercase tracking-wide flex items-center gap-1 mb-1">
-                      <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                      Non-Functional
-                    </span>
-                    <ul className="space-y-0.5">
-                      {systemDesign.requirements.nonFunctional.map((req, i) => (
-                        <li key={i} className="text-[10px] text-gray-700 flex items-start gap-1.5">
-                          <span className="text-blue-400 mt-0.5">•</span>
-                          {req}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+        {/* Row 2: Requirements - Functional & Non-Functional side by side */}
+        {systemDesign.requirements && (
+          <div className="grid grid-cols-2 gap-2">
+            {/* Functional Requirements */}
+            {systemDesign.requirements.functional && systemDesign.requirements.functional.length > 0 && (
+              <div className="rounded-lg p-2.5 bg-white border border-gray-200">
+                <h4 className="text-[10px] font-semibold text-emerald-600 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  Functional
+                </h4>
+                <ul className="space-y-0.5">
+                  {systemDesign.requirements.functional.map((req, i) => (
+                    <li key={i} className="text-[10px] text-gray-700 flex items-start gap-1.5">
+                      <span className="text-emerald-400 mt-0.5">•</span>
+                      {req}
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+            {/* Non-Functional Requirements */}
+            {systemDesign.requirements.nonFunctional && systemDesign.requirements.nonFunctional.length > 0 && (
+              <div className="rounded-lg p-2.5 bg-white border border-gray-200">
+                <h4 className="text-[10px] font-semibold text-blue-600 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                  Non-Functional
+                </h4>
+                <ul className="space-y-0.5">
+                  {systemDesign.requirements.nonFunctional.map((req, i) => (
+                    <li key={i} className="text-[10px] text-gray-700 flex items-start gap-1.5">
+                      <span className="text-blue-400 mt-0.5">•</span>
+                      {req}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Row 2: Architecture Components + Scalability side by side */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
@@ -463,43 +470,43 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
           </CollapsibleSection>
         )}
 
-        {/* Row 5: Tech Justifications - Why each technology */}
+        {/* Row 5: Tech Justifications - Compact grid layout */}
         {systemDesign.techJustifications && systemDesign.techJustifications.length > 0 && (
           <CollapsibleSection
             title="Why These Technologies?"
             color="bg-violet-500"
             defaultOpen={true}
-            badge={`${systemDesign.techJustifications.length} choices explained`}
+            badge={`${systemDesign.techJustifications.length}`}
           >
-            <div className="space-y-2">
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5">
               {systemDesign.techJustifications.map((item, i) => (
-                <div key={i} className="bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 rounded-lg p-2.5">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <span className="px-2 py-0.5 bg-violet-600 text-white text-[9px] font-bold rounded">
+                <div key={i} className="bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-200 rounded-lg p-2 hover:shadow-sm transition-shadow">
+                  {/* Tech name + category header */}
+                  <div className="flex items-center gap-1 mb-1">
+                    <span className="px-1.5 py-0.5 bg-violet-600 text-white text-[8px] font-bold rounded truncate max-w-[80px]" title={item.tech}>
                       {item.tech}
                     </span>
                     {item.category && (
-                      <span className="px-1.5 py-0.5 bg-violet-100 text-violet-600 text-[8px] font-medium rounded">
+                      <span className="px-1 py-0.5 bg-violet-100 text-violet-600 text-[7px] font-medium rounded truncate" title={item.category}>
                         {item.category}
                       </span>
                     )}
                   </div>
-                  <div className="space-y-1.5">
-                    <div className="flex items-start gap-1.5">
-                      <span className="text-[8px] font-semibold text-emerald-600 uppercase tracking-wide flex-shrink-0 mt-0.5 w-12">WHY:</span>
-                      <p className="text-[10px] text-gray-700 leading-snug">{item.why}</p>
-                    </div>
+                  {/* Why - main content */}
+                  <p className="text-[9px] text-gray-700 leading-tight line-clamp-3 mb-1" title={item.why}>
+                    {item.why}
+                  </p>
+                  {/* Without & Alternatives - compact */}
+                  <div className="flex flex-wrap gap-1 text-[7px]">
                     {item.without && (
-                      <div className="flex items-start gap-1.5">
-                        <span className="text-[8px] font-semibold text-red-500 uppercase tracking-wide flex-shrink-0 mt-0.5 w-12">WITHOUT:</span>
-                        <p className="text-[10px] text-gray-600 leading-snug italic">{item.without}</p>
-                      </div>
+                      <span className="text-red-500 truncate max-w-full" title={`Without: ${item.without}`}>
+                        <span className="font-semibold">!</span> {item.without.length > 25 ? item.without.slice(0, 25) + '...' : item.without}
+                      </span>
                     )}
                     {item.alternatives && (
-                      <div className="flex items-start gap-1.5">
-                        <span className="text-[8px] font-semibold text-blue-500 uppercase tracking-wide flex-shrink-0 mt-0.5 w-12">ALTS:</span>
-                        <p className="text-[10px] text-gray-500 leading-snug">{item.alternatives}</p>
-                      </div>
+                      <span className="text-blue-500 truncate max-w-full" title={`Alternatives: ${item.alternatives}`}>
+                        <span className="font-semibold">Alt:</span> {item.alternatives.length > 20 ? item.alternatives.slice(0, 20) + '...' : item.alternatives}
+                      </span>
                     )}
                   </div>
                 </div>
@@ -557,9 +564,9 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
                   <button
                     onClick={(e) => { e.stopPropagation(); handleGenerateEraser(); }}
                     disabled={generatingEraser}
-                    className="flex items-center gap-1 px-2 py-1 text-[9px] font-medium rounded transition-all"
+                    className="flex items-center gap-1 px-2 py-1 text-[9px] font-medium rounded transition-all hover:opacity-90"
                     style={{
-                      background: generatingEraser ? '#e5e7eb' : 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                      background: generatingEraser ? '#e5e7eb' : '#8b5cf6',
                       color: generatingEraser ? '#9ca3af' : 'white',
                     }}
                   >
@@ -647,8 +654,8 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
           onClose={() => setFlowDiagramModal(false)}
           title="Flow Diagram"
         >
-          <div className="w-full h-full flex items-center justify-center">
-            <MermaidDiagram chart={systemDesign.diagram} />
+          <div className="w-full h-full overflow-auto flex items-start justify-center p-4">
+            <MermaidDiagram chart={systemDesign.diagram} expanded={true} />
           </div>
         </DiagramModal>
 

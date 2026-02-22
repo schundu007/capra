@@ -8,26 +8,18 @@ export default function InterviewModeSelector({
 }) {
   return (
     <div className="flex items-center gap-3">
-      {/* Interview Mode Toggle - Premium look */}
+      {/* Interview Mode Toggle */}
       <div
-        className="flex rounded-xl overflow-hidden p-0.5"
-        style={{
-          background: 'linear-gradient(135deg, #f0f0f0 0%, #e5e7eb 100%)',
-          boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)'
-        }}
+        className="flex rounded overflow-hidden p-0.5"
+        style={{ background: '#f5f5f5', border: '1px solid #e5e5e5' }}
       >
         <button
           type="button"
           onClick={() => onModeChange('coding')}
-          className="px-3 py-1.5 text-[10px] font-semibold transition-all flex items-center gap-1.5 rounded-lg"
+          className="px-3 py-1.5 text-[10px] font-semibold transition-all flex items-center gap-1.5 rounded"
           style={{
-            background: interviewMode === 'coding'
-              ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-              : 'transparent',
-            color: interviewMode === 'coding' ? 'white' : '#6b7280',
-            boxShadow: interviewMode === 'coding'
-              ? '0 2px 8px rgba(16, 185, 129, 0.35)'
-              : 'none',
+            background: interviewMode === 'coding' ? '#10b981' : 'transparent',
+            color: interviewMode === 'coding' ? '#ffffff' : '#666666',
           }}
           title="Coding Interview"
         >
@@ -39,15 +31,10 @@ export default function InterviewModeSelector({
         <button
           type="button"
           onClick={() => onModeChange('system-design')}
-          className="px-3 py-1.5 text-[10px] font-semibold transition-all flex items-center gap-1.5 rounded-lg"
+          className="px-3 py-1.5 text-[10px] font-semibold transition-all flex items-center gap-1.5 rounded"
           style={{
-            background: interviewMode === 'system-design'
-              ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
-              : 'transparent',
-            color: interviewMode === 'system-design' ? 'white' : '#6b7280',
-            boxShadow: interviewMode === 'system-design'
-              ? '0 2px 8px rgba(59, 130, 246, 0.35)'
-              : 'none',
+            background: interviewMode === 'system-design' ? '#3b82f6' : 'transparent',
+            color: interviewMode === 'system-design' ? '#ffffff' : '#666666',
           }}
           title="System Design Interview"
         >
@@ -61,19 +48,16 @@ export default function InterviewModeSelector({
       {/* Design Detail Level - Only show when in system-design mode */}
       {interviewMode === 'system-design' && (
         <div
-          className="flex rounded-lg overflow-hidden p-0.5 animate-fadeIn"
-          style={{
-            background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-          }}
+          className="flex rounded overflow-hidden p-0.5 animate-fadeIn"
+          style={{ background: '#eff6ff', border: '1px solid #bfdbfe' }}
         >
           <button
             type="button"
             onClick={() => onDetailLevelChange('basic')}
-            className="px-2.5 py-1 text-[10px] font-semibold transition-all rounded-md"
+            className="px-2.5 py-1 text-[10px] font-semibold transition-all rounded"
             style={{
               background: designDetailLevel === 'basic' ? '#3b82f6' : 'transparent',
-              color: designDetailLevel === 'basic' ? 'white' : '#3b82f6',
-              boxShadow: designDetailLevel === 'basic' ? '0 1px 4px rgba(59, 130, 246, 0.3)' : 'none',
+              color: designDetailLevel === 'basic' ? '#ffffff' : '#3b82f6',
             }}
             title="Single-region, minimal architecture"
           >
@@ -82,11 +66,10 @@ export default function InterviewModeSelector({
           <button
             type="button"
             onClick={() => onDetailLevelChange('full')}
-            className="px-2.5 py-1 text-[10px] font-semibold transition-all rounded-md"
+            className="px-2.5 py-1 text-[10px] font-semibold transition-all rounded"
             style={{
               background: designDetailLevel === 'full' ? '#3b82f6' : 'transparent',
-              color: designDetailLevel === 'full' ? 'white' : '#3b82f6',
-              boxShadow: designDetailLevel === 'full' ? '0 1px 4px rgba(59, 130, 246, 0.3)' : 'none',
+              color: designDetailLevel === 'full' ? '#ffffff' : '#3b82f6',
             }}
             title="Multi-region, HA, detailed scalability"
           >
@@ -100,15 +83,11 @@ export default function InterviewModeSelector({
         <button
           type="button"
           onClick={() => onAutoGenerateEraserChange(!autoGenerateEraser)}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold transition-all animate-fadeIn"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[10px] font-semibold transition-all animate-fadeIn"
           style={{
-            background: autoGenerateEraser
-              ? 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)'
-              : 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
-            color: autoGenerateEraser ? 'white' : '#6b7280',
-            boxShadow: autoGenerateEraser
-              ? '0 2px 8px rgba(139, 92, 246, 0.35)'
-              : 'inset 0 1px 2px rgba(0,0,0,0.05)',
+            background: autoGenerateEraser ? '#8b5cf6' : '#f5f5f5',
+            color: autoGenerateEraser ? '#ffffff' : '#666666',
+            border: autoGenerateEraser ? '1px solid #8b5cf6' : '1px solid #e5e5e5',
           }}
           title={autoGenerateEraser ? 'Pro diagram will auto-generate (uses Eraser API credits)' : 'Pro diagram disabled - click Generate manually'}
         >

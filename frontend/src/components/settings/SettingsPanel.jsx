@@ -38,10 +38,10 @@ export default function SettingsPanel({ onClose }) {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-        <div className="bg-white rounded-lg p-6 w-72">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="rounded-lg p-6 w-72" style={{ background: '#ffffff' }}>
           <div className="flex items-center justify-center">
-            <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 rounded-full animate-spin" style={{ borderColor: '#10b981', borderTopColor: 'transparent' }} />
           </div>
         </div>
       </div>
@@ -49,14 +49,14 @@ export default function SettingsPanel({ onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-lg w-80 overflow-hidden shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="rounded-lg w-80 overflow-hidden shadow-xl" style={{ background: '#ffffff' }}>
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-          <span className="text-sm font-semibold text-slate-800">Settings</span>
+        <div className="flex items-center justify-between px-4 py-3" style={{ background: '#1a1a1a' }}>
+          <span className="text-sm font-semibold" style={{ color: '#ffffff' }}>Settings</span>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600"
+            style={{ color: '#ffffff' }}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -66,7 +66,7 @@ export default function SettingsPanel({ onClose }) {
 
         {/* Content */}
         <div className="px-4 py-3">
-          <p className="text-xs text-slate-500 mb-2">API Keys</p>
+          <p className="text-xs mb-2" style={{ color: '#666666' }}>API Keys</p>
 
           <ApiKeyInput
             provider="anthropic"
