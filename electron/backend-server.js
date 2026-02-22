@@ -112,6 +112,19 @@ function createApp() {
   // Body parsing
   app.use(express.json({ limit: '10mb' }));
 
+  // Static file serving for generated diagrams
+  const DIAGRAM_OUTPUT_DIR = process.env.DIAGRAM_OUTPUT_DIR || '/tmp/capra_diagrams';
+  app.use('/static/diagrams', express.static(DIAGRAM_OUTPUT_DIR, {
+    maxAge: '1h',
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.png')) {
+        res.setHeader('Content-Type', 'image/png');
+      } else if (filePath.endsWith('.svg')) {
+        res.setHeader('Content-Type', 'image/svg+xml');
+      }
+    }
+  }));
+
   // Health check
   app.get('/api/health', (req, res) => {
     res.json({
