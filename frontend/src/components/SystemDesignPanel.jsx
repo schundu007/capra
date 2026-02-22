@@ -421,7 +421,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
             defaultOpen={true}
             badge={`${systemDesign.techJustifications.length}`}
           >
-            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {systemDesign.techJustifications.map((item, i) => (
                 <div key={i} className="bg-white border border-gray-200 rounded-lg p-3 hover:border-emerald-300 transition-colors">
                   {/* Tech name + category header */}
