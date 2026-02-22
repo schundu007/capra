@@ -88,6 +88,7 @@ app.get('/api/diagram/debug', async (req, res) => {
     python: { available: false, version: null, error: null },
     graphviz: { available: false, version: null, error: null },
     diagrams: { available: false, error: null },
+    anthropic: { available: false, error: null },
     anthropicKey: !!process.env.ANTHROPIC_API_KEY
   };
 
@@ -137,6 +138,22 @@ app.get('/api/diagram/debug', async (req, res) => {
       python.on('error', (err) => { results.diagrams.error = err.message; resolve(); });
     });
   } catch (e) { results.diagrams.error = e.message; }
+
+  // Check anthropic library
+  try {
+    const python = spawn('python3', ['-c', 'import anthropic; print("OK")']);
+    let stdout = '', stderr = '';
+    python.stdout.on('data', d => stdout += d);
+    python.stderr.on('data', d => stderr += d);
+    await new Promise((resolve) => {
+      python.on('close', (code) => {
+        results.anthropic.available = code === 0 && stdout.includes('OK');
+        if (stderr) results.anthropic.error = stderr.trim();
+        resolve();
+      });
+      python.on('error', (err) => { results.anthropic.error = err.message; resolve(); });
+    });
+  } catch (e) { results.anthropic.error = e.message; }
 
   res.json(results);
 });
