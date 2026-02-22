@@ -79,6 +79,10 @@ export async function generateDiagram({
   ensureOutputDir();
 
   return new Promise((resolve, reject) => {
+    console.log('[PythonDiagrams] Generating diagram...');
+    console.log('[PythonDiagrams] Engine path:', DIAGRAM_ENGINE_PATH);
+    console.log('[PythonDiagrams] Output dir:', OUTPUT_DIR);
+
     const args = [
       DIAGRAM_ENGINE_PATH,
       '--question', question,
@@ -110,10 +114,14 @@ export async function generateDiagram({
     });
 
     pythonProcess.on('close', (code) => {
+      console.log('[PythonDiagrams] Process exited with code:', code);
+      console.log('[PythonDiagrams] stdout:', stdout);
+      console.log('[PythonDiagrams] stderr:', stderr);
+
       if (code !== 0) {
-        console.error('[PythonDiagrams] Process exited with code:', code);
-        console.error('[PythonDiagrams] stderr:', stderr);
-        reject(new Error(`Diagram generation failed: ${stderr || 'Unknown error'}`));
+        const errorMsg = stderr || stdout || 'Unknown error';
+        console.error('[PythonDiagrams] Generation failed:', errorMsg);
+        reject(new Error(`Diagram generation failed: ${errorMsg}`));
         return;
       }
 
