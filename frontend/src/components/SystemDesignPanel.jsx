@@ -302,8 +302,12 @@ function CollapsibleSection({ title, icon, color, children, defaultOpen = true, 
 export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGenerateEraserDiagram }) {
   const [generatingEraser, setGeneratingEraser] = useState(false);
   const [flowDiagramModal, setFlowDiagramModal] = useState(false);
+  const [comparisonDiagramModal, setComparisonDiagramModal] = useState(false);
   const [proDiagramModal, setProDiagramModal] = useState(false);
   const [imageError, setImageError] = useState(false);
+
+  // Check if this is a comparison question
+  const hasComparison = systemDesign?.comparison || systemDesign?.comparisonDiagram;
 
   // Reset image error when new diagram is generated
   useEffect(() => {
@@ -535,27 +539,146 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
           </CollapsibleSection>
         )}
 
+        {/* Comparison Section - for vs/compare questions */}
+        {systemDesign.comparison && (
+          <CollapsibleSection
+            title="Comparison"
+            defaultOpen={true}
+          >
+            <div className="grid grid-cols-2 gap-3">
+              {/* Approach 1 */}
+              {systemDesign.comparison.approach1 && (
+                <div className="rounded-lg p-3 bg-white border border-gray-200">
+                  <h5 className="text-[11px] font-bold text-gray-800 mb-2 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                    {systemDesign.comparison.approach1.name || 'Approach 1'}
+                  </h5>
+                  {systemDesign.comparison.approach1.pros && (
+                    <div className="mb-2">
+                      <span className="text-[9px] font-semibold text-emerald-600 uppercase">Pros</span>
+                      <ul className="mt-1 space-y-0.5">
+                        {systemDesign.comparison.approach1.pros.map((pro, i) => (
+                          <li key={i} className="text-[10px] text-gray-600 flex items-start gap-1.5">
+                            <span className="text-emerald-500 mt-0.5">+</span>
+                            {pro}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {systemDesign.comparison.approach1.cons && (
+                    <div>
+                      <span className="text-[9px] font-semibold text-red-600 uppercase">Cons</span>
+                      <ul className="mt-1 space-y-0.5">
+                        {systemDesign.comparison.approach1.cons.map((con, i) => (
+                          <li key={i} className="text-[10px] text-gray-600 flex items-start gap-1.5">
+                            <span className="text-red-500 mt-0.5">-</span>
+                            {con}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+              {/* Approach 2 */}
+              {systemDesign.comparison.approach2 && (
+                <div className="rounded-lg p-3 bg-white border border-gray-200">
+                  <h5 className="text-[11px] font-bold text-gray-800 mb-2 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                    {systemDesign.comparison.approach2.name || 'Approach 2'}
+                  </h5>
+                  {systemDesign.comparison.approach2.pros && (
+                    <div className="mb-2">
+                      <span className="text-[9px] font-semibold text-emerald-600 uppercase">Pros</span>
+                      <ul className="mt-1 space-y-0.5">
+                        {systemDesign.comparison.approach2.pros.map((pro, i) => (
+                          <li key={i} className="text-[10px] text-gray-600 flex items-start gap-1.5">
+                            <span className="text-emerald-500 mt-0.5">+</span>
+                            {pro}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {systemDesign.comparison.approach2.cons && (
+                    <div>
+                      <span className="text-[9px] font-semibold text-red-600 uppercase">Cons</span>
+                      <ul className="mt-1 space-y-0.5">
+                        {systemDesign.comparison.approach2.cons.map((con, i) => (
+                          <li key={i} className="text-[10px] text-gray-600 flex items-start gap-1.5">
+                            <span className="text-red-500 mt-0.5">-</span>
+                            {con}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </CollapsibleSection>
+        )}
+
         {/* Row 6: Diagrams - Full width, no scrolling */}
         <div className="space-y-3">
-          {/* Architecture Diagram (Mermaid) - Full width, clickable */}
-          {systemDesign.diagram && (
-            <div
-              className="rounded-lg p-3 bg-gray-50 border border-gray-200 cursor-pointer hover:border-emerald-300 transition-all group"
-              onClick={() => setFlowDiagramModal(true)}
-            >
-              <h4 className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-2 flex items-center justify-between">
-                <span>Flow Diagram</span>
-                <span className="text-[9px] text-gray-400 group-hover:text-emerald-500 flex items-center gap-1">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                  </svg>
-                  Expand
-                </span>
-              </h4>
-              <div className="w-full">
-                <MermaidDiagram chart={systemDesign.diagram} />
+          {/* For comparison questions: show both diagrams side by side */}
+          {hasComparison && systemDesign.diagram && systemDesign.comparisonDiagram ? (
+            <div className="grid grid-cols-2 gap-3">
+              {/* Diagram 1 (simpler approach) */}
+              <div
+                className="rounded-lg p-3 bg-gray-50 border border-gray-200 cursor-pointer hover:border-blue-300 transition-all group"
+                onClick={() => setFlowDiagramModal(true)}
+              >
+                <h4 className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-2 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                    {systemDesign.comparison?.approach1?.name || 'Approach 1'}
+                  </span>
+                  <span className="text-[9px] text-gray-400 group-hover:text-blue-500">Expand</span>
+                </h4>
+                <div className="w-full">
+                  <MermaidDiagram chart={systemDesign.diagram} />
+                </div>
+              </div>
+              {/* Diagram 2 (complex approach) */}
+              <div
+                className="rounded-lg p-3 bg-gray-50 border border-gray-200 cursor-pointer hover:border-purple-300 transition-all group"
+                onClick={() => setComparisonDiagramModal(true)}
+              >
+                <h4 className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-2 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                    {systemDesign.comparison?.approach2?.name || 'Approach 2'}
+                  </span>
+                  <span className="text-[9px] text-gray-400 group-hover:text-purple-500">Expand</span>
+                </h4>
+                <div className="w-full">
+                  <MermaidDiagram chart={systemDesign.comparisonDiagram} />
+                </div>
               </div>
             </div>
+          ) : (
+            /* Single diagram for non-comparison questions */
+            systemDesign.diagram && (
+              <div
+                className="rounded-lg p-3 bg-gray-50 border border-gray-200 cursor-pointer hover:border-emerald-300 transition-all group"
+                onClick={() => setFlowDiagramModal(true)}
+              >
+                <h4 className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-2 flex items-center justify-between">
+                  <span>Flow Diagram</span>
+                  <span className="text-[9px] text-gray-400 group-hover:text-emerald-500 flex items-center gap-1">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    </svg>
+                    Expand
+                  </span>
+                </h4>
+                <div className="w-full">
+                  <MermaidDiagram chart={systemDesign.diagram} />
+                </div>
+              </div>
+            )
           )}
 
           {/* Professional Diagram (Eraser.io) - Full width, clickable when has diagram */}
@@ -667,12 +790,25 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
         <DiagramModal
           isOpen={flowDiagramModal}
           onClose={() => setFlowDiagramModal(false)}
-          title="Flow Diagram"
+          title={hasComparison ? (systemDesign.comparison?.approach1?.name || 'Approach 1') : 'Flow Diagram'}
         >
           <div className="w-full h-full overflow-auto flex items-start justify-center p-4">
             <MermaidDiagram chart={systemDesign.diagram} expanded={true} />
           </div>
         </DiagramModal>
+
+        {/* Comparison Diagram Modal (for approach 2) */}
+        {systemDesign.comparisonDiagram && (
+          <DiagramModal
+            isOpen={comparisonDiagramModal}
+            onClose={() => setComparisonDiagramModal(false)}
+            title={systemDesign.comparison?.approach2?.name || 'Approach 2'}
+          >
+            <div className="w-full h-full overflow-auto flex items-start justify-center p-4">
+              <MermaidDiagram chart={systemDesign.comparisonDiagram} expanded={true} />
+            </div>
+          </DiagramModal>
+        )}
 
         {/* Pro Diagram Modal */}
         <DiagramModal

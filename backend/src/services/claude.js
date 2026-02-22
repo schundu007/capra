@@ -182,9 +182,28 @@ ALWAYS include systemDesign for these types of problems:
       "description": "How components interact and data flows"
     },
     "diagram": "flowchart LR\n  A[Client] --> B[Load Balancer]\n  B --> C[Web Servers]\n  C --> D[(Redis Cache)]\n  C --> E[(PostgreSQL)]",
-    "scalability": ["Horizontal scaling of web servers", "Database read replicas", "Cache for hot URLs", "Database sharding by URL hash"]
+    "comparisonDiagram": null,
+    "scalability": ["Horizontal scaling of web servers", "Database read replicas", "Cache for hot URLs", "Database sharding by URL hash"],
+    "techJustifications": [
+      {"tech": "Redis", "category": "Cache", "why": "Sub-millisecond latency for hot data", "without": "Database overload", "alternatives": "Memcached"}
+    ]
   }
 }
+
+COMPARISON QUESTIONS (vs, compare, difference, global vs non-global, etc.):
+When the question asks to COMPARE two approaches (e.g., "global vs non-global", "monolith vs microservices"):
+1. The "overview" should clearly explain BOTH approaches and their key differences
+2. The "diagram" field shows the FIRST/SIMPLER approach (e.g., non-global single region)
+3. The "comparisonDiagram" field shows the SECOND/COMPLEX approach (e.g., global multi-region)
+4. Include a "comparison" field with key differences:
+   "comparison": {
+     "approach1": {"name": "Non-Global", "pros": ["Simpler", "Lower cost"], "cons": ["Single point of failure", "High latency for distant users"]},
+     "approach2": {"name": "Global", "pros": ["Low latency worldwide", "Fault tolerant"], "cons": ["Complex", "Higher cost", "Data consistency challenges"]}
+   }
+
+Example for "global vs non-global":
+- diagram: Simple single-region architecture
+- comparisonDiagram: Multi-region global architecture with CDN, regional load balancers, cross-region replication
 
 DIAGRAM RULES (CRITICAL - Mermaid v11 syntax):
 - ALWAYS start with "flowchart LR" or "flowchart TB" (NOT "graph")
