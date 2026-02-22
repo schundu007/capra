@@ -141,6 +141,57 @@ app.get('/api/diagram/debug', async (req, res) => {
   res.json(results);
 });
 
+// Test diagram generation endpoint (public for debugging)
+app.get('/api/diagram/test', async (req, res) => {
+  const { spawn } = await import('child_process');
+  const path = await import('path');
+  const { fileURLToPath } = await import('url');
+
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const enginePath = path.join(__dirname, 'services', 'diagram_engine.py');
+  const outputDir = process.env.DIAGRAM_OUTPUT_DIR || '/tmp/capra_diagrams';
+
+  const fs = await import('fs');
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+  }
+
+  const results = {
+    enginePath,
+    engineExists: fs.existsSync(enginePath),
+    outputDir,
+    outputDirExists: fs.existsSync(outputDir),
+    apiKeySet: !!process.env.ANTHROPIC_API_KEY,
+    testOutput: null,
+    testError: null
+  };
+
+  // Try running the script with --help to test it works
+  try {
+    const python = spawn('python3', [enginePath, '--help']);
+    let stdout = '', stderr = '';
+    python.stdout.on('data', d => stdout += d);
+    python.stderr.on('data', d => stderr += d);
+    await new Promise((resolve) => {
+      python.on('close', (code) => {
+        results.testExitCode = code;
+        results.testOutput = stdout.substring(0, 500);
+        results.testError = stderr.substring(0, 500);
+        resolve();
+      });
+      python.on('error', (err) => {
+        results.testError = err.message;
+        resolve();
+      });
+    });
+  } catch (e) {
+    results.testError = e.message;
+  }
+
+  res.json(results);
+});
+
 // Protected routes (require authentication)
 app.use('/api/solve', authenticate, solveRouter);
 app.use('/api/analyze', authenticate, analyzeRouter);
