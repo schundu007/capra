@@ -81,18 +81,6 @@ app.use('/static/diagrams', express.static(DIAGRAM_OUTPUT_DIR, {
 // Auth routes (no authentication required)
 app.use('/api/auth', authRouter);
 
-// Protected routes (require authentication)
-app.use('/api/solve', authenticate, solveRouter);
-app.use('/api/analyze', authenticate, analyzeRouter);
-app.use('/api/fetch', authenticate, fetchRouter);
-app.use('/api/run', authenticate, runRouter);
-app.use('/api/fix', authenticate, fixRouter);
-app.use('/api/transcribe', authenticate, transcribeRouter);
-app.use('/api/interview/prep', authenticate, interviewPrepRouter);
-app.use('/api/interview', authenticate, interviewRouter);
-app.use('/api/diagram', authenticate, diagramRouter);
-app.use('/api/extract', authenticate, extractRouter);
-
 // Public diagram debug endpoint (for troubleshooting deployment)
 app.get('/api/diagram/debug', async (req, res) => {
   const { spawn } = await import('child_process');
@@ -152,6 +140,18 @@ app.get('/api/diagram/debug', async (req, res) => {
 
   res.json(results);
 });
+
+// Protected routes (require authentication)
+app.use('/api/solve', authenticate, solveRouter);
+app.use('/api/analyze', authenticate, analyzeRouter);
+app.use('/api/fetch', authenticate, fetchRouter);
+app.use('/api/run', authenticate, runRouter);
+app.use('/api/fix', authenticate, fixRouter);
+app.use('/api/transcribe', authenticate, transcribeRouter);
+app.use('/api/interview/prep', authenticate, interviewPrepRouter);
+app.use('/api/interview', authenticate, interviewRouter);
+app.use('/api/diagram', authenticate, diagramRouter);
+app.use('/api/extract', authenticate, extractRouter);
 
 // Enhanced health check
 app.get('/api/health', (req, res) => {
