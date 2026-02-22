@@ -1298,11 +1298,6 @@ export default function App() {
 
         {/* Right: Controls */}
         <div className="flex items-center gap-2" style={{ WebkitAppRegion: 'no-drag' }}>
-          {/* Provider Toggle - only when sidebar is collapsed */}
-          {!showSidebar && (
-            <ProviderToggle provider={provider} model={model} onChange={setProvider} onModelChange={setModel} />
-          )}
-
           {/* Clear Button - always visible */}
           <button
             onClick={handleClearAll}
