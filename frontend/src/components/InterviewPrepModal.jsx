@@ -503,13 +503,18 @@ export default function InterviewPrepModal({ isOpen, onClose, provider, model, i
 
   // Use different container style for dedicated window vs modal vs embedded
   const containerClass = embedded
-    ? "h-full flex"
+    ? "h-full flex relative"
     : isDedicatedWindow
-    ? "h-screen flex"
-    : "fixed inset-0 z-50 flex bg-black/50";
+    ? "h-screen flex relative"
+    : "fixed inset-0 z-50 flex items-center justify-center bg-black/50";
+
+  // For modal mode, render as a centered dialog
+  const isModal = !embedded && !isDedicatedWindow;
 
   return (
-    <div className={`${containerClass} relative`}>
+    <div className={containerClass}>
+      {/* Modal wrapper - constrains size when in modal mode */}
+      <div className={isModal ? "flex w-full max-w-5xl h-[85vh] rounded-xl overflow-hidden shadow-2xl" : "flex w-full h-full"}>
       {/* Drag bar for dedicated window - spans entire top */}
       {isDedicatedWindow && !embedded && (
         <div
@@ -864,6 +869,7 @@ export default function InterviewPrepModal({ isOpen, onClose, provider, model, i
           />
         )}
       </div>
+      </div>{/* End modal wrapper */}
     </div>
   );
 }

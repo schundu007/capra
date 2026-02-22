@@ -1155,13 +1155,19 @@ export default function App() {
           onOpenInterviewPrep={async () => {
             // Don't open modal if already in Behavioral mode (Interview Prep is embedded)
             if (interviewMode === 'behavioral') return;
+            // Close other modals first
+            setShowPrepTab(false);
             if (isElectron && window.electronAPI?.openInterviewPrep) {
               await window.electronAPI.openInterviewPrep();
             } else {
               setShowInterviewPrep(true);
             }
           }}
-          onOpenPlatforms={() => setShowPrepTab(true)}
+          onOpenPlatforms={() => {
+            // Close other modals first
+            setShowInterviewPrep(false);
+            setShowPrepTab(true);
+          }}
           onOpenSettings={() => setShowSettings(true)}
           isLoading={isLoading}
           showInterviewAssistant={showInterviewAssistant}
