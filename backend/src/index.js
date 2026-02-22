@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import path from 'path';
 import config from './config/index.js';
 import requestId from './middleware/requestId.js';
 import { requestLogger, logger } from './middleware/requestLogger.js';
@@ -62,6 +63,20 @@ app.use(requestLogger);
 
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
+
+// Static file serving for generated diagrams
+const DIAGRAM_OUTPUT_DIR = process.env.DIAGRAM_OUTPUT_DIR || '/tmp/capra_diagrams';
+app.use('/static/diagrams', express.static(DIAGRAM_OUTPUT_DIR, {
+  maxAge: '1h',
+  setHeaders: (res, filePath) => {
+    // Set appropriate content type for diagram images
+    if (filePath.endsWith('.png')) {
+      res.setHeader('Content-Type', 'image/png');
+    } else if (filePath.endsWith('.svg')) {
+      res.setHeader('Content-Type', 'image/svg+xml');
+    }
+  }
+}));
 
 // Auth routes (no authentication required)
 app.use('/api/auth', authRouter);

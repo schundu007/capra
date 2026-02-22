@@ -1396,6 +1396,8 @@ export default function App() {
                   interviewMode={interviewMode}
                   systemDesign={solution?.systemDesign || streamingContent.systemDesign}
                   eraserDiagram={eraserDiagram}
+                  question={currentProblem || loadedProblem}
+                  cloudProvider="auto"
                   onGenerateEraserDiagram={async () => {
                     const sd = solution?.systemDesign || streamingContent.systemDesign;
                     if (!sd?.included) return;

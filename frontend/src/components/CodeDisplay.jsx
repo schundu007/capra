@@ -40,7 +40,7 @@ const hackerRankTheme = {
   },
 };
 
-const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, language, onLineHover, examples, onCodeUpdate, onExplanationsUpdate, isStreaming, autoRunOutput, interviewMode, systemDesign, eraserDiagram, onGenerateEraserDiagram }, ref) {
+const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, language, onLineHover, examples, onCodeUpdate, onExplanationsUpdate, isStreaming, autoRunOutput, interviewMode, systemDesign, eraserDiagram, onGenerateEraserDiagram, question, cloudProvider }, ref) {
   const normalizedLanguage = language?.toLowerCase() || 'python';
   const [code, setCode] = useState(initialCode);
   const [copied, setCopied] = useState(false);
@@ -200,6 +200,8 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
               systemDesign={systemDesign}
               eraserDiagram={eraserDiagram}
               onGenerateEraserDiagram={onGenerateEraserDiagram}
+              question={question}
+              cloudProvider={cloudProvider}
             />
           ) : isStreaming ? (
             <div className="flex flex-col items-center justify-center h-full" style={{ color: '#999999' }}>
