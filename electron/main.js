@@ -69,12 +69,12 @@ async function createWindow() {
         ...details.responseHeaders,
         'Content-Security-Policy': [
           "default-src 'self';" +
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval';" +
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://donorbox.org;" +
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;" +
-          `connect-src 'self' http://localhost:${BACKEND_PORT} http://127.0.0.1:${BACKEND_PORT} ws://localhost:${BACKEND_PORT} ws://127.0.0.1:${BACKEND_PORT} https://*.lockedinai.com;` +
-          `img-src 'self' data: blob: http://localhost:${BACKEND_PORT} http://127.0.0.1:${BACKEND_PORT} https://*.lockedinai.com https://storage.googleapis.com https://*.appspot.com https://*.googleusercontent.com;` +
+          `connect-src 'self' http://localhost:${BACKEND_PORT} http://127.0.0.1:${BACKEND_PORT} ws://localhost:${BACKEND_PORT} ws://127.0.0.1:${BACKEND_PORT} https://*.lockedinai.com https://donorbox.org https://*.donorbox.org;` +
+          `img-src 'self' data: blob: http://localhost:${BACKEND_PORT} http://127.0.0.1:${BACKEND_PORT} https://*.lockedinai.com https://storage.googleapis.com https://*.appspot.com https://*.googleusercontent.com https://donorbox.org https://*.donorbox.org;` +
           "font-src 'self' data: https://fonts.gstatic.com;" +
-          "frame-src 'self' https://*.lockedinai.com https://app.lockedinai.com;"
+          "frame-src 'self' https://*.lockedinai.com https://app.lockedinai.com https://donorbox.org https://*.donorbox.org;"
         ]
       }
     });

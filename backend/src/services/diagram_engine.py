@@ -61,20 +61,20 @@ CRITICAL RULES:
 6. ALWAYS use direction="LR" for HORIZONTAL left-to-right flow. NEVER use "TB" (top-bottom). Architecture diagrams must flow horizontally.
 7. Group related services into Clusters — VPCs, subnets, AZs, regions, logical tiers.
 
-DETAIL REQUIREMENTS (IMPORTANT - interviewers will deep dive):
-8. Show 25-40 nodes for comprehensive coverage - include ALL key components.
-9. Include data stores: Primary DB, Read replicas, Cache (Redis/Memcached), Object storage.
-10. Include message queues: Kafka/SQS/Pub-Sub for async processing.
-11. Include CDN, WAF, Load Balancers at ingress.
-12. Include worker services for background jobs.
-13. Include search services (Elasticsearch) if relevant.
-14. Include monitoring/logging stack (Prometheus, Grafana, CloudWatch).
-15. Show both sync and async data flows with Edge labels.
-16. Use Edge(label="...") liberally - label ALL important connections with data types/protocols.
-17. Use Edge(style="dashed") for monitoring/logging/metrics paths.
-18. Show read vs write paths separately when relevant.
-19. Include API Gateway, Service Mesh if microservices architecture.
-20. Show multiple availability zones for HA where appropriate.
+DETAIL REQUIREMENTS (KEEP IT READABLE):
+8. Show 15-20 nodes MAXIMUM for detailed diagrams - comprehensive but READABLE.
+9. Group services into logical clusters - don't show every individual node.
+10. Use SHORT labels (max 15 chars): "Redis Cache", "Primary DB", "Worker"
+11. Label only KEY connections - not every single edge.
+12. Represent replicas/instances as single node with label "(3x)" or "Auto-scaling".
+13. Include data stores: 1 Primary DB node, 1 Cache node, 1 Storage node.
+14. Include async: 1 Queue node (SQS/Kafka), 1 Worker node.
+15. Include observability: Combine monitoring+logging into 1-2 nodes.
+16. Don't show EVERY security component - just WAF at ingress.
+17. Don't show monitoring connections to every service - 1 dashed line to observability.
+18. Focus on the MAIN data flow path, not every possible route.
+19. Use Edge(label="...") sparingly - only for important connections.
+20. Keep the diagram EXPLAINABLE in under 5 minutes.
 
 NETWORKING COMPONENTS (CRITICAL - always include):
 21. Show VPC/VNet boundaries with proper subnets (public/private).
@@ -217,7 +217,7 @@ LAYOUT RULE: Always use direction="LR" in the Diagram() call for horizontal arch
 
 Remember: ONLY output valid Python code. Use filename=DIAGRAM_FILENAME and outformat=DIAGRAM_FORMAT and show=False and direction="LR". Use real {cloud_provider} service icons. Keep it SIMPLE and CLEAR."""
 
-USER_PROMPT_DETAILED = """Generate a COMPREHENSIVE Python diagram for this system design interview question:
+USER_PROMPT_DETAILED = """Generate a DETAILED but READABLE Python diagram for this system design interview question:
 
 Question: {question}
 Cloud Provider: {cloud_provider}
@@ -227,56 +227,30 @@ Category: {category}
 CRITICAL LAYOUT: Use direction="LR" for HORIZONTAL left-to-right architecture flow (NOT vertical/TB).
 
 REQUIREMENTS FOR INTERVIEW-READY DIAGRAM:
-- 25-40 nodes showing ALL major components (not a simplified overview)
+- 15-20 nodes MAXIMUM - detailed but still human-readable
 - MUST use direction="LR" in Diagram() call for horizontal flow
-- Include: Load Balancers, CDN, API Gateway, Application Servers, Caches, Databases (primary + replicas), Message Queues, Workers, Object Storage, Search, Monitoring
-- Show data flow with labeled edges (e.g., "REST API", "gRPC", "Events", "Metrics")
-- Group into logical clusters: Ingress, Application Tier, Data Tier, Async Processing, Observability
-- Show both read and write paths if different
-- Include HA/redundancy where appropriate
+- Group into 4-5 logical clusters with clear boundaries
+- Use short, readable labels (max 15 characters per line)
 
-NETWORKING (MUST INCLUDE):
-- VPC with public/private subnets
-- DNS (Route53/Cloud DNS) at entry
-- Internet Gateway, NAT Gateway
-- Firewalls/WAF/Security Groups
-- Internal load balancers between tiers
-- Label all network paths with protocols
+CORE COMPONENTS (pick relevant ones, ~15-20 total):
+1. INGRESS (1 cluster): DNS, CDN, WAF, Load Balancer, API Gateway
+2. APPLICATION (1 cluster): App Servers/Containers (just 1-2 nodes, not every instance)
+3. DATA (1 cluster): Primary DB, Read Replica, Cache (Redis), Object Storage
+4. ASYNC (1 cluster): Message Queue (SQS/Kafka), Worker Service, DLQ
+5. OBSERVABILITY (1 cluster): Monitoring, Logging (combine into 1-2 nodes)
 
-MESSAGING (MUST INCLUDE for async):
-- SNS topics for fan-out notifications
-- SQS queues for async processing with DLQ
-- EventBridge for event routing
-- Show pattern: Producer → SNS → SQS → Worker
-- Label message types (Events, Commands, etc.)
+LABELING RULES:
+- Use short labels: "Redis Cache", "Primary DB", "API GW"
+- Label key edges only: "HTTPS", "Events", "Reads", "Writes"
+- Don't label every connection - only important data flows
 
-SECURITY (MUST INCLUDE):
-- IAM roles for service auth
-- KMS for encryption, Secrets Manager for credentials
-- WAF, Shield for DDoS protection
-- VPC endpoints/PrivateLink for private access
-- Label auth: "IAM Role", "JWT", "mTLS"
+WHAT TO SKIP (to keep readable):
+- Don't show every replica/instance - just represent with 1 node + label "(3x)"
+- Don't show every security component - just WAF at ingress
+- Don't show monitoring connections to every service - 1 dashed line to observability cluster
+- Don't show both read AND write paths - pick the primary flow
 
-MONITORING (MUST INCLUDE):
-- CloudWatch/Prometheus for metrics
-- X-Ray/Jaeger for distributed tracing
-- Centralized logging (ELK/CloudWatch Logs)
-- Alerting (PagerDuty, SNS alerts)
-- Health checks, dashboards
-
-MULTI-CLOUD & ON-PREM (if relevant):
-- VPN/Direct Connect to on-premises
-- Cross-cloud connectivity (Transit Gateway)
-- Hybrid architecture patterns
-- DR region with replication
-
-EDGE CASES & RESILIENCE:
-- Circuit breakers, retry queues
-- Failover paths (DR region)
-- Rate limiting at API Gateway
-- Graceful degradation paths
-
-Remember: ONLY output valid Python code. Use filename=DIAGRAM_FILENAME and outformat=DIAGRAM_FORMAT and show=False. Use real {cloud_provider} service icons. This diagram must support deep-dive interview questions."""
+Remember: ONLY output valid Python code. Use filename=DIAGRAM_FILENAME and outformat=DIAGRAM_FORMAT and show=False. Use real {cloud_provider} service icons. Diagram must be READABLE with clear text."""
 
 RETRY_PROMPT_TEMPLATE = """The previous diagram code failed with this error:
 {error_message}

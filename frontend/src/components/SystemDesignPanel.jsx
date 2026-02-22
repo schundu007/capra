@@ -150,6 +150,122 @@ function CollapsibleSection({ title, icon, color, children, defaultOpen = true, 
   );
 }
 
+/**
+ * ASCII Architecture Diagram Component
+ * Generates a text-based architecture diagram from systemDesign data
+ */
+function ASCIIDiagram({ systemDesign, detailed = false }) {
+  if (!systemDesign?.included) return null;
+
+  // Extract tech stack from techJustifications
+  const techStack = systemDesign.techJustifications?.map(t => t.tech) || [];
+  const components = systemDesign.architecture?.components || [];
+
+  // Categorize components into tiers
+  const categorize = (items) => {
+    const tiers = {
+      ingress: [],
+      compute: [],
+      data: [],
+      async: [],
+      monitoring: []
+    };
+
+    const patterns = {
+      ingress: /cdn|cloudfront|load.?balancer|alb|nlb|elb|api.?gateway|dns|route53|waf|firewall|nginx|haproxy/i,
+      compute: /ec2|ecs|eks|gke|aks|lambda|function|container|server|service|k8s|kubernetes|fargate|app/i,
+      data: /database|db|rds|aurora|dynamo|redis|cache|elastic|memcache|postgres|mysql|mongo|s3|storage|gcs|blob/i,
+      async: /queue|sqs|sns|kafka|kinesis|pubsub|rabbit|worker|event|stream/i,
+      monitoring: /monitor|cloudwatch|prometheus|grafana|log|trace|alert|metric|datadog/i
+    };
+
+    items.forEach(item => {
+      let matched = false;
+      for (const [tier, pattern] of Object.entries(patterns)) {
+        if (pattern.test(item)) {
+          tiers[tier].push(item);
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) tiers.compute.push(item);
+    });
+
+    return tiers;
+  };
+
+  const tiers = categorize([...components, ...techStack]);
+
+  // Build ASCII diagram
+  const buildASCII = () => {
+    const lines = [];
+    const width = 78;
+    const border = '─'.repeat(width);
+
+    // Title
+    lines.push(`┌${border}┐`);
+    const title = detailed ? 'DETAILED ARCHITECTURE' : 'ARCHITECTURE OVERVIEW';
+    const titlePad = Math.floor((width - title.length) / 2);
+    lines.push(`│${' '.repeat(titlePad)}${title}${' '.repeat(width - titlePad - title.length)}│`);
+    lines.push(`├${border}┤`);
+
+    // Ingress tier
+    if (tiers.ingress.length > 0 || !detailed) {
+      const ingressItems = tiers.ingress.length > 0 ? tiers.ingress.slice(0, 4) : ['CDN', 'Load Balancer', 'API Gateway'];
+      lines.push(`│${''.padEnd(width)}│`);
+      lines.push(`│  INGRESS: ${ingressItems.join(' ──► ').substring(0, width - 14).padEnd(width - 12)}│`);
+      lines.push(`│${''.padEnd(Math.floor(width/2) - 1)}│${''.padEnd(width - Math.floor(width/2))}│`);
+      lines.push(`│${''.padEnd(Math.floor(width/2) - 1)}▼${''.padEnd(width - Math.floor(width/2))}│`);
+    }
+
+    // Compute tier
+    if (tiers.compute.length > 0 || !detailed) {
+      const computeItems = tiers.compute.length > 0 ? tiers.compute.slice(0, 4) : ['App Servers', 'Workers'];
+      lines.push(`│  COMPUTE: ${computeItems.join(', ').substring(0, width - 14).padEnd(width - 12)}│`);
+      lines.push(`│${''.padEnd(Math.floor(width/3) - 1)}│${''.padEnd(Math.floor(width/3))}│${''.padEnd(width - 2*Math.floor(width/3))}│`);
+      lines.push(`│${''.padEnd(Math.floor(width/3) - 1)}▼${''.padEnd(Math.floor(width/3))}▼${''.padEnd(width - 2*Math.floor(width/3))}│`);
+    }
+
+    // Data tier
+    if (tiers.data.length > 0 || !detailed) {
+      const dataItems = tiers.data.length > 0 ? tiers.data.slice(0, 4) : ['Primary DB', 'Cache', 'Storage'];
+      lines.push(`│  DATA:    ${dataItems.join(', ').substring(0, width - 14).padEnd(width - 12)}│`);
+    }
+
+    // Async tier (detailed only)
+    if (detailed && tiers.async.length > 0) {
+      lines.push(`│${''.padEnd(width)}│`);
+      lines.push(`│  ASYNC:   ${tiers.async.slice(0, 4).join(' ◄──► ').substring(0, width - 14).padEnd(width - 12)}│`);
+    }
+
+    // Monitoring tier (detailed only)
+    if (detailed && tiers.monitoring.length > 0) {
+      lines.push(`│${''.padEnd(width)}│`);
+      lines.push(`│  MONITOR: ${tiers.monitoring.slice(0, 3).join(', ').substring(0, width - 14).padEnd(width - 12)}│`);
+    }
+
+    lines.push(`│${''.padEnd(width)}│`);
+
+    // Tech Stack footer
+    lines.push(`├${border}┤`);
+    const stackLabel = 'TECH STACK: ';
+    const stackItems = techStack.slice(0, 8).join(', ');
+    const stackLine = (stackLabel + stackItems).substring(0, width - 2);
+    lines.push(`│ ${stackLine.padEnd(width - 1)}│`);
+    lines.push(`└${border}┘`);
+
+    return lines.join('\n');
+  };
+
+  const asciiDiagram = buildASCII();
+
+  return (
+    <div className="font-mono text-[10px] leading-tight bg-gray-900 text-emerald-400 p-3 rounded-lg overflow-x-auto">
+      <pre className="whitespace-pre">{asciiDiagram}</pre>
+    </div>
+  );
+}
+
 export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGenerateEraserDiagram, question, cloudProvider = 'auto' }) {
   const { isElectron } = useElectron();
   const [generatingEraser, setGeneratingEraser] = useState(false);
@@ -157,11 +273,16 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
   const [proDiagramModal, setProDiagramModal] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  // Cloud diagram state
+  // Cloud diagram state - separate cache for overview and detailed
   const [generatingDiagram, setGeneratingDiagram] = useState(false);
-  const [diagramData, setDiagramData] = useState(null);
+  const [overviewDiagram, setOverviewDiagram] = useState(null); // Cache for overview
+  const [detailedDiagram, setDetailedDiagram] = useState(null); // Cache for detailed
   const [diagramError, setDiagramError] = useState(null);
-  const [diagramDetailLevel, setDiagramDetailLevel] = useState('overview'); // 'overview' or 'detailed'
+  const [diagramDetailLevel, setDiagramDetailLevel] = useState('overview'); // Current view mode
+  const [showASCII, setShowASCII] = useState(true); // Show ASCII diagram by default (instant)
+
+  // Get current diagram based on selected level
+  const diagramData = diagramDetailLevel === 'detailed' ? detailedDiagram : overviewDiagram;
 
   // Check if this is a comparison question
   const hasComparison = systemDesign?.comparison || systemDesign?.comparisonDiagram;
@@ -175,7 +296,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
 
   // Auto-generate overview diagram when systemDesign is available
   useEffect(() => {
-    if (systemDesign?.included && question && !diagramData && !generatingDiagram && !diagramError) {
+    if (systemDesign?.included && question && !overviewDiagram && !generatingDiagram && !diagramError) {
       // Small delay to ensure component is fully mounted and auth is ready
       const timer = setTimeout(() => {
         handleGenerateDiagram('overview'); // Start with simple overview
@@ -196,6 +317,14 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
 
   const handleGenerateDiagram = async (detailLevel = 'overview') => {
     if (!question) return;
+
+    // Check if we already have a cached diagram for this level
+    const cachedDiagram = detailLevel === 'detailed' ? detailedDiagram : overviewDiagram;
+    if (cachedDiagram) {
+      // Just switch to the cached version, no regeneration needed
+      setDiagramDetailLevel(detailLevel);
+      return;
+    }
 
     setGeneratingDiagram(true);
     setDiagramError(null);
@@ -234,12 +363,19 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
       const result = await response.json();
 
       if (result.success && result.image_url) {
-        setDiagramData({
+        const newDiagramData = {
           imageUrl: `${API_URL}${result.image_url}`,
           cloudProvider: result.cloud_provider,
           pythonCode: result.python_code,
           detailLevel: detailLevel
-        });
+        };
+
+        // Cache in the appropriate state based on detail level
+        if (detailLevel === 'detailed') {
+          setDetailedDiagram(newDiagramData);
+        } else {
+          setOverviewDiagram(newDiagramData);
+        }
       } else {
         throw new Error(result.error || 'Diagram generation failed');
       }
@@ -363,6 +499,31 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
 
         {/* Diagrams - Full width (above Technologies) */}
         <div className="space-y-3">
+          {/* ASCII Architecture Diagram - Always visible, instant */}
+          <div className="rounded-lg p-3 bg-gray-50 border border-gray-200">
+            <h4 className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-2 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                Text Architecture
+                <span className="px-1.5 py-0.5 bg-gray-100 text-gray-500 border border-gray-200 rounded text-[9px] font-medium">
+                  ASCII
+                </span>
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setDiagramDetailLevel(diagramDetailLevel === 'detailed' ? 'overview' : 'detailed')}
+                  className={`px-2 py-1 text-[10px] font-medium rounded border transition-all ${
+                    diagramDetailLevel === 'detailed'
+                      ? 'bg-blue-100 text-blue-700 border-blue-300'
+                      : 'bg-emerald-100 text-emerald-700 border-emerald-300'
+                  }`}
+                >
+                  {diagramDetailLevel === 'detailed' ? 'Detailed' : 'Overview'}
+                </button>
+              </div>
+            </h4>
+            <ASCIIDiagram systemDesign={systemDesign} detailed={diagramDetailLevel === 'detailed'} />
+          </div>
+
           {/* Cloud Architecture Diagram (Python diagrams with real cloud icons) */}
           <div
             className={`rounded-lg p-3 bg-gray-50 border border-gray-200 ${diagramData ? 'cursor-pointer hover:border-emerald-300 group' : ''} transition-all`}
@@ -370,7 +531,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
           >
             <h4 className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-2 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
-                Architecture Diagram
+                Visual Diagram
                 {diagramData?.cloudProvider && (
                   <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded text-[9px] font-medium uppercase">
                     {diagramData.cloudProvider}
@@ -381,7 +542,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
                 {diagramData && (
                   <>
                     <span className="text-[9px] text-gray-400 px-1.5 py-0.5 bg-gray-100 rounded">
-                      {diagramData.detailLevel === 'detailed' ? 'Detailed' : 'Overview'}
+                      {diagramDetailLevel === 'detailed' ? 'Detailed' : 'Overview'}
                     </span>
                     <button
                       onClick={(e) => { e.stopPropagation(); setDiagramModal(true); }}
@@ -392,22 +553,30 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
                       </svg>
                       Expand
                     </button>
-                    {diagramData.detailLevel !== 'detailed' && (
+                    {/* Show Deep Dive button when viewing overview */}
+                    {diagramDetailLevel !== 'detailed' && (
                       <button
                         onClick={(e) => { e.stopPropagation(); handleGenerateDiagram('detailed'); }}
-                        className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded border transition-all bg-blue-500 text-white border-blue-500 hover:bg-blue-600"
-                        title="Generate detailed diagram for deep-dive questions"
+                        disabled={generatingDiagram}
+                        className={`flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded border transition-all ${
+                          detailedDiagram
+                            ? 'bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200'
+                            : 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600'
+                        }`}
+                        title={detailedDiagram ? 'Switch to cached detailed diagram' : 'Generate detailed diagram'}
                       >
-                        Deep Dive
+                        {detailedDiagram ? 'Deep Dive ✓' : 'Deep Dive'}
                       </button>
                     )}
-                    {diagramData.detailLevel === 'detailed' && (
+                    {/* Show Overview button when viewing detailed */}
+                    {diagramDetailLevel === 'detailed' && (
                       <button
                         onClick={(e) => { e.stopPropagation(); handleGenerateDiagram('overview'); }}
-                        className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded border transition-all bg-gray-500 text-white border-gray-500 hover:bg-gray-600"
-                        title="Generate simple overview diagram"
+                        disabled={generatingDiagram}
+                        className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded border transition-all bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+                        title="Switch to cached overview diagram"
                       >
-                        Overview
+                        Overview ✓
                       </button>
                     )}
                   </>
@@ -424,7 +593,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
                     <button
                       onClick={(e) => { e.stopPropagation(); handleGenerateDiagram('detailed'); }}
                       className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded border transition-all bg-blue-500 text-white border-blue-500 hover:bg-blue-600"
-                      title="Comprehensive diagram for deep-dive questions (25-40 nodes)"
+                      title="Comprehensive diagram for deep-dive questions (15-20 nodes)"
                     >
                       Deep Dive
                     </button>

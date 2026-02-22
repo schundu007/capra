@@ -20,6 +20,7 @@ export default function Sidebar({
   onViewAllHistory,
   // Props for settings
   onOpenSettings,
+  onOpenSupport,
   isLoading,
   // Interview Assistant
   showInterviewAssistant,
@@ -392,6 +393,26 @@ export default function Sidebar({
               </button>
             </div>
           </div>
+        )}
+
+        {/* Support/Donate Button */}
+        {onOpenSupport && (
+          <button
+            onClick={onOpenSupport}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all"
+            style={{
+              background: 'rgba(236, 72, 153, 0.08)',
+              color: '#db2777',
+              border: '1px solid rgba(236, 72, 153, 0.25)',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(236, 72, 153, 0.15)'; e.currentTarget.style.borderColor = 'rgba(236, 72, 153, 0.4)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(236, 72, 153, 0.08)'; e.currentTarget.style.borderColor = 'rgba(236, 72, 153, 0.25)'; }}
+          >
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+            </svg>
+            <span className="text-sm font-medium">Support Ascend</span>
+          </button>
         )}
 
         {/* Settings Button */}

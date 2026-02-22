@@ -18,6 +18,7 @@ import InterviewModeSelector from './components/InterviewModeSelector';
 import PrepTab from './components/PrepTab';
 import InterviewPrepModal from './components/InterviewPrepModal';
 import SavedSystemDesignsModal from './components/SavedSystemDesignsModal';
+import FundingPage from './components/FundingPage';
 import { getApiUrl } from './hooks/useElectron';
 import useKeyboardShortcuts from './hooks/useKeyboardShortcuts';
 import { useSystemDesignStorage } from './hooks/useSystemDesignStorage';
@@ -245,6 +246,7 @@ export default function App() {
   const [platformStatus, setPlatformStatus] = useState({});
   const [showPrepTab, setShowPrepTab] = useState(false);
   const [showSavedDesigns, setShowSavedDesigns] = useState(false);
+  const [showFundingPage, setShowFundingPage] = useState(false);
 
   // System design storage hook
   const systemDesignStorage = useSystemDesignStorage();
@@ -565,7 +567,7 @@ export default function App() {
 
   // Check if any modal is open (disable shortcuts when modals are open)
   const isModalOpen = showSettings || showSetupWizard || showPlatformAuth ||
-                      showPrepTab || showAdminPanel || showSavedDesigns;
+                      showPrepTab || showAdminPanel || showSavedDesigns || showFundingPage;
 
   // Global keyboard shortcuts
   useKeyboardShortcuts({
@@ -1220,6 +1222,7 @@ EDGE CASES & RESILIENCE:
           onViewAllDesigns={() => setShowSavedDesigns(true)}
           onViewAllHistory={() => {/* Could add a history modal later */}}
           onOpenSettings={() => setShowSettings(true)}
+          onOpenSupport={() => setShowFundingPage(true)}
           isLoading={isLoading}
           showInterviewAssistant={showInterviewAssistant}
           onToggleInterviewAssistant={() => setShowInterviewAssistant(!showInterviewAssistant)}
@@ -1593,6 +1596,17 @@ EDGE CASES & RESILIENCE:
             <span className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'bg-[#10b981] animate-pulse' : 'bg-[#10b981]'}`} />
             {isLoading ? 'Processing' : 'Ready'}
           </span>
+          <span>·</span>
+          <button
+            onClick={() => setShowFundingPage(true)}
+            className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-pink-50 text-pink-600 hover:bg-pink-100 transition-colors border border-pink-200"
+            title="Support Ascend development"
+          >
+            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+            </svg>
+            Support
+          </button>
         </div>
         <div className="flex items-center gap-3 font-mono" style={{ color: '#b3b3b3' }}>
           <span title="Solve problem">Space solve</span>
@@ -1649,6 +1663,11 @@ EDGE CASES & RESILIENCE:
         onDeleteSession={systemDesignStorage.deleteSession}
         onClearAll={systemDesignStorage.clearAllSessions}
       />
+
+      {/* Funding/Support Page Modal */}
+      {showFundingPage && (
+        <FundingPage onClose={() => setShowFundingPage(false)} />
+      )}
       </div>{/* End Main Content wrapper */}
 
     </div>
