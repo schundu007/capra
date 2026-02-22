@@ -5,13 +5,15 @@ aptPkgs = ["python3", "python3-pip", "python3-requests", "python3-numpy", "pytho
 [phases.install]
 cmds = [
   "npm install",
-  "python3 -m pip install --break-system-packages --target=/usr/local/lib/python3.11/dist-packages pydantic pydantic-core anthropic diagrams",
+  "rm -rf /usr/local/lib/python3.12/dist-packages/anthropic* /usr/local/lib/python3.12/dist-packages/pydantic* 2>/dev/null || true",
+  "python3 -m pip install --break-system-packages pydantic pydantic-core anthropic diagrams",
   "python3 -c 'import anthropic; print(\"anthropic OK\")' || echo 'anthropic import failed'",
   "python3 -c 'import diagrams; print(\"diagrams OK\")' || echo 'diagrams import failed'"
 ]
 
 [variables]
-PYTHONPATH = "/usr/lib/python3/dist-packages:/usr/local/lib/python3.11/dist-packages"
+PYTHONPATH = "/usr/local/lib/python3.11/dist-packages:/usr/lib/python3/dist-packages"
+PIP_TARGET = "/usr/local/lib/python3.11/dist-packages"
 
 [phases.build]
 cmds = ["echo 'Skipping frontend build - backend only'"]
