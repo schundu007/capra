@@ -48,6 +48,15 @@ export function useKeyboardShortcuts({
       return;
     }
 
+    // Cmd/Ctrl + Shift + C: Copy code - works even in input fields
+    if (e.key === 'c' && cmdKey && e.shiftKey) {
+      e.preventDefault();
+      if (hasCode && onCopyCode) {
+        onCopyCode();
+      }
+      return;
+    }
+
     // Don't process other shortcuts if typing in input
     if (isInputFocused()) {
       // Allow Cmd+Enter to submit from text area
@@ -72,15 +81,6 @@ export function useKeyboardShortcuts({
       e.preventDefault();
       if (!isLoading && hasCode && onRun) {
         onRun();
-      }
-      return;
-    }
-
-    // Cmd/Ctrl + Shift + C: Copy code
-    if (e.key === 'c' && cmdKey && e.shiftKey) {
-      e.preventDefault();
-      if (hasCode && onCopyCode) {
-        onCopyCode();
       }
       return;
     }
