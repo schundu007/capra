@@ -36,135 +36,126 @@ function sanitizeMermaidChart(chart) {
       return 'flowchart LR\n  A[System] --> B[Component]';
     }
 
-    // Add flowchart directive if missing
-    if (!clean.match(/^(flowchart|graph|sequenceDiagram|classDiagram|stateDiagram|erDiagram|gantt|pie|journey)/i)) {
-      clean = 'flowchart LR\n' + clean;
+    // Determine direction from original chart
+    let direction = 'LR';
+    const dirMatch = clean.match(/^(?:flowchart|graph)\s+(TD|TB|BT|RL|LR)/i);
+    if (dirMatch) {
+      direction = dirMatch[1].toUpperCase();
     }
 
-    // Replace 'graph' with 'flowchart' for v11 compatibility
-    clean = clean.replace(/^graph\s+(TD|TB|BT|RL|LR)/i, 'flowchart $1');
+    // Extract node definitions and connections
+    const nodeLabels = new Map(); // nodeId -> label
+    const connections = []; // [{from, to, label?}]
 
-    // Fix common syntax issues for mermaid v11
+    // Parse the chart to extract nodes and connections
     const lines = clean.split('\n');
-    const fixedLines = [];
-    let subgraphCounter = 0;
 
-    for (let i = 0; i < lines.length; i++) {
-      let line = lines[i];
+    for (const line of lines) {
+      const trimmed = line.trim();
 
-      // Skip empty lines and comments
-      if (!line.trim() || line.trim().startsWith('%%')) {
+      // Skip directives, empty lines, comments, subgraph, end, style
+      if (!trimmed ||
+          trimmed.startsWith('%%') ||
+          trimmed.match(/^(flowchart|graph|sequenceDiagram|subgraph|end|style|class|linkStyle)/i)) {
         continue;
       }
 
-      // Keep directive line as-is (first non-empty line)
-      if (fixedLines.length === 0 && line.match(/^(flowchart|graph|sequenceDiagram)/i)) {
-        fixedLines.push(line);
-        continue;
-      }
+      // Parse connections: A --> B or A[Label A] --> B[Label B] or A --> |label| B
+      const connectionMatch = trimmed.match(/^([A-Za-z0-9_]+)(?:\[([^\]]+)\])?\s*(-->|---|-\.->|==>)\s*(?:\|([^|]+)\|)?\s*([A-Za-z0-9_]+)(?:\[([^\]]+)\])?/);
 
-      // Skip lines that look like prose/descriptions (too long, no mermaid syntax)
-      if (line.length > 100 && !line.includes('-->') && !line.includes('[') && !line.includes('(')) {
-        continue;
-      }
+      if (connectionMatch) {
+        const [, fromId, fromLabel, arrow, edgeLabel, toId, toLabel] = connectionMatch;
 
-      // Skip invalid lines that are just text without structure
-      if (!line.includes('[') && !line.includes('(') && !line.includes('{') &&
-          !line.includes('-->') && !line.includes('---') && !line.includes('-.->') &&
-          !line.trim().startsWith('subgraph') && !line.trim().startsWith('end') &&
-          !line.trim().startsWith('style') && !line.trim().startsWith('class') &&
-          !line.trim().startsWith('linkStyle') && !line.match(/^[A-Za-z0-9_]+$/)) {
-        continue;
-      }
+        // Clean node IDs (remove hyphens, special chars)
+        const cleanFromId = fromId.replace(/[^A-Za-z0-9]/g, '_').replace(/^_+|_+$/g, '') || 'N' + Math.random().toString(36).substr(2, 4);
+        const cleanToId = toId.replace(/[^A-Za-z0-9]/g, '_').replace(/^_+|_+$/g, '') || 'N' + Math.random().toString(36).substr(2, 4);
 
-      // Fix subgraph syntax FIRST - convert quoted labels to proper format
-      if (line.trim().startsWith('subgraph')) {
-        subgraphCounter++;
-        // subgraph "Label" -> subgraph SG1[Label]
-        line = line.replace(/subgraph\s+"([^"]+)"/g, (match, label) => {
-          const cleanLabel = label.replace(/[^a-zA-Z0-9 ]/g, '').trim();
-          return `subgraph SG${subgraphCounter}[${cleanLabel}]`;
+        // Store labels
+        if (fromLabel) {
+          const cleanLabel = fromLabel.replace(/["\n<>]/g, ' ').replace(/\s+/g, ' ').trim();
+          nodeLabels.set(cleanFromId, cleanLabel);
+        }
+        if (toLabel) {
+          const cleanLabel = toLabel.replace(/["\n<>]/g, ' ').replace(/\s+/g, ' ').trim();
+          nodeLabels.set(cleanToId, cleanLabel);
+        }
+
+        // Store connection
+        connections.push({
+          from: cleanFromId,
+          to: cleanToId,
+          label: edgeLabel ? edgeLabel.replace(/["\n<>]/g, ' ').replace(/\s+/g, ' ').trim() : null
         });
-        line = line.replace(/subgraph\s+'([^']+)'/g, (match, label) => {
-          const cleanLabel = label.replace(/[^a-zA-Z0-9 ]/g, '').trim();
-          return `subgraph SG${subgraphCounter}[${cleanLabel}]`;
-        });
-        // If still has spaces after subgraph keyword without brackets, fix it
-        line = line.replace(/subgraph\s+([A-Za-z][A-Za-z0-9_]*)\s*$/g, 'subgraph $1');
-        fixedLines.push(line);
         continue;
       }
 
-      // Fix arrows: ensure proper spacing
-      line = line.replace(/\s*-->\s*/g, ' --> ');
-      line = line.replace(/\s*---\s*/g, ' --- ');
-      line = line.replace(/\s*-\.->\s*/g, ' -.-> ');
-      line = line.replace(/\s*==>\s*/g, ' ==> ');
+      // Parse standalone node definition: A[Label]
+      const nodeMatch = trimmed.match(/^([A-Za-z0-9_]+)\[([^\]]+)\]\s*$/);
+      if (nodeMatch) {
+        const [, nodeId, label] = nodeMatch;
+        const cleanId = nodeId.replace(/[^A-Za-z0-9]/g, '_').replace(/^_+|_+$/g, '');
+        const cleanLabel = label.replace(/["\n<>]/g, ' ').replace(/\s+/g, ' ').trim();
+        if (cleanId) {
+          nodeLabels.set(cleanId, cleanLabel);
+        }
+        continue;
+      }
 
-      // Fix arrow labels - |label| format
-      line = line.replace(/-->\|([^|]+)\|/g, '--> |$1|');
-      line = line.replace(/\|->\|/g, '|-->|');
-
-      // Replace hyphens in node IDs (like us-west1) with underscores
-      // But preserve hyphens inside labels [...]
-      line = line.replace(/^(\s*)([A-Za-z][A-Za-z0-9_-]*)/g, (match, space, id) => {
-        return space + id.replace(/-/g, '_');
-      });
-
-      // Fix node IDs after arrows
-      line = line.replace(/--> ([A-Za-z][A-Za-z0-9_-]*)/g, (match, id) => {
-        return '--> ' + id.replace(/-/g, '_');
-      });
-
-      // Fix node definitions with special characters in IDs
-      // Replace spaces in node IDs with underscores
-      line = line.replace(/([A-Za-z])(\s+)(\[|\(|\{)/g, '$1$3');
-
-      // Fix node IDs with special characters - replace with underscores
-      line = line.replace(/([A-Za-z0-9_]+)\s*-\s*([A-Za-z0-9_]+)/g, (match, p1, p2) => {
-        // Only fix if it's a node ID pattern (not an arrow)
-        if (match.includes('->')) return match;
-        return `${p1}_${p2}`;
-      });
-
-      // Fix labels with special characters - ensure they're properly quoted
-      line = line.replace(/\[([^\]]*)\]/g, (match, label) => {
-        let fixedLabel = label
-          .replace(/"/g, "'")
-          .replace(/;/g, ',')
-          .replace(/\n/g, ' ')
-          .replace(/[<>]/g, '') // Remove angle brackets
-          .trim();
-        return `[${fixedLabel}]`;
-      });
-
-      line = line.replace(/\(([^)]*)\)/g, (match, label) => {
-        if (!/[a-zA-Z]/.test(label)) return match;
-        let fixedLabel = label
-          .replace(/"/g, "'")
-          .replace(/;/g, ',')
-          .replace(/\n/g, ' ')
-          .replace(/[<>]/g, '')
-          .trim();
-        return `(${fixedLabel})`;
-      });
-
-      // Remove trailing special characters
-      line = line.replace(/;\s*$/, '');
-
-      // Skip if line became empty
-      if (line.trim()) {
-        fixedLines.push(line);
+      // Parse round node: A(Label)
+      const roundMatch = trimmed.match(/^([A-Za-z0-9_]+)\(([^)]+)\)\s*$/);
+      if (roundMatch) {
+        const [, nodeId, label] = roundMatch;
+        const cleanId = nodeId.replace(/[^A-Za-z0-9]/g, '_').replace(/^_+|_+$/g, '');
+        const cleanLabel = label.replace(/["\n<>]/g, ' ').replace(/\s+/g, ' ').trim();
+        if (cleanId) {
+          nodeLabels.set(cleanId, `(${cleanLabel})`); // Keep round syntax indicator
+        }
+        continue;
       }
     }
 
-    // Final validation - if it's too short or broken, return simple diagram
-    if (fixedLines.length < 2) {
-      console.warn('[Mermaid] Chart too short after sanitization, using fallback');
+    // If we couldn't parse anything meaningful, return fallback
+    if (connections.length === 0) {
+      console.warn('[Mermaid] No valid connections found, using fallback');
       return 'flowchart LR\n  A[System] --> B[Component]';
     }
 
-    return fixedLines.join('\n');
+    // Build clean mermaid chart
+    const outputLines = [`flowchart ${direction}`];
+
+    // Add all unique nodes with their labels
+    const allNodes = new Set();
+    connections.forEach(c => {
+      allNodes.add(c.from);
+      allNodes.add(c.to);
+    });
+
+    // Add node definitions
+    allNodes.forEach(nodeId => {
+      const label = nodeLabels.get(nodeId);
+      if (label) {
+        if (label.startsWith('(') && label.endsWith(')')) {
+          // Round node
+          outputLines.push(`  ${nodeId}${label}`);
+        } else {
+          outputLines.push(`  ${nodeId}[${label}]`);
+        }
+      }
+    });
+
+    // Add connections
+    connections.forEach(conn => {
+      if (conn.label) {
+        outputLines.push(`  ${conn.from} --> |${conn.label}| ${conn.to}`);
+      } else {
+        outputLines.push(`  ${conn.from} --> ${conn.to}`);
+      }
+    });
+
+    const result = outputLines.join('\n');
+    console.log('[Mermaid] Sanitized chart:', result);
+    return result;
+
   } catch (err) {
     console.error('[Mermaid] Sanitization error:', err);
     return 'flowchart LR\n  A[System] --> B[Component]';

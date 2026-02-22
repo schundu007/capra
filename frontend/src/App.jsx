@@ -1149,16 +1149,30 @@ export default function App() {
           onCollapse={toggleSidebar}
           onViewAllDesigns={() => setShowSavedDesigns(true)}
           onViewAllHistory={() => {/* Could add a history modal later */}}
+          // New props for integrated controls
+          provider={provider}
+          model={model}
+          onProviderChange={setProvider}
+          onModelChange={setModel}
+          onOpenInterviewPrep={async () => {
+            if (isElectron && window.electronAPI?.openInterviewPrep) {
+              await window.electronAPI.openInterviewPrep();
+            } else {
+              setShowInterviewPrep(true);
+            }
+          }}
+          onOpenPlatforms={() => setShowPrepTab(true)}
+          onOpenSettings={() => setShowSettings(true)}
+          isLoading={isLoading}
         />
       )}
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Header - Light Oracle-inspired */}
+      {/* Header - Minimal when sidebar visible, full when collapsed */}
       <header
-        className="relative z-20 flex items-center justify-between px-4 py-3"
+        className="relative z-20 flex items-center justify-between px-4 py-2"
         style={{
-          // Only add traffic light padding when sidebar is collapsed/hidden
           paddingLeft: (isMacElectron && !showSidebar) ? '80px' : '16px',
           background: '#ffffff',
           borderBottom: '1px solid #e5e5e5',
@@ -1166,8 +1180,8 @@ export default function App() {
         }}
       >
         {/* Left: Logo & Status */}
-        <div className="flex items-center gap-4" style={{ WebkitAppRegion: 'no-drag' }}>
-          {/* Sidebar Toggle */}
+        <div className="flex items-center gap-3" style={{ WebkitAppRegion: 'no-drag' }}>
+          {/* Sidebar Toggle - always show when collapsed */}
           {sidebarCollapsed && (
             <button
               onClick={toggleSidebar}
@@ -1189,156 +1203,89 @@ export default function App() {
               <img
                 src="/ascend-logo.png"
                 alt="Ascend"
-                className="h-8 w-auto object-contain"
+                className="h-7 w-auto object-contain"
               />
               {isLoading && (
                 <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full animate-pulse" style={{ background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
               )}
             </div>
           )}
-          {/* Loading indicator when sidebar is visible */}
-          {showSidebar && isLoading && (
-            <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
-              <span className="text-sm" style={{ color: '#666666' }}>Processing...</span>
+
+          {/* Status Pill - only when sidebar is hidden */}
+          {!showSidebar && (
+            <div
+              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all"
+              style={{
+                background: isLoading ? '#ecfdf5' : '#f5f5f5',
+                border: isLoading ? '1px solid #a7f3d0' : '1px solid #e5e5e5',
+                color: isLoading ? '#10b981' : '#666666'
+              }}
+            >
+              <div
+                className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'animate-pulse' : ''}`}
+                style={{
+                  background: isLoading ? '#10b981' : '#999999',
+                  boxShadow: isLoading ? '0 0 8px #10b981' : 'none'
+                }}
+              />
+              {isLoading ? 'Processing' : 'Ready'}
             </div>
           )}
 
-          {/* Status Pill */}
-          <div
-            className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all"
-            style={{
-              background: isLoading ? '#ecfdf5' : '#f5f5f5',
-              border: isLoading ? '1px solid #a7f3d0' : '1px solid #e5e5e5',
-              color: isLoading ? '#10b981' : '#666666'
-            }}
-          >
-            <div
-              className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'animate-pulse' : ''}`}
-              style={{
-                background: isLoading ? '#10b981' : '#999999',
-                boxShadow: isLoading ? '0 0 8px #10b981' : 'none'
-              }}
-            />
-            {isLoading ? 'Processing' : 'Ready'}
-          </div>
+          {/* These buttons only show when sidebar is collapsed */}
+          {!showSidebar && (
+            <>
+              {/* Interview Prep Button */}
+              <button
+                onClick={async () => {
+                  if (isElectron && window.electronAPI?.openInterviewPrep) {
+                    await window.electronAPI.openInterviewPrep();
+                  } else {
+                    setShowInterviewPrep(true);
+                  }
+                }}
+                className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all hover:opacity-90"
+                style={{ background: '#8b5cf6', color: 'white' }}
+              >
+                Interview Prep
+              </button>
 
-          {/* Interview Prep Button - Clean solid style */}
-          <button
-            onClick={async () => {
-              // In Electron, open dedicated window; otherwise show modal
-              if (isElectron && window.electronAPI?.openInterviewPrep) {
-                await window.electronAPI.openInterviewPrep();
-              } else {
-                setShowInterviewPrep(true);
-              }
-            }}
-            className="flex items-center gap-2 px-4 py-1.5 text-sm font-semibold rounded-lg transition-all hover:opacity-90"
-            style={{
-              background: '#8b5cf6',
-              color: 'white',
-            }}
-            title="Interview Prep (opens in new window)"
-          >
-            Interview Prep
-          </button>
-
-          {/* Prep Hub Button */}
-          <button
-            onClick={() => setShowPrepTab(true)}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-all"
-            style={{
-              background: '#f5f5f5',
-              color: '#666666',
-              border: '1px solid #e5e5e5',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = '#e5e5e5'; e.currentTarget.style.color = '#333333'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#666666'; }}
-            title="Platform Connections"
-          >
-            Platforms
-          </button>
+              {/* Platforms Button */}
+              <button
+                onClick={() => setShowPrepTab(true)}
+                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
+                style={{ background: '#f5f5f5', color: '#666666', border: '1px solid #e5e5e5' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#e5e5e5'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = '#f5f5f5'; }}
+              >
+                Platforms
+              </button>
+            </>
+          )}
         </div>
 
         {/* Right: Controls */}
         <div className="flex items-center gap-2" style={{ WebkitAppRegion: 'no-drag' }}>
-          <ProviderToggle provider={provider} model={model} onChange={setProvider} onModelChange={setModel} />
+          {/* Provider Toggle - only when sidebar is collapsed */}
+          {!showSidebar && (
+            <ProviderToggle provider={provider} model={model} onChange={setProvider} onModelChange={setModel} />
+          )}
 
-          {/* Clear Button */}
+          {/* Clear Button - always visible */}
           <button
             onClick={handleClearAll}
             className="p-2 rounded-lg transition-all"
             style={{ color: '#666666' }}
             onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#333333'; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#666666'; }}
-            title="Clear all"
+            title="Clear all (Esc)"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
           </button>
 
-          {/* Platforms Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setShowPlatformDropdown(!showPlatformDropdown)}
-              className="p-2 rounded-lg transition-all"
-              style={{ color: '#666666' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#333333'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#666666'; }}
-              title="Coding Platforms"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-
-            {/* Dropdown Menu */}
-            {showPlatformDropdown && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowPlatformDropdown(false)} />
-                <div
-                  className="absolute right-0 mt-2 w-48 rounded-xl z-50 py-1 animate-slideDown"
-                  style={{
-                    background: '#ffffff',
-                    border: '1px solid rgba(0,0,0,0.1)',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.15)'
-                  }}
-                >
-                  <div className="px-3 py-2" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
-                    <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: '#6b7280' }}>Platforms</span>
-                  </div>
-                  {Object.entries(PLATFORMS).map(([key, platform]) => {
-                    const isConnected = platformStatus[key]?.authenticated;
-                    return (
-                      <button
-                        key={key}
-                        onClick={() => {
-                          setShowPlatformDropdown(false);
-                          setShowPlatformAuth(true);
-                        }}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 transition-colors"
-                        style={{ color: '#4b5563' }}
-                        onMouseEnter={(e) => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.color = '#111827'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#4b5563'; }}
-                      >
-                        <div
-                          className="w-5 h-5 rounded flex items-center justify-center text-white text-[10px] font-bold"
-                          style={{ background: platform.color }}
-                        >
-                          {platform.icon}
-                        </div>
-                        <span className="flex-1 text-xs text-left">{platform.name}</span>
-                        <span className={`w-1.5 h-1.5 rounded-full`} style={{ background: isConnected ? '#10b981' : '#d1d5db', boxShadow: isConnected ? '0 0 6px #10b981' : 'none' }} />
-                      </button>
-                    );
-                  })}
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Interview Assistant Toggle */}
+          {/* Interview Assistant Toggle - always visible */}
           <button
             onClick={() => setShowInterviewAssistant(!showInterviewAssistant)}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
@@ -1356,22 +1303,24 @@ export default function App() {
             Interview
           </button>
 
-          {/* Settings */}
-          <button
-            onClick={() => setShowSettings(true)}
-            className="p-2 rounded-lg transition-all"
-            style={{ color: '#666666' }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#333333'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#666666'; }}
-            title="Settings"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </button>
+          {/* Settings - only when sidebar is collapsed */}
+          {!showSidebar && (
+            <button
+              onClick={() => setShowSettings(true)}
+              className="p-2 rounded-lg transition-all"
+              style={{ color: '#666666' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#333333'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#666666'; }}
+              title="Settings"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+          )}
 
-          {/* User menu */}
+          {/* User menu - always visible for webapp */}
           {authRequired && user && (
             <div className="flex items-center gap-2 ml-2 pl-3" style={{ borderLeft: '1px solid #e5e5e5' }}>
               {isAdmin && (
@@ -1401,7 +1350,7 @@ export default function App() {
                 </svg>
               </button>
               <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white"
                 style={{ background: '#10b981' }}
               >
                 {(user.name || user.username || 'U')[0].toUpperCase()}

@@ -1,11 +1,13 @@
 import { useState } from 'react';
+import ProviderToggle from './ProviderToggle';
 
 // Check if running on macOS in Electron (needs extra padding for traffic lights)
 const isMacElectron = window.electronAPI?.isElectron && navigator.platform.toLowerCase().includes('mac');
+const isElectron = window.electronAPI?.isElectron || false;
 
 /**
- * Sidebar component for Electron desktop app
- * Oracle Cloud Console-inspired light theme with dashed border active states
+ * Sidebar component - Oracle Cloud Console-inspired light theme
+ * with design-oriented background and integrated controls
  */
 export default function Sidebar({
   interviewMode,
@@ -19,14 +21,22 @@ export default function Sidebar({
   onCollapse,
   onViewAllDesigns,
   onViewAllHistory,
+  // New props for header controls
+  provider,
+  model,
+  onProviderChange,
+  onModelChange,
+  onOpenInterviewPrep,
+  onOpenPlatforms,
+  onOpenSettings,
+  isLoading,
 }) {
-  const [expandedSection, setExpandedSection] = useState('modes'); // 'modes' | 'designs' | 'history'
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   const modes = [
-    { id: 'coding', label: 'Coding' },
-    { id: 'system-design', label: 'System Design' },
-    { id: 'behavioral', label: 'Behavioral' },
+    { id: 'coding', label: 'Coding', icon: '{ }' },
+    { id: 'system-design', label: 'System Design', icon: '◇' },
+    { id: 'behavioral', label: 'Behavioral', icon: '◎' },
   ];
 
   // Format relative time
@@ -67,19 +77,33 @@ export default function Sidebar({
     <div
       className="h-full flex flex-col"
       style={{
-        width: '240px',
-        minWidth: '240px',
-        background: '#ffffff',
-        borderRight: '1px solid #e5e5e5',
+        width: '260px',
+        minWidth: '260px',
+        background: 'linear-gradient(180deg, #fafafa 0%, #f5f5f5 50%, #f0f0f0 100%)',
+        borderRight: '1px solid #e0e0e0',
+        position: 'relative',
       }}
     >
+      {/* Subtle pattern overlay */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          opacity: 0.03,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          pointerEvents: 'none',
+        }}
+      />
+
       {/* Header - draggable area for macOS */}
       <div
-        className="flex items-center justify-between py-3"
+        className="flex items-center justify-between py-3 relative z-10"
         style={{
           paddingLeft: isMacElectron ? '80px' : '16px',
-          paddingRight: '16px',
-          borderBottom: '1px solid #e5e5e5',
+          paddingRight: '12px',
+          borderBottom: '1px solid #e0e0e0',
+          background: 'rgba(255,255,255,0.7)',
+          backdropFilter: 'blur(8px)',
           WebkitAppRegion: 'drag'
         }}
       >
@@ -90,6 +114,9 @@ export default function Sidebar({
             className="w-7 h-7 object-contain"
           />
           <span className="font-semibold text-sm" style={{ color: '#333333' }}>Ascend</span>
+          {isLoading && (
+            <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
+          )}
         </div>
         <button
           onClick={onCollapse}
@@ -98,7 +125,7 @@ export default function Sidebar({
             color: '#999999',
             WebkitAppRegion: 'no-drag'
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#666666'; }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; e.currentTarget.style.color = '#666666'; }}
           onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#999999'; }}
           title="Collapse sidebar"
         >
@@ -108,97 +135,132 @@ export default function Sidebar({
         </button>
       </div>
 
-      {/* Modes Section */}
-      <div className="px-2 py-3">
-        <div
-          className="flex items-center justify-between px-2 py-1.5 cursor-pointer"
-          onClick={() => setExpandedSection(expandedSection === 'modes' ? null : 'modes')}
-        >
-          <span
-            className="text-[11px] font-semibold uppercase tracking-wider"
-            style={{ color: '#666666' }}
-          >
-            Modes
-          </span>
-          <svg
-            className={`w-3 h-3 transition-transform ${expandedSection === 'modes' ? 'rotate-180' : ''}`}
-            style={{ color: '#999999' }}
-            fill="none" viewBox="0 0 24 24" stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
+      {/* Scrollable content area */}
+      <div className="flex-1 overflow-y-auto relative z-10">
+        {/* Modes Section - Always visible, never collapses */}
+        <div className="px-3 py-4">
+          <div className="flex items-center gap-2 px-2 mb-3">
+            <span
+              className="text-[10px] font-bold uppercase tracking-wider"
+              style={{ color: '#888888' }}
+            >
+              Interview Mode
+            </span>
+          </div>
 
-        {expandedSection === 'modes' && (
-          <div className="mt-2 space-y-1">
+          <div className="space-y-1">
             {modes.map((mode) => (
               <button
                 key={mode.id}
                 onClick={() => onModeChange(mode.id)}
-                className="w-full flex items-center justify-between px-4 py-2.5 rounded-md text-left transition-all"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all"
                 style={{
-                  background: 'transparent',
-                  color: '#333333',
+                  background: interviewMode === mode.id ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
+                  color: interviewMode === mode.id ? '#059669' : '#555555',
                   border: interviewMode === mode.id ? '1px dashed #10b981' : '1px solid transparent',
+                  fontWeight: interviewMode === mode.id ? 600 : 500,
                 }}
                 onMouseEnter={(e) => {
                   if (interviewMode !== mode.id) {
-                    e.currentTarget.style.background = '#f5f5f5';
+                    e.currentTarget.style.background = 'rgba(0,0,0,0.03)';
                   }
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent';
+                  if (interviewMode !== mode.id) {
+                    e.currentTarget.style.background = 'transparent';
+                  }
                 }}
               >
-                <span className="text-sm font-medium">{mode.label}</span>
+                <span className="text-sm font-mono" style={{ opacity: 0.7 }}>{mode.icon}</span>
+                <span className="text-sm">{mode.label}</span>
                 {interviewMode === mode.id && (
-                  <div className="w-2 h-2 rounded-full" style={{ background: '#10b981' }} />
+                  <div className="ml-auto w-2 h-2 rounded-full" style={{ background: '#10b981' }} />
                 )}
               </button>
             ))}
           </div>
-        )}
-      </div>
-
-      {/* Divider */}
-      <div style={{ borderTop: '1px solid #e5e5e5', margin: '0 12px' }} />
-
-      {/* Saved Designs Section */}
-      <div className="px-2 py-3">
-        <div
-          className="flex items-center justify-between px-2 py-1.5 cursor-pointer"
-          onClick={() => setExpandedSection(expandedSection === 'designs' ? null : 'designs')}
-        >
-          <span
-            className="text-[11px] font-semibold uppercase tracking-wider"
-            style={{ color: '#666666' }}
-          >
-            Saved Designs ({savedDesigns.length})
-          </span>
-          <svg
-            className={`w-3 h-3 transition-transform ${expandedSection === 'designs' ? 'rotate-180' : ''}`}
-            style={{ color: '#999999' }}
-            fill="none" viewBox="0 0 24 24" stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
         </div>
 
-        {expandedSection === 'designs' && (
+        {/* Divider */}
+        <div style={{ borderTop: '1px solid #e0e0e0', margin: '0 16px' }} />
+
+        {/* Quick Actions Section */}
+        <div className="px-3 py-4">
+          <div className="flex items-center gap-2 px-2 mb-3">
+            <span
+              className="text-[10px] font-bold uppercase tracking-wider"
+              style={{ color: '#888888' }}
+            >
+              Quick Actions
+            </span>
+          </div>
+
+          <div className="space-y-1">
+            {/* Interview Prep */}
+            <button
+              onClick={onOpenInterviewPrep}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all"
+              style={{
+                background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                color: 'white',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.9'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span className="text-sm font-medium">Interview Prep</span>
+            </button>
+
+            {/* Platforms */}
+            <button
+              onClick={onOpenPlatforms}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all"
+              style={{
+                background: 'rgba(0,0,0,0.02)',
+                color: '#555555',
+                border: '1px solid #e5e5e5',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; e.currentTarget.style.borderColor = '#d0d0d0'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.02)'; e.currentTarget.style.borderColor = '#e5e5e5'; }}
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+              </svg>
+              <span className="text-sm font-medium">Platforms</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div style={{ borderTop: '1px solid #e0e0e0', margin: '0 16px' }} />
+
+        {/* Saved Designs Section */}
+        <div className="px-3 py-4">
+          <div className="flex items-center justify-between px-2 mb-2">
+            <span
+              className="text-[10px] font-bold uppercase tracking-wider"
+              style={{ color: '#888888' }}
+            >
+              Saved Designs ({savedDesigns.length})
+            </span>
+          </div>
+
           <div className="mt-1">
             {savedDesigns.length === 0 ? (
-              <div className="px-3 py-4 text-center text-xs" style={{ color: '#999999' }}>
+              <div className="px-3 py-3 text-center text-xs rounded-lg" style={{ color: '#999999', background: 'rgba(0,0,0,0.02)' }}>
                 No saved designs yet
               </div>
             ) : (
               <>
-                <div className="space-y-1 max-h-48 overflow-y-auto mt-2 scrollbar-thin">
+                <div className="space-y-1 max-h-36 overflow-y-auto scrollbar-thin">
                   {savedDesigns.slice(0, 5).map((design) => (
                     <div
                       key={design.id}
-                      className="group flex items-center justify-between px-3 py-2 rounded-md transition-colors"
-                      style={{ color: '#333333' }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f5f5'; }}
+                      className="group flex items-center justify-between px-3 py-2 rounded-lg transition-colors"
+                      style={{ color: '#444444' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.04)'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                     >
                       <button
@@ -232,12 +294,12 @@ export default function Sidebar({
                 {savedDesigns.length > 5 && (
                   <button
                     onClick={onViewAllDesigns}
-                    className="w-full px-4 py-2 text-sm text-left flex items-center gap-1 transition-colors"
+                    className="w-full px-3 py-2 text-xs text-left flex items-center gap-1 transition-colors rounded-lg mt-1"
                     style={{ color: '#10b981' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.color = '#059669'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.color = '#10b981'; }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(16,185,129,0.05)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                   >
-                    View All
+                    View All ({savedDesigns.length})
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
@@ -246,48 +308,36 @@ export default function Sidebar({
               </>
             )}
           </div>
-        )}
-      </div>
-
-      {/* Divider */}
-      <div style={{ borderTop: '1px solid #e5e5e5', margin: '0 12px' }} />
-
-      {/* Recent History Section */}
-      <div className="px-2 py-3 flex-1 min-h-0 flex flex-col">
-        <div
-          className="flex items-center justify-between px-2 py-1.5 cursor-pointer flex-shrink-0"
-          onClick={() => setExpandedSection(expandedSection === 'history' ? null : 'history')}
-        >
-          <span
-            className="text-[11px] font-semibold uppercase tracking-wider"
-            style={{ color: '#666666' }}
-          >
-            Recent ({codingHistory.length})
-          </span>
-          <svg
-            className={`w-3 h-3 transition-transform ${expandedSection === 'history' ? 'rotate-180' : ''}`}
-            style={{ color: '#999999' }}
-            fill="none" viewBox="0 0 24 24" stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
         </div>
 
-        {expandedSection === 'history' && (
-          <div className="mt-1 flex-1 min-h-0 flex flex-col">
+        {/* Divider */}
+        <div style={{ borderTop: '1px solid #e0e0e0', margin: '0 16px' }} />
+
+        {/* Recent History Section */}
+        <div className="px-3 py-4">
+          <div className="flex items-center justify-between px-2 mb-2">
+            <span
+              className="text-[10px] font-bold uppercase tracking-wider"
+              style={{ color: '#888888' }}
+            >
+              Recent ({codingHistory.length})
+            </span>
+          </div>
+
+          <div className="mt-1">
             {codingHistory.length === 0 ? (
-              <div className="px-3 py-4 text-center text-xs" style={{ color: '#999999' }}>
+              <div className="px-3 py-3 text-center text-xs rounded-lg" style={{ color: '#999999', background: 'rgba(0,0,0,0.02)' }}>
                 No history yet
               </div>
             ) : (
               <>
-                <div className="space-y-1 flex-1 overflow-y-auto mt-2 scrollbar-thin">
-                  {codingHistory.slice(0, 10).map((entry) => (
+                <div className="space-y-1 max-h-36 overflow-y-auto scrollbar-thin">
+                  {codingHistory.slice(0, 8).map((entry) => (
                     <div
                       key={entry.id}
-                      className="group flex items-center justify-between px-3 py-2 rounded-md transition-colors"
-                      style={{ color: '#333333' }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f5f5'; }}
+                      className="group flex items-center justify-between px-3 py-2 rounded-lg transition-colors"
+                      style={{ color: '#444444' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.04)'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                     >
                       <button
@@ -300,7 +350,7 @@ export default function Sidebar({
                         <div className="flex items-center gap-2 text-xs mt-0.5" style={{ color: '#999999' }}>
                           <span
                             className="px-1.5 py-0.5 rounded"
-                            style={{ background: '#f5f5f5', color: '#666666' }}
+                            style={{ background: 'rgba(0,0,0,0.05)', color: '#666666' }}
                           >
                             {entry.language || 'auto'}
                           </span>
@@ -324,15 +374,15 @@ export default function Sidebar({
                     </div>
                   ))}
                 </div>
-                {codingHistory.length > 10 && (
+                {codingHistory.length > 8 && onViewAllHistory && (
                   <button
                     onClick={onViewAllHistory}
-                    className="flex-shrink-0 w-full px-4 py-2 text-sm text-left flex items-center gap-1 transition-colors"
+                    className="w-full px-3 py-2 text-xs text-left flex items-center gap-1 transition-colors rounded-lg mt-1"
                     style={{ color: '#10b981' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.color = '#059669'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.color = '#10b981'; }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(16,185,129,0.05)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                   >
-                    View All
+                    View All ({codingHistory.length})
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
@@ -341,7 +391,48 @@ export default function Sidebar({
               </>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Bottom Section - Provider & Settings */}
+      <div
+        className="relative z-10 px-3 py-3 space-y-2"
+        style={{
+          borderTop: '1px solid #e0e0e0',
+          background: 'rgba(255,255,255,0.5)',
+          backdropFilter: 'blur(8px)',
+        }}
+      >
+        {/* Provider Toggle */}
+        {provider && onProviderChange && (
+          <div className="px-1">
+            <ProviderToggle
+              provider={provider}
+              model={model}
+              onChange={onProviderChange}
+              onModelChange={onModelChange}
+              compact={true}
+            />
+          </div>
         )}
+
+        {/* Settings Button */}
+        <button
+          onClick={onOpenSettings}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-all"
+          style={{
+            background: 'transparent',
+            color: '#666666',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.04)'; e.currentTarget.style.color = '#333333'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#666666'; }}
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span className="text-sm font-medium">Settings</span>
+        </button>
       </div>
     </div>
   );
