@@ -11,10 +11,19 @@ export function getApiKey() {
   return runtimeApiKey || process.env.OPENAI_API_KEY;
 }
 
+// Cached client instance and the key it was created with
+let cachedClient = null;
+let cachedClientKey = null;
+
 function getClient() {
-  return new OpenAI({
-    apiKey: getApiKey(),
-  });
+  const apiKey = getApiKey();
+  // Reuse the cached client if the API key hasn't changed
+  if (cachedClient && cachedClientKey === apiKey) {
+    return cachedClient;
+  }
+  cachedClient = new OpenAI({ apiKey });
+  cachedClientKey = apiKey;
+  return cachedClient;
 }
 
 // CODING ONLY - No system design, pure code generation

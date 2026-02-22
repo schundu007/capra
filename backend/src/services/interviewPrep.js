@@ -3,13 +3,24 @@ import OpenAI from 'openai';
 import { getApiKey as getClaudeApiKey } from './claude.js';
 import { getApiKey as getOpenAIApiKey } from './openai.js';
 
+// Cached client instances and the keys they were created with
+let cachedClaudeClient = null;
+let cachedClaudeKey = null;
+let cachedOpenAIClient = null;
+let cachedOpenAIKey = null;
+
 function getClaudeClient() {
   const apiKey = getClaudeApiKey();
-  console.log('[InterviewPrep] Getting Claude API key:', !!apiKey);
   if (!apiKey) {
     throw new Error('Anthropic API key not configured. Please add your API key in Settings.');
   }
-  return new Anthropic({ apiKey });
+  if (cachedClaudeClient && cachedClaudeKey === apiKey) {
+    return cachedClaudeClient;
+  }
+  console.log('[InterviewPrep] Creating Claude client');
+  cachedClaudeClient = new Anthropic({ apiKey });
+  cachedClaudeKey = apiKey;
+  return cachedClaudeClient;
 }
 
 function getOpenAIClient() {
@@ -17,7 +28,12 @@ function getOpenAIClient() {
   if (!apiKey) {
     throw new Error('OpenAI API key not configured. Please add your API key in Settings.');
   }
-  return new OpenAI({ apiKey });
+  if (cachedOpenAIClient && cachedOpenAIKey === apiKey) {
+    return cachedOpenAIClient;
+  }
+  cachedOpenAIClient = new OpenAI({ apiKey });
+  cachedOpenAIKey = apiKey;
+  return cachedOpenAIClient;
 }
 
 const DEFAULT_CLAUDE_MODEL = 'claude-sonnet-4-20250514';

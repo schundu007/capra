@@ -20,15 +20,23 @@ export function getApiKey() {
   return runtimeApiKey || process.env.ANTHROPIC_API_KEY;
 }
 
+// Cached client instance and the key it was created with
+let cachedClient = null;
+let cachedClientKey = null;
+
 function getClient() {
   const apiKey = getApiKey();
-  safeLog('[Claude] Creating client, has API key:', !!apiKey);
   if (!apiKey) {
     throw new Error('Anthropic API key not configured. Please add your API key in Settings (Cmd+,)');
   }
-  return new Anthropic({
-    apiKey: apiKey,
-  });
+  // Reuse the cached client if the API key hasn't changed
+  if (cachedClient && cachedClientKey === apiKey) {
+    return cachedClient;
+  }
+  safeLog('[Claude] Creating client, has API key:', !!apiKey);
+  cachedClient = new Anthropic({ apiKey });
+  cachedClientKey = apiKey;
+  return cachedClient;
 }
 
 const SYSTEM_PROMPT = `You are an expert coding interview assistant.
