@@ -23,6 +23,9 @@ export default function Sidebar({
   onOpenPlatforms,
   onOpenSettings,
   isLoading,
+  // Interview Assistant
+  showInterviewAssistant,
+  onToggleInterviewAssistant,
   // User management props
   user,
   isAdmin,
@@ -175,6 +178,38 @@ export default function Sidebar({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
               </svg>
               <span className="text-sm font-medium">Platforms</span>
+            </button>
+
+            {/* Interview Assistant */}
+            <button
+              onClick={onToggleInterviewAssistant}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all"
+              style={{
+                background: showInterviewAssistant ? 'rgba(16, 185, 129, 0.1)' : 'rgba(0,0,0,0.02)',
+                color: showInterviewAssistant ? '#059669' : '#555555',
+                border: showInterviewAssistant ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid #e5e5e5',
+              }}
+              onMouseEnter={(e) => {
+                if (!showInterviewAssistant) {
+                  e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
+                  e.currentTarget.style.borderColor = '#d0d0d0';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!showInterviewAssistant) {
+                  e.currentTarget.style.background = 'rgba(0,0,0,0.02)';
+                  e.currentTarget.style.borderColor = '#e5e5e5';
+                }
+              }}
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+              </svg>
+              <span className="text-sm font-medium">Interview Assistant</span>
+              {showInterviewAssistant && (
+                <div className="ml-auto w-2 h-2 rounded-full" style={{ background: '#10b981' }} />
+              )}
             </button>
           </div>
         </div>

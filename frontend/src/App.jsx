@@ -1157,6 +1157,8 @@ export default function App() {
           onOpenPlatforms={() => setShowPrepTab(true)}
           onOpenSettings={() => setShowSettings(true)}
           isLoading={isLoading}
+          showInterviewAssistant={showInterviewAssistant}
+          onToggleInterviewAssistant={() => setShowInterviewAssistant(!showInterviewAssistant)}
           user={user}
           isAdmin={isAdmin}
           authRequired={authRequired}
@@ -1209,57 +1211,6 @@ export default function App() {
             </div>
           )}
 
-          {/* Status Pill - only when sidebar is hidden */}
-          {!showSidebar && (
-            <div
-              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all"
-              style={{
-                background: isLoading ? '#ecfdf5' : '#f5f5f5',
-                border: isLoading ? '1px solid #a7f3d0' : '1px solid #e5e5e5',
-                color: isLoading ? '#10b981' : '#666666'
-              }}
-            >
-              <div
-                className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'animate-pulse' : ''}`}
-                style={{
-                  background: isLoading ? '#10b981' : '#999999',
-                  boxShadow: isLoading ? '0 0 8px #10b981' : 'none'
-                }}
-              />
-              {isLoading ? 'Processing' : 'Ready'}
-            </div>
-          )}
-
-          {/* These buttons only show when sidebar is collapsed */}
-          {!showSidebar && (
-            <>
-              {/* Interview Prep Button */}
-              <button
-                onClick={async () => {
-                  if (isElectron && window.electronAPI?.openInterviewPrep) {
-                    await window.electronAPI.openInterviewPrep();
-                  } else {
-                    setShowInterviewPrep(true);
-                  }
-                }}
-                className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all hover:opacity-90"
-                style={{ background: '#8b5cf6', color: 'white' }}
-              >
-                Interview Prep
-              </button>
-
-              {/* Platforms Button */}
-              <button
-                onClick={() => setShowPrepTab(true)}
-                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
-                style={{ background: '#f5f5f5', color: '#666666', border: '1px solid #e5e5e5' }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = '#e5e5e5'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = '#f5f5f5'; }}
-              >
-                Platforms
-              </button>
-            </>
-          )}
         </div>
 
         {/* Center: Mode Tabs */}
@@ -1296,58 +1247,6 @@ export default function App() {
           ))}
         </div>
 
-        {/* Right: Controls */}
-        <div className="flex items-center gap-2" style={{ WebkitAppRegion: 'no-drag' }}>
-          {/* Clear Button - always visible */}
-          <button
-            onClick={handleClearAll}
-            className="p-2 rounded-lg transition-all"
-            style={{ color: '#666666' }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#333333'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#666666'; }}
-            title="Clear all (Esc)"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-          </button>
-
-          {/* Interview Assistant Toggle - always visible */}
-          <button
-            onClick={() => setShowInterviewAssistant(!showInterviewAssistant)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
-            style={{
-              background: showInterviewAssistant ? 'rgba(16, 185, 129, 0.2)' : '#10b981',
-              color: showInterviewAssistant ? '#10b981' : 'white',
-              border: showInterviewAssistant ? '1px solid rgba(16, 185, 129, 0.4)' : 'none',
-            }}
-            title="Toggle Interview Assistant"
-          >
-            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-              <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-            </svg>
-            Interview
-          </button>
-
-          {/* Settings - only when sidebar is collapsed */}
-          {!showSidebar && (
-            <button
-              onClick={() => setShowSettings(true)}
-              className="p-2 rounded-lg transition-all"
-              style={{ color: '#666666' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#333333'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#666666'; }}
-              title="Settings"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </button>
-          )}
-
-        </div>
       </header>
 
       {/* Error Banner */}
@@ -1442,68 +1341,14 @@ export default function App() {
                         </button>
                       )}
                     </div>
-                    {/* Hide mode selector when sidebar is visible (mode switching is in sidebar) */}
-                    {!showSidebar && (
-                      <InterviewModeSelector
-                        interviewMode={interviewMode}
-                        onModeChange={handleModeChange}
-                        designDetailLevel={designDetailLevel}
-                        onDetailLevelChange={setDesignDetailLevel}
-                        autoGenerateEraser={autoGenerateEraser}
-                        onAutoGenerateEraserChange={setAutoGenerateEraser}
-                      />
-                    )}
-                    {/* Show only detail level options when sidebar is visible and in system-design mode */}
-                    {showSidebar && interviewMode === 'system-design' && (
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="flex rounded-lg overflow-hidden p-0.5"
-                          style={{
-                            background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-                          }}
-                        >
-                          <button
-                            type="button"
-                            onClick={() => setDesignDetailLevel('basic')}
-                            className="px-2.5 py-1 text-[10px] font-semibold transition-all rounded-md"
-                            style={{
-                              background: designDetailLevel === 'basic' ? '#3b82f6' : 'transparent',
-                              color: designDetailLevel === 'basic' ? 'white' : '#3b82f6',
-                            }}
-                            title="Single-region, minimal architecture"
-                          >
-                            Basic
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setDesignDetailLevel('full')}
-                            className="px-2.5 py-1 text-[10px] font-semibold transition-all rounded-md"
-                            style={{
-                              background: designDetailLevel === 'full' ? '#3b82f6' : 'transparent',
-                              color: designDetailLevel === 'full' ? 'white' : '#3b82f6',
-                            }}
-                            title="Multi-region, HA, detailed scalability"
-                          >
-                            Full
-                          </button>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setAutoGenerateEraser(!autoGenerateEraser)}
-                          className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-semibold transition-all"
-                          style={{
-                            background: autoGenerateEraser ? '#8b5cf6' : '#f3f4f6',
-                            color: autoGenerateEraser ? 'white' : '#6b7280',
-                          }}
-                          title={autoGenerateEraser ? 'Pro diagram auto-enabled' : 'Pro diagram disabled'}
-                        >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                          </svg>
-                          Auto
-                        </button>
-                      </div>
-                    )}
+                    {/* System Design specific controls - only shown when in system-design mode */}
+                    <InterviewModeSelector
+                      interviewMode={interviewMode}
+                      designDetailLevel={designDetailLevel}
+                      onDetailLevelChange={setDesignDetailLevel}
+                      autoGenerateEraser={autoGenerateEraser}
+                      onAutoGenerateEraserChange={setAutoGenerateEraser}
+                    />
                   </div>
 
                   {/* Problem Input Content - compact, no flex grow */}
