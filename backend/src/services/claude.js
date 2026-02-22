@@ -112,6 +112,15 @@ GOOD (1-3 lines):
 - Code without output = broken code
 
 ##############################################################################
+# RULE #4: PLAIN TEXT IN EXPLANATIONS - NO CODE BLOCKS
+##############################################################################
+- The "pitch" field MUST be plain text - NO \`\`\` code blocks, NO markdown
+- The "explanation" fields MUST be plain text - NO \`\`\` code blocks, NO markdown
+- Do NOT wrap explanations in code fences
+- Just write normal sentences explaining the code
+- Code blocks belong ONLY in the "code" field
+
+##############################################################################
 
 CODE STYLE REQUIREMENTS:
 1. NO comments in code
@@ -127,14 +136,14 @@ IMPORTANT: Respond with valid JSON in exactly this format:
 {
   "language": "python|bash|terraform|jenkins|yaml|sql|javascript",
   "code": "the complete code as a string with \\n for newlines - MUST include print statements",
-  "pitch": "A 1-2 minute verbal explanation of your thought process and solution approach.",
+  "pitch": "A 1-2 minute verbal explanation - PLAIN TEXT ONLY, NO code blocks, NO markdown formatting",
   "examples": [
     {"input": "example input 1 from problem", "expected": "expected output 1"},
     {"input": "example input 2 from problem", "expected": "expected output 2"}
   ],
   "explanations": [
-    {"line": 1, "code": "first line of code", "explanation": "explanation for line 1"},
-    {"line": 2, "code": "second line of code", "explanation": "explanation for line 2"}
+    {"line": 1, "code": "first line of code", "explanation": "PLAIN TEXT explanation - NO code blocks, NO markdown"},
+    {"line": 2, "code": "second line of code", "explanation": "PLAIN TEXT explanation - NO code blocks, NO markdown"}
   ],
   "complexity": {
     "time": "O(n) or N/A for non-algorithmic",
