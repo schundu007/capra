@@ -95,6 +95,42 @@ MESSAGING & EVENT-DRIVEN (CRITICAL for async patterns):
 34. Show the pattern: Producer → SNS → SQS → Consumer/Worker.
 35. Include Dead Letter Queues (DLQ) for failed message handling.
 
+SECURITY COMPONENTS (CRITICAL - interviewers will deep dive):
+36. Show IAM roles/policies for service-to-service auth.
+37. Show KMS for encryption keys (data at rest, in transit).
+38. Show Secrets Manager/Parameter Store for credentials.
+39. Show Certificate Manager (ACM) for TLS certificates.
+40. Show WAF rules, Shield for DDoS protection.
+41. Show VPC endpoints/PrivateLink for private connectivity.
+42. Show security boundaries between tiers (DMZ, trusted zones).
+43. Label auth flows: "IAM Role", "JWT", "mTLS", "API Key".
+
+MONITORING & OBSERVABILITY (CRITICAL):
+44. Show CloudWatch/Stackdriver/Azure Monitor for metrics.
+45. Show X-Ray/Cloud Trace for distributed tracing.
+46. Show centralized logging (CloudWatch Logs, ELK, Splunk).
+47. Show alerting (PagerDuty, OpsGenie, SNS alerts).
+48. Show dashboards (Grafana, CloudWatch Dashboards).
+49. Show health checks and synthetic monitoring.
+50. Label monitoring paths with dashed lines.
+
+MULTI-CLOUD & HYBRID CONNECTIVITY (if relevant):
+51. Show VPN tunnels between clouds (AWS-GCP, AWS-Azure).
+52. Show cloud interconnect (Direct Connect, ExpressRoute, Cloud Interconnect).
+53. Show Transit Gateway/Cloud Router for multi-VPC routing.
+54. Show on-premises data center with hybrid connectivity.
+55. Show cross-cloud service integration (e.g., GCP BigQuery + AWS S3).
+56. Label bandwidth and latency requirements.
+
+EDGE CASES & RESILIENCE (CRITICAL for senior interviews):
+57. Show circuit breakers for fault tolerance.
+58. Show retry queues and exponential backoff paths.
+59. Show disaster recovery (DR) region with replication.
+60. Show failover paths (active-passive or active-active).
+61. Show rate limiting and throttling at API Gateway.
+62. Show bulkhead patterns for isolation.
+63. Show graceful degradation paths.
+
 Add meaningful labels with annotations showing purpose:
 - "Redis\\n(Session + Cache)"
 - "Kafka\\n(Event Stream)"
@@ -192,6 +228,32 @@ MESSAGING (MUST INCLUDE for async):
 - EventBridge for event routing
 - Show pattern: Producer → SNS → SQS → Worker
 - Label message types (Events, Commands, etc.)
+
+SECURITY (MUST INCLUDE):
+- IAM roles for service auth
+- KMS for encryption, Secrets Manager for credentials
+- WAF, Shield for DDoS protection
+- VPC endpoints/PrivateLink for private access
+- Label auth: "IAM Role", "JWT", "mTLS"
+
+MONITORING (MUST INCLUDE):
+- CloudWatch/Prometheus for metrics
+- X-Ray/Jaeger for distributed tracing
+- Centralized logging (ELK/CloudWatch Logs)
+- Alerting (PagerDuty, SNS alerts)
+- Health checks, dashboards
+
+MULTI-CLOUD & ON-PREM (if relevant):
+- VPN/Direct Connect to on-premises
+- Cross-cloud connectivity (Transit Gateway)
+- Hybrid architecture patterns
+- DR region with replication
+
+EDGE CASES & RESILIENCE:
+- Circuit breakers, retry queues
+- Failover paths (DR region)
+- Rate limiting at API Gateway
+- Graceful degradation paths
 
 Remember: ONLY output valid Python code. Use filename=DIAGRAM_FILENAME and outformat=DIAGRAM_FORMAT and show=False. Use real {cloud_provider} service icons. This diagram must support deep-dive interview questions."""
 

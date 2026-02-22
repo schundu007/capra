@@ -785,7 +785,40 @@ MUST INCLUDE IN DIAGRAM:
 - Search service (Elasticsearch) if relevant
 - Monitoring and logging stack (CloudWatch/Prometheus/Grafana)
 - Show ALL data flow paths with labeled arrows (HTTPS, gRPC, TCP, Events)
-- Show network boundaries and security zones`;
+- Show network boundaries and security zones
+
+SECURITY (CRITICAL):
+- IAM roles/policies for service-to-service authentication
+- KMS for encryption (data at rest and in transit)
+- Secrets Manager/Parameter Store for credentials
+- Certificate Manager for TLS certificates
+- WAF rules, Shield for DDoS protection
+- VPC endpoints/PrivateLink for private connectivity
+- Security boundaries between tiers (DMZ, trusted zones)
+- Label auth flows: IAM Role, JWT, mTLS, API Key
+
+MONITORING & OBSERVABILITY:
+- CloudWatch/Prometheus/Stackdriver for metrics
+- X-Ray/Jaeger for distributed tracing
+- Centralized logging (CloudWatch Logs, ELK, Splunk)
+- Alerting integration (PagerDuty, OpsGenie, SNS)
+- Dashboards (Grafana, CloudWatch Dashboards)
+- Health checks and synthetic monitoring
+
+MULTI-CLOUD & ON-PREM CONNECTIVITY:
+- VPN tunnels between clouds (AWS-GCP, AWS-Azure)
+- Direct Connect/ExpressRoute/Cloud Interconnect
+- Transit Gateway for multi-VPC routing
+- On-premises data center with hybrid connectivity
+- Cross-cloud service integration patterns
+
+EDGE CASES & RESILIENCE:
+- Circuit breakers for fault tolerance
+- Retry queues with exponential backoff
+- Disaster Recovery (DR) region with replication
+- Failover paths (active-passive or active-active)
+- Rate limiting and throttling at API Gateway
+- Graceful degradation paths`;
             fetch(API_URL + '/api/diagram/eraser', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
@@ -1482,7 +1515,40 @@ MUST INCLUDE IN DIAGRAM:
 - Search service (Elasticsearch) if relevant
 - Monitoring and logging stack (CloudWatch/Prometheus/Grafana)
 - Show ALL data flow paths with labeled arrows (HTTPS, gRPC, TCP, Events)
-- Show network boundaries and security zones`;
+- Show network boundaries and security zones
+
+SECURITY (CRITICAL):
+- IAM roles/policies for service-to-service authentication
+- KMS for encryption (data at rest and in transit)
+- Secrets Manager/Parameter Store for credentials
+- Certificate Manager for TLS certificates
+- WAF rules, Shield for DDoS protection
+- VPC endpoints/PrivateLink for private connectivity
+- Security boundaries between tiers (DMZ, trusted zones)
+- Label auth flows: IAM Role, JWT, mTLS, API Key
+
+MONITORING & OBSERVABILITY:
+- CloudWatch/Prometheus/Stackdriver for metrics
+- X-Ray/Jaeger for distributed tracing
+- Centralized logging (CloudWatch Logs, ELK, Splunk)
+- Alerting integration (PagerDuty, OpsGenie, SNS)
+- Dashboards (Grafana, CloudWatch Dashboards)
+- Health checks and synthetic monitoring
+
+MULTI-CLOUD & ON-PREM CONNECTIVITY:
+- VPN tunnels between clouds (AWS-GCP, AWS-Azure)
+- Direct Connect/ExpressRoute/Cloud Interconnect
+- Transit Gateway for multi-VPC routing
+- On-premises data center with hybrid connectivity
+- Cross-cloud service integration patterns
+
+EDGE CASES & RESILIENCE:
+- Circuit breakers for fault tolerance
+- Retry queues with exponential backoff
+- Disaster Recovery (DR) region with replication
+- Failover paths (active-passive or active-active)
+- Rate limiting and throttling at API Gateway
+- Graceful degradation paths`;
                       const response = await fetch(API_URL + '/api/diagram/eraser', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
