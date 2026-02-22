@@ -1138,8 +1138,6 @@ export default function App() {
       {/* Sidebar */}
       {showSidebar && (
         <Sidebar
-          interviewMode={interviewMode}
-          onModeChange={handleModeChange}
           savedDesigns={systemDesignStorage.getAllSessions()}
           codingHistory={codingHistory.getAllEntries()}
           onLoadDesign={handleLoadSavedSession}
@@ -1149,11 +1147,6 @@ export default function App() {
           onCollapse={toggleSidebar}
           onViewAllDesigns={() => setShowSavedDesigns(true)}
           onViewAllHistory={() => {/* Could add a history modal later */}}
-          // New props for integrated controls
-          provider={provider}
-          model={model}
-          onProviderChange={setProvider}
-          onModelChange={setModel}
           onOpenInterviewPrep={async () => {
             if (isElectron && window.electronAPI?.openInterviewPrep) {
               await window.electronAPI.openInterviewPrep();
@@ -1164,6 +1157,11 @@ export default function App() {
           onOpenPlatforms={() => setShowPrepTab(true)}
           onOpenSettings={() => setShowSettings(true)}
           isLoading={isLoading}
+          user={user}
+          isAdmin={isAdmin}
+          authRequired={authRequired}
+          onLogout={handleLogout}
+          onOpenAdminPanel={() => setShowAdminPanel(true)}
         />
       )}
 
@@ -1264,6 +1262,40 @@ export default function App() {
           )}
         </div>
 
+        {/* Center: Mode Tabs */}
+        <div className="flex items-center gap-1" style={{ WebkitAppRegion: 'no-drag' }}>
+          {[
+            { id: 'coding', label: 'Coding' },
+            { id: 'system-design', label: 'System Design' },
+            { id: 'behavioral', label: 'Behavioral' },
+          ].map((mode) => (
+            <button
+              key={mode.id}
+              onClick={() => handleModeChange(mode.id)}
+              className="px-4 py-1.5 text-sm font-medium rounded-lg transition-all"
+              style={{
+                background: interviewMode === mode.id ? '#10b981' : 'transparent',
+                color: interviewMode === mode.id ? 'white' : '#666666',
+                border: interviewMode === mode.id ? 'none' : '1px solid transparent',
+              }}
+              onMouseEnter={(e) => {
+                if (interviewMode !== mode.id) {
+                  e.currentTarget.style.background = '#f5f5f5';
+                  e.currentTarget.style.color = '#333333';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (interviewMode !== mode.id) {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = '#666666';
+                }
+              }}
+            >
+              {mode.label}
+            </button>
+          ))}
+        </div>
+
         {/* Right: Controls */}
         <div className="flex items-center gap-2" style={{ WebkitAppRegion: 'no-drag' }}>
           {/* Provider Toggle - only when sidebar is collapsed */}
@@ -1320,43 +1352,6 @@ export default function App() {
             </button>
           )}
 
-          {/* User menu - always visible for webapp */}
-          {authRequired && user && (
-            <div className="flex items-center gap-2 ml-2 pl-3" style={{ borderLeft: '1px solid #e5e5e5' }}>
-              {isAdmin && (
-                <button
-                  onClick={() => setShowAdminPanel(true)}
-                  className="p-2 rounded-lg transition-all"
-                  style={{ background: '#f5f5f5', color: '#666666' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = '#e5e5e5'; e.currentTarget.style.color = '#333333'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#666666'; }}
-                  title="User management"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                </button>
-              )}
-              <button
-                onClick={handleLogout}
-                className="p-2 rounded-lg transition-all"
-                style={{ background: '#f5f5f5', color: '#666666' }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = '#e5e5e5'; e.currentTarget.style.color = '#333333'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#666666'; }}
-                title="Sign out"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-              </button>
-              <div
-                className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                style={{ background: '#10b981' }}
-              >
-                {(user.name || user.username || 'U')[0].toUpperCase()}
-              </div>
-            </div>
-          )}
         </div>
       </header>
 
@@ -1642,7 +1637,13 @@ export default function App() {
 
       {/* Settings Panel (Electron) */}
       {showSettings && (
-        <SettingsPanel onClose={() => setShowSettings(false)} />
+        <SettingsPanel
+          onClose={() => setShowSettings(false)}
+          provider={provider}
+          model={model}
+          onProviderChange={setProvider}
+          onModelChange={setModel}
+        />
       )}
 
       {/* Setup Wizard (Electron first-run) */}

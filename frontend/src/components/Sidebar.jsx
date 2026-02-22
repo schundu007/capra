@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import ProviderToggle from './ProviderToggle';
 
 // Check if running on macOS in Electron (needs extra padding for traffic lights)
 const isMacElectron = window.electronAPI?.isElectron && navigator.platform.toLowerCase().includes('mac');
@@ -10,8 +9,6 @@ const isElectron = window.electronAPI?.isElectron || false;
  * with design-oriented background and integrated controls
  */
 export default function Sidebar({
-  interviewMode,
-  onModeChange,
   savedDesigns = [],
   codingHistory = [],
   onLoadDesign,
@@ -21,23 +18,19 @@ export default function Sidebar({
   onCollapse,
   onViewAllDesigns,
   onViewAllHistory,
-  // New props for header controls
-  provider,
-  model,
-  onProviderChange,
-  onModelChange,
+  // Props for quick actions
   onOpenInterviewPrep,
   onOpenPlatforms,
   onOpenSettings,
   isLoading,
+  // User management props
+  user,
+  isAdmin,
+  authRequired,
+  onLogout,
+  onOpenAdminPanel,
 }) {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
-
-  const modes = [
-    { id: 'coding', label: 'Coding', icon: '{ }' },
-    { id: 'system-design', label: 'System Design', icon: '◇' },
-    { id: 'behavioral', label: 'Behavioral', icon: '◎' },
-  ];
 
   // Format relative time
   const formatRelativeTime = (timestamp) => {
@@ -137,53 +130,6 @@ export default function Sidebar({
 
       {/* Scrollable content area */}
       <div className="flex-1 overflow-y-auto relative z-10">
-        {/* Modes Section - Always visible, never collapses */}
-        <div className="px-3 py-4">
-          <div className="flex items-center gap-2 px-2 mb-3">
-            <span
-              className="text-[10px] font-bold uppercase tracking-wider"
-              style={{ color: '#888888' }}
-            >
-              Interview Mode
-            </span>
-          </div>
-
-          <div className="space-y-1">
-            {modes.map((mode) => (
-              <button
-                key={mode.id}
-                onClick={() => onModeChange(mode.id)}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all"
-                style={{
-                  background: interviewMode === mode.id ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
-                  color: interviewMode === mode.id ? '#059669' : '#555555',
-                  border: interviewMode === mode.id ? '1px dashed #10b981' : '1px solid transparent',
-                  fontWeight: interviewMode === mode.id ? 600 : 500,
-                }}
-                onMouseEnter={(e) => {
-                  if (interviewMode !== mode.id) {
-                    e.currentTarget.style.background = 'rgba(0,0,0,0.03)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (interviewMode !== mode.id) {
-                    e.currentTarget.style.background = 'transparent';
-                  }
-                }}
-              >
-                <span className="text-sm font-mono" style={{ opacity: 0.7 }}>{mode.icon}</span>
-                <span className="text-sm">{mode.label}</span>
-                {interviewMode === mode.id && (
-                  <div className="ml-auto w-2 h-2 rounded-full" style={{ background: '#10b981' }} />
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div style={{ borderTop: '1px solid #e0e0e0', margin: '0 16px' }} />
-
         {/* Quick Actions Section */}
         <div className="px-3 py-4">
           <div className="flex items-center gap-2 px-2 mb-3">
@@ -394,7 +340,7 @@ export default function Sidebar({
         </div>
       </div>
 
-      {/* Bottom Section - Provider & Settings */}
+      {/* Bottom Section - User & Settings */}
       <div
         className="relative z-10 px-3 py-3 space-y-2"
         style={{
@@ -403,29 +349,76 @@ export default function Sidebar({
           backdropFilter: 'blur(8px)',
         }}
       >
-        {/* Provider Toggle */}
-        {provider && onProviderChange && (
-          <div className="px-1">
-            <ProviderToggle
-              provider={provider}
-              model={model}
-              onChange={onProviderChange}
-              onModelChange={onModelChange}
-              compact={true}
-            />
+        {/* User Section (for webapp with auth) */}
+        {authRequired && user && (
+          <div
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg"
+            style={{
+              background: 'rgba(16, 185, 129, 0.05)',
+              border: '1px solid rgba(16, 185, 129, 0.2)',
+            }}
+          >
+            {/* User Avatar */}
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
+              style={{ background: '#10b981' }}
+            >
+              {(user.name || user.username || 'U')[0].toUpperCase()}
+            </div>
+            {/* User Info */}
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium truncate" style={{ color: '#333333' }}>
+                {user.name || user.username || 'User'}
+              </div>
+              {user.email && (
+                <div className="text-xs truncate" style={{ color: '#888888' }}>
+                  {user.email}
+                </div>
+              )}
+            </div>
+            {/* Actions */}
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {isAdmin && onOpenAdminPanel && (
+                <button
+                  onClick={onOpenAdminPanel}
+                  className="p-1.5 rounded-md transition-colors"
+                  style={{ color: '#888888' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; e.currentTarget.style.color = '#666666'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#888888'; }}
+                  title="User management"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                </button>
+              )}
+              <button
+                onClick={onLogout}
+                className="p-1.5 rounded-md transition-colors"
+                style={{ color: '#888888' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; e.currentTarget.style.color = '#ef4444'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#888888'; }}
+                title="Sign out"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </button>
+            </div>
           </div>
         )}
 
         {/* Settings Button */}
         <button
           onClick={onOpenSettings}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-all"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all"
           style={{
-            background: 'transparent',
-            color: '#666666',
+            background: 'rgba(0,0,0,0.02)',
+            color: '#555555',
+            border: '1px solid #e5e5e5',
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.04)'; e.currentTarget.style.color = '#333333'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#666666'; }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; e.currentTarget.style.borderColor = '#d0d0d0'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.02)'; e.currentTarget.style.borderColor = '#e5e5e5'; }}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
