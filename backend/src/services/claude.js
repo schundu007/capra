@@ -186,6 +186,17 @@ ALWAYS include systemDesign for these types of problems:
   }
 }
 
+DIAGRAM RULES (CRITICAL - Mermaid v11 syntax):
+- ALWAYS start with "flowchart LR" or "flowchart TB" (NOT "graph")
+- Use simple node IDs: A, B, C or short names like Client, LB, DB (NO spaces in IDs)
+- Node labels in square brackets: A[Label Here]
+- Database nodes: D[(Database Name)]
+- Simple arrows only: --> or -.->
+- NO quotes around labels
+- NO special characters in node IDs
+- Keep diagrams simple: 5-10 nodes max
+- Example: "flowchart LR\n  A[Client] --> B[API]\n  B --> C[(Database)]"
+
 ONLY for pure coding problems (algorithms, data structures, leetcode-style problems), use: "systemDesign": {"included": false}
 
 Rules:

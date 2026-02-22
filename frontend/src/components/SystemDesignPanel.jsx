@@ -18,118 +18,134 @@ mermaid.initialize({
 
 // Clean and fix mermaid syntax for v11 compatibility
 function sanitizeMermaidChart(chart) {
-  if (!chart) return '';
+  if (!chart) return 'flowchart LR\n  A[Start] --> B[End]';
 
-  let clean = chart
-    .replace(/\\n/g, '\n')
-    .replace(/\\t/g, '  ')
-    .replace(/\r\n/g, '\n')
-    .trim();
+  try {
+    let clean = chart
+      .replace(/\\n/g, '\n')
+      .replace(/\\t/g, '  ')
+      .replace(/\r\n/g, '\n')
+      .trim();
 
-  // Remove markdown code blocks if present
-  clean = clean.replace(/^```mermaid\s*/i, '').replace(/```\s*$/, '').trim();
+    // Remove markdown code blocks if present
+    clean = clean.replace(/^```mermaid\s*/i, '').replace(/```\s*$/, '').trim();
+    clean = clean.replace(/^```\w*\s*/i, '').replace(/```\s*$/, '').trim();
 
-  // Add flowchart directive if missing
-  if (!clean.match(/^(flowchart|graph|sequenceDiagram|classDiagram|stateDiagram|erDiagram|gantt|pie|journey)/i)) {
-    clean = 'flowchart LR\n' + clean;
-  }
-
-  // Replace 'graph' with 'flowchart' for v11 compatibility
-  clean = clean.replace(/^graph\s+(TD|TB|BT|RL|LR)/i, 'flowchart $1');
-
-  // Fix common syntax issues for mermaid v11
-  const lines = clean.split('\n');
-  const fixedLines = [];
-
-  for (let i = 0; i < lines.length; i++) {
-    let line = lines[i];
-
-    // Skip empty lines and comments
-    if (!line.trim() || line.trim().startsWith('%%')) {
-      continue;
+    // If empty after cleanup, return simple diagram
+    if (!clean || clean.length < 10) {
+      return 'flowchart LR\n  A[System] --> B[Component]';
     }
 
-    // Keep directive line as-is (first non-empty line)
-    if (fixedLines.length === 0 && line.match(/^(flowchart|graph|sequenceDiagram)/i)) {
-      fixedLines.push(line);
-      continue;
+    // Add flowchart directive if missing
+    if (!clean.match(/^(flowchart|graph|sequenceDiagram|classDiagram|stateDiagram|erDiagram|gantt|pie|journey)/i)) {
+      clean = 'flowchart LR\n' + clean;
     }
 
-    // Skip invalid lines that are just text without structure
-    if (!line.includes('[') && !line.includes('(') && !line.includes('{') &&
-        !line.includes('-->') && !line.includes('---') && !line.includes('-.->') &&
-        !line.trim().startsWith('subgraph') && !line.trim().startsWith('end') &&
-        !line.trim().startsWith('style') && !line.trim().startsWith('class') &&
-        !line.trim().startsWith('linkStyle')) {
-      continue;
+    // Replace 'graph' with 'flowchart' for v11 compatibility
+    clean = clean.replace(/^graph\s+(TD|TB|BT|RL|LR)/i, 'flowchart $1');
+
+    // Fix common syntax issues for mermaid v11
+    const lines = clean.split('\n');
+    const fixedLines = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i];
+
+      // Skip empty lines and comments
+      if (!line.trim() || line.trim().startsWith('%%')) {
+        continue;
+      }
+
+      // Keep directive line as-is (first non-empty line)
+      if (fixedLines.length === 0 && line.match(/^(flowchart|graph|sequenceDiagram)/i)) {
+        fixedLines.push(line);
+        continue;
+      }
+
+      // Skip lines that look like prose/descriptions (too long, no mermaid syntax)
+      if (line.length > 100 && !line.includes('-->') && !line.includes('[') && !line.includes('(')) {
+        continue;
+      }
+
+      // Skip invalid lines that are just text without structure
+      if (!line.includes('[') && !line.includes('(') && !line.includes('{') &&
+          !line.includes('-->') && !line.includes('---') && !line.includes('-.->') &&
+          !line.trim().startsWith('subgraph') && !line.trim().startsWith('end') &&
+          !line.trim().startsWith('style') && !line.trim().startsWith('class') &&
+          !line.trim().startsWith('linkStyle') && !line.match(/^[A-Za-z0-9_]+$/)) {
+        continue;
+      }
+
+      // Fix arrows: ensure proper spacing
+      line = line.replace(/\s*-->\s*/g, ' --> ');
+      line = line.replace(/\s*---\s*/g, ' --- ');
+      line = line.replace(/\s*-\.->\s*/g, ' -.-> ');
+      line = line.replace(/\s*==>\s*/g, ' ==> ');
+
+      // Fix arrow labels - |label| format
+      line = line.replace(/-->\|([^|]+)\|/g, '--> |$1|');
+      line = line.replace(/\|->\|/g, '|-->|');
+
+      // Fix subgraph syntax
+      if (line.trim().startsWith('subgraph')) {
+        // Ensure proper subgraph format: subgraph ID[Label] or subgraph ID
+        line = line.replace(/subgraph\s+"([^"]+)"/g, 'subgraph $1');
+        line = line.replace(/subgraph\s+'([^']+)'/g, 'subgraph $1');
+      }
+
+      // Fix node definitions with special characters in IDs
+      // Replace spaces in node IDs with underscores
+      line = line.replace(/([A-Za-z])(\s+)(\[|\(|\{)/g, '$1$3');
+
+      // Fix node IDs with special characters - replace with underscores
+      line = line.replace(/([A-Za-z0-9_]+)\s*-\s*([A-Za-z0-9_]+)/g, (match, p1, p2) => {
+        // Only fix if it's a node ID pattern (not an arrow)
+        if (match.includes('->')) return match;
+        return `${p1}_${p2}`;
+      });
+
+      // Fix labels with special characters - ensure they're properly quoted
+      line = line.replace(/\[([^\]]*)\]/g, (match, label) => {
+        let fixedLabel = label
+          .replace(/"/g, "'")
+          .replace(/;/g, ',')
+          .replace(/\n/g, ' ')
+          .replace(/[<>]/g, '') // Remove angle brackets
+          .trim();
+        return `[${fixedLabel}]`;
+      });
+
+      line = line.replace(/\(([^)]*)\)/g, (match, label) => {
+        if (!/[a-zA-Z]/.test(label)) return match;
+        let fixedLabel = label
+          .replace(/"/g, "'")
+          .replace(/;/g, ',')
+          .replace(/\n/g, ' ')
+          .replace(/[<>]/g, '')
+          .trim();
+        return `(${fixedLabel})`;
+      });
+
+      // Remove trailing special characters
+      line = line.replace(/;\s*$/, '');
+
+      // Skip if line became empty
+      if (line.trim()) {
+        fixedLines.push(line);
+      }
     }
 
-    // Fix arrows: ensure proper spacing
-    line = line.replace(/\s*-->\s*/g, ' --> ');
-    line = line.replace(/\s*---\s*/g, ' --- ');
-    line = line.replace(/\s*-\.->\s*/g, ' -.-> ');
-    line = line.replace(/\s*==>\s*/g, ' ==> ');
-
-    // Fix arrow labels - |label| format
-    line = line.replace(/-->\|([^|]+)\|/g, '--> |$1|');
-    line = line.replace(/\|->\|/g, '|-->|');
-
-    // Fix subgraph syntax
-    if (line.trim().startsWith('subgraph')) {
-      // Ensure proper subgraph format: subgraph ID[Label] or subgraph ID
-      line = line.replace(/subgraph\s+"([^"]+)"/g, 'subgraph $1');
-      line = line.replace(/subgraph\s+'([^']+)'/g, 'subgraph $1');
+    // Final validation - if it's too short or broken, return simple diagram
+    if (fixedLines.length < 2) {
+      console.warn('[Mermaid] Chart too short after sanitization, using fallback');
+      return 'flowchart LR\n  A[System] --> B[Component]';
     }
 
-    // Fix node definitions with special characters in IDs
-    // Replace spaces in node IDs with underscores
-    line = line.replace(/([A-Za-z])(\s+)(\[|\(|\{)/g, '$1$3');
-
-    // Fix node IDs with special characters - replace with underscores
-    line = line.replace(/([A-Za-z0-9_]+)\s*-\s*([A-Za-z0-9_]+)/g, (match, p1, p2) => {
-      // Only fix if it's a node ID pattern (not an arrow)
-      if (match.includes('->')) return match;
-      return `${p1}_${p2}`;
-    });
-
-    // Fix labels with special characters - ensure they're properly quoted
-    // Replace problematic characters in labels
-    line = line.replace(/\[([^\]]*)\]/g, (match, label) => {
-      // Remove or escape problematic characters in labels
-      let fixedLabel = label
-        .replace(/"/g, "'")  // Replace double quotes
-        .replace(/;/g, ',')  // Replace semicolons
-        .replace(/\n/g, ' ') // Replace newlines
-        .trim();
-      return `[${fixedLabel}]`;
-    });
-
-    line = line.replace(/\(([^)]*)\)/g, (match, label) => {
-      // Only fix if it looks like a node label (contains letters)
-      if (!/[a-zA-Z]/.test(label)) return match;
-      let fixedLabel = label
-        .replace(/"/g, "'")
-        .replace(/;/g, ',')
-        .replace(/\n/g, ' ')
-        .trim();
-      return `(${fixedLabel})`;
-    });
-
-    // Ensure line doesn't have trailing special characters
-    line = line.replace(/;\s*$/, '');
-
-    fixedLines.push(line);
-  }
-
-  const result = fixedLines.join('\n');
-
-  // Final validation - if it's too short, it's probably broken
-  if (fixedLines.length < 2) {
-    console.warn('Mermaid chart too short after sanitization:', result);
+    return fixedLines.join('\n');
+  } catch (err) {
+    console.error('[Mermaid] Sanitization error:', err);
     return 'flowchart LR\n  A[System] --> B[Component]';
   }
-
-  return result;
 }
 
 function MermaidDiagram({ chart, expanded = false }) {
@@ -150,6 +166,20 @@ function MermaidDiagram({ chart, expanded = false }) {
 
         // Render with mermaid v11 API
         const { svg: svgContent } = await mermaid.render(id, cleanChart);
+
+        // Check if the SVG contains error indicators (bomb icons, "Syntax error", etc.)
+        const isErrorSvg = svgContent.includes('Syntax error') ||
+                          svgContent.includes('error-icon') ||
+                          svgContent.includes('error-text') ||
+                          svgContent.includes('Parse error') ||
+                          (svgContent.includes('error') && svgContent.includes('mermaid'));
+
+        if (isErrorSvg) {
+          console.warn('[Mermaid] Error detected in rendered SVG');
+          setError('Diagram syntax not supported');
+          setSvg('');
+          return;
+        }
 
         // If expanded, modify SVG to remove max-width constraint and scale up
         let finalSvg = svgContent;
