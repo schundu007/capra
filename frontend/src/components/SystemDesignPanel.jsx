@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getApiUrl } from '../hooks/useElectron';
+import useElectron from '../hooks/useElectron';
 
 const API_URL = getApiUrl();
 
@@ -54,6 +55,7 @@ function CloudArchitectureDiagram({
   }
 
   if (!imageUrl || imageError) {
+    console.log('[CloudDiagram] Showing placeholder:', { imageUrl, imageError });
     return (
       <div className="text-center py-6 text-gray-400">
         <svg className="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,17 +63,24 @@ function CloudArchitectureDiagram({
         </svg>
         <p className="text-xs">Click Generate for cloud architecture diagram</p>
         <p className="text-[10px] text-gray-300 mt-1">Real AWS/GCP/Azure icons</p>
+        {imageError && <p className="text-[10px] text-red-400 mt-1">Image failed to load</p>}
       </div>
     );
   }
+
+  console.log('[CloudDiagram] Showing image:', imageUrl);
 
   return (
     <div className={`rounded-lg overflow-hidden border border-gray-200 bg-white ${expanded ? 'p-4' : ''}`}>
       <img
         src={imageUrl}
         alt="Cloud Architecture Diagram"
-        className={`w-full h-auto ${expanded ? 'max-h-[70vh] object-contain' : ''}`}
-        onError={() => setImageError(true)}
+        className={`w-full h-auto object-contain ${expanded ? 'max-h-[70vh]' : 'max-h-[250px]'}`}
+        onError={(e) => {
+          console.error('[CloudDiagram] Image load error:', imageUrl, e);
+          setImageError(true);
+        }}
+        onLoad={() => console.log('[CloudDiagram] Image loaded successfully:', imageUrl)}
       />
     </div>
   );
@@ -142,12 +151,13 @@ function CollapsibleSection({ title, icon, color, children, defaultOpen = true, 
 }
 
 export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGenerateEraserDiagram, question, cloudProvider = 'auto' }) {
+  const { isElectron } = useElectron();
   const [generatingEraser, setGeneratingEraser] = useState(false);
   const [diagramModal, setDiagramModal] = useState(false);
   const [proDiagramModal, setProDiagramModal] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  // Cloud diagram state (replaces Mermaid)
+  // Cloud diagram state (desktop only - requires Python + graphviz)
   const [generatingDiagram, setGeneratingDiagram] = useState(false);
   const [diagramData, setDiagramData] = useState(null);
   const [diagramError, setDiagramError] = useState(null);
@@ -162,16 +172,16 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
     }
   }, [eraserDiagram?.imageUrl]);
 
-  // Auto-generate cloud diagram when systemDesign is available
+  // Auto-generate cloud diagram when systemDesign is available (desktop only)
   useEffect(() => {
-    if (systemDesign?.included && question && !diagramData && !generatingDiagram && !diagramError) {
+    if (isElectron && systemDesign?.included && question && !diagramData && !generatingDiagram && !diagramError) {
       // Small delay to ensure component is fully mounted and auth is ready
       const timer = setTimeout(() => {
         handleGenerateDiagram();
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [systemDesign?.included, question]);
+  }, [isElectron, systemDesign?.included, question]);
 
   const handleGenerateEraser = async () => {
     if (!onGenerateEraserDiagram) return;
@@ -318,7 +328,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
                 </div>
               )}
               {systemDesign.architecture.description && (
-                <p className="text-[11px] text-gray-600 leading-relaxed line-clamp-3">{systemDesign.architecture.description}</p>
+                <p className="text-[11px] text-gray-600 leading-relaxed">{systemDesign.architecture.description}</p>
               )}
             </div>
           )}
@@ -357,7 +367,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {systemDesign.apiDesign.map((api, i) => (
                 <div key={i} className="bg-white border border-gray-200 rounded-lg p-2.5">
-                  <div className="flex items-center gap-2 mb-1.5">
+                  <div className="flex flex-wrap items-center gap-2 mb-1.5">
                     <span className={`px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded ${
                       api.method === 'GET' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' :
                       api.method === 'POST' ? 'bg-gray-100 text-gray-700 border border-gray-300' :
@@ -367,9 +377,9 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
                     }`}>
                       {api.method}
                     </span>
-                    <code className="text-[10px] font-mono text-gray-700 truncate">{api.endpoint}</code>
+                    <code className="text-[11px] font-mono text-gray-700 break-all">{api.endpoint}</code>
                   </div>
-                  <p className="text-[10px] text-gray-500 line-clamp-2">{api.description}</p>
+                  <p className="text-[11px] text-gray-500">{api.description}</p>
                 </div>
               ))}
             </div>
@@ -390,15 +400,12 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
                     <span className="text-[10px] font-semibold text-gray-700 font-mono">{table.table}</span>
                   </div>
                   <div className="p-2 max-h-28 overflow-y-auto">
-                    {table.fields && table.fields.slice(0, 5).map((field, j) => (
-                      <div key={j} className="flex items-center gap-2 text-[9px] py-0.5">
-                        <span className="font-mono text-gray-700 truncate w-20">{field.name}</span>
-                        <span className="font-mono text-gray-400 truncate w-16">{field.type}</span>
+                    {table.fields && table.fields.map((field, j) => (
+                      <div key={j} className="flex items-center gap-2 text-[10px] py-0.5">
+                        <span className="font-mono text-gray-700">{field.name}</span>
+                        <span className="font-mono text-gray-400">{field.type}</span>
                       </div>
                     ))}
-                    {table.fields && table.fields.length > 5 && (
-                      <span className="text-[9px] text-gray-400">+{table.fields.length - 5} more</span>
-                    )}
                   </div>
                 </div>
               ))}
@@ -413,35 +420,35 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
             defaultOpen={true}
             badge={`${systemDesign.techJustifications.length}`}
           >
-            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
               {systemDesign.techJustifications.map((item, i) => (
-                <div key={i} className="bg-white border border-gray-200 rounded-lg p-2.5 hover:border-emerald-300 transition-colors">
+                <div key={i} className="bg-white border border-gray-200 rounded-lg p-3 hover:border-emerald-300 transition-colors">
                   {/* Tech name + category header */}
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <span className="px-1.5 py-0.5 bg-gray-800 text-white text-[9px] font-semibold rounded truncate max-w-[90px]" title={item.tech}>
+                  <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                    <span className="px-1.5 py-0.5 bg-emerald-600 text-white text-[10px] font-semibold rounded">
                       {item.tech}
                     </span>
                     {item.category && (
-                      <span className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-[8px] font-medium rounded truncate" title={item.category}>
+                      <span className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-[9px] font-medium rounded">
                         {item.category}
                       </span>
                     )}
                   </div>
-                  {/* Why - main content */}
-                  <p className="text-[10px] text-gray-600 leading-snug line-clamp-3 mb-1.5" title={item.why}>
+                  {/* Why - main content - full text */}
+                  <p className="text-[11px] text-gray-600 leading-relaxed mb-2">
                     {item.why}
                   </p>
-                  {/* Without & Alternatives - compact */}
-                  <div className="flex flex-wrap gap-1.5 text-[8px]">
+                  {/* Without & Alternatives - full text */}
+                  <div className="space-y-1 text-[10px]">
                     {item.without && (
-                      <span className="text-gray-500 truncate max-w-full" title={`Without: ${item.without}`}>
-                        <span className="font-semibold text-gray-600">Risk:</span> {item.without.length > 25 ? item.without.slice(0, 25) + '...' : item.without}
-                      </span>
+                      <p className="text-gray-500">
+                        <span className="font-semibold text-gray-600">Risk:</span> {item.without}
+                      </p>
                     )}
                     {item.alternatives && (
-                      <span className="text-emerald-600 truncate max-w-full" title={`Alternatives: ${item.alternatives}`}>
-                        <span className="font-semibold">Alt:</span> {item.alternatives.length > 20 ? item.alternatives.slice(0, 20) + '...' : item.alternatives}
-                      </span>
+                      <p className="text-emerald-600">
+                        <span className="font-semibold">Alt:</span> {item.alternatives}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -533,7 +540,8 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
 
         {/* Row 6: Diagrams - Full width */}
         <div className="space-y-3">
-          {/* Cloud Architecture Diagram (replaces Mermaid) */}
+          {/* Cloud Architecture Diagram (desktop only - requires Python + graphviz) */}
+          {isElectron && (
           <div
             className={`rounded-lg p-3 bg-gray-50 border border-gray-200 ${diagramData ? 'cursor-pointer hover:border-emerald-300 group' : ''} transition-all`}
             onClick={() => diagramData && setDiagramModal(true)}
@@ -578,6 +586,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
               />
             </div>
           </div>
+          )}
 
           {/* Professional Diagram (Eraser.io) - Full width, clickable when has diagram */}
           <div
@@ -684,7 +693,8 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
           </div>
         </div>
 
-        {/* Cloud Architecture Diagram Modal */}
+        {/* Cloud Architecture Diagram Modal (desktop only) */}
+        {isElectron && (
         <DiagramModal
           isOpen={diagramModal}
           onClose={() => setDiagramModal(false)}
@@ -700,6 +710,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
             </div>
           )}
         </DiagramModal>
+        )}
 
         {/* Pro Diagram Modal (Eraser.io) */}
         <DiagramModal

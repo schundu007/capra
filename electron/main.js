@@ -72,7 +72,7 @@ async function createWindow() {
           "script-src 'self' 'unsafe-inline' 'unsafe-eval';" +
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;" +
           `connect-src 'self' http://localhost:${BACKEND_PORT} http://127.0.0.1:${BACKEND_PORT} ws://localhost:${BACKEND_PORT} ws://127.0.0.1:${BACKEND_PORT} https://*.lockedinai.com;` +
-          "img-src 'self' data: blob: https://*.lockedinai.com;" +
+          `img-src 'self' data: blob: http://localhost:${BACKEND_PORT} http://127.0.0.1:${BACKEND_PORT} https://*.lockedinai.com https://storage.googleapis.com https://*.appspot.com https://*.googleusercontent.com;` +
           "font-src 'self' data: https://fonts.gstatic.com;" +
           "frame-src 'self' https://*.lockedinai.com https://app.lockedinai.com;"
         ]
