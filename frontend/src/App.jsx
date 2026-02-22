@@ -253,7 +253,7 @@ export default function App() {
   // Coding history hook
   const codingHistory = useCodingHistory();
 
-  // Sidebar state (Electron only, persisted)
+  // Sidebar state (persisted)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     if (!isElectron) return true;
     try {
@@ -1130,12 +1130,12 @@ export default function App() {
   // Check if running on macOS in Electron (needs extra padding for traffic lights)
   const isMacElectron = isElectron && navigator.platform.toLowerCase().includes('mac');
 
-  // Determine if sidebar should be shown
-  const showSidebar = isElectron && !sidebarCollapsed;
+  // Determine if sidebar should be shown (both Electron and webapp)
+  const showSidebar = !sidebarCollapsed;
 
   return (
     <div className="h-screen flex overflow-hidden" style={{ background: '#ffffff', color: '#111827' }}>
-      {/* Sidebar (Electron only) */}
+      {/* Sidebar */}
       {showSidebar && (
         <Sidebar
           interviewMode={interviewMode}
@@ -1167,8 +1167,8 @@ export default function App() {
       >
         {/* Left: Logo & Status */}
         <div className="flex items-center gap-4" style={{ WebkitAppRegion: 'no-drag' }}>
-          {/* Sidebar Toggle (Electron only) */}
-          {isElectron && sidebarCollapsed && (
+          {/* Sidebar Toggle */}
+          {sidebarCollapsed && (
             <button
               onClick={toggleSidebar}
               className="p-2 rounded-lg transition-all"
