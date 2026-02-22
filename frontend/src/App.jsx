@@ -745,7 +745,43 @@ export default function App() {
           // Auto-generate Eraser diagram if enabled and in system design mode
           if (autoGenerateEraser && interviewMode === 'system-design' && result?.systemDesign?.included) {
             const sd = result.systemDesign;
-            const description = `${sd.overview || ''}\n\nComponents: ${sd.architecture?.components?.join(', ') || ''}\n\n${sd.architecture?.description || ''}`;
+            // Build comprehensive description for detailed diagram
+            const techStack = sd.techJustifications?.map(t => `${t.tech}: ${t.why}`).join('\n') || '';
+            const scalability = sd.scalability?.join(', ') || '';
+            const funcReqs = sd.requirements?.functional?.join(', ') || '';
+            const nonFuncReqs = sd.requirements?.nonFunctional?.join(', ') || '';
+            const description = `DETAILED CLOUD ARCHITECTURE DIAGRAM for interview deep-dive:
+
+SYSTEM: ${sd.overview || ''}
+
+COMPONENTS (show ALL with connections): ${sd.architecture?.components?.join(', ') || ''}
+
+ARCHITECTURE: ${sd.architecture?.description || ''}
+
+TECHNOLOGY STACK (include each as labeled component):
+${techStack}
+
+SCALABILITY REQUIREMENTS: ${scalability}
+
+FUNCTIONAL REQUIREMENTS: ${funcReqs}
+NON-FUNCTIONAL REQUIREMENTS: ${nonFuncReqs}
+
+MUST INCLUDE IN DIAGRAM:
+- VPC/VNet with public and private subnets
+- DNS (Route53/Cloud DNS) at the entry point
+- Internet Gateway, NAT Gateway for traffic flow
+- WAF, Firewalls, Security Groups for security
+- Load Balancers (external and internal), CDN, API Gateway at ingress
+- Application servers/containers with auto-scaling groups
+- Caches (Redis/Memcached) with cache-aside pattern
+- Primary database with read replicas in different AZs
+- Message queues (Kafka/SQS/Pub-Sub) for async processing
+- Worker services for background jobs
+- Object storage for files/media
+- Search service (Elasticsearch) if relevant
+- Monitoring and logging stack (CloudWatch/Prometheus/Grafana)
+- Show ALL data flow paths with labeled arrows (HTTPS, gRPC, TCP, Events)
+- Show network boundaries and security zones`;
             fetch(API_URL + '/api/diagram/eraser', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
@@ -1402,7 +1438,43 @@ export default function App() {
                     const sd = solution?.systemDesign || streamingContent.systemDesign;
                     if (!sd?.included) return;
                     try {
-                      const description = `${sd.overview || ''}\n\nComponents: ${sd.architecture?.components?.join(', ') || ''}\n\n${sd.architecture?.description || ''}`;
+                      // Build comprehensive description for detailed diagram
+                      const techStack = sd.techJustifications?.map(t => `${t.tech}: ${t.why}`).join('\n') || '';
+                      const scalability = sd.scalability?.join(', ') || '';
+                      const funcReqs = sd.requirements?.functional?.join(', ') || '';
+                      const nonFuncReqs = sd.requirements?.nonFunctional?.join(', ') || '';
+                      const description = `DETAILED CLOUD ARCHITECTURE DIAGRAM for interview deep-dive:
+
+SYSTEM: ${sd.overview || ''}
+
+COMPONENTS (show ALL with connections): ${sd.architecture?.components?.join(', ') || ''}
+
+ARCHITECTURE: ${sd.architecture?.description || ''}
+
+TECHNOLOGY STACK (include each as labeled component):
+${techStack}
+
+SCALABILITY REQUIREMENTS: ${scalability}
+
+FUNCTIONAL REQUIREMENTS: ${funcReqs}
+NON-FUNCTIONAL REQUIREMENTS: ${nonFuncReqs}
+
+MUST INCLUDE IN DIAGRAM:
+- VPC/VNet with public and private subnets
+- DNS (Route53/Cloud DNS) at the entry point
+- Internet Gateway, NAT Gateway for traffic flow
+- WAF, Firewalls, Security Groups for security
+- Load Balancers (external and internal), CDN, API Gateway at ingress
+- Application servers/containers with auto-scaling groups
+- Caches (Redis/Memcached) with cache-aside pattern
+- Primary database with read replicas in different AZs
+- Message queues (Kafka/SQS/Pub-Sub) for async processing
+- Worker services for background jobs
+- Object storage for files/media
+- Search service (Elasticsearch) if relevant
+- Monitoring and logging stack (CloudWatch/Prometheus/Grafana)
+- Show ALL data flow paths with labeled arrows (HTTPS, gRPC, TCP, Events)
+- Show network boundaries and security zones`;
                       const response = await fetch(API_URL + '/api/diagram/eraser', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },

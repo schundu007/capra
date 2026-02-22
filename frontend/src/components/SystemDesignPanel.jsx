@@ -75,7 +75,7 @@ function CloudArchitectureDiagram({
       <img
         src={imageUrl}
         alt="Cloud Architecture Diagram"
-        className={`w-full h-auto object-contain ${expanded ? 'max-h-[70vh]' : 'max-h-[250px]'}`}
+        className={`w-full h-auto object-contain ${expanded ? 'max-h-[80vh]' : ''}`}
         onError={(e) => {
           console.error('[CloudDiagram] Image load error:', imageUrl, e);
           setImageError(true);
@@ -358,63 +358,166 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
           )}
         </div>
 
-        {/* Row 3: API Design - Collapsible */}
-        {systemDesign.apiDesign && systemDesign.apiDesign.length > 0 && (
-          <CollapsibleSection
-            title="API Design"
-            defaultOpen={false}
-            badge={`${systemDesign.apiDesign.length}`}
+        {/* Diagrams - Full width (above Technologies) */}
+        <div className="space-y-3">
+          {/* Cloud Architecture Diagram (Python diagrams with real cloud icons) */}
+          <div
+            className={`rounded-lg p-3 bg-gray-50 border border-gray-200 ${diagramData ? 'cursor-pointer hover:border-emerald-300 group' : ''} transition-all`}
+            onClick={() => diagramData && setDiagramModal(true)}
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {systemDesign.apiDesign.map((api, i) => (
-                <div key={i} className="bg-white border border-gray-200 rounded-lg p-2.5">
-                  <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                    <span className={`px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded ${
-                      api.method === 'GET' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' :
-                      api.method === 'POST' ? 'bg-gray-100 text-gray-700 border border-gray-300' :
-                      api.method === 'PUT' ? 'bg-gray-100 text-gray-700 border border-gray-300' :
-                      api.method === 'DELETE' ? 'bg-gray-100 text-gray-500 border border-gray-300' :
-                      'bg-gray-100 text-gray-600 border border-gray-200'
-                    }`}>
-                      {api.method}
-                    </span>
-                    <code className="text-[11px] font-mono text-gray-700 break-all">{api.endpoint}</code>
-                  </div>
-                  <p className="text-[11px] text-gray-500">{api.description}</p>
-                </div>
-              ))}
+            <h4 className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-2 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                Architecture Diagram
+                {diagramData?.cloudProvider && (
+                  <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded text-[9px] font-medium uppercase">
+                    {diagramData.cloudProvider}
+                  </span>
+                )}
+              </span>
+              <div className="flex items-center gap-2">
+                {diagramData && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setDiagramModal(true); }}
+                    className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium rounded border transition-all bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    </svg>
+                    Expand
+                  </button>
+                )}
+                {!diagramData && !generatingDiagram && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleGenerateDiagram(); }}
+                    className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium rounded border transition-all bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600"
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                    </svg>
+                    Generate
+                  </button>
+                )}
+              </div>
+            </h4>
+            <div className="w-full">
+              <CloudArchitectureDiagram
+                imageUrl={diagramData?.imageUrl}
+                loading={generatingDiagram}
+                error={diagramError}
+                cloudProvider={diagramData?.cloudProvider || cloudProvider}
+              />
             </div>
-          </CollapsibleSection>
-        )}
+          </div>
 
-        {/* Row 4: Data Model - Collapsible */}
-        {systemDesign.dataModel && systemDesign.dataModel.length > 0 && (
-          <CollapsibleSection
-            title="Data Model"
-            defaultOpen={false}
-            badge={`${systemDesign.dataModel.length} tables`}
+          {/* Professional Diagram (Eraser.io) - Full width, clickable when has diagram */}
+          <div
+            className={`rounded-lg p-3 bg-gray-50 border border-gray-200 ${eraserDiagram ? 'cursor-pointer hover:border-emerald-300 group' : ''} transition-all`}
+            onClick={() => eraserDiagram && setProDiagramModal(true)}
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-              {systemDesign.dataModel.map((table, i) => (
-                <div key={i} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                  <div className="px-2.5 py-1.5 bg-gray-50 border-b border-gray-200">
-                    <span className="text-[10px] font-semibold text-gray-700 font-mono">{table.table}</span>
-                  </div>
-                  <div className="p-2 max-h-28 overflow-y-auto">
-                    {table.fields && table.fields.map((field, j) => (
-                      <div key={j} className="flex items-center gap-2 text-[10px] py-0.5">
-                        <span className="font-mono text-gray-700">{field.name}</span>
-                        <span className="font-mono text-gray-400">{field.type}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CollapsibleSection>
-        )}
+            <h4 className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-2 flex items-center justify-between">
+              <span>Pro Diagram</span>
+              <div className="flex items-center gap-2">
+                {eraserDiagram && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setProDiagramModal(true); }}
+                    className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium rounded border transition-all bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    </svg>
+                    Expand
+                  </button>
+                )}
+                {onGenerateEraserDiagram && !eraserDiagram && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleGenerateEraser(); }}
+                    disabled={generatingEraser}
+                    className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium rounded border transition-all"
+                    style={{
+                      background: generatingEraser ? '#f3f4f6' : '#10b981',
+                      color: generatingEraser ? '#9ca3af' : 'white',
+                      border: generatingEraser ? '1px solid #e5e7eb' : '1px solid #10b981',
+                    }}
+                  >
+                    {generatingEraser ? (
+                      <>
+                        <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                        </svg>
+                        Generate
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            </h4>
 
-        {/* Row 5: Tech Justifications - Compact grid layout */}
+            {eraserDiagram ? (
+              <div className="w-full">
+                {imageError ? (
+                  <div className="rounded-lg border border-gray-200 bg-white p-4">
+                    <p className="text-[11px] text-gray-600 mb-2">Failed to load diagram image</p>
+                    <p className="text-[10px] text-gray-400 mb-2 break-all">URL: {eraserDiagram.imageUrl?.substring(0, 100)}...</p>
+                    {eraserDiagram.editUrl && (
+                      <a
+                        href={eraserDiagram.editUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium rounded bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200"
+                      >
+                        View on Eraser.io
+                      </a>
+                    )}
+                  </div>
+                ) : (
+                  <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
+                    <img
+                      src={eraserDiagram.imageUrl}
+                      alt="Architecture Diagram"
+                      className="w-full h-auto"
+                      onError={(e) => {
+                        console.error('Eraser image failed to load:', eraserDiagram.imageUrl);
+                        setImageError(true);
+                      }}
+                    />
+                  </div>
+                )}
+                {!imageError && eraserDiagram.editUrl && (
+                  <a
+                    href={eraserDiagram.editUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium rounded bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    Edit on Eraser.io
+                  </a>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-6 text-gray-400">
+                <svg className="w-8 h-8 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                </svg>
+                <p className="text-[10px]">Click Generate for professional diagram</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Tech Justifications - Compact grid layout */}
         {systemDesign.techJustifications && systemDesign.techJustifications.length > 0 && (
           <CollapsibleSection
             title="Why These Technologies?"
@@ -539,161 +642,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
           </CollapsibleSection>
         )}
 
-        {/* Row 6: Diagrams - Full width */}
-        <div className="space-y-3">
-          {/* Cloud Architecture Diagram (Python diagrams with real cloud icons) */}
-          <div
-            className={`rounded-lg p-3 bg-gray-50 border border-gray-200 ${diagramData ? 'cursor-pointer hover:border-emerald-300 group' : ''} transition-all`}
-            onClick={() => diagramData && setDiagramModal(true)}
-          >
-            <h4 className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-2 flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                Architecture Diagram
-                {diagramData?.cloudProvider && (
-                  <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded text-[9px] font-medium uppercase">
-                    {diagramData.cloudProvider}
-                  </span>
-                )}
-              </span>
-              <div className="flex items-center gap-2">
-                {diagramData && (
-                  <span className="text-[9px] text-gray-400 group-hover:text-emerald-500 flex items-center gap-1">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                    </svg>
-                    Expand
-                  </span>
-                )}
-                {!diagramData && !generatingDiagram && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleGenerateDiagram(); }}
-                    className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium rounded border transition-all bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600"
-                  >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-                    </svg>
-                    Generate
-                  </button>
-                )}
-              </div>
-            </h4>
-            <div className="w-full">
-              <CloudArchitectureDiagram
-                imageUrl={diagramData?.imageUrl}
-                loading={generatingDiagram}
-                error={diagramError}
-                cloudProvider={diagramData?.cloudProvider || cloudProvider}
-              />
-            </div>
-          </div>
-
-          {/* Professional Diagram (Eraser.io) - Full width, clickable when has diagram */}
-          <div
-            className={`rounded-lg p-3 bg-gray-50 border border-gray-200 ${eraserDiagram ? 'cursor-pointer hover:border-emerald-300 group' : ''} transition-all`}
-            onClick={() => eraserDiagram && setProDiagramModal(true)}
-          >
-            <h4 className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-2 flex items-center justify-between">
-              <span>Pro Diagram</span>
-              <div className="flex items-center gap-2">
-                {eraserDiagram && (
-                  <span className="text-[9px] text-gray-400 group-hover:text-emerald-500 flex items-center gap-1">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                    </svg>
-                    Expand
-                  </span>
-                )}
-                {onGenerateEraserDiagram && !eraserDiagram && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleGenerateEraser(); }}
-                    disabled={generatingEraser}
-                    className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium rounded border transition-all"
-                    style={{
-                      background: generatingEraser ? '#f3f4f6' : '#10b981',
-                      color: generatingEraser ? '#9ca3af' : 'white',
-                      border: generatingEraser ? '1px solid #e5e7eb' : '1px solid #10b981',
-                    }}
-                  >
-                    {generatingEraser ? (
-                      <>
-                        <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                        </svg>
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
-                        </svg>
-                        Generate
-                      </>
-                    )}
-                  </button>
-                )}
-              </div>
-            </h4>
-
-            {eraserDiagram ? (
-              <div className="w-full">
-                {imageError ? (
-                  <div className="rounded-lg border border-gray-200 bg-white p-4">
-                    <p className="text-[11px] text-gray-600 mb-2">Failed to load diagram image</p>
-                    <p className="text-[10px] text-gray-400 mb-2 break-all">URL: {eraserDiagram.imageUrl?.substring(0, 100)}...</p>
-                    {eraserDiagram.editUrl && (
-                      <a
-                        href={eraserDiagram.editUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium rounded bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200"
-                      >
-                        View on Eraser.io
-                      </a>
-                    )}
-                  </div>
-                ) : (
-                  <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
-                    <img
-                      src={eraserDiagram.imageUrl}
-                      alt="Architecture Diagram"
-                      className="w-full h-auto"
-                      onError={(e) => {
-                        console.error('Eraser image failed to load:', eraserDiagram.imageUrl);
-                        setImageError(true);
-                      }}
-                    />
-                  </div>
-                )}
-                {!imageError && eraserDiagram.editUrl && (
-                  <a
-                    href={eraserDiagram.editUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium rounded bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
-                  >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                    Edit on Eraser.io
-                  </a>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-6 text-gray-400">
-                <svg className="w-8 h-8 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
-                </svg>
-                <p className="text-[10px]">Click Generate for professional diagram</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Cloud Architecture Diagram Modal (desktop only) */}
-        {isElectron && (
+        {/* Cloud Architecture Diagram Modal */}
         <DiagramModal
           isOpen={diagramModal}
           onClose={() => setDiagramModal(false)}
@@ -709,7 +658,6 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
             </div>
           )}
         </DiagramModal>
-        )}
 
         {/* Pro Diagram Modal (Eraser.io) */}
         <DiagramModal

@@ -38,9 +38,19 @@ class DiagramResult:
 
 
 # System prompt for Claude to generate diagram code
-SYSTEM_PROMPT = """You are a cloud architecture diagram generator for an interview preparation tool called Capra.
+SYSTEM_PROMPT = """You are a DETAILED cloud architecture diagram generator for an interview preparation tool called Capra.
 
-Your job: Given a system design interview question, generate Python code using the `diagrams` library (by mingrammer) that creates a professional cloud architecture diagram.
+Your job: Given a system design interview question, generate Python code using the `diagrams` library (by mingrammer) that creates a COMPREHENSIVE, INTERVIEW-READY cloud architecture diagram that shows PRODUCTION-GRADE detail.
+
+INTERVIEW CONTEXT: This diagram will be used in system design interviews where interviewers will ask deep-dive questions. The diagram MUST show enough detail to support technical discussions about:
+- Data flow and request paths
+- Caching strategies
+- Database choices and replication
+- Message queues and async processing
+- CDN and edge caching
+- Load balancing strategies
+- Monitoring and observability
+- Security boundaries
 
 CRITICAL RULES:
 1. ONLY output valid Python code — no markdown, no explanations, no backticks, no ```python blocks.
@@ -48,15 +58,40 @@ CRITICAL RULES:
 3. Use `show=False` — diagrams will be rendered server-side.
 4. Use the provided `filename` variable: filename=DIAGRAM_FILENAME
 5. Use the provided format variable: outformat=DIAGRAM_FORMAT
-6. Keep diagrams clean — use hub-and-spoke patterns, NOT point-to-point spaghetti.
+6. Use direction="LR" for most diagrams (left-to-right flow).
 7. Group related services into Clusters — VPCs, subnets, AZs, regions, logical tiers.
-8. Limit connections — use 1 arrow between clusters, not individual node-to-node lines.
-9. Use direction="LR" or direction="TB" based on complexity.
-10. Maximum 15-20 nodes — summarize, don't enumerate every microservice.
-11. Add meaningful labels with brief annotations (e.g., "Redis\\n(Session Cache)").
-12. Maximum 8-10 connection lines in the entire diagram.
-13. Use Edge(label="...") for important connections, Edge(style="dashed") for monitoring/logging.
-14. Start with required imports, then the Diagram context manager.
+
+DETAIL REQUIREMENTS (IMPORTANT - interviewers will deep dive):
+8. Show 25-40 nodes for comprehensive coverage - include ALL key components.
+9. Include data stores: Primary DB, Read replicas, Cache (Redis/Memcached), Object storage.
+10. Include message queues: Kafka/SQS/Pub-Sub for async processing.
+11. Include CDN, WAF, Load Balancers at ingress.
+12. Include worker services for background jobs.
+13. Include search services (Elasticsearch) if relevant.
+14. Include monitoring/logging stack (Prometheus, Grafana, CloudWatch).
+15. Show both sync and async data flows with Edge labels.
+16. Use Edge(label="...") liberally - label ALL important connections with data types/protocols.
+17. Use Edge(style="dashed") for monitoring/logging/metrics paths.
+18. Show read vs write paths separately when relevant.
+19. Include API Gateway, Service Mesh if microservices architecture.
+20. Show multiple availability zones for HA where appropriate.
+
+NETWORKING COMPONENTS (CRITICAL - always include):
+21. Show VPC/VNet boundaries with proper subnets (public/private).
+22. Include DNS (Route53/Cloud DNS) at the entry point.
+23. Show Internet Gateway and NAT Gateway for outbound traffic.
+24. Include Firewall/Security Groups/WAF for security boundaries.
+25. Show VPN/Direct Connect/ExpressRoute for hybrid cloud if relevant.
+26. Include internal load balancers between tiers.
+27. Show service mesh (Istio/Envoy) for microservices communication.
+28. Label network paths: "HTTPS", "gRPC", "TCP", "Internal VPC".
+
+Add meaningful labels with annotations showing purpose:
+- "Redis\\n(Session + Cache)"
+- "Kafka\\n(Event Stream)"
+- "PostgreSQL\\n(Primary, Multi-AZ)"
+- "S3\\n(User Uploads)"
+- "CloudFront\\n(Static + API Cache)"
 
 IMPORT REFERENCE:
 
@@ -119,14 +154,30 @@ with Diagram("GKE Architecture", filename=DIAGRAM_FILENAME, outformat=DIAGRAM_FO
     lb >> gke >> db
 """
 
-USER_PROMPT_TEMPLATE = """Generate a Python diagram for this interview question:
+USER_PROMPT_TEMPLATE = """Generate a DETAILED Python diagram for this system design interview question:
 
 Question: {question}
 Cloud Provider: {cloud_provider}
 Difficulty: {difficulty}
 Category: {category}
 
-Remember: ONLY output valid Python code. Use filename=DIAGRAM_FILENAME and outformat=DIAGRAM_FORMAT and show=False. Keep it clean: max 15-20 nodes, hub-and-spoke connections, proper clustering. Use real {cloud_provider} service icons."""
+REQUIREMENTS FOR INTERVIEW-READY DIAGRAM:
+- 25-40 nodes showing ALL major components (not a simplified overview)
+- Include: Load Balancers, CDN, API Gateway, Application Servers, Caches, Databases (primary + replicas), Message Queues, Workers, Object Storage, Search, Monitoring
+- Show data flow with labeled edges (e.g., "REST API", "gRPC", "Events", "Metrics")
+- Group into logical clusters: Ingress, Application Tier, Data Tier, Async Processing, Observability
+- Show both read and write paths if different
+- Include HA/redundancy where appropriate
+
+NETWORKING (MUST INCLUDE):
+- VPC with public/private subnets
+- DNS (Route53/Cloud DNS) at entry
+- Internet Gateway, NAT Gateway
+- Firewalls/WAF/Security Groups
+- Internal load balancers between tiers
+- Label all network paths with protocols
+
+Remember: ONLY output valid Python code. Use filename=DIAGRAM_FILENAME and outformat=DIAGRAM_FORMAT and show=False. Use real {cloud_provider} service icons. This diagram must support deep-dive interview questions."""
 
 RETRY_PROMPT_TEMPLATE = """The previous diagram code failed with this error:
 {error_message}
