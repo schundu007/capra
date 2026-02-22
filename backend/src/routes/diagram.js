@@ -112,4 +112,84 @@ router.get('/status', (req, res) => {
   });
 });
 
+/**
+ * GET /api/diagram/debug
+ * Debug endpoint to check Python/graphviz installation
+ */
+router.get('/debug', async (req, res) => {
+  const { spawn } = await import('child_process');
+  const results = {
+    python: { available: false, version: null, error: null },
+    graphviz: { available: false, version: null, error: null },
+    diagrams: { available: false, error: null },
+    diagramEnginePath: pythonDiagrams.getOutputDir ? pythonDiagrams.getOutputDir() : 'unknown'
+  };
+
+  // Check Python
+  try {
+    const python = spawn('python3', ['--version']);
+    let stdout = '';
+    let stderr = '';
+    python.stdout.on('data', d => stdout += d);
+    python.stderr.on('data', d => stderr += d);
+    await new Promise((resolve) => {
+      python.on('close', (code) => {
+        results.python.available = code === 0;
+        results.python.version = (stdout || stderr).trim();
+        resolve();
+      });
+      python.on('error', (err) => {
+        results.python.error = err.message;
+        resolve();
+      });
+    });
+  } catch (e) {
+    results.python.error = e.message;
+  }
+
+  // Check graphviz (dot command)
+  try {
+    const dot = spawn('dot', ['-V']);
+    let stderr = '';
+    dot.stderr.on('data', d => stderr += d);
+    await new Promise((resolve) => {
+      dot.on('close', (code) => {
+        results.graphviz.available = code === 0;
+        results.graphviz.version = stderr.trim();
+        resolve();
+      });
+      dot.on('error', (err) => {
+        results.graphviz.error = err.message;
+        resolve();
+      });
+    });
+  } catch (e) {
+    results.graphviz.error = e.message;
+  }
+
+  // Check diagrams library
+  try {
+    const python = spawn('python3', ['-c', 'import diagrams; print("OK")']);
+    let stdout = '';
+    let stderr = '';
+    python.stdout.on('data', d => stdout += d);
+    python.stderr.on('data', d => stderr += d);
+    await new Promise((resolve) => {
+      python.on('close', (code) => {
+        results.diagrams.available = code === 0 && stdout.includes('OK');
+        if (stderr) results.diagrams.error = stderr.trim();
+        resolve();
+      });
+      python.on('error', (err) => {
+        results.diagrams.error = err.message;
+        resolve();
+      });
+    });
+  } catch (e) {
+    results.diagrams.error = e.message;
+  }
+
+  res.json(results);
+});
+
 export default router;
