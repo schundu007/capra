@@ -7,6 +7,7 @@ import { createServer } from 'http';
 import * as claudeService from '../backend/src/services/claude.js';
 import * as openaiService from '../backend/src/services/openai.js';
 import * as eraserService from '../backend/src/services/eraser.js';
+import * as pythonDiagramsService from '../backend/src/services/pythonDiagrams.js';
 
 // Safe logging that ignores EPIPE errors (happens when pipe closes during shutdown)
 function safeLog(...args) {
@@ -36,6 +37,7 @@ export function updateRuntimeApiKeys(keys) {
   });
   if (keys.anthropic !== undefined) {
     claudeService.setApiKey(keys.anthropic);
+    pythonDiagramsService.setApiKey(keys.anthropic);
     safeLog('[Electron] Anthropic key set, current:', !!claudeService.getApiKey());
   }
   if (keys.openai !== undefined) {
@@ -185,6 +187,7 @@ export async function startBackendServer(options = {}) {
   // Set initial API keys
   if (apiKeys.anthropic) {
     claudeService.setApiKey(apiKeys.anthropic);
+    pythonDiagramsService.setApiKey(apiKeys.anthropic);
   }
   if (apiKeys.openai) {
     openaiService.setApiKey(apiKeys.openai);
