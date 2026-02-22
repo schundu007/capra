@@ -187,7 +187,7 @@ ALWAYS include systemDesign for these types of problems:
       "components": ["Load Balancer", "Web Servers", "Redis Cache", "PostgreSQL Database"],
       "description": "How components interact and data flows"
     },
-    "diagram": "flowchart LR\n  A[Client] --> B[Load Balancer]\n  B --> C[Web Servers]\n  C --> D[(Redis Cache)]\n  C --> E[(PostgreSQL)]",
+    "diagram": "flowchart LR\\n  A[Client] --> B[Load Balancer]\\n  B --> C[Web Servers]\\n  C --> D[(Redis Cache)]\\n  C --> E[(PostgreSQL)]",
     "comparisonDiagram": null,
     "scalability": ["Horizontal scaling of web servers", "Database read replicas", "Cache for hot URLs", "Database sharding by URL hash"],
     "techJustifications": [
@@ -221,11 +221,11 @@ DIAGRAM RULES (CRITICAL - Mermaid v11 syntax):
 - NO subgraphs - keep it flat and simple
 - NO quotes anywhere in the diagram
 - Keep diagrams SIMPLE: 5-8 nodes max, single flow
-- Example: "flowchart LR\n  A[Client] --> B[Load Balancer]\n  B --> C[API Server]\n  C --> D[(Database)]\n  C --> E[(Redis Cache)]"
+- Example: "flowchart LR\\n  A[Client] --> B[Load Balancer]\\n  B --> C[API Server]\\n  C --> D[(Database)]\\n  C --> E[(Redis Cache)]"
 
 For COMPARISON questions, make TWO separate simple diagrams:
-- diagram: "flowchart LR\n  A[Users] --> B[Server]\n  B --> C[(Single DB)]"
-- comparisonDiagram: "flowchart LR\n  A[Users] --> B[CDN]\n  B --> C[Global LB]\n  C --> D[Region1]\n  C --> E[Region2]\n  D --> F[(DB Primary)]\n  E --> G[(DB Replica)]"
+- diagram: "flowchart LR\\n  A[Users] --> B[Server]\\n  B --> C[(Single DB)]"
+- comparisonDiagram: "flowchart LR\\n  A[Users] --> B[CDN]\\n  B --> C[Global LB]\\n  C --> D[Region1]\\n  C --> E[Region2]\\n  D --> F[(DB Primary)]\\n  E --> G[(DB Replica)]"
 
 ONLY for pure coding problems (algorithms, data structures, leetcode-style problems), use: "systemDesign": {"included": false}
 

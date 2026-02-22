@@ -233,7 +233,7 @@ router.post('/platform', (req, res) => {
       });
     }
 
-    const validPlatforms = ['glider', 'lark', 'hackerrank', 'leetcode', 'codesignal', 'codility'];
+    const validPlatforms = ['glider', 'lark', 'hackerrank', 'leetcode', 'codesignal', 'codility', 'coderpad'];
     if (!validPlatforms.includes(platform)) {
       return res.status(400).json({
         error: `Invalid platform. Supported: ${validPlatforms.join(', ')}`,

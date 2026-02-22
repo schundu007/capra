@@ -24,35 +24,52 @@ const PREP_PLATFORMS = {
 };
 
 export default function PrepTab({ isOpen, onClose }) {
+  // State for both webapp and desktop
   const [platformStatus, setPlatformStatus] = useState({});
   const [loading, setLoading] = useState(true);
   const [loggingIn, setLoggingIn] = useState(null);
-  const [activeTab, setActiveTab] = useState('coding'); // 'coding' | 'prep'
+  const [activeTab, setActiveTab] = useState('coding');
   const [fetchUrl, setFetchUrl] = useState('');
   const [fetching, setFetching] = useState(false);
   const [fetchedContent, setFetchedContent] = useState(null);
+  const [showExtensionInfo, setShowExtensionInfo] = useState(false);
 
+  // Load platform status - works for both webapp and desktop
   useEffect(() => {
-    if (isOpen) {
-      loadPlatformStatus();
+    if (!isOpen) return;
+
+    async function loadStatus() {
+      setLoading(true);
+
+      if (isElectron && window.electronAPI?.getPlatformStatus) {
+        // Desktop: get status from Electron
+        try {
+          const status = await window.electronAPI.getPlatformStatus();
+          setPlatformStatus(status);
+        } catch (err) {
+          console.error('Failed to load platform status:', err);
+        }
+      } else {
+        // Webapp: get status from backend (synced via extension)
+        try {
+          const token = localStorage.getItem('capra_token');
+          const headers = {};
+          if (token) headers.Authorization = `Bearer ${token}`;
+          const res = await fetch(API_URL + '/api/auth/status', { headers });
+          if (res.ok) {
+            const data = await res.json();
+            setPlatformStatus(data);
+          }
+        } catch (err) {
+          console.error('Failed to load platform status:', err);
+        }
+      }
+
+      setLoading(false);
     }
+
+    loadStatus();
   }, [isOpen]);
-
-  const loadPlatformStatus = async () => {
-    if (!isElectron || !window.electronAPI?.getPlatformStatus) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const status = await window.electronAPI.getPlatformStatus();
-      setPlatformStatus(status);
-    } catch (err) {
-      console.error('Failed to load platform status:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleLogin = async (platform) => {
     if (!isElectron || !window.electronAPI?.platformLogin) return;
@@ -61,7 +78,8 @@ export default function PrepTab({ isOpen, onClose }) {
     try {
       const result = await window.electronAPI.platformLogin(platform);
       if (result.success) {
-        await loadPlatformStatus();
+        const status = await window.electronAPI.getPlatformStatus();
+        setPlatformStatus(status);
       }
     } catch (err) {
       console.error('Login failed:', err);
@@ -75,9 +93,27 @@ export default function PrepTab({ isOpen, onClose }) {
 
     try {
       await window.electronAPI.platformLogout(platform);
-      await loadPlatformStatus();
+      const status = await window.electronAPI.getPlatformStatus();
+      setPlatformStatus(status);
     } catch (err) {
       console.error('Logout failed:', err);
+    }
+  };
+
+  const handleRefreshStatus = async () => {
+    if (isElectron) return;
+
+    try {
+      const token = localStorage.getItem('capra_token');
+      const headers = {};
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const res = await fetch(API_URL + '/api/auth/status', { headers });
+      if (res.ok) {
+        const data = await res.json();
+        setPlatformStatus(data);
+      }
+    } catch (err) {
+      console.error('Failed to refresh:', err);
     }
   };
 
@@ -88,20 +124,24 @@ export default function PrepTab({ isOpen, onClose }) {
     setFetchedContent(null);
 
     try {
-      const response = await fetch(API_URL + '/api/fetch', {
+      const token = localStorage.getItem('capra_token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      const res = await fetch(API_URL + '/api/fetch', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ url: fetchUrl }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setFetchedContent(data);
+      const data = await res.json();
+      if (data.success || data.problemText) {
+        setFetchedContent({ success: true, title: data.title || 'Problem fetched!', text: data.problemText });
       } else {
-        setFetchedContent({ error: 'Failed to fetch content' });
+        setFetchedContent({ error: data.error || 'Failed to fetch problem' });
       }
     } catch (err) {
-      setFetchedContent({ error: err.message });
+      setFetchedContent({ error: 'Failed to fetch: ' + err.message });
     } finally {
       setFetching(false);
     }
@@ -113,104 +153,6 @@ export default function PrepTab({ isOpen, onClose }) {
 
   const platforms = activeTab === 'coding' ? CODING_PLATFORMS : PREP_PLATFORMS;
 
-  // Simplified webapp view - just URL fetch
-  if (!isElectron) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-        <div className="w-full max-w-md mx-4 rounded-lg overflow-hidden shadow-2xl" style={{ background: '#ffffff' }}>
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3" style={{ background: '#1a1a1a' }}>
-            <span className="text-lg font-bold" style={{ color: '#ffffff' }}>Fetch Problem</span>
-            <button
-              onClick={onClose}
-              className="p-1.5 rounded transition-colors"
-              style={{ color: '#ffffff' }}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Content */}
-          <div className="p-4" style={{ background: '#ffffff' }}>
-            <p className="text-sm mb-4" style={{ color: '#666666' }}>
-              Paste a problem URL from LeetCode, HackerRank, or other coding platforms to extract and solve it.
-            </p>
-            <div className="flex gap-2 mb-3">
-              <input
-                type="url"
-                value={fetchUrl}
-                onChange={(e) => setFetchUrl(e.target.value)}
-                placeholder="https://leetcode.com/problems/two-sum"
-                className="flex-1 px-3 py-2.5 text-sm rounded-lg"
-                style={{ background: '#f5f5f5', border: '1px solid #e5e5e5', color: '#333333' }}
-              />
-              <button
-                onClick={async () => {
-                  if (!fetchUrl.trim()) return;
-                  setFetching(true);
-                  setFetchedContent(null);
-                  try {
-                    const token = localStorage.getItem('capra_token');
-                    const headers = { 'Content-Type': 'application/json' };
-                    if (token) headers.Authorization = `Bearer ${token}`;
-                    const res = await fetch(API_URL + '/api/fetch', {
-                      method: 'POST',
-                      headers,
-                      body: JSON.stringify({ url: fetchUrl }),
-                    });
-                    const data = await res.json();
-                    if (data.success || data.problemText) {
-                      setFetchedContent({ success: true, title: data.title || 'Problem fetched!', text: data.problemText });
-                    } else {
-                      setFetchedContent({ error: data.error || 'Failed to fetch problem' });
-                    }
-                  } catch (err) {
-                    setFetchedContent({ error: 'Failed to fetch: ' + err.message });
-                  } finally {
-                    setFetching(false);
-                  }
-                }}
-                disabled={fetching || !fetchUrl.trim()}
-                className="px-5 py-2.5 text-sm font-medium rounded-lg transition-all disabled:opacity-50"
-                style={{ background: '#10b981', color: 'white' }}
-              >
-                {fetching ? 'Fetching...' : 'Fetch'}
-              </button>
-            </div>
-
-            {fetchedContent && (
-              <div
-                className="p-3 rounded-lg text-sm"
-                style={{
-                  background: fetchedContent.error ? '#fef2f2' : '#ecfdf5',
-                  border: fetchedContent.error ? '1px solid #fecaca' : '1px solid #a7f3d0'
-                }}
-              >
-                {fetchedContent.error ? (
-                  <p style={{ color: '#dc2626' }}>{fetchedContent.error}</p>
-                ) : (
-                  <>
-                    <div className="font-medium mb-1" style={{ color: '#059669' }}>{fetchedContent.title}</div>
-                    <p className="text-xs" style={{ color: '#666666' }}>
-                      Problem extracted! Close this and use the URL tab in Problem Input to solve it.
-                    </p>
-                  </>
-                )}
-              </div>
-            )}
-
-            <p className="mt-4 text-xs text-center" style={{ color: '#999999' }}>
-              Supports LeetCode, HackerRank, CoderPad, CodeSignal, and more
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Desktop (Electron) view with full platform login
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="w-full max-w-2xl mx-4 rounded-lg overflow-hidden shadow-2xl" style={{ background: '#ffffff' }}>
@@ -261,6 +203,68 @@ export default function PrepTab({ isOpen, onClose }) {
 
         {/* Content */}
         <div className="p-4 max-h-[60vh] overflow-y-auto" style={{ background: '#f5f5f5' }}>
+          {/* Browser Extension Notice - Webapp only */}
+          {!isElectron && (
+            <div className="mb-4 p-4 rounded-lg" style={{ background: '#fffbeb', border: '1px solid #fcd34d' }}>
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#f59e0b' }}>
+                  <svg className="w-4 h-4" style={{ color: '#ffffff' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-sm mb-1" style={{ color: '#92400e' }}>Browser Extension Required</h3>
+                  <p className="text-xs mb-2" style={{ color: '#b45309' }}>
+                    Install the Ascend browser extension to sync your platform logins. The extension captures cookies from your logged-in sessions.
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setShowExtensionInfo(!showExtensionInfo)}
+                      className="px-3 py-1.5 text-xs font-medium rounded transition-colors"
+                      style={{ background: '#f59e0b', color: '#ffffff' }}
+                    >
+                      {showExtensionInfo ? 'Hide Instructions' : 'How to Install'}
+                    </button>
+                    <button
+                      onClick={handleRefreshStatus}
+                      className="px-3 py-1.5 text-xs font-medium rounded transition-colors"
+                      style={{ background: '#ffffff', color: '#92400e', border: '1px solid #fcd34d' }}
+                    >
+                      Refresh Status
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {showExtensionInfo && (
+                <div className="mt-3 pt-3" style={{ borderTop: '1px solid #fcd34d' }}>
+                  <ol className="text-xs space-y-2" style={{ color: '#92400e' }}>
+                    <li className="flex gap-2">
+                      <span className="font-bold">1.</span>
+                      <span>Download the extension folder from the project's <code className="px-1 py-0.5 rounded" style={{ background: '#fef3c7' }}>/extension</code> directory</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="font-bold">2.</span>
+                      <span>Open Chrome → Extensions → Enable "Developer mode"</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="font-bold">3.</span>
+                      <span>Click "Load unpacked" and select the extension folder</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="font-bold">4.</span>
+                      <span>Log into your coding platforms (HackerRank, LeetCode, etc.)</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="font-bold">5.</span>
+                      <span>Click the extension icon and hit "Sync All" to sync your sessions</span>
+                    </li>
+                  </ol>
+                </div>
+              )}
+            </div>
+          )}
+
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#10b981', borderTopColor: 'transparent' }} />
@@ -268,11 +272,10 @@ export default function PrepTab({ isOpen, onClose }) {
           ) : (
             <>
               {/* Platform Grid */}
-              <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="grid grid-cols-2 gap-3 mb-4">
                 {Object.entries(platforms).map(([key, platform]) => {
                   const isAuthenticated = platformStatus[key]?.authenticated;
                   const isLoggingIn = loggingIn === key;
-                  // Get initials from platform name
                   const initials = platform.name.split(/(?=[A-Z])/).map(w => w[0]).join('').slice(0, 2);
 
                   return (
@@ -300,23 +303,33 @@ export default function PrepTab({ isOpen, onClose }) {
                           </div>
                         </div>
 
-                        {isAuthenticated ? (
-                          <button
-                            onClick={() => handleLogout(key)}
-                            className="px-2 py-1 text-xs font-medium rounded transition-colors"
-                            style={{ color: '#ef4444', background: 'transparent' }}
-                          >
-                            Disconnect
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleLogin(key)}
-                            disabled={isLoggingIn}
-                            className="px-2 py-1 text-xs font-medium rounded transition-colors disabled:opacity-50"
-                            style={{ background: platform.color, color: '#ffffff' }}
-                          >
-                            {isLoggingIn ? '...' : 'Login'}
-                          </button>
+                        {/* Desktop: show login/logout buttons */}
+                        {isElectron && (
+                          isAuthenticated ? (
+                            <button
+                              onClick={() => handleLogout(key)}
+                              className="px-2 py-1 text-xs font-medium rounded transition-colors"
+                              style={{ color: '#ef4444', background: 'transparent' }}
+                            >
+                              Disconnect
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleLogin(key)}
+                              disabled={isLoggingIn}
+                              className="px-2 py-1 text-xs font-medium rounded transition-colors disabled:opacity-50"
+                              style={{ background: platform.color, color: '#ffffff' }}
+                            >
+                              {isLoggingIn ? '...' : 'Login'}
+                            </button>
+                          )
+                        )}
+
+                        {/* Webapp: show checkmark for connected */}
+                        {!isElectron && isAuthenticated && (
+                          <svg className="w-5 h-5" style={{ color: '#10b981' }} fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
                         )}
                       </div>
                     </div>
@@ -324,39 +337,47 @@ export default function PrepTab({ isOpen, onClose }) {
                 })}
               </div>
 
-              {/* Pre-fetch Content Section */}
+              {/* Fetch Content Section */}
               <div className="p-4 rounded" style={{ background: '#ffffff', border: '1px solid #e5e5e5' }}>
                 <h3 className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: '#666666' }}>
-                  Pre-fetch Interview Content
+                  Fetch Problem by URL
                 </h3>
                 <div className="flex gap-2 mb-3">
                   <input
-                    type="text"
+                    type="url"
                     value={fetchUrl}
                     onChange={(e) => setFetchUrl(e.target.value)}
-                    placeholder="Paste URL from any connected platform..."
-                    className="flex-1 px-3 py-2 text-sm rounded focus:outline-none"
-                    style={{ border: '1px solid #e5e5e5', color: '#333333' }}
+                    placeholder="https://leetcode.com/problems/two-sum"
+                    className="flex-1 px-3 py-2.5 text-sm rounded-lg"
+                    style={{ background: '#f5f5f5', border: '1px solid #e5e5e5', color: '#333333' }}
                   />
                   <button
                     onClick={handleFetchContent}
                     disabled={fetching || !fetchUrl.trim()}
-                    className="px-4 py-2 text-sm font-medium rounded transition-colors disabled:opacity-50"
-                    style={{ background: '#10b981', color: '#ffffff' }}
+                    className="px-5 py-2.5 text-sm font-medium rounded-lg transition-all disabled:opacity-50"
+                    style={{ background: '#10b981', color: 'white' }}
                   >
                     {fetching ? 'Fetching...' : 'Fetch'}
                   </button>
                 </div>
 
                 {fetchedContent && (
-                  <div className="p-3 rounded text-sm" style={{ background: fetchedContent.error ? '#fef2f2' : '#ffffff', border: '1px solid #e5e5e5', color: fetchedContent.error ? '#ef4444' : '#333333' }}>
+                  <div
+                    className="p-3 rounded-lg text-sm"
+                    style={{
+                      background: fetchedContent.error ? '#fef2f2' : '#ecfdf5',
+                      border: fetchedContent.error ? '1px solid #fecaca' : '1px solid #a7f3d0'
+                    }}
+                  >
                     {fetchedContent.error ? (
-                      <p>{fetchedContent.error}</p>
+                      <p style={{ color: '#dc2626' }}>{fetchedContent.error}</p>
                     ) : (
-                      <div>
-                        <p className="font-medium mb-2" style={{ color: '#10b981' }}>Content fetched successfully!</p>
-                        <p className="text-xs line-clamp-3" style={{ color: '#666666' }}>{fetchedContent.problemText?.slice(0, 200)}...</p>
-                      </div>
+                      <>
+                        <div className="font-medium mb-1" style={{ color: '#059669' }}>{fetchedContent.title}</div>
+                        <p className="text-xs" style={{ color: '#666666' }}>
+                          Problem extracted! Close this and use the URL tab in Problem Input to solve it.
+                        </p>
+                      </>
                     )}
                   </div>
                 )}
@@ -368,7 +389,10 @@ export default function PrepTab({ isOpen, onClose }) {
         {/* Footer */}
         <div className="px-4 py-3" style={{ background: '#ffffff', borderTop: '1px solid #e5e5e5' }}>
           <p className="text-xs text-center" style={{ color: '#666666' }}>
-            Connect to platforms to auto-fetch problems • Sessions persist across restarts
+            {isElectron
+              ? 'Connect to platforms to auto-fetch problems • Sessions persist across restarts'
+              : 'Install the browser extension to sync your platform logins and auto-fetch problems'
+            }
           </p>
         </div>
       </div>
