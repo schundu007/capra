@@ -471,6 +471,10 @@ export default function App() {
       setCurrentProblem('');
       setProblemExpanded(true);
       setClearScreenshot(c => c + 1);
+      // Close Interview Prep modal when switching to behavioral (it's embedded there)
+      if (newMode === 'behavioral') {
+        setShowInterviewPrep(false);
+      }
       setInterviewMode(newMode);
     }
   };
@@ -1147,7 +1151,10 @@ export default function App() {
           onCollapse={toggleSidebar}
           onViewAllDesigns={() => setShowSavedDesigns(true)}
           onViewAllHistory={() => {/* Could add a history modal later */}}
+          interviewMode={interviewMode}
           onOpenInterviewPrep={async () => {
+            // Don't open modal if already in Behavioral mode (Interview Prep is embedded)
+            if (interviewMode === 'behavioral') return;
             if (isElectron && window.electronAPI?.openInterviewPrep) {
               await window.electronAPI.openInterviewPrep();
             } else {
@@ -1512,7 +1519,8 @@ export default function App() {
       </div>{/* End Main Content wrapper */}
 
       {/* Interview Prep Modal - rendered outside main content to avoid overflow clipping */}
-      {showInterviewPrep && (
+      {/* Don't show modal in behavioral mode (Interview Prep is embedded in main content) */}
+      {showInterviewPrep && interviewMode !== 'behavioral' && (
         <InterviewPrepModal
           isOpen={showInterviewPrep}
           onClose={() => setShowInterviewPrep(false)}

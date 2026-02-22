@@ -23,6 +23,8 @@ export default function Sidebar({
   onOpenPlatforms,
   onOpenSettings,
   isLoading,
+  // Current mode
+  interviewMode,
   // Interview Assistant
   showInterviewAssistant,
   onToggleInterviewAssistant,
@@ -145,21 +147,27 @@ export default function Sidebar({
           </div>
 
           <div className="space-y-1">
-            {/* Interview Prep */}
+            {/* Interview Prep - show as active when in Behavioral mode */}
             <button
               onClick={onOpenInterviewPrep}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all"
               style={{
-                background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-                color: 'white',
+                background: interviewMode === 'behavioral'
+                  ? 'rgba(139, 92, 246, 0.1)'
+                  : 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                color: interviewMode === 'behavioral' ? '#7c3aed' : 'white',
+                border: interviewMode === 'behavioral' ? '1px solid rgba(139, 92, 246, 0.3)' : 'none',
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.9'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
+              onMouseEnter={(e) => { if (interviewMode !== 'behavioral') e.currentTarget.style.opacity = '0.9'; }}
+              onMouseLeave={(e) => { if (interviewMode !== 'behavioral') e.currentTarget.style.opacity = '1'; }}
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               <span className="text-sm font-medium">Interview Prep</span>
+              {interviewMode === 'behavioral' && (
+                <div className="ml-auto w-2 h-2 rounded-full" style={{ background: '#8b5cf6' }} />
+              )}
             </button>
 
             {/* Platforms */}
