@@ -244,7 +244,6 @@ export default function App() {
   const [showPlatformDropdown, setShowPlatformDropdown] = useState(false);
   const [platformStatus, setPlatformStatus] = useState({});
   const [showPrepTab, setShowPrepTab] = useState(false);
-  const [showInterviewPrep, setShowInterviewPrep] = useState(false);
   const [showSavedDesigns, setShowSavedDesigns] = useState(false);
 
   // System design storage hook
@@ -471,10 +470,6 @@ export default function App() {
       setCurrentProblem('');
       setProblemExpanded(true);
       setClearScreenshot(c => c + 1);
-      // Close Interview Prep modal when switching to behavioral (it's embedded there)
-      if (newMode === 'behavioral') {
-        setShowInterviewPrep(false);
-      }
       setInterviewMode(newMode);
     }
   };
@@ -570,7 +565,7 @@ export default function App() {
 
   // Check if any modal is open (disable shortcuts when modals are open)
   const isModalOpen = showSettings || showSetupWizard || showPlatformAuth ||
-                      showPrepTab || showInterviewPrep || showAdminPanel || showSavedDesigns;
+                      showPrepTab || showAdminPanel || showSavedDesigns;
 
   // Global keyboard shortcuts
   useKeyboardShortcuts({
@@ -1151,23 +1146,6 @@ export default function App() {
           onCollapse={toggleSidebar}
           onViewAllDesigns={() => setShowSavedDesigns(true)}
           onViewAllHistory={() => {/* Could add a history modal later */}}
-          interviewMode={interviewMode}
-          onOpenInterviewPrep={async () => {
-            // Don't open modal if already in Behavioral mode (Interview Prep is embedded)
-            if (interviewMode === 'behavioral') return;
-            // Close other modals first
-            setShowPrepTab(false);
-            if (isElectron && window.electronAPI?.openInterviewPrep) {
-              await window.electronAPI.openInterviewPrep();
-            } else {
-              setShowInterviewPrep(true);
-            }
-          }}
-          onOpenPlatforms={() => {
-            // Close other modals first
-            setShowInterviewPrep(false);
-            setShowPrepTab(true);
-          }}
           onOpenSettings={() => setShowSettings(true)}
           isLoading={isLoading}
           showInterviewAssistant={showInterviewAssistant}
@@ -1487,7 +1465,7 @@ export default function App() {
         />
       )}
 
-      {/* Settings Panel (Electron) */}
+      {/* Settings Panel */}
       {showSettings && (
         <SettingsPanel
           onClose={() => setShowSettings(false)}
@@ -1495,6 +1473,7 @@ export default function App() {
           model={model}
           onProviderChange={setProvider}
           onModelChange={setModel}
+          onOpenPlatforms={() => setShowPrepTab(true)}
         />
       )}
 
@@ -1524,16 +1503,6 @@ export default function App() {
       />
       </div>{/* End Main Content wrapper */}
 
-      {/* Interview Prep Modal - rendered outside main content to avoid overflow clipping */}
-      {/* Don't show modal in behavioral mode (Interview Prep is embedded in main content) */}
-      {showInterviewPrep && interviewMode !== 'behavioral' && (
-        <InterviewPrepModal
-          isOpen={showInterviewPrep}
-          onClose={() => setShowInterviewPrep(false)}
-          provider={provider}
-          model={model}
-        />
-      )}
     </div>
   );
 }
