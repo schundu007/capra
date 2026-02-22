@@ -157,10 +157,19 @@ function CollapsibleSection({ title, icon, color, children, defaultOpen = true, 
 function ASCIIDiagram({ systemDesign, detailed = false }) {
   if (!systemDesign?.included) return null;
 
+  // Helper to safely convert to string
+  const str = (val) => {
+    if (typeof val === 'string') return val;
+    if (typeof val === 'object' && val !== null) {
+      return val.step || val.description || val.name || val.tech || JSON.stringify(val);
+    }
+    return String(val || '');
+  };
+
   // Extract tech stack and data flow from systemDesign
-  const techStack = systemDesign.techJustifications?.map(t => t.tech) || [];
-  const components = systemDesign.architecture?.components || [];
-  const dataFlow = systemDesign.dataFlow || [];
+  const techStack = (systemDesign.techJustifications?.map(t => str(t.tech || t)) || []).filter(Boolean);
+  const components = (systemDesign.architecture?.components || []).map(str).filter(Boolean);
+  const dataFlow = (systemDesign.dataFlow || []).map(str).filter(Boolean);
 
   // Deduplicate and categorize components
   const uniqueItems = [...new Set([...components, ...techStack])];
@@ -191,18 +200,20 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
     };
 
     items.forEach(item => {
+      const itemStr = str(item);
+      if (!itemStr) return;
       let matched = false;
       for (const [tier, pattern] of Object.entries(patterns)) {
-        if (pattern.test(item)) {
-          if (!tiers[tier].includes(item)) {
-            tiers[tier].push(item);
+        if (pattern.test(itemStr)) {
+          if (!tiers[tier].includes(itemStr)) {
+            tiers[tier].push(itemStr);
           }
           matched = true;
           break;
         }
       }
-      if (!matched && !tiers.compute.includes(item)) {
-        tiers.compute.push(item);
+      if (!matched && !tiers.compute.includes(itemStr)) {
+        tiers.compute.push(itemStr);
       }
     });
 
@@ -340,7 +351,8 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
       lines.push('');
       lines.push('  ┄┄┄ DATA FLOW ┄┄┄');
       dataFlow.slice(0, 3).forEach((flow, i) => {
-        lines.push('  ' + (i + 1) + '. ' + flow.substring(0, 50));
+        const flowStr = str(flow);
+        lines.push('  ' + (i + 1) + '. ' + flowStr.substring(0, 50));
       });
     }
 
