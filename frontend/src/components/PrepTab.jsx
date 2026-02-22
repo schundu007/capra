@@ -164,9 +164,84 @@ export default function PrepTab({ isOpen, onClose }) {
         {/* Content */}
         <div className="p-4 max-h-[60vh] overflow-y-auto" style={{ background: '#f5f5f5' }}>
           {!isElectron ? (
-            <div className="text-center py-8">
-              <p className="mb-2" style={{ color: '#666666' }}>Platform login requires the desktop app</p>
-              <p className="text-sm" style={{ color: '#999999' }}>Use the Electron app to connect to platforms</p>
+            <div className="py-4">
+              {/* URL Fetch for webapp */}
+              <div className="mb-4 p-4 rounded-lg" style={{ background: '#ffffff', border: '1px solid #e5e5e5' }}>
+                <h3 className="font-semibold mb-2" style={{ color: '#333333' }}>Fetch Problem from URL</h3>
+                <p className="text-xs mb-3" style={{ color: '#666666' }}>
+                  Paste a HackerRank, LeetCode, or other platform URL to extract the problem
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={fetchUrl}
+                    onChange={(e) => setFetchUrl(e.target.value)}
+                    placeholder="https://leetcode.com/problems/..."
+                    className="flex-1 px-3 py-2 text-sm rounded-lg"
+                    style={{ background: '#f5f5f5', border: '1px solid #e5e5e5', color: '#333333' }}
+                  />
+                  <button
+                    onClick={async () => {
+                      if (!fetchUrl.trim()) return;
+                      setFetching(true);
+                      try {
+                        const token = localStorage.getItem('capra_token');
+                        const headers = { 'Content-Type': 'application/json' };
+                        if (token) headers.Authorization = `Bearer ${token}`;
+                        const res = await fetch(API_URL + '/api/fetch', {
+                          method: 'POST',
+                          headers,
+                          body: JSON.stringify({ url: fetchUrl }),
+                        });
+                        const data = await res.json();
+                        if (data.success && data.problem) {
+                          setFetchedContent(data.problem);
+                        } else {
+                          alert(data.error || 'Failed to fetch problem');
+                        }
+                      } catch (err) {
+                        alert('Failed to fetch: ' + err.message);
+                      } finally {
+                        setFetching(false);
+                      }
+                    }}
+                    disabled={fetching || !fetchUrl.trim()}
+                    className="px-4 py-2 text-sm font-medium rounded-lg transition-all disabled:opacity-50"
+                    style={{ background: '#10b981', color: 'white' }}
+                  >
+                    {fetching ? '...' : 'Fetch'}
+                  </button>
+                </div>
+                {fetchedContent && (
+                  <div className="mt-3 p-3 rounded-lg text-sm" style={{ background: '#ecfdf5', border: '1px solid #a7f3d0' }}>
+                    <div className="font-medium mb-1" style={{ color: '#059669' }}>{fetchedContent.title || 'Problem fetched!'}</div>
+                    <p className="text-xs" style={{ color: '#666666' }}>
+                      Problem extracted. Use the URL tab in the main input to solve it.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Supported Platforms Info */}
+              <div className="p-4 rounded-lg" style={{ background: '#ffffff', border: '1px solid #e5e5e5' }}>
+                <h3 className="font-semibold mb-2" style={{ color: '#333333' }}>Supported Platforms</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {Object.entries({...CODING_PLATFORMS, ...PREP_PLATFORMS}).slice(0, 8).map(([key, platform]) => (
+                    <div key={key} className="flex items-center gap-2 p-2 rounded" style={{ background: '#f5f5f5' }}>
+                      <div
+                        className="w-6 h-6 rounded flex items-center justify-center text-white font-bold text-[10px]"
+                        style={{ background: platform.color }}
+                      >
+                        {platform.name.split(/(?=[A-Z])/).map(w => w[0]).join('').slice(0, 2)}
+                      </div>
+                      <span className="text-xs" style={{ color: '#555555' }}>{platform.name}</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-3 text-xs" style={{ color: '#999999' }}>
+                  For authenticated access to private problems, use the desktop app.
+                </p>
+              </div>
             </div>
           ) : loading ? (
             <div className="flex items-center justify-center py-8">
