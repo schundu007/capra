@@ -185,36 +185,38 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
             />
           </div>
 
-          {/* Divider */}
-          <div style={{ borderTop: '1px solid #e5e5e5' }} />
-
-          {/* Platforms Section */}
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#666666' }}>Integrations</p>
-            <button
-              onClick={() => {
-                onClose();
-                if (onOpenPlatforms) onOpenPlatforms();
-              }}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left transition-all"
-              style={{ background: '#f9f9f9', border: '1px solid #e5e5e5' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = '#f0f0f0'; e.currentTarget.style.borderColor = '#d5d5d5'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = '#f9f9f9'; e.currentTarget.style.borderColor = '#e5e5e5'; }}
-            >
-              <div className="flex items-center gap-3">
-                <svg className="w-4 h-4" style={{ color: '#666666' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                </svg>
-                <div>
-                  <div className="text-sm font-medium" style={{ color: '#333333' }}>Coding Platforms</div>
-                  <div className="text-xs" style={{ color: '#999999' }}>HackerRank, LeetCode, etc.</div>
-                </div>
+          {/* Platforms Section - Desktop only */}
+          {window.electronAPI?.isElectron && onOpenPlatforms && (
+            <>
+              <div style={{ borderTop: '1px solid #e5e5e5' }} />
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#666666' }}>Integrations</p>
+                <button
+                  onClick={() => {
+                    onClose();
+                    onOpenPlatforms();
+                  }}
+                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left transition-all"
+                  style={{ background: '#f9f9f9', border: '1px solid #e5e5e5' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = '#f0f0f0'; e.currentTarget.style.borderColor = '#d5d5d5'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = '#f9f9f9'; e.currentTarget.style.borderColor = '#e5e5e5'; }}
+                >
+                  <div className="flex items-center gap-3">
+                    <svg className="w-4 h-4" style={{ color: '#666666' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                    </svg>
+                    <div>
+                      <div className="text-sm font-medium" style={{ color: '#333333' }}>Coding Platforms</div>
+                      <div className="text-xs" style={{ color: '#999999' }}>HackerRank, LeetCode, etc.</div>
+                    </div>
+                  </div>
+                  <svg className="w-4 h-4" style={{ color: '#999999' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
               </div>
-              <svg className="w-4 h-4" style={{ color: '#999999' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
+            </>
+          )}
         </div>
       </div>
     </div>
