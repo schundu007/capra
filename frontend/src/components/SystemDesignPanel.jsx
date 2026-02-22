@@ -157,10 +157,11 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
   const [proDiagramModal, setProDiagramModal] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  // Cloud diagram state (desktop only - requires Python + graphviz)
+  // Cloud diagram state
   const [generatingDiagram, setGeneratingDiagram] = useState(false);
   const [diagramData, setDiagramData] = useState(null);
   const [diagramError, setDiagramError] = useState(null);
+  const [diagramDetailLevel, setDiagramDetailLevel] = useState('overview'); // 'overview' or 'detailed'
 
   // Check if this is a comparison question
   const hasComparison = systemDesign?.comparison || systemDesign?.comparisonDiagram;
@@ -172,13 +173,12 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
     }
   }, [eraserDiagram?.imageUrl]);
 
-  // Auto-generate cloud diagram when systemDesign is available (desktop only)
-  // Auto-generate diagram when system design is included
+  // Auto-generate overview diagram when systemDesign is available
   useEffect(() => {
     if (systemDesign?.included && question && !diagramData && !generatingDiagram && !diagramError) {
       // Small delay to ensure component is fully mounted and auth is ready
       const timer = setTimeout(() => {
-        handleGenerateDiagram();
+        handleGenerateDiagram('overview'); // Start with simple overview
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -194,11 +194,12 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
     }
   };
 
-  const handleGenerateDiagram = async () => {
+  const handleGenerateDiagram = async (detailLevel = 'overview') => {
     if (!question) return;
 
     setGeneratingDiagram(true);
     setDiagramError(null);
+    setDiagramDetailLevel(detailLevel);
 
     try {
       const response = await fetch(`${API_URL}/api/diagram/generate`, {
@@ -212,7 +213,8 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
           cloudProvider: cloudProvider || 'auto',
           difficulty: 'medium',
           category: 'System Design',
-          format: 'png'
+          format: 'png',
+          detailLevel: detailLevel  // 'overview' or 'detailed'
         }),
       });
 
@@ -235,7 +237,8 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
         setDiagramData({
           imageUrl: `${API_URL}${result.image_url}`,
           cloudProvider: result.cloud_provider,
-          pythonCode: result.python_code
+          pythonCode: result.python_code,
+          detailLevel: detailLevel
         });
       } else {
         throw new Error(result.error || 'Diagram generation failed');
@@ -376,26 +379,56 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
               </span>
               <div className="flex items-center gap-2">
                 {diagramData && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setDiagramModal(true); }}
-                    className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium rounded border transition-all bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600"
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                    </svg>
-                    Expand
-                  </button>
+                  <>
+                    <span className="text-[9px] text-gray-400 px-1.5 py-0.5 bg-gray-100 rounded">
+                      {diagramData.detailLevel === 'detailed' ? 'Detailed' : 'Overview'}
+                    </span>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setDiagramModal(true); }}
+                      className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded border transition-all bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                      </svg>
+                      Expand
+                    </button>
+                    {diagramData.detailLevel !== 'detailed' && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleGenerateDiagram('detailed'); }}
+                        className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded border transition-all bg-blue-500 text-white border-blue-500 hover:bg-blue-600"
+                        title="Generate detailed diagram for deep-dive questions"
+                      >
+                        Deep Dive
+                      </button>
+                    )}
+                    {diagramData.detailLevel === 'detailed' && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleGenerateDiagram('overview'); }}
+                        className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded border transition-all bg-gray-500 text-white border-gray-500 hover:bg-gray-600"
+                        title="Generate simple overview diagram"
+                      >
+                        Overview
+                      </button>
+                    )}
+                  </>
                 )}
                 {!diagramData && !generatingDiagram && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleGenerateDiagram(); }}
-                    className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium rounded border transition-all bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600"
-                  >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-                    </svg>
-                    Generate
-                  </button>
+                  <>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleGenerateDiagram('overview'); }}
+                      className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded border transition-all bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600"
+                      title="Simple diagram for initial explanation (10-15 nodes)"
+                    >
+                      Overview
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleGenerateDiagram('detailed'); }}
+                      className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded border transition-all bg-blue-500 text-white border-blue-500 hover:bg-blue-600"
+                      title="Comprehensive diagram for deep-dive questions (25-40 nodes)"
+                    >
+                      Deep Dive
+                    </button>
+                  </>
                 )}
               </div>
             </h4>

@@ -61,6 +61,7 @@ function ensureOutputDir() {
  * @param {string} [options.difficulty='medium'] - Difficulty level
  * @param {string} [options.category='System Design'] - Category
  * @param {string} [options.format='png'] - Output format (png/svg)
+ * @param {string} [options.detailLevel='overview'] - Detail level: 'overview' (simple) or 'detailed' (comprehensive)
  * @returns {Promise<Object>} - Diagram result
  */
 export async function generateDiagram({
@@ -68,7 +69,8 @@ export async function generateDiagram({
   cloudProvider = 'auto',
   difficulty = 'medium',
   category = 'System Design',
-  format = 'png'
+  format = 'png',
+  detailLevel = 'overview'
 }) {
   const apiKey = getApiKey();
 
@@ -80,6 +82,7 @@ export async function generateDiagram({
 
   return new Promise((resolve, reject) => {
     console.log('[PythonDiagrams] Generating diagram...');
+    console.log('[PythonDiagrams] Detail level:', detailLevel);
     console.log('[PythonDiagrams] Engine path:', DIAGRAM_ENGINE_PATH);
     console.log('[PythonDiagrams] Output dir:', OUTPUT_DIR);
 
@@ -91,7 +94,8 @@ export async function generateDiagram({
       '--category', category,
       '--format', format,
       '--output-dir', OUTPUT_DIR,
-      '--api-key', apiKey
+      '--api-key', apiKey,
+      '--detail-level', detailLevel
     ];
 
     const pythonProcess = spawn('python3', args, {

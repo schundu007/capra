@@ -199,7 +199,23 @@ with Diagram("GKE Architecture", filename=DIAGRAM_FILENAME, outformat=DIAGRAM_FO
     lb >> gke >> db
 """
 
-USER_PROMPT_TEMPLATE = """Generate a DETAILED Python diagram for this system design interview question:
+USER_PROMPT_OVERVIEW = """Generate a CLEAN, EXPLAINABLE Python diagram for this system design interview question:
+
+Question: {question}
+Cloud Provider: {cloud_provider}
+
+OVERVIEW DIAGRAM REQUIREMENTS (for initial interview explanation):
+- 10-15 nodes MAXIMUM - keep it simple and explainable
+- Show ONLY the core components: Users, CDN, Load Balancer, App Servers, Cache, Database, Storage
+- Use clear left-to-right flow (direction="LR")
+- Group into 3 clusters max: Ingress, Application, Data
+- Label key connections only: "HTTPS", "Read/Write", "Cache"
+- NO security details, NO monitoring, NO edge cases
+- This diagram should be explainable in 2-3 minutes
+
+Remember: ONLY output valid Python code. Use filename=DIAGRAM_FILENAME and outformat=DIAGRAM_FORMAT and show=False. Use real {cloud_provider} service icons. Keep it SIMPLE and CLEAR."""
+
+USER_PROMPT_DETAILED = """Generate a COMPREHENSIVE Python diagram for this system design interview question:
 
 Question: {question}
 Cloud Provider: {cloud_provider}
@@ -361,7 +377,8 @@ class CapraDiagramEngine:
         cloud_provider: str = "auto",
         difficulty: str = "medium",
         category: str = "System Design",
-        output_format: str = "png"
+        output_format: str = "png",
+        detail_level: str = "overview"  # "overview" or "detailed"
     ) -> DiagramResult:
         """Generate a cloud architecture diagram from a system design question."""
 
@@ -373,13 +390,20 @@ class CapraDiagramEngine:
         diagram_id = f"capra_{uuid.uuid4().hex[:12]}"
         output_path = self.output_dir / diagram_id
 
-        # Call Claude to generate diagram code
-        user_prompt = USER_PROMPT_TEMPLATE.format(
-            question=question,
-            cloud_provider=cloud_provider.upper(),
-            difficulty=difficulty,
-            category=category
-        )
+        # Select prompt based on detail level
+        if detail_level == "detailed":
+            user_prompt = USER_PROMPT_DETAILED.format(
+                question=question,
+                cloud_provider=cloud_provider.upper(),
+                difficulty=difficulty,
+                category=category
+            )
+        else:
+            # Default to overview (simple, explainable)
+            user_prompt = USER_PROMPT_OVERVIEW.format(
+                question=question,
+                cloud_provider=cloud_provider.upper()
+            )
 
         try:
             response = self.client.messages.create(
@@ -531,6 +555,8 @@ def main():
     parser.add_argument('--format', '-f', default='png', help='Output format (png/svg)')
     parser.add_argument('--output-dir', '-o', default='/tmp/capra_diagrams', help='Output directory')
     parser.add_argument('--api-key', '-k', help='Anthropic API key (or set ANTHROPIC_API_KEY env)')
+    parser.add_argument('--detail-level', '-l', default='overview', choices=['overview', 'detailed'],
+                        help='Diagram detail level: overview (simple) or detailed (comprehensive)')
 
     args = parser.parse_args()
 
@@ -550,7 +576,8 @@ def main():
         cloud_provider=args.provider,
         difficulty=args.difficulty,
         category=args.category,
-        output_format=args.format
+        output_format=args.format,
+        detail_level=args.detail_level
     )
 
     # Output as JSON
