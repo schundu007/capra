@@ -136,7 +136,13 @@ IMPORTANT: Respond with valid JSON in exactly this format:
 {
   "language": "python|bash|terraform|jenkins|yaml|sql|javascript",
   "code": "the complete code as a string with \\n for newlines - MUST include print statements",
-  "pitch": "A 1-2 minute verbal explanation - PLAIN TEXT ONLY, NO code blocks, NO markdown formatting",
+  "pitch": {
+    "opener": "One sentence hook to grab attention",
+    "approach": "Brief description of the solution strategy",
+    "keyPoints": ["Key point 1", "Key point 2", "Key point 3"],
+    "complexity": "Time O(n), Space O(1) - brief justification",
+    "tradeoffs": "Alternative approaches considered and why this one is better"
+  },
   "examples": [
     {"input": "example input 1 from problem", "expected": "expected output 1"},
     {"input": "example input 2 from problem", "expected": "expected output 2"}

@@ -473,13 +473,65 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
 
       {/* Content */}
       <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin p-2 space-y-2">
-        {/* Solution Pitch */}
+        {/* Solution Pitch - Structured format for easy verbal delivery */}
         {pitch && (
           <div className="p-3 rounded-lg" style={{ background: '#f5f5f5', borderLeft: '3px solid #10b981' }}>
-            <span className="text-[14px] font-bold uppercase tracking-wide mb-2 block" style={{ color: '#10b981' }}>
-              Approach
+            <span className="text-[12px] font-bold uppercase tracking-wide mb-3 block" style={{ color: '#10b981' }}>
+              How to Explain
             </span>
-            <FormattedText text={pitch} />
+
+            {/* Handle structured pitch object */}
+            {typeof pitch === 'object' && pitch.opener ? (
+              <div className="space-y-3">
+                {/* Opener - the hook */}
+                <div>
+                  <span className="text-[10px] font-semibold text-gray-500 uppercase">Start with</span>
+                  <p className="text-[13px] text-gray-800 font-medium mt-0.5 italic">"{pitch.opener}"</p>
+                </div>
+
+                {/* Approach */}
+                {pitch.approach && (
+                  <div>
+                    <span className="text-[10px] font-semibold text-gray-500 uppercase">Then explain</span>
+                    <p className="text-[13px] text-gray-700 mt-0.5">{pitch.approach}</p>
+                  </div>
+                )}
+
+                {/* Key Points */}
+                {pitch.keyPoints && pitch.keyPoints.length > 0 && (
+                  <div>
+                    <span className="text-[10px] font-semibold text-gray-500 uppercase">Key Points to Mention</span>
+                    <ul className="mt-1 space-y-1">
+                      {pitch.keyPoints.map((point, i) => (
+                        <li key={i} className="text-[12px] text-gray-700 flex items-start gap-2">
+                          <span className="text-emerald-500 font-bold">{i + 1}.</span>
+                          {point}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Complexity */}
+                {pitch.complexity && (
+                  <div>
+                    <span className="text-[10px] font-semibold text-gray-500 uppercase">Complexity</span>
+                    <p className="text-[12px] text-gray-700 mt-0.5 font-mono bg-gray-100 px-2 py-1 rounded inline-block">{pitch.complexity}</p>
+                  </div>
+                )}
+
+                {/* Tradeoffs */}
+                {pitch.tradeoffs && (
+                  <div>
+                    <span className="text-[10px] font-semibold text-gray-500 uppercase">If Asked About Tradeoffs</span>
+                    <p className="text-[12px] text-gray-600 mt-0.5">{pitch.tradeoffs}</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Fallback for old string format */
+              <FormattedText text={typeof pitch === 'string' ? pitch : JSON.stringify(pitch)} />
+            )}
           </div>
         )}
 
