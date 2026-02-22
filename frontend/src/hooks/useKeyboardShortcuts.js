@@ -1,15 +1,42 @@
 import { useEffect, useCallback } from 'react';
 
 /**
- * Check if the currently focused element is an input field
+ * Check if the currently focused element is a user-facing input field
+ * Excludes Monaco editor's hidden textarea and other non-user inputs
  */
 function isInputFocused() {
   const activeElement = document.activeElement;
   if (!activeElement) return false;
 
+  // Check if it's inside Monaco editor - don't block shortcuts there
+  // Monaco uses a hidden textarea with class 'inputarea'
+  if (activeElement.classList?.contains('inputarea')) {
+    return false; // Allow shortcuts even when Monaco is "focused"
+  }
+
+  // Check if inside Monaco editor container
+  if (activeElement.closest('.monaco-editor')) {
+    return false; // Allow shortcuts in code display area
+  }
+
   const tagName = activeElement.tagName.toLowerCase();
   const isEditable = activeElement.isContentEditable;
+
+  // Only block on actual user input fields (not hidden ones)
   const isInput = tagName === 'input' || tagName === 'textarea' || tagName === 'select';
+
+  // Check if it's a visible, user-interactable input
+  if (isInput) {
+    // Check if it's hidden or has no dimensions (like Monaco's hidden textarea)
+    const rect = activeElement.getBoundingClientRect();
+    const style = window.getComputedStyle(activeElement);
+    const isHidden = style.visibility === 'hidden' ||
+                     style.display === 'none' ||
+                     rect.width === 0 ||
+                     rect.height === 0 ||
+                     parseFloat(style.opacity) === 0;
+    if (isHidden) return false;
+  }
 
   return isInput || isEditable;
 }
@@ -113,8 +140,9 @@ export function useKeyboardShortcuts({
   }, [onSolve, onRun, onClear, onCopyCode, isLoading, hasProblem, hasCode, disabled]);
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    // Use capture phase to catch events before they're handled by other elements
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
   }, [handleKeyDown]);
 }
 
