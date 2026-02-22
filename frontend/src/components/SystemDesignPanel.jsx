@@ -157,25 +157,36 @@ function CollapsibleSection({ title, icon, color, children, defaultOpen = true, 
 function ASCIIDiagram({ systemDesign, detailed = false }) {
   if (!systemDesign?.included) return null;
 
-  // Extract tech stack from techJustifications
+  // Extract tech stack and data flow from systemDesign
   const techStack = systemDesign.techJustifications?.map(t => t.tech) || [];
   const components = systemDesign.architecture?.components || [];
+  const dataFlow = systemDesign.dataFlow || [];
 
-  // Categorize components into tiers
+  // Deduplicate and categorize components
+  const uniqueItems = [...new Set([...components, ...techStack])];
+
   const categorize = (items) => {
     const tiers = {
-      ingress: [],
+      client: [],
+      edge: [],
+      gateway: [],
       compute: [],
-      data: [],
-      async: [],
+      cache: [],
+      database: [],
+      storage: [],
+      queue: [],
       monitoring: []
     };
 
     const patterns = {
-      ingress: /cdn|cloudfront|load.?balancer|alb|nlb|elb|api.?gateway|dns|route53|waf|firewall|nginx|haproxy/i,
-      compute: /ec2|ecs|eks|gke|aks|lambda|function|container|server|service|k8s|kubernetes|fargate|app/i,
-      data: /database|db|rds|aurora|dynamo|redis|cache|elastic|memcache|postgres|mysql|mongo|s3|storage|gcs|blob/i,
-      async: /queue|sqs|sns|kafka|kinesis|pubsub|rabbit|worker|event|stream/i,
+      client: /client|browser|mobile|app|user|frontend|web\s?app/i,
+      edge: /cdn|cloudfront|cloudflare|edge|akamai/i,
+      gateway: /load.?balancer|alb|nlb|elb|api.?gateway|nginx|haproxy|gateway|ingress/i,
+      compute: /ec2|ecs|eks|gke|aks|lambda|function|container|server|service|k8s|kubernetes|fargate|worker|encoding|base62/i,
+      cache: /redis|cache|memcache|elasticache/i,
+      database: /database|db|rds|aurora|dynamo|postgres|mysql|mongo|sql|cockroach/i,
+      storage: /s3|storage|gcs|blob|file|bucket|object/i,
+      queue: /queue|sqs|sns|kafka|kinesis|pubsub|rabbit|event|stream|message/i,
       monitoring: /monitor|cloudwatch|prometheus|grafana|log|trace|alert|metric|datadog/i
     };
 
@@ -183,76 +194,161 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
       let matched = false;
       for (const [tier, pattern] of Object.entries(patterns)) {
         if (pattern.test(item)) {
-          tiers[tier].push(item);
+          if (!tiers[tier].includes(item)) {
+            tiers[tier].push(item);
+          }
           matched = true;
           break;
         }
       }
-      if (!matched) tiers.compute.push(item);
+      if (!matched && !tiers.compute.includes(item)) {
+        tiers.compute.push(item);
+      }
     });
 
     return tiers;
   };
 
-  const tiers = categorize([...components, ...techStack]);
+  const tiers = categorize(uniqueItems);
 
-  // Build ASCII diagram
+  // Helper to create a box around text
+  const makeBox = (text, width = null) => {
+    const w = width || text.length + 2;
+    const padded = text.substring(0, w - 2).padStart(Math.floor((w - 2 + text.length) / 2)).padEnd(w - 2);
+    return {
+      top: '┌' + '─'.repeat(w - 2) + '┐',
+      mid: '│' + padded + '│',
+      bot: '└' + '─'.repeat(w - 2) + '┘',
+      width: w
+    };
+  };
+
+  // Build a proper architecture diagram
   const buildASCII = () => {
     const lines = [];
-    const width = 78;
-    const border = '─'.repeat(width);
 
     // Title
-    lines.push(`┌${border}┐`);
-    const title = detailed ? 'DETAILED ARCHITECTURE' : 'ARCHITECTURE OVERVIEW';
-    const titlePad = Math.floor((width - title.length) / 2);
-    lines.push(`│${' '.repeat(titlePad)}${title}${' '.repeat(width - titlePad - title.length)}│`);
-    lines.push(`├${border}┤`);
+    const title = detailed ? '═══ DETAILED SYSTEM ARCHITECTURE ═══' : '═══ SYSTEM ARCHITECTURE OVERVIEW ═══';
+    lines.push('');
+    lines.push('  ' + title);
+    lines.push('');
 
-    // Ingress tier
-    if (tiers.ingress.length > 0 || !detailed) {
-      const ingressItems = tiers.ingress.length > 0 ? tiers.ingress.slice(0, 4) : ['CDN', 'Load Balancer', 'API Gateway'];
-      lines.push(`│${''.padEnd(width)}│`);
-      lines.push(`│  INGRESS: ${ingressItems.join(' ──► ').substring(0, width - 14).padEnd(width - 12)}│`);
-      lines.push(`│${''.padEnd(Math.floor(width/2) - 1)}│${''.padEnd(width - Math.floor(width/2))}│`);
-      lines.push(`│${''.padEnd(Math.floor(width/2) - 1)}▼${''.padEnd(width - Math.floor(width/2))}│`);
+    // Client Layer
+    const clientBox = makeBox('👤 Client', 14);
+    lines.push('  ' + clientBox.top);
+    lines.push('  ' + clientBox.mid);
+    lines.push('  ' + clientBox.bot);
+    lines.push('       │');
+    lines.push('       ▼');
+
+    // Edge/CDN Layer (if present)
+    if (tiers.edge.length > 0) {
+      const edgeBox = makeBox(tiers.edge[0], 18);
+      lines.push('  ' + edgeBox.top);
+      lines.push('  ' + edgeBox.mid);
+      lines.push('  ' + edgeBox.bot);
+      lines.push('       │');
+      lines.push('       ▼');
     }
 
-    // Compute tier
-    if (tiers.compute.length > 0 || !detailed) {
-      const computeItems = tiers.compute.length > 0 ? tiers.compute.slice(0, 4) : ['App Servers', 'Workers'];
-      lines.push(`│  COMPUTE: ${computeItems.join(', ').substring(0, width - 14).padEnd(width - 12)}│`);
-      lines.push(`│${''.padEnd(Math.floor(width/3) - 1)}│${''.padEnd(Math.floor(width/3))}│${''.padEnd(width - 2*Math.floor(width/3))}│`);
-      lines.push(`│${''.padEnd(Math.floor(width/3) - 1)}▼${''.padEnd(Math.floor(width/3))}▼${''.padEnd(width - 2*Math.floor(width/3))}│`);
+    // Gateway/Load Balancer Layer
+    if (tiers.gateway.length > 0) {
+      const lbBox = makeBox(tiers.gateway[0], 20);
+      lines.push('  ' + lbBox.top);
+      lines.push('  ' + lbBox.mid);
+      lines.push('  ' + lbBox.bot);
+      lines.push('       │');
+      lines.push('  ┌────┴────┐');
+      lines.push('  │         │');
+      lines.push('  ▼         ▼');
+    } else {
+      lines.push('       │');
+      lines.push('       ▼');
     }
 
-    // Data tier
-    if (tiers.data.length > 0 || !detailed) {
-      const dataItems = tiers.data.length > 0 ? tiers.data.slice(0, 4) : ['Primary DB', 'Cache', 'Storage'];
-      lines.push(`│  DATA:    ${dataItems.join(', ').substring(0, width - 14).padEnd(width - 12)}│`);
+    // Compute Layer - show multiple servers
+    const computeItems = tiers.compute.slice(0, detailed ? 3 : 2);
+    if (computeItems.length >= 2) {
+      const box1 = makeBox(computeItems[0].substring(0, 12), 16);
+      const box2 = makeBox(computeItems[1].substring(0, 12), 16);
+      lines.push('┌' + '─'.repeat(14) + '┐   ┌' + '─'.repeat(14) + '┐');
+      lines.push('│' + computeItems[0].substring(0, 14).padStart(Math.floor((14 + computeItems[0].length) / 2)).padEnd(14) + '│   │' + computeItems[1].substring(0, 14).padStart(Math.floor((14 + computeItems[1].length) / 2)).padEnd(14) + '│');
+      lines.push('└' + '─'.repeat(14) + '┘   └' + '─'.repeat(14) + '┘');
+      lines.push('       │              │');
+      lines.push('       └──────┬───────┘');
+      lines.push('              │');
+    } else if (computeItems.length === 1) {
+      const svcBox = makeBox(computeItems[0], 20);
+      lines.push('  ' + svcBox.top);
+      lines.push('  ' + svcBox.mid);
+      lines.push('  ' + svcBox.bot);
+      lines.push('         │');
     }
 
-    // Async tier (detailed only)
-    if (detailed && tiers.async.length > 0) {
-      lines.push(`│${''.padEnd(width)}│`);
-      lines.push(`│  ASYNC:   ${tiers.async.slice(0, 4).join(' ◄──► ').substring(0, width - 14).padEnd(width - 12)}│`);
+    // Data Layer Split
+    const hasCache = tiers.cache.length > 0;
+    const hasDb = tiers.database.length > 0;
+    const hasStorage = tiers.storage.length > 0;
+    const hasQueue = tiers.queue.length > 0;
+
+    if (hasCache || hasDb || hasStorage) {
+      if (hasCache && hasDb) {
+        lines.push('    ┌────────┴────────┐');
+        lines.push('    │                 │');
+        lines.push('    ▼                 ▼');
+        // Cache and DB side by side
+        const cacheLabel = tiers.cache[0].substring(0, 12);
+        const dbLabel = tiers.database[0].substring(0, 14);
+        lines.push('┌' + '─'.repeat(14) + '┐   ┌' + '─'.repeat(16) + '┐');
+        lines.push('│' + ('🔴 ' + cacheLabel).substring(0, 14).padStart(Math.floor((14 + cacheLabel.length + 3) / 2)).padEnd(14) + '│   │' + ('💾 ' + dbLabel).substring(0, 16).padStart(Math.floor((16 + dbLabel.length + 3) / 2)).padEnd(16) + '│');
+        lines.push('└' + '─'.repeat(14) + '┘   └' + '─'.repeat(16) + '┘');
+      } else if (hasDb) {
+        lines.push('              │');
+        lines.push('              ▼');
+        const dbBox = makeBox('💾 ' + tiers.database[0], 22);
+        lines.push('     ' + dbBox.top);
+        lines.push('     ' + dbBox.mid);
+        lines.push('     ' + dbBox.bot);
+      } else if (hasCache) {
+        lines.push('              │');
+        lines.push('              ▼');
+        const cacheBox = makeBox('🔴 ' + tiers.cache[0], 20);
+        lines.push('     ' + cacheBox.top);
+        lines.push('     ' + cacheBox.mid);
+        lines.push('     ' + cacheBox.bot);
+      }
     }
 
-    // Monitoring tier (detailed only)
-    if (detailed && tiers.monitoring.length > 0) {
-      lines.push(`│${''.padEnd(width)}│`);
-      lines.push(`│  MONITOR: ${tiers.monitoring.slice(0, 3).join(', ').substring(0, width - 14).padEnd(width - 12)}│`);
+    // Storage (if present)
+    if (hasStorage && detailed) {
+      lines.push('');
+      lines.push('         ┌───────────────────┐');
+      lines.push('         │ 📦 ' + tiers.storage[0].substring(0, 14).padEnd(14) + '│');
+      lines.push('         └───────────────────┘');
     }
 
-    lines.push(`│${''.padEnd(width)}│`);
+    // Queue/Async (if present)
+    if (hasQueue && detailed) {
+      lines.push('');
+      lines.push('  ╔══════════════════════════╗');
+      lines.push('  ║ ⚡ ASYNC: ' + tiers.queue.slice(0, 2).join(', ').substring(0, 15).padEnd(15) + '║');
+      lines.push('  ╚══════════════════════════╝');
+    }
+
+    // Data flow description
+    if (dataFlow.length > 0 && detailed) {
+      lines.push('');
+      lines.push('  ┄┄┄ DATA FLOW ┄┄┄');
+      dataFlow.slice(0, 3).forEach((flow, i) => {
+        lines.push('  ' + (i + 1) + '. ' + flow.substring(0, 50));
+      });
+    }
 
     // Tech Stack footer
-    lines.push(`├${border}┤`);
-    const stackLabel = 'TECH STACK: ';
-    const stackItems = techStack.slice(0, 8).join(', ');
-    const stackLine = (stackLabel + stackItems).substring(0, width - 2);
-    lines.push(`│ ${stackLine.padEnd(width - 1)}│`);
-    lines.push(`└${border}┘`);
+    lines.push('');
+    lines.push('  ════════════════════════════════════════');
+    lines.push('  TECH: ' + techStack.slice(0, 6).join(' • ').substring(0, 45));
+    lines.push('');
 
     return lines.join('\n');
   };
@@ -260,8 +356,8 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
   const asciiDiagram = buildASCII();
 
   return (
-    <div className="font-mono text-[10px] leading-tight bg-gray-900 text-emerald-400 p-3 rounded-lg overflow-x-auto">
-      <pre className="whitespace-pre">{asciiDiagram}</pre>
+    <div className="font-mono text-[11px] leading-snug bg-gray-900 text-emerald-400 p-4 rounded-lg overflow-x-auto whitespace-pre">
+      {asciiDiagram}
     </div>
   );
 }
