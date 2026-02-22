@@ -86,6 +86,15 @@ NETWORKING COMPONENTS (CRITICAL - always include):
 27. Show service mesh (Istio/Envoy) for microservices communication.
 28. Label network paths: "HTTPS", "gRPC", "TCP", "Internal VPC".
 
+MESSAGING & EVENT-DRIVEN (CRITICAL for async patterns):
+29. Show SNS topics for fan-out pub/sub notifications (labeled with event types).
+30. Show SQS queues for decoupled async processing (with DLQ for failures).
+31. Show EventBridge/CloudWatch Events for event routing and rules.
+32. Show Kafka/Kinesis for high-throughput streaming if relevant.
+33. Label message flows: "Events", "Commands", "Notifications", "Retry Queue".
+34. Show the pattern: Producer → SNS → SQS → Consumer/Worker.
+35. Include Dead Letter Queues (DLQ) for failed message handling.
+
 Add meaningful labels with annotations showing purpose:
 - "Redis\\n(Session + Cache)"
 - "Kafka\\n(Event Stream)"
@@ -176,6 +185,13 @@ NETWORKING (MUST INCLUDE):
 - Firewalls/WAF/Security Groups
 - Internal load balancers between tiers
 - Label all network paths with protocols
+
+MESSAGING (MUST INCLUDE for async):
+- SNS topics for fan-out notifications
+- SQS queues for async processing with DLQ
+- EventBridge for event routing
+- Show pattern: Producer → SNS → SQS → Worker
+- Label message types (Events, Commands, etc.)
 
 Remember: ONLY output valid Python code. Use filename=DIAGRAM_FILENAME and outformat=DIAGRAM_FORMAT and show=False. Use real {cloud_provider} service icons. This diagram must support deep-dive interview questions."""
 

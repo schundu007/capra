@@ -775,7 +775,11 @@ MUST INCLUDE IN DIAGRAM:
 - Application servers/containers with auto-scaling groups
 - Caches (Redis/Memcached) with cache-aside pattern
 - Primary database with read replicas in different AZs
-- Message queues (Kafka/SQS/Pub-Sub) for async processing
+- SNS topics for fan-out pub/sub (labeled with event types: OrderCreated, UserSignedUp, etc.)
+- SQS queues for async processing with Dead Letter Queues (DLQ) for failures
+- EventBridge/CloudWatch Events for event routing
+- Kafka/Kinesis for high-throughput streaming
+- Show pattern: Producer → SNS → SQS → Consumer/Worker
 - Worker services for background jobs
 - Object storage for files/media
 - Search service (Elasticsearch) if relevant
@@ -1468,7 +1472,11 @@ MUST INCLUDE IN DIAGRAM:
 - Application servers/containers with auto-scaling groups
 - Caches (Redis/Memcached) with cache-aside pattern
 - Primary database with read replicas in different AZs
-- Message queues (Kafka/SQS/Pub-Sub) for async processing
+- SNS topics for fan-out pub/sub (labeled with event types: OrderCreated, UserSignedUp, etc.)
+- SQS queues for async processing with Dead Letter Queues (DLQ) for failures
+- EventBridge/CloudWatch Events for event routing
+- Kafka/Kinesis for high-throughput streaming
+- Show pattern: Producer → SNS → SQS → Consumer/Worker
 - Worker services for background jobs
 - Object storage for files/media
 - Search service (Elasticsearch) if relevant
