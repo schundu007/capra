@@ -162,8 +162,16 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
     }
   }, [eraserDiagram?.imageUrl]);
 
-  // Don't auto-generate - let user click the button
-  // This avoids issues with auth/timing on webapp
+  // Auto-generate cloud diagram when systemDesign is available
+  useEffect(() => {
+    if (systemDesign?.included && question && !diagramData && !generatingDiagram && !diagramError) {
+      // Small delay to ensure component is fully mounted and auth is ready
+      const timer = setTimeout(() => {
+        handleGenerateDiagram();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [systemDesign?.included, question]);
 
   const handleGenerateEraser = async () => {
     if (!onGenerateEraserDiagram) return;
