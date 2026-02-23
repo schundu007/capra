@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-const STORAGE_KEY = 'capra_coding_history';
+const STORAGE_KEY = 'chundu_coding_history';
 const MAX_ENTRIES = 30; // Limit to prevent localStorage bloat
 
 /**

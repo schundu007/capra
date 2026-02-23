@@ -113,7 +113,7 @@ function createApp() {
   app.use(express.json({ limit: '10mb' }));
 
   // Static file serving for generated diagrams
-  const DIAGRAM_OUTPUT_DIR = process.env.DIAGRAM_OUTPUT_DIR || '/tmp/capra_diagrams';
+  const DIAGRAM_OUTPUT_DIR = process.env.DIAGRAM_OUTPUT_DIR || '/tmp/chundu_diagrams';
   app.use('/static/diagrams', express.static(DIAGRAM_OUTPUT_DIR, {
     maxAge: '1h',
     setHeaders: (res, filePath) => {

@@ -9,7 +9,7 @@ import ErrorDisplay from './components/ErrorDisplay';
 import PlatformStatus from './components/PlatformStatus';
 import Login from './components/Login';
 import AdminPanel from './components/AdminPanel';
-import CapraLogo from './components/CapraLogo';
+import ChunduLogo from './components/ChunduLogo';
 import SettingsPanel from './components/settings/SettingsPanel';
 import SetupWizard from './components/settings/SetupWizard';
 import PlatformAuth from './components/PlatformAuth';
@@ -44,7 +44,7 @@ const PLATFORMS = {
 
 // Get auth token from localStorage
 function getToken() {
-  return localStorage.getItem('capra_token');
+  return localStorage.getItem('chundu_token');
 }
 
 // Get auth headers
@@ -235,7 +235,7 @@ export default function App() {
   const [model, setModel] = useState('claude-sonnet-4-20250514');
   const [autoSwitch, setAutoSwitch] = useState(() => {
     try {
-      return localStorage.getItem('capra_auto_switch') === 'true';
+      return localStorage.getItem('chundu_auto_switch') === 'true';
     } catch {
       return false;
     }
@@ -273,7 +273,7 @@ export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     if (!isElectron) return true;
     try {
-      return localStorage.getItem('capra_sidebar_collapsed') === 'true';
+      return localStorage.getItem('chundu_sidebar_collapsed') === 'true';
     } catch {
       return false;
     }
@@ -284,7 +284,7 @@ export default function App() {
     const newState = !sidebarCollapsed;
     setSidebarCollapsed(newState);
     try {
-      localStorage.setItem('capra_sidebar_collapsed', String(newState));
+      localStorage.setItem('chundu_sidebar_collapsed', String(newState));
     } catch {
       // Ignore storage errors
     }
@@ -333,7 +333,7 @@ export default function App() {
           setIsAuthenticated(true);
           setUser(meData.user);
         } else {
-          localStorage.removeItem('capra_token');
+          localStorage.removeItem('chundu_token');
           setIsAuthenticated(false);
         }
       } catch (error) {
@@ -450,13 +450,13 @@ export default function App() {
   }, []);
 
   const handleLogin = (token, userData) => {
-    localStorage.setItem('capra_token', token);
+    localStorage.setItem('chundu_token', token);
     setIsAuthenticated(true);
     setUser(userData);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('capra_token');
+    localStorage.removeItem('chundu_token');
     setIsAuthenticated(false);
     setUser(null);
   };
@@ -1763,7 +1763,7 @@ EDGE CASES & RESILIENCE:
           onAutoSwitchChange={(value) => {
             setAutoSwitch(value);
             try {
-              localStorage.setItem('capra_auto_switch', value.toString());
+              localStorage.setItem('chundu_auto_switch', value.toString());
             } catch (e) {
               console.error('Failed to save auto-switch setting:', e);
             }

@@ -22,7 +22,7 @@ function safeError(...args) {
 // Uses Electron's safeStorage which leverages the OS keychain
 const encryptedStore = new Store({
   name: 'secure',
-  encryptionKey: 'capra-secure-store', // This is just for obfuscation, actual security comes from safeStorage
+  encryptionKey: 'chundu-secure-store', // This is just for obfuscation, actual security comes from safeStorage
 });
 
 /**

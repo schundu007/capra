@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import CapraLogo from './CapraLogo';
+import ChunduLogo from './ChunduLogo';
 import { getApiUrl } from '../hooks/useElectron';
 
 const API_URL = getApiUrl();
@@ -68,7 +68,7 @@ export default function Login({ onLogin }) {
           {/* Logo */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
-              <CapraLogo size="lg" />
+              <ChunduLogo size="lg" />
             </div>
             <p className="text-base font-medium text-gray-500">
               {mode === 'login' ? 'Sign in to continue' : 'Create your account'}

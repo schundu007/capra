@@ -14,7 +14,7 @@ function safeLog(...args) {
 // Persistent storage for platform auth (encrypted)
 const authStore = new Store({
   name: 'platform-auth',
-  encryptionKey: 'capra-platform-auth',
+  encryptionKey: 'chundu-platform-auth',
 });
 
 // Encrypt/decrypt helpers

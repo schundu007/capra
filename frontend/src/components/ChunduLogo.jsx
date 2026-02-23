@@ -1,4 +1,4 @@
-export default function CapraLogo({ size = 'md', className = '', variant = 'full' }) {
+export default function ChunduLogo({ size = 'md', className = '', variant = 'full' }) {
   const sizes = {
     sm: 'h-6',
     md: 'h-8',

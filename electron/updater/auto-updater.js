@@ -106,7 +106,7 @@ export function initAutoUpdater(mainWindow) {
       type: 'info',
       title: 'Update Ready',
       message: 'Update downloaded successfully.',
-      detail: 'The update will be installed when you restart Capra.',
+      detail: 'The update will be installed when you restart Chundu.',
       buttons: ['Restart Now', 'Later'],
       defaultId: 0,
     }).then((result) => {

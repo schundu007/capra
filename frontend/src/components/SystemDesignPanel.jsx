@@ -5,7 +5,7 @@ import useElectron from '../hooks/useElectron';
 const API_URL = getApiUrl();
 
 function getAuthHeaders() {
-  const token = localStorage.getItem('capra_token');
+  const token = localStorage.getItem('chundu_token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 

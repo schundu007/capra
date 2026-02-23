@@ -49,7 +49,7 @@ async function createWindow() {
     height: 900,
     minWidth: 900,
     minHeight: 600,
-    title: 'Capra',
+    title: 'Chundu',
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     trafficLightPosition: { x: 16, y: 16 },
     backgroundColor: '#0a1a10', // dark green
@@ -298,14 +298,14 @@ function createAppMenu() {
         {
           label: 'Documentation',
           click: () => {
-            shell.openExternal('https://github.com/your-repo/capra#readme');
+            shell.openExternal('https://github.com/your-repo/chundu#readme');
           }
         },
         { type: 'separator' },
         {
           label: 'Report Issue',
           click: () => {
-            shell.openExternal('https://github.com/your-repo/capra/issues');
+            shell.openExternal('https://github.com/your-repo/chundu/issues');
           }
         }
       ]
@@ -469,7 +469,7 @@ ipcMain.handle('open-interview-prep', async () => {
     y: windowY,
     minWidth: 800,
     minHeight: 300,
-    title: 'Interview Prep - Capra',
+    title: 'Interview Prep - Chundu',
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     trafficLightPosition: { x: 16, y: 16 },
     backgroundColor: '#1f2937', // Dark background to match sidebar

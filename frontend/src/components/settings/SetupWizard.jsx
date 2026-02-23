@@ -178,7 +178,7 @@ export default function SetupWizard({ onComplete }) {
 
         {/* Footer */}
         <div className="mt-6 text-center text-sm" style={{ color: '#999999' }}>
-          Need help? Visit our <a href="https://github.com/your-repo/capra" target="_blank" rel="noopener noreferrer" style={{ color: '#10b981' }}>documentation</a>
+          Need help? Visit our <a href="https://github.com/your-repo/chundu" target="_blank" rel="noopener noreferrer" style={{ color: '#10b981' }}>documentation</a>
         </div>
       </div>
     </div>

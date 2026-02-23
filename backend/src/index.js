@@ -66,7 +66,7 @@ app.use(requestLogger);
 app.use(express.json({ limit: '10mb' }));
 
 // Static file serving for generated diagrams
-const DIAGRAM_OUTPUT_DIR = process.env.DIAGRAM_OUTPUT_DIR || '/tmp/capra_diagrams';
+const DIAGRAM_OUTPUT_DIR = process.env.DIAGRAM_OUTPUT_DIR || '/tmp/chundu_diagrams';
 app.use('/static/diagrams', express.static(DIAGRAM_OUTPUT_DIR, {
   maxAge: '1h',
   setHeaders: (res, filePath) => {
@@ -171,7 +171,7 @@ app.get('/api/diagram/test', async (req, res) => {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   const enginePath = path.join(__dirname, 'services', 'diagram_engine.py');
-  const outputDir = process.env.DIAGRAM_OUTPUT_DIR || '/tmp/capra_diagrams';
+  const outputDir = process.env.DIAGRAM_OUTPUT_DIR || '/tmp/chundu_diagrams';
 
   const fs = await import('fs');
   if (!fs.existsSync(outputDir)) {
@@ -241,7 +241,7 @@ app.use(errorHandler);
 
 // Start server
 const server = app.listen(PORT, () => {
-  logger.info({ port: PORT, env: config.NODE_ENV }, 'Capra API server started');
+  logger.info({ port: PORT, env: config.NODE_ENV }, 'Chundu API server started');
 });
 
 // Track connections for graceful shutdown

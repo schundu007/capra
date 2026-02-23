@@ -1,7 +1,7 @@
 {
-  "name": "capra-backend",
+  "name": "chundu-backend",
   "version": "1.0.0",
-  "description": "Capra Backend API",
+  "description": "Chundu Backend API",
   "main": "src/index.js",
   "type": "module",
   "engines": {

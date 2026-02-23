@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // JWT secret - must be set in environment
-const JWT_SECRET = process.env.JWT_SECRET || 'capra-secret-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || 'chundu-secret-change-in-production';
 const JWT_EXPIRY = '24h';
 
 // User data file path

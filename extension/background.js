@@ -45,7 +45,7 @@ const PLATFORMS = {
 // Get API URL from storage or use default
 async function getApiUrl() {
   const result = await chrome.storage.local.get(['apiUrl']);
-  return result.apiUrl || 'https://capra-backend-production.up.railway.app';
+  return result.apiUrl || 'https://chundu-backend-production.up.railway.app';
 }
 
 // Desktop app URL (always localhost for Electron)

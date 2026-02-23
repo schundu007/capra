@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-const STORAGE_KEY = 'capra_system_design_sessions';
+const STORAGE_KEY = 'chundu_system_design_sessions';
 const MAX_SESSIONS = 50; // Limit to prevent localStorage bloat
 
 /**

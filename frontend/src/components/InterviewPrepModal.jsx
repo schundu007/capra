@@ -35,7 +35,7 @@ const EMPTY_GENERATED = {
 
 // Get auth headers
 function getAuthHeaders() {
-  const token = localStorage.getItem('capra_token');
+  const token = localStorage.getItem('chundu_token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 

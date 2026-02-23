@@ -62,7 +62,7 @@ router.post('/problem', (req, res) => {
   res.json({
     success: true,
     clientsNotified,
-    message: clientsNotified > 0 ? 'Problem sent to Capra' : 'No active Capra windows',
+    message: clientsNotified > 0 ? 'Problem sent to Chundu' : 'No active Chundu windows',
   });
 });
 

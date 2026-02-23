@@ -265,7 +265,7 @@ export default function FundingPage({ onClose }) {
             </div>
           </div>
           <p className="text-xs text-gray-400 text-center mt-2">
-            <a href="https://github.com/schundu007/capra" target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline">
+            <a href="https://github.com/schundu007/chundu" target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline">
               View source on GitHub
             </a>
             {' '} &bull; {' '}

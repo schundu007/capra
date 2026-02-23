@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'capra-backend',
+      name: 'chundu-backend',
       cwd: './backend',
       script: 'src/index.js',
       watch: false,
@@ -22,7 +22,7 @@ module.exports = {
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
     },
     {
-      name: 'capra-frontend',
+      name: 'chundu-frontend',
       cwd: './frontend',
       script: 'npm',
       args: 'run dev',

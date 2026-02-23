@@ -52,7 +52,7 @@ export default function PrepTab({ isOpen, onClose }) {
       } else {
         // Webapp: get status from backend (synced via extension)
         try {
-          const token = localStorage.getItem('capra_token');
+          const token = localStorage.getItem('chundu_token');
           const headers = {};
           if (token) headers.Authorization = `Bearer ${token}`;
           const res = await fetch(API_URL + '/api/auth/status', { headers });
@@ -104,7 +104,7 @@ export default function PrepTab({ isOpen, onClose }) {
     if (isElectron) return;
 
     try {
-      const token = localStorage.getItem('capra_token');
+      const token = localStorage.getItem('chundu_token');
       const headers = {};
       if (token) headers.Authorization = `Bearer ${token}`;
       const res = await fetch(API_URL + '/api/auth/status', { headers });
@@ -124,7 +124,7 @@ export default function PrepTab({ isOpen, onClose }) {
     setFetchedContent(null);
 
     try {
-      const token = localStorage.getItem('capra_token');
+      const token = localStorage.getItem('chundu_token');
       const headers = { 'Content-Type': 'application/json' };
       if (token) headers.Authorization = `Bearer ${token}`;
 

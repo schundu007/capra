@@ -17,7 +17,7 @@ const __dirname = path.dirname(__filename);
 const DIAGRAM_ENGINE_PATH = path.join(__dirname, 'diagram_engine.py');
 
 // Output directory for diagrams
-const OUTPUT_DIR = process.env.DIAGRAM_OUTPUT_DIR || '/tmp/capra_diagrams';
+const OUTPUT_DIR = process.env.DIAGRAM_OUTPUT_DIR || '/tmp/chundu_diagrams';
 
 // Runtime API key storage (for Electron mode)
 let runtimeApiKey = null;
