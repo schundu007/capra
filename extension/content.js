@@ -99,49 +99,6 @@
     });
   }
 
-  // Show a small notification on the page
-  function showNotification(message, type = 'info') {
-    // Remove existing notification
-    const existing = document.getElementById('capra-notification');
-    if (existing) existing.remove();
-
-    const notification = document.createElement('div');
-    notification.id = 'capra-notification';
-    notification.style.cssText = `
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      z-index: 999999;
-      animation: capraSlideIn 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      ${type === 'success'
-        ? 'background: #10b981; color: white;'
-        : type === 'error'
-        ? 'background: #ef4444; color: white;'
-        : 'background: #3b82f6; color: white;'}
-    `;
-    notification.textContent = message;
-
-    // Add animation style
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes capraSlideIn {
-        from { transform: translateX(100px); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-      }
-    `;
-    document.head.appendChild(style);
-    document.body.appendChild(notification);
-
-    // Auto-remove after 3 seconds
-    setTimeout(() => notification.remove(), 3000);
-  }
-
   // Track last URL to detect navigation
   let lastUrl = window.location.href;
   let lastSentUrl = null;
