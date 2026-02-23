@@ -342,7 +342,21 @@ export default function InterviewAssistantPanel({ onClose, provider, model }) {
       console.log('[Transcribe] Response:', data);
 
       if (data.text && data.text.trim()) {
-        const newText = data.text.trim();
+        let newText = data.text.trim();
+
+        // Remove repeated phrases within the text (e.g., "what's her name what's her name" -> "what's her name")
+        const words = newText.split(' ');
+        if (words.length >= 4) {
+          // Check if the text is a repeated phrase
+          const halfLen = Math.floor(words.length / 2);
+          const firstHalf = words.slice(0, halfLen).join(' ').toLowerCase();
+          const secondHalf = words.slice(halfLen, halfLen * 2).join(' ').toLowerCase();
+          if (firstHalf === secondHalf) {
+            newText = words.slice(0, halfLen).join(' ');
+            console.log('[Transcribe] Removed repeated phrase, cleaned:', newText);
+          }
+        }
+
         // Only process if this is a completed speech segment with meaningful content
         if (isSegmentEnd && newText.length > 10) {
           console.log('[Transcribe] Got text:', newText);
