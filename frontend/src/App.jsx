@@ -1730,17 +1730,6 @@ EDGE CASES & RESILIENCE:
             <span className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'bg-[#10b981] animate-pulse' : 'bg-[#10b981]'}`} />
             {isLoading ? 'Processing' : 'Ready'}
           </span>
-          <span>·</span>
-          <button
-            onClick={() => setShowFundingPage(true)}
-            className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-pink-50 text-pink-600 hover:bg-pink-100 transition-colors border border-pink-200"
-            title="Support Ascend development"
-          >
-            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-            </svg>
-            Support
-          </button>
         </div>
         <div className="flex items-center gap-3 font-mono" style={{ color: '#b3b3b3' }}>
           <span title="Solve problem">Space solve</span>
