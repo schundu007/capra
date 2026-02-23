@@ -1,5 +1,5 @@
 {
-  "name": "chundu",
+  "name": "capra",
   "version": "1.2.0",
   "description": "Chundu - AI-powered coding assistant",
   "main": "electron/main.js",
