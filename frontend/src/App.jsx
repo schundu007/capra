@@ -56,6 +56,8 @@ function getAuthHeaders() {
 // Clean up text - remove double spaces, extra empty lines
 function cleanupText(text) {
   if (!text) return text;
+  // Only process strings, return objects/arrays as-is
+  if (typeof text !== 'string') return text;
   return text
     .replace(/[ \t]+/g, ' ')           // Replace multiple spaces/tabs with single space
     .replace(/\n\s*\n\s*\n/g, '\n\n')  // Replace 3+ newlines with 2
@@ -638,20 +640,26 @@ export default function App() {
     console.log('[App] handleKeyboardCopy called, code length:', code?.length);
     if (code) {
       try {
-        await navigator.clipboard.writeText(code);
-        console.log('[App] Code copied to clipboard successfully');
+        // Try Electron clipboard first
+        if (window.electronAPI?.copyToClipboard) {
+          await window.electronAPI.copyToClipboard(code);
+          console.log('[App] Code copied via Electron clipboard');
+        } else {
+          // Fallback to web clipboard API
+          await navigator.clipboard.writeText(code);
+          console.log('[App] Code copied via web clipboard');
+        }
       } catch (err) {
-        // Fallback for Electron or when clipboard API fails
-        console.log('[App] Clipboard API failed, using fallback:', err.message);
+        // Final fallback using textarea
+        console.log('[App] Clipboard APIs failed, using textarea fallback:', err.message);
         const textarea = document.createElement('textarea');
         textarea.value = code;
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
+        textarea.style.cssText = 'position:fixed;left:-9999px;';
         document.body.appendChild(textarea);
         textarea.select();
         document.execCommand('copy');
         document.body.removeChild(textarea);
-        console.log('[App] Code copied via fallback');
+        console.log('[App] Code copied via textarea fallback');
       }
     } else {
       console.log('[App] No code available to copy');
