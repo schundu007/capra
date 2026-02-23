@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
+import * as cheerio from 'cheerio';
 import { getApiKey as getClaudeApiKey } from './claude.js';
 import { getApiKey as getOpenAIApiKey } from './openai.js';
 
@@ -22,32 +23,177 @@ function getOpenAIClient() {
 
 const DEFAULT_CLAUDE_MODEL = 'claude-sonnet-4-20250514';
 const DEFAULT_OPENAI_MODEL = 'gpt-4o';
-const MAX_TOKENS_PER_SECTION = 4000; // Increased to prevent truncation
+const MAX_TOKENS_PER_SECTION = 16000; // Increased significantly for detailed explanations
+
+/**
+ * Search for real interview questions from the internet
+ * Searches Glassdoor, LeetCode discussions, and other sources
+ */
+async function searchInterviewQuestions(companyName, roleName, questionType = 'coding') {
+  const results = [];
+  const searchQueries = [
+    `${companyName} ${roleName} ${questionType} interview questions`,
+    `${companyName} software engineer interview ${questionType}`,
+  ];
+
+  // Try to fetch from LeetCode discussions
+  try {
+    const leetcodeUrl = `https://leetcode.com/discuss/interview-question?currentPage=1&orderBy=hot&query=${encodeURIComponent(companyName)}`;
+    const response = await fetch(leetcodeUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+        'Accept': 'text/html,application/xhtml+xml',
+      },
+    });
+    if (response.ok) {
+      const html = await response.text();
+      const $ = cheerio.load(html);
+      $('a[href*="/discuss/interview-question/"]').slice(0, 5).each((_, el) => {
+        const title = $(el).text().trim();
+        if (title && title.length > 10) {
+          results.push({ source: 'LeetCode', question: title });
+        }
+      });
+    }
+  } catch (err) {
+    console.log('[InterviewPrep] LeetCode search failed:', err.message);
+  }
+
+  // Try to fetch from Glassdoor
+  try {
+    const glassdoorUrl = `https://www.glassdoor.com/Interview/${companyName.replace(/\s+/g, '-')}-Interview-Questions-E*.htm`;
+    const response = await fetch(`https://www.glassdoor.com/Interview/index.htm?sc.keyword=${encodeURIComponent(companyName + ' ' + roleName)}`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+        'Accept': 'text/html,application/xhtml+xml',
+      },
+    });
+    if (response.ok) {
+      const html = await response.text();
+      const $ = cheerio.load(html);
+      $('.interview-question, [class*="interviewQuestion"]').slice(0, 5).each((_, el) => {
+        const question = $(el).text().trim();
+        if (question && question.length > 10) {
+          results.push({ source: 'Glassdoor', question });
+        }
+      });
+    }
+  } catch (err) {
+    console.log('[InterviewPrep] Glassdoor search failed:', err.message);
+  }
+
+  return results;
+}
+
+/**
+ * Extract company name from job description
+ */
+function extractCompanyName(jobDescription) {
+  // Try to find company name patterns
+  const patterns = [
+    /(?:company|employer|organization)[\s:]+([A-Z][A-Za-z0-9\s&]+?)(?:\s+is|\s+seeks|\s+looking|,|\n)/i,
+    /(?:join|work at|working at)\s+([A-Z][A-Za-z0-9\s&]+?)(?:\s+as|\s+and|,|\n|!)/i,
+    /^([A-Z][A-Za-z0-9\s&]{2,30})\s+(?:is seeking|is looking|seeks|hiring)/im,
+    /about\s+([A-Z][A-Za-z0-9\s&]+?)(?:\s*:|\s*\n)/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = jobDescription.match(pattern);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Extract role/position from job description
+ */
+function extractRoleName(jobDescription) {
+  const patterns = [
+    /(?:position|role|title)[\s:]+([^\n,]+)/i,
+    /(?:seeking|hiring|looking for)(?:\s+a)?\s+([^\n,]+?)(?:\s+to|\s+who|\s+with|\.)/i,
+    /^([A-Za-z\s]+(?:Engineer|Developer|Architect|Manager|Lead|Senior|Staff|Principal)[^\n]*)/im,
+  ];
+
+  for (const pattern of patterns) {
+    const match = jobDescription.match(pattern);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+
+  return 'Software Engineer';
+}
 
 // Section-specific prompts
 const SECTION_PROMPTS = {
   pitch: `Generate a compelling 2-3 minute elevator pitch for this candidate based on their resume and the job description.
 
-The pitch MUST be structured as 5 SEPARATE paragraphs:
-1. Opening Hook - A memorable introduction that grabs attention
-2. Key Achievement #1 - Your most impressive relevant accomplishment
-3. Key Achievement #2 - Another strong example demonstrating your skills
-4. Why This Company - Show genuine enthusiasm and company research
-5. Closing - Clear value statement and call to action
+The pitch MUST be structured as 5 SECTIONS with BULLET POINTS for easy verbal delivery:
 
-CRITICAL: Return the pitch as an ARRAY of strings called "pitchParagraphs", NOT as a single "pitch" string.
+1. OPENING HOOK (15-20 seconds) - Grab attention with your unique value
+2. KEY ACHIEVEMENT #1 (30-40 seconds) - Most impressive relevant accomplishment
+3. KEY ACHIEVEMENT #2 (30-40 seconds) - Another strong example demonstrating skills
+4. WHY THIS COMPANY (20-30 seconds) - Show genuine enthusiasm and research
+5. CLOSING (15-20 seconds) - Clear value statement and call to action
+
+Each section should have 3-5 bullet points that can be spoken naturally.
 
 Return JSON:
 {
-  "pitchParagraphs": [
-    "Paragraph 1: Opening hook...",
-    "Paragraph 2: First key achievement...",
-    "Paragraph 3: Second key achievement...",
-    "Paragraph 4: Why I'm excited about this company...",
-    "Paragraph 5: Closing value statement..."
+  "pitchSections": [
+    {
+      "title": "Opening Hook",
+      "duration": "15-20 seconds",
+      "bullets": [
+        "Start with: 'I'm [Name], a [title] with X years specializing in...'",
+        "Mention 1-2 headline achievements or unique differentiators",
+        "Connect your background to this specific role"
+      ]
+    },
+    {
+      "title": "Key Achievement #1",
+      "duration": "30-40 seconds",
+      "context": "Brief context about the project/company",
+      "bullets": [
+        "What was the challenge or opportunity?",
+        "What specific actions did YOU take?",
+        "What were the measurable results? (numbers, percentages, impact)"
+      ]
+    },
+    {
+      "title": "Key Achievement #2",
+      "duration": "30-40 seconds",
+      "context": "Brief context about the project/company",
+      "bullets": [
+        "What was the challenge or opportunity?",
+        "What specific actions did YOU take?",
+        "What were the measurable results?"
+      ]
+    },
+    {
+      "title": "Why This Company",
+      "duration": "20-30 seconds",
+      "bullets": [
+        "Specific reason you're excited about THIS company",
+        "How your skills align with their mission/products",
+        "What unique value you bring to their team"
+      ]
+    },
+    {
+      "title": "Closing",
+      "duration": "15-20 seconds",
+      "bullets": [
+        "Summarize your key value proposition in one sentence",
+        "Express enthusiasm for the opportunity",
+        "End with a forward-looking statement or question"
+      ]
+    }
   ],
   "talkingPoints": ["Key point 1", "Key point 2", "Key point 3"],
-  "tips": "Delivery tips",
+  "tips": "Delivery tips: pace, emphasis, body language",
   "techStack": [
     {
       "technology": "Technology name (e.g., Kubernetes)",
@@ -60,8 +206,9 @@ Return JSON:
 }
 
 IMPORTANT:
-- DO NOT use "pitch" key - use "pitchParagraphs" array
-- Each paragraph must be a separate string in the array
+- Use "pitchSections" array with objects containing title, duration, context (optional), and bullets
+- Bullets should be speakable phrases, not prose paragraphs
+- Include specific numbers and metrics from the resume
 - techStack MUST include ALL technologies mentioned in the pitch AND from the JD
 - For each technology: name, category, experience level, and relevance to the job
 - This is critical for HR screening - they report technologies to hiring managers
@@ -116,55 +263,321 @@ Return JSON:
 
 IMPORTANT: Include an "abbreviations" array with ALL technical terms, acronyms, and abbreviations used in your response.`,
 
-  coding: `Generate coding interview preparation based on the job requirements.
+  coding: `Generate COMPREHENSIVE coding interview preparation with FULLY SOLVED problems.
 
-Analyze the tech stack and role level to identify:
-- Most likely algorithm topics
-- Data structure focus areas
-- System design elements for coding rounds
-- Language-specific considerations
+CRITICAL REQUIREMENTS:
+1. You MUST reference the ADDITIONAL PREP MATERIALS provided - they contain crucial study resources
+2. Provide COMPLETE working code solutions (not pseudocode)
+3. Include LINE-BY-LINE explanations for every line of code
+4. Cover ALL edge cases with specific examples
+5. Include time and space complexity analysis
+
+For each coding question, provide:
+- Complete problem statement
+- Multiple approaches (brute force → optimal)
+- Full working code in Python (primary) and the language mentioned in JD
+- Line-by-line explanation of what each line does and WHY
+- Edge cases with specific test inputs that could break naive solutions
+- Common mistakes candidates make
+- Follow-up questions interviewers might ask
+
+Generate 5-7 REAL coding problems likely asked at this company for this role level.
 
 Return JSON:
 {
-  "summary": "Overview of what to expect in coding interviews",
-  "keyTopics": ["Topic 1 to focus on", "Topic 2"],
-  "questions": [
+  "summary": "Overview of coding interview format at this company based on research",
+  "companyInsights": "What makes this company's coding interviews unique (from prep materials + research)",
+  "keyTopics": [
     {
-      "question": "Sample coding question type",
-      "approach": "How to approach this type of problem",
-      "tips": "What interviewers look for"
+      "topic": "Arrays & Hashing",
+      "frequency": "Very High",
+      "whyImportant": "Why this company focuses on this"
     }
   ],
-  "practiceRecommendations": ["Specific areas to practice"],
+  "questions": [
+    {
+      "title": "Two Sum",
+      "difficulty": "Easy/Medium/Hard",
+      "frequency": "Commonly asked at [Company]",
+      "problemStatement": "Given an array of integers nums and an integer target, return indices of the two numbers that add up to target...",
+      "examples": [
+        {"input": "nums = [2,7,11,15], target = 9", "output": "[0,1]", "explanation": "Because nums[0] + nums[1] == 9"}
+      ],
+      "approaches": [
+        {
+          "name": "Brute Force",
+          "description": "Check every pair",
+          "timeComplexity": "O(n²)",
+          "spaceComplexity": "O(1)",
+          "code": "def two_sum(nums, target):\\n    for i in range(len(nums)):\\n        for j in range(i+1, len(nums)):\\n            if nums[i] + nums[j] == target:\\n                return [i, j]",
+          "lineByLine": [
+            {"line": "for i in range(len(nums)):", "explanation": "Outer loop iterates through each element as the first number"},
+            {"line": "for j in range(i+1, len(nums)):", "explanation": "Inner loop starts from i+1 to avoid duplicate pairs and self-pairing"},
+            {"line": "if nums[i] + nums[j] == target:", "explanation": "Check if current pair sums to target"},
+            {"line": "return [i, j]", "explanation": "Return indices when found"}
+          ]
+        },
+        {
+          "name": "Optimal - Hash Map",
+          "description": "Use hash map to find complement in O(1)",
+          "timeComplexity": "O(n)",
+          "spaceComplexity": "O(n)",
+          "code": "def two_sum(nums, target):\\n    seen = {}\\n    for i, num in enumerate(nums):\\n        complement = target - num\\n        if complement in seen:\\n            return [seen[complement], i]\\n        seen[num] = i",
+          "lineByLine": [
+            {"line": "seen = {}", "explanation": "Hash map to store {value: index} for O(1) lookup"},
+            {"line": "for i, num in enumerate(nums):", "explanation": "Single pass through array with index tracking"},
+            {"line": "complement = target - num", "explanation": "Calculate what number we need to find"},
+            {"line": "if complement in seen:", "explanation": "O(1) check if complement was seen before"},
+            {"line": "return [seen[complement], i]", "explanation": "Return stored index and current index"},
+            {"line": "seen[num] = i", "explanation": "Store current number and index for future lookups"}
+          ]
+        }
+      ],
+      "edgeCases": [
+        {"case": "Duplicate values", "input": "[3,3], target=6", "explanation": "Must handle same value appearing twice", "expectedOutput": "[0,1]"},
+        {"case": "Negative numbers", "input": "[-1,-2,-3,-4,-5], target=-8", "explanation": "Algorithm must work with negatives", "expectedOutput": "[2,4]"},
+        {"case": "Zero in array", "input": "[0,4,3,0], target=0", "explanation": "Two zeros sum to zero", "expectedOutput": "[0,3]"},
+        {"case": "Large numbers", "input": "[1000000000, 2, 1000000000], target=2000000000", "explanation": "Must handle integer overflow concerns", "expectedOutput": "[0,2]"}
+      ],
+      "commonMistakes": [
+        "Using same element twice (e.g., [3,2,4] target=6, returning [0,0])",
+        "Not handling duplicate values correctly",
+        "Returning values instead of indices"
+      ],
+      "followUpQuestions": [
+        "What if there are multiple valid answers?",
+        "What if the array is sorted? (Two pointers O(1) space)",
+        "Three Sum variation?"
+      ]
+    }
+  ],
+  "practiceRecommendations": [
+    {
+      "platform": "LeetCode",
+      "problems": ["Problem name - difficulty"],
+      "reason": "Why these specific problems"
+    }
+  ],
+  "interviewTips": [
+    "Always clarify constraints before coding",
+    "Start with brute force, then optimize"
+  ],
   "abbreviations": [{"abbr": "DSA", "full": "Data Structures and Algorithms"}]
 }
 
-IMPORTANT: Include an "abbreviations" array with ALL technical terms, acronyms, and abbreviations used in your response.`,
+REMEMBER: Reference the prep materials provided. Generate REAL, COMPLETE solutions with every line explained.`,
 
-  'system-design': `Generate system design interview preparation based on the role requirements.
+  'system-design': `Generate COMPREHENSIVE system design interview preparation with FULL architecture solutions.
 
-Consider the role level and company type to cover:
-- Relevant system design topics
-- Scale expectations
-- Technology choices relevant to their stack
-- Trade-off discussions
+CRITICAL REQUIREMENTS:
+1. You MUST reference the ADDITIONAL PREP MATERIALS provided - they contain crucial study resources
+2. Provide COMPLETE system design solutions, not just overviews
+3. DO NOT include ASCII diagrams - diagrams will be auto-generated separately
+4. Cover functional AND non-functional requirements exhaustively
+5. Provide specific technology recommendations with justifications
+6. Include capacity estimation calculations
+7. Discuss trade-offs for every major decision
+
+For each system design question, provide:
+- Complete problem breakdown
+- Requirements gathering (functional + non-functional)
+- Capacity estimation with actual calculations
+- High-level architecture with ASCII diagram
+- Detailed component design
+- Database schema design
+- API design with endpoints
+- Technology stack recommendations
+- Scalability considerations
+- Trade-offs and alternatives discussed
+
+Generate 4-5 system design questions likely asked at this company based on their products/scale.
 
 Return JSON:
 {
-  "summary": "System design interview expectations for this role",
-  "keyTopics": ["Relevant design topic 1", "Topic 2"],
+  "summary": "System design interview format at this company (45min/60min, what they focus on)",
+  "companyContext": "What systems this company runs, their scale, known tech stack from prep materials",
+  "interviewFramework": {
+    "timeAllocation": {
+      "requirements": "5 min",
+      "highLevel": "10 min",
+      "deepDive": "25 min",
+      "wrapUp": "5 min"
+    },
+    "whatTheyLookFor": ["Clear communication", "Trade-off analysis", "Scalability thinking"]
+  },
   "questions": [
     {
-      "question": "Likely system design question",
-      "approach": "Structured approach to answer",
-      "keyConsiderations": ["Scale", "Availability", "etc"]
+      "title": "Design a URL Shortener (like bit.ly)",
+      "frequency": "Very common at [Company]",
+      "timeLimit": "45 minutes",
+      "clarifyingQuestions": [
+        "What's the expected scale? (100M URLs/day)",
+        "How long should URLs be valid?",
+        "Do we need analytics?"
+      ],
+      "requirements": {
+        "functional": [
+          "Shorten a long URL to a short URL",
+          "Redirect short URL to original URL",
+          "Custom short URLs (optional)",
+          "Analytics: click count, geographic data",
+          "URL expiration"
+        ],
+        "nonFunctional": [
+          "High availability (99.99% uptime)",
+          "Low latency (<100ms for redirects)",
+          "Scalable to 100M URLs/day",
+          "Shortened URLs should be as short as possible",
+          "Not predictable (security)"
+        ]
+      },
+      "capacityEstimation": {
+        "assumptions": [
+          "100M new URLs per day",
+          "Read:Write ratio = 100:1 (10B reads/day)",
+          "Average URL length: 100 bytes",
+          "Store for 5 years"
+        ],
+        "calculations": [
+          {"metric": "URLs per second (write)", "calculation": "100M / 86400", "result": "~1160 URLs/sec"},
+          {"metric": "Redirects per second (read)", "calculation": "10B / 86400", "result": "~116K reads/sec"},
+          {"metric": "Storage (5 years)", "calculation": "100M * 365 * 5 * 500 bytes", "result": "~91 TB"},
+          {"metric": "Bandwidth", "calculation": "116K * 500 bytes", "result": "~58 MB/sec"}
+        ]
+      },
+      "architecture": {
+        "diagramDescription": "URL shortener system with load balancer, API servers, Redis cache for hot URLs, Cassandra database, key generation service with ZooKeeper, and Kafka for analytics events",
+        "components": [
+          {
+            "name": "API Gateway / Load Balancer",
+            "responsibility": "Route requests, rate limiting, SSL termination",
+            "technology": "NGINX / AWS ALB",
+            "whyThisChoice": "Battle-tested, supports millions of concurrent connections"
+          },
+          {
+            "name": "Application Servers",
+            "responsibility": "Handle shortening and redirect logic",
+            "technology": "Node.js / Go",
+            "whyThisChoice": "High concurrency, low latency for I/O-bound operations"
+          },
+          {
+            "name": "Cache Layer",
+            "responsibility": "Cache hot URLs (80/20 rule - 20% URLs get 80% traffic)",
+            "technology": "Redis Cluster",
+            "whyThisChoice": "In-memory, supports 100K+ ops/sec per node"
+          },
+          {
+            "name": "Database",
+            "responsibility": "Persistent storage for URL mappings",
+            "technology": "Cassandra / DynamoDB",
+            "whyThisChoice": "Horizontally scalable, high write throughput, no single point of failure"
+          },
+          {
+            "name": "Key Generation Service",
+            "responsibility": "Generate unique short keys",
+            "technology": "Custom service with ZooKeeper coordination",
+            "whyThisChoice": "Pre-generate keys to avoid collision and improve latency"
+          }
+        ]
+      },
+      "databaseDesign": {
+        "schema": [
+          {
+            "table": "urls",
+            "columns": [
+              {"name": "short_key", "type": "VARCHAR(7)", "constraint": "PRIMARY KEY"},
+              {"name": "original_url", "type": "TEXT", "constraint": "NOT NULL"},
+              {"name": "user_id", "type": "UUID", "constraint": "INDEX"},
+              {"name": "created_at", "type": "TIMESTAMP", "constraint": ""},
+              {"name": "expires_at", "type": "TIMESTAMP", "constraint": "INDEX"},
+              {"name": "click_count", "type": "BIGINT", "constraint": "DEFAULT 0"}
+            ]
+          }
+        ],
+        "indexStrategy": "Index on short_key (primary), expires_at (for cleanup jobs)"
+      },
+      "apiDesign": [
+        {
+          "endpoint": "POST /api/v1/shorten",
+          "request": "{ \\"url\\": \\"https://example.com/very/long/url\\", \\"custom_alias\\": \\"mylink\\", \\"expires_in\\": 86400 }",
+          "response": "{ \\"short_url\\": \\"https://short.ly/abc123\\", \\"expires_at\\": \\"2024-01-01T00:00:00Z\\" }",
+          "notes": "Rate limited to 100 req/min per user"
+        },
+        {
+          "endpoint": "GET /{short_key}",
+          "response": "301 Redirect to original URL",
+          "notes": "Cached in CDN, falls back to origin on miss"
+        }
+      ],
+      "keyGenerationAlgorithm": {
+        "approach": "Base62 encoding (a-z, A-Z, 0-9) = 62 characters",
+        "calculation": "62^7 = 3.5 trillion possible URLs (enough for 95 years at 100M/day)",
+        "implementation": "Pre-generate keys in batches, store in key-db, workers fetch ranges"
+      },
+      "scalabilityConsiderations": [
+        {
+          "challenge": "Database becoming bottleneck",
+          "solution": "Shard by short_key hash, consistent hashing for distribution"
+        },
+        {
+          "challenge": "Hot keys (viral URLs)",
+          "solution": "Multi-tier caching: CDN → Redis → Local cache → DB"
+        },
+        {
+          "challenge": "Key generation contention",
+          "solution": "Each server pre-fetches 1000 keys, ZooKeeper coordinates ranges"
+        }
+      ],
+      "tradeOffs": [
+        {
+          "decision": "NoSQL vs SQL",
+          "chose": "NoSQL (Cassandra)",
+          "reason": "Simple access patterns, need horizontal scaling, eventual consistency OK for reads",
+          "alternative": "PostgreSQL with Citus for sharding if we need ACID guarantees"
+        },
+        {
+          "decision": "Random vs Sequential keys",
+          "chose": "Random (Base62)",
+          "reason": "Security - can't enumerate/guess URLs",
+          "alternative": "Counter-based with encryption for better distribution"
+        }
+      ],
+      "commonMistakes": [
+        "Not discussing analytics separately (different scale pattern)",
+        "Forgetting about URL expiration cleanup",
+        "Not addressing collision handling"
+      ],
+      "followUpQuestions": [
+        "How would you handle analytics at scale?",
+        "How would you implement URL preview (unfurling)?",
+        "How would you detect malicious URLs?"
+      ]
     }
   ],
-  "frameworkTips": "How to structure system design answers",
-  "abbreviations": [{"abbr": "CAP", "full": "Consistency, Availability, Partition tolerance"}]
+  "generalTips": [
+    "Always start with requirements gathering",
+    "Use back-of-envelope calculations to justify decisions",
+    "Draw diagrams as you explain",
+    "Discuss trade-offs proactively"
+  ],
+  "techStackReference": {
+    "loadBalancing": ["NGINX", "HAProxy", "AWS ALB"],
+    "caching": ["Redis", "Memcached", "CDN (CloudFlare)"],
+    "databases": ["PostgreSQL", "MySQL", "Cassandra", "MongoDB", "DynamoDB"],
+    "messageQueues": ["Kafka", "RabbitMQ", "AWS SQS"],
+    "search": ["Elasticsearch", "Solr"],
+    "monitoring": ["Prometheus", "Grafana", "DataDog"]
+  },
+  "abbreviations": [
+    {"abbr": "CAP", "full": "Consistency, Availability, Partition tolerance"},
+    {"abbr": "CDN", "full": "Content Delivery Network"},
+    {"abbr": "QPS", "full": "Queries Per Second"},
+    {"abbr": "SLA", "full": "Service Level Agreement"},
+    {"abbr": "SPOF", "full": "Single Point of Failure"}
+  ]
 }
 
-IMPORTANT: Include an "abbreviations" array with ALL technical terms, acronyms, and abbreviations used in your response.`,
+CRITICAL: Include diagramDescription for each design, actual calculations, and reference prep materials provided. Diagrams will be auto-generated from your description.`,
 
   behavioral: `Generate behavioral interview preparation using the STAR method.
 
@@ -194,35 +607,100 @@ Return JSON:
 
 IMPORTANT: Include an "abbreviations" array with ALL technical terms, acronyms, and abbreviations used in your response.`,
 
-  techstack: `Generate technology-specific interview preparation based on the job requirements.
+  techstack: `Generate COMPREHENSIVE technology-specific interview preparation based on the job requirements.
 
-Analyze the tech stack mentioned in the JD and prepare:
-- Deep-dive questions on primary technologies
-- Architecture and best practices
-- Common pitfalls and how to avoid them
-- Recent developments in these technologies
+CRITICAL REQUIREMENTS:
+1. You MUST reference the ADDITIONAL PREP MATERIALS provided - they contain crucial study resources
+2. Provide DEEP technical explanations, not surface-level overviews
+3. Include code examples where relevant
+4. Cover internals, best practices, and real-world scenarios
+
+For each technology in the JD, provide:
+- Core concepts and how they work internally
+- Common interview questions with detailed answers
+- Code examples demonstrating proficiency
+- Best practices and anti-patterns
+- Performance considerations
+- Real-world use cases and trade-offs
+
+Analyze ALL technologies from the JD. Generate 3-5 deep questions per technology.
 
 Return JSON:
 {
-  "summary": "Tech stack analysis and preparation focus",
+  "summary": "Tech stack analysis based on JD and prep materials",
+  "companyTechContext": "How this company uses these technologies (from research/prep materials)",
   "technologies": [
     {
-      "name": "Technology name",
-      "importance": "high/medium/low for this role",
+      "name": "React",
+      "importance": "high",
+      "whyImportant": "Core frontend framework mentioned in JD",
+      "conceptsToKnow": [
+        {
+          "concept": "Virtual DOM and Reconciliation",
+          "explanation": "Detailed explanation of how React's virtual DOM works...",
+          "whyAsked": "Tests deep understanding vs surface knowledge"
+        }
+      ],
       "questions": [
         {
-          "question": "Technical question",
-          "answer": "Expected answer with depth",
-          "followUps": ["Potential follow-up questions"]
+          "question": "Explain React's reconciliation algorithm and how keys affect performance",
+          "difficulty": "Senior",
+          "answer": "Detailed answer with technical depth...",
+          "codeExample": "// Example demonstrating the concept\\nconst list = items.map(item => <Item key={item.id} {...item} />);",
+          "followUps": [
+            "How would you optimize a list with 10,000 items?",
+            "When would you use useMemo vs useCallback?"
+          ],
+          "commonMistakes": [
+            "Using array index as key",
+            "Not understanding when re-renders happen"
+          ]
         }
+      ],
+      "bestPractices": [
+        {
+          "practice": "Use React.memo for expensive components",
+          "when": "When props don't change frequently but parent re-renders often",
+          "codeExample": "const MemoizedComponent = React.memo(ExpensiveComponent);"
+        }
+      ],
+      "antiPatterns": [
+        {
+          "pattern": "Prop drilling through many levels",
+          "problem": "Makes code hard to maintain and causes unnecessary re-renders",
+          "solution": "Use Context API or state management library"
+        }
+      ],
+      "performanceTopics": [
+        "Code splitting with React.lazy",
+        "Profiling with React DevTools",
+        "Avoiding unnecessary re-renders"
       ]
     }
   ],
-  "architectureTopics": ["Relevant architecture patterns to know"],
-  "abbreviations": [{"abbr": "API", "full": "Application Programming Interface"}]
+  "architectureTopics": [
+    {
+      "topic": "Micro-frontends",
+      "relevance": "Mentioned in JD - large-scale frontend architecture",
+      "keyPoints": ["Module federation", "Shared dependencies", "Independent deployments"],
+      "questions": ["How would you share state between micro-frontends?"]
+    }
+  ],
+  "systemIntegrations": [
+    {
+      "integration": "REST API consumption",
+      "patterns": ["Error handling", "Caching strategies", "Optimistic updates"],
+      "codeExample": "// Example of proper error handling with retry..."
+    }
+  ],
+  "abbreviations": [
+    {"abbr": "API", "full": "Application Programming Interface"},
+    {"abbr": "DOM", "full": "Document Object Model"},
+    {"abbr": "SSR", "full": "Server-Side Rendering"}
+  ]
 }
 
-IMPORTANT: Include an "abbreviations" array with ALL technical terms, acronyms, and abbreviations used in your response.`
+CRITICAL: Reference prep materials. Provide code examples. Be comprehensive, not superficial.`
 };
 
 // Clean up text content - remove extra whitespace and empty lines
@@ -263,8 +741,19 @@ function cleanupResult(obj) {
 }
 
 // Build the context from inputs
-function buildContext(inputs) {
+function buildContext(inputs, section = null) {
   let context = '';
+
+  // Extract company and role for context
+  const companyName = inputs.jobDescription ? extractCompanyName(inputs.jobDescription) : null;
+  const roleName = inputs.jobDescription ? extractRoleName(inputs.jobDescription) : null;
+
+  if (companyName || roleName) {
+    context += `## TARGET COMPANY & ROLE\n`;
+    if (companyName) context += `Company: ${companyName}\n`;
+    if (roleName) context += `Role: ${roleName}\n`;
+    context += `\n`;
+  }
 
   if (inputs.jobDescription) {
     context += `## JOB DESCRIPTION\n${inputs.jobDescription}\n\n`;
@@ -279,22 +768,69 @@ function buildContext(inputs) {
   }
 
   if (inputs.prepMaterials) {
-    context += `## ADDITIONAL PREP MATERIALS\n${inputs.prepMaterials}\n\n`;
+    context += `## ADDITIONAL PREP MATERIALS (IMPORTANT - USE THIS INFORMATION)\n`;
+    context += `The candidate has uploaded study materials below. You MUST reference and incorporate these materials in your response:\n\n`;
+    context += `${inputs.prepMaterials}\n\n`;
+    context += `---\nREMINDER: The above prep materials were uploaded by the candidate for a reason. Reference them in your response.\n\n`;
+  }
+
+  // Add web search results for coding/system-design sections
+  if (inputs.searchResults && inputs.searchResults.length > 0) {
+    context += `## REAL INTERVIEW QUESTIONS FROM ONLINE RESEARCH\n`;
+    context += `These are actual questions reported by candidates who interviewed at this company:\n`;
+    inputs.searchResults.forEach((result, i) => {
+      context += `${i + 1}. [${result.source}] ${result.question}\n`;
+    });
+    context += `\nIncorporate these real questions into your preparation material.\n\n`;
   }
 
   return context;
 }
 
+// Perform web search for interview questions
+async function enrichWithWebSearch(inputs, section) {
+  if (!['coding', 'system-design', 'techstack'].includes(section)) {
+    return inputs;
+  }
+
+  const companyName = extractCompanyName(inputs.jobDescription || '');
+  const roleName = extractRoleName(inputs.jobDescription || '');
+
+  if (!companyName) {
+    return inputs;
+  }
+
+  try {
+    console.log(`[InterviewPrep] Searching for ${section} questions at ${companyName}`);
+    const searchResults = await searchInterviewQuestions(companyName, roleName, section);
+    return { ...inputs, searchResults };
+  } catch (err) {
+    console.log('[InterviewPrep] Web search failed:', err.message);
+    return inputs;
+  }
+}
+
 // Generate a single section using Claude
 export async function* generateSectionClaude(section, inputs, model = DEFAULT_CLAUDE_MODEL) {
-  const context = buildContext(inputs);
+  // Enrich inputs with web search for relevant sections
+  const enrichedInputs = await enrichWithWebSearch(inputs, section);
+  const context = buildContext(enrichedInputs, section);
   const sectionPrompt = SECTION_PROMPTS[section];
 
   if (!sectionPrompt) {
     throw new Error(`Unknown section: ${section}`);
   }
 
-  const systemPrompt = `You are a concise interview coach. Give specific, actionable advice based on the resume and job description. Be direct and practical. Return ONLY valid JSON - no markdown, no code blocks, no explanations before or after. Start your response with { and end with }.`;
+  // Use extended system prompt for coding/system-design sections
+  const isDetailedSection = ['coding', 'system-design', 'techstack'].includes(section);
+  const systemPrompt = isDetailedSection
+    ? `You are an expert interview coach with deep knowledge of technical interviews.
+Your task is to provide COMPREHENSIVE, DETAILED preparation materials.
+For coding questions: Include COMPLETE working code with LINE-BY-LINE explanations and ALL edge cases.
+For system design: Include ASCII architecture diagrams, capacity calculations, and detailed component breakdowns.
+You MUST reference any prep materials provided by the candidate.
+Return ONLY valid JSON - no markdown, no code blocks. Start with { and end with }.`
+    : `You are a concise interview coach. Give specific, actionable advice based on the resume and job description. Be direct and practical. Return ONLY valid JSON - no markdown, no code blocks, no explanations before or after. Start your response with { and end with }.`;
 
   const userMessage = `${context}\n\n${sectionPrompt}\n\nCRITICAL: Return ONLY the JSON object. Do NOT wrap in \`\`\`json code blocks. Start directly with { and end with }.`;
 
@@ -330,16 +866,27 @@ export async function* generateSectionClaude(section, inputs, model = DEFAULT_CL
 
 // Generate a single section using OpenAI
 export async function* generateSectionOpenAI(section, inputs, model = DEFAULT_OPENAI_MODEL) {
-  const context = buildContext(inputs);
+  // Enrich inputs with web search for relevant sections
+  const enrichedInputs = await enrichWithWebSearch(inputs, section);
+  const context = buildContext(enrichedInputs, section);
   const sectionPrompt = SECTION_PROMPTS[section];
 
   if (!sectionPrompt) {
     throw new Error(`Unknown section: ${section}`);
   }
 
-  const systemPrompt = `You are a concise interview coach. Give specific, actionable advice based on the resume and job description. Be direct and practical. Return valid JSON.`;
+  // Use extended system prompt for coding/system-design sections
+  const isDetailedSection = ['coding', 'system-design', 'techstack'].includes(section);
+  const systemPrompt = isDetailedSection
+    ? `You are an expert interview coach with deep knowledge of technical interviews.
+Your task is to provide COMPREHENSIVE, DETAILED preparation materials.
+For coding questions: Include COMPLETE working code with LINE-BY-LINE explanations and ALL edge cases.
+For system design: Include ASCII architecture diagrams, capacity calculations, and detailed component breakdowns.
+You MUST reference any prep materials provided by the candidate.
+Return valid JSON.`
+    : `You are a concise interview coach. Give specific, actionable advice based on the resume and job description. Be direct and practical. Return valid JSON.`;
 
-  const userMessage = `${context}\n\n${sectionPrompt}\n\nIMPORTANT: Be concise. Focus on the 3-5 most important points only.`;
+  const userMessage = `${context}\n\n${sectionPrompt}`;
 
   const stream = await getOpenAIClient().chat.completions.create({
     model,

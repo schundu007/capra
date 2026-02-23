@@ -1,5 +1,6 @@
 import * as cheerio from 'cheerio';
 import { getPlatformCookies } from '../routes/auth.js';
+import { getExtensionPlatformCookies } from '../routes/extension.js';
 
 // Platform-specific selectors for extracting problem content
 const PLATFORM_SELECTORS = {
@@ -186,12 +187,21 @@ export async function fetchProblemFromUrl(url, electronCookies = null) {
     };
 
     // Add auth cookies if available for this platform
-    // First check electron cookies, then fall back to extension-synced cookies
+    // Priority: 1) Electron cookies, 2) Extension-synced cookies, 3) Auth route cookies
     let cookies = null;
     if (electronCookies && electronCookies[platform]) {
       cookies = electronCookies[platform];
+      console.log(`[Scraper] Using Electron cookies for ${platform}`);
     } else {
-      cookies = getPlatformCookies(platform);
+      cookies = getExtensionPlatformCookies(platform);
+      if (cookies) {
+        console.log(`[Scraper] Using extension-synced cookies for ${platform}`);
+      } else {
+        cookies = getPlatformCookies(platform);
+        if (cookies) {
+          console.log(`[Scraper] Using auth route cookies for ${platform}`);
+        }
+      }
     }
 
     if (cookies) {

@@ -16,7 +16,7 @@ const OPENAI_MODELS = [
   { id: 'o3-mini', name: 'o3-mini', description: 'Latest reasoning' },
 ];
 
-export default function SettingsPanel({ onClose, provider, model, onProviderChange, onModelChange, onOpenPlatforms }) {
+export default function SettingsPanel({ onClose, provider, model, onProviderChange, onModelChange, onOpenPlatforms, autoSwitch, onAutoSwitchChange }) {
   const [apiKeys, setApiKeys] = useState({
     anthropic: null,
     openai: null,
@@ -150,6 +150,24 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
                   )}
                 </button>
               ))}
+            </div>
+
+            {/* Auto-Switch Toggle */}
+            <div className="mt-3 flex items-center justify-between px-3 py-2.5 rounded-lg" style={{ background: '#f9f9f9', border: '1px solid #e5e5e5' }}>
+              <div>
+                <div className="text-sm font-medium" style={{ color: '#333333' }}>Auto-switch on failure</div>
+                <div className="text-xs" style={{ color: '#999999' }}>Fallback to other provider if API fails</div>
+              </div>
+              <button
+                onClick={() => onAutoSwitchChange && onAutoSwitchChange(!autoSwitch)}
+                className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                style={{ background: autoSwitch ? '#10b981' : '#d1d5db' }}
+              >
+                <span
+                  className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                  style={{ transform: autoSwitch ? 'translateX(24px)' : 'translateX(4px)' }}
+                />
+              </button>
             </div>
           </div>
 

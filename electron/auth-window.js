@@ -63,7 +63,7 @@ const PLATFORM_URLS = {
 // Using broad patterns - will match any URL containing these strings after login
 const PLATFORM_DASHBOARDS = {
   coderpad: ['coderpad.io/dashboard', 'coderpad.io/pad', 'coderpad.io/sandbox'],
-  hackerrank: ['hackerrank.com/dashboard', 'hackerrank.com/domains', 'hackerrank.com/challenges', 'hackerrank.com/contests', 'hackerrank.com/interview', 'hackerrank.com/home', 'hackerrank.com/work', 'hackerrank.com/profile', 'hackerrank.com/submissions', 'hackerrank.com/settings', 'hackerrank.com/feed', 'hackerrank.com/leaderboard'],
+  hackerrank: ['hackerrank.com/dashboard', 'hackerrank.com/domains', 'hackerrank.com/challenges', 'hackerrank.com/contests', 'hackerrank.com/interview', 'hackerrank.com/home', 'hackerrank.com/work', 'hackerrank.com/profile', 'hackerrank.com/submissions', 'hackerrank.com/settings', 'hackerrank.com/feed', 'hackerrank.com/leaderboard', 'hackerrank.com/community', 'hackerrank.com/skills-verification', 'hackerrank.com/tests'],
   leetcode: ['leetcode.com/problemset', 'leetcode.com/problems', 'leetcode.com/explore', 'leetcode.com/contest', 'leetcode.com/discuss', 'leetcode.com/profile', 'leetcode.com/submissions', 'leetcode.com/progress'],
   codesignal: ['codesignal.com/profile', 'codesignal.com/tasks', 'codesignal.com/coding-report', 'codesignal.com/test', 'codesignal.com/client-dashboard', 'codesignal.com/home', 'codesignal.com/company', 'codesignal.com/public-test', 'codesignal.com/interview', 'codesignal.com/learn/', 'codesignal.com/course', 'codesignal.com/path', 'codesignal.com/arcade'],
   // Interview prep platforms (broader patterns - detect logged-in state)
@@ -205,9 +205,26 @@ export async function openAuthWindow(platform, parentWindow) {
 
       if (!isLoggedIn && isBackOnPlatform && !isOnLoginPage) {
         const cookies = await authSession.cookies.get({});
+
+        // Check for platform-specific session cookies that indicate login
+        const sessionCookieNames = {
+          hackerrank: ['_hrank_session', 'hackerrank_mixpanel_token', 'metrics_user_identifier'],
+          leetcode: ['LEETCODE_SESSION', 'csrftoken'],
+          coderpad: ['_coderpad_session'],
+          codesignal: ['_codesignal_session', 'csrf_token'],
+        };
+
+        const platformCookieNames = sessionCookieNames[platform] || [];
+        const hasSessionCookie = cookies.some(c =>
+          platformCookieNames.some(name => c.name.toLowerCase().includes(name.toLowerCase()))
+        );
+
         // If we returned from OAuth or have session cookies, likely logged in
         if (visitedOAuth && cookies.length >= 2) {
           safeLog(`[Auth] Returned from OAuth with ${cookies.length} cookies`);
+          isLoggedIn = true;
+        } else if (hasSessionCookie) {
+          safeLog(`[Auth] Found session cookie for ${platform}, login successful`);
           isLoggedIn = true;
         } else if (cookies.length >= 5) {
           safeLog(`[Auth] Fallback: On platform with ${cookies.length} cookies`);
@@ -247,6 +264,12 @@ export async function openAuthWindow(platform, parentWindow) {
 
     // Also check in-page navigation (SPA-style redirects)
     authWindow.webContents.on('did-navigate-in-page', (event, url) => checkLoginStatus(url));
+
+    // Also check after page fully loads (helps catch redirects that didn't trigger navigation events)
+    authWindow.webContents.on('did-finish-load', () => {
+      const url = authWindow.webContents.getURL();
+      checkLoginStatus(url);
+    });
 
     // Handle window close
     authWindow.on('closed', () => {

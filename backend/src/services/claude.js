@@ -52,6 +52,15 @@ Common bugs to AVOID:
 - Not handling None/null values
 - Type mismatches (string vs int, list vs dict)
 
+REGEX-SPECIFIC BUGS (CRITICAL for pattern matching problems):
+- re.findall() does NOT find overlapping matches by default!
+  WRONG: re.findall(r'(\\d)\\d\\1', "110000") returns ['0'] (only 1 match)
+  RIGHT: re.findall(r'(?=(\\d)\\d\\1)', "110000") returns ['0','0'] (2 overlapping matches)
+- Use LOOKAHEAD (?=...) when you need to find overlapping patterns
+- "Alternating repetitive digit pairs" means overlapping - use lookahead!
+- Always verify your regex finds ALL matches, not just non-overlapping ones
+- Test regex with strings that have repeating patterns like "000000"
+
 YOUR CODE WILL BE RUN. If it crashes or gives wrong output, you have FAILED.
 
 ##############################################################################
@@ -549,7 +558,7 @@ export async function* solveProblemStream(problemText, language = 'auto', detail
     userMessage = `Design the following system and return the response as JSON:\n\n${problemText}`;
   } else {
     systemPrompt = isBrief ? BRIEF_PROMPT : SYSTEM_PROMPT;
-    userMessage = `${languageInstruction}\n\nSolve this problem and return the response as JSON:\n\n${problemText}`;
+    userMessage = `${languageInstruction}\n\nSolve this problem. IMPORTANT: Output ONLY valid JSON starting with { and ending with } - no explanations, no markdown, no text before or after the JSON.\n\n${problemText}`;
   }
 
   const stream = await getClient().messages.stream({

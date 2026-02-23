@@ -162,11 +162,11 @@ function parseStreamingContent(text) {
 }
 
 // Stream solve request using SSE
-async function solveWithStream(problem, provider, language, detailLevel, model, onChunk, interviewMode = 'coding', designDetailLevel = 'basic', signal = null) {
+async function solveWithStream(problem, provider, language, detailLevel, model, onChunk, interviewMode = 'coding', designDetailLevel = 'basic', signal = null, autoSwitch = false, onSwitch = null) {
   const response = await fetch(API_URL + '/api/solve/stream', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-    body: JSON.stringify({ problem, provider, language, detailLevel, model, interviewMode, designDetailLevel }),
+    body: JSON.stringify({ problem, provider, language, detailLevel, model, interviewMode, designDetailLevel, autoSwitch }),
     signal,
   });
 
@@ -191,6 +191,12 @@ async function solveWithStream(problem, provider, language, detailLevel, model, 
       if (line.startsWith('data: ')) {
         try {
           const data = JSON.parse(line.slice(6));
+          if (data.switching) {
+            console.log(`[Solve Stream] Provider switching from ${data.from} to ${data.to}: ${data.reason}`);
+            if (onSwitch) {
+              onSwitch(data.from, data.to, data.reason);
+            }
+          }
           if (data.chunk) {
             onChunk(data.chunk);
           }
@@ -225,6 +231,13 @@ async function solveWithStream(problem, provider, language, detailLevel, model, 
 export default function App() {
   const [provider, setProvider] = useState('claude');
   const [model, setModel] = useState('claude-sonnet-4-20250514');
+  const [autoSwitch, setAutoSwitch] = useState(() => {
+    try {
+      return localStorage.getItem('capra_auto_switch') === 'true';
+    } catch {
+      return false;
+    }
+  });
   const [isLoading, setIsLoading] = useState(false);
 
   // AbortController ref for cancelling ongoing operations
@@ -359,6 +372,67 @@ export default function App() {
     };
   }, []);
 
+  // Listen for problems from Chrome extension (SSE)
+  useEffect(() => {
+    if (!isElectron) return;
+
+    let eventSource = null;
+    let reconnectTimeout = null;
+
+    function connect() {
+      eventSource = new EventSource(`${API_URL}/api/extension/events`);
+
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          console.log('[Extension] Received event:', data);
+
+          if (data.type === 'problem' && data.url) {
+            // Auto-solve the problem
+            console.log('[Extension] Auto-solving problem:', data.url, 'type:', data.problemType);
+
+            // Show notification
+            setError(null);
+            setSwitchNotification({ from: 'Extension', to: data.platform, reason: 'Problem detected' });
+            setTimeout(() => setSwitchNotification(null), 3000);
+
+            // Set the interview mode based on problem type
+            if (data.problemType === 'system_design') {
+              setInterviewMode('system-design');
+            } else {
+              setInterviewMode('coding');
+            }
+
+            // Store URL for display
+            setExtractedText(`[Auto-detected from ${data.platform}]\n${data.url}`);
+
+            // Trigger URL fetch and solve (use default language and detail level)
+            handleFetchUrl(data.url, 'auto', 'detailed');
+          }
+        } catch (err) {
+          console.error('[Extension] Failed to parse event:', err);
+        }
+      };
+
+      eventSource.onerror = () => {
+        console.log('[Extension] SSE connection error, reconnecting...');
+        eventSource?.close();
+        reconnectTimeout = setTimeout(connect, 3000);
+      };
+
+      eventSource.onopen = () => {
+        console.log('[Extension] SSE connected - listening for problems');
+      };
+    }
+
+    connect();
+
+    return () => {
+      eventSource?.close();
+      clearTimeout(reconnectTimeout);
+    };
+  }, []);
+
   // Load platform status
   useEffect(() => {
     async function loadPlatformStatus() {
@@ -388,6 +462,7 @@ export default function App() {
   const [loadingType, setLoadingType] = useState(null);
   const [error, setError] = useState(null);
   const [errorType, setErrorType] = useState('default');
+  const [switchNotification, setSwitchNotification] = useState(null);
   const [solution, setSolution] = useState(null);
   const [highlightedLine, setHighlightedLine] = useState(null);
   const [extractedText, setExtractedText] = useState('');
@@ -575,6 +650,7 @@ export default function App() {
     onRun: handleKeyboardRun,
     onClear: handleClearAll,
     onCopyCode: handleKeyboardCopy,
+    onToggleProblem: () => setProblemExpanded(prev => !prev),
     isLoading,
     hasProblem: !!(currentProblem || extractedText),
     hasCode: !!(solution?.code || streamingContent.code),
@@ -689,13 +765,19 @@ export default function App() {
     setLoadingType('solve');
     try {
       let fullText = '';
+      console.log('[App] Starting solveWithStream with provider:', provider, 'model:', model);
       const result = await solveWithStream(problem, provider, language, detailLevel, model, (chunk) => {
         fullText += chunk;
         setStreamingText(fullText);
         // Parse and extract content progressively
         const parsed = parseStreamingContent(fullText);
         setStreamingContent(parsed);
-      }, interviewMode, designDetailLevel, signal);
+        console.log('[App] Received chunk, parsed code length:', parsed.code?.length || 0);
+      }, interviewMode, designDetailLevel, signal, autoSwitch, (from, to, reason) => {
+        setSwitchNotification({ from, to, reason });
+        setTimeout(() => setSwitchNotification(null), 5000);
+      });
+      console.log('[App] solveWithStream completed, result:', result ? 'has result' : 'no result');
 
       if (result) {
         // Auto-test, fix, and run the code (skip for system design mode)
@@ -993,7 +1075,10 @@ EDGE CASES & RESILIENCE:
         setStreamingText(fullText);
         const parsed = parseStreamingContent(fullText);
         setStreamingContent(parsed);
-      }, interviewMode, designDetailLevel);
+      }, interviewMode, designDetailLevel, null, autoSwitch, (from, to, reason) => {
+        setSwitchNotification({ from, to, reason });
+        setTimeout(() => setSwitchNotification(null), 5000);
+      });
       if (result) {
         // Auto-test, fix, and run the code (skip for system design mode)
         if (interviewMode !== 'system-design' && result.code) {
@@ -1095,7 +1180,10 @@ EDGE CASES & RESILIENCE:
           setStreamingText(fullText);
           const parsed = parseStreamingContent(fullText);
           setStreamingContent(parsed);
-        }, interviewMode, designDetailLevel);
+        }, interviewMode, designDetailLevel, null, autoSwitch, (from, to, reason) => {
+          setSwitchNotification({ from, to, reason });
+          setTimeout(() => setSwitchNotification(null), 5000);
+        });
         if (result) {
           // Auto-test, fix, and run the code (skip for system design mode)
           if (interviewMode !== 'system-design' && result.code) {
@@ -1324,6 +1412,26 @@ EDGE CASES & RESILIENCE:
             </svg>
             <span className="text-red-600 text-sm">{error}</span>
             <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-600 transition-colors">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Provider Switch Notification */}
+      {switchNotification && (
+        <div className="relative z-10 mx-4 mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg animate-fade-in">
+          <div className="flex items-center gap-3">
+            <svg className="w-5 h-5 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span className="text-amber-700 text-sm">
+              Auto-switched from <strong>{switchNotification.from}</strong> to <strong>{switchNotification.to}</strong>
+              {switchNotification.reason && <span className="text-amber-600 ml-1">({switchNotification.reason})</span>}
+            </span>
+            <button onClick={() => setSwitchNotification(null)} className="ml-auto text-amber-400 hover:text-amber-600 transition-colors">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -1636,6 +1744,15 @@ EDGE CASES & RESILIENCE:
           onProviderChange={setProvider}
           onModelChange={setModel}
           onOpenPlatforms={() => setShowPrepTab(true)}
+          autoSwitch={autoSwitch}
+          onAutoSwitchChange={(value) => {
+            setAutoSwitch(value);
+            try {
+              localStorage.setItem('capra_auto_switch', value.toString());
+            } catch (e) {
+              console.error('Failed to save auto-switch setting:', e);
+            }
+          }}
         />
       )}
 

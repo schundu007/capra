@@ -48,6 +48,40 @@ async function getApiUrl() {
   return result.apiUrl || 'https://capra-backend-production.up.railway.app';
 }
 
+// Desktop app URL (always localhost for Electron)
+const DESKTOP_APP_URL = 'http://localhost:3001';
+
+// Send problem URL to desktop app
+async function sendProblemToDesktopApp(url, platform, problemType) {
+  try {
+    const response = await fetch(`${DESKTOP_APP_URL}/api/extension/problem`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        url,
+        platform,
+        problemType,
+        timestamp: Date.now(),
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log('[Capra] Problem sent to desktop app:', data);
+      return { success: true };
+    } else {
+      const error = await response.text();
+      console.error('[Capra] Failed to send problem:', error);
+      return { success: false, error: 'Desktop app rejected the request' };
+    }
+  } catch (err) {
+    console.error('[Capra] Failed to connect to desktop app:', err);
+    return { success: false, error: 'Desktop app not running. Please start Capra.' };
+  }
+}
+
 // Capture cookies for a platform
 async function captureCookies(platformKey) {
   const platform = PLATFORMS[platformKey];
@@ -109,37 +143,59 @@ async function checkPlatformAuth(platformKey) {
   };
 }
 
-// Send auth tokens to backend
+// Send auth tokens to backend (both webapp and desktop app)
 async function syncAuthToBackend(platformKey, cookies) {
   const apiUrl = await getApiUrl();
+  const cookieHeader = buildCookieHeader(cookies);
+  const payload = {
+    platform: platformKey,
+    cookies: cookieHeader,
+    timestamp: Date.now(),
+  };
 
+  let webappSuccess = false;
+  let desktopSuccess = false;
+
+  // Sync to webapp backend
   try {
     const response = await fetch(`${apiUrl}/api/auth/platform`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       mode: 'cors',
-      body: JSON.stringify({
-        platform: platformKey,
-        cookies: buildCookieHeader(cookies),
-        timestamp: Date.now(),
-      }),
+      body: JSON.stringify(payload),
     });
-
-    return response.ok;
+    webappSuccess = response.ok;
   } catch (err) {
-    console.error('Failed to sync auth to backend:', err);
-    // Store locally as fallback
+    console.log('[Capra] Webapp sync failed (may be offline):', err.message);
+  }
+
+  // Also sync to Electron desktop app if running
+  try {
+    const response = await fetch(`${DESKTOP_APP_URL}/api/extension/cookies`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    desktopSuccess = response.ok;
+    if (desktopSuccess) {
+      console.log(`[Capra] Synced ${platformKey} cookies to desktop app`);
+    }
+  } catch (err) {
+    console.log('[Capra] Desktop app sync failed (may not be running):', err.message);
+  }
+
+  // Store locally as fallback
+  if (!webappSuccess && !desktopSuccess) {
     await chrome.storage.local.set({
       [`cookies_${platformKey}`]: {
-        cookies: buildCookieHeader(cookies),
+        cookies: cookieHeader,
         timestamp: Date.now(),
       }
     });
-    console.log(`Stored ${platformKey} cookies locally as fallback`);
-    return true; // Consider it a success if stored locally
+    console.log(`[Capra] Stored ${platformKey} cookies locally as fallback`);
   }
+
+  return webappSuccess || desktopSuccess;
 }
 
 // Get status of all platforms
@@ -159,6 +215,13 @@ async function getAllPlatformStatus() {
 
 // Message handler
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  // Handle problem detection from content script
+  if (request.action === 'problemDetected') {
+    sendProblemToDesktopApp(request.url, request.platform, request.problemType)
+      .then(sendResponse);
+    return true; // Keep channel open for async response
+  }
+
   if (request.action === 'getStatus') {
     getAllPlatformStatus().then(sendResponse);
     return true; // Keep channel open for async response

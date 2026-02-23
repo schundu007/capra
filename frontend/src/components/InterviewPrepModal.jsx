@@ -496,6 +496,74 @@ export default function InterviewPrepModal({ isOpen, onClose, provider, model, i
     setActiveTab('input');
   };
 
+  // Export to PDF
+  const handleExportPDF = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/interview/prep/export/pdf`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({
+          sections: generated,
+          companyName: activeCompany || 'Interview',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `interview-prep-${activeCompany || 'document'}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('PDF export error:', err);
+      alert('Failed to export PDF: ' + err.message);
+    }
+  };
+
+  // Export to DOCX
+  const handleExportDOCX = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/interview/prep/export/docx`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({
+          sections: generated,
+          companyName: activeCompany || 'Interview',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate DOCX');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `interview-prep-${activeCompany || 'document'}.docx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('DOCX export error:', err);
+      alert('Failed to export DOCX: ' + err.message);
+    }
+  };
+
   if (!isOpen && !embedded) return null;
 
   const hasInputs = inputs.jobDescription.trim() && inputs.resume.trim();
@@ -824,6 +892,36 @@ export default function InterviewPrepModal({ isOpen, onClose, provider, model, i
               >
                 Clear Generated
               </button>
+
+              {/* Export Buttons */}
+              {completedSections > 0 && (
+                <div className="flex gap-2 pt-2" style={{ borderTop: '1px solid #e5e5e5' }}>
+                  <button
+                    onClick={handleExportPDF}
+                    disabled={isGenerating}
+                    className="flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-1"
+                    style={{ background: '#dc2626', color: '#ffffff' }}
+                    title="Download as PDF for printing"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clipRule="evenodd" />
+                    </svg>
+                    PDF
+                  </button>
+                  <button
+                    onClick={handleExportDOCX}
+                    disabled={isGenerating}
+                    className="flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-1"
+                    style={{ background: '#2563eb', color: '#ffffff' }}
+                    title="Download as Word document"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clipRule="evenodd" />
+                    </svg>
+                    DOCX
+                  </button>
+                </div>
+              )}
             </div>
           </>
         ) : (

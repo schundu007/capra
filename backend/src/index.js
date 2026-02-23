@@ -19,6 +19,7 @@ import interviewRouter from './routes/interview.js';
 import diagramRouter from './routes/diagram.js';
 import interviewPrepRouter from './routes/interviewPrep.js';
 import extractRouter from './routes/extract.js';
+import extensionRouter from './routes/extension.js';
 import { authenticate } from './middleware/authenticate.js';
 
 const app = express();
@@ -80,6 +81,9 @@ app.use('/static/diagrams', express.static(DIAGRAM_OUTPUT_DIR, {
 
 // Auth routes (no authentication required)
 app.use('/api/auth', authRouter);
+
+// Extension routes (no authentication - comes from browser extension)
+app.use('/api/extension', extensionRouter);
 
 // Public diagram debug endpoint (for troubleshooting deployment)
 app.get('/api/diagram/debug', async (req, res) => {

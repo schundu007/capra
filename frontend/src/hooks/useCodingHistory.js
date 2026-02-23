@@ -79,7 +79,7 @@ export function useCodingHistory() {
         language: language || existingEntry.language,
         code: code?.substring(0, 10000) || existingEntry.code,
         complexity: complexity || existingEntry.complexity,
-        pitch: pitch?.substring(0, 2000) || existingEntry.pitch,
+        pitch: (typeof pitch === 'string' ? pitch?.substring(0, 2000) : Array.isArray(pitch) ? (typeof pitch[0] === 'string' ? pitch.join('\n\n') : JSON.stringify(pitch)).substring(0, 3000) : null) || existingEntry.pitch,
         explanations: explanations || existingEntry.explanations,
       };
 
@@ -104,7 +104,7 @@ export function useCodingHistory() {
       code: code?.substring(0, 10000), // Increased limit for full code
       complexity: complexity || null,
       source: source || 'text',
-      pitch: pitch?.substring(0, 2000) || null, // Limit pitch size
+      pitch: (typeof pitch === 'string' ? pitch?.substring(0, 2000) : Array.isArray(pitch) ? (typeof pitch[0] === 'string' ? pitch.join('\n\n') : JSON.stringify(pitch)).substring(0, 3000) : null), // Limit pitch size
       explanations: explanations || null, // Line-by-line explanations
       title: extractTitle(problem)
     };

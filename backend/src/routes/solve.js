@@ -29,9 +29,9 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
     // Log the ENTIRE validated request body
     console.log('[Solve Stream] FULL req.body after validation:', JSON.stringify(req.body, null, 2));
 
-    const { problem, provider = 'claude', language = 'auto', detailLevel = 'detailed', model, interviewMode = 'coding', designDetailLevel = 'basic' } = req.body;
+    const { problem, provider = 'claude', language = 'auto', detailLevel = 'detailed', model, interviewMode = 'coding', designDetailLevel = 'basic', autoSwitch = false } = req.body;
 
-    console.log('[Solve Stream] EXTRACTED VALUES - interviewMode:', interviewMode, 'designDetailLevel:', designDetailLevel, 'provider:', provider);
+    console.log('[Solve Stream] EXTRACTED VALUES - interviewMode:', interviewMode, 'designDetailLevel:', designDetailLevel, 'provider:', provider, 'autoSwitch:', autoSwitch);
 
     // Set SSE headers
     res.setHeader('Content-Type', 'text/event-stream');
@@ -39,12 +39,55 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('X-Accel-Buffering', 'no');
 
-    const service = provider === 'openai' ? openai : claude;
+    // Helper to stream from a provider
+    async function streamFromProvider(service, providerName) {
+      let fullText = '';
+      for await (const chunk of service.solveProblemStream(problem, language, detailLevel, model, interviewMode, designDetailLevel)) {
+        fullText += chunk;
+        res.write(`data: ${JSON.stringify({ chunk, partial: true, provider: providerName })}\n\n`);
+      }
+      return fullText;
+    }
+
+    let service = provider === 'openai' ? openai : claude;
+    let currentProvider = provider;
     let fullText = '';
 
-    for await (const chunk of service.solveProblemStream(problem, language, detailLevel, model, interviewMode, designDetailLevel)) {
-      fullText += chunk;
-      res.write(`data: ${JSON.stringify({ chunk, partial: true })}\n\n`);
+    // Check if API key is available
+    const apiKey = service.getApiKey ? service.getApiKey() : null;
+    console.log(`[Solve Stream] Provider: ${currentProvider}, API key available: ${!!apiKey}`);
+
+    if (!apiKey) {
+      const errorMsg = `No API key configured for ${currentProvider}. Please add your API key in Settings.`;
+      console.error(`[Solve Stream] ${errorMsg}`);
+      res.write(`data: ${JSON.stringify({ error: errorMsg })}\n\n`);
+      res.end();
+      return;
+    }
+
+    try {
+      fullText = await streamFromProvider(service, currentProvider);
+    } catch (primaryError) {
+      console.error(`[Solve Stream] Primary provider (${currentProvider}) failed:`, primaryError.message);
+
+      // If auto-switch is enabled, try the fallback provider
+      if (autoSwitch) {
+        const fallbackProvider = currentProvider === 'claude' ? 'openai' : 'claude';
+        const fallbackService = fallbackProvider === 'openai' ? openai : claude;
+
+        console.log(`[Solve Stream] Auto-switching to ${fallbackProvider}...`);
+        res.write(`data: ${JSON.stringify({ switching: true, from: currentProvider, to: fallbackProvider, reason: primaryError.message })}\n\n`);
+
+        try {
+          fullText = await streamFromProvider(fallbackService, fallbackProvider);
+          currentProvider = fallbackProvider;
+        } catch (fallbackError) {
+          console.error(`[Solve Stream] Fallback provider (${fallbackProvider}) also failed:`, fallbackError.message);
+          throw new Error(`Both providers failed. ${currentProvider}: ${primaryError.message}. ${fallbackProvider}: ${fallbackError.message}`);
+        }
+      } else {
+        throw primaryError;
+      }
     }
 
     // Parse and send final result
@@ -52,12 +95,43 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
     console.log('[Solve Stream] First 500 chars:', fullText.substring(0, 500));
 
     try {
-      // Try to extract JSON from markdown code blocks first
-      const jsonMatch = fullText.match(/```json\s*([\s\S]*?)\s*```/) ||
-                        fullText.match(/```\s*([\s\S]*?)\s*```/);
-      const jsonStr = jsonMatch ? jsonMatch[1].trim() : fullText.trim();
+      // Try multiple ways to extract JSON from the response
+      let jsonStr = null;
+      let parseMethod = 'unknown';
 
-      console.log('[Solve Stream] jsonMatch found:', !!jsonMatch);
+      // Method 1: Extract from markdown code blocks
+      const codeBlockMatch = fullText.match(/```json\s*([\s\S]*?)\s*```/) ||
+                             fullText.match(/```\s*([\s\S]*?)\s*```/);
+      if (codeBlockMatch) {
+        jsonStr = codeBlockMatch[1].trim();
+        parseMethod = 'codeblock';
+      }
+
+      // Method 2: Find JSON object that starts with { and contains "code" key
+      if (!jsonStr) {
+        const jsonObjectMatch = fullText.match(/\{[\s\S]*"code"\s*:\s*"[\s\S]*\}$/);
+        if (jsonObjectMatch) {
+          jsonStr = jsonObjectMatch[0];
+          parseMethod = 'json-object';
+        }
+      }
+
+      // Method 3: Find the first { and try to extract balanced JSON
+      if (!jsonStr) {
+        const firstBrace = fullText.indexOf('{');
+        if (firstBrace !== -1) {
+          jsonStr = fullText.substring(firstBrace);
+          parseMethod = 'first-brace';
+        }
+      }
+
+      // Method 4: Use full text as last resort
+      if (!jsonStr) {
+        jsonStr = fullText.trim();
+        parseMethod = 'full-text';
+      }
+
+      console.log('[Solve Stream] Parse method:', parseMethod);
 
       const result = JSON.parse(jsonStr);
 
@@ -75,15 +149,29 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
 
       res.write(`data: ${JSON.stringify({ done: true, result })}\n\n`);
     } catch (parseErr) {
-      console.error('[Solve Stream] First parse error:', parseErr.message);
-      // For OpenAI with json_object mode, try parsing directly
+      console.error('[Solve Stream] Parse error:', parseErr.message);
+
+      // Last resort: try to extract just the code field using regex
       try {
-        const result = JSON.parse(fullText.trim());
-        console.log('[Solve Stream] Direct parse succeeded, keys:', Object.keys(result));
-        res.write(`data: ${JSON.stringify({ done: true, result })}\n\n`);
-      } catch (directParseErr) {
-        console.error('[Solve Stream] Direct parse also failed:', directParseErr.message);
-        res.write(`data: ${JSON.stringify({ done: true, result: { code: fullText, language: 'unknown' } })}\n\n`);
+        const codeMatch = fullText.match(/"code"\s*:\s*"((?:[^"\\]|\\.)*)"/s);
+        const langMatch = fullText.match(/"language"\s*:\s*"([^"]+)"/);
+
+        if (codeMatch) {
+          const extractedCode = codeMatch[1]
+            .replace(/\\n/g, '\n')
+            .replace(/\\t/g, '\t')
+            .replace(/\\"/g, '"')
+            .replace(/\\\\/g, '\\');
+
+          console.log('[Solve Stream] Extracted code via regex, length:', extractedCode.length);
+          res.write(`data: ${JSON.stringify({ done: true, result: { code: extractedCode, language: langMatch?.[1] || 'python' } })}\n\n`);
+        } else {
+          console.error('[Solve Stream] Could not extract code from response');
+          res.write(`data: ${JSON.stringify({ error: 'Failed to parse AI response. Please try again.' })}\n\n`);
+        }
+      } catch (regexErr) {
+        console.error('[Solve Stream] Regex extraction failed:', regexErr.message);
+        res.write(`data: ${JSON.stringify({ error: 'Failed to parse AI response. Please try again.' })}\n\n`);
       }
     }
     res.end();

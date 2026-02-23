@@ -48,14 +48,19 @@ function isInputFocused() {
  * - Cmd/Ctrl + Enter: Solve problem
  * - Cmd/Ctrl + Shift + R: Run code
  * - Escape: Clear all / Close modals
- * - Cmd/Ctrl + Shift + C: Copy code
+ * - Cmd/Ctrl + C: Copy code (when no text selected)
+ * - Cmd/Ctrl + Shift + C: Copy code (always)
  * - Cmd/Ctrl + N: New problem (clear)
+ * - Cmd/Ctrl + E: Toggle problem statement expand/collapse
+ * - Space: Solve (when not in input)
+ * - Enter: Run (when not in input)
  */
 export function useKeyboardShortcuts({
   onSolve,
   onRun,
   onClear,
   onCopyCode,
+  onToggleProblem,
   isLoading = false,
   hasProblem = false,
   hasCode = false,
@@ -86,6 +91,24 @@ export function useKeyboardShortcuts({
       e.preventDefault();
       if (hasCode && onCopyCode) {
         onCopyCode();
+      }
+      return;
+    }
+
+    // Cmd/Ctrl + C: Always copy generated code (when code exists)
+    if (e.key === 'c' && cmdKey && !e.shiftKey) {
+      if (hasCode && onCopyCode) {
+        e.preventDefault();
+        onCopyCode();
+        return;
+      }
+    }
+
+    // Cmd/Ctrl + E: Toggle problem statement expand/collapse
+    if (e.key === 'e' && cmdKey && !e.shiftKey) {
+      e.preventDefault();
+      if (onToggleProblem) {
+        onToggleProblem();
       }
       return;
     }

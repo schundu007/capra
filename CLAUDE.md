@@ -20,6 +20,7 @@ Capra is an AI-powered coding assistant that solves programming problems from te
 ```bash
 npm run install:all     # Install all dependencies
 npm run dev:electron    # Desktop app development (the only local dev mode)
+npm run dev             # Run backend + frontend separately (for webapp dev, rarely used)
 npm run build:electron  # Build for distribution
 npm run dist:mac        # macOS DMG/ZIP
 npm run dist:win        # Windows NSIS
@@ -75,7 +76,11 @@ This allows Electron to inject keys from OS keychain without env vars.
 ## Key Directories
 
 - `electron/` - Desktop app (main.js, preload.cjs, backend-server.js, store/)
+  - `electron/store/` - Electron-store for settings and secure-store for API keys
+  - `electron/ipc/` - IPC handlers for main/renderer communication
 - `frontend/src/` - React app shared by both platforms
+  - `frontend/src/hooks/` - React hooks including `useElectron.js` for platform detection
+  - `frontend/src/components/` - UI components (CodeDisplay, ExplanationPanel, InterviewAssistantPanel, etc.)
 - `backend/src/routes/` - Express API endpoints
 - `backend/src/services/` - AI providers, scraper, diagram generation
 - `extension/` - Chrome extension for webapp cookie sync
@@ -134,7 +139,20 @@ VITE_API_URL=https://your-railway-url.railway.app
 - Use TailwindCSS for styling
 - Follow existing code style (no ESLint/Prettier configured)
 
+## Interview Modes
+
+The app supports three interview modes via the `interviewMode` parameter in `/api/solve/stream`:
+- `coding` - Standard algorithmic problem solving
+- `system_design` - System design interviews with diagram generation
+- `behavioral` - Behavioral interview practice
+
+## Safe Logging Pattern
+
+Backend services use `safeLog()` wrapper instead of `console.log()` to prevent EPIPE errors when Electron pipes close during shutdown. Use this pattern in any new service code.
+
 ## Notes
 
 - Node.js ≥20 required
 - No automated tests configured
+- Frontend uses React + Vite + TailwindCSS
+- Both `.jsx` and `.tsx` files exist in frontend (prefer `.jsx` for new components)
