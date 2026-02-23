@@ -52,6 +52,7 @@ function isInputFocused() {
  * - Cmd/Ctrl + Shift + C: Copy code (always)
  * - Cmd/Ctrl + N: New problem (clear)
  * - Cmd/Ctrl + E: Toggle problem statement expand/collapse
+ * - Cmd/Ctrl + Shift + A: Toggle Ascend (Interview Assistant)
  * - Space: Solve (when not in input)
  * - Enter: Run (when not in input)
  */
@@ -61,6 +62,7 @@ export function useKeyboardShortcuts({
   onClear,
   onCopyCode,
   onToggleProblem,
+  onToggleAscend,
   isLoading = false,
   hasProblem = false,
   hasCode = false,
@@ -113,6 +115,15 @@ export function useKeyboardShortcuts({
       e.preventDefault();
       if (onToggleProblem) {
         onToggleProblem();
+      }
+      return;
+    }
+
+    // Cmd/Ctrl + Shift + A: Toggle Ascend (Interview Assistant)
+    if (e.key === 'a' && cmdKey && e.shiftKey) {
+      e.preventDefault();
+      if (onToggleAscend) {
+        onToggleAscend();
       }
       return;
     }
@@ -179,7 +190,7 @@ export function useKeyboardShortcuts({
       return;
     }
 
-  }, [onSolve, onRun, onClear, onCopyCode, isLoading, hasProblem, hasCode, disabled]);
+  }, [onSolve, onRun, onClear, onCopyCode, onToggleAscend, isLoading, hasProblem, hasCode, disabled]);
 
   useEffect(() => {
     // Use capture phase to catch events before they're handled by other elements

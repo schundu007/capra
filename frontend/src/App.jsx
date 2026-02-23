@@ -704,6 +704,7 @@ export default function App() {
     onClear: handleClearAll,
     onCopyCode: handleKeyboardCopy,
     onToggleProblem: () => setProblemExpanded(prev => !prev),
+    onToggleAscend: () => setShowInterviewAssistant(prev => !prev),
     isLoading,
     hasProblem: !!(currentProblem || extractedText),
     hasCode: !!(solution?.code || streamingContent.code),
