@@ -42,6 +42,33 @@ const PLATFORMS = {
   codesignal: { name: 'CodeSignal', icon: 'S', color: '#3b82f6' },
 };
 
+// Migrate old storage keys from capra_* to chundu_*
+function migrateStorageKeys() {
+  const migrations = [
+    ['capra_token', 'chundu_token'],
+    ['capra_coding_history', 'chundu_coding_history'],
+    ['capra_system_design_sessions', 'chundu_system_design_sessions'],
+    ['capra_auto_switch', 'chundu_auto_switch'],
+    ['capra_sidebar_collapsed', 'chundu_sidebar_collapsed'],
+  ];
+
+  let migrated = false;
+  for (const [oldKey, newKey] of migrations) {
+    const oldValue = localStorage.getItem(oldKey);
+    if (oldValue && !localStorage.getItem(newKey)) {
+      localStorage.setItem(newKey, oldValue);
+      console.log(`[Migration] Migrated ${oldKey} -> ${newKey}`);
+      migrated = true;
+    }
+  }
+  if (migrated) {
+    console.log('[Migration] Storage keys migrated successfully');
+  }
+}
+
+// Run migration on load
+migrateStorageKeys();
+
 // Get auth token from localStorage
 function getToken() {
   return localStorage.getItem('chundu_token');

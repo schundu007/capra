@@ -1,7 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 
 const STORAGE_KEY = 'chundu_coding_history';
+const OLD_STORAGE_KEY = 'capra_coding_history';
 const MAX_ENTRIES = 30; // Limit to prevent localStorage bloat
+
+// Migrate old storage key if needed
+function migrateStorage() {
+  const oldData = localStorage.getItem(OLD_STORAGE_KEY);
+  if (oldData && !localStorage.getItem(STORAGE_KEY)) {
+    localStorage.setItem(STORAGE_KEY, oldData);
+    console.log('[CodingHistory] Migrated from capra_coding_history');
+  }
+}
+migrateStorage();
 
 /**
  * Custom hook for persisting coding problem history

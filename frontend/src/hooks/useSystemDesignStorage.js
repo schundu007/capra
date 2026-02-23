@@ -1,7 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 
 const STORAGE_KEY = 'chundu_system_design_sessions';
+const OLD_STORAGE_KEY = 'capra_system_design_sessions';
 const MAX_SESSIONS = 50; // Limit to prevent localStorage bloat
+
+// Migrate old storage key if needed
+function migrateStorage() {
+  const oldData = localStorage.getItem(OLD_STORAGE_KEY);
+  if (oldData && !localStorage.getItem(STORAGE_KEY)) {
+    localStorage.setItem(STORAGE_KEY, oldData);
+    console.log('[SystemDesign] Migrated from capra_system_design_sessions');
+  }
+}
+migrateStorage();
 
 /**
  * Custom hook for persisting system design sessions
