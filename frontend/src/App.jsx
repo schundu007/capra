@@ -633,12 +633,26 @@ export default function App() {
     }
   };
 
-  const handleKeyboardCopy = () => {
+  const handleKeyboardCopy = async () => {
     const code = solution?.code || streamingContent.code;
     console.log('[App] handleKeyboardCopy called, code length:', code?.length);
     if (code) {
-      navigator.clipboard.writeText(code);
-      console.log('[App] Code copied to clipboard');
+      try {
+        await navigator.clipboard.writeText(code);
+        console.log('[App] Code copied to clipboard successfully');
+      } catch (err) {
+        // Fallback for Electron or when clipboard API fails
+        console.log('[App] Clipboard API failed, using fallback:', err.message);
+        const textarea = document.createElement('textarea');
+        textarea.value = code;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        console.log('[App] Code copied via fallback');
+      }
     } else {
       console.log('[App] No code available to copy');
     }

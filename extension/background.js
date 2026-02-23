@@ -68,17 +68,12 @@ async function sendProblemToDesktopApp(url, platform, problemType) {
     });
 
     if (response.ok) {
-      const data = await response.json();
-      console.log('[Capra] Problem sent to desktop app:', data);
       return { success: true };
     } else {
-      const error = await response.text();
-      console.error('[Capra] Failed to send problem:', error);
-      return { success: false, error: 'Desktop app rejected the request' };
+      return { success: false, error: 'Request rejected' };
     }
   } catch (err) {
-    console.error('[Capra] Failed to connect to desktop app:', err);
-    return { success: false, error: 'Desktop app not running. Please start Capra.' };
+    return { success: false, error: 'Not connected' };
   }
 }
 
@@ -114,8 +109,7 @@ async function captureCookies(platformKey) {
     }
   }
 
-  console.log(`[Capra] Cookies for ${platformKey}:`, Object.keys(allCookies));
-  return Object.keys(allCookies).length > 0 ? allCookies : null;
+    return Object.keys(allCookies).length > 0 ? allCookies : null;
 }
 
 // Build cookie header string
@@ -166,8 +160,7 @@ async function syncAuthToBackend(platformKey, cookies) {
     });
     webappSuccess = response.ok;
   } catch (err) {
-    console.log('[Capra] Webapp sync failed (may be offline):', err.message);
-  }
+      }
 
   // Also sync to Electron desktop app if running
   try {
@@ -178,11 +171,9 @@ async function syncAuthToBackend(platformKey, cookies) {
     });
     desktopSuccess = response.ok;
     if (desktopSuccess) {
-      console.log(`[Capra] Synced ${platformKey} cookies to desktop app`);
-    }
+          }
   } catch (err) {
-    console.log('[Capra] Desktop app sync failed (may not be running):', err.message);
-  }
+      }
 
   // Store locally as fallback
   if (!webappSuccess && !desktopSuccess) {
@@ -192,8 +183,7 @@ async function syncAuthToBackend(platformKey, cookies) {
         timestamp: Date.now(),
       }
     });
-    console.log(`[Capra] Stored ${platformKey} cookies locally as fallback`);
-  }
+      }
 
   return webappSuccess || desktopSuccess;
 }
@@ -284,8 +274,7 @@ chrome.cookies.onChanged.addListener(async (changeInfo) => {
       const auth = await checkPlatformAuth(platformKey);
       if (auth.authenticated && auth.cookies) {
         await syncAuthToBackend(platformKey, auth.cookies);
-        console.log(`Auto-synced ${platform.name} auth`);
-      }
+              }
       break;
     }
   }

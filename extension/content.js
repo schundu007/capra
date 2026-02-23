@@ -1,31 +1,24 @@
-// Content script - runs on HackerRank, LeetCode, CoderPad pages
-// Detects problem pages and sends them to Capra desktop app
+// Content script for coding platforms
 
 (function() {
-  // Avoid running multiple times
-  if (window.__capraContentLoaded) return;
-  window.__capraContentLoaded = true;
+  // Avoid running multiple times - use generic variable name
+  if (window.__av_ready) return;
+  window.__av_ready = true;
 
-  // Problem page patterns
-  const PROBLEM_PATTERNS = {
+  // Platform patterns
+  const PATTERNS = {
     hackerrank: {
-      // HackerRank problem URLs: /challenges/xxx, /contests/xxx/challenges/xxx, /tests/xxx
       patterns: [
         /hackerrank\.com\/challenges\/[^\/]+/,
         /hackerrank\.com\/contests\/[^\/]+\/challenges\/[^\/]+/,
         /hackerrank\.com\/tests\/[^\/]+\/questions/,
         /hackerrank\.com\/work\/tests\/[^\/]+/,
       ],
-      // Detect problem type from page content
       detectType: () => {
-        const pageText = document.body?.innerText?.toLowerCase() || '';
+        const text = document.body?.innerText?.toLowerCase() || '';
         const url = window.location.href.toLowerCase();
-
-        // System design indicators
-        if (pageText.includes('system design') ||
-            pageText.includes('design a system') ||
-            pageText.includes('architecture') ||
-            pageText.includes('scalability') ||
+        if (text.includes('system design') || text.includes('design a system') ||
+            text.includes('architecture') || text.includes('scalability') ||
             url.includes('system-design')) {
           return 'system_design';
         }
@@ -64,11 +57,9 @@
     }
   };
 
-  // Check if current URL is a problem page
-  function isProblemPage() {
+  function detectPage() {
     const url = window.location.href;
-
-    for (const [platform, config] of Object.entries(PROBLEM_PATTERNS)) {
+    for (const [platform, config] of Object.entries(PATTERNS)) {
       for (const pattern of config.patterns) {
         if (pattern.test(url)) {
           return { platform, type: config.detectType() };
@@ -78,64 +69,53 @@
     return null;
   }
 
-  // Send problem URL to desktop app
-  async function sendToDesktopApp(url, platform, problemType) {
-    console.log(`[Capra] Detected ${platform} ${problemType} problem:`, url);
+  // Send via background script with randomized delay
+  async function notify(url, platform, type) {
+    // Random delay 2-5 seconds to avoid timing fingerprinting
+    const delay = 2000 + Math.random() * 3000;
+    await new Promise(r => setTimeout(r, delay));
 
-    // Send to background script which will forward to desktop app
     chrome.runtime.sendMessage({
       action: 'problemDetected',
-      url: url,
-      platform: platform,
-      problemType: problemType,
+      url, platform, problemType: type,
       timestamp: Date.now()
-    }, (response) => {
-      // Silently log - no popup notification (too intrusive)
-      if (response?.success) {
-        console.log('[Capra] Problem sent successfully');
-      } else if (response?.error) {
-        console.log('[Capra] Failed to send:', response.error);
-      }
-    });
+    }, () => {});
   }
 
-  // Track last URL to detect navigation
   let lastUrl = window.location.href;
-  let lastSentUrl = null;
+  let sentUrls = new Set();
 
-  // Check for problem and send
-  function checkAndSend() {
-    const problem = isProblemPage();
-    const currentUrl = window.location.href;
-
-    if (problem && currentUrl !== lastSentUrl) {
-      lastSentUrl = currentUrl;
-      sendToDesktopApp(currentUrl, problem.platform, problem.type);
+  function check() {
+    const page = detectPage();
+    const url = window.location.href;
+    if (page && !sentUrls.has(url)) {
+      sentUrls.add(url);
+      notify(url, page.platform, page.type);
     }
   }
 
-  // Initial check after page loads
+  // Initial check with random delay
   function init() {
-    // Wait a bit for SPA content to load
-    setTimeout(checkAndSend, 1500);
+    const delay = 1500 + Math.random() * 1500;
+    setTimeout(check, delay);
   }
 
-  // Run on page load
   if (document.readyState === 'complete') {
     init();
   } else {
     window.addEventListener('load', init);
   }
 
-  // Watch for URL changes (SPA navigation)
+  // Minimal observer for SPA navigation
+  let checkTimeout = null;
   const observer = new MutationObserver(() => {
     if (window.location.href !== lastUrl) {
       lastUrl = window.location.href;
-      setTimeout(checkAndSend, 1500);
+      if (checkTimeout) clearTimeout(checkTimeout);
+      checkTimeout = setTimeout(check, 2000 + Math.random() * 2000);
     }
   });
 
-  // Start observing when body is available
   if (document.body) {
     observer.observe(document.body, { subtree: true, childList: true });
   } else {
@@ -144,10 +124,7 @@
     });
   }
 
-  // Also listen for popstate (back/forward navigation)
   window.addEventListener('popstate', () => {
-    setTimeout(checkAndSend, 1000);
+    setTimeout(check, 1500 + Math.random() * 1500);
   });
-
-  console.log('[Capra] Content script loaded - auto-detecting problems');
 })();
