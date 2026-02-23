@@ -97,10 +97,14 @@ export function useKeyboardShortcuts({
 
     // Cmd/Ctrl + C: Always copy generated code (when code exists)
     if (e.key === 'c' && cmdKey && !e.shiftKey) {
+      console.log('[Shortcuts] Cmd+C pressed, hasCode:', hasCode, 'onCopyCode:', !!onCopyCode);
       if (hasCode && onCopyCode) {
         e.preventDefault();
         onCopyCode();
+        console.log('[Shortcuts] Code copied!');
         return;
+      } else {
+        console.log('[Shortcuts] No code to copy, letting default behavior through');
       }
     }
 
