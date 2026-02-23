@@ -57,6 +57,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Open Interview Prep in dedicated window
   openInterviewPrep: () => ipcRenderer.invoke('open-interview-prep'),
 
+  // Stealth mode
+  getStealthMode: () => ipcRenderer.invoke('get-stealth-mode'),
+  setStealthMode: (enabled) => ipcRenderer.invoke('set-stealth-mode', enabled),
+  toggleWindowVisibility: () => ipcRenderer.invoke('toggle-window-visibility'),
+  onStealthModeChanged: (callback) => {
+    ipcRenderer.on('stealth-mode-changed', (event, enabled) => callback(enabled));
+    return () => ipcRenderer.removeListener('stealth-mode-changed', callback);
+  },
+
   // Audio capture for Interview Assistant (Electron-specific, works on macOS)
   getDesktopAudioSources: async () => {
     try {

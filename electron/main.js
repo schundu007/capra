@@ -1,7 +1,7 @@
 // IMPORTANT: Import EPIPE handler first before any other imports
 import './epipe-handler.js';
 
-import { app, BrowserWindow, ipcMain, Menu, shell, safeStorage, nativeTheme, session, desktopCapturer, screen } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu, shell, safeStorage, nativeTheme, session, desktopCapturer, screen, globalShortcut } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { startBackendServer } from './backend-server.js';
@@ -31,6 +31,10 @@ let mainWindow = null;
 let interviewPrepWindow = null;
 let backendServer = null;
 const isDev = !app.isPackaged;
+
+// Stealth mode state
+let stealthModeEnabled = true; // Default ON for safety
+let windowVisible = true;
 
 // Get backend port
 const BACKEND_PORT = 3001;
@@ -143,6 +147,13 @@ async function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  // STEALTH MODE: Enable content protection (hides from screen capture/recording)
+  // This makes the window appear black in Zoom, Teams, screen recordings
+  if (stealthModeEnabled) {
+    mainWindow.setContentProtection(true);
+    safeLog('[Stealth] Content protection enabled - window hidden from screen capture');
+  }
 
   // Enable right-click context menu with copy/paste
   mainWindow.webContents.on('context-menu', (event, params) => {
@@ -351,6 +362,33 @@ app.whenReady().then(async () => {
     initAutoUpdater(mainWindow);
   }
 
+  // STEALTH MODE: Global hotkey to toggle window visibility (Cmd+Shift+H)
+  globalShortcut.register('CommandOrControl+Shift+H', () => {
+    if (mainWindow) {
+      if (windowVisible) {
+        mainWindow.hide();
+        windowVisible = false;
+        safeLog('[Stealth] Window hidden via hotkey');
+      } else {
+        mainWindow.show();
+        mainWindow.focus();
+        windowVisible = true;
+        safeLog('[Stealth] Window shown via hotkey');
+      }
+    }
+  });
+
+  // Register Cmd+Shift+S to toggle stealth mode (content protection)
+  globalShortcut.register('CommandOrControl+Shift+S', () => {
+    if (mainWindow) {
+      stealthModeEnabled = !stealthModeEnabled;
+      mainWindow.setContentProtection(stealthModeEnabled);
+      safeLog('[Stealth] Content protection:', stealthModeEnabled ? 'ON' : 'OFF');
+      // Notify renderer
+      mainWindow.webContents.send('stealth-mode-changed', stealthModeEnabled);
+    }
+  });
+
   // macOS: Re-create window when dock icon is clicked, or show existing window
   app.on('activate', async () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -375,6 +413,9 @@ app.on('window-all-closed', () => {
 
 // Clean up on quit
 app.on('before-quit', async () => {
+  // Unregister all global shortcuts
+  globalShortcut.unregisterAll();
+
   if (backendServer) {
     await backendServer.close();
   }
@@ -523,6 +564,34 @@ ipcMain.handle('open-interview-prep', async () => {
   });
 
   return { success: true };
+});
+
+// Stealth mode IPC handlers
+ipcMain.handle('get-stealth-mode', () => {
+  return stealthModeEnabled;
+});
+
+ipcMain.handle('set-stealth-mode', (event, enabled) => {
+  stealthModeEnabled = enabled;
+  if (mainWindow) {
+    mainWindow.setContentProtection(enabled);
+    safeLog('[Stealth] Content protection set to:', enabled);
+  }
+  return stealthModeEnabled;
+});
+
+ipcMain.handle('toggle-window-visibility', () => {
+  if (mainWindow) {
+    if (windowVisible) {
+      mainWindow.hide();
+      windowVisible = false;
+    } else {
+      mainWindow.show();
+      mainWindow.focus();
+      windowVisible = true;
+    }
+  }
+  return windowVisible;
 });
 
 // LockedIn AI is now embedded via webview in the frontend - no separate window needed
