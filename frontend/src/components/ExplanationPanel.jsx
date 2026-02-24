@@ -523,8 +523,34 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                 {/* Tradeoffs */}
                 {pitch.tradeoffs && (
                   <div>
-                    <span className="text-[10px] font-semibold text-gray-500 uppercase">If Asked About Tradeoffs</span>
-                    <p className="text-[12px] text-gray-600 mt-0.5">{pitch.tradeoffs}</p>
+                    <span className="text-[10px] font-semibold text-gray-500 uppercase">Tradeoffs</span>
+                    {Array.isArray(pitch.tradeoffs) ? (
+                      <ul className="mt-1 space-y-1">
+                        {pitch.tradeoffs.map((tradeoff, i) => (
+                          <li key={i} className="text-[12px] text-gray-600 flex items-start gap-2">
+                            <span className="text-orange-500 mt-0.5">⚖</span>
+                            <span>{tradeoff}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-[12px] text-gray-600 mt-0.5">{pitch.tradeoffs}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Edge Cases */}
+                {pitch.edgeCases && pitch.edgeCases.length > 0 && (
+                  <div>
+                    <span className="text-[10px] font-semibold text-gray-500 uppercase">Edge Cases to Mention</span>
+                    <ul className="mt-1 space-y-1">
+                      {pitch.edgeCases.map((edge, i) => (
+                        <li key={i} className="text-[12px] text-gray-600 flex items-start gap-2">
+                          <span className="text-red-500 mt-0.5">⚠</span>
+                          <span>{edge}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </div>

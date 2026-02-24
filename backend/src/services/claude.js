@@ -150,7 +150,8 @@ IMPORTANT: Respond with valid JSON in exactly this format:
     "approach": "Brief description of the solution strategy",
     "keyPoints": ["Key point 1", "Key point 2", "Key point 3"],
     "complexity": "Time O(n), Space O(1) - brief justification",
-    "tradeoffs": "Alternative approaches considered and why this one is better"
+    "tradeoffs": ["Tradeoff 1: e.g., chose hash map over array for O(1) lookup vs O(n) memory", "Tradeoff 2: e.g., iterative vs recursive approach"],
+    "edgeCases": ["Edge case 1: empty input", "Edge case 2: single element", "Edge case 3: large numbers/overflow", "Edge case 4: duplicates"]
   },
   "examples": [
     {"input": "example input 1 from problem", "expected": "expected output 1"},
