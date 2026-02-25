@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import InputPanel from './interview-prep/InputPanel';
-import OutputPanel from './interview-prep/OutputPanel';
+import InputPanel from './ascend-prep/InputPanel';
+import OutputPanel from './ascend-prep/OutputPanel';
 import { getApiUrl } from '../hooks/useElectron';
 
 const API_URL = getApiUrl();
@@ -123,7 +123,7 @@ function saveCompanyData(companyData) {
   localStorage.setItem('interviewPrepCompanies', JSON.stringify(companyData));
 }
 
-export default function InterviewPrepModal({ isOpen, onClose, provider, model, isDedicatedWindow = false, embedded = false }) {
+export default function AscendPrepModal({ isOpen, onClose, provider, model, isDedicatedWindow = false, embedded = false }) {
   const [activeTab, setActiveTab] = useState('input');
   const [companies, setCompanies] = useState([]);
   const [activeCompany, setActiveCompany] = useState(null);
@@ -519,7 +519,7 @@ export default function InterviewPrepModal({ isOpen, onClose, provider, model, i
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `interview-prep-${activeCompany || 'document'}.pdf`;
+      a.download = `ascend-prep-${activeCompany || 'document'}.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -553,7 +553,7 @@ export default function InterviewPrepModal({ isOpen, onClose, provider, model, i
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `interview-prep-${activeCompany || 'document'}.docx`;
+      a.download = `ascend-prep-${activeCompany || 'document'}.docx`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

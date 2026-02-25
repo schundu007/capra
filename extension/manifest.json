@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Chundu - Interview Assistant",
+  "name": "Ascend - The Capra",
   "version": "2.1.0",
-  "description": "Auto-detect HackerRank/LeetCode problems and send to Chundu desktop app for instant solutions",
+  "description": "Auto-detect coding problems and send to Ascend desktop app for instant solutions",
   "permissions": [
     "cookies",
     "storage",

@@ -85,7 +85,7 @@ async function createWindow() {
     });
   });
 
-  // Grant media permissions for audio/video capture (Interview Assistant)
+  // Grant media permissions for audio/video capture (Ascend Assistant)
   mainWindow.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
     const allowedPermissions = ['media', 'audioCapture', 'desktopCapture', 'mediaKeySystem'];
     if (allowedPermissions.includes(permission)) {
@@ -485,8 +485,8 @@ ipcMain.handle('get-platform-cookies', (event, platform) => {
   return getPlatformCookies(platform);
 });
 
-// Open Interview Prep in dedicated window
-ipcMain.handle('open-interview-prep', async () => {
+// Open Ascend Prep in dedicated window
+ipcMain.handle('open-ascend-prep', async () => {
   // If window already exists, focus it
   if (interviewPrepWindow && !interviewPrepWindow.isDestroyed()) {
     interviewPrepWindow.focus();
@@ -503,7 +503,7 @@ ipcMain.handle('open-interview-prep', async () => {
   const windowX = 0;
   const windowY = screenHeight - windowHeight;
 
-  // Create new window for Interview Prep
+  // Create new window for Ascend Prep
   interviewPrepWindow = new BrowserWindow({
     width: windowWidth,
     height: windowHeight,
@@ -511,7 +511,7 @@ ipcMain.handle('open-interview-prep', async () => {
     y: windowY,
     minWidth: 800,
     minHeight: 300,
-    title: 'Interview Prep - Chundu',
+    title: 'Ascend Prep - Chundu',
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     trafficLightPosition: { x: 16, y: 16 },
     backgroundColor: '#1f2937', // Dark background to match sidebar
@@ -523,15 +523,15 @@ ipcMain.handle('open-interview-prep', async () => {
     },
   });
 
-  // Load the app with interview-prep hash
+  // Load the app with ascend-prep hash
   if (isDev) {
-    await interviewPrepWindow.loadURL('http://localhost:5173/#interview-prep');
+    await interviewPrepWindow.loadURL('http://localhost:5173/#ascend-prep');
   } else {
     const indexPath = path.join(__dirname, '../frontend/dist/index.html');
-    await interviewPrepWindow.loadFile(indexPath, { hash: 'interview-prep' });
+    await interviewPrepWindow.loadFile(indexPath, { hash: 'ascend-prep' });
   }
 
-  // Enable right-click context menu with copy/paste for Interview Prep window
+  // Enable right-click context menu with copy/paste for Ascend Prep window
   interviewPrepWindow.webContents.on('context-menu', (event, params) => {
     const { editFlags, isEditable, selectionText } = params;
 

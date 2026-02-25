@@ -159,8 +159,8 @@ async function registerRoutes(app) {
   const { default: runRouter } = await import('../backend/src/routes/run.js');
   const { default: fixRouter } = await import('../backend/src/routes/fix.js');
   const { default: transcribeRouter } = await import('../backend/src/routes/transcribe.js');
-  const { default: interviewRouter } = await import('../backend/src/routes/interview.js');
-  const { default: interviewPrepRouter } = await import('../backend/src/routes/interviewPrep.js');
+  const { default: ascendRouter } = await import('../backend/src/routes/interview.js');
+  const { default: ascendPrepRouter } = await import('../backend/src/routes/ascendPrep.js');
   const { default: diagramRouter } = await import('../backend/src/routes/diagram.js');
   const { default: extractRouter } = await import('../backend/src/routes/extract.js');
   const { default: extensionRouter } = await import('../backend/src/routes/extension.js');
@@ -174,8 +174,8 @@ async function registerRoutes(app) {
   app.use('/api/run', runRouter);
   app.use('/api/fix', fixRouter);
   app.use('/api/transcribe', transcribeRouter);
-  app.use('/api/interview/prep', interviewPrepRouter);
-  app.use('/api/interview', interviewRouter);
+  app.use('/api/ascend/prep', ascendPrepRouter);
+  app.use('/api/ascend', ascendRouter);
   app.use('/api/diagram', diagramRouter);
   app.use('/api/extract', extractRouter);
   app.use('/api/extension', extensionRouter);

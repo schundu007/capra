@@ -2,15 +2,15 @@
  * System Design controls - only shown when in system-design mode
  * Mode selection is now in the header tabs
  */
-export default function InterviewModeSelector({
-  interviewMode,
+export default function AscendModeSelector({
+  ascendMode,
   designDetailLevel,
   onDetailLevelChange,
   autoGenerateEraser,
   onAutoGenerateEraserChange
 }) {
   // Only render in system-design mode
-  if (interviewMode !== 'system-design') {
+  if (ascendMode !== 'system-design') {
     return null;
   }
 

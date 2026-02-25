@@ -100,7 +100,7 @@ function getAuthHeaders() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-export default function InterviewAssistantPanel({ onClose, provider, model }) {
+export default function AscendAssistantPanel({ onClose, provider, model }) {
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [transcription, setTranscription] = useState('');

@@ -25,14 +25,14 @@ FORMAT YOUR RESPONSE AS:
 
 Remember: The candidate will read this aloud, so keep it natural and speakable.`;
 
-// POST /api/interview/answer - Generate answer for interview question (streaming)
+// POST /api/ascend/answer - Generate answer for interview question (streaming)
 router.post('/answer', async (req, res) => {
   const { question, context = '', provider = 'claude', model } = req.body;
 
-  console.log('[Interview] Answer request received:', { questionLength: question?.length, provider, model });
+  console.log('[Ascend] Answer request received:', { questionLength: question?.length, provider, model });
 
   if (!question) {
-    console.log('[Interview] No question provided');
+    console.log('[Ascend] No question provided');
     return res.status(400).json({ error: 'Question is required' });
   }
 
@@ -107,7 +107,7 @@ router.post('/answer', async (req, res) => {
     res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
     res.end();
   } catch (error) {
-    console.error('[Interview] Error:', error.message);
+    console.error('[Ascend] Error:', error.message);
     res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
     res.end();
   }

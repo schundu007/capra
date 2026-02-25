@@ -17,7 +17,7 @@ const LANGUAGES = [
   { value: 'yaml', label: 'YAML' },
 ];
 
-export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onClear, isLoading, extractedText, onExtractedTextClear, shouldClear, hasSolution, expanded, onToggleExpand, interviewMode, loadedProblem }) {
+export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onClear, isLoading, extractedText, onExtractedTextClear, shouldClear, hasSolution, expanded, onToggleExpand, ascendMode, loadedProblem }) {
   const [problemText, setProblemText] = useState('');
   const [url, setUrl] = useState('');
   const [activeTab, setActiveTab] = useState('text');
@@ -267,7 +267,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
 
         <div className="flex items-center gap-2">
           {/* Detail Toggle - hide in system-design mode (shown in InterviewModeSelector instead) */}
-          {interviewMode !== 'system-design' && (
+          {ascendMode !== 'system-design' && (
             <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid #e5e5e5' }}>
               <button
                 type="button"
@@ -297,7 +297,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
           )}
 
           {/* Language - hide in system-design mode */}
-          {interviewMode !== 'system-design' && (
+          {ascendMode !== 'system-design' && (
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}

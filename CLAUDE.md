@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Capra is an AI-powered coding assistant that solves programming problems from text input, screenshots, or URLs (HackerRank/LeetCode). It supports both Claude and GPT-4 providers, multiple interview modes (coding, system design, behavioral), and includes an Interview Assistant with voice transcription.
+Capra is an AI-powered coding assistant that solves programming problems from text input, screenshots, or URLs (HackerRank/LeetCode). It supports both Claude and GPT-4 providers, multiple interview modes (coding, system design, behavioral), and includes an Ascend Assistant with voice transcription.
 
 ## Two Platforms
 
@@ -89,14 +89,14 @@ This allows Electron to inject keys from OS keychain without env vars.
 
 | Route | Description |
 |-------|-------------|
-| `/api/solve/stream` | SSE streaming solutions (supports interviewMode: coding/system_design/behavioral) |
+| `/api/solve/stream` | SSE streaming solutions (supports ascendMode: coding/system_design/behavioral) |
 | `/api/solve/followup` | Follow-up Q&A with problem context |
 | `/api/analyze` | Screenshot OCR via AI vision |
 | `/api/fetch` | Scrape problems from HackerRank/LeetCode URLs |
 | `/api/run` | Code execution (Piston API) |
 | `/api/fix` | AI-powered code fixing |
-| `/api/transcribe` | Audio transcription (Interview Assistant) |
-| `/api/interview` | Interview assistant endpoints |
+| `/api/transcribe` | Audio transcription (Ascend Assistant) |
+| `/api/ascend` | Ascend assistant endpoints |
 | `/api/diagram/eraser` | Eraser.io diagram generation |
 
 ## Platform Detection
@@ -139,9 +139,9 @@ VITE_API_URL=https://your-railway-url.railway.app
 - Use TailwindCSS for styling
 - Follow existing code style (no ESLint/Prettier configured)
 
-## Interview Modes
+## Ascend Modes
 
-The app supports three interview modes via the `interviewMode` parameter in `/api/solve/stream`:
+The app supports three interview modes via the `ascendMode` parameter in `/api/solve/stream`:
 - `coding` - Standard algorithmic problem solving
 - `system_design` - System design interviews with diagram generation
 - `behavioral` - Behavioral interview practice

@@ -6,7 +6,7 @@ import { getApiKey as getOpenAIApiKey } from './openai.js';
 
 function getClaudeClient() {
   const apiKey = getClaudeApiKey();
-  console.log('[InterviewPrep] Getting Claude API key:', !!apiKey);
+  console.log('[AscendPrep] Getting Claude API key:', !!apiKey);
   if (!apiKey) {
     throw new Error('Anthropic API key not configured. Please add your API key in Settings.');
   }
@@ -56,7 +56,7 @@ async function searchInterviewQuestions(companyName, roleName, questionType = 'c
       });
     }
   } catch (err) {
-    console.log('[InterviewPrep] LeetCode search failed:', err.message);
+    console.log('[AscendPrep] LeetCode search failed:', err.message);
   }
 
   // Try to fetch from Glassdoor
@@ -79,7 +79,7 @@ async function searchInterviewQuestions(companyName, roleName, questionType = 'c
       });
     }
   } catch (err) {
-    console.log('[InterviewPrep] Glassdoor search failed:', err.message);
+    console.log('[AscendPrep] Glassdoor search failed:', err.message);
   }
 
   return results;
@@ -358,7 +358,7 @@ Return JSON:
       "reason": "Why these specific problems"
     }
   ],
-  "interviewTips": [
+  "ascendTips": [
     "Always clarify constraints before coding",
     "Start with brute force, then optimize"
   ],
@@ -396,7 +396,7 @@ Return JSON:
 {
   "summary": "System design interview format at this company (45min/60min, what they focus on)",
   "companyContext": "What systems this company runs, their scale, known tech stack from prep materials",
-  "interviewFramework": {
+  "ascendFramework": {
     "timeAllocation": {
       "requirements": "5 min",
       "highLevel": "10 min",
@@ -801,11 +801,11 @@ async function enrichWithWebSearch(inputs, section) {
   }
 
   try {
-    console.log(`[InterviewPrep] Searching for ${section} questions at ${companyName}`);
+    console.log(`[AscendPrep] Searching for ${section} questions at ${companyName}`);
     const searchResults = await searchInterviewQuestions(companyName, roleName, section);
     return { ...inputs, searchResults };
   } catch (err) {
-    console.log('[InterviewPrep] Web search failed:', err.message);
+    console.log('[AscendPrep] Web search failed:', err.message);
     return inputs;
   }
 }

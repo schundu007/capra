@@ -40,7 +40,7 @@ const hackerRankTheme = {
   },
 };
 
-const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, language, onLineHover, examples, onCodeUpdate, onExplanationsUpdate, isStreaming, autoRunOutput, interviewMode, systemDesign, eraserDiagram, autoGenerateEraser, onGenerateEraserDiagram, question, cloudProvider }, ref) {
+const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, language, onLineHover, examples, onCodeUpdate, onExplanationsUpdate, isStreaming, autoRunOutput, ascendMode, systemDesign, eraserDiagram, autoGenerateEraser, onGenerateEraserDiagram, question, cloudProvider }, ref) {
   const normalizedLanguage = language?.toLowerCase() || 'python';
   const [code, setCode] = useState(initialCode);
   const [copied, setCopied] = useState(false);
@@ -186,7 +186,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
   const canRun = RUNNABLE.includes(normalizedLanguage);
 
   // Determine which mode we're in - completely isolated
-  const isDesignMode = interviewMode === 'system-design';
+  const isDesignMode = ascendMode === 'system-design';
   const hasSystemDesign = systemDesign?.included;
 
   // DESIGN MODE: Show only system design content

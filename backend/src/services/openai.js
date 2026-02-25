@@ -255,7 +255,7 @@ INTEGRITY:
 - NEVER hardcode outputs or fake data
 - Solution must be genuinely correct`;
 
-export async function* solveProblemStream(problemText, language = 'auto', detailLevel = 'detailed', model = DEFAULT_MODEL, interviewMode = 'coding', designDetailLevel = 'basic') {
+export async function* solveProblemStream(problemText, language = 'auto', detailLevel = 'detailed', model = DEFAULT_MODEL, ascendMode = 'coding', designDetailLevel = 'basic') {
   const languageInstruction = language === 'auto'
     ? 'Detect the appropriate language from the problem context.'
     : `Write the solution in ${language.toUpperCase()}.`;
@@ -266,7 +266,7 @@ export async function* solveProblemStream(problemText, language = 'auto', detail
   let systemPrompt;
   let userMessage;
 
-  if (interviewMode === 'system-design') {
+  if (ascendMode === 'system-design') {
     // DESIGN MODE - System design only, no code
     systemPrompt = designDetailLevel === 'full' ? SYSTEM_DESIGN_FULL_PROMPT : SYSTEM_DESIGN_BASIC_PROMPT;
     userMessage = `Design the following system and return the response as JSON:\n\n${problemText}`;
@@ -285,7 +285,7 @@ export async function* solveProblemStream(problemText, language = 'auto', detail
         content: userMessage,
       },
     ],
-    max_tokens: interviewMode === 'system-design' ? 8192 : (isBrief ? 1024 : 4096),
+    max_tokens: ascendMode === 'system-design' ? 8192 : (isBrief ? 1024 : 4096),
     response_format: { type: 'json_object' },
     stream: true,
   });

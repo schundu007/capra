@@ -20,8 +20,8 @@ export default function Sidebar({
   onOpenSettings,
   onOpenSupport,
   isLoading,
-  showInterviewAssistant,
-  onToggleInterviewAssistant,
+  showAscendAssistant,
+  onToggleAscendAssistant,
   user,
   isAdmin,
   authRequired,
@@ -118,20 +118,20 @@ export default function Sidebar({
         {/* Interview Assistant Toggle */}
         <div className="px-3 py-4">
           <button
-            onClick={onToggleInterviewAssistant}
+            onClick={onToggleAscendAssistant}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all"
             style={{
-              background: showInterviewAssistant ? '#1a3d2e' : '#2a2a2a',
-              color: showInterviewAssistant ? '#4ade80' : '#cccccc',
-              border: showInterviewAssistant ? '1px solid #166534' : '1px solid #444444',
+              background: showAscendAssistant ? '#1a3d2e' : '#2a2a2a',
+              color: showAscendAssistant ? '#4ade80' : '#cccccc',
+              border: showAscendAssistant ? '1px solid #166534' : '1px solid #444444',
             }}
             onMouseEnter={(e) => {
-              if (!showInterviewAssistant) {
+              if (!showAscendAssistant) {
                 e.currentTarget.style.background = '#333333';
               }
             }}
             onMouseLeave={(e) => {
-              if (!showInterviewAssistant) {
+              if (!showAscendAssistant) {
                 e.currentTarget.style.background = '#2a2a2a';
               }
             }}
@@ -141,7 +141,7 @@ export default function Sidebar({
               <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
             </svg>
             <span className="text-sm font-semibold">Ascend</span>
-            {showInterviewAssistant && (
+            {showAscendAssistant && (
               <div className="ml-auto w-2 h-2 rounded-full" style={{ background: '#22c55e' }} />
             )}
           </button>

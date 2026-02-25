@@ -13,10 +13,10 @@ import ChunduLogo from './components/ChunduLogo';
 import SettingsPanel from './components/settings/SettingsPanel';
 import SetupWizard from './components/settings/SetupWizard';
 import PlatformAuth from './components/PlatformAuth';
-import InterviewAssistantPanel from './components/InterviewAssistantPanel';
-import InterviewModeSelector from './components/InterviewModeSelector';
+import AscendAssistantPanel from './components/AscendAssistantPanel';
+import AscendModeSelector from './components/AscendModeSelector';
 import PrepTab from './components/PrepTab';
-import InterviewPrepModal from './components/InterviewPrepModal';
+import AscendPrepModal from './components/AscendPrepModal';
 import SavedSystemDesignsModal from './components/SavedSystemDesignsModal';
 import FundingPage from './components/FundingPage';
 import { getApiUrl } from './hooks/useElectron';
@@ -29,7 +29,7 @@ import Sidebar from './components/Sidebar';
 const isElectron = window.electronAPI?.isElectron || false;
 
 // Check if this is the dedicated Interview Prep window
-const isInterviewPrepWindow = window.location.hash === '#interview-prep';
+const isAscendPrepWindow = window.location.hash === '#ascend-prep';
 
 // Get API URL - uses dynamic resolution for Electron
 const API_URL = getApiUrl();
@@ -203,11 +203,11 @@ function parseStreamingContent(text) {
 }
 
 // Stream solve request using SSE
-async function solveWithStream(problem, provider, language, detailLevel, model, onChunk, interviewMode = 'coding', designDetailLevel = 'basic', signal = null, autoSwitch = false, onSwitch = null) {
+async function solveWithStream(problem, provider, language, detailLevel, model, onChunk, ascendMode = 'coding', designDetailLevel = 'basic', signal = null, autoSwitch = false, onSwitch = null) {
   const response = await fetch(API_URL + '/api/solve/stream', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-    body: JSON.stringify({ problem, provider, language, detailLevel, model, interviewMode, designDetailLevel, autoSwitch }),
+    body: JSON.stringify({ problem, provider, language, detailLevel, model, ascendMode, designDetailLevel, autoSwitch }),
     signal,
   });
 
@@ -295,7 +295,7 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [showSetupWizard, setShowSetupWizard] = useState(false);
   const [showPlatformAuth, setShowPlatformAuth] = useState(false);
-  const [showInterviewAssistant, setShowInterviewAssistant] = useState(false);
+  const [showAscendAssistant, setShowAscendAssistant] = useState(false);
   const [showPlatformDropdown, setShowPlatformDropdown] = useState(false);
   const [platformStatus, setPlatformStatus] = useState({});
   const [showPrepTab, setShowPrepTab] = useState(false);
@@ -451,9 +451,9 @@ export default function App() {
 
             // Set the interview mode based on problem type
             if (data.problemType === 'system_design') {
-              setInterviewMode('system-design');
+              setAscendMode('system-design');
             } else {
-              setInterviewMode('coding');
+              setAscendMode('coding');
             }
 
             // Store URL for display
@@ -560,7 +560,7 @@ export default function App() {
   const MAX_AUTO_FIX_ATTEMPTS = 1; // Only 1 attempt to keep it fast
 
   // Interview mode state
-  const [interviewMode, setInterviewMode] = useState('coding'); // 'coding' | 'system-design'
+  const [ascendMode, setAscendMode] = useState('coding'); // 'coding' | 'system-design'
   const [designDetailLevel, setDesignDetailLevel] = useState('basic'); // 'basic' | 'full'
   const [eraserDiagram, setEraserDiagram] = useState(null); // { imageUrl, editUrl }
   const [autoGenerateEraser, setAutoGenerateEraser] = useState(false); // Auto-generate pro diagram
@@ -571,7 +571,7 @@ export default function App() {
 
   // Handle mode change with state reset
   const handleModeChange = (newMode) => {
-    if (newMode !== interviewMode) {
+    if (newMode !== ascendMode) {
       // Abort any ongoing operations
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
@@ -601,7 +601,7 @@ export default function App() {
       setCurrentProblem('');
       setProblemExpanded(true);
       setClearScreenshot(c => c + 1);
-      setInterviewMode(newMode);
+      setAscendMode(newMode);
     }
   };
 
@@ -610,8 +610,8 @@ export default function App() {
     const session = systemDesignStorage.loadSession(sessionId);
     if (session) {
       // Switch to system design mode if not already
-      if (interviewMode !== 'system-design') {
-        setInterviewMode('system-design');
+      if (ascendMode !== 'system-design') {
+        setAscendMode('system-design');
       }
 
       // Set the detail level
@@ -648,8 +648,8 @@ export default function App() {
     const entry = codingHistory.getEntry(entryId);
     if (entry) {
       // Switch to coding mode if not already
-      if (interviewMode !== 'coding') {
-        setInterviewMode('coding');
+      if (ascendMode !== 'coding') {
+        setAscendMode('coding');
       }
 
       // Load the problem and solution
@@ -737,7 +737,7 @@ export default function App() {
     onClear: handleClearAll,
     onCopyCode: handleKeyboardCopy,
     onToggleProblem: () => setProblemExpanded(prev => !prev),
-    onToggleAscend: () => setShowInterviewAssistant(prev => !prev),
+    onToggleAscend: () => setShowAscendAssistant(prev => !prev),
     isLoading,
     hasProblem: !!(currentProblem || extractedText),
     hasCode: !!(solution?.code || streamingContent.code),
@@ -860,7 +860,7 @@ export default function App() {
         const parsed = parseStreamingContent(fullText);
         setStreamingContent(parsed);
         console.log('[App] Received chunk, parsed code length:', parsed.code?.length || 0);
-      }, interviewMode, designDetailLevel, signal, autoSwitch, (from, to, reason) => {
+      }, ascendMode, designDetailLevel, signal, autoSwitch, (from, to, reason) => {
         setSwitchNotification({ from, to, reason });
         setTimeout(() => setSwitchNotification(null), 5000);
       });
@@ -868,7 +868,7 @@ export default function App() {
 
       if (result) {
         // Auto-test, fix, and run the code (skip for system design mode)
-        if (interviewMode !== 'system-design' && result.code) {
+        if (ascendMode !== 'system-design' && result.code) {
           const { code: fixedCode, fixed, attempts, output } = await autoTestAndFix(
             result.code,
             result.language,
@@ -889,7 +889,7 @@ export default function App() {
           });
 
           // Save to coding history (only for coding mode)
-          if (interviewMode === 'coding' && fixedCode) {
+          if (ascendMode === 'coding' && fixedCode) {
             codingHistory.addEntry({
               problem,
               language: result.language || language,
@@ -904,8 +904,8 @@ export default function App() {
           setSolution(result);
 
           // Auto-save system design session
-          console.log('[App] Checking save condition:', { interviewMode, hasSystemDesign: !!result?.systemDesign, included: result?.systemDesign?.included });
-          if (interviewMode === 'system-design' && result?.systemDesign?.included) {
+          console.log('[App] Checking save condition:', { ascendMode, hasSystemDesign: !!result?.systemDesign, included: result?.systemDesign?.included });
+          if (ascendMode === 'system-design' && result?.systemDesign?.included) {
             console.log('[App] Saving system design session');
             systemDesignStorage.saveSession({
               problem,
@@ -916,7 +916,7 @@ export default function App() {
           }
 
           // Auto-generate Eraser diagram if enabled and in system design mode
-          if (autoGenerateEraser && interviewMode === 'system-design' && result?.systemDesign?.included) {
+          if (autoGenerateEraser && ascendMode === 'system-design' && result?.systemDesign?.included) {
             const sd = result.systemDesign;
             // Build comprehensive description for detailed diagram
             const techStack = sd.techJustifications?.map(t => `${t.tech}: ${t.why}`).join('\n') || '';
@@ -1109,7 +1109,7 @@ EDGE CASES & RESILIENCE:
       }
 
       // Auto-save Q&A to current session (for system design mode)
-      if (interviewMode === 'system-design' && systemDesignStorage.currentSessionId && result?.answer) {
+      if (ascendMode === 'system-design' && systemDesignStorage.currentSessionId && result?.answer) {
         systemDesignStorage.addQAToSession(
           systemDesignStorage.currentSessionId,
           question,
@@ -1164,13 +1164,13 @@ EDGE CASES & RESILIENCE:
         setStreamingText(fullText);
         const parsed = parseStreamingContent(fullText);
         setStreamingContent(parsed);
-      }, interviewMode, designDetailLevel, null, autoSwitch, (from, to, reason) => {
+      }, ascendMode, designDetailLevel, null, autoSwitch, (from, to, reason) => {
         setSwitchNotification({ from, to, reason });
         setTimeout(() => setSwitchNotification(null), 5000);
       });
       if (result) {
         // Auto-test, fix, and run the code (skip for system design mode)
-        if (interviewMode !== 'system-design' && result.code) {
+        if (ascendMode !== 'system-design' && result.code) {
           const { code: fixedCode, fixed, attempts, output } = await autoTestAndFix(
             result.code,
             result.language,
@@ -1190,7 +1190,7 @@ EDGE CASES & RESILIENCE:
           });
 
           // Save to coding history for URL-fetched problems
-          if (interviewMode === 'coding' && fixedCode) {
+          if (ascendMode === 'coding' && fixedCode) {
             codingHistory.addEntry({
               problem: fetchData.problemText,
               language: result.language || language,
@@ -1205,7 +1205,7 @@ EDGE CASES & RESILIENCE:
           setSolution(result);
 
           // Auto-save system design session for URL-fetched problems
-          if (interviewMode === 'system-design' && result?.systemDesign?.included) {
+          if (ascendMode === 'system-design' && result?.systemDesign?.included) {
             systemDesignStorage.saveSession({
               problem: fetchData.problemText,
               source: 'url',
@@ -1269,13 +1269,13 @@ EDGE CASES & RESILIENCE:
           setStreamingText(fullText);
           const parsed = parseStreamingContent(fullText);
           setStreamingContent(parsed);
-        }, interviewMode, designDetailLevel, null, autoSwitch, (from, to, reason) => {
+        }, ascendMode, designDetailLevel, null, autoSwitch, (from, to, reason) => {
           setSwitchNotification({ from, to, reason });
           setTimeout(() => setSwitchNotification(null), 5000);
         });
         if (result) {
           // Auto-test, fix, and run the code (skip for system design mode)
-          if (interviewMode !== 'system-design' && result.code) {
+          if (ascendMode !== 'system-design' && result.code) {
             const { code: fixedCode, fixed, attempts, output } = await autoTestAndFix(
               result.code,
               result.language,
@@ -1295,7 +1295,7 @@ EDGE CASES & RESILIENCE:
             });
 
             // Save to coding history for screenshot problems
-            if (interviewMode === 'coding' && fixedCode) {
+            if (ascendMode === 'coding' && fixedCode) {
               codingHistory.addEntry({
                 problem: extractedProblem,
                 language: result.language || language,
@@ -1310,7 +1310,7 @@ EDGE CASES & RESILIENCE:
             setSolution(result);
 
             // Auto-save system design session for screenshot problems
-            if (interviewMode === 'system-design' && result?.systemDesign?.included) {
+            if (ascendMode === 'system-design' && result?.systemDesign?.included) {
               systemDesignStorage.saveSession({
                 problem: extractedProblem,
                 source: 'image',
@@ -1364,10 +1364,10 @@ EDGE CASES & RESILIENCE:
   }
 
   // If this is the dedicated Interview Prep window, render only that
-  if (isInterviewPrepWindow) {
+  if (isAscendPrepWindow) {
     return (
       <div className="h-screen flex flex-col overflow-hidden bg-white">
-        <InterviewPrepModal
+        <AscendPrepModal
           isOpen={true}
           onClose={() => window.close()}
           provider={provider}
@@ -1401,8 +1401,8 @@ EDGE CASES & RESILIENCE:
           onOpenSettings={() => setShowSettings(true)}
           onOpenSupport={() => setShowFundingPage(true)}
           isLoading={isLoading}
-          showInterviewAssistant={showInterviewAssistant}
-          onToggleInterviewAssistant={() => setShowInterviewAssistant(!showInterviewAssistant)}
+          showAscendAssistant={showAscendAssistant}
+          onToggleAscendAssistant={() => setShowAscendAssistant(!showAscendAssistant)}
           user={user}
           isAdmin={isAdmin}
           authRequired={authRequired}
@@ -1469,18 +1469,18 @@ EDGE CASES & RESILIENCE:
                 onClick={() => handleModeChange(mode.id)}
                 className="px-4 py-1.5 text-sm font-medium rounded-lg transition-all"
                 style={{
-                  background: interviewMode === mode.id ? '#10b981' : 'transparent',
-                  color: interviewMode === mode.id ? '#ffffff' : '#888888',
-                  border: interviewMode === mode.id ? 'none' : '1px solid transparent',
+                  background: ascendMode === mode.id ? '#10b981' : 'transparent',
+                  color: ascendMode === mode.id ? '#ffffff' : '#888888',
+                  border: ascendMode === mode.id ? 'none' : '1px solid transparent',
                 }}
                 onMouseEnter={(e) => {
-                  if (interviewMode !== mode.id) {
+                  if (ascendMode !== mode.id) {
                     e.currentTarget.style.background = '#333333';
                     e.currentTarget.style.color = '#ffffff';
                   }
                 }}
                 onMouseLeave={(e) => {
-                  if (interviewMode !== mode.id) {
+                  if (ascendMode !== mode.id) {
                     e.currentTarget.style.background = 'transparent';
                     e.currentTarget.style.color = '#888888';
                   }
@@ -1563,9 +1563,9 @@ EDGE CASES & RESILIENCE:
       {/* Main Layout */}
       <main className="flex-1 overflow-hidden p-4 relative z-10" style={{ background: 'transparent' }}>
         {/* Behavioral Mode - Show embedded Interview Prep */}
-        {interviewMode === 'behavioral' ? (
+        {ascendMode === 'behavioral' ? (
           <div className="h-full rounded-lg overflow-hidden" style={{ background: '#242424', border: '1px solid #333333' }}>
-            <InterviewPrepModal
+            <AscendPrepModal
               isOpen={true}
               onClose={() => {}}
               provider={provider}
@@ -1575,7 +1575,7 @@ EDGE CASES & RESILIENCE:
           </div>
         ) : (
         <div className="h-full rounded-xl overflow-hidden" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', backdropFilter: 'blur(20px)' }}>
-          <Allotment defaultSizes={showInterviewAssistant ? [30, 40, 30] : [30, 70]}>
+          <Allotment defaultSizes={showAscendAssistant ? [30, 40, 30] : [30, 70]}>
             {/* Left Pane - Problem + Explanation (stacked vertically) */}
             <Allotment.Pane minSize={300}>
               <div className="h-full flex flex-col overflow-hidden" style={{ background: 'transparent' }}>
@@ -1587,7 +1587,7 @@ EDGE CASES & RESILIENCE:
                       <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
                       <span className="text-xs font-medium text-gray-600">Problem</span>
                       {/* Saved System Designs Button - only show in system-design mode */}
-                      {interviewMode === 'system-design' && (
+                      {ascendMode === 'system-design' && (
                         <button
                           onClick={() => setShowSavedDesigns(true)}
                           className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium rounded-md transition-colors"
@@ -1607,8 +1607,8 @@ EDGE CASES & RESILIENCE:
                       )}
                     </div>
                     {/* System Design specific controls - only shown when in system-design mode */}
-                    <InterviewModeSelector
-                      interviewMode={interviewMode}
+                    <AscendModeSelector
+                      ascendMode={ascendMode}
                       designDetailLevel={designDetailLevel}
                       onDetailLevelChange={setDesignDetailLevel}
                       autoGenerateEraser={autoGenerateEraser}
@@ -1630,7 +1630,7 @@ EDGE CASES & RESILIENCE:
                       hasSolution={!!solution}
                       expanded={problemExpanded}
                       onToggleExpand={() => setProblemExpanded(prev => !prev)}
-                      interviewMode={interviewMode}
+                      ascendMode={ascendMode}
                       loadedProblem={loadedProblem}
                     />
                   </div>
@@ -1668,7 +1668,7 @@ EDGE CASES & RESILIENCE:
                   onExplanationsUpdate={(explanations) => {
                     setSolution(prev => prev ? { ...prev, explanations } : null);
                   }}
-                  interviewMode={interviewMode}
+                  ascendMode={ascendMode}
                   systemDesign={solution?.systemDesign || streamingContent.systemDesign}
                   eraserDiagram={eraserDiagram}
                   autoGenerateEraser={autoGenerateEraser}
@@ -1775,10 +1775,10 @@ EDGE CASES & RESILIENCE:
             </Allotment.Pane>
 
             {/* Right Pane - Interview Assistant (conditional) */}
-            {showInterviewAssistant && (
+            {showAscendAssistant && (
               <Allotment.Pane minSize={400}>
-                <InterviewAssistantPanel
-                  onClose={() => setShowInterviewAssistant(false)}
+                <AscendAssistantPanel
+                  onClose={() => setShowAscendAssistant(false)}
                   provider={provider}
                   model={model}
                 />
