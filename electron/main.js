@@ -9,6 +9,7 @@ import { setupApiKeyHandlers } from './ipc/api-keys.js';
 import { setupSettingsHandlers } from './ipc/settings.js';
 import { configStore } from './store/config-store.js';
 import { secureStore } from './store/secure-store.js';
+import * as systemDesignsStore from './store/system-designs-store.js';
 import { initAutoUpdater, checkForUpdates } from './updater/auto-updater.js';
 import { openAuthWindow, getPlatformCookies, getAllPlatformStatus, clearPlatformAuth } from './auth-window.js';
 
@@ -33,7 +34,7 @@ let backendServer = null;
 const isDev = !app.isPackaged;
 
 // Stealth mode state
-let stealthModeEnabled = true; // Default ON for safety
+let stealthModeEnabled = false; // Default OFF to allow screenshots (toggle with Cmd+Shift+S)
 let windowVisible = true;
 
 // Get backend port
@@ -592,6 +593,30 @@ ipcMain.handle('toggle-window-visibility', () => {
     }
   }
   return windowVisible;
+});
+
+// System Design Sessions - stored in app data folder
+ipcMain.handle('get-system-designs', () => {
+  const sessions = systemDesignsStore.getAllSessions();
+  safeLog('[SystemDesigns] Getting all sessions:', Object.keys(sessions).length, 'sessions');
+  return sessions;
+});
+
+ipcMain.handle('save-system-design', (event, sessionId, sessionData) => {
+  safeLog('[SystemDesigns] Saving session:', sessionId);
+  return systemDesignsStore.saveSession(sessionId, sessionData);
+});
+
+ipcMain.handle('update-system-design', (event, sessionId, updates) => {
+  return systemDesignsStore.updateSession(sessionId, updates);
+});
+
+ipcMain.handle('delete-system-design', (event, sessionId) => {
+  return systemDesignsStore.deleteSession(sessionId);
+});
+
+ipcMain.handle('clear-all-system-designs', () => {
+  return systemDesignsStore.clearAllSessions();
 });
 
 // LockedIn AI is now embedded via webview in the frontend - no separate window needed

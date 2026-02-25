@@ -71,11 +71,11 @@ function CloudArchitectureDiagram({
   console.log('[CloudDiagram] Showing image:', imageUrl);
 
   return (
-    <div className={`rounded-lg overflow-hidden border border-gray-200 bg-white ${expanded ? 'p-4' : ''}`}>
+    <div className={`rounded-lg overflow-hidden border border-gray-200 bg-white flex justify-center ${expanded ? 'p-4' : 'p-3'}`}>
       <img
         src={imageUrl}
         alt="Cloud Architecture Diagram"
-        className={`w-full h-auto object-contain ${expanded ? 'max-h-[80vh]' : ''}`}
+        className={`h-auto object-contain ${expanded ? 'max-h-[80vh] max-w-full' : 'max-w-[45%]'}`}
         onError={(e) => {
           console.error('[CloudDiagram] Image load error:', imageUrl, e);
           setImageError(true);
@@ -132,7 +132,7 @@ function CollapsibleSection({ title, icon, color, children, defaultOpen = true, 
         onClick={() => setIsOpen(!isOpen)}
         className="w-full px-3 py-2 flex items-center justify-between hover:bg-gray-50 transition-colors"
       >
-        <span className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
+        <span className="text-[11px] font-semibold uppercase tracking-wide flex items-center gap-2" style={{ color: '#475569' }}>
           {title}
           {badge && <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded text-[9px] font-medium">{badge}</span>}
         </span>
@@ -374,7 +374,7 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
   );
 }
 
-export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGenerateEraserDiagram, question, cloudProvider = 'auto' }) {
+export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGenerateEraser = false, onGenerateEraserDiagram, question, cloudProvider = 'auto' }) {
   const { isElectron } = useElectron();
   const [generatingEraser, setGeneratingEraser] = useState(false);
   const [diagramModal, setDiagramModal] = useState(false);
@@ -500,17 +500,20 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
   }
 
   return (
-    <div className="p-3 rounded-lg animate-fade-in bg-white border border-gray-200">
+    <div className="p-3 rounded-lg animate-fade-in" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
       {/* Header */}
-      <div className="mb-3 pb-2 border-b border-gray-100 flex items-center justify-between">
-        <span className="text-xs font-bold uppercase tracking-wider text-gray-800">System Design</span>
+      <div className="mb-3 pb-2 flex items-center justify-between" style={{ borderBottom: '1px solid #e2e8f0' }}>
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#10b981' }} />
+          <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: '#333333' }}>System Design</span>
+        </div>
       </div>
 
       <div className="space-y-3">
         {/* Row 1: Overview - Full width */}
         {systemDesign.overview && (
-          <div className="rounded-lg p-3 bg-gray-50 border border-gray-200">
-            <h4 className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-1.5">
+          <div className="rounded-lg p-3" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+            <h4 className="text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: '#475569' }}>
               Overview
             </h4>
             <p className="text-[12px] text-gray-600 leading-relaxed">{systemDesign.overview}</p>
@@ -522,8 +525,8 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
           <div className="grid grid-cols-2 gap-3">
             {/* Functional Requirements */}
             {systemDesign.requirements.functional && systemDesign.requirements.functional.length > 0 && (
-              <div className="rounded-lg p-3 bg-gray-50 border border-gray-200">
-                <h4 className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-2">
+              <div className="rounded-lg p-3" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                <h4 className="text-[11px] font-semibold uppercase tracking-wide mb-2" style={{ color: '#475569' }}>
                   Functional
                 </h4>
                 <ul className="space-y-1">
@@ -538,8 +541,8 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
             )}
             {/* Non-Functional Requirements */}
             {systemDesign.requirements.nonFunctional && systemDesign.requirements.nonFunctional.length > 0 && (
-              <div className="rounded-lg p-3 bg-gray-50 border border-gray-200">
-                <h4 className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-2">
+              <div className="rounded-lg p-3" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                <h4 className="text-[11px] font-semibold uppercase tracking-wide mb-2" style={{ color: '#475569' }}>
                   Non-Functional
                 </h4>
                 <ul className="space-y-1">
@@ -559,8 +562,8 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           {/* Architecture Components */}
           {systemDesign.architecture && (
-            <div className="rounded-lg p-3 bg-gray-50 border border-gray-200">
-              <h4 className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-2">
+            <div className="rounded-lg p-3" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+              <h4 className="text-[11px] font-semibold uppercase tracking-wide mb-2" style={{ color: '#475569' }}>
                 Components
               </h4>
               {systemDesign.architecture.components && systemDesign.architecture.components.length > 0 && (
@@ -583,8 +586,8 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
 
           {/* Scalability - Compact badges */}
           {systemDesign.scalability && systemDesign.scalability.length > 0 && (
-            <div className="rounded-lg p-3 bg-gray-50 border border-gray-200">
-              <h4 className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-2">
+            <div className="rounded-lg p-3" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+              <h4 className="text-[11px] font-semibold uppercase tracking-wide mb-2" style={{ color: '#475569' }}>
                 Scalability
               </h4>
               <div className="flex flex-wrap gap-1.5">
@@ -597,7 +600,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
                     <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                     </svg>
-                    {item.length > 30 ? item.slice(0, 30) + '...' : item}
+                    {item}
                   </span>
                 ))}
               </div>
@@ -605,11 +608,55 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
           )}
         </div>
 
+        {/* Edge Cases & Tradeoffs - Side by side */}
+        {(systemDesign.edgeCases?.length > 0 || systemDesign.tradeoffs?.length > 0) && (
+          <div className="grid grid-cols-2 gap-3">
+            {/* Tradeoffs */}
+            {systemDesign.tradeoffs && systemDesign.tradeoffs.length > 0 && (
+              <div className="rounded-lg p-3" style={{ background: '#fefce8', border: '1px solid #fde047' }}>
+                <h4 className="text-[11px] font-semibold uppercase tracking-wide mb-2 flex items-center gap-1.5" style={{ color: '#a16207' }}>
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                  </svg>
+                  Tradeoffs
+                </h4>
+                <ul className="space-y-1.5">
+                  {systemDesign.tradeoffs.map((tradeoff, i) => (
+                    <li key={i} className="text-[11px] text-amber-800 flex items-start gap-2">
+                      <span className="text-amber-500 mt-0.5 flex-shrink-0">⚖</span>
+                      <span>{typeof tradeoff === 'string' ? tradeoff.replace(/^Tradeoff \d+:\s*/i, '') : tradeoff}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {/* Edge Cases */}
+            {systemDesign.edgeCases && systemDesign.edgeCases.length > 0 && (
+              <div className="rounded-lg p-3" style={{ background: '#fef2f2', border: '1px solid #fecaca' }}>
+                <h4 className="text-[11px] font-semibold uppercase tracking-wide mb-2 flex items-center gap-1.5" style={{ color: '#b91c1c' }}>
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  Edge Cases
+                </h4>
+                <ul className="space-y-1.5">
+                  {systemDesign.edgeCases.map((edge, i) => (
+                    <li key={i} className="text-[11px] text-red-700 flex items-start gap-2">
+                      <span className="text-red-500 mt-0.5 flex-shrink-0">⚠</span>
+                      <span>{typeof edge === 'string' ? edge.replace(/^Edge case \d+:\s*/i, '') : edge}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Diagrams - Full width (above Technologies) */}
         <div className="space-y-3">
           {/* ASCII Architecture Diagram - Always visible, instant */}
-          <div className="rounded-lg p-3 bg-gray-50 border border-gray-200">
-            <h4 className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-2 flex items-center justify-between">
+          <div className="rounded-lg p-3" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+            <h4 className="text-[11px] font-semibold uppercase tracking-wide mb-2 flex items-center justify-between" style={{ color: '#475569' }}>
               <span className="flex items-center gap-1.5">
                 Text Architecture
                 <span className="px-1.5 py-0.5 bg-gray-100 text-gray-500 border border-gray-200 rounded text-[9px] font-medium">
@@ -637,7 +684,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
             className={`rounded-lg p-3 bg-gray-50 border border-gray-200 ${diagramData ? 'cursor-pointer hover:border-emerald-300 group' : ''} transition-all`}
             onClick={() => diagramData && setDiagramModal(true)}
           >
-            <h4 className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-2 flex items-center justify-between">
+            <h4 className="text-[11px] font-semibold uppercase tracking-wide mb-2 flex items-center justify-between" style={{ color: '#475569' }}>
               <span className="flex items-center gap-1.5">
                 Visual Diagram
                 {diagramData?.cloudProvider && (
@@ -719,12 +766,13 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
             </div>
           </div>
 
-          {/* Professional Diagram (Eraser.io) - Full width, clickable when has diagram */}
+          {/* Professional Diagram (Eraser.io) - Only show if Auto Pro enabled or diagram exists */}
+          {(autoGenerateEraser || eraserDiagram) && (
           <div
             className={`rounded-lg p-3 bg-gray-50 border border-gray-200 ${eraserDiagram ? 'cursor-pointer hover:border-emerald-300 group' : ''} transition-all`}
             onClick={() => eraserDiagram && setProDiagramModal(true)}
           >
-            <h4 className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-2 flex items-center justify-between">
+            <h4 className="text-[11px] font-semibold uppercase tracking-wide mb-2 flex items-center justify-between" style={{ color: '#475569' }}>
               <span>Pro Diagram</span>
               <div className="flex items-center gap-2">
                 {eraserDiagram && (
@@ -825,6 +873,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, onGener
               </div>
             )}
           </div>
+          )}
         </div>
 
         {/* Tech Justifications - Compact grid layout */}

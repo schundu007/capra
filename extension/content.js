@@ -13,6 +13,17 @@
         /hackerrank\.com\/contests\/[^\/]+\/challenges\/[^\/]+/,
         /hackerrank\.com\/tests\/[^\/]+\/questions/,
         /hackerrank\.com\/work\/tests\/[^\/]+/,
+        /hackerrank\.com\/test\/[^\/]+/,                          // singular /test/
+        /hackerrank\.com\/x\/tests\/[^\/]+/,                      // /x/tests/ prefix
+        /hackerrank\.com\/x\/test\/[^\/]+/,                       // /x/test/ prefix
+        /hackerrank\.com\/interview\/[^\/]+/,                     // /interview/ path
+        /hackerrank\.com\/.*\/questions\/[^\/]+/,                 // any path with /questions/
+        /hackerrank\.com\/.*candidate/i,                          // candidate test URLs
+        /hr\.gs\/.+/,                                             // HackerRank short URLs
+        /hackerrank\.com\/codepair\/.+/,                          // live codepair interviews
+        /hackerrank\.com\/domains\/.+/,                           // domain challenges
+        /hackerrank\.com\/skills-verification\/.+/,               // skills verification
+        /hackerrank\.com\/.*\/coding_questions\/.+/,              // coding questions
       ],
       detectType: () => {
         const text = document.body?.innerText?.toLowerCase() || '';
@@ -29,6 +40,11 @@
       patterns: [
         /leetcode\.com\/problems\/[^\/]+/,
         /leetcode\.com\/contest\/[^\/]+\/problems\/[^\/]+/,
+        /leetcode\.com\/playground\/.+/,                          // playground
+        /leetcode\.com\/explore\/[^\/]+\/card\/.+/,               // explore cards
+        /leetcode\.com\/company\/[^\/]+\/problems\/.+/,           // company problems
+        /leetcode\.com\/assessment\/.+/,                          // assessments
+        /leetcode\.com\/interview\/.+/,                           // mock interviews
       ],
       detectType: () => {
         const tags = document.querySelectorAll('[class*="tag"]');
@@ -44,6 +60,8 @@
         /coderpad\.io\/sandbox/,
         /coderpad\.io\/[A-Z0-9]+$/i,
         /app\.coderpad\.io/,
+        /coderpad\.io\/interview\/.+/,                            // interview sessions
+        /coderpad\.io\/pad\/.+/,                                  // pad sessions
       ],
       detectType: () => 'coding'
     },
@@ -52,6 +70,40 @@
         /codesignal\.com\/test/,
         /codesignal\.com\/public-test/,
         /codesignal\.com\/interview/,
+        /codesignal\.com\/assessments\/.+/,                       // assessments
+        /codesignal\.com\/coding-report\/.+/,                     // coding reports
+        /codesignal\.com\/preview\/.+/,                           // preview mode
+        /app\.codesignal\.com\/.+/,                               // app subdomain
+      ],
+      detectType: () => 'coding'
+    },
+    codility: {
+      patterns: [
+        /codility\.com\/programmers\/lessons\/.+/,                // lessons
+        /codility\.com\/programmers\/trainings\/.+/,              // trainings
+        /codility\.com\/c\/run\/.+/,                              // test runs
+        /codility\.com\/ce\/.+/,                                  // candidate experience
+        /app\.codility\.com\/.+/,                                 // app subdomain
+        /codility\.com\/public-link\/.+/,                         // public links
+        /codility\.com\/test\/.+/,                                // tests
+      ],
+      detectType: () => 'coding'
+    },
+    glider: {
+      patterns: [
+        /glider\.ai\/assess\/.+/,                                 // assessments
+        /glider\.ai\/interview\/.+/,                              // interviews
+        /glider\.ai\/test\/.+/,                                   // tests
+        /gliderassessment\.com\/.+/,                              // assessment domain
+        /app\.glider\.ai\/.+/,                                    // app subdomain
+      ],
+      detectType: () => 'coding'
+    },
+    lark: {
+      patterns: [
+        /lark\.com\/.*interview/i,                                // interviews
+        /larksuite\.com\/.*interview/i,                           // larksuite interviews
+        /feishu\.cn\/.*interview/i,                               // feishu interviews
       ],
       detectType: () => 'coding'
     }

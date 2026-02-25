@@ -18,7 +18,7 @@ function safeLog(...args) {
 
 const router = Router();
 
-const TIMEOUT = 10000;
+const TIMEOUT = 30000; // 30 seconds for code execution
 const installedPackages = new Set();
 
 async function installPythonPackage(packageName) {
@@ -273,7 +273,7 @@ async function executeCode(code, language, input = '', args = [], retryCount = 0
 
       const timer = setTimeout(() => {
         proc.kill('SIGKILL');
-        resolve({ success: false, error: 'Execution timeout (10s limit)' });
+        resolve({ success: false, error: 'Execution timeout (30s limit)' });
       }, TIMEOUT);
 
       proc.on('close', async (exitCode) => {

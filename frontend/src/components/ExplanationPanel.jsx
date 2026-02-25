@@ -434,7 +434,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
       <div className="h-full flex flex-col overflow-hidden" style={{ background: '#f5f5f5' }}>
         <div className="flex items-center gap-2 px-3 py-2 flex-shrink-0" style={{ borderBottom: '1px solid #e5e5e5' }}>
           <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#b3b3b3' }} />
-          <span className="text-sm font-medium" style={{ color: '#999999' }}>Explanation</span>
+          <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: '#999999' }}>Explanation</span>
         </div>
         <div className="flex-1 flex items-center justify-center p-4">
           <p className="text-sm" style={{ color: '#999999' }}>Solve a problem to see explanations</p>
@@ -449,11 +449,11 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
       <div className="h-full flex flex-col overflow-hidden bg-white">
         <div className="flex items-center gap-2 px-3 py-2 flex-shrink-0" style={{ borderBottom: '1px solid #e5e5e5' }}>
           <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#10b981' }} />
-          <span className="text-sm font-semibold" style={{ color: '#333333' }}>Explanation</span>
+          <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: '#333333' }}>Explanation</span>
           <div className="flex gap-0.5 ml-1.5">
-            <span className="w-0.5 h-0.5 rounded-full animate-bounce" style={{ background: '#10b981', animationDelay: '0ms' }} />
-            <span className="w-0.5 h-0.5 rounded-full animate-bounce" style={{ background: '#10b981', animationDelay: '150ms' }} />
-            <span className="w-0.5 h-0.5 rounded-full animate-bounce" style={{ background: '#10b981', animationDelay: '300ms' }} />
+            <span className="w-1 h-1 rounded-full animate-bounce" style={{ background: '#10b981', animationDelay: '0ms' }} />
+            <span className="w-1 h-1 rounded-full animate-bounce" style={{ background: '#10b981', animationDelay: '150ms' }} />
+            <span className="w-1 h-1 rounded-full animate-bounce" style={{ background: '#10b981', animationDelay: '300ms' }} />
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center">
@@ -466,17 +466,17 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
   return (
     <div className="h-full flex flex-col overflow-hidden bg-white">
       {/* Header */}
-      <div className="flex items-center gap-1.5 px-2 py-1.5 flex-shrink-0" style={{ borderBottom: '1px solid #e5e5e5' }}>
-        <div className="w-1 h-1 rounded-full" style={{ background: '#10b981' }} />
-        <span className="text-[10px] font-semibold" style={{ color: '#333333' }}>Explanation</span>
+      <div className="flex items-center gap-2 px-3 py-2 flex-shrink-0" style={{ borderBottom: '1px solid #e5e5e5' }}>
+        <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#10b981' }} />
+        <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: '#333333' }}>Explanation</span>
       </div>
 
       {/* Content */}
       <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin p-2 space-y-2">
         {/* Solution Pitch - Structured format for easy verbal delivery */}
         {pitch && (
-          <div className="p-3 rounded-lg" style={{ background: '#f5f5f5', borderLeft: '3px solid #10b981' }}>
-            <span className="text-[12px] font-bold uppercase tracking-wide mb-3 block" style={{ color: '#10b981' }}>
+          <div className="p-3 rounded-lg" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderLeft: '3px solid #10b981' }}>
+            <span className="text-[11px] font-semibold uppercase tracking-wide mb-3 block" style={{ color: '#10b981' }}>
               How to Explain
             </span>
 
@@ -554,22 +554,49 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                   </div>
                 )}
               </div>
+            ) : typeof pitch === 'object' ? (
+              /* Object without opener - render available fields nicely */
+              <div className="space-y-3">
+                {Object.entries(pitch).map(([key, value]) => {
+                  if (!value) return null;
+                  const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
+                  return (
+                    <div key={key}>
+                      <span className="text-[10px] font-semibold text-gray-500 uppercase">{label}</span>
+                      {Array.isArray(value) ? (
+                        <ul className="mt-1 space-y-1">
+                          {value.map((item, i) => (
+                            <li key={i} className="text-[12px] text-gray-700 flex items-start gap-2">
+                              <span className="text-emerald-500 font-bold">{i + 1}.</span>
+                              {typeof item === 'string' ? item : JSON.stringify(item)}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : typeof value === 'object' ? (
+                        <p className="text-[13px] text-gray-700 mt-0.5">{JSON.stringify(value)}</p>
+                      ) : (
+                        <p className="text-[13px] text-gray-700 mt-0.5">{value}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             ) : (
-              /* Fallback for old string format */
-              <FormattedText text={typeof pitch === 'string' ? pitch : JSON.stringify(pitch)} />
+              /* Fallback for string format */
+              <FormattedText text={typeof pitch === 'string' ? pitch : String(pitch)} />
             )}
           </div>
         )}
 
         {/* Interviewer Q&A Section */}
         {hasSolution && onFollowUpQuestion && (
-          <div className="p-3 rounded-lg" style={{ background: '#f5f5f5', border: '1px solid #e5e5e5' }}>
+          <div className="p-3 rounded-lg" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <svg className="w-4 h-4" style={{ color: '#666666' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" style={{ color: '#3b82f6' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                 </svg>
-                <span className="text-sm font-bold uppercase tracking-wide" style={{ color: '#333333' }}>
+                <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: '#333333' }}>
                   Interviewer Q&A
                 </span>
               </div>
@@ -712,9 +739,9 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
 
         {/* Line-by-line Explanations */}
         {explanations && explanations.length > 0 && (
-          <div>
+          <div className="p-3 rounded-lg" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
             <div className="mb-2">
-              <span className="text-sm font-bold text-gray-500 uppercase tracking-wide">
+              <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: '#64748b' }}>
                 Line Breakdown
               </span>
             </div>

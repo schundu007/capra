@@ -5,8 +5,7 @@ const isMacElectron = window.electronAPI?.isElectron && navigator.platform.toLow
 const isElectron = window.electronAPI?.isElectron || false;
 
 /**
- * Sidebar component - Oracle Cloud Console-inspired light theme
- * with design-oriented background and integrated controls
+ * Sidebar component - Modern dark theme with solid colors
  */
 export default function Sidebar({
   savedDesigns = [],
@@ -18,23 +17,21 @@ export default function Sidebar({
   onCollapse,
   onViewAllDesigns,
   onViewAllHistory,
-  // Props for settings
   onOpenSettings,
   onOpenSupport,
   isLoading,
-  // Interview Assistant
   showInterviewAssistant,
   onToggleInterviewAssistant,
-  // User management props
   user,
   isAdmin,
   authRequired,
   onLogout,
   onOpenAdminPanel,
+  stealthMode = false,
+  onToggleStealth,
 }) {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
-  // Format relative time
   const formatRelativeTime = (timestamp) => {
     const now = Date.now();
     const diff = now - timestamp;
@@ -63,7 +60,6 @@ export default function Sidebar({
       setDeleteConfirmId(null);
     } else {
       setDeleteConfirmId(confirmKey);
-      // Auto-clear confirmation after 3 seconds
       setTimeout(() => setDeleteConfirmId(null), 3000);
     }
   };
@@ -74,31 +70,18 @@ export default function Sidebar({
       style={{
         width: '260px',
         minWidth: '260px',
-        background: 'linear-gradient(180deg, #fafafa 0%, #f5f5f5 50%, #f0f0f0 100%)',
-        borderRight: '1px solid #e0e0e0',
-        position: 'relative',
+        background: '#1a1a1a',
+        borderRight: '1px solid #333333',
       }}
     >
-      {/* Subtle pattern overlay */}
+      {/* Header */}
       <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          opacity: 0.03,
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          pointerEvents: 'none',
-        }}
-      />
-
-      {/* Header - draggable area for macOS */}
-      <div
-        className="flex items-center justify-between py-3 relative z-10"
+        className="flex items-center justify-between py-3"
         style={{
           paddingLeft: isMacElectron ? '80px' : '16px',
           paddingRight: '12px',
-          borderBottom: '1px solid #e0e0e0',
-          background: 'rgba(255,255,255,0.7)',
-          backdropFilter: 'blur(8px)',
+          borderBottom: '1px solid #333333',
+          background: '#242424',
           WebkitAppRegion: 'drag'
         }}
       >
@@ -108,20 +91,20 @@ export default function Sidebar({
             alt="Ascend"
             className="w-7 h-7 object-contain"
           />
-          <span className="font-semibold text-sm" style={{ color: '#333333' }}>Ascend</span>
+          <span className="font-semibold text-sm" style={{ color: '#ffffff' }}>Ascend</span>
           {isLoading && (
-            <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
+            <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#22c55e', boxShadow: '0 0 8px #22c55e' }} />
           )}
         </div>
         <button
           onClick={onCollapse}
           className="p-1.5 rounded-md transition-colors"
           style={{
-            color: '#999999',
+            color: '#888888',
             WebkitAppRegion: 'no-drag'
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; e.currentTarget.style.color = '#666666'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#999999'; }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = '#333333'; e.currentTarget.style.color = '#ffffff'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#888888'; }}
           title="Collapse sidebar"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -130,28 +113,26 @@ export default function Sidebar({
         </button>
       </div>
 
-      {/* Scrollable content area */}
-      <div className="flex-1 overflow-y-auto relative z-10">
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto">
         {/* Interview Assistant Toggle */}
         <div className="px-3 py-4">
           <button
             onClick={onToggleInterviewAssistant}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all"
             style={{
-              background: showInterviewAssistant ? 'rgba(16, 185, 129, 0.1)' : 'rgba(0,0,0,0.02)',
-              color: showInterviewAssistant ? '#059669' : '#555555',
-              border: showInterviewAssistant ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid #e5e5e5',
+              background: showInterviewAssistant ? '#1a3d2e' : '#2a2a2a',
+              color: showInterviewAssistant ? '#4ade80' : '#cccccc',
+              border: showInterviewAssistant ? '1px solid #166534' : '1px solid #444444',
             }}
             onMouseEnter={(e) => {
               if (!showInterviewAssistant) {
-                e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
-                e.currentTarget.style.borderColor = '#d0d0d0';
+                e.currentTarget.style.background = '#333333';
               }
             }}
             onMouseLeave={(e) => {
               if (!showInterviewAssistant) {
-                e.currentTarget.style.background = 'rgba(0,0,0,0.02)';
-                e.currentTarget.style.borderColor = '#e5e5e5';
+                e.currentTarget.style.background = '#2a2a2a';
               }
             }}
           >
@@ -159,30 +140,27 @@ export default function Sidebar({
               <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
               <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
             </svg>
-            <span className="text-sm font-medium">Ascend</span>
+            <span className="text-sm font-semibold">Ascend</span>
             {showInterviewAssistant && (
-              <div className="ml-auto w-2 h-2 rounded-full" style={{ background: '#10b981' }} />
+              <div className="ml-auto w-2 h-2 rounded-full" style={{ background: '#22c55e' }} />
             )}
           </button>
         </div>
 
         {/* Divider */}
-        <div style={{ borderTop: '1px solid #e0e0e0', margin: '0 16px' }} />
+        <div style={{ borderTop: '1px solid #333333', margin: '0 16px' }} />
 
         {/* Saved Designs Section */}
         <div className="px-3 py-4">
           <div className="flex items-center justify-between px-2 mb-2">
-            <span
-              className="text-[10px] font-bold uppercase tracking-wider"
-              style={{ color: '#888888' }}
-            >
+            <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: '#888888' }}>
               Saved Designs ({savedDesigns.length})
             </span>
           </div>
 
           <div className="mt-1">
             {savedDesigns.length === 0 ? (
-              <div className="px-3 py-3 text-center text-xs rounded-lg" style={{ color: '#999999', background: 'rgba(0,0,0,0.02)' }}>
+              <div className="px-3 py-3 text-center text-xs rounded-lg" style={{ color: '#666666', background: '#2a2a2a' }}>
                 No saved designs yet
               </div>
             ) : (
@@ -192,18 +170,18 @@ export default function Sidebar({
                     <div
                       key={design.id}
                       className="group flex items-center justify-between px-3 py-2 rounded-lg transition-colors"
-                      style={{ color: '#444444' }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.04)'; }}
+                      style={{ color: '#cccccc' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = '#2a2a2a'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                     >
                       <button
                         onClick={() => onLoadDesign(design.id)}
                         className="flex-1 flex flex-col text-left min-w-0"
                       >
-                        <div className="text-sm truncate group-hover:text-[#10b981]">
+                        <div className="text-sm truncate group-hover:text-emerald-400">
                           {design.title || 'Untitled Design'}
                         </div>
-                        <div className="text-xs mt-0.5" style={{ color: '#999999' }}>
+                        <div className="text-xs mt-0.5" style={{ color: '#666666' }}>
                           {formatRelativeTime(design.timestamp)}
                         </div>
                       </button>
@@ -212,9 +190,9 @@ export default function Sidebar({
                           onClick={(e) => handleDelete('design', design.id, e)}
                           className="ml-2 px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors flex-shrink-0"
                           style={{
-                            background: deleteConfirmId === `design-${design.id}` ? '#fef2f2' : 'transparent',
-                            color: deleteConfirmId === `design-${design.id}` ? '#ef4444' : '#999999',
-                            border: deleteConfirmId === `design-${design.id}` ? '1px solid #fecaca' : '1px solid transparent',
+                            background: deleteConfirmId === `design-${design.id}` ? '#3d1f1f' : 'transparent',
+                            color: deleteConfirmId === `design-${design.id}` ? '#ef4444' : '#666666',
+                            border: deleteConfirmId === `design-${design.id}` ? '1px solid #7f1d1d' : '1px solid transparent',
                           }}
                           title={deleteConfirmId === `design-${design.id}` ? 'Click to confirm' : 'Delete'}
                         >
@@ -228,8 +206,8 @@ export default function Sidebar({
                   <button
                     onClick={onViewAllDesigns}
                     className="w-full px-3 py-2 text-xs text-left flex items-center gap-1 transition-colors rounded-lg mt-1"
-                    style={{ color: '#10b981' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(16,185,129,0.05)'; }}
+                    style={{ color: '#22d3d1' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = '#0d3d3d'; }}
                     onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                   >
                     View All ({savedDesigns.length})
@@ -244,22 +222,19 @@ export default function Sidebar({
         </div>
 
         {/* Divider */}
-        <div style={{ borderTop: '1px solid #e0e0e0', margin: '0 16px' }} />
+        <div style={{ borderTop: '1px solid #333333', margin: '0 16px' }} />
 
         {/* Recent History Section */}
         <div className="px-3 py-4">
           <div className="flex items-center justify-between px-2 mb-2">
-            <span
-              className="text-[10px] font-bold uppercase tracking-wider"
-              style={{ color: '#888888' }}
-            >
+            <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: '#888888' }}>
               Recent ({codingHistory.length})
             </span>
           </div>
 
           <div className="mt-1">
             {codingHistory.length === 0 ? (
-              <div className="px-3 py-3 text-center text-xs rounded-lg" style={{ color: '#999999', background: 'rgba(0,0,0,0.02)' }}>
+              <div className="px-3 py-3 text-center text-xs rounded-lg" style={{ color: '#666666', background: '#2a2a2a' }}>
                 No history yet
               </div>
             ) : (
@@ -269,22 +244,19 @@ export default function Sidebar({
                     <div
                       key={entry.id}
                       className="group flex items-center justify-between px-3 py-2 rounded-lg transition-colors"
-                      style={{ color: '#444444' }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.04)'; }}
+                      style={{ color: '#cccccc' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = '#2a2a2a'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                     >
                       <button
                         onClick={() => onLoadHistory(entry.id)}
                         className="flex-1 flex flex-col text-left min-w-0"
                       >
-                        <div className="text-sm truncate group-hover:text-[#10b981]">
+                        <div className="text-sm truncate group-hover:text-emerald-400">
                           {entry.title || 'Untitled Problem'}
                         </div>
-                        <div className="flex items-center gap-2 text-xs mt-0.5" style={{ color: '#999999' }}>
-                          <span
-                            className="px-1.5 py-0.5 rounded"
-                            style={{ background: 'rgba(0,0,0,0.05)', color: '#666666' }}
-                          >
+                        <div className="flex items-center gap-2 text-xs mt-0.5" style={{ color: '#666666' }}>
+                          <span className="px-1.5 py-0.5 rounded" style={{ background: '#333333', color: '#999999' }}>
                             {entry.language || 'auto'}
                           </span>
                           <span>{formatRelativeTime(entry.timestamp)}</span>
@@ -295,9 +267,9 @@ export default function Sidebar({
                           onClick={(e) => handleDelete('history', entry.id, e)}
                           className="ml-2 px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors flex-shrink-0"
                           style={{
-                            background: deleteConfirmId === `history-${entry.id}` ? '#fef2f2' : 'transparent',
-                            color: deleteConfirmId === `history-${entry.id}` ? '#ef4444' : '#999999',
-                            border: deleteConfirmId === `history-${entry.id}` ? '1px solid #fecaca' : '1px solid transparent',
+                            background: deleteConfirmId === `history-${entry.id}` ? '#3d1f1f' : 'transparent',
+                            color: deleteConfirmId === `history-${entry.id}` ? '#ef4444' : '#666666',
+                            border: deleteConfirmId === `history-${entry.id}` ? '1px solid #7f1d1d' : '1px solid transparent',
                           }}
                           title={deleteConfirmId === `history-${entry.id}` ? 'Click to confirm' : 'Delete'}
                         >
@@ -311,8 +283,8 @@ export default function Sidebar({
                   <button
                     onClick={onViewAllHistory}
                     className="w-full px-3 py-2 text-xs text-left flex items-center gap-1 transition-colors rounded-lg mt-1"
-                    style={{ color: '#10b981' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(16,185,129,0.05)'; }}
+                    style={{ color: '#22d3d1' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = '#0d3d3d'; }}
                     onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                   >
                     View All ({codingHistory.length})
@@ -329,11 +301,10 @@ export default function Sidebar({
 
       {/* Bottom Section - User & Settings */}
       <div
-        className="relative z-10 px-3 py-3 space-y-2"
+        className="px-3 py-3 space-y-2"
         style={{
-          borderTop: '1px solid #e0e0e0',
-          background: 'rgba(255,255,255,0.5)',
-          backdropFilter: 'blur(8px)',
+          borderTop: '1px solid #333333',
+          background: '#242424',
         }}
       >
         {/* User Section (for webapp with auth) */}
@@ -341,20 +312,18 @@ export default function Sidebar({
           <div
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg"
             style={{
-              background: 'rgba(16, 185, 129, 0.05)',
-              border: '1px solid rgba(16, 185, 129, 0.2)',
+              background: '#1a3d2e',
+              border: '1px solid #166534',
             }}
           >
-            {/* User Avatar */}
             <div
-              className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
+              className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold text-white flex-shrink-0"
               style={{ background: '#10b981' }}
             >
               {(user.name || user.username || 'U')[0].toUpperCase()}
             </div>
-            {/* User Info */}
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium truncate" style={{ color: '#333333' }}>
+              <div className="text-sm font-medium truncate" style={{ color: '#ffffff' }}>
                 {user.name || user.username || 'User'}
               </div>
               {user.email && (
@@ -363,14 +332,13 @@ export default function Sidebar({
                 </div>
               )}
             </div>
-            {/* Actions */}
             <div className="flex items-center gap-1 flex-shrink-0">
               {isAdmin && onOpenAdminPanel && (
                 <button
                   onClick={onOpenAdminPanel}
                   className="p-1.5 rounded-md transition-colors"
                   style={{ color: '#888888' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; e.currentTarget.style.color = '#666666'; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = '#333333'; e.currentTarget.style.color = '#ffffff'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#888888'; }}
                   title="User management"
                 >
@@ -383,7 +351,7 @@ export default function Sidebar({
                 onClick={onLogout}
                 className="p-1.5 rounded-md transition-colors"
                 style={{ color: '#888888' }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; e.currentTarget.style.color = '#ef4444'; }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#3d1f1f'; e.currentTarget.style.color = '#ef4444'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#888888'; }}
                 title="Sign out"
               >
@@ -395,23 +363,56 @@ export default function Sidebar({
           </div>
         )}
 
-        {/* Support/Donate Button */}
+        {/* Support Button */}
         {onOpenSupport && (
           <button
             onClick={onOpenSupport}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all"
             style={{
-              background: 'rgba(236, 72, 153, 0.08)',
-              color: '#db2777',
-              border: '1px solid rgba(236, 72, 153, 0.25)',
+              background: '#422006',
+              color: '#fbbf24',
+              border: '1px solid #b45309',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(236, 72, 153, 0.15)'; e.currentTarget.style.borderColor = 'rgba(236, 72, 153, 0.4)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(236, 72, 153, 0.08)'; e.currentTarget.style.borderColor = 'rgba(236, 72, 153, 0.25)'; }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#4a2608'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = '#422006'; }}
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
             </svg>
-            <span className="text-sm font-medium">Support Ascend</span>
+            <span className="text-sm font-semibold">Support Ascend</span>
+          </button>
+        )}
+
+        {/* Stealth Mode Toggle - Only in Electron */}
+        {isElectron && (
+          <button
+            onClick={onToggleStealth}
+            className="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-left transition-all"
+            style={{
+              background: stealthMode ? '#14532d' : '#1f2937',
+              color: stealthMode ? '#4ade80' : '#9ca3af',
+              border: stealthMode ? '1px solid #166534' : '1px solid #374151',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.9'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
+            title={stealthMode ? 'Stealth ON - Hidden from screen capture (Cmd+Shift+S)' : 'Stealth OFF - Screenshots allowed (Cmd+Shift+S)'}
+          >
+            <div className="flex items-center gap-3">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {stealthMode ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                )}
+              </svg>
+              <span className="text-sm font-medium">Stealth Mode</span>
+            </div>
+            <span className="text-xs font-semibold px-1.5 py-0.5 rounded" style={{
+              background: stealthMode ? '#166534' : '#374151',
+              color: stealthMode ? '#86efac' : '#6b7280',
+            }}>
+              {stealthMode ? 'ON' : 'OFF'}
+            </span>
           </button>
         )}
 
@@ -420,12 +421,12 @@ export default function Sidebar({
           onClick={onOpenSettings}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all"
           style={{
-            background: 'rgba(0,0,0,0.02)',
-            color: '#555555',
-            border: '1px solid #e5e5e5',
+            background: '#1a2a3a',
+            color: '#60a5fa',
+            border: '1px solid #1e40af',
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; e.currentTarget.style.borderColor = '#d0d0d0'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.02)'; e.currentTarget.style.borderColor = '#e5e5e5'; }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = '#1e3a5f'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = '#1a2a3a'; }}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />

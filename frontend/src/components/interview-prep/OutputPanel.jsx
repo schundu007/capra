@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 // Oracle-inspired clean color palette
 const colors = {
@@ -14,6 +14,12 @@ const colors = {
 
 export default function OutputPanel({ section, content, streamingContent, isGenerating, onRegenerate, onGenerate, hasInputs }) {
   const [copied, setCopied] = useState(false);
+  const [failedDiagrams, setFailedDiagrams] = useState({});
+
+  // Handle diagram image load error - fall back to ASCII
+  const handleDiagramError = useCallback((questionIndex) => {
+    setFailedDiagrams(prev => ({ ...prev, [questionIndex]: true }));
+  }, []);
 
   const handleCopy = async () => {
     try {
@@ -315,29 +321,36 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                         {(q.diagramUrl || q.architecture?.diagramDescription || q.architecture?.asciiDiagram) && (
                           <div className="mt-3">
                             <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: colors.accent }}>Architecture Diagram</p>
-                            {q.diagramUrl ? (
+                            {q.diagramUrl && !failedDiagrams[i] ? (
                               <div className="rounded-lg overflow-hidden border" style={{ borderColor: colors.border }}>
                                 <img
                                   src={q.diagramUrl}
                                   alt={`Architecture diagram for ${q.title || 'system design'}`}
                                   className="w-full"
                                   style={{ background: '#ffffff' }}
+                                  onError={() => handleDiagramError(i)}
                                 />
                                 {q.diagramDescription && (
                                   <p className="text-xs p-2" style={{ background: '#f8fafc', color: colors.textMuted }}>{q.diagramDescription}</p>
                                 )}
                               </div>
+                            ) : q.architecture?.asciiDiagram ? (
+                              <pre className="text-xs p-3 rounded overflow-x-auto" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: 'Monaco, monospace', lineHeight: '1.3' }}>
+                                {q.architecture.asciiDiagram.replace(/\\n/g, '\n')}
+                              </pre>
                             ) : q.architecture?.diagramDescription ? (
                               <div className="p-3 rounded" style={{ background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
                                 <p className="text-sm italic" style={{ color: '#1D4ED8' }}>
                                   📊 {q.architecture.diagramDescription}
                                 </p>
-                                <p className="text-xs mt-1" style={{ color: colors.textMuted }}>(Diagram being generated...)</p>
+                                {failedDiagrams[i] && (
+                                  <p className="text-xs mt-1" style={{ color: '#DC2626' }}>(Diagram expired - regenerate section to create new diagram)</p>
+                                )}
                               </div>
-                            ) : q.architecture?.asciiDiagram ? (
-                              <pre className="text-xs p-3 rounded overflow-x-auto" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: 'Monaco, monospace', lineHeight: '1.3' }}>
-                                {q.architecture.asciiDiagram.replace(/\\n/g, '\n')}
-                              </pre>
+                            ) : failedDiagrams[i] ? (
+                              <div className="p-3 rounded" style={{ background: '#FEF2F2', border: '1px solid #FECACA' }}>
+                                <p className="text-xs" style={{ color: '#DC2626' }}>Diagram expired - regenerate this section to create a new diagram</p>
+                              </div>
                             ) : null}
                           </div>
                         )}

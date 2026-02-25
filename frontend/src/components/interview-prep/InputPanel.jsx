@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { getApiUrl } from '../../hooks/useElectron';
 
 const API_URL = getApiUrl();
@@ -9,38 +10,172 @@ const INPUT_FIELDS = [
     label: 'Job Description',
     placeholder: 'Paste the full job description here...',
     required: true,
+    icon: '📋',
   },
   {
     id: 'resume',
     label: 'Resume',
     placeholder: 'Paste your resume content here...',
     required: true,
+    icon: '📄',
   },
   {
     id: 'coverLetter',
     label: 'Cover Letter',
     placeholder: 'Paste your cover letter (optional)...',
     required: false,
+    icon: '✉️',
   },
   {
     id: 'prepMaterials',
     label: 'Additional Prep Materials',
     placeholder: 'Company research, notes, questions to ask (optional)...',
     required: false,
+    icon: '📝',
   },
 ];
+
+// Convert plain text to markdown-like format for better rendering
+function textToMarkdown(text) {
+  if (!text) return '';
+
+  let result = text;
+
+  // Convert lines that look like headers (ALL CAPS, short, or ending with :)
+  result = result.replace(/^([A-Z][A-Z\s&\-\/]+):?\s*$/gm, '\n## $1\n');
+
+  // Convert bullet points to markdown bullets
+  result = result.replace(/^[\s]*[•·▪►◦‣⁃]\s*/gm, '- ');
+  result = result.replace(/^[\s]*[-]\s+/gm, '- ');
+
+  // Convert numbered lists
+  result = result.replace(/^[\s]*(\d+)[\.\)]\s+/gm, '$1. ');
+
+  // Add line breaks for better paragraph separation
+  result = result.replace(/\n{3,}/g, '\n\n');
+
+  return result;
+}
+
+// Document viewer component - Word/Google Docs style
+function DocumentViewer({ content, onEdit, fieldLabel, icon }) {
+  const markdownContent = textToMarkdown(content);
+
+  return (
+    <div
+      className="h-full flex flex-col rounded-xl overflow-hidden shadow-sm"
+      style={{ background: '#ffffff', border: '1px solid #d1d5db' }}
+    >
+      {/* Document toolbar - like Word/Docs */}
+      <div
+        className="px-4 py-2 flex items-center justify-between"
+        style={{ background: '#f8fafc', borderBottom: '1px solid #e5e7eb' }}
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-base">{icon}</span>
+          <span className="font-medium text-sm" style={{ color: '#374151' }}>{fieldLabel}</span>
+          <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: '#dbeafe', color: '#1d4ed8' }}>
+            {content.split(/\s+/).filter(w => w).length} words
+          </span>
+        </div>
+        <button
+          onClick={onEdit}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all"
+          style={{ background: '#3b82f6', color: '#ffffff' }}
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          Edit
+        </button>
+      </div>
+
+      {/* Document content area - Paper style */}
+      <div
+        className="flex-1 overflow-y-auto"
+        style={{ background: '#f1f5f9' }}
+      >
+        <div
+          className="mx-auto my-6 px-12 py-10 shadow-lg"
+          style={{
+            background: '#ffffff',
+            maxWidth: '800px',
+            minHeight: 'calc(100% - 48px)',
+            borderRadius: '2px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08)',
+          }}
+        >
+          {/* Document content with proper typography */}
+          <div
+            className="prose prose-sm max-w-none"
+            style={{
+              fontFamily: "'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
+              fontSize: '14px',
+              lineHeight: '1.7',
+              color: '#1f2937',
+            }}
+          >
+            <ReactMarkdown
+              components={{
+                h1: ({ children }) => (
+                  <h1 style={{ fontSize: '20px', fontWeight: '700', color: '#111827', marginTop: '24px', marginBottom: '12px', borderBottom: '2px solid #e5e7eb', paddingBottom: '8px' }}>
+                    {children}
+                  </h1>
+                ),
+                h2: ({ children }) => (
+                  <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#1f2937', marginTop: '20px', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    {children}
+                  </h2>
+                ),
+                h3: ({ children }) => (
+                  <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#374151', marginTop: '16px', marginBottom: '8px' }}>
+                    {children}
+                  </h3>
+                ),
+                p: ({ children }) => (
+                  <p style={{ marginTop: '8px', marginBottom: '8px', lineHeight: '1.7' }}>
+                    {children}
+                  </p>
+                ),
+                ul: ({ children }) => (
+                  <ul style={{ marginTop: '8px', marginBottom: '8px', paddingLeft: '20px', listStyleType: 'disc' }}>
+                    {children}
+                  </ul>
+                ),
+                ol: ({ children }) => (
+                  <ol style={{ marginTop: '8px', marginBottom: '8px', paddingLeft: '20px', listStyleType: 'decimal' }}>
+                    {children}
+                  </ol>
+                ),
+                li: ({ children }) => (
+                  <li style={{ marginTop: '4px', marginBottom: '4px', lineHeight: '1.6' }}>
+                    {children}
+                  </li>
+                ),
+                strong: ({ children }) => (
+                  <strong style={{ fontWeight: '600', color: '#111827' }}>{children}</strong>
+                ),
+              }}
+            >
+              {markdownContent}
+            </ReactMarkdown>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function InputPanel({ inputs, onChange, hasInputs }) {
   const [dragOver, setDragOver] = useState(null);
   const fileInputRef = useRef(null);
-  const [activeField, setActiveField] = useState(null);
+  const [editingField, setEditingField] = useState(null);
   const [extracting, setExtracting] = useState(null);
 
   // Extract text from file (supports PDF, DOCX, TXT, MD)
   const extractTextFromFile = async (file, fieldId) => {
     const filename = file.name.toLowerCase();
 
-    // For plain text files, read directly
     if (filename.endsWith('.txt') || filename.endsWith('.md')) {
       try {
         const text = await file.text();
@@ -52,7 +187,6 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
       return;
     }
 
-    // For PDF/DOCX, send to backend for extraction
     if (filename.endsWith('.pdf') || filename.endsWith('.docx')) {
       setExtracting(fieldId);
       try {
@@ -112,109 +246,119 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
       <div className="px-6 py-4" style={{ borderBottom: '1px solid #e5e5e5', background: '#ffffff' }}>
         <h3 className="text-lg font-semibold" style={{ color: '#333333' }}>Interview Materials</h3>
         <p className="text-sm mt-1" style={{ color: '#666666' }}>
-          Provide your job description and resume to generate personalized interview prep content.
+          Add your job description and resume. Content displays in document format for easy reading.
         </p>
       </div>
 
-      {/* Input Fields */}
-      <div className="flex-1 overflow-y-auto p-6" style={{ background: '#f5f5f5' }}>
-        <div className="grid grid-cols-2 gap-6 h-full">
-          {INPUT_FIELDS.map((field) => (
-            <div
-              key={field.id}
-              className={`flex flex-col ${field.id === 'jobDescription' || field.id === 'resume' ? 'row-span-1' : ''}`}
-            >
-              <label className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: '#666666' }}>
-                <span>{field.label}</span>
-                {field.required && <span style={{ color: '#ef4444' }}>*</span>}
-                {inputs[field.id] && (
-                  <span className="ml-auto font-normal normal-case" style={{ color: '#999999' }}>
-                    {inputs[field.id].length.toLocaleString()} chars
-                  </span>
-                )}
-              </label>
-              <div
-                className="relative flex-1 min-h-[160px] rounded transition-all"
-                style={{
-                  border: dragOver === field.id
-                    ? '2px solid #10b981'
-                    : inputs[field.id]
-                    ? '1px solid #10b981'
-                    : '1px solid #e5e5e5',
-                  background: '#ffffff',
-                }}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setDragOver(field.id);
-                }}
-                onDragLeave={() => setDragOver(null)}
-                onDrop={(e) => handleDrop(e, field.id)}
-              >
-                <textarea
-                  value={inputs[field.id]}
-                  onChange={(e) => onChange(field.id, e.target.value)}
-                  onFocus={() => setActiveField(field.id)}
-                  onBlur={() => setActiveField(null)}
-                  placeholder={field.placeholder}
-                  className="absolute inset-0 w-full h-full p-3 text-sm resize-none bg-transparent focus:outline-none rounded"
-                  style={{ color: '#333333' }}
-                />
+      {/* Input Fields - 2x2 Grid */}
+      <div className="flex-1 overflow-y-auto p-4" style={{ background: '#f3f4f6' }}>
+        <div className="grid grid-cols-2 gap-4 h-full">
+          {INPUT_FIELDS.map((field) => {
+            const hasContent = inputs[field.id]?.trim();
+            const isEditing = editingField === field.id || !hasContent;
 
-                {/* Upload hint overlay when empty */}
-                {!inputs[field.id] && activeField !== field.id && !extracting && (
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="text-center" style={{ color: '#999999' }}>
-                      <p className="text-xs font-medium">Drop file here</p>
-                      <p className="text-xs mt-0.5">PDF, DOCX, TXT, or MD</p>
+            return (
+              <div key={field.id} className="flex flex-col min-h-[250px]">
+                {hasContent && !isEditing ? (
+                  <DocumentViewer
+                    content={inputs[field.id]}
+                    onEdit={() => setEditingField(field.id)}
+                    fieldLabel={field.label}
+                    icon={field.icon}
+                  />
+                ) : (
+                  <div className="flex flex-col h-full">
+                    <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: '#6b7280' }}>
+                      <span>{field.icon}</span>
+                      <span>{field.label}</span>
+                      {field.required && <span style={{ color: '#ef4444' }}>*</span>}
+                      {hasContent && (
+                        <button
+                          onClick={() => setEditingField(null)}
+                          className="ml-auto text-xs font-medium px-2.5 py-1 rounded-md"
+                          style={{ background: '#10b981', color: '#ffffff' }}
+                        >
+                          Done Editing
+                        </button>
+                      )}
+                    </label>
+                    <div
+                      className="relative flex-1 rounded-xl transition-all"
+                      style={{
+                        border: dragOver === field.id ? '2px dashed #10b981' : inputs[field.id] ? '2px solid #10b981' : '2px dashed #d1d5db',
+                        background: '#ffffff',
+                      }}
+                      onDragOver={(e) => { e.preventDefault(); setDragOver(field.id); }}
+                      onDragLeave={() => setDragOver(null)}
+                      onDrop={(e) => handleDrop(e, field.id)}
+                    >
+                      <textarea
+                        value={inputs[field.id]}
+                        onChange={(e) => onChange(field.id, e.target.value)}
+                        placeholder={field.placeholder}
+                        className="absolute inset-0 w-full h-full p-4 text-sm resize-none bg-transparent focus:outline-none rounded-xl"
+                        style={{ color: '#374151', lineHeight: '1.6' }}
+                        autoFocus={editingField === field.id}
+                      />
+
+                      {!inputs[field.id] && !extracting && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="text-center" style={{ color: '#9ca3af' }}>
+                            <div className="text-4xl mb-3 opacity-40">{field.icon}</div>
+                            <p className="text-sm font-medium">Drop file or paste text</p>
+                            <p className="text-xs mt-1">Supports PDF, DOCX, TXT, MD</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {extracting === field.id && (
+                        <div className="absolute inset-0 flex items-center justify-center rounded-xl" style={{ background: 'rgba(255,255,255,0.95)' }}>
+                          <div className="text-center" style={{ color: '#10b981' }}>
+                            <div className="w-8 h-8 mx-auto mb-2 border-3 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#10b981', borderTopColor: 'transparent' }} />
+                            <p className="text-sm font-medium">Extracting text...</p>
+                          </div>
+                        </div>
+                      )}
+
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="absolute bottom-3 right-3 px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 hover:shadow-md"
+                        style={{ background: '#f3f4f6', color: '#4b5563', border: '1px solid #e5e7eb' }}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        Upload File
+                      </button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".txt,.md,.pdf,.docx"
+                        className="hidden"
+                        onChange={(e) => handleFileSelect(e, field.id)}
+                      />
                     </div>
                   </div>
                 )}
-
-                {/* Extracting indicator */}
-                {extracting === field.id && (
-                  <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.9)' }}>
-                    <div className="text-center" style={{ color: '#10b981' }}>
-                      <div className="w-5 h-5 mx-auto mb-1 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#10b981', borderTopColor: 'transparent' }} />
-                      <p className="text-xs font-medium">Extracting...</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* File upload button */}
-                <button
-                  onClick={() => {
-                    setActiveField(field.id);
-                    fileInputRef.current?.click();
-                  }}
-                  className="absolute bottom-1.5 right-1.5 px-2 py-1 rounded text-xs font-medium transition-colors"
-                  style={{ background: '#f5f5f5', color: '#666666' }}
-                  title="Upload file"
-                >
-                  Upload
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".txt,.md,.pdf,.docx"
-                  className="hidden"
-                  onChange={(e) => handleFileSelect(e, activeField || field.id)}
-                />
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
       {/* Footer */}
       <div className="px-6 py-3" style={{ borderTop: '1px solid #e5e5e5', background: '#ffffff' }}>
         <div className="flex items-center justify-center">
-          <div className="text-xs">
+          <div className="text-sm">
             {hasInputs ? (
-              <span style={{ color: '#10b981' }}>
-                <strong>Ready</strong> — Click any section on the left to generate
+              <span className="flex items-center gap-2" style={{ color: '#10b981' }}>
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <strong>Ready!</strong> Select a section from the sidebar to generate content
               </span>
             ) : (
-              <span style={{ color: '#666666' }}>Fill in Job Description and Resume to generate</span>
+              <span style={{ color: '#6b7280' }}>Add Job Description and Resume to get started</span>
             )}
           </div>
         </div>

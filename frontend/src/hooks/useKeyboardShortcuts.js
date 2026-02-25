@@ -1,60 +1,25 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 
 /**
- * Check if the currently focused element is a user-facing input field
- * Excludes Monaco editor's hidden textarea and other non-user inputs
- */
-function isInputFocused() {
-  const activeElement = document.activeElement;
-  if (!activeElement) return false;
-
-  // Check if it's inside Monaco editor - don't block shortcuts there
-  // Monaco uses a hidden textarea with class 'inputarea'
-  if (activeElement.classList?.contains('inputarea')) {
-    return false; // Allow shortcuts even when Monaco is "focused"
-  }
-
-  // Check if inside Monaco editor container
-  if (activeElement.closest('.monaco-editor')) {
-    return false; // Allow shortcuts in code display area
-  }
-
-  const tagName = activeElement.tagName.toLowerCase();
-  const isEditable = activeElement.isContentEditable;
-
-  // Only block on actual user input fields (not hidden ones)
-  const isInput = tagName === 'input' || tagName === 'textarea' || tagName === 'select';
-
-  // Check if it's a visible, user-interactable input
-  if (isInput) {
-    // Check if it's hidden or has no dimensions (like Monaco's hidden textarea)
-    const rect = activeElement.getBoundingClientRect();
-    const style = window.getComputedStyle(activeElement);
-    const isHidden = style.visibility === 'hidden' ||
-                     style.display === 'none' ||
-                     rect.width === 0 ||
-                     rect.height === 0 ||
-                     parseFloat(style.opacity) === 0;
-    if (isHidden) return false;
-  }
-
-  return isInput || isEditable;
-}
-
-/**
- * Hook to manage global keyboard shortcuts for Ascend
+ * Stable keyboard shortcuts using refs to avoid stale closures.
  *
- * Shortcuts:
- * - Cmd/Ctrl + Enter: Solve problem
- * - Cmd/Ctrl + Shift + R: Run code
- * - Escape: Clear all / Close modals
- * - Cmd/Ctrl + C: Copy code (when no text selected)
- * - Cmd/Ctrl + Shift + C: Copy code (always)
- * - Cmd/Ctrl + N: New problem (clear)
- * - Cmd/Ctrl + E: Toggle problem statement expand/collapse
- * - Cmd/Ctrl + Shift + A: Toggle Ascend (Interview Assistant)
- * - Space: Solve (when not in input)
- * - Enter: Run (when not in input)
+ * SHORTCUTS:
+ * - Ctrl+1 / Cmd+1: Solve problem
+ * - Ctrl+2 / Cmd+2: Run code
+ * - Ctrl+3 / Cmd+3: Copy code
+ * - Escape: Clear/close
+ * - Cmd+Enter: Solve (alternative)
+ * - Cmd+Shift+Enter: Run (alternative)
+ * - Cmd+C: Copy code
+ * - Cmd+E: Toggle problem expand
+ * - Cmd+Shift+A: Toggle Ascend
+ *
+ * WHY THIS WON'T BREAK:
+ * 1. Uses refs to store latest callback values - no stale closures
+ * 2. Event listener is attached ONCE on mount with empty deps []
+ * 3. Handler reads from refs at execution time, always getting current values
+ * 4. Uses capture phase (true) for highest priority
+ * 5. Accepts both Ctrl and Cmd on Mac for number shortcuts
  */
 export function useKeyboardShortcuts({
   onSolve,
@@ -64,139 +29,161 @@ export function useKeyboardShortcuts({
   onToggleProblem,
   onToggleAscend,
   isLoading = false,
-  hasProblem = false,
   hasCode = false,
   disabled = false,
 }) {
-  const handleKeyDown = useCallback((e) => {
-    // Debug logging
-    console.log('[Shortcuts] Key:', e.key, 'disabled:', disabled, 'isInputFocused:', isInputFocused(), 'hasProblem:', hasProblem, 'hasCode:', hasCode);
+  // Store all values in a single ref - updated every render
+  const stateRef = useRef({
+    onSolve,
+    onRun,
+    onClear,
+    onCopyCode,
+    onToggleProblem,
+    onToggleAscend,
+    isLoading,
+    hasCode,
+    disabled,
+  });
 
-    // Don't handle shortcuts when disabled or in input fields (except for some)
-    if (disabled) {
-      console.log('[Shortcuts] Disabled, returning');
-      return;
-    }
-
-    const isMac = navigator.platform.toLowerCase().includes('mac');
-    const cmdKey = isMac ? e.metaKey : e.ctrlKey;
-
-    // Escape - always works, closes modals or clears
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      onClear?.();
-      return;
-    }
-
-    // Cmd/Ctrl + Shift + C: Copy code - works even in input fields
-    if (e.key === 'c' && cmdKey && e.shiftKey) {
-      e.preventDefault();
-      if (hasCode && onCopyCode) {
-        onCopyCode();
-      }
-      return;
-    }
-
-    // Cmd/Ctrl + C: Always copy generated code (when code exists)
-    if (e.key === 'c' && cmdKey && !e.shiftKey) {
-      console.log('[Shortcuts] Cmd+C pressed, hasCode:', hasCode, 'onCopyCode:', !!onCopyCode);
-      if (hasCode && onCopyCode) {
-        e.preventDefault();
-        onCopyCode();
-        console.log('[Shortcuts] Code copied!');
-        return;
-      } else {
-        console.log('[Shortcuts] No code to copy, letting default behavior through');
-      }
-    }
-
-    // Cmd/Ctrl + E: Toggle problem statement expand/collapse
-    if (e.key === 'e' && cmdKey && !e.shiftKey) {
-      e.preventDefault();
-      if (onToggleProblem) {
-        onToggleProblem();
-      }
-      return;
-    }
-
-    // Cmd/Ctrl + Shift + A: Toggle Ascend (Interview Assistant)
-    if (e.key === 'a' && cmdKey && e.shiftKey) {
-      e.preventDefault();
-      if (onToggleAscend) {
-        onToggleAscend();
-      }
-      return;
-    }
-
-    // Don't process other shortcuts if typing in input
-    const inputFocused = isInputFocused();
-    console.log('[Shortcuts] inputFocused:', inputFocused, 'activeElement:', document.activeElement?.tagName, document.activeElement?.className);
-    if (inputFocused) {
-      // Allow Cmd+Enter to submit from text area
-      if (e.key === 'Enter' && cmdKey && !e.shiftKey) {
-        // Let the form handle Cmd+Enter for submit
-        return;
-      }
-      console.log('[Shortcuts] Blocked due to input focus');
-      return;
-    }
-
-    // Cmd/Ctrl + Enter: Solve
-    if (e.key === 'Enter' && cmdKey && !e.shiftKey) {
-      e.preventDefault();
-      if (!isLoading && hasProblem && onSolve) {
-        onSolve();
-      }
-      return;
-    }
-
-    // Cmd/Ctrl + Shift + R: Run code
-    if (e.key === 'r' && cmdKey && e.shiftKey) {
-      e.preventDefault();
-      if (!isLoading && hasCode && onRun) {
-        onRun();
-      }
-      return;
-    }
-
-    // Cmd/Ctrl + N: New problem
-    if (e.key === 'n' && cmdKey && !e.shiftKey) {
-      e.preventDefault();
-      onClear?.();
-      return;
-    }
-
-    // Space bar: Solve (when not in input)
-    if (e.key === ' ' && !cmdKey && !e.shiftKey && !e.altKey) {
-      console.log('[Shortcuts] Space pressed, isLoading:', isLoading, 'hasProblem:', hasProblem, 'onSolve:', !!onSolve);
-      e.preventDefault();
-      // Always call onSolve if available (removed hasProblem check for now)
-      if (!isLoading && onSolve) {
-        console.log('[Shortcuts] Calling onSolve');
-        onSolve();
-      }
-      return;
-    }
-
-    // Enter: Run code (when not in input, not with modifiers)
-    if (e.key === 'Enter' && !cmdKey && !e.shiftKey && !e.altKey) {
-      console.log('[Shortcuts] Enter pressed, isLoading:', isLoading, 'hasCode:', hasCode, 'onRun:', !!onRun);
-      e.preventDefault();
-      // Always call onRun if available (removed hasCode check for now)
-      if (!isLoading && onRun) {
-        console.log('[Shortcuts] Calling onRun');
-        onRun();
-      }
-      return;
-    }
-
-  }, [onSolve, onRun, onClear, onCopyCode, onToggleAscend, isLoading, hasProblem, hasCode, disabled]);
+  // Update ref on every render (safe and cheap)
+  stateRef.current = {
+    onSolve,
+    onRun,
+    onClear,
+    onCopyCode,
+    onToggleProblem,
+    onToggleAscend,
+    isLoading,
+    hasCode,
+    disabled,
+  };
 
   useEffect(() => {
-    // Use capture phase to catch events before they're handled by other elements
-    window.addEventListener('keydown', handleKeyDown, { capture: true });
-    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
-  }, [handleKeyDown]);
+    const handleKeyDown = (e) => {
+      // Read current values from ref (never stale)
+      const {
+        disabled,
+        isLoading,
+        hasCode,
+        onSolve,
+        onRun,
+        onClear,
+        onCopyCode,
+        onToggleProblem,
+        onToggleAscend,
+      } = stateRef.current;
+
+      // Skip if shortcuts are disabled (modal open, etc.)
+      if (disabled) return;
+
+      const isMac = /mac/i.test(navigator.platform || '');
+      const cmdKey = isMac ? e.metaKey : e.ctrlKey;
+      const ctrlKey = e.ctrlKey;
+
+      // For number shortcuts, accept both Ctrl and Cmd on Mac
+      const modifierForNumbers = isMac ? (e.metaKey || e.ctrlKey) : e.ctrlKey;
+
+      // === CTRL/CMD + NUMBER SHORTCUTS (primary) ===
+
+      // Ctrl+1 or Cmd+1: Solve
+      if (e.key === '1' && modifierForNumbers && !e.shiftKey && !e.altKey) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('[Shortcuts] Ctrl/Cmd+1 detected, isLoading:', isLoading, 'onSolve:', !!onSolve);
+        if (!isLoading && onSolve) {
+          document.activeElement?.blur?.();
+          onSolve();
+        }
+        return;
+      }
+
+      // Ctrl+2 or Cmd+2: Run
+      if (e.key === '2' && modifierForNumbers && !e.shiftKey && !e.altKey) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('[Shortcuts] Ctrl/Cmd+2 detected, isLoading:', isLoading, 'onRun:', !!onRun);
+        if (!isLoading && onRun) {
+          onRun();
+        }
+        return;
+      }
+
+      // Ctrl+3 or Cmd+3: Copy
+      if (e.key === '3' && modifierForNumbers && !e.shiftKey && !e.altKey) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('[Shortcuts] Ctrl/Cmd+3 detected, hasCode:', hasCode, 'onCopyCode:', !!onCopyCode);
+        if (hasCode && onCopyCode) {
+          onCopyCode();
+        }
+        return;
+      }
+
+      // === ESCAPE ===
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        onClear?.();
+        return;
+      }
+
+      // === CMD/CTRL + KEY SHORTCUTS ===
+
+      // Cmd+Enter: Solve
+      if (e.key === 'Enter' && cmdKey && !e.shiftKey) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!isLoading && onSolve) {
+          onSolve();
+        }
+        return;
+      }
+
+      // Cmd+Shift+Enter: Run
+      if (e.key === 'Enter' && cmdKey && e.shiftKey) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!isLoading && onRun) {
+          onRun();
+        }
+        return;
+      }
+
+      // Cmd+Shift+A: Toggle Ascend
+      if (e.key.toLowerCase() === 'a' && cmdKey && e.shiftKey) {
+        e.preventDefault();
+        e.stopPropagation();
+        onToggleAscend?.();
+        return;
+      }
+
+      // Cmd+C: Copy code (only if code exists, otherwise allow default copy)
+      if (e.key.toLowerCase() === 'c' && cmdKey && !e.shiftKey && !e.altKey) {
+        if (hasCode && onCopyCode) {
+          e.preventDefault();
+          e.stopPropagation();
+          onCopyCode();
+        }
+        return;
+      }
+
+      // Cmd+E: Toggle problem expand
+      if (e.key.toLowerCase() === 'e' && cmdKey && !e.shiftKey) {
+        e.preventDefault();
+        e.stopPropagation();
+        onToggleProblem?.();
+        return;
+      }
+    };
+
+    // Attach with capture phase for highest priority
+    window.addEventListener('keydown', handleKeyDown, true);
+
+    // Cleanup on unmount
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown, true);
+    };
+  }, []); // Empty deps = attach once, never re-attach
 }
 
 export default useKeyboardShortcuts;

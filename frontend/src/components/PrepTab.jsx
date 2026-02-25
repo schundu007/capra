@@ -154,20 +154,21 @@ export default function PrepTab({ isOpen, onClose }) {
   const platforms = activeTab === 'coding' ? CODING_PLATFORMS : PREP_PLATFORMS;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-2xl mx-4 rounded-lg overflow-hidden shadow-2xl" style={{ background: '#ffffff' }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.6)' }}>
+      <div className="w-full max-w-2xl mx-4 rounded-lg overflow-hidden shadow-2xl" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3" style={{ background: '#1a1a1a' }}>
+        <div className="flex items-center justify-between px-4 py-3" style={{ background: '#1e293b', borderBottom: '1px solid #334155' }}>
           <div className="flex items-center gap-3">
-            <span className="text-lg font-bold" style={{ color: '#ffffff' }}>Coding Platforms</span>
-            <span className="px-2 py-0.5 text-xs font-medium rounded" style={{ background: '#10b981', color: '#ffffff' }}>
+            <div className="w-2 h-2 rounded-full" style={{ background: '#10b981' }} />
+            <span className="text-[13px] font-semibold uppercase tracking-wide" style={{ color: '#ffffff' }}>Coding Platforms</span>
+            <span className="px-2 py-0.5 text-[10px] font-semibold rounded" style={{ background: '#10b981', color: '#ffffff' }}>
               {connectedCount} connected
             </span>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded transition-colors"
-            style={{ color: '#ffffff' }}
+            className="p-1.5 rounded transition-colors hover:bg-white/10"
+            style={{ color: '#94a3b8' }}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -176,25 +177,25 @@ export default function PrepTab({ isOpen, onClose }) {
         </div>
 
         {/* Tabs */}
-        <div className="flex" style={{ borderBottom: '1px solid #e5e5e5' }}>
+        <div className="flex" style={{ borderBottom: '1px solid #e2e8f0' }}>
           <button
             onClick={() => setActiveTab('coding')}
-            className="flex-1 px-4 py-3 text-sm font-medium transition-colors"
+            className="flex-1 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide transition-colors"
             style={{
-              color: activeTab === 'coding' ? '#10b981' : '#666666',
+              color: activeTab === 'coding' ? '#10b981' : '#64748b',
               borderBottom: activeTab === 'coding' ? '2px solid #10b981' : '2px solid transparent',
-              background: activeTab === 'coding' ? '#ecfdf5' : 'transparent',
+              background: activeTab === 'coding' ? '#f0fdf4' : 'transparent',
             }}
           >
             Coding Platforms
           </button>
           <button
             onClick={() => setActiveTab('prep')}
-            className="flex-1 px-4 py-3 text-sm font-medium transition-colors"
+            className="flex-1 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide transition-colors"
             style={{
-              color: activeTab === 'prep' ? '#10b981' : '#666666',
+              color: activeTab === 'prep' ? '#10b981' : '#64748b',
               borderBottom: activeTab === 'prep' ? '2px solid #10b981' : '2px solid transparent',
-              background: activeTab === 'prep' ? '#ecfdf5' : 'transparent',
+              background: activeTab === 'prep' ? '#f0fdf4' : 'transparent',
             }}
           >
             Interview Prep Sites
@@ -202,7 +203,7 @@ export default function PrepTab({ isOpen, onClose }) {
         </div>
 
         {/* Content */}
-        <div className="p-4 max-h-[60vh] overflow-y-auto" style={{ background: '#f5f5f5' }}>
+        <div className="p-4 max-h-[60vh] overflow-y-auto" style={{ background: '#f8fafc' }}>
           {/* Browser Extension Notice - Webapp only */}
           {!isElectron && (
             <div className="mb-4 p-4 rounded-lg" style={{ background: '#fffbeb', border: '1px solid #fcd34d' }}>
@@ -281,10 +282,10 @@ export default function PrepTab({ isOpen, onClose }) {
                   return (
                     <div
                       key={key}
-                      className="p-3 rounded transition-all"
+                      className="p-3 rounded-lg transition-all"
                       style={{
-                        border: isAuthenticated ? '1px solid #10b981' : '1px solid #e5e5e5',
-                        background: '#ffffff',
+                        border: isAuthenticated ? '1px solid #10b981' : '1px solid #e2e8f0',
+                        background: isAuthenticated ? '#f0fdf4' : '#ffffff',
                       }}
                     >
                       <div className="flex items-center justify-between">
@@ -338,8 +339,8 @@ export default function PrepTab({ isOpen, onClose }) {
               </div>
 
               {/* Fetch Content Section */}
-              <div className="p-4 rounded" style={{ background: '#ffffff', border: '1px solid #e5e5e5' }}>
-                <h3 className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: '#666666' }}>
+              <div className="p-4 rounded-lg" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
+                <h3 className="text-[11px] font-semibold uppercase tracking-wide mb-3" style={{ color: '#475569' }}>
                   Fetch Problem by URL
                 </h3>
                 <div className="flex gap-2 mb-3">
@@ -387,8 +388,8 @@ export default function PrepTab({ isOpen, onClose }) {
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-3" style={{ background: '#ffffff', borderTop: '1px solid #e5e5e5' }}>
-          <p className="text-xs text-center" style={{ color: '#666666' }}>
+        <div className="px-4 py-3" style={{ background: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
+          <p className="text-[10px] text-center" style={{ color: '#64748b' }}>
             {isElectron
               ? 'Connect to platforms to auto-fetch problems • Sessions persist across restarts'
               : 'Install the browser extension to sync your platform logins and auto-fetch problems'

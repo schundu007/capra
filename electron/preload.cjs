@@ -106,6 +106,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
     };
   },
 
+  // System Design Sessions - stored in app data folder
+  getSystemDesigns: () => ipcRenderer.invoke('get-system-designs'),
+  saveSystemDesign: (sessionId, sessionData) => ipcRenderer.invoke('save-system-design', sessionId, sessionData),
+  updateSystemDesign: (sessionId, updates) => ipcRenderer.invoke('update-system-design', sessionId, updates),
+  deleteSystemDesign: (sessionId) => ipcRenderer.invoke('delete-system-design', sessionId),
+  clearAllSystemDesigns: () => ipcRenderer.invoke('clear-all-system-designs'),
+
 });
 
 // Expose a flag to detect Electron environment

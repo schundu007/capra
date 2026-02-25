@@ -77,7 +77,7 @@ export default function SavedSystemDesignsModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="rounded-lg shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col" style={{ background: '#ffffff', border: '1px solid #e5e5e5' }}>
+      <div className="rounded-lg shadow-2xl w-full max-w-7xl max-h-[95vh] flex flex-col" style={{ background: '#ffffff', border: '1px solid #e5e5e5' }}>
         {/* Header */}
         <div className="flex items-center justify-between p-4" style={{ background: '#1a1a1a' }}>
           <div>
@@ -225,10 +225,7 @@ export default function SavedSystemDesignsModal({
 
         {/* Footer */}
         {sessions.length > 0 && (
-          <div className="p-4 flex justify-between items-center" style={{ borderTop: '1px solid #e5e5e5', background: '#ffffff' }}>
-            <p className="text-xs" style={{ color: '#999999' }}>
-              Stored locally in your browser
-            </p>
+          <div className="p-4 flex justify-end items-center" style={{ borderTop: '1px solid #e5e5e5', background: '#ffffff' }}>
             <button
               onClick={handleClearAll}
               className="text-sm px-3 py-1.5 rounded transition-colors"

@@ -222,7 +222,7 @@ Example for "global vs non-global":
 - comparisonDiagram: Multi-region global architecture with CDN, regional load balancers, cross-region replication
 
 DIAGRAM RULES (CRITICAL - Mermaid v11 syntax):
-- ALWAYS start with "flowchart LR" or "flowchart TB" (NOT "graph")
+- ALWAYS start with "flowchart LR" for HORIZONTAL layout (NEVER use TB - vertical takes 5x more space)
 - Use ONLY simple node IDs: A, B, C, D, E, F (single letters or short alphanumeric like LB, DB, API)
 - NO hyphens in node IDs (use DB1 not db-1, use USWest not us-west)
 - Node labels in square brackets: A[Client Browser]
@@ -443,7 +443,16 @@ Respond with valid JSON in exactly this format:
       {"tech": "Redis", "why": "Sub-millisecond latency for hot data, reduces DB load by 80%+", "alternatives": "Memcached (simpler), local cache (if single server)"},
       {"tech": "Load Balancer", "why": "Distributes traffic, enables horizontal scaling, health checks", "alternatives": "DNS round-robin (simpler but less control)"}
     ],
-    "scalability": ["Basic horizontal scaling strategies"]
+    "scalability": ["Basic horizontal scaling strategies"],
+    "tradeoffs": [
+      "Tradeoff 1: SQL vs NoSQL - chose SQL for ACID guarantees but sacrifices horizontal write scaling",
+      "Tradeoff 2: Single region - simpler but higher latency for distant users"
+    ],
+    "edgeCases": [
+      "Edge case 1: Database connection pool exhaustion under load spikes",
+      "Edge case 2: Cache stampede when popular items expire simultaneously",
+      "Edge case 3: Network partition between app servers and database"
+    ]
   }
 }`;
 
@@ -493,7 +502,7 @@ Respond with valid JSON in exactly this format:
       "components": ["CDN", "Global Load Balancer", "Regional LBs", "Web Servers", "Cache Cluster", "Primary DB", "Read Replicas", "Message Queue", "Workers", "Object Storage"],
       "description": "Detailed multi-region architecture with failover"
     },
-    "diagram": "flowchart TB\\n  subgraph Region1[Region 1]\\n    LB1[Load Balancer] --> WS1[Web Servers]\\n    WS1 --> Cache1[(Redis Cluster)]\\n    WS1 --> DB1[(Primary DB)]\\n  end\\n  subgraph Region2[Region 2]\\n    LB2[Load Balancer] --> WS2[Web Servers]\\n    WS2 --> Cache2[(Redis Cluster)]\\n    WS2 --> DB2[(Read Replica)]\\n  end\\n  CDN[CDN] --> LB1\\n  CDN --> LB2\\n  DB1 -.-> DB2",
+    "diagram": "flowchart LR\\n  CDN[CDN] --> LB1[LB Region1]\\n  CDN --> LB2[LB Region2]\\n  subgraph Region1[Region 1]\\n    LB1 --> WS1[Web Servers]\\n    WS1 --> Cache1[(Redis)]\\n    WS1 --> DB1[(Primary DB)]\\n  end\\n  subgraph Region2[Region 2]\\n    LB2 --> WS2[Web Servers]\\n    WS2 --> Cache2[(Redis)]\\n    WS2 --> DB2[(Replica)]\\n  end\\n  DB1 -.-> DB2",
     "techJustifications": [
       {"tech": "Kafka", "category": "Message Queue", "why": "High-throughput event streaming (millions/sec), durability with replication, replay capability for data recovery", "without": "Direct DB writes would bottleneck at 10K writes/sec, losing async processing capability", "alternatives": "RabbitMQ (lower throughput), SQS (simpler but AWS-only), Redis Streams (lighter but less durable)"},
       {"tech": "Redis Cluster", "category": "Cache", "why": "Sub-millisecond reads (<1ms), reduces DB load by 90%, supports distributed locking and rate limiting", "without": "DB would handle 10x more reads, p99 latency jumps from 5ms to 50ms+", "alternatives": "Memcached (no persistence), Hazelcast (more features, more complex)"},
@@ -503,7 +512,20 @@ Respond with valid JSON in exactly this format:
       {"tech": "CDN", "category": "Edge Cache", "why": "Serves static content from 200+ edge locations, reduces origin load by 95%, improves global latency from 200ms to 20ms", "without": "All requests hit origin, 10x higher infrastructure cost, poor global UX", "alternatives": "CloudFront, Fastly, Akamai - all similar capabilities"},
       {"tech": "Load Balancer", "category": "Traffic Management", "why": "Distributes load across servers, health checks with automatic failover, SSL termination, rate limiting", "without": "Single server = single point of failure, no horizontal scaling", "alternatives": "HAProxy (OSS), Nginx (OSS), cloud LBs (managed)"}
     ],
-    "scalability": ["Horizontal scaling with auto-scaling groups", "Database sharding by user_id/hash", "Cache cluster with consistent hashing", "CDN for static content", "Async processing via message queues", "Read replicas for read-heavy workloads"]
+    "scalability": ["Horizontal scaling with auto-scaling groups", "Database sharding by user_id/hash", "Cache cluster with consistent hashing", "CDN for static content", "Async processing via message queues", "Read replicas for read-heavy workloads"],
+    "tradeoffs": [
+      "Tradeoff 1: Strong vs eventual consistency - chose eventual for availability but requires conflict resolution",
+      "Tradeoff 2: Multi-region complexity vs latency - higher ops cost but sub-100ms global latency",
+      "Tradeoff 3: Kafka vs simpler queue - more complex but enables replay and stream processing",
+      "Tradeoff 4: Sharding strategy - user_id hash for even distribution but cross-shard queries are expensive"
+    ],
+    "edgeCases": [
+      "Edge case 1: Network partition between regions - need conflict resolution strategy",
+      "Edge case 2: Hot partition in sharded DB - celebrity/viral content problem",
+      "Edge case 3: Cache stampede during cold start or mass expiration",
+      "Edge case 4: Message queue lag during traffic spikes - backpressure handling",
+      "Edge case 5: Split-brain scenario in distributed cache cluster"
+    ]
   }
 }`;
 

@@ -144,13 +144,25 @@ function parseStreamingContent(text) {
     result.language = langMatch[1];
   }
 
-  // Extract pitch
-  const pitchMatch = text.match(/"pitch"\s*:\s*"((?:[^"\\]|\\.)*)"/s);
-  if (pitchMatch) {
-    result.pitch = cleanupText(pitchMatch[1]
-      .replace(/\\n/g, '\n')
-      .replace(/\\"/g, '"')
-      .replace(/\\\\/g, '\\'));
+  // Extract pitch - can be either a string or an object
+  // First try to match pitch as an object (new format)
+  const pitchObjectMatch = text.match(/"pitch"\s*:\s*(\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})/s);
+  if (pitchObjectMatch) {
+    try {
+      result.pitch = JSON.parse(pitchObjectMatch[1]);
+    } catch {
+      // If parsing fails, try as string
+    }
+  }
+  // Fallback: try to match pitch as a string (old format)
+  if (!result.pitch) {
+    const pitchStringMatch = text.match(/"pitch"\s*:\s*"((?:[^"\\]|\\.)*)"/s);
+    if (pitchStringMatch) {
+      result.pitch = cleanupText(pitchStringMatch[1]
+        .replace(/\\n/g, '\n')
+        .replace(/\\"/g, '"')
+        .replace(/\\\\/g, '\\'));
+    }
   }
 
   // Try to extract complexity
@@ -231,8 +243,8 @@ async function solveWithStream(problem, provider, language, detailLevel, model, 
           }
           if (data.done && data.result) {
             result = data.result;
-            // Clean up text fields in the result
-            if (result.pitch) {
+            // Clean up text fields in the result (only if pitch is a string)
+            if (result.pitch && typeof result.pitch === 'string') {
               result.pitch = cleanupText(result.pitch);
             }
             if (result.systemDesign?.overview) {
@@ -289,6 +301,7 @@ export default function App() {
   const [showPrepTab, setShowPrepTab] = useState(false);
   const [showSavedDesigns, setShowSavedDesigns] = useState(false);
   const [showFundingPage, setShowFundingPage] = useState(false);
+  const [stealthMode, setStealthMode] = useState(false);
 
   // System design storage hook
   const systemDesignStorage = useSystemDesignStorage();
@@ -379,6 +392,16 @@ export default function App() {
   useEffect(() => {
     if (!isElectron || !window.electronAPI) return;
 
+    // Get initial stealth mode state
+    window.electronAPI.getStealthMode?.().then(enabled => {
+      setStealthMode(enabled);
+    });
+
+    // Listen for stealth mode changes
+    const removeStealthListener = window.electronAPI.onStealthModeChanged?.((enabled) => {
+      setStealthMode(enabled);
+    });
+
     // Listen for first-run event
     const removeFirstRun = window.electronAPI.onFirstRun(() => {
       setShowSetupWizard(true);
@@ -395,6 +418,7 @@ export default function App() {
     });
 
     return () => {
+      removeStealthListener?.();
       removeFirstRun?.();
       removeOpenSettings?.();
       removeNewProblem?.();
@@ -497,6 +521,7 @@ export default function App() {
   const [extractedText, setExtractedText] = useState('');
   const [clearScreenshot, setClearScreenshot] = useState(0);
   const [problemExpanded, setProblemExpanded] = useState(true); // Controls problem area expand/collapse
+  const [copyToast, setCopyToast] = useState(false); // Toast notification for copy
 
   const resetState = () => {
     setSolution(null);
@@ -651,12 +676,14 @@ export default function App() {
 
   // Keyboard shortcut callbacks
   const handleKeyboardSolve = () => {
+    console.log('[App] handleKeyboardSolve called, problem:', !!(currentProblem || extractedText));
     if (currentProblem || extractedText) {
       handleSolve(currentProblem || extractedText, currentLanguage, 'detailed');
     }
   };
 
   const handleKeyboardRun = () => {
+    console.log('[App] handleKeyboardRun called');
     if (codeDisplayRef.current?.runCode) {
       codeDisplayRef.current.runCode();
     }
@@ -664,32 +691,38 @@ export default function App() {
 
   const handleKeyboardCopy = async () => {
     const code = solution?.code || streamingContent.code;
-    console.log('[App] handleKeyboardCopy called, code length:', code?.length);
-    if (code) {
+    if (!code) return;
+
+    let success = false;
+    try {
+      // Try Electron clipboard first (most reliable in Electron)
+      if (window.electronAPI?.copyToClipboard) {
+        success = await window.electronAPI.copyToClipboard(code);
+      } else {
+        // Fallback to web clipboard API
+        await navigator.clipboard.writeText(code);
+        success = true;
+      }
+    } catch (err) {
+      // Final fallback using execCommand
       try {
-        // Try Electron clipboard first
-        if (window.electronAPI?.copyToClipboard) {
-          await window.electronAPI.copyToClipboard(code);
-          console.log('[App] Code copied via Electron clipboard');
-        } else {
-          // Fallback to web clipboard API
-          await navigator.clipboard.writeText(code);
-          console.log('[App] Code copied via web clipboard');
-        }
-      } catch (err) {
-        // Final fallback using textarea
-        console.log('[App] Clipboard APIs failed, using textarea fallback:', err.message);
         const textarea = document.createElement('textarea');
         textarea.value = code;
-        textarea.style.cssText = 'position:fixed;left:-9999px;';
+        textarea.style.cssText = 'position:fixed;left:-9999px;top:0;';
         document.body.appendChild(textarea);
+        textarea.focus();
         textarea.select();
-        document.execCommand('copy');
+        success = document.execCommand('copy');
         document.body.removeChild(textarea);
-        console.log('[App] Code copied via textarea fallback');
+      } catch (e) {
+        success = false;
       }
-    } else {
-      console.log('[App] No code available to copy');
+    }
+
+    // Show toast feedback
+    if (success) {
+      setCopyToast(true);
+      setTimeout(() => setCopyToast(false), 1500);
     }
   };
 
@@ -871,7 +904,9 @@ export default function App() {
           setSolution(result);
 
           // Auto-save system design session
+          console.log('[App] Checking save condition:', { interviewMode, hasSystemDesign: !!result?.systemDesign, included: result?.systemDesign?.included });
           if (interviewMode === 'system-design' && result?.systemDesign?.included) {
+            console.log('[App] Saving system design session');
             systemDesignStorage.saveSession({
               problem,
               source: 'text',
@@ -1350,7 +1385,7 @@ EDGE CASES & RESILIENCE:
   const showSidebar = !sidebarCollapsed;
 
   return (
-    <div className="h-screen flex overflow-hidden" style={{ background: '#ffffff', color: '#111827' }}>
+    <div className="h-screen flex overflow-hidden" style={{ background: '#1a1a1a', color: '#ffffff' }}>
       {/* Sidebar */}
       {showSidebar && (
         <Sidebar
@@ -1373,6 +1408,8 @@ EDGE CASES & RESILIENCE:
           authRequired={authRequired}
           onLogout={handleLogout}
           onOpenAdminPanel={() => setShowAdminPanel(true)}
+          stealthMode={stealthMode}
+          onToggleStealth={() => window.electronAPI?.setStealthMode?.(!stealthMode)}
         />
       )}
 
@@ -1383,8 +1420,8 @@ EDGE CASES & RESILIENCE:
         className="relative z-20 flex items-center px-4 py-2"
         style={{
           paddingLeft: (isMacElectron && !showSidebar) ? '80px' : '16px',
-          background: '#ffffff',
-          borderBottom: '1px solid #e5e5e5',
+          background: '#242424',
+          borderBottom: '1px solid #333333',
           WebkitAppRegion: 'drag'
         }}
       >
@@ -1395,9 +1432,9 @@ EDGE CASES & RESILIENCE:
             <button
               onClick={toggleSidebar}
               className="p-2 rounded-lg transition-all"
-              style={{ color: '#666666' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#333333'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#666666'; }}
+              style={{ color: '#888888' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = '#333333'; e.currentTarget.style.color = '#ffffff'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#888888'; }}
               title="Show sidebar"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1425,7 +1462,7 @@ EDGE CASES & RESILIENCE:
             {[
               { id: 'coding', label: 'Coding' },
               { id: 'system-design', label: 'Design' },
-              { id: 'behavioral', label: 'Behavioral' },
+              { id: 'behavioral', label: 'Preparation' },
             ].map((mode) => (
               <button
                 key={mode.id}
@@ -1433,19 +1470,19 @@ EDGE CASES & RESILIENCE:
                 className="px-4 py-1.5 text-sm font-medium rounded-lg transition-all"
                 style={{
                   background: interviewMode === mode.id ? '#10b981' : 'transparent',
-                  color: interviewMode === mode.id ? 'white' : '#666666',
+                  color: interviewMode === mode.id ? '#ffffff' : '#888888',
                   border: interviewMode === mode.id ? 'none' : '1px solid transparent',
                 }}
                 onMouseEnter={(e) => {
                   if (interviewMode !== mode.id) {
-                    e.currentTarget.style.background = '#f5f5f5';
-                    e.currentTarget.style.color = '#333333';
+                    e.currentTarget.style.background = '#333333';
+                    e.currentTarget.style.color = '#ffffff';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (interviewMode !== mode.id) {
                     e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.color = '#666666';
+                    e.currentTarget.style.color = '#888888';
                   }
                 }}
               >
@@ -1459,12 +1496,12 @@ EDGE CASES & RESILIENCE:
 
       {/* Error Banner */}
       {error && (
-        <div className="relative z-10 mx-4 mt-2 p-3 bg-red-50 border border-red-200 rounded-lg animate-fade-in">
+        <div className="relative z-10 mx-4 mt-2 p-3 rounded-lg animate-fade-in" style={{ background: '#3d1f1f', border: '1px solid #7f2d2d' }}>
           <div className="flex items-center gap-3">
             <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="text-red-600 text-sm">{error}</span>
+            <span className="text-red-400 text-sm">{error}</span>
             <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-600 transition-colors">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1476,14 +1513,14 @@ EDGE CASES & RESILIENCE:
 
       {/* Provider Switch Notification */}
       {switchNotification && (
-        <div className="relative z-10 mx-4 mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg animate-fade-in">
+        <div className="relative z-10 mx-4 mt-2 p-3 rounded-lg animate-fade-in" style={{ background: '#3d2f1f', border: '1px solid #92400e' }}>
           <div className="flex items-center gap-3">
             <svg className="w-5 h-5 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-            <span className="text-amber-700 text-sm">
+            <span className="text-amber-400 text-sm">
               Auto-switched from <strong>{switchNotification.from}</strong> to <strong>{switchNotification.to}</strong>
-              {switchNotification.reason && <span className="text-amber-600 ml-1">({switchNotification.reason})</span>}
+              {switchNotification.reason && <span className="text-amber-500 ml-1">({switchNotification.reason})</span>}
             </span>
             <button onClick={() => setSwitchNotification(null)} className="ml-auto text-amber-400 hover:text-amber-600 transition-colors">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1498,9 +1535,9 @@ EDGE CASES & RESILIENCE:
       {isLoading && (
         <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
           {/* Progress bar */}
-          <div className="h-1 bg-gray-200 overflow-hidden">
+          <div className="h-1 overflow-hidden" style={{ background: '#333333' }}>
             <div
-              className="h-full bg-[#10b981]"
+              className="h-full bg-emerald-500"
               style={{
                 width: '100%',
                 animation: 'progressSlide 1.5s ease-in-out infinite',
@@ -1508,9 +1545,9 @@ EDGE CASES & RESILIENCE:
             />
           </div>
           {/* Status pill */}
-          <div className="absolute top-2 right-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/95 shadow-lg border border-gray-200 backdrop-blur-sm">
+          <div className="absolute top-2 right-4 flex items-center gap-2 px-3 py-1.5 rounded-full shadow-lg" style={{ background: '#2a2a2a', border: '1px solid #444444' }}>
             <div className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse" />
-            <span className="text-xs font-medium text-gray-700">
+            <span className="text-xs text-gray-300">
               {loadingType === 'fetch' && 'Fetching...'}
               {loadingType === 'screenshot' && 'Extracting...'}
               {loadingType === 'solve' && 'Solving...'}
@@ -1524,10 +1561,10 @@ EDGE CASES & RESILIENCE:
       )}
 
       {/* Main Layout */}
-      <main className="flex-1 overflow-hidden p-4 relative z-10" style={{ background: '#f5f5f5' }}>
+      <main className="flex-1 overflow-hidden p-4 relative z-10" style={{ background: 'transparent' }}>
         {/* Behavioral Mode - Show embedded Interview Prep */}
         {interviewMode === 'behavioral' ? (
-          <div className="h-full rounded-lg overflow-hidden bg-white" style={{ border: '1px solid #e5e5e5' }}>
+          <div className="h-full rounded-lg overflow-hidden" style={{ background: '#242424', border: '1px solid #333333' }}>
             <InterviewPrepModal
               isOpen={true}
               onClose={() => {}}
@@ -1537,11 +1574,11 @@ EDGE CASES & RESILIENCE:
             />
           </div>
         ) : (
-        <div className="h-full rounded-lg overflow-hidden bg-white" style={{ border: '1px solid #e5e5e5' }}>
+        <div className="h-full rounded-xl overflow-hidden" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', backdropFilter: 'blur(20px)' }}>
           <Allotment defaultSizes={showInterviewAssistant ? [30, 40, 30] : [30, 70]}>
             {/* Left Pane - Problem + Explanation (stacked vertically) */}
             <Allotment.Pane minSize={300}>
-              <div className="h-full flex flex-col bg-white overflow-hidden">
+              <div className="h-full flex flex-col overflow-hidden" style={{ background: 'transparent' }}>
                 {/* Top: Problem Input - auto height based on content */}
                 <div className="flex-shrink-0 border-b border-gray-200">
                   {/* Pane Header */}
@@ -1634,6 +1671,7 @@ EDGE CASES & RESILIENCE:
                   interviewMode={interviewMode}
                   systemDesign={solution?.systemDesign || streamingContent.systemDesign}
                   eraserDiagram={eraserDiagram}
+                  autoGenerateEraser={autoGenerateEraser}
                   question={currentProblem || loadedProblem}
                   cloudProvider="auto"
                   onGenerateEraserDiagram={async () => {
@@ -1751,22 +1789,22 @@ EDGE CASES & RESILIENCE:
         )}
       </main>
 
-      {/* Footer - Clean Oracle-inspired */}
-      <footer className="relative z-10 px-4 py-2 flex items-center justify-between text-[11px] border-t" style={{ borderColor: '#e5e5e5', background: '#ffffff', color: '#999999' }}>
+      {/* Footer */}
+      <footer className="relative z-10 px-4 py-2 flex items-center justify-between text-[11px] border-t" style={{ borderColor: '#333333', background: '#242424', color: '#888888' }}>
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1.5">
             <span className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'bg-[#10b981] animate-pulse' : 'bg-[#10b981]'}`} />
             {isLoading ? 'Processing' : 'Ready'}
           </span>
         </div>
-        <div className="flex items-center gap-3 font-mono" style={{ color: '#b3b3b3' }}>
-          <span title="Solve problem">Space solve</span>
+        <div className="flex items-center gap-3 font-mono" style={{ color: '#666666' }}>
+          <span title="Solve problem">^1 solve</span>
           <span>·</span>
-          <span title="Run code">Enter run</span>
+          <span title="Run code">^2 run</span>
+          <span>·</span>
+          <span title="Copy code">^3 copy</span>
           <span>·</span>
           <span title="Clear all">Esc clear</span>
-          <span>·</span>
-          <span title="Copy code">⌘⇧C copy</span>
         </div>
       </footer>
 
@@ -1827,6 +1865,22 @@ EDGE CASES & RESILIENCE:
       {/* Funding/Support Page Modal */}
       {showFundingPage && (
         <FundingPage onClose={() => setShowFundingPage(false)} />
+      )}
+
+      {/* Copy Toast Notification */}
+      {copyToast && (
+        <div
+          className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in"
+          style={{ animation: 'fadeInUp 0.2s ease-out' }}
+        >
+          <div className="flex items-center gap-2 px-4 py-2 rounded-lg shadow-lg"
+               style={{ background: '#10b981', color: 'white' }}>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="text-sm font-medium">Code copied!</span>
+          </div>
+        </div>
       )}
       </div>{/* End Main Content wrapper */}
 

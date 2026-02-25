@@ -1,43 +1,63 @@
 import { useState, useEffect, useCallback } from 'react';
 
 const STORAGE_KEY = 'chundu_system_design_sessions';
-const OLD_STORAGE_KEY = 'capra_system_design_sessions';
-const MAX_SESSIONS = 50; // Limit to prevent localStorage bloat
+const MAX_SESSIONS = 50; // Limit to prevent storage bloat
 
-// Migrate old storage key if needed
-function migrateStorage() {
-  const oldData = localStorage.getItem(OLD_STORAGE_KEY);
-  if (oldData && !localStorage.getItem(STORAGE_KEY)) {
-    localStorage.setItem(STORAGE_KEY, oldData);
-    console.log('[SystemDesign] Migrated from capra_system_design_sessions');
-  }
-}
-migrateStorage();
+// Check if running in Electron
+const isElectron = typeof window !== 'undefined' && window.electronAPI?.isElectron;
 
 /**
  * Custom hook for persisting system design sessions
- * Stores questions, answers, and Q&A history in localStorage
+ * Uses Electron app data folder when available, falls back to localStorage
  */
 export function useSystemDesignStorage() {
   const [sessions, setSessions] = useState({});
   const [currentSessionId, setCurrentSessionId] = useState(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load sessions from localStorage on mount
+  // Load sessions on mount
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        setSessions(JSON.parse(stored));
+    const loadSessions = async () => {
+      try {
+        let storedSessions = {};
+
+        if (isElectron && window.electronAPI?.getSystemDesigns) {
+          // Load from Electron app data folder
+          storedSessions = await window.electronAPI.getSystemDesigns();
+          console.log('[SystemDesign] Loaded from app data folder');
+        } else {
+          // Fall back to localStorage for web
+          const stored = localStorage.getItem(STORAGE_KEY);
+          if (stored) {
+            storedSessions = JSON.parse(stored);
+          }
+          console.log('[SystemDesign] Loaded from localStorage');
+        }
+
+        setSessions(storedSessions || {});
+      } catch (error) {
+        console.error('Failed to load system design sessions:', error);
+        setSessions({});
+      } finally {
+        setIsLoaded(true);
       }
-    } catch (error) {
-      console.error('Failed to load system design sessions:', error);
-    }
+    };
+
+    loadSessions();
   }, []);
 
-  // Save sessions to localStorage whenever they change
-  const persistSessions = useCallback((updatedSessions) => {
+  // Save sessions helper
+  const persistSessions = useCallback(async (updatedSessions) => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedSessions));
+      if (isElectron && window.electronAPI?.saveSystemDesign) {
+        // For Electron, we save the entire sessions object
+        // This is handled by individual save/update/delete calls
+        console.log('[SystemDesign] Persisting to app data folder');
+      } else {
+        // Fall back to localStorage
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedSessions));
+        console.log('[SystemDesign] Persisting to localStorage');
+      }
       setSessions(updatedSessions);
     } catch (error) {
       console.error('Failed to save system design sessions:', error);
@@ -46,7 +66,6 @@ export function useSystemDesignStorage() {
         const sortedIds = Object.keys(updatedSessions).sort(
           (a, b) => updatedSessions[a].timestamp - updatedSessions[b].timestamp
         );
-        // Remove oldest 10 sessions
         const idsToRemove = sortedIds.slice(0, 10);
         idsToRemove.forEach(id => delete updatedSessions[id]);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedSessions));
@@ -57,20 +76,15 @@ export function useSystemDesignStorage() {
 
   /**
    * Save a new system design session
-   * @param {Object} params - Session data
-   * @param {string} params.problem - The problem text/URL
-   * @param {string} params.source - Source type: 'text', 'url', 'image'
-   * @param {Object} params.systemDesign - The generated system design object
-   * @param {string} params.detailLevel - 'basic' or 'full'
-   * @returns {string} The session ID
    */
-  const saveSession = useCallback(({ problem, source, systemDesign, detailLevel }) => {
+  const saveSession = useCallback(async ({ problem, source, systemDesign, detailLevel }) => {
+    console.log('[SystemDesignStorage] saveSession called:', { problem: problem?.substring(0, 50), source, hasSystemDesign: !!systemDesign, detailLevel });
     const sessionId = `sd_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     const newSession = {
       id: sessionId,
       timestamp: Date.now(),
-      problem: problem?.substring(0, 500), // Limit problem text size
+      problem: problem?.substring(0, 500),
       source: source || 'text',
       detailLevel: detailLevel || 'full',
       systemDesign,
@@ -91,39 +105,49 @@ export function useSystemDesignStorage() {
       idsToRemove.forEach(id => delete updatedSessions[id]);
     }
 
-    persistSessions(updatedSessions);
+    // Save to Electron or localStorage
+    if (isElectron && window.electronAPI?.saveSystemDesign) {
+      await window.electronAPI.saveSystemDesign(sessionId, newSession);
+    } else {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedSessions));
+    }
+
+    setSessions(updatedSessions);
     setCurrentSessionId(sessionId);
     return sessionId;
-  }, [sessions, persistSessions]);
+  }, [sessions]);
 
   /**
-   * Update an existing session (e.g., add Q&A, update diagram)
-   * @param {string} sessionId - The session to update
-   * @param {Object} updates - Partial session data to merge
+   * Update an existing session
    */
-  const updateSession = useCallback((sessionId, updates) => {
+  const updateSession = useCallback(async (sessionId, updates) => {
     if (!sessionId || !sessions[sessionId]) {
       console.warn('Session not found:', sessionId);
       return;
     }
 
-    const updatedSessions = {
-      ...sessions,
-      [sessionId]: {
-        ...sessions[sessionId],
-        ...updates,
-        lastUpdated: Date.now()
-      }
+    const updatedSession = {
+      ...sessions[sessionId],
+      ...updates,
+      lastUpdated: Date.now()
     };
 
-    persistSessions(updatedSessions);
-  }, [sessions, persistSessions]);
+    const updatedSessions = {
+      ...sessions,
+      [sessionId]: updatedSession
+    };
+
+    if (isElectron && window.electronAPI?.updateSystemDesign) {
+      await window.electronAPI.updateSystemDesign(sessionId, updates);
+    } else {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedSessions));
+    }
+
+    setSessions(updatedSessions);
+  }, [sessions]);
 
   /**
    * Add a Q&A entry to a session
-   * @param {string} sessionId - The session ID
-   * @param {string} question - The follow-up question
-   * @param {string} answer - The AI's answer
    */
   const addQAToSession = useCallback((sessionId, question, answer) => {
     if (!sessionId || !sessions[sessionId]) {
@@ -146,8 +170,6 @@ export function useSystemDesignStorage() {
 
   /**
    * Update the Eraser diagram for a session
-   * @param {string} sessionId - The session ID
-   * @param {Object} diagram - { imageUrl, editUrl }
    */
   const updateEraserDiagram = useCallback((sessionId, diagram) => {
     updateSession(sessionId, { eraserDiagram: diagram });
@@ -155,29 +177,26 @@ export function useSystemDesignStorage() {
 
   /**
    * Delete a session
-   * @param {string} sessionId - The session to delete
    */
-  const deleteSession = useCallback((sessionId) => {
-    setSessions(prevSessions => {
-      const updatedSessions = { ...prevSessions };
-      delete updatedSessions[sessionId];
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedSessions));
-      } catch (error) {
-        console.error('Failed to save sessions after delete:', error);
-      }
-      return updatedSessions;
-    });
+  const deleteSession = useCallback(async (sessionId) => {
+    const updatedSessions = { ...sessions };
+    delete updatedSessions[sessionId];
+
+    if (isElectron && window.electronAPI?.deleteSystemDesign) {
+      await window.electronAPI.deleteSystemDesign(sessionId);
+    } else {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedSessions));
+    }
+
+    setSessions(updatedSessions);
 
     if (currentSessionId === sessionId) {
       setCurrentSessionId(null);
     }
-  }, [currentSessionId]);
+  }, [sessions, currentSessionId]);
 
   /**
    * Get a session by ID
-   * @param {string} sessionId - The session ID
-   * @returns {Object|null} The session data
    */
   const getSession = useCallback((sessionId) => {
     return sessions[sessionId] || null;
@@ -185,7 +204,6 @@ export function useSystemDesignStorage() {
 
   /**
    * Get all sessions sorted by timestamp (newest first)
-   * @returns {Array} Sorted array of sessions
    */
   const getAllSessions = useCallback(() => {
     return Object.values(sessions).sort((a, b) => b.timestamp - a.timestamp);
@@ -194,16 +212,18 @@ export function useSystemDesignStorage() {
   /**
    * Clear all sessions
    */
-  const clearAllSessions = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
+  const clearAllSessions = useCallback(async () => {
+    if (isElectron && window.electronAPI?.clearAllSystemDesigns) {
+      await window.electronAPI.clearAllSystemDesigns();
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
     setSessions({});
     setCurrentSessionId(null);
   }, []);
 
   /**
    * Load a saved session back into the app
-   * @param {string} sessionId - The session to load
-   * @returns {Object|null} The session data for loading
    */
   const loadSession = useCallback((sessionId) => {
     const session = sessions[sessionId];
@@ -226,7 +246,8 @@ export function useSystemDesignStorage() {
     getSession,
     getAllSessions,
     loadSession,
-    clearAllSessions
+    clearAllSessions,
+    isLoaded
   };
 }
 
@@ -234,10 +255,8 @@ export function useSystemDesignStorage() {
  * Extract a title from the problem or system design overview
  */
 function extractTitle(problem, systemDesign) {
-  // Try to get title from system design overview
   if (systemDesign?.overview) {
     const overview = systemDesign.overview;
-    // Take first sentence or first 60 chars
     const firstSentence = overview.split(/[.!?]/)[0];
     if (firstSentence && firstSentence.length <= 80) {
       return firstSentence.trim();
@@ -245,9 +264,7 @@ function extractTitle(problem, systemDesign) {
     return overview.substring(0, 60).trim() + '...';
   }
 
-  // Fall back to problem text
   if (problem) {
-    // Check if it's a URL
     if (problem.startsWith('http')) {
       try {
         const url = new URL(problem);
@@ -256,7 +273,6 @@ function extractTitle(problem, systemDesign) {
         return problem.substring(0, 60);
       }
     }
-    // Take first line or first 60 chars
     const firstLine = problem.split('\n')[0];
     if (firstLine && firstLine.length <= 80) {
       return firstLine.trim();
