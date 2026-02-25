@@ -6,7 +6,7 @@ const API_URL = getApiUrl();
 
 // Get auth headers for API calls
 function getAuthHeaders() {
-  const token = localStorage.getItem('authToken');
+  const token = localStorage.getItem('chundu_token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
