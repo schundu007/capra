@@ -794,7 +794,58 @@ Return JSON:
   ]
 }
 
-CRITICAL: Reference prep materials. Provide code examples. Be comprehensive, not superficial.`
+CRITICAL: Reference prep materials. Provide code examples. Be comprehensive, not superficial.`,
+
+  custom: `Generate comprehensive interview preparation based on the provided documentation.
+
+You have been given a specific document that the candidate wants to learn from and be tested on.
+Analyze the document thoroughly and create interview-style preparation material.
+
+CRITICAL REQUIREMENTS:
+1. THOROUGHLY analyze the uploaded document content provided
+2. Extract key concepts, principles, and actionable knowledge
+3. Generate interview questions that test understanding of this material
+4. Provide detailed answers based on the document content
+5. Connect the document content to the job role where relevant
+
+Return JSON:
+{
+  "summary": "Overview of the document content and how it applies to interviews",
+  "documentInsights": {
+    "mainTopics": ["Key topics covered in the document"],
+    "keyTakeaways": ["Most important points to remember"],
+    "relevanceToRole": "How this material relates to the target job"
+  },
+  "questions": [
+    {
+      "question": "Interview question based on document content",
+      "category": "Conceptual / Technical / Scenario / Application",
+      "difficulty": "Easy / Medium / Hard",
+      "answer": "Detailed answer derived from the document",
+      "keyPoints": ["Key points to mention in your answer"],
+      "followUps": ["Possible follow-up questions"],
+      "documentReference": "Which part of the document this relates to"
+    }
+  ],
+  "practiceScenarios": [
+    {
+      "scenario": "Real-world scenario to practice",
+      "howToApply": "How to apply the document's knowledge here",
+      "exampleAnswer": "Sample response using document concepts"
+    }
+  ],
+  "quickReference": [
+    {
+      "concept": "Key concept name",
+      "definition": "Brief definition",
+      "example": "Practical example"
+    }
+  ],
+  "studyTips": ["Tips for retaining and applying this knowledge"],
+  "abbreviations": [{"abbr": "ABBR", "full": "Full term"}]
+}
+
+IMPORTANT: Base ALL content on the provided document. Do not make up information not in the document.`
 };
 
 // Clean up text content - remove extra whitespace and empty lines
@@ -882,6 +933,16 @@ function buildContext(inputs, section = null) {
     });
 
     context += `CRITICAL REMINDER: The above ${inputs.documentation.length} document(s) were uploaded specifically because the candidate wants you to learn from them and incorporate this knowledge into your responses. Do NOT ignore this information.\n\n`;
+  }
+
+  // Handle custom document content for custom sections
+  if (inputs.customDocumentContent) {
+    context += `## PRIMARY DOCUMENT FOR THIS SECTION (FOCUS ON THIS)\n`;
+    context += `Document Name: ${inputs.customDocumentName || 'Custom Document'}\n\n`;
+    context += `This is the PRIMARY document you must analyze and base your response on:\n\n`;
+    context += `${inputs.customDocumentContent}\n\n`;
+    context += `--- End of Primary Document ---\n\n`;
+    context += `CRITICAL: Your entire response must be based on the above document. Extract key concepts, generate questions, and provide answers ALL derived from this document content.\n\n`;
   }
 
   // Add web search results for coding/system-design sections

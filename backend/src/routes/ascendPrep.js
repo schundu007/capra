@@ -89,7 +89,7 @@ router.post('/stream', async (req, res) => {
 
 // Regenerate a single section
 router.post('/section', async (req, res) => {
-  const { jobDescription, resume, coverLetter, prepMaterials, documentation, section, provider = 'claude', model } = req.body;
+  const { jobDescription, resume, coverLetter, prepMaterials, documentation, section, customDocumentContent, customDocumentName, provider = 'claude', model } = req.body;
 
   if (!jobDescription || !resume) {
     return res.status(400).json({ error: 'Job description and resume are required' });
@@ -105,7 +105,7 @@ router.post('/section', async (req, res) => {
   res.setHeader('Connection', 'keep-alive');
   res.setHeader('X-Accel-Buffering', 'no');
 
-  const inputs = { jobDescription, resume, coverLetter, prepMaterials, documentation };
+  const inputs = { jobDescription, resume, coverLetter, prepMaterials, documentation, customDocumentContent, customDocumentName };
 
   try {
     let finalResult = null;

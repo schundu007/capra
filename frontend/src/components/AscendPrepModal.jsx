@@ -36,6 +36,10 @@ const EMPTY_GENERATED = {
   techstack: null,
 };
 
+// Empty custom sections (user-created from documents)
+const EMPTY_CUSTOM_SECTIONS = [];
+// Format: [{ id: 'custom-1', name: 'My Custom Section', documentName: 'doc.pdf', documentIndex: 0 }]
+
 // Get auth headers
 function getAuthHeaders() {
   const token = localStorage.getItem('chundu_token');
@@ -132,6 +136,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
   const [activeCompany, setActiveCompany] = useState(null);
   const [inputs, setInputs] = useState({ ...EMPTY_INPUTS });
   const [generated, setGenerated] = useState({ ...EMPTY_GENERATED });
+  const [customSections, setCustomSections] = useState([]); // User-created sections from documents
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatingSection, setGeneratingSection] = useState(null);
   const [generatingSections, setGeneratingSections] = useState(new Set()); // For parallel generation
@@ -140,6 +145,9 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
   const [newCompanyName, setNewCompanyName] = useState('');
   const [showNewCompanyInput, setShowNewCompanyInput] = useState(false);
   const [editingCompanyName, setEditingCompanyName] = useState(false);
+  const [showCreateSectionModal, setShowCreateSectionModal] = useState(false);
+  const [newSectionName, setNewSectionName] = useState('');
+  const [selectedDocIndex, setSelectedDocIndex] = useState(null);
   const dropdownRef = useRef(null);
   const newCompanyInputRef = useRef(null);
 
@@ -153,9 +161,11 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
       if (data.activeCompany && data.data[data.activeCompany]) {
         setInputs(data.data[data.activeCompany].inputs || { ...EMPTY_INPUTS });
         setGenerated(data.data[data.activeCompany].generated || { ...EMPTY_GENERATED });
+        setCustomSections(data.data[data.activeCompany].customSections || []);
       } else {
         setInputs({ ...EMPTY_INPUTS });
         setGenerated({ ...EMPTY_GENERATED });
+        setCustomSections([]);
       }
     }
   }, [isOpen, embedded]);
@@ -181,18 +191,19 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
     }
   }, [showNewCompanyInput]);
 
-  // Save current company data whenever inputs or generated content changes
+  // Save current company data whenever inputs, generated content, or custom sections change
   useEffect(() => {
     if (activeCompany) {
       const data = loadCompanyData();
       data.data[activeCompany] = {
         inputs,
         generated,
+        customSections,
       };
       data.activeCompany = activeCompany;
       saveCompanyData(data);
     }
-  }, [inputs, generated, activeCompany]);
+  }, [inputs, generated, customSections, activeCompany]);
 
   const handleInputChange = (field, value) => {
     setInputs(prev => ({ ...prev, [field]: value }));
@@ -239,9 +250,11 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
     if (data.data[companyName]) {
       setInputs(data.data[companyName].inputs || { ...EMPTY_INPUTS });
       setGenerated(data.data[companyName].generated || { ...EMPTY_GENERATED });
+      setCustomSections(data.data[companyName].customSections || []);
     } else {
       setInputs({ ...EMPTY_INPUTS });
       setGenerated({ ...EMPTY_GENERATED });
+      setCustomSections([]);
     }
     setShowCompanyDropdown(false);
     setActiveTab('input');
@@ -489,8 +502,142 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
   const handleTabClick = (sectionId) => {
     setActiveTab(sectionId);
 
+    // Check if it's a custom section
+    const isCustom = sectionId.startsWith('custom-');
+
     if (sectionId !== 'input' && !generated[sectionId] && !isGenerating && inputs.jobDescription.trim() && inputs.resume.trim()) {
-      handleGenerateSection(sectionId);
+      if (isCustom) {
+        // Find the custom section config
+        const customSection = customSections.find(s => s.id === sectionId);
+        if (customSection) {
+          handleGenerateCustomSection(sectionId, customSection.documentIndex);
+        }
+      } else {
+        handleGenerateSection(sectionId);
+      }
+    }
+  };
+
+  // Create a new custom section from a document
+  const handleCreateCustomSection = () => {
+    if (!newSectionName.trim() || selectedDocIndex === null) {
+      return;
+    }
+
+    const sectionId = `custom-${Date.now()}`;
+    const newSection = {
+      id: sectionId,
+      name: newSectionName.trim(),
+      documentName: inputs.documentation[selectedDocIndex]?.name || 'Document',
+      documentIndex: selectedDocIndex,
+    };
+
+    setCustomSections(prev => [...prev, newSection]);
+    setShowCreateSectionModal(false);
+    setNewSectionName('');
+    setSelectedDocIndex(null);
+
+    // Immediately generate the section
+    handleGenerateCustomSection(sectionId, selectedDocIndex);
+    setActiveTab(sectionId);
+  };
+
+  // Generate content for a custom section based on a document
+  const handleGenerateCustomSection = async (sectionId, documentIndex) => {
+    if (!inputs.jobDescription.trim() || !inputs.resume.trim()) {
+      alert('Please provide at least a Job Description and Resume');
+      return;
+    }
+
+    const doc = inputs.documentation[documentIndex];
+    if (!doc) {
+      alert('Document not found');
+      return;
+    }
+
+    setIsGenerating(true);
+    setGeneratingSection(sectionId);
+    setStreamingContent('');
+
+    try {
+      const response = await fetch(API_URL + '/api/ascend/prep/section', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify({
+          jobDescription: inputs.jobDescription,
+          resume: inputs.resume,
+          coverLetter: inputs.coverLetter,
+          prepMaterials: inputs.prepMaterials,
+          documentation: inputs.documentation || [],
+          section: 'custom',
+          customDocumentContent: doc.content,
+          customDocumentName: doc.name,
+          provider: provider || 'claude',
+          model,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate section');
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+
+              if (data.chunk) {
+                setStreamingContent(prev => {
+                  const newContent = prev + data.chunk;
+                  return newContent.replace(/  +/g, ' ');
+                });
+              }
+
+              if (data.done && data.result) {
+                const cleanedResult = cleanupContent(data.result);
+                setGenerated(prev => ({ ...prev, [sectionId]: cleanedResult }));
+              }
+            } catch (e) {
+              // Ignore parse errors
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Generate custom section error:', err);
+      alert('Failed to generate: ' + err.message);
+    } finally {
+      setIsGenerating(false);
+      setGeneratingSection(null);
+      setStreamingContent('');
+    }
+  };
+
+  // Delete a custom section
+  const handleDeleteCustomSection = (sectionId) => {
+    if (!confirm('Delete this custom section?')) return;
+
+    setCustomSections(prev => prev.filter(s => s.id !== sectionId));
+    setGenerated(prev => {
+      const newGenerated = { ...prev };
+      delete newGenerated[sectionId];
+      return newGenerated;
+    });
+
+    if (activeTab === sectionId) {
+      setActiveTab('input');
     }
   };
 
@@ -848,6 +995,83 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                   </button>
                 );
               })}
+
+              {/* Custom Sections from Documents */}
+              {customSections.length > 0 && (
+                <>
+                  <div className="my-2 mx-4 flex items-center gap-2" style={{ borderTop: '1px solid #e5e5e5', paddingTop: '8px' }}>
+                    <span className="text-xs font-medium" style={{ color: '#666666' }}>Custom Pages</span>
+                  </div>
+                  {customSections.map((section) => {
+                    const isActive = activeTab === section.id;
+                    const isComplete = generated[section.id] !== null;
+                    const isCurrentlyGenerating = generatingSection === section.id;
+
+                    return (
+                      <div key={section.id} className="flex items-center gap-1 mx-2">
+                        <button
+                          onClick={() => handleTabClick(section.id)}
+                          disabled={isGenerating && !isCurrentlyGenerating}
+                          className="flex-1 flex items-center gap-2 px-3 py-2 text-left transition-colors"
+                          style={{
+                            background: 'transparent',
+                            color: isComplete ? '#8b5cf6' : '#333333',
+                            border: isActive ? '1px dashed #8b5cf6' : '1px solid transparent',
+                            borderRadius: '4px',
+                            opacity: isGenerating && !isCurrentlyGenerating ? 0.5 : 1,
+                          }}
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm truncate">{section.name}</div>
+                            <div className="text-xs truncate" style={{ color: '#9ca3af' }}>{section.documentName}</div>
+                          </div>
+                          {isCurrentlyGenerating && (
+                            <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#8b5cf6', borderTopColor: 'transparent' }} />
+                          )}
+                          {isComplete && !isCurrentlyGenerating && (
+                            <svg className="w-4 h-4" style={{ color: '#8b5cf6' }} fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCustomSection(section.id)}
+                          className="p-1 rounded hover:bg-red-50"
+                          style={{ color: '#9ca3af' }}
+                          title="Delete section"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </>
+              )}
+
+              {/* Add Custom Page Button */}
+              {inputs.documentation?.length > 0 && (
+                <button
+                  onClick={() => setShowCreateSectionModal(true)}
+                  disabled={isGenerating}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-left transition-colors mt-2"
+                  style={{
+                    background: 'transparent',
+                    color: '#8b5cf6',
+                    border: '1px dashed #8b5cf6',
+                    margin: '8px 8px 2px 8px',
+                    width: 'calc(100% - 16px)',
+                    borderRadius: '4px',
+                    opacity: isGenerating ? 0.5 : 1,
+                  }}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  <div className="font-medium text-sm">Create Page from Doc</div>
+                </button>
+              )}
             </nav>
 
             {/* Footer Actions */}
@@ -966,13 +1190,122 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
             content={generated[activeTab]}
             streamingContent={generatingSection === activeTab ? streamingContent : ''}
             isGenerating={generatingSection === activeTab}
-            onRegenerate={() => handleGenerateSection(activeTab)}
-            onGenerate={() => handleGenerateSection(activeTab)}
+            onRegenerate={() => {
+              const customSection = customSections.find(s => s.id === activeTab);
+              if (customSection) {
+                handleGenerateCustomSection(activeTab, customSection.documentIndex);
+              } else {
+                handleGenerateSection(activeTab);
+              }
+            }}
+            onGenerate={() => {
+              const customSection = customSections.find(s => s.id === activeTab);
+              if (customSection) {
+                handleGenerateCustomSection(activeTab, customSection.documentIndex);
+              } else {
+                handleGenerateSection(activeTab);
+              }
+            }}
             hasInputs={hasInputs}
           />
         )}
       </div>
       </div>{/* End modal wrapper */}
+
+      {/* Create Custom Section Modal */}
+      {showCreateSectionModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold" style={{ color: '#333' }}>Create Custom Page</h3>
+              <button
+                onClick={() => {
+                  setShowCreateSectionModal(false);
+                  setNewSectionName('');
+                  setSelectedDocIndex(null);
+                }}
+                className="p-1 rounded-lg hover:bg-gray-100"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <p className="text-sm mb-4" style={{ color: '#666' }}>
+              Create a new interview prep page based on an uploaded document. The AI will analyze the document and generate relevant questions and answers.
+            </p>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1" style={{ color: '#374151' }}>
+                  Page Name
+                </label>
+                <input
+                  type="text"
+                  value={newSectionName}
+                  onChange={(e) => setNewSectionName(e.target.value)}
+                  placeholder="e.g., AWS Architecture, Leadership Principles..."
+                  className="w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  style={{ border: '1px solid #d1d5db' }}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                  Select Document
+                </label>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {inputs.documentation?.map((doc, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedDocIndex(idx)}
+                      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-all"
+                      style={{
+                        background: selectedDocIndex === idx ? '#f3e8ff' : '#f9fafb',
+                        border: selectedDocIndex === idx ? '2px solid #8b5cf6' : '1px solid #e5e7eb',
+                      }}
+                    >
+                      <span className="text-lg">📄</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium truncate" style={{ color: '#374151' }}>{doc.name}</div>
+                        <div className="text-xs" style={{ color: '#9ca3af' }}>{Math.round(doc.content.length / 1000)}KB</div>
+                      </div>
+                      {selectedDocIndex === idx && (
+                        <svg className="w-5 h-5" style={{ color: '#8b5cf6' }} fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowCreateSectionModal(false);
+                  setNewSectionName('');
+                  setSelectedDocIndex(null);
+                }}
+                className="flex-1 py-2 px-4 rounded-lg text-sm font-medium"
+                style={{ background: '#f3f4f6', color: '#374151' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateCustomSection}
+                disabled={!newSectionName.trim() || selectedDocIndex === null}
+                className="flex-1 py-2 px-4 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ background: '#8b5cf6', color: '#ffffff' }}
+              >
+                Create Page
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
