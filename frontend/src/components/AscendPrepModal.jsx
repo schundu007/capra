@@ -1247,7 +1247,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                   onChange={(e) => setNewSectionName(e.target.value)}
                   placeholder="e.g., AWS Architecture, Leadership Principles..."
                   className="w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  style={{ border: '1px solid #d1d5db' }}
+                  style={{ border: '1px solid #d1d5db', color: '#333333', background: '#ffffff' }}
                 />
               </div>
 
