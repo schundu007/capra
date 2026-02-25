@@ -10,6 +10,7 @@ const SECTIONS = [
   { id: 'pitch', name: 'Elevator Pitch', description: '2-3 minute interview pitch' },
   { id: 'hr', name: 'HR Questions', description: 'Salary, culture, availability' },
   { id: 'hiring-manager', name: 'Hiring Manager', description: 'Role-specific questions' },
+  { id: 'rrk', name: 'RRK (Google)', description: 'Role Related Knowledge round' },
   { id: 'coding', name: 'Coding', description: 'Algorithm & coding challenges' },
   { id: 'system-design', name: 'System Design', description: 'Architecture questions' },
   { id: 'behavioral', name: 'Behavioral', description: 'STAR method questions' },
@@ -21,12 +22,14 @@ const EMPTY_INPUTS = {
   resume: '',
   coverLetter: '',
   prepMaterials: '',
+  documentation: [], // Array of {name, content} for uploaded documents
 };
 
 const EMPTY_GENERATED = {
   pitch: null,
   hr: null,
   'hiring-manager': null,
+  rrk: null,
   coding: null,
   'system-design': null,
   behavioral: null,
@@ -314,7 +317,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
     setStreamingContent('');
 
     try {
-      const response = await fetch(API_URL + '/api/interview/prep/section', {
+      const response = await fetch(API_URL + '/api/ascend/prep/section', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({
@@ -322,6 +325,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
           resume: inputs.resume,
           coverLetter: inputs.coverLetter,
           prepMaterials: inputs.prepMaterials,
+          documentation: inputs.documentation || [],
           section: sectionId,
           provider: provider || 'claude',
           model,
@@ -379,7 +383,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
   // Generate a single section (for parallel generation)
   const generateSingleSection = async (sectionId) => {
     try {
-      const response = await fetch(API_URL + '/api/interview/prep/section', {
+      const response = await fetch(API_URL + '/api/ascend/prep/section', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({
@@ -387,6 +391,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
           resume: inputs.resume,
           coverLetter: inputs.coverLetter,
           prepMaterials: inputs.prepMaterials,
+          documentation: inputs.documentation || [],
           section: sectionId,
           provider: provider || 'claude',
           model,
@@ -499,7 +504,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
   // Export to PDF
   const handleExportPDF = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/interview/prep/export/pdf`, {
+      const response = await fetch(`${API_URL}/api/ascend/prep/export/pdf`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -533,7 +538,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
   // Export to DOCX
   const handleExportDOCX = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/interview/prep/export/docx`, {
+      const response = await fetch(`${API_URL}/api/ascend/prep/export/docx`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

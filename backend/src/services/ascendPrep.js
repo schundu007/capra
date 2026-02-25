@@ -263,6 +263,100 @@ Return JSON:
 
 IMPORTANT: Include an "abbreviations" array with ALL technical terms, acronyms, and abbreviations used in your response.`,
 
+  rrk: `Generate comprehensive Role Related Knowledge (RRK) interview preparation.
+
+RRK (Role Related Knowledge) is a special interview round used by Google and other top tech companies. It focuses on:
+- Deep domain expertise relevant to the specific role
+- Practical knowledge from past experience
+- How you'd apply your expertise to solve real problems at the company
+- Technical depth in your area of specialization
+
+CRITICAL REQUIREMENTS:
+1. You MUST reference the DOCUMENTATION/STUDY MATERIALS provided - they are crucial for this round
+2. Focus on the candidate's specific domain expertise from their resume
+3. Connect their experience to the role requirements
+4. Provide deep technical questions that test real-world knowledge, not just theory
+5. Include scenario-based questions that simulate actual work situations
+
+For each RRK question, provide:
+- The question with context
+- What the interviewer is really testing
+- A structured answer framework using the candidate's actual experience
+- Key technical details to emphasize
+- Common follow-up questions
+- Red flags to avoid
+
+Return JSON:
+{
+  "summary": "Overview of RRK round format and what to expect",
+  "roleContext": {
+    "domain": "Primary domain (e.g., Distributed Systems, ML Infrastructure, Frontend Architecture)",
+    "seniority": "Expected level based on JD",
+    "focusAreas": ["Key areas they'll probe based on the role"]
+  },
+  "candidateStrengths": [
+    {
+      "area": "Area of expertise from resume",
+      "evidence": "Specific experience/project demonstrating this",
+      "howToLeverage": "How to use this in RRK answers"
+    }
+  ],
+  "questions": [
+    {
+      "question": "Tell me about a complex technical challenge you solved in [domain]",
+      "category": "Deep Dive / Scenario / Design Decision / Debugging",
+      "whatTheyTest": "What the interviewer is really evaluating",
+      "structuredAnswer": {
+        "setup": "How to frame the context (1-2 min)",
+        "technicalDepth": "The deep technical content to cover",
+        "tradeoffs": "Key decisions and why you made them",
+        "impact": "Quantified results and learnings",
+        "companyRelevance": "How this applies to the role/company"
+      },
+      "keyTechnicalDetails": ["Specific technologies/concepts to mention"],
+      "followUps": [
+        {
+          "question": "What would you do differently?",
+          "howToAnswer": "Framework for this follow-up"
+        }
+      ],
+      "redFlags": ["Things to avoid saying"],
+      "tips": "Interview tips for this question type"
+    }
+  ],
+  "domainKnowledge": [
+    {
+      "topic": "Critical topic for this role",
+      "whyImportant": "Why they'll ask about this",
+      "keyConceptsToKnow": ["Concepts you must understand deeply"],
+      "candidateExperience": "How the candidate's background relates to this",
+      "likelyQuestions": ["Specific questions they might ask"]
+    }
+  ],
+  "scenarioBasedQuestions": [
+    {
+      "scenario": "Imagine you're on the team and [realistic scenario]...",
+      "context": "Why this scenario is relevant to the role",
+      "approachFramework": "How to structure your answer",
+      "technicalConsiderations": ["Technical aspects to address"],
+      "softSkillsToShow": ["Leadership, collaboration aspects to demonstrate"]
+    }
+  ],
+  "questionsToAsk": [
+    {
+      "question": "Smart question to ask the RRK interviewer",
+      "why": "What this demonstrates about you"
+    }
+  ],
+  "generalTips": [
+    "Always connect your experience to their specific problems",
+    "Show depth, not just breadth - they want to see you go deep"
+  ],
+  "abbreviations": [{"abbr": "RRK", "full": "Role Related Knowledge"}]
+}
+
+CRITICAL: Use the candidate's actual experience from their resume. Reference any documentation/study materials provided. Be specific to the role.`,
+
   coding: `Generate COMPREHENSIVE coding interview preparation with FULLY SOLVED problems.
 
 CRITICAL REQUIREMENTS:
@@ -774,6 +868,22 @@ function buildContext(inputs, section = null) {
     context += `---\nREMINDER: The above prep materials were uploaded by the candidate for a reason. Reference them in your response.\n\n`;
   }
 
+  // Handle documentation array (multiple uploaded files)
+  if (inputs.documentation && Array.isArray(inputs.documentation) && inputs.documentation.length > 0) {
+    context += `## DOCUMENTATION & STUDY MATERIALS (CRITICAL - YOU MUST LEARN FROM THESE)\n`;
+    context += `The candidate has uploaded ${inputs.documentation.length} document(s) containing important study materials, guides, and documentation.\n`;
+    context += `You MUST thoroughly review and incorporate information from ALL of these documents in your response.\n`;
+    context += `DO NOT ignore these materials - they contain crucial context the candidate wants you to use.\n\n`;
+
+    inputs.documentation.forEach((doc, index) => {
+      context += `### Document ${index + 1}: ${doc.name}\n`;
+      context += `${doc.content}\n\n`;
+      context += `--- End of ${doc.name} ---\n\n`;
+    });
+
+    context += `CRITICAL REMINDER: The above ${inputs.documentation.length} document(s) were uploaded specifically because the candidate wants you to learn from them and incorporate this knowledge into your responses. Do NOT ignore this information.\n\n`;
+  }
+
   // Add web search results for coding/system-design sections
   if (inputs.searchResults && inputs.searchResults.length > 0) {
     context += `## REAL INTERVIEW QUESTIONS FROM ONLINE RESEARCH\n`;
@@ -822,7 +932,7 @@ export async function* generateSectionClaude(section, inputs, model = DEFAULT_CL
   }
 
   // Use extended system prompt for coding/system-design sections
-  const isDetailedSection = ['coding', 'system-design', 'techstack'].includes(section);
+  const isDetailedSection = ['coding', 'system-design', 'techstack', 'rrk'].includes(section);
   const systemPrompt = isDetailedSection
     ? `You are an expert interview coach with deep knowledge of technical interviews.
 Your task is to provide COMPREHENSIVE, DETAILED preparation materials.
@@ -876,7 +986,7 @@ export async function* generateSectionOpenAI(section, inputs, model = DEFAULT_OP
   }
 
   // Use extended system prompt for coding/system-design sections
-  const isDetailedSection = ['coding', 'system-design', 'techstack'].includes(section);
+  const isDetailedSection = ['coding', 'system-design', 'techstack', 'rrk'].includes(section);
   const systemPrompt = isDetailedSection
     ? `You are an expert interview coach with deep knowledge of technical interviews.
 Your task is to provide COMPREHENSIVE, DETAILED preparation materials.

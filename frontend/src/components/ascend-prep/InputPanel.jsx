@@ -35,6 +35,16 @@ const INPUT_FIELDS = [
   },
 ];
 
+// Documentation field is separate - supports multiple files
+const DOCUMENTATION_FIELD = {
+  id: 'documentation',
+  label: 'Documentation & Study Materials',
+  placeholder: 'Upload PDFs, DOCX, TXT files with study materials, guides, or any documentation the AI should learn from...',
+  required: false,
+  icon: '📚',
+  multiFile: true,
+};
+
 // Convert plain text to markdown-like format for better rendering
 function textToMarkdown(text) {
   if (!text) return '';
@@ -169,8 +179,10 @@ function DocumentViewer({ content, onEdit, fieldLabel, icon }) {
 export default function InputPanel({ inputs, onChange, hasInputs }) {
   const [dragOver, setDragOver] = useState(null);
   const fileInputRef = useRef(null);
+  const docFileInputRef = useRef(null);
   const [editingField, setEditingField] = useState(null);
   const [extracting, setExtracting] = useState(null);
+  const [extractingDoc, setExtractingDoc] = useState(false);
 
   // Extract text from file (supports PDF, DOCX, TXT, MD)
   const extractTextFromFile = async (file, fieldId) => {
@@ -238,6 +250,78 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
       await extractTextFromFile(file, fieldId);
     }
     e.target.value = '';
+  };
+
+  // Handle adding documentation files (multiple)
+  const handleDocumentationUpload = async (files) => {
+    setExtractingDoc(true);
+    const currentDocs = inputs.documentation || [];
+    const newDocs = [];
+
+    for (const file of files) {
+      const filename = file.name.toLowerCase();
+      let content = '';
+
+      try {
+        if (filename.endsWith('.txt') || filename.endsWith('.md')) {
+          content = await file.text();
+        } else if (filename.endsWith('.pdf') || filename.endsWith('.docx')) {
+          const formData = new FormData();
+          formData.append('file', file);
+
+          const response = await fetch(API_URL + '/api/extract', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            content = data.text;
+          } else {
+            console.error('Failed to extract:', file.name);
+            continue;
+          }
+        } else {
+          continue; // Skip unsupported files
+        }
+
+        if (content) {
+          newDocs.push({ name: file.name, content });
+        }
+      } catch (err) {
+        console.error('Error processing file:', file.name, err);
+      }
+    }
+
+    if (newDocs.length > 0) {
+      onChange('documentation', [...currentDocs, ...newDocs]);
+    }
+    setExtractingDoc(false);
+  };
+
+  const handleDocDrop = async (e) => {
+    e.preventDefault();
+    setDragOver(null);
+    const files = Array.from(e.dataTransfer.files).filter(f => {
+      const name = f.name.toLowerCase();
+      return name.endsWith('.txt') || name.endsWith('.md') || name.endsWith('.pdf') || name.endsWith('.docx');
+    });
+    if (files.length > 0) {
+      await handleDocumentationUpload(files);
+    }
+  };
+
+  const handleDocFileSelect = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      await handleDocumentationUpload(files);
+    }
+    e.target.value = '';
+  };
+
+  const removeDocument = (index) => {
+    const currentDocs = inputs.documentation || [];
+    onChange('documentation', currentDocs.filter((_, i) => i !== index));
   };
 
   return (
@@ -343,6 +427,103 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
               </div>
             );
           })}
+        </div>
+
+        {/* Documentation Section - Full width below the 2x2 grid */}
+        <div className="mt-4">
+          <div className="flex flex-col h-48 rounded-xl overflow-hidden" style={{ background: '#ffffff', border: '2px dashed #d1d5db' }}>
+            {/* Header */}
+            <div className="px-4 py-2 flex items-center justify-between" style={{ background: '#f8fafc', borderBottom: '1px solid #e5e7eb' }}>
+              <div className="flex items-center gap-2">
+                <span className="text-base">📚</span>
+                <span className="font-medium text-sm" style={{ color: '#374151' }}>Documentation & Study Materials</span>
+                <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: '#fef3c7', color: '#92400e' }}>
+                  AI will learn from these
+                </span>
+              </div>
+              {(inputs.documentation?.length > 0) && (
+                <span className="text-xs" style={{ color: '#6b7280' }}>
+                  {inputs.documentation.length} file(s) uploaded
+                </span>
+              )}
+            </div>
+
+            {/* Content Area */}
+            <div
+              className="flex-1 p-4 overflow-y-auto"
+              style={{ background: dragOver === 'documentation' ? '#f0fdf4' : '#ffffff' }}
+              onDragOver={(e) => { e.preventDefault(); setDragOver('documentation'); }}
+              onDragLeave={() => setDragOver(null)}
+              onDrop={handleDocDrop}
+            >
+              {extractingDoc ? (
+                <div className="h-full flex items-center justify-center">
+                  <div className="text-center" style={{ color: '#10b981' }}>
+                    <div className="w-8 h-8 mx-auto mb-2 border-3 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#10b981', borderTopColor: 'transparent' }} />
+                    <p className="text-sm font-medium">Processing files...</p>
+                  </div>
+                </div>
+              ) : inputs.documentation?.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {inputs.documentation.map((doc, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm"
+                      style={{ background: '#f3f4f6', border: '1px solid #e5e7eb' }}
+                    >
+                      <span style={{ color: '#374151' }}>{doc.name}</span>
+                      <span className="text-xs" style={{ color: '#9ca3af' }}>
+                        ({Math.round(doc.content.length / 1000)}KB)
+                      </span>
+                      <button
+                        onClick={() => removeDocument(idx)}
+                        className="p-1 rounded hover:bg-red-100"
+                        style={{ color: '#ef4444' }}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => docFileInputRef.current?.click()}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all"
+                    style={{ background: '#10b981', color: '#ffffff' }}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add More
+                  </button>
+                </div>
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center" style={{ color: '#9ca3af' }}>
+                  <div className="text-3xl mb-2 opacity-40">📚</div>
+                  <p className="text-sm font-medium">Drop files or click to upload</p>
+                  <p className="text-xs mt-1">PDF, DOCX, TXT, MD - The AI will learn from all uploaded materials</p>
+                  <button
+                    onClick={() => docFileInputRef.current?.click()}
+                    className="mt-3 flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                    style={{ background: '#10b981', color: '#ffffff' }}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    Upload Documentation
+                  </button>
+                </div>
+              )}
+            </div>
+            <input
+              ref={docFileInputRef}
+              type="file"
+              accept=".txt,.md,.pdf,.docx"
+              multiple
+              className="hidden"
+              onChange={handleDocFileSelect}
+            />
+          </div>
         </div>
       </div>
 

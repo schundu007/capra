@@ -145,6 +145,10 @@ export async function openAuthWindow(platform, parentWindow) {
     // Create a separate session for this auth window
     const authSession = session.fromPartition(`persist:auth-${platform}`);
 
+    // Set Chrome user-agent to avoid Electron detection
+    const chromeUserAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36';
+    authSession.setUserAgent(chromeUserAgent);
+
     const authWindow = new BrowserWindow({
       width: 1000,
       height: 700,
@@ -280,7 +284,20 @@ export async function openAuthWindow(platform, parentWindow) {
       }
     });
 
+    // Handle page load errors
+    authWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+      safeLog(`[Auth] Page load failed: ${errorCode} - ${errorDescription} at ${validatedURL}`);
+      // Show error message in the window
+      authWindow.webContents.loadURL(`data:text/html,<html><body style="font-family: system-ui; padding: 40px; text-align: center;"><h2>Failed to load ${platform}</h2><p>${errorDescription}</p><p>Error code: ${errorCode}</p><p><a href="${loginUrl}">Try again</a></p></body></html>`);
+    });
+
+    // Handle render process crash
+    authWindow.webContents.on('render-process-gone', (event, details) => {
+      safeLog(`[Auth] Render process gone: ${details.reason}`);
+    });
+
     // Load the login page
+    safeLog(`[Auth] Loading login page: ${loginUrl}`);
     authWindow.loadURL(loginUrl);
   });
 }
