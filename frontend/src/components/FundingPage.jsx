@@ -1,12 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 
 /**
  * Funding/Donation Page for Ascend
  * Powered by Donorbox - like Signal's donation page
  */
 export default function FundingPage({ onClose }) {
-  const [activeTab, setActiveTab] = useState('card'); // 'card' or 'crypto'
-
   // Load Donorbox script
   useEffect(() => {
     const script = document.createElement('script');
@@ -92,36 +90,9 @@ export default function FundingPage({ onClose }) {
           </div>
         </div>
 
-        {/* Tab selector */}
-        <div className="px-8 pt-6">
-          <div className="flex border-b border-gray-200">
-            <button
-              onClick={() => setActiveTab('card')}
-              className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === 'card'
-                  ? 'border-emerald-500 text-emerald-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Card, PayPal, Bank
-            </button>
-            <button
-              onClick={() => setActiveTab('crypto')}
-              className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === 'crypto'
-                  ? 'border-emerald-500 text-emerald-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Crypto
-            </button>
-          </div>
-        </div>
-
         {/* Donation content */}
         <div className="px-8 py-6">
-          {activeTab === 'card' ? (
-            <div className="min-h-[400px]">
+          <div className="min-h-[400px]">
               {/* Donorbox embed - replace 'your-campaign' with actual campaign slug */}
               <iframe
                 src="https://donorbox.org/embed/support-ascend-interview-prep?default_interval=o&hide_donation_meter=true"
@@ -184,72 +155,7 @@ export default function FundingPage({ onClose }) {
                 </div>
               </div>
             </div>
-          ) : (
-            <div className="py-6">
-              <p className="text-gray-600 text-sm mb-6 text-center">
-                Support Ascend with cryptocurrency. All donations go directly to infrastructure costs.
-              </p>
-
-              <div className="space-y-4 max-w-md mx-auto">
-                {/* Ethereum */}
-                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 bg-[#627EEA] rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">ETH</span>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-800">Ethereum (ETH/USDC)</h4>
-                      <p className="text-xs text-gray-500">ERC-20 tokens accepted</p>
-                    </div>
-                  </div>
-                  <div className="bg-white p-3 rounded border border-gray-200">
-                    <code className="text-xs text-gray-600 break-all select-all">
-                      0x742d35Cc6634C0532925a3b844Bc9e7595f...
-                    </code>
-                  </div>
-                  <p className="text-[10px] text-gray-400 mt-2">Coming soon - wallet setup in progress</p>
-                </div>
-
-                {/* Bitcoin */}
-                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 bg-[#F7931A] rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">BTC</span>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-800">Bitcoin (BTC)</h4>
-                      <p className="text-xs text-gray-500">Native Bitcoin network</p>
-                    </div>
-                  </div>
-                  <div className="bg-white p-3 rounded border border-gray-200">
-                    <code className="text-xs text-gray-600 break-all select-all">
-                      bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfj...
-                    </code>
-                  </div>
-                  <p className="text-[10px] text-gray-400 mt-2">Coming soon - wallet setup in progress</p>
-                </div>
-
-                {/* Solana */}
-                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 bg-gradient-to-r from-[#9945FF] to-[#14F195] rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">SOL</span>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-800">Solana (SOL/USDC)</h4>
-                      <p className="text-xs text-gray-500">SPL tokens accepted</p>
-                    </div>
-                  </div>
-                  <div className="bg-white p-3 rounded border border-gray-200">
-                    <code className="text-xs text-gray-600 break-all select-all">
-                      Coming soon...
-                    </code>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+          </div>
 
         {/* Footer */}
         <div className="px-8 py-4 bg-gray-50 rounded-b-2xl border-t border-gray-100">
