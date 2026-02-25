@@ -328,7 +328,7 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
     <div className="h-full flex flex-col" style={{ background: '#ffffff' }}>
       {/* Header */}
       <div className="px-6 py-4" style={{ borderBottom: '1px solid #e5e5e5', background: '#ffffff' }}>
-        <h3 className="text-lg font-semibold" style={{ color: '#333333' }}>Interview Materials</h3>
+        <h3 className="text-lg font-semibold" style={{ color: '#333333' }}>Interview Materials (v2.1)</h3>
         <p className="text-sm mt-1" style={{ color: '#666666' }}>
           Add your job description and resume. Content displays in document format for easy reading.
         </p>
