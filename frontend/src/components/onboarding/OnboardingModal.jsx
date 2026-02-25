@@ -24,7 +24,7 @@ export function resetOnboarding() {
 }
 
 /**
- * Onboarding Modal Component - Introduction for new users
+ * Onboarding Modal Component - Modern Design System
  */
 export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
   const [currentStep, setCurrentStep] = useState(0);
@@ -35,31 +35,69 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
     {
       title: 'Welcome to Ascend',
       subtitle: 'Your AI-Powered Interview Prep Assistant',
+      icon: (
+        <div
+          className="w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-pulse-glow"
+          style={{
+            background: 'var(--brand-gradient)',
+            boxShadow: 'var(--shadow-glow-purple)'
+          }}
+        >
+          <img
+            src="/ascend-logo.png"
+            alt="Ascend"
+            className="h-14 w-auto object-contain filter brightness-0 invert"
+          />
+        </div>
+      ),
       content: (
-        <div className="space-y-4">
-          <div className="flex justify-center mb-6">
-            <img
-              src="/ascend-logo.png"
-              alt="Ascend"
-              className="h-16 w-auto object-contain"
-            />
-          </div>
-          <p className="text-gray-300 text-center">
+        <div className="space-y-6">
+          <p style={{ color: 'var(--text-secondary)' }} className="text-center text-base">
             Ascend helps you prepare for technical interviews with AI-powered assistance
             for coding challenges, system design, and behavioral questions.
           </p>
-          <div className="grid grid-cols-3 gap-4 mt-6">
-            <div className="text-center p-3 rounded-lg" style={{ background: '#1a3d2e' }}>
-              <div className="text-2xl mb-2">💻</div>
-              <div className="text-sm text-emerald-400 font-medium">Coding</div>
+          <div className="grid grid-cols-3 gap-3">
+            <div
+              className="text-center p-4 rounded-xl transition-all hover:scale-105"
+              style={{
+                background: 'rgba(124, 58, 237, 0.15)',
+                border: '1px solid rgba(124, 58, 237, 0.3)'
+              }}
+            >
+              <div className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center" style={{ background: 'rgba(124, 58, 237, 0.3)' }}>
+                <svg className="w-6 h-6" style={{ color: 'var(--brand-primary-light)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+              </div>
+              <div className="text-sm font-semibold" style={{ color: 'var(--brand-primary-light)' }}>Coding</div>
             </div>
-            <div className="text-center p-3 rounded-lg" style={{ background: '#1a2a3a' }}>
-              <div className="text-2xl mb-2">🏗️</div>
-              <div className="text-sm text-blue-400 font-medium">System Design</div>
+            <div
+              className="text-center p-4 rounded-xl transition-all hover:scale-105"
+              style={{
+                background: 'rgba(6, 182, 212, 0.15)',
+                border: '1px solid rgba(6, 182, 212, 0.3)'
+              }}
+            >
+              <div className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center" style={{ background: 'rgba(6, 182, 212, 0.3)' }}>
+                <svg className="w-6 h-6" style={{ color: 'var(--accent-teal-light)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </div>
+              <div className="text-sm font-semibold" style={{ color: 'var(--accent-teal-light)' }}>System Design</div>
             </div>
-            <div className="text-center p-3 rounded-lg" style={{ background: '#2a1a3a' }}>
-              <div className="text-2xl mb-2">🎯</div>
-              <div className="text-sm text-purple-400 font-medium">Behavioral</div>
+            <div
+              className="text-center p-4 rounded-xl transition-all hover:scale-105"
+              style={{
+                background: 'rgba(16, 185, 129, 0.15)',
+                border: '1px solid rgba(16, 185, 129, 0.3)'
+              }}
+            >
+              <div className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center" style={{ background: 'rgba(16, 185, 129, 0.3)' }}>
+                <svg className="w-6 h-6" style={{ color: 'var(--accent-success-light)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </div>
+              <div className="text-sm font-semibold" style={{ color: 'var(--accent-success-light)' }}>Behavioral</div>
             </div>
           </div>
         </div>
@@ -68,86 +106,78 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
     {
       title: 'How It Works',
       subtitle: 'Three simple steps to ace your interview',
+      icon: (
+        <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6" style={{ background: 'rgba(6, 182, 212, 0.2)' }}>
+          <svg className="w-10 h-10" style={{ color: 'var(--accent-teal-light)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+      ),
       content: (
-        <div className="space-y-6">
-          <div className="flex items-start gap-4">
+        <div className="space-y-4">
+          {[
+            { num: 1, color: 'var(--brand-primary)', title: 'Input Your Problem', desc: 'Paste code, upload screenshots, or share URLs from LeetCode, HackerRank, and more.' },
+            { num: 2, color: 'var(--accent-teal)', title: 'Get AI-Powered Solutions', desc: 'Receive optimized code solutions with detailed explanations and complexity analysis.' },
+            { num: 3, color: 'var(--accent-success)', title: 'Practice & Improve', desc: 'Use follow-up questions, run code, and track your progress across sessions.' },
+          ].map((step, idx) => (
             <div
-              className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-lg font-bold"
-              style={{ background: '#10b981', color: '#fff' }}
+              key={idx}
+              className="flex items-start gap-4 p-4 rounded-xl transition-all hover:scale-[1.02]"
+              style={{
+                background: 'var(--bg-elevated)',
+                border: '1px solid var(--border-subtle)',
+              }}
             >
-              1
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg font-bold text-white"
+                style={{ background: step.color }}
+              >
+                {step.num}
+              </div>
+              <div>
+                <h4 className="font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{step.title}</h4>
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{step.desc}</p>
+              </div>
             </div>
-            <div>
-              <h4 className="text-white font-medium mb-1">Input Your Problem</h4>
-              <p className="text-gray-400 text-sm">
-                Paste code, upload screenshots, or share URLs from LeetCode, HackerRank, and more.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start gap-4">
-            <div
-              className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-lg font-bold"
-              style={{ background: '#3b82f6', color: '#fff' }}
-            >
-              2
-            </div>
-            <div>
-              <h4 className="text-white font-medium mb-1">Get AI-Powered Solutions</h4>
-              <p className="text-gray-400 text-sm">
-                Receive optimized code solutions with detailed explanations and complexity analysis.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start gap-4">
-            <div
-              className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-lg font-bold"
-              style={{ background: '#8b5cf6', color: '#fff' }}
-            >
-              3
-            </div>
-            <div>
-              <h4 className="text-white font-medium mb-1">Practice & Improve</h4>
-              <p className="text-gray-400 text-sm">
-                Use follow-up questions, run code, and track your progress across sessions.
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
       ),
     },
     {
       title: 'Company Interview Prep',
       subtitle: 'Targeted preparation for specific companies',
+      icon: (
+        <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6" style={{ background: 'rgba(16, 185, 129, 0.2)' }}>
+          <svg className="w-10 h-10" style={{ color: 'var(--accent-success-light)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
+        </div>
+      ),
       content: (
         <div className="space-y-4">
-          <p className="text-gray-300">
+          <p style={{ color: 'var(--text-secondary)' }}>
             Create personalized interview prep materials for any company. Get AI-generated:
           </p>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: '#242424' }}>
-              <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-gray-300">Company-specific interview questions</span>
-            </div>
-            <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: '#242424' }}>
-              <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-gray-300">Culture and values alignment tips</span>
-            </div>
-            <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: '#242424' }}>
-              <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-gray-300">Technical topics to focus on</span>
-            </div>
-            <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: '#242424' }}>
-              <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-gray-300">Behavioral STAR stories</span>
-            </div>
+          <div className="space-y-2">
+            {[
+              'Company-specific interview questions',
+              'Culture and values alignment tips',
+              'Technical topics to focus on',
+              'Behavioral STAR stories',
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                className="flex items-center gap-3 p-3 rounded-xl"
+                style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}
+              >
+                <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: 'rgba(16, 185, 129, 0.2)' }}>
+                  <svg className="w-4 h-4" style={{ color: 'var(--accent-success)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <span style={{ color: 'var(--text-secondary)' }}>{item}</span>
+              </div>
+            ))}
           </div>
         </div>
       ),
@@ -155,35 +185,49 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
     {
       title: 'Credits System',
       subtitle: 'Simple and transparent pricing',
+      icon: (
+        <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6" style={{ background: 'rgba(124, 58, 237, 0.2)' }}>
+          <svg className="w-10 h-10" style={{ color: 'var(--brand-primary-light)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+      ),
       content: (
         <div className="space-y-4">
-          <p className="text-gray-300">
+          <p style={{ color: 'var(--text-secondary)' }}>
             Each credit allows you to create one company interview preparation package.
           </p>
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-2 gap-4">
             <div
-              className="p-4 rounded-lg text-center"
-              style={{ background: '#1a3d2e', border: '1px solid #166534' }}
+              className="p-5 rounded-xl text-center relative overflow-hidden"
+              style={{
+                background: 'linear-gradient(145deg, rgba(124, 58, 237, 0.2) 0%, rgba(124, 58, 237, 0.1) 100%)',
+                border: '1px solid rgba(124, 58, 237, 0.3)'
+              }}
             >
-              <div className="text-2xl font-bold text-white">$99</div>
-              <div className="text-sm text-emerald-400">Monthly</div>
-              <div className="text-xs text-gray-400 mt-1">5 credits/month</div>
+              <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: 'var(--brand-primary)', color: 'white' }}>POPULAR</div>
+              <div className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>$99</div>
+              <div className="text-sm font-medium" style={{ color: 'var(--brand-primary-light)' }}>Monthly</div>
+              <div className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>5 credits/month</div>
             </div>
             <div
-              className="p-4 rounded-lg text-center"
-              style={{ background: '#1a2a3a', border: '1px solid #1e40af' }}
+              className="p-5 rounded-xl text-center"
+              style={{
+                background: 'linear-gradient(145deg, rgba(6, 182, 212, 0.2) 0%, rgba(6, 182, 212, 0.1) 100%)',
+                border: '1px solid rgba(6, 182, 212, 0.3)'
+              }}
             >
-              <div className="text-2xl font-bold text-white">$200</div>
-              <div className="text-sm text-blue-400">Quarterly</div>
-              <div className="text-xs text-gray-400 mt-1">5 credits/quarter</div>
+              <div className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>$200</div>
+              <div className="text-sm font-medium" style={{ color: 'var(--accent-teal-light)' }}>Quarterly</div>
+              <div className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>5 credits/quarter</div>
             </div>
           </div>
           <div
-            className="p-3 rounded-lg text-center mt-2"
-            style={{ background: '#242424', border: '1px solid #333' }}
+            className="p-4 rounded-xl text-center"
+            style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}
           >
-            <span className="text-gray-300">Need more? </span>
-            <span className="text-white font-medium">$50 for 5 additional credits</span>
+            <span style={{ color: 'var(--text-secondary)' }}>Need more? </span>
+            <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>$50 for 5 additional credits</span>
           </div>
         </div>
       ),
@@ -191,24 +235,27 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
     {
       title: "You're All Set!",
       subtitle: 'Start your interview prep journey',
+      icon: (
+        <div className="w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float" style={{ background: 'var(--brand-gradient)', boxShadow: 'var(--shadow-glow-purple)' }}>
+          <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+      ),
       content: (
         <div className="space-y-6 text-center">
-          <div className="text-6xl">🚀</div>
-          <p className="text-gray-300">
+          <p style={{ color: 'var(--text-secondary)' }}>
             You're ready to start preparing for your dream job interviews.
             Get credits to unlock company-specific prep materials.
           </p>
-          <div className="flex flex-col gap-3 mt-6">
+          <div className="flex flex-col gap-3">
             <button
               onClick={() => {
                 markOnboardingComplete();
                 onOpenPricing?.();
                 onComplete();
               }}
-              className="w-full py-3 rounded-lg font-bold transition-all"
-              style={{ background: '#10b981', color: '#ffffff' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = '#059669'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = '#10b981'; }}
+              className="btn-primary w-full py-4 text-base"
             >
               Get Credits & Start
             </button>
@@ -217,10 +264,7 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
                 markOnboardingComplete();
                 onComplete();
               }}
-              className="w-full py-3 rounded-lg font-medium transition-all"
-              style={{ background: '#333333', color: '#ffffff' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = '#444444'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = '#333333'; }}
+              className="btn-secondary w-full py-4"
             >
               Explore First
             </button>
@@ -257,33 +301,43 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(0, 0, 0, 0.9)' }}
+      style={{ background: 'rgba(15, 15, 20, 0.95)', backdropFilter: 'blur(8px)' }}
     >
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-gradient-radial pointer-events-none opacity-50" />
+
       <div
-        className="relative w-full max-w-lg rounded-xl overflow-hidden"
-        style={{ background: '#1a1a1a', border: '1px solid #333333' }}
+        className="relative w-full max-w-lg rounded-2xl overflow-hidden animate-scale-in glass-card"
+        style={{
+          boxShadow: 'var(--shadow-lg), var(--shadow-glow-purple)',
+        }}
       >
         {/* Progress bar */}
-        <div className="h-1 bg-gray-800">
+        <div className="h-1" style={{ background: 'var(--bg-active)' }}>
           <div
-            className="h-full transition-all duration-300"
+            className="h-full transition-all duration-500 ease-out"
             style={{
               width: `${((currentStep + 1) / steps.length) * 100}%`,
-              background: 'linear-gradient(90deg, #10b981, #3b82f6)',
+              background: 'var(--brand-gradient)',
             }}
           />
         </div>
 
         {/* Content */}
         <div className="p-8">
+          {/* Icon */}
+          {currentStepData.icon}
+
           {/* Header */}
           <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-white mb-1">{currentStepData.title}</h2>
-            <p className="text-gray-400">{currentStepData.subtitle}</p>
+            <h2 className="text-2xl font-bold mb-2">
+              <span className="gradient-text">{currentStepData.title}</span>
+            </h2>
+            <p style={{ color: 'var(--text-muted)' }}>{currentStepData.subtitle}</p>
           </div>
 
           {/* Step content */}
-          <div className="min-h-[280px]">
+          <div className="min-h-[260px] animate-fade-in" key={currentStep}>
             {currentStepData.content}
           </div>
 
@@ -292,7 +346,8 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
             <div className="flex items-center justify-between mt-8">
               <button
                 onClick={handleSkip}
-                className="text-sm text-gray-500 hover:text-gray-300 transition-colors"
+                className="text-sm transition-colors hover:opacity-80"
+                style={{ color: 'var(--text-muted)' }}
               >
                 Skip intro
               </button>
@@ -301,20 +356,14 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
                 {!isFirstStep && (
                   <button
                     onClick={handlePrev}
-                    className="px-4 py-2 rounded-lg font-medium transition-colors"
-                    style={{ background: '#333333', color: '#ffffff' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = '#444444'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = '#333333'; }}
+                    className="btn-secondary px-5 py-2.5"
                   >
                     Back
                   </button>
                 )}
                 <button
                   onClick={handleNext}
-                  className="px-6 py-2 rounded-lg font-medium transition-colors"
-                  style={{ background: '#10b981', color: '#ffffff' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = '#059669'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = '#10b981'; }}
+                  className="btn-primary px-6 py-2.5"
                 >
                   Next
                 </button>
@@ -328,10 +377,11 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
               <button
                 key={index}
                 onClick={() => setCurrentStep(index)}
-                className="w-2 h-2 rounded-full transition-all"
+                className="w-2 h-2 rounded-full transition-all duration-300"
                 style={{
-                  background: index === currentStep ? '#10b981' : '#333333',
-                  transform: index === currentStep ? 'scale(1.2)' : 'scale(1)',
+                  background: index === currentStep ? 'var(--brand-primary)' : 'var(--bg-active)',
+                  transform: index === currentStep ? 'scale(1.5)' : 'scale(1)',
+                  boxShadow: index === currentStep ? '0 0 8px var(--brand-primary)' : 'none',
                 }}
               />
             ))}

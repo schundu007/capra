@@ -1369,7 +1369,7 @@ EDGE CASES & RESILIENCE:
   const showSidebar = !sidebarCollapsed;
 
   return (
-    <div className="h-screen flex overflow-hidden" style={{ background: '#1a1a1a', color: '#ffffff' }}>
+    <div className="h-screen flex overflow-hidden" style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
       {/* Sidebar */}
       {showSidebar && (
         <Sidebar
@@ -1398,29 +1398,29 @@ EDGE CASES & RESILIENCE:
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Header - Minimal when sidebar visible, full when collapsed */}
+      {/* Header - Modern Design */}
       <header
-        className="relative z-20 flex items-center px-4 py-2"
+        className="relative z-20 flex items-center justify-between px-4 py-2.5"
         style={{
           paddingLeft: (isMacElectron && !showSidebar) ? '80px' : '16px',
-          background: '#242424',
-          borderBottom: '1px solid #333333',
+          background: 'var(--bg-surface)',
+          borderBottom: '1px solid var(--border-subtle)',
           WebkitAppRegion: 'drag'
         }}
       >
         {/* Left: Logo & Status */}
-        <div className="flex items-center gap-3" style={{ WebkitAppRegion: 'no-drag' }}>
+        <div className="flex items-center gap-4" style={{ WebkitAppRegion: 'no-drag' }}>
           {/* Sidebar Toggle - always show when collapsed */}
           {sidebarCollapsed && (
             <button
               onClick={toggleSidebar}
-              className="p-2 rounded-lg transition-all"
-              style={{ color: '#888888' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = '#333333'; e.currentTarget.style.color = '#ffffff'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#888888'; }}
+              className="p-2 rounded-xl transition-all"
+              style={{ color: 'var(--text-muted)', background: 'transparent' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}
               title="Show sidebar"
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
@@ -1428,47 +1428,68 @@ EDGE CASES & RESILIENCE:
 
           {/* Only show logo in header when sidebar is hidden */}
           {!showSidebar && (
-            <div className="relative group flex items-center gap-2">
-              <img
-                src="/ascend-logo.png"
-                alt="Ascend"
-                className="h-7 w-auto object-contain"
-              />
+            <div className="relative group flex items-center gap-3">
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center"
+                style={{ background: 'var(--brand-gradient)', boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)' }}
+              >
+                <img
+                  src="/ascend-logo.png"
+                  alt="Ascend"
+                  className="h-5 w-auto object-contain filter brightness-0 invert"
+                />
+              </div>
               {isLoading && (
-                <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full animate-pulse" style={{ background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
+                <div className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full animate-pulse" style={{ background: 'var(--accent-success)', boxShadow: '0 0 12px var(--accent-success)' }} />
               )}
             </div>
           )}
 
-          {/* Mode Tabs - Left aligned */}
-          <div className="flex items-center gap-1 ml-2">
+          {/* Mode Tabs - Pill style */}
+          <div
+            className="flex items-center gap-1 p-1 rounded-xl"
+            style={{ background: 'var(--bg-elevated)' }}
+          >
             {[
-              { id: 'coding', label: 'Coding' },
-              { id: 'system-design', label: 'Design' },
-              { id: 'behavioral', label: 'Preparation' },
+              { id: 'coding', label: 'Coding', icon: (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+              )},
+              { id: 'system-design', label: 'Design', icon: (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              )},
+              { id: 'behavioral', label: 'Preparation', icon: (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              )},
             ].map((mode) => (
               <button
                 key={mode.id}
                 onClick={() => handleModeChange(mode.id)}
-                className="px-4 py-1.5 text-sm font-medium rounded-lg transition-all"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all"
                 style={{
-                  background: ascendMode === mode.id ? '#10b981' : 'transparent',
-                  color: ascendMode === mode.id ? '#ffffff' : '#888888',
-                  border: ascendMode === mode.id ? 'none' : '1px solid transparent',
+                  background: ascendMode === mode.id ? 'var(--brand-gradient)' : 'transparent',
+                  color: ascendMode === mode.id ? 'white' : 'var(--text-muted)',
+                  boxShadow: ascendMode === mode.id ? '0 4px 12px rgba(124, 58, 237, 0.3)' : 'none',
                 }}
                 onMouseEnter={(e) => {
                   if (ascendMode !== mode.id) {
-                    e.currentTarget.style.background = '#333333';
-                    e.currentTarget.style.color = '#ffffff';
+                    e.currentTarget.style.background = 'var(--bg-hover)';
+                    e.currentTarget.style.color = 'var(--text-primary)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (ascendMode !== mode.id) {
                     e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.color = '#888888';
+                    e.currentTarget.style.color = 'var(--text-muted)';
                   }
                 }}
               >
+                {mode.icon}
                 {mode.label}
               </button>
             ))}
@@ -1486,13 +1507,30 @@ EDGE CASES & RESILIENCE:
 
       {/* Error Banner */}
       {error && (
-        <div className="relative z-10 mx-4 mt-2 p-3 rounded-lg animate-fade-in" style={{ background: '#3d1f1f', border: '1px solid #7f2d2d' }}>
+        <div
+          className="relative z-10 mx-4 mt-3 p-4 rounded-xl animate-fade-in"
+          style={{
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)'
+          }}
+        >
           <div className="flex items-center gap-3">
-            <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span className="text-red-400 text-sm">{error}</span>
-            <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-600 transition-colors">
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+              style={{ background: 'rgba(239, 68, 68, 0.2)' }}
+            >
+              <svg className="w-4 h-4" style={{ color: 'var(--accent-error)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <span className="text-sm" style={{ color: 'var(--accent-error-light)' }}>{error}</span>
+            <button
+              onClick={() => setError(null)}
+              className="ml-auto p-1.5 rounded-lg transition-all"
+              style={{ color: 'var(--accent-error)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+            >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -1503,16 +1541,33 @@ EDGE CASES & RESILIENCE:
 
       {/* Provider Switch Notification */}
       {switchNotification && (
-        <div className="relative z-10 mx-4 mt-2 p-3 rounded-lg animate-fade-in" style={{ background: '#3d2f1f', border: '1px solid #92400e' }}>
+        <div
+          className="relative z-10 mx-4 mt-3 p-4 rounded-xl animate-fade-in"
+          style={{
+            background: 'rgba(245, 158, 11, 0.1)',
+            border: '1px solid rgba(245, 158, 11, 0.3)'
+          }}
+        >
           <div className="flex items-center gap-3">
-            <svg className="w-5 h-5 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            <span className="text-amber-400 text-sm">
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+              style={{ background: 'rgba(245, 158, 11, 0.2)' }}
+            >
+              <svg className="w-4 h-4" style={{ color: 'var(--accent-warning)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <span className="text-sm" style={{ color: 'var(--accent-warning-light)' }}>
               Auto-switched from <strong>{switchNotification.from}</strong> to <strong>{switchNotification.to}</strong>
-              {switchNotification.reason && <span className="text-amber-500 ml-1">({switchNotification.reason})</span>}
+              {switchNotification.reason && <span style={{ color: 'var(--accent-warning)' }} className="ml-1">({switchNotification.reason})</span>}
             </span>
-            <button onClick={() => setSwitchNotification(null)} className="ml-auto text-amber-400 hover:text-amber-600 transition-colors">
+            <button
+              onClick={() => setSwitchNotification(null)}
+              className="ml-auto p-1.5 rounded-lg transition-all"
+              style={{ color: 'var(--accent-warning)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(245, 158, 11, 0.2)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+            >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -1524,20 +1579,28 @@ EDGE CASES & RESILIENCE:
       {/* Smart Loading Progress - Top Bar */}
       {isLoading && (
         <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
-          {/* Progress bar */}
-          <div className="h-1 overflow-hidden" style={{ background: '#333333' }}>
+          {/* Progress bar with gradient */}
+          <div className="h-1 overflow-hidden" style={{ background: 'var(--bg-active)' }}>
             <div
-              className="h-full bg-emerald-500"
+              className="h-full"
               style={{
                 width: '100%',
+                background: 'var(--brand-gradient)',
                 animation: 'progressSlide 1.5s ease-in-out infinite',
               }}
             />
           </div>
           {/* Status pill */}
-          <div className="absolute top-2 right-4 flex items-center gap-2 px-3 py-1.5 rounded-full shadow-lg" style={{ background: '#2a2a2a', border: '1px solid #444444' }}>
-            <div className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse" />
-            <span className="text-xs text-gray-300">
+          <div
+            className="absolute top-3 right-5 flex items-center gap-2.5 px-4 py-2 rounded-xl shadow-lg"
+            style={{
+              background: 'var(--bg-glass)',
+              border: '1px solid var(--bg-glass-border)',
+              backdropFilter: 'blur(12px)'
+            }}
+          >
+            <div className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ background: 'var(--brand-primary)', boxShadow: '0 0 10px var(--brand-primary)' }} />
+            <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
               {loadingType === 'fetch' && 'Fetching...'}
               {loadingType === 'screenshot' && 'Extracting...'}
               {loadingType === 'solve' && 'Solving...'}
@@ -1780,21 +1843,41 @@ EDGE CASES & RESILIENCE:
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 px-4 py-2 flex items-center justify-between text-[11px] border-t" style={{ borderColor: '#333333', background: '#242424', color: '#888888' }}>
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5">
-            <span className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'bg-[#10b981] animate-pulse' : 'bg-[#10b981]'}`} />
-            {isLoading ? 'Processing' : 'Ready'}
+      <footer
+        className="relative z-10 px-5 py-2.5 flex items-center justify-between text-xs border-t"
+        style={{ borderColor: 'var(--border-subtle)', background: 'var(--bg-surface)', color: 'var(--text-muted)' }}
+      >
+        <div className="flex items-center gap-4">
+          <span className="flex items-center gap-2">
+            <span
+              className={`w-2 h-2 rounded-full ${isLoading ? 'animate-pulse' : ''}`}
+              style={{
+                background: isLoading ? 'var(--accent-success)' : 'var(--accent-success)',
+                boxShadow: isLoading ? '0 0 8px var(--accent-success)' : 'none'
+              }}
+            />
+            <span style={{ color: isLoading ? 'var(--accent-success-light)' : 'var(--text-muted)' }}>
+              {isLoading ? 'Processing' : 'Ready'}
+            </span>
           </span>
         </div>
-        <div className="flex items-center gap-3 font-mono" style={{ color: '#666666' }}>
-          <span title="Solve problem">^1 solve</span>
-          <span>·</span>
-          <span title="Run code">^2 run</span>
-          <span>·</span>
-          <span title="Copy code">^3 copy</span>
-          <span>·</span>
-          <span title="Clear all">Esc clear</span>
+        <div className="flex items-center gap-4 font-mono text-[11px]" style={{ color: 'var(--text-subtle)' }}>
+          <span className="flex items-center gap-1.5" title="Solve problem">
+            <kbd className="px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}>^1</kbd>
+            solve
+          </span>
+          <span className="flex items-center gap-1.5" title="Run code">
+            <kbd className="px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}>^2</kbd>
+            run
+          </span>
+          <span className="flex items-center gap-1.5" title="Copy code">
+            <kbd className="px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}>^3</kbd>
+            copy
+          </span>
+          <span className="flex items-center gap-1.5" title="Clear all">
+            <kbd className="px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}>Esc</kbd>
+            clear
+          </span>
         </div>
       </footer>
 
@@ -1868,15 +1951,21 @@ EDGE CASES & RESILIENCE:
       {/* Copy Toast Notification */}
       {copyToast && (
         <div
-          className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in"
-          style={{ animation: 'fadeInUp 0.2s ease-out' }}
+          className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 animate-scale-in"
         >
-          <div className="flex items-center gap-2 px-4 py-2 rounded-lg shadow-lg"
-               style={{ background: '#10b981', color: 'white' }}>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            <span className="text-sm font-medium">Code copied!</span>
+          <div
+            className="flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg"
+            style={{
+              background: 'var(--brand-gradient)',
+              boxShadow: 'var(--shadow-glow-purple)'
+            }}
+          >
+            <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.2)' }}>
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <span className="text-sm font-semibold text-white">Code copied!</span>
           </div>
         </div>
       )}
