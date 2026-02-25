@@ -20,7 +20,12 @@ import diagramRouter from './routes/diagram.js';
 import ascendPrepRouter from './routes/ascendPrep.js';
 import extractRouter from './routes/extract.js';
 import extensionRouter from './routes/extension.js';
+import billingRouter from './routes/billing.js';
+import creditsRouter from './routes/credits.js';
+import companyPrepsRouter from './routes/companyPreps.js';
 import { authenticate } from './middleware/authenticate.js';
+import { isDatabaseConfigured } from './config/database.js';
+import { isStripeConfigured } from './config/stripe.js';
 
 const app = express();
 const PORT = config.PORT;
@@ -61,6 +66,9 @@ app.use(requestId);
 
 // Request logging
 app.use(requestLogger);
+
+// Raw body parsing for Stripe webhooks (must be before json middleware for /api/billing/webhook)
+app.use('/api/billing/webhook', express.raw({ type: 'application/json' }));
 
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
@@ -225,6 +233,11 @@ app.use('/api/ascend', authenticate, ascendRouter);
 app.use('/api/diagram', authenticate, diagramRouter);
 app.use('/api/extract', authenticate, extractRouter);
 
+// Billing & Credits routes (JWT auth - uses cariara OAuth tokens)
+app.use('/api/billing', billingRouter);
+app.use('/api/credits', creditsRouter);
+app.use('/api/company-preps', companyPrepsRouter);
+
 // Enhanced health check
 app.get('/api/health', (req, res) => {
   res.json({
@@ -233,6 +246,10 @@ app.get('/api/health', (req, res) => {
     requestId: req.requestId,
     version: process.env.npm_package_version || '1.0.0',
     environment: config.NODE_ENV,
+    features: {
+      database: isDatabaseConfigured(),
+      stripe: isStripeConfigured(),
+    },
   });
 });
 
