@@ -10,28 +10,24 @@ const INPUT_FIELDS = [
     label: 'Job Description',
     placeholder: 'Paste the full job description here...',
     required: true,
-    icon: '📋',
   },
   {
     id: 'resume',
     label: 'Resume',
     placeholder: 'Paste your resume content here...',
     required: true,
-    icon: '📄',
   },
   {
     id: 'coverLetter',
     label: 'Cover Letter',
     placeholder: 'Paste your cover letter (optional)...',
     required: false,
-    icon: '✉️',
   },
   {
     id: 'prepMaterials',
     label: 'Additional Prep Materials',
     placeholder: 'Company research, notes, questions to ask (optional)...',
     required: false,
-    icon: '📝',
   },
 ];
 
@@ -41,7 +37,6 @@ const DOCUMENTATION_FIELD = {
   label: 'Documentation & Study Materials',
   placeholder: 'Upload PDFs, DOCX, TXT files with study materials, guides, or any documentation the AI should learn from...',
   required: false,
-  icon: '📚',
   multiFile: true,
 };
 
@@ -68,7 +63,7 @@ function textToMarkdown(text) {
 }
 
 // Document viewer component - Word/Google Docs style
-function DocumentViewer({ content, onEdit, fieldLabel, icon }) {
+function DocumentViewer({ content, onEdit, fieldLabel }) {
   const markdownContent = textToMarkdown(content);
 
   return (
@@ -82,7 +77,6 @@ function DocumentViewer({ content, onEdit, fieldLabel, icon }) {
         style={{ background: '#f8fafc', borderBottom: '1px solid #e5e7eb' }}
       >
         <div className="flex items-center gap-2">
-          <span className="text-base">{icon}</span>
           <span className="font-medium text-sm" style={{ color: '#374151' }}>{fieldLabel}</span>
           <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: '#dbeafe', color: '#1d4ed8' }}>
             {content.split(/\s+/).filter(w => w).length} words
@@ -328,7 +322,7 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
     <div className="h-full flex flex-col" style={{ background: '#ffffff' }}>
       {/* Header */}
       <div className="px-6 py-4" style={{ borderBottom: '1px solid #e5e5e5', background: '#ffffff' }}>
-        <h3 className="text-lg font-semibold" style={{ color: '#333333' }}>Interview Materials (v2.1)</h3>
+        <h3 className="text-lg font-semibold" style={{ color: '#333333' }}>Interview Materials</h3>
         <p className="text-sm mt-1" style={{ color: '#666666' }}>
           Add your job description and resume. Content displays in document format for easy reading.
         </p>
@@ -348,12 +342,10 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
                     content={inputs[field.id]}
                     onEdit={() => setEditingField(field.id)}
                     fieldLabel={field.label}
-                    icon={field.icon}
                   />
                 ) : (
                   <div className="flex flex-col h-full">
                     <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: '#6b7280' }}>
-                      <span>{field.icon}</span>
                       <span>{field.label}</span>
                       {field.required && <span style={{ color: '#ef4444' }}>*</span>}
                       {hasContent && (
@@ -388,9 +380,7 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
                       {!inputs[field.id] && !extracting && (
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                           <div className="text-center" style={{ color: '#9ca3af' }}>
-                            <div className="text-4xl mb-3 opacity-40">{field.icon}</div>
                             <p className="text-sm font-medium">Drop file or paste text</p>
-                            <p className="text-xs mt-1">Supports PDF, DOCX, TXT, MD</p>
                           </div>
                         </div>
                       )}
@@ -435,11 +425,7 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
             {/* Header */}
             <div className="px-4 py-2 flex items-center justify-between" style={{ background: '#f8fafc', borderBottom: '1px solid #e5e7eb' }}>
               <div className="flex items-center gap-2">
-                <span className="text-base">📚</span>
                 <span className="font-medium text-sm" style={{ color: '#374151' }}>Documentation & Study Materials</span>
-                <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: '#fef3c7', color: '#92400e' }}>
-                  AI will learn from these
-                </span>
               </div>
               {(inputs.documentation?.length > 0) && (
                 <span className="text-xs" style={{ color: '#6b7280' }}>
