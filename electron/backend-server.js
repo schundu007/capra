@@ -159,7 +159,7 @@ async function registerRoutes(app) {
   const { default: runRouter } = await import('../backend/src/routes/run.js');
   const { default: fixRouter } = await import('../backend/src/routes/fix.js');
   const { default: transcribeRouter } = await import('../backend/src/routes/transcribe.js');
-  const { default: ascendRouter } = await import('../backend/src/routes/interview.js');
+  const { default: ascendRouter } = await import('../backend/src/routes/ascend.js');
   const { default: ascendPrepRouter } = await import('../backend/src/routes/ascendPrep.js');
   const { default: diagramRouter } = await import('../backend/src/routes/diagram.js');
   const { default: extractRouter } = await import('../backend/src/routes/extract.js');
