@@ -4,6 +4,12 @@ import { getApiUrl } from '../../hooks/useElectron';
 
 const API_URL = getApiUrl();
 
+// Get auth headers for API calls
+function getAuthHeaders() {
+  const token = localStorage.getItem('authToken');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 const INPUT_FIELDS = [
   {
     id: 'jobDescription',
@@ -201,11 +207,12 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
 
         const response = await fetch(API_URL + '/api/extract', {
           method: 'POST',
+          headers: getAuthHeaders(),
           body: formData,
         });
 
         if (!response.ok) {
-          const error = await response.json();
+          const error = await response.json().catch(() => ({}));
           throw new Error(error.error || 'Failed to extract text');
         }
 
@@ -265,6 +272,7 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
 
           const response = await fetch(API_URL + '/api/extract', {
             method: 'POST',
+            headers: getAuthHeaders(),
             body: formData,
           });
 
