@@ -431,13 +431,15 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
   // Empty state
   if ((!explanations || explanations.length === 0) && !pitch && !hasSystemDesign && !isStreaming) {
     return (
-      <div className="h-full flex flex-col overflow-hidden" style={{ background: '#f5f5f5' }}>
-        <div className="flex items-center gap-2 px-3 py-2 flex-shrink-0" style={{ borderBottom: '1px solid #e5e5e5' }}>
-          <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#b3b3b3' }} />
-          <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: '#999999' }}>Explanation</span>
+      <div className="h-full flex flex-col overflow-hidden panel-container">
+        <div className="panel-header">
+          <div className="panel-header-left">
+            <div className="panel-indicator panel-indicator-idle" />
+            <span className="panel-title">Explanation</span>
+          </div>
         </div>
-        <div className="flex-1 flex items-center justify-center p-4">
-          <p className="text-sm" style={{ color: '#999999' }}>Solve a problem to see explanations</p>
+        <div className="flex-1 flex items-center justify-center p-4 panel-content-light">
+          <p className="text-sm text-gray-500">Solve a problem to see explanations</p>
         </div>
       </div>
     );
@@ -446,33 +448,37 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
   // Streaming state
   if (isStreaming && !pitch && (!explanations || explanations.length === 0)) {
     return (
-      <div className="h-full flex flex-col overflow-hidden bg-white">
-        <div className="flex items-center gap-2 px-3 py-2 flex-shrink-0" style={{ borderBottom: '1px solid #e5e5e5' }}>
-          <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#10b981' }} />
-          <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: '#333333' }}>Explanation</span>
-          <div className="flex gap-0.5 ml-1.5">
-            <span className="w-1 h-1 rounded-full animate-bounce" style={{ background: '#10b981', animationDelay: '0ms' }} />
-            <span className="w-1 h-1 rounded-full animate-bounce" style={{ background: '#10b981', animationDelay: '150ms' }} />
-            <span className="w-1 h-1 rounded-full animate-bounce" style={{ background: '#10b981', animationDelay: '300ms' }} />
+      <div className="h-full flex flex-col overflow-hidden panel-container">
+        <div className="panel-header">
+          <div className="panel-header-left">
+            <div className="panel-indicator" />
+            <span className="panel-title">Explanation</span>
+            <div className="flex gap-0.5 ml-1.5">
+              <span className="w-1 h-1 rounded-full animate-bounce bg-emerald-500" style={{ animationDelay: '0ms' }} />
+              <span className="w-1 h-1 rounded-full animate-bounce bg-emerald-500" style={{ animationDelay: '150ms' }} />
+              <span className="w-1 h-1 rounded-full animate-bounce bg-emerald-500" style={{ animationDelay: '300ms' }} />
+            </div>
           </div>
         </div>
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-sm" style={{ color: '#999999' }}>Generating...</p>
+        <div className="flex-1 flex items-center justify-center panel-content-light">
+          <p className="text-sm text-gray-500">Generating...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col overflow-hidden bg-white">
+    <div className="h-full flex flex-col overflow-hidden panel-container">
       {/* Header */}
-      <div className="flex items-center gap-2 px-3 py-2 flex-shrink-0" style={{ borderBottom: '1px solid #e5e5e5' }}>
-        <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#10b981' }} />
-        <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: '#333333' }}>Explanation</span>
+      <div className="panel-header">
+        <div className="panel-header-left">
+          <div className="panel-indicator" />
+          <span className="panel-title">Explanation</span>
+        </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin p-2 space-y-2">
+      <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin p-2 space-y-2 panel-content-light">
         {/* Solution Pitch - Structured format for easy verbal delivery */}
         {pitch && (
           <div className="p-3 rounded-lg" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderLeft: '3px solid #10b981' }}>

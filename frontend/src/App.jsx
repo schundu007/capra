@@ -1366,10 +1366,11 @@ EDGE CASES & RESILIENCE:
   const isMacElectron = isElectron && navigator.platform.toLowerCase().includes('mac');
 
   // Determine if sidebar should be shown (both Electron and webapp)
-  const showSidebar = !sidebarCollapsed;
+  // Hide sidebar completely in Preparation mode for full-page experience
+  const showSidebar = !sidebarCollapsed && ascendMode !== 'ascend-prep';
 
   return (
-    <div className="h-screen flex overflow-hidden" style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
+    <div className="h-screen flex overflow-hidden" style={{ background: 'var(--content-bg)', color: 'var(--text-primary)' }}>
       {/* Sidebar */}
       {showSidebar && (
         <Sidebar
@@ -1398,26 +1399,22 @@ EDGE CASES & RESILIENCE:
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Header - Modern Design */}
+      {/* Header - Slack Style */}
       <header
-        className="relative z-20 flex items-center justify-between px-4 py-2.5"
+        className="slack-channel-header"
         style={{
-          paddingLeft: (isMacElectron && !showSidebar) ? '80px' : '16px',
-          background: 'var(--bg-surface)',
-          borderBottom: '1px solid var(--border-subtle)',
-          WebkitAppRegion: 'drag'
+          paddingLeft: (isMacElectron && !showSidebar) ? '80px' : '20px',
+          WebkitAppRegion: 'drag',
+          height: '49px',
         }}
       >
-        {/* Left: Logo & Status */}
+        {/* Left: Logo & Tabs */}
         <div className="flex items-center gap-4" style={{ WebkitAppRegion: 'no-drag' }}>
-          {/* Sidebar Toggle - always show when collapsed */}
-          {sidebarCollapsed && (
+          {/* Sidebar Toggle - hidden in Preparation mode */}
+          {sidebarCollapsed && ascendMode !== 'ascend-prep' && (
             <button
               onClick={toggleSidebar}
-              className="p-2 rounded-xl transition-all"
-              style={{ color: 'var(--text-muted)', background: 'transparent' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}
+              className="slack-btn-icon"
               title="Show sidebar"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1426,30 +1423,28 @@ EDGE CASES & RESILIENCE:
             </button>
           )}
 
-          {/* Only show logo in header when sidebar is hidden */}
+          {/* Logo when sidebar hidden */}
           {!showSidebar && (
-            <div className="relative group flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center"
-                style={{ background: 'var(--brand-gradient)', boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)' }}
+                className="w-8 h-8 rounded-md flex items-center justify-center"
+                style={{ background: 'var(--accent-green)' }}
               >
                 <img
                   src="/ascend-logo.png"
                   alt="Ascend"
-                  className="h-5 w-auto object-contain filter brightness-0 invert"
+                  className="h-4 w-auto object-contain filter brightness-0 invert"
                 />
               </div>
+              <span className="text-title">Ascend</span>
               {isLoading && (
-                <div className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full animate-pulse" style={{ background: 'var(--accent-success)', boxShadow: '0 0 12px var(--accent-success)' }} />
+                <div className="slack-spinner" style={{ width: '16px', height: '16px' }} />
               )}
             </div>
           )}
 
-          {/* Mode Tabs - Pill style */}
-          <div
-            className="flex items-center gap-1 p-1 rounded-xl"
-            style={{ background: 'var(--bg-elevated)' }}
-          >
+          {/* Mode Tabs - Slack style */}
+          <div className="slack-tabs">
             {[
               { id: 'coding', label: 'Coding', icon: (
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1461,7 +1456,7 @@ EDGE CASES & RESILIENCE:
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
               )},
-              { id: 'behavioral', label: 'Preparation', icon: (
+              { id: 'behavioral', label: 'Prep', icon: (
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
@@ -1470,24 +1465,7 @@ EDGE CASES & RESILIENCE:
               <button
                 key={mode.id}
                 onClick={() => handleModeChange(mode.id)}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all"
-                style={{
-                  background: ascendMode === mode.id ? 'var(--brand-gradient)' : 'transparent',
-                  color: ascendMode === mode.id ? 'white' : 'var(--text-muted)',
-                  boxShadow: ascendMode === mode.id ? '0 4px 12px rgba(124, 58, 237, 0.3)' : 'none',
-                }}
-                onMouseEnter={(e) => {
-                  if (ascendMode !== mode.id) {
-                    e.currentTarget.style.background = 'var(--bg-hover)';
-                    e.currentTarget.style.color = 'var(--text-primary)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (ascendMode !== mode.id) {
-                    e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.color = 'var(--text-muted)';
-                  }
-                }}
+                className={`slack-tab ${ascendMode === mode.id ? 'active' : ''}`}
               >
                 {mode.icon}
                 {mode.label}
@@ -1496,7 +1474,7 @@ EDGE CASES & RESILIENCE:
           </div>
         </div>
 
-        {/* Right: Credits (webapp only) */}
+        {/* Right: Credits */}
         <div className="flex items-center gap-3" style={{ WebkitAppRegion: 'no-drag' }}>
           <CreditBalance
             onUpgrade={() => setShowPricingPlans(true)}
@@ -1505,32 +1483,18 @@ EDGE CASES & RESILIENCE:
         </div>
       </header>
 
-      {/* Error Banner */}
+      {/* Error Banner - Slack style */}
       {error && (
         <div
-          className="relative z-10 mx-4 mt-3 p-4 rounded-xl animate-fade-in"
-          style={{
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.3)'
-          }}
+          className="mx-5 mt-3 p-3 rounded-lg animate-slide-up slack-card"
+          style={{ background: 'rgba(224, 30, 90, 0.1)', borderColor: 'var(--accent-red)' }}
         >
           <div className="flex items-center gap-3">
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: 'rgba(239, 68, 68, 0.2)' }}
-            >
-              <svg className="w-4 h-4" style={{ color: 'var(--accent-error)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <span className="text-sm" style={{ color: 'var(--accent-error-light)' }}>{error}</span>
-            <button
-              onClick={() => setError(null)}
-              className="ml-auto p-1.5 rounded-lg transition-all"
-              style={{ color: 'var(--accent-error)' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-            >
+            <svg className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--accent-red)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="text-body" style={{ color: 'var(--accent-red)' }}>{error}</span>
+            <button onClick={() => setError(null)} className="slack-btn-icon ml-auto">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -1542,32 +1506,18 @@ EDGE CASES & RESILIENCE:
       {/* Provider Switch Notification */}
       {switchNotification && (
         <div
-          className="relative z-10 mx-4 mt-3 p-4 rounded-xl animate-fade-in"
-          style={{
-            background: 'rgba(245, 158, 11, 0.1)',
-            border: '1px solid rgba(245, 158, 11, 0.3)'
-          }}
+          className="mx-5 mt-3 p-3 rounded-lg animate-slide-up slack-card"
+          style={{ background: 'rgba(236, 178, 46, 0.1)', borderColor: 'var(--accent-yellow)' }}
         >
           <div className="flex items-center gap-3">
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: 'rgba(245, 158, 11, 0.2)' }}
-            >
-              <svg className="w-4 h-4" style={{ color: 'var(--accent-warning)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <span className="text-sm" style={{ color: 'var(--accent-warning-light)' }}>
-              Auto-switched from <strong>{switchNotification.from}</strong> to <strong>{switchNotification.to}</strong>
-              {switchNotification.reason && <span style={{ color: 'var(--accent-warning)' }} className="ml-1">({switchNotification.reason})</span>}
+            <svg className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--accent-yellow)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span className="text-body" style={{ color: 'var(--accent-yellow)' }}>
+              Switched from <strong>{switchNotification.from}</strong> to <strong>{switchNotification.to}</strong>
+              {switchNotification.reason && <span className="text-muted ml-1">({switchNotification.reason})</span>}
             </span>
-            <button
-              onClick={() => setSwitchNotification(null)}
-              className="ml-auto p-1.5 rounded-lg transition-all"
-              style={{ color: 'var(--accent-warning)' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(245, 158, 11, 0.2)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-            >
+            <button onClick={() => setSwitchNotification(null)} className="slack-btn-icon ml-auto">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -1576,48 +1526,27 @@ EDGE CASES & RESILIENCE:
         </div>
       )}
 
-      {/* Smart Loading Progress - Top Bar */}
+      {/* Loading Progress */}
       {isLoading && (
         <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
-          {/* Progress bar with gradient */}
-          <div className="h-1 overflow-hidden" style={{ background: 'var(--bg-active)' }}>
+          <div className="h-0.5 overflow-hidden" style={{ background: 'var(--border-default)' }}>
             <div
               className="h-full"
               style={{
-                width: '100%',
-                background: 'var(--brand-gradient)',
-                animation: 'progressSlide 1.5s ease-in-out infinite',
+                width: '30%',
+                background: 'var(--accent-blue)',
+                animation: 'slack-shimmer 1s ease-in-out infinite',
               }}
             />
-          </div>
-          {/* Status pill */}
-          <div
-            className="absolute top-3 right-5 flex items-center gap-2.5 px-4 py-2 rounded-xl shadow-lg"
-            style={{
-              background: 'var(--bg-glass)',
-              border: '1px solid var(--bg-glass-border)',
-              backdropFilter: 'blur(12px)'
-            }}
-          >
-            <div className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ background: 'var(--brand-primary)', boxShadow: '0 0 10px var(--brand-primary)' }} />
-            <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
-              {loadingType === 'fetch' && 'Fetching...'}
-              {loadingType === 'screenshot' && 'Extracting...'}
-              {loadingType === 'solve' && 'Solving...'}
-              {loadingType === 'testing' && 'Testing...'}
-              {loadingType === 'fixing' && 'Fixing...'}
-              {loadingType === 'running' && 'Running...'}
-              {!loadingType && 'Processing...'}
-            </span>
           </div>
         </div>
       )}
 
       {/* Main Layout */}
-      <main className="flex-1 overflow-hidden p-4 relative z-10" style={{ background: 'transparent' }}>
+      <main className="flex-1 overflow-hidden relative z-10">
         {/* Behavioral Mode - Show embedded Interview Prep */}
         {ascendMode === 'behavioral' ? (
-          <div className="h-full rounded-lg overflow-hidden" style={{ background: '#242424', border: '1px solid #333333' }}>
+          <div className="h-full" style={{ background: 'var(--content-bg)' }}>
             <AscendPrepModal
               isOpen={true}
               onClose={() => {}}
@@ -1627,18 +1556,17 @@ EDGE CASES & RESILIENCE:
             />
           </div>
         ) : (
-        <div className="h-full rounded-xl overflow-hidden" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', backdropFilter: 'blur(20px)' }}>
+        <div className="h-full" style={{ background: '#f5f5f5' }}>
           <Allotment defaultSizes={showAscendAssistant ? [30, 40, 30] : [30, 70]}>
-            {/* Left Pane - Problem + Explanation (stacked vertically) */}
+            {/* Left Pane - Problem + Explanation */}
             <Allotment.Pane minSize={300}>
-              <div className="h-full flex flex-col overflow-hidden" style={{ background: 'transparent' }}>
-                {/* Top: Problem Input - auto height based on content */}
-                <div className="flex-shrink-0 border-b border-gray-200">
-                  {/* Pane Header */}
-                  <div className="flex items-center justify-between px-3 py-1.5 border-b border-gray-100">
-                    <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
-                      <span className="text-xs font-medium text-gray-600">Problem</span>
+              <div className="h-full flex flex-col overflow-hidden" style={{ background: '#ffffff', borderRight: '1px solid #e8e8e8' }}>
+                {/* Problem Section Header */}
+                <div className="flex-shrink-0">
+                  <div className="panel-header">
+                    <div className="panel-header-left">
+                      <div className="panel-indicator" />
+                      <span className="panel-title">Problem</span>
                       {/* Saved System Designs Button - only show in system-design mode */}
                       {ascendMode === 'system-design' && (
                         <button
@@ -1660,13 +1588,15 @@ EDGE CASES & RESILIENCE:
                       )}
                     </div>
                     {/* System Design specific controls - only shown when in system-design mode */}
-                    <AscendModeSelector
-                      ascendMode={ascendMode}
-                      designDetailLevel={designDetailLevel}
-                      onDetailLevelChange={setDesignDetailLevel}
-                      autoGenerateEraser={autoGenerateEraser}
-                      onAutoGenerateEraserChange={setAutoGenerateEraser}
-                    />
+                    <div className="panel-header-right">
+                      <AscendModeSelector
+                        ascendMode={ascendMode}
+                        designDetailLevel={designDetailLevel}
+                        onDetailLevelChange={setDesignDetailLevel}
+                        autoGenerateEraser={autoGenerateEraser}
+                        onAutoGenerateEraserChange={setAutoGenerateEraser}
+                      />
+                    </div>
                   </div>
 
                   {/* Problem Input Content - compact, no flex grow */}

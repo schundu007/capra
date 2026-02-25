@@ -320,7 +320,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               ref={textareaRef}
               value={problemText}
               onChange={(e) => setProblemText(e.target.value)}
-              placeholder="Paste coding problem..."
+              placeholder={ascendMode === 'system-design' ? 'Describe your system design problem...' : 'Paste coding problem...'}
               className="w-full px-3 py-2 resize-none rounded-lg placeholder-gray-400 focus:outline-none focus:ring-1 scrollbar-thin"
               style={{
                 minHeight: '60px',

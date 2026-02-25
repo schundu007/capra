@@ -192,17 +192,17 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
   // DESIGN MODE: Show only system design content
   if (isDesignMode) {
     return (
-      <div className="h-full flex flex-col bg-white">
+      <div className="h-full flex flex-col panel-container">
         {/* Header for Design Mode */}
-        <div className="flex items-center justify-between px-3 py-2 flex-shrink-0" style={{ borderBottom: '1px solid #e5e5e5' }}>
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#10b981' }} />
-            <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: '#333333' }}>System Design</span>
+        <div className="panel-header">
+          <div className="panel-header-left">
+            <div className="panel-indicator" />
+            <span className="panel-title">System Design</span>
           </div>
         </div>
 
         {/* Design Content */}
-        <div className="flex-1 overflow-auto p-4">
+        <div className="flex-1 overflow-auto p-4 panel-content-light">
           {hasSystemDesign ? (
             <SystemDesignPanel
               systemDesign={systemDesign}
@@ -238,13 +238,15 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
   // Empty state for coding mode
   if (!code && !isStreaming) {
     return (
-      <div className="h-full flex flex-col bg-[#1e1e1e]">
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-700 flex-shrink-0">
-          <div className="w-1.5 h-1.5 rounded-full bg-gray-500" />
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">Code</span>
+      <div className="h-full flex flex-col panel-container">
+        <div className="panel-header">
+          <div className="panel-header-left">
+            <div className="panel-indicator panel-indicator-idle" />
+            <span className="panel-title">Code</span>
+          </div>
         </div>
-        <div className="flex-1 flex items-center justify-center">
-          <svg className="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="flex-1 flex items-center justify-center panel-content-light">
+          <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
           </svg>
         </div>
@@ -255,17 +257,19 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
   // Streaming state for coding mode
   if (isStreaming && !code) {
     return (
-      <div className="h-full flex flex-col bg-[#0a0a0b]">
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-800 flex-shrink-0">
-          <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" style={{ boxShadow: '0 0 6px #10b981' }} />
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">Code</span>
-          <div className="flex gap-0.5 ml-1.5">
-            <span className="w-1 h-1 rounded-full bg-[#10b981] animate-bounce" style={{ animationDelay: '0ms' }} />
-            <span className="w-1 h-1 rounded-full bg-[#10b981] animate-bounce" style={{ animationDelay: '150ms' }} />
-            <span className="w-1 h-1 rounded-full bg-[#10b981] animate-bounce" style={{ animationDelay: '300ms' }} />
+      <div className="h-full flex flex-col panel-container">
+        <div className="panel-header">
+          <div className="panel-header-left">
+            <div className="panel-indicator" />
+            <span className="panel-title">Code</span>
+            <div className="flex gap-0.5 ml-1.5">
+              <span className="w-1 h-1 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+              <span className="w-1 h-1 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+              <span className="w-1 h-1 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+            </div>
           </div>
         </div>
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center panel-content-light">
           <div className="text-[11px] text-gray-500">Generating code...</div>
         </div>
       </div>
@@ -274,28 +278,27 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
 
   // CODING MODE: Full code display with all features
   return (
-    <div className="h-full flex flex-col bg-[#0a0a0b]">
-      {/* Header - Coding mode (no tabs) */}
-      <div className="flex items-center justify-between px-3 py-2 flex-shrink-0 border-b border-gray-800">
-        <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#10b981', boxShadow: '0 0 6px #10b981' }} />
-          <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: '#a1a1aa' }}>Code</span>
-          <span
-            className="text-[10px] px-1.5 py-0.5 rounded font-medium"
-            style={{ background: 'rgba(255,255,255,0.06)', color: '#a1a1aa' }}
-          >
+    <div className="h-full flex flex-col panel-container">
+      {/* Header - Coding mode */}
+      <div className="panel-header">
+        <div className="panel-header-left">
+          <div className="panel-indicator" />
+          <span className="panel-title">Code</span>
+          <span className="panel-badge" style={{ background: '#f0f0f0', color: '#666666' }}>
             {normalizedLanguage}
           </span>
         </div>
-        <button
-          onClick={handleCopy}
-          className="px-1.5 py-0.5 text-[10px] font-medium rounded transition-colors"
-          style={{ color: '#71717a' }}
-          onMouseEnter={(e) => { e.target.style.background = 'rgba(255,255,255,0.06)'; e.target.style.color = '#fafafa'; }}
-          onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = '#71717a'; }}
-        >
-          {copied ? 'Copied!' : 'Copy'}
-        </button>
+        <div className="panel-header-right">
+          <button
+            onClick={handleCopy}
+            className="px-2 py-1 text-[10px] font-medium rounded transition-colors"
+            style={{ color: '#666666', background: '#f5f5f5' }}
+            onMouseEnter={(e) => { e.target.style.background = '#e8e8e8'; e.target.style.color = '#333333'; }}
+            onMouseLeave={(e) => { e.target.style.background = '#f5f5f5'; e.target.style.color = '#666666'; }}
+          >
+            {copied ? 'Copied!' : 'Copy'}
+          </button>
+        </div>
       </div>
 
       {/* Code Editor */}
@@ -331,16 +334,16 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
 
       {/* Footer - Run/Submit buttons (only for code tab) */}
       { code && (
-      <div className="px-2 py-2 flex items-center justify-between" style={{ background: '#111113', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+      <div className="px-3 py-2 flex items-center justify-between" style={{ background: '#fafafa', borderTop: '1px solid #e8e8e8' }}>
         <div className="flex items-center gap-2">
           {/* Test input toggle */}
-          <label className="flex items-center gap-1.5 text-[10px] cursor-pointer" style={{ color: '#71717a' }}>
+          <label className="flex items-center gap-1.5 text-[10px] cursor-pointer" style={{ color: '#666666' }}>
             <input
               type="checkbox"
               checked={showTestInput}
               onChange={(e) => setShowTestInput(e.target.checked)}
               className="rounded w-3 h-3"
-              style={{ borderColor: 'rgba(255,255,255,0.1)' }}
+              style={{ borderColor: '#d1d5db' }}
             />
             Test custom input
           </label>
@@ -354,8 +357,8 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
               disabled={fixing}
               className="px-2 py-1 text-[10px] font-medium rounded transition-colors"
               style={{
-                background: 'transparent',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
+                background: '#ffffff',
+                border: '1px solid #10b981',
                 color: '#10b981'
               }}
             >
@@ -381,7 +384,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
 
       {/* Test Input Panel - only for code tab */}
       { code && showTestInput && (
-        <div className="px-2 py-2" style={{ background: '#111113', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="px-3 py-2" style={{ background: '#f5f5f5', borderTop: '1px solid #e8e8e8' }}>
           <div className="flex items-center gap-1.5 mb-1.5">
             {examples?.map((ex, idx) => (
               <button
@@ -389,8 +392,9 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
                 onClick={() => handleExampleSelect(idx)}
                 className="px-2 py-0.5 text-[9px] font-medium rounded transition-colors"
                 style={{
-                  background: selectedExample === idx ? '#10b981' : 'rgba(255,255,255,0.03)',
-                  color: selectedExample === idx ? 'white' : '#71717a'
+                  background: selectedExample === idx ? '#10b981' : '#ffffff',
+                  color: selectedExample === idx ? 'white' : '#666666',
+                  border: selectedExample === idx ? 'none' : '1px solid #e8e8e8'
                 }}
               >
                 Ex {idx + 1}
@@ -403,9 +407,9 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
             placeholder="Enter custom input..."
             className="w-full h-16 px-2 py-1.5 rounded font-mono text-[10px] resize-none"
             style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: '#e4e4e7'
+              background: '#ffffff',
+              border: '1px solid #e8e8e8',
+              color: '#333333'
             }}
           />
         </div>
@@ -413,16 +417,16 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
 
       {/* Output Panel - only for code tab */}
       {output && !outputExpanded && (
-        <div style={{ background: '#111113', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ background: '#f5f5f5', borderTop: '1px solid #e8e8e8' }}>
           {/* Resize Handle */}
           <div
             onMouseDown={handleResizeStart}
-            className="h-1.5 cursor-ns-resize flex items-center justify-center hover:bg-white/5 transition-colors"
-            style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
+            className="h-1.5 cursor-ns-resize flex items-center justify-center hover:bg-gray-200 transition-colors"
+            style={{ borderBottom: '1px solid #e8e8e8' }}
           >
-            <div className="w-6 h-0.5 rounded-full" style={{ background: '#3f3f46' }} />
+            <div className="w-6 h-0.5 rounded-full" style={{ background: '#d1d5db' }} />
           </div>
-          <div className="px-2 py-1 flex items-center justify-between">
+          <div className="px-3 py-1 flex items-center justify-between">
             <div className="flex items-center gap-1.5">
               <span className="text-[10px] font-medium" style={{ color: output.success ? '#10b981' : '#ef4444' }}>
                 {output.success ? 'Output' : 'Error'}
@@ -435,15 +439,15 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
                   Auto
                 </span>
               )}
-              <span className="text-[8px]" style={{ color: '#52525b' }}>
+              <span className="text-[8px]" style={{ color: '#888888' }}>
                 {(output.success ? output.output : output.error)?.split('\n').length || 0} lines
               </span>
             </div>
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setOutputExpanded(true)}
-                className="text-[9px] px-1.5 py-0.5 rounded hover:bg-white/10 transition-colors flex items-center gap-1"
-                style={{ color: '#71717a' }}
+                className="text-[9px] px-1.5 py-0.5 rounded hover:bg-gray-200 transition-colors flex items-center gap-1"
+                style={{ color: '#666666' }}
                 title="Expand output"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -455,16 +459,16 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
                 onClick={() => {
                   navigator.clipboard.writeText(output.success ? output.output : output.error);
                 }}
-                className="text-[9px] px-1.5 py-0.5 rounded hover:bg-white/10 transition-colors"
-                style={{ color: '#71717a' }}
+                className="text-[9px] px-1.5 py-0.5 rounded hover:bg-gray-200 transition-colors"
+                style={{ color: '#666666' }}
                 title="Copy output"
               >
                 Copy
               </button>
               <button
                 onClick={() => setOutput(null)}
-                style={{ color: '#52525b' }}
-                className="hover:text-white transition-colors"
+                style={{ color: '#888888' }}
+                className="hover:text-gray-900 transition-colors"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -473,9 +477,10 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
             </div>
           </div>
           <pre
-            className="px-2 py-1.5 text-[10px] font-mono overflow-auto select-text scrollbar-dark cursor-pointer"
+            className="px-3 py-1.5 text-[10px] font-mono overflow-auto select-text scrollbar-thin cursor-pointer"
             style={{
               color: output.success ? '#10b981' : '#ef4444',
+              background: '#ffffff',
               height: `${outputHeight}px`,
               minHeight: '50px',
               maxHeight: '200px',

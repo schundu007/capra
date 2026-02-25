@@ -1,15 +1,15 @@
 import { useState, useCallback } from 'react';
 
-// Oracle-inspired clean color palette
+// Slack-inspired dark color palette using CSS variables
 const colors = {
-  bg: '#f5f5f5',
-  paper: '#ffffff',
-  accent: '#10b981',
-  accentLight: '#ecfdf5',
-  text: '#333333',
-  textMuted: '#666666',
-  textLight: '#999999',
-  border: '#e5e5e5',
+  bg: 'var(--content-bg)',
+  paper: 'var(--content-bg-secondary)',
+  accent: 'var(--accent-green)',
+  accentLight: 'var(--accent-green-bg)',
+  text: 'var(--text-primary)',
+  textMuted: 'var(--text-muted)',
+  textLight: 'var(--text-caption)',
+  border: 'var(--border-default)',
 };
 
 export default function OutputPanel({ section, content, streamingContent, isGenerating, onRegenerate, onGenerate, hasInputs }) {

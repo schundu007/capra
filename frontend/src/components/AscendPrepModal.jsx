@@ -743,17 +743,17 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
         />
       )}
       {/* Sidebar Navigation */}
-      <div className={`w-64 flex flex-col ${isDedicatedWindow && !embedded ? 'pt-7' : ''}`} style={{ background: '#ffffff', borderRight: '1px solid #e5e5e5' }}>
+      <div className={`w-64 flex flex-col ${isDedicatedWindow && !embedded ? 'pt-7' : ''}`} style={{ background: 'var(--content-bg-secondary)', borderRight: '1px solid var(--border-default)' }}>
         {/* Header with Company Selector */}
-        <div className="px-4 py-4" style={{ borderBottom: '1px solid #e5e5e5' }}>
+        <div className="px-4 py-4" style={{ borderBottom: '1px solid var(--border-default)' }}>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-bold" style={{ color: '#333333' }}>Interview Prep</h2>
+            <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Interview Prep</h2>
             {!isDedicatedWindow && (
               <button
                 onClick={onClose}
                 className="p-1.5 rounded-lg transition-colors"
-                style={{ color: '#666666' }}
-                onMouseEnter={(e) => e.target.style.background = '#f5f5f5'}
+                style={{ color: 'var(--text-muted)' }}
+                onMouseEnter={(e) => e.target.style.background = 'var(--content-bg-hover)'}
                 onMouseLeave={(e) => e.target.style.background = 'transparent'}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -769,7 +769,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
               <button
                 onClick={() => setShowCompanyDropdown(!showCompanyDropdown)}
                 className="w-full flex items-center justify-between px-3 py-2 rounded transition-colors text-left"
-                style={{ background: '#f5f5f5', border: '1px solid #e5e5e5' }}
+                style={{ background: 'var(--content-bg-hover)', border: '1px solid var(--border-default)' }}
               >
                 <div className="flex items-center gap-2 min-w-0">
                   {editingCompanyName ? (
@@ -777,7 +777,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                       type="text"
                       defaultValue={activeCompany}
                       className="bg-transparent text-sm font-medium w-full focus:outline-none"
-                      style={{ color: '#333333' }}
+                      style={{ color: 'var(--text-primary)' }}
                       onBlur={(e) => handleRenameCompany(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
@@ -790,10 +790,10 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                       autoFocus
                     />
                   ) : (
-                    <span className="text-sm font-medium truncate" style={{ color: '#333333' }}>{activeCompany}</span>
+                    <span className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>{activeCompany}</span>
                   )}
                 </div>
-                <svg className={`w-4 h-4 transition-transform ${showCompanyDropdown ? 'rotate-180' : ''}`} style={{ color: '#666666' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className={`w-4 h-4 transition-transform ${showCompanyDropdown ? 'rotate-180' : ''}`} style={{ color: 'var(--text-muted)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
@@ -804,7 +804,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                   setShowCompanyDropdown(true);
                 }}
                 className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm font-medium"
-                style={{ background: '#10b981', color: '#ffffff' }}
+                style={{ background: 'var(--accent-green)', color: 'var(--content-bg-secondary)' }}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -815,20 +815,20 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
 
             {/* Dropdown Menu */}
             {showCompanyDropdown && (
-              <div className="absolute top-full left-0 right-0 mt-1 py-1 rounded-lg shadow-xl z-10 max-h-64 overflow-y-auto" style={{ background: '#ffffff', border: '1px solid #e5e5e5' }}>
+              <div className="absolute top-full left-0 right-0 mt-1 py-1 rounded-lg shadow-xl z-10 max-h-64 overflow-y-auto" style={{ background: 'var(--content-bg-secondary)', border: '1px solid var(--border-default)' }}>
                 {/* Existing Companies */}
                 {companies.map((company) => (
                   <div
                     key={company}
                     className="flex items-center justify-between px-3 py-2 cursor-pointer"
-                    style={{ background: company === activeCompany ? '#f5f5f5' : 'transparent' }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = company === activeCompany ? '#f5f5f5' : 'transparent'}
+                    style={{ background: company === activeCompany ? 'var(--content-bg-hover)' : 'transparent' }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'var(--content-bg-hover)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = company === activeCompany ? 'var(--content-bg-hover)' : 'transparent'}
                   >
                     <button
                       onClick={() => handleSwitchCompany(company)}
                       className="flex-1 text-left text-sm truncate"
-                      style={{ color: '#333333' }}
+                      style={{ color: 'var(--text-primary)' }}
                     >
                       {company}
                     </button>
@@ -841,7 +841,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                             setShowCompanyDropdown(false);
                           }}
                           className="p-1 rounded"
-                          style={{ color: '#666666' }}
+                          style={{ color: 'var(--text-muted)' }}
                           title="Rename"
                         >
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -855,7 +855,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                           handleDeleteCompany(company);
                         }}
                         className="p-1 rounded"
-                        style={{ color: '#666666' }}
+                        style={{ color: 'var(--text-muted)' }}
                         title="Delete"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -867,7 +867,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                 ))}
 
                 {/* Divider if there are companies */}
-                {companies.length > 0 && <div className="my-1" style={{ borderTop: '1px solid #e5e5e5' }} />}
+                {companies.length > 0 && <div className="my-1" style={{ borderTop: '1px solid var(--border-default)' }} />}
 
                 {/* Add New Company */}
                 {showNewCompanyInput ? (
@@ -887,14 +887,14 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                       }}
                       placeholder="Company name..."
                       className="w-full px-2 py-1.5 text-sm rounded focus:outline-none focus:ring-1 focus:ring-green-500"
-                      style={{ background: '#f5f5f5', color: '#333333', border: '1px solid #e5e5e5' }}
+                      style={{ background: 'var(--content-bg-hover)', color: 'var(--text-primary)', border: '1px solid var(--border-default)' }}
                     />
                     <div className="flex gap-2 mt-2">
                       <button
                         onClick={() => handleCreateCompany(newCompanyName)}
                         disabled={!newCompanyName.trim()}
                         className="flex-1 py-1 text-xs font-medium rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                        style={{ background: '#10b981', color: '#ffffff' }}
+                        style={{ background: 'var(--accent-green)', color: 'var(--content-bg-secondary)' }}
                       >
                         Create
                       </button>
@@ -904,7 +904,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                           setNewCompanyName('');
                         }}
                         className="flex-1 py-1 text-xs font-medium rounded"
-                        style={{ background: '#f5f5f5', color: '#666666', border: '1px solid #e5e5e5' }}
+                        style={{ background: 'var(--content-bg-hover)', color: 'var(--text-muted)', border: '1px solid var(--border-default)' }}
                       >
                         Cancel
                       </button>
@@ -914,7 +914,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                   <button
                     onClick={() => setShowNewCompanyInput(true)}
                     className="w-full flex items-center gap-2 px-3 py-2 text-sm"
-                    style={{ color: '#10b981' }}
+                    style={{ color: 'var(--accent-green)' }}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -927,7 +927,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
           </div>
 
           {activeCompany && completedSections > 0 && (
-            <div className="mt-2 text-xs" style={{ color: '#666666' }}>
+            <div className="mt-2 text-xs" style={{ color: 'var(--text-muted)' }}>
               {completedSections}/{SECTIONS.length} sections ready
             </div>
           )}
@@ -943,8 +943,8 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                 className="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors"
                 style={{
                   background: 'transparent',
-                  color: '#333333',
-                  border: activeTab === 'input' ? '1px dashed #10b981' : '1px solid transparent',
+                  color: 'var(--text-primary)',
+                  border: activeTab === 'input' ? '1px dashed var(--accent-green)' : '1px solid transparent',
                   margin: '0 8px',
                   width: 'calc(100% - 16px)',
                   borderRadius: '6px',
@@ -952,12 +952,12 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
               >
                 <div>
                   <div className="font-medium">Input Materials</div>
-                  <div className="text-xs" style={{ color: '#666666' }}>JD, Resume, Cover Letter</div>
+                  <div className="text-xs" style={{ color: 'var(--text-muted)' }}>JD, Resume, Cover Letter</div>
                 </div>
               </button>
 
               {/* Divider */}
-              <div className="my-2 mx-4" style={{ borderTop: '1px solid #e5e5e5' }} />
+              <div className="my-2 mx-4" style={{ borderTop: '1px solid var(--border-default)' }} />
 
               {/* Section Tabs */}
               {SECTIONS.map((section) => {
@@ -973,8 +973,8 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                     className="w-full flex items-center gap-2 px-3 py-2 text-left transition-colors"
                     style={{
                       background: 'transparent',
-                      color: isComplete ? '#10b981' : '#333333',
-                      border: isActive ? '1px dashed #10b981' : '1px solid transparent',
+                      color: isComplete ? 'var(--accent-green)' : 'var(--text-primary)',
+                      border: isActive ? '1px dashed var(--accent-green)' : '1px solid transparent',
                       margin: '2px 8px',
                       width: 'calc(100% - 16px)',
                       borderRadius: '4px',
@@ -985,10 +985,10 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                       <div className="font-medium text-sm truncate">{section.name}</div>
                     </div>
                     {isCurrentlyGenerating && (
-                      <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#10b981', borderTopColor: 'transparent' }} />
+                      <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--accent-green)', borderTopColor: 'transparent' }} />
                     )}
                     {isComplete && !isCurrentlyGenerating && (
-                      <svg className="w-4 h-4" style={{ color: '#10b981' }} fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-4 h-4" style={{ color: 'var(--accent-green)' }} fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     )}
@@ -999,8 +999,8 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
               {/* Custom Sections from Documents */}
               {customSections.length > 0 && (
                 <>
-                  <div className="my-2 mx-4 flex items-center gap-2" style={{ borderTop: '1px solid #e5e5e5', paddingTop: '8px' }}>
-                    <span className="text-xs font-medium" style={{ color: '#666666' }}>Custom Pages</span>
+                  <div className="my-2 mx-4 flex items-center gap-2" style={{ borderTop: '1px solid var(--border-default)', paddingTop: '8px' }}>
+                    <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>Custom Pages</span>
                   </div>
                   {customSections.map((section) => {
                     const isActive = activeTab === section.id;
@@ -1015,7 +1015,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                           className="flex-1 flex items-center gap-2 px-3 py-2 text-left transition-colors"
                           style={{
                             background: 'transparent',
-                            color: isComplete ? '#8b5cf6' : '#333333',
+                            color: isComplete ? '#8b5cf6' : 'var(--text-primary)',
                             border: isActive ? '1px dashed #8b5cf6' : '1px solid transparent',
                             borderRadius: '4px',
                             opacity: isGenerating && !isCurrentlyGenerating ? 0.5 : 1,
@@ -1075,13 +1075,13 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
             </nav>
 
             {/* Footer Actions */}
-            <div className="p-4 space-y-2" style={{ borderTop: '1px solid #e5e5e5' }}>
+            <div className="p-4 space-y-2" style={{ borderTop: '1px solid var(--border-default)' }}>
               {/* Generate All Button - Always visible */}
               <button
                 onClick={handleGenerateAll}
                 disabled={isGenerating || !hasInputs || completedSections === SECTIONS.length}
                 className="w-full py-2.5 px-4 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                style={{ background: '#10b981', color: '#ffffff' }}
+                style={{ background: 'var(--accent-green)', color: 'var(--content-bg-secondary)' }}
               >
                 {isGenerating ? (
                   <>
@@ -1106,7 +1106,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
               </button>
 
               {!hasInputs && (
-                <div className="text-xs text-center" style={{ color: '#666666' }}>
+                <div className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>
                   Add JD & Resume first
                 </div>
               )}
@@ -1115,21 +1115,21 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                 onClick={handleClearAll}
                 disabled={isGenerating}
                 className="w-full py-2 px-4 rounded-lg text-sm transition-colors disabled:opacity-50"
-                style={{ color: '#666666', background: 'transparent' }}
-                onMouseEnter={(e) => { e.target.style.background = '#f5f5f5'; e.target.style.color = '#333333'; }}
-                onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = '#666666'; }}
+                style={{ color: 'var(--text-muted)', background: 'transparent' }}
+                onMouseEnter={(e) => { e.target.style.background = 'var(--content-bg-hover)'; e.target.style.color = 'var(--text-primary)'; }}
+                onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = 'var(--text-muted)'; }}
               >
                 Clear Generated
               </button>
 
               {/* Export Buttons */}
               {completedSections > 0 && (
-                <div className="flex gap-2 pt-2" style={{ borderTop: '1px solid #e5e5e5' }}>
+                <div className="flex gap-2 pt-2" style={{ borderTop: '1px solid var(--border-default)' }}>
                   <button
                     onClick={handleExportPDF}
                     disabled={isGenerating}
                     className="flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-1"
-                    style={{ background: '#dc2626', color: '#ffffff' }}
+                    style={{ background: '#dc2626', color: 'var(--content-bg-secondary)' }}
                     title="Download as PDF for printing"
                   >
                     <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
@@ -1141,7 +1141,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                     onClick={handleExportDOCX}
                     disabled={isGenerating}
                     className="flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-1"
-                    style={{ background: '#2563eb', color: '#ffffff' }}
+                    style={{ background: '#2563eb', color: 'var(--content-bg-secondary)' }}
                     title="Download as Word document"
                   >
                     <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
@@ -1155,7 +1155,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center p-4">
-            <div className="text-center" style={{ color: '#666666' }}>
+            <div className="text-center" style={{ color: 'var(--text-muted)' }}>
               <svg className="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
@@ -1167,14 +1167,14 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-hidden" style={{ background: '#ffffff' }}>
+      <div className="flex-1 overflow-hidden" style={{ background: 'var(--content-bg-secondary)' }}>
         {!activeCompany ? (
           <div className="h-full flex items-center justify-center">
-            <div className="text-center" style={{ color: '#666666' }}>
+            <div className="text-center" style={{ color: 'var(--text-muted)' }}>
               <svg className="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
-              <h3 className="text-lg font-medium" style={{ color: '#333333' }}>No Company Selected</h3>
+              <h3 className="text-lg font-medium" style={{ color: 'var(--text-primary)' }}>No Company Selected</h3>
               <p className="text-sm mt-1">Add a company from the sidebar to start preparing</p>
             </div>
           </div>
@@ -1247,7 +1247,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                   onChange={(e) => setNewSectionName(e.target.value)}
                   placeholder="e.g., AWS Architecture, Leadership Principles..."
                   className="w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  style={{ border: '1px solid #d1d5db', color: '#333333', background: '#ffffff' }}
+                  style={{ border: '1px solid #d1d5db', color: 'var(--text-primary)', background: 'var(--content-bg-secondary)' }}
                 />
               </div>
 
@@ -1298,7 +1298,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                 onClick={handleCreateCustomSection}
                 disabled={!newSectionName.trim() || selectedDocIndex === null}
                 className="flex-1 py-2 px-4 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ background: '#8b5cf6', color: '#ffffff' }}
+                style={{ background: '#8b5cf6', color: 'var(--content-bg-secondary)' }}
               >
                 Create Page
               </button>

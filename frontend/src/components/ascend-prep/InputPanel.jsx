@@ -1,190 +1,70 @@
 import { useState, useRef } from 'react';
-import ReactMarkdown from 'react-markdown';
 import { getApiUrl } from '../../hooks/useElectron';
 
 const API_URL = getApiUrl();
 
-// Get auth headers for API calls
 function getAuthHeaders() {
   const token = localStorage.getItem('chundu_token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 const INPUT_FIELDS = [
-  {
-    id: 'jobDescription',
-    label: 'Job Description',
-    placeholder: 'Paste the full job description here...',
-    required: true,
-  },
-  {
-    id: 'resume',
-    label: 'Resume',
-    placeholder: 'Paste your resume content here...',
-    required: true,
-  },
-  {
-    id: 'coverLetter',
-    label: 'Cover Letter',
-    placeholder: 'Paste your cover letter (optional)...',
-    required: false,
-  },
-  {
-    id: 'prepMaterials',
-    label: 'Additional Prep Materials',
-    placeholder: 'Company research, notes, questions to ask (optional)...',
-    required: false,
-  },
+  { id: 'jobDescription', label: 'Job Description', icon: 'briefcase', required: true },
+  { id: 'resume', label: 'Resume', icon: 'document', required: true },
+  { id: 'coverLetter', label: 'Cover Letter', icon: 'letter', required: false },
+  { id: 'prepMaterials', label: 'Prep Materials', icon: 'notes', required: false },
 ];
 
-// Documentation field is separate - supports multiple files
-const DOCUMENTATION_FIELD = {
-  id: 'documentation',
-  label: 'Documentation & Study Materials',
-  placeholder: 'Upload PDFs, DOCX, TXT files with study materials, guides, or any documentation the AI should learn from...',
-  required: false,
-  multiFile: true,
+const ICONS = {
+  briefcase: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7H4a1 1 0 00-1 1v10a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1zM16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" />
+    </svg>
+  ),
+  document: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+  ),
+  letter: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+    </svg>
+  ),
+  notes: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+    </svg>
+  ),
+  upload: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+    </svg>
+  ),
+  check: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+    </svg>
+  ),
+  x: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  ),
+  plus: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+    </svg>
+  ),
 };
-
-// Convert plain text to markdown-like format for better rendering
-function textToMarkdown(text) {
-  if (!text) return '';
-
-  let result = text;
-
-  // Convert lines that look like headers (ALL CAPS, short, or ending with :)
-  result = result.replace(/^([A-Z][A-Z\s&\-\/]+):?\s*$/gm, '\n## $1\n');
-
-  // Convert bullet points to markdown bullets
-  result = result.replace(/^[\s]*[•·▪►◦‣⁃]\s*/gm, '- ');
-  result = result.replace(/^[\s]*[-]\s+/gm, '- ');
-
-  // Convert numbered lists
-  result = result.replace(/^[\s]*(\d+)[\.\)]\s+/gm, '$1. ');
-
-  // Add line breaks for better paragraph separation
-  result = result.replace(/\n{3,}/g, '\n\n');
-
-  return result;
-}
-
-// Document viewer component - Word/Google Docs style
-function DocumentViewer({ content, onEdit, fieldLabel }) {
-  const markdownContent = textToMarkdown(content);
-
-  return (
-    <div
-      className="h-full flex flex-col rounded-xl overflow-hidden shadow-sm"
-      style={{ background: '#ffffff', border: '1px solid #d1d5db' }}
-    >
-      {/* Document toolbar - like Word/Docs */}
-      <div
-        className="px-4 py-2 flex items-center justify-between"
-        style={{ background: '#f8fafc', borderBottom: '1px solid #e5e7eb' }}
-      >
-        <div className="flex items-center gap-2">
-          <span className="font-medium text-sm" style={{ color: '#374151' }}>{fieldLabel}</span>
-          <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: '#dbeafe', color: '#1d4ed8' }}>
-            {content.split(/\s+/).filter(w => w).length} words
-          </span>
-        </div>
-        <button
-          onClick={onEdit}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all"
-          style={{ background: '#3b82f6', color: '#ffffff' }}
-        >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-          Edit
-        </button>
-      </div>
-
-      {/* Document content area - Paper style */}
-      <div
-        className="flex-1 overflow-y-auto"
-        style={{ background: '#f1f5f9' }}
-      >
-        <div
-          className="mx-auto my-6 px-12 py-10 shadow-lg"
-          style={{
-            background: '#ffffff',
-            maxWidth: '800px',
-            minHeight: 'calc(100% - 48px)',
-            borderRadius: '2px',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08)',
-          }}
-        >
-          {/* Document content with proper typography */}
-          <div
-            className="prose prose-sm max-w-none"
-            style={{
-              fontFamily: "'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
-              fontSize: '14px',
-              lineHeight: '1.7',
-              color: '#1f2937',
-            }}
-          >
-            <ReactMarkdown
-              components={{
-                h1: ({ children }) => (
-                  <h1 style={{ fontSize: '20px', fontWeight: '700', color: '#111827', marginTop: '24px', marginBottom: '12px', borderBottom: '2px solid #e5e7eb', paddingBottom: '8px' }}>
-                    {children}
-                  </h1>
-                ),
-                h2: ({ children }) => (
-                  <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#1f2937', marginTop: '20px', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    {children}
-                  </h2>
-                ),
-                h3: ({ children }) => (
-                  <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#374151', marginTop: '16px', marginBottom: '8px' }}>
-                    {children}
-                  </h3>
-                ),
-                p: ({ children }) => (
-                  <p style={{ marginTop: '8px', marginBottom: '8px', lineHeight: '1.7' }}>
-                    {children}
-                  </p>
-                ),
-                ul: ({ children }) => (
-                  <ul style={{ marginTop: '8px', marginBottom: '8px', paddingLeft: '20px', listStyleType: 'disc' }}>
-                    {children}
-                  </ul>
-                ),
-                ol: ({ children }) => (
-                  <ol style={{ marginTop: '8px', marginBottom: '8px', paddingLeft: '20px', listStyleType: 'decimal' }}>
-                    {children}
-                  </ol>
-                ),
-                li: ({ children }) => (
-                  <li style={{ marginTop: '4px', marginBottom: '4px', lineHeight: '1.6' }}>
-                    {children}
-                  </li>
-                ),
-                strong: ({ children }) => (
-                  <strong style={{ fontWeight: '600', color: '#111827' }}>{children}</strong>
-                ),
-              }}
-            >
-              {markdownContent}
-            </ReactMarkdown>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function InputPanel({ inputs, onChange, hasInputs }) {
   const [dragOver, setDragOver] = useState(null);
-  const fileInputRef = useRef(null);
+  const fileInputRefs = useRef({});
   const docFileInputRef = useRef(null);
-  const [editingField, setEditingField] = useState(null);
   const [extracting, setExtracting] = useState(null);
   const [extractingDoc, setExtractingDoc] = useState(false);
 
-  // Extract text from file (supports PDF, DOCX, TXT, MD)
   const extractTextFromFile = async (file, fieldId) => {
     const filename = file.name.toLowerCase();
 
@@ -194,7 +74,6 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
         onChange(fieldId, text);
       } catch (err) {
         console.error('Failed to read file:', err);
-        alert('Failed to read file');
       }
       return;
     }
@@ -204,57 +83,41 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
       try {
         const formData = new FormData();
         formData.append('file', file);
-
         const response = await fetch(API_URL + '/api/extract', {
           method: 'POST',
           headers: getAuthHeaders(),
           body: formData,
         });
-
-        if (!response.ok) {
-          const error = await response.json().catch(() => ({}));
-          throw new Error(error.error || 'Failed to extract text');
+        if (response.ok) {
+          const data = await response.json();
+          onChange(fieldId, data.text);
         }
-
-        const data = await response.json();
-        onChange(fieldId, data.text);
       } catch (err) {
-        console.error('Failed to extract text:', err);
-        alert('Failed to extract text from file: ' + err.message);
+        console.error('Failed to extract:', err);
       } finally {
         setExtracting(null);
       }
-      return;
     }
-
-    alert('Unsupported file type. Please upload PDF, DOCX, TXT, or MD files.');
   };
 
   const handleDrop = async (e, fieldId) => {
     e.preventDefault();
     setDragOver(null);
-
     const files = Array.from(e.dataTransfer.files);
     const supportedFile = files.find(f => {
       const name = f.name.toLowerCase();
       return name.endsWith('.txt') || name.endsWith('.md') || name.endsWith('.pdf') || name.endsWith('.docx');
     });
-
-    if (supportedFile) {
-      await extractTextFromFile(supportedFile, fieldId);
-    }
+    if (supportedFile) await extractTextFromFile(supportedFile, fieldId);
   };
 
   const handleFileSelect = async (e, fieldId) => {
     const file = e.target.files?.[0];
-    if (file) {
-      await extractTextFromFile(file, fieldId);
-    }
+    if (file) await extractTextFromFile(file, fieldId);
     e.target.value = '';
   };
 
-  // Handle adding documentation files (multiple)
-  const handleDocumentationUpload = async (files) => {
+  const handleDocUpload = async (files) => {
     setExtractingDoc(true);
     const currentDocs = inputs.documentation || [];
     const newDocs = [];
@@ -262,42 +125,29 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
     for (const file of files) {
       const filename = file.name.toLowerCase();
       let content = '';
-
       try {
         if (filename.endsWith('.txt') || filename.endsWith('.md')) {
           content = await file.text();
         } else if (filename.endsWith('.pdf') || filename.endsWith('.docx')) {
           const formData = new FormData();
           formData.append('file', file);
-
           const response = await fetch(API_URL + '/api/extract', {
             method: 'POST',
             headers: getAuthHeaders(),
             body: formData,
           });
-
           if (response.ok) {
             const data = await response.json();
             content = data.text;
-          } else {
-            console.error('Failed to extract:', file.name);
-            continue;
           }
-        } else {
-          continue; // Skip unsupported files
         }
-
-        if (content) {
-          newDocs.push({ name: file.name, content });
-        }
+        if (content) newDocs.push({ name: file.name, content });
       } catch (err) {
-        console.error('Error processing file:', file.name, err);
+        console.error('Error:', file.name, err);
       }
     }
 
-    if (newDocs.length > 0) {
-      onChange('documentation', [...currentDocs, ...newDocs]);
-    }
+    if (newDocs.length > 0) onChange('documentation', [...currentDocs, ...newDocs]);
     setExtractingDoc(false);
   };
 
@@ -308,231 +158,235 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
       const name = f.name.toLowerCase();
       return name.endsWith('.txt') || name.endsWith('.md') || name.endsWith('.pdf') || name.endsWith('.docx');
     });
-    if (files.length > 0) {
-      await handleDocumentationUpload(files);
-    }
-  };
-
-  const handleDocFileSelect = async (e) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length > 0) {
-      await handleDocumentationUpload(files);
-    }
-    e.target.value = '';
-  };
-
-  const removeDocument = (index) => {
-    const currentDocs = inputs.documentation || [];
-    onChange('documentation', currentDocs.filter((_, i) => i !== index));
+    if (files.length > 0) await handleDocUpload(files);
   };
 
   return (
-    <div className="h-full flex flex-col" style={{ background: '#ffffff' }}>
-      {/* Header */}
-      <div className="px-6 py-4" style={{ borderBottom: '1px solid #e5e5e5', background: '#ffffff' }}>
-        <h3 className="text-lg font-semibold" style={{ color: '#333333' }}>Interview Materials</h3>
-        <p className="text-sm mt-1" style={{ color: '#666666' }}>
-          Add your job description and resume. Content displays in document format for easy reading.
-        </p>
+    <div className="h-full flex flex-col" style={{ background: '#f5f5f5' }}>
+      {/* Header - matches Coding/Design panel headers */}
+      <div
+        className="px-4 py-3 flex items-center justify-between"
+        style={{ background: '#f5f5f5', borderBottom: '1px solid #e5e5e5' }}
+      >
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full" style={{ background: '#10b981' }} />
+          <span style={{
+            fontSize: '12px',
+            fontWeight: 600,
+            color: '#666666',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
+            Materials
+          </span>
+        </div>
+        {hasInputs && (
+          <span style={{
+            fontSize: '11px',
+            padding: '2px 8px',
+            background: '#dcfce7',
+            color: '#16a34a',
+            borderRadius: '4px',
+            fontWeight: 500
+          }}>
+            Ready
+          </span>
+        )}
       </div>
 
-      {/* Input Fields - 2x2 Grid */}
-      <div className="flex-1 overflow-y-auto p-4" style={{ background: '#f3f4f6' }}>
-        <div className="grid grid-cols-2 gap-4 h-full">
+      {/* Cards Grid - Light background matching Coding/Design */}
+      <div className="flex-1 overflow-y-auto p-4" style={{ background: '#f5f5f5' }}>
+        <div className="grid grid-cols-2 gap-3">
           {INPUT_FIELDS.map((field) => {
             const hasContent = inputs[field.id]?.trim();
-            const isEditing = editingField === field.id || !hasContent;
+            const wordCount = hasContent ? inputs[field.id].split(/\s+/).filter(w => w).length : 0;
+            const isDragging = dragOver === field.id;
+            const isLoading = extracting === field.id;
 
             return (
-              <div key={field.id} className="flex flex-col min-h-[250px]">
-                {hasContent && !isEditing ? (
-                  <DocumentViewer
-                    content={inputs[field.id]}
-                    onEdit={() => setEditingField(field.id)}
-                    fieldLabel={field.label}
-                  />
-                ) : (
-                  <div className="flex flex-col h-full">
-                    <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: '#6b7280' }}>
-                      <span>{field.label}</span>
-                      {field.required && <span style={{ color: '#ef4444' }}>*</span>}
-                      {hasContent && (
-                        <button
-                          onClick={() => setEditingField(null)}
-                          className="ml-auto text-xs font-medium px-2.5 py-1 rounded-md"
-                          style={{ background: '#10b981', color: '#ffffff' }}
-                        >
-                          Done Editing
-                        </button>
-                      )}
-                    </label>
+              <div
+                key={field.id}
+                className="rounded-lg transition-all cursor-pointer"
+                style={{
+                  background: hasContent ? '#dcfce7' : '#ffffff',
+                  border: isDragging
+                    ? '2px dashed #10b981'
+                    : hasContent
+                      ? '1px solid #86efac'
+                      : '1px solid #e5e5e5',
+                  padding: '16px',
+                  minHeight: '100px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  textAlign: 'center',
+                }}
+                onDragOver={(e) => { e.preventDefault(); setDragOver(field.id); }}
+                onDragLeave={() => setDragOver(null)}
+                onDrop={(e) => handleDrop(e, field.id)}
+                onClick={() => !hasContent && fileInputRefs.current[field.id]?.click()}
+              >
+                {isLoading ? (
+                  <>
                     <div
-                      className="relative flex-1 rounded-xl transition-all"
-                      style={{
-                        border: dragOver === field.id ? '2px dashed #10b981' : inputs[field.id] ? '2px solid #10b981' : '2px dashed #d1d5db',
-                        background: '#ffffff',
-                      }}
-                      onDragOver={(e) => { e.preventDefault(); setDragOver(field.id); }}
-                      onDragLeave={() => setDragOver(null)}
-                      onDrop={(e) => handleDrop(e, field.id)}
+                      className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin mb-2"
+                      style={{ borderColor: '#10b981', borderTopColor: 'transparent' }}
+                    />
+                    <span style={{ fontSize: '12px', color: '#10b981' }}>Processing...</span>
+                  </>
+                ) : hasContent ? (
+                  <>
+                    <div
+                      className="w-8 h-8 rounded-full flex items-center justify-center mb-2"
+                      style={{ background: '#bbf7d0', color: '#16a34a' }}
                     >
-                      <textarea
-                        value={inputs[field.id]}
-                        onChange={(e) => onChange(field.id, e.target.value)}
-                        placeholder={field.placeholder}
-                        className="absolute inset-0 w-full h-full p-4 text-sm resize-none bg-transparent focus:outline-none rounded-xl"
-                        style={{ color: '#374151', lineHeight: '1.6' }}
-                        autoFocus={editingField === field.id}
-                      />
-
-                      {!inputs[field.id] && !extracting && (
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                          <div className="text-center" style={{ color: '#9ca3af' }}>
-                            <p className="text-sm font-medium">Drop file or paste text</p>
-                          </div>
-                        </div>
-                      )}
-
-                      {extracting === field.id && (
-                        <div className="absolute inset-0 flex items-center justify-center rounded-xl" style={{ background: 'rgba(255,255,255,0.95)' }}>
-                          <div className="text-center" style={{ color: '#10b981' }}>
-                            <div className="w-8 h-8 mx-auto mb-2 border-3 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#10b981', borderTopColor: 'transparent' }} />
-                            <p className="text-sm font-medium">Extracting text...</p>
-                          </div>
-                        </div>
-                      )}
-
-                      <button
-                        onClick={() => fileInputRef.current?.click()}
-                        className="absolute bottom-3 right-3 px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 hover:shadow-md"
-                        style={{ background: '#f3f4f6', color: '#4b5563', border: '1px solid #e5e7eb' }}
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                        </svg>
-                        Upload File
-                      </button>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept=".txt,.md,.pdf,.docx"
-                        className="hidden"
-                        onChange={(e) => handleFileSelect(e, field.id)}
-                      />
+                      {ICONS.check}
                     </div>
-                  </div>
+                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#1a1a1a' }}>{field.label}</span>
+                    <span style={{ fontSize: '11px', color: '#16a34a', marginTop: '2px' }}>{wordCount.toLocaleString()} words</span>
+                    <button
+                      className="mt-2 px-3 py-1 rounded text-xs transition-all hover:bg-white/50"
+                      style={{ background: 'rgba(255,255,255,0.5)', color: '#666666' }}
+                      onClick={(e) => { e.stopPropagation(); onChange(field.id, ''); }}
+                    >
+                      Replace
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div
+                      className="w-8 h-8 rounded-full flex items-center justify-center mb-2"
+                      style={{ background: '#f5f5f5', color: '#888888' }}
+                    >
+                      {ICONS[field.icon]}
+                    </div>
+                    <span style={{ fontSize: '13px', fontWeight: 500, color: '#1a1a1a' }}>
+                      {field.label}
+                      {field.required && <span style={{ color: '#ef4444', marginLeft: '2px' }}>*</span>}
+                    </span>
+                    <span style={{ fontSize: '11px', color: '#888888', marginTop: '2px' }}>Drop or click</span>
+                  </>
                 )}
+                <input
+                  ref={el => fileInputRefs.current[field.id] = el}
+                  type="file"
+                  accept=".txt,.md,.pdf,.docx"
+                  className="hidden"
+                  onChange={(e) => handleFileSelect(e, field.id)}
+                />
               </div>
             );
           })}
         </div>
 
-        {/* Documentation Section - Full width below the 2x2 grid */}
-        <div className="mt-4">
-          <div className="flex flex-col h-48 rounded-xl overflow-hidden" style={{ background: '#ffffff', border: '2px dashed #d1d5db' }}>
-            {/* Header */}
-            <div className="px-4 py-2 flex items-center justify-between" style={{ background: '#f8fafc', borderBottom: '1px solid #e5e7eb' }}>
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-sm" style={{ color: '#374151' }}>Documentation & Study Materials</span>
-              </div>
-              {(inputs.documentation?.length > 0) && (
-                <span className="text-xs" style={{ color: '#6b7280' }}>
-                  {inputs.documentation.length} file(s) uploaded
+        {/* Documentation Section */}
+        <div className="mt-3">
+          <div
+            className="rounded-lg transition-all"
+            style={{
+              background: inputs.documentation?.length > 0 ? '#f0fdf4' : '#ffffff',
+              border: dragOver === 'documentation'
+                ? '2px dashed #10b981'
+                : inputs.documentation?.length > 0
+                  ? '1px solid #86efac'
+                  : '1px dashed #d1d5db',
+              padding: '12px',
+            }}
+            onDragOver={(e) => { e.preventDefault(); setDragOver('documentation'); }}
+            onDragLeave={() => setDragOver(null)}
+            onDrop={handleDocDrop}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span style={{ fontSize: '11px', fontWeight: 600, color: '#666666', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Study Materials
+              </span>
+              {inputs.documentation?.length > 0 && (
+                <span style={{ fontSize: '11px', color: '#888888' }}>
+                  {inputs.documentation.length} files
                 </span>
               )}
             </div>
 
-            {/* Content Area */}
-            <div
-              className="flex-1 p-4 overflow-y-auto"
-              style={{ background: dragOver === 'documentation' ? '#f0fdf4' : '#ffffff' }}
-              onDragOver={(e) => { e.preventDefault(); setDragOver('documentation'); }}
-              onDragLeave={() => setDragOver(null)}
-              onDrop={handleDocDrop}
-            >
-              {extractingDoc ? (
-                <div className="h-full flex items-center justify-center">
-                  <div className="text-center" style={{ color: '#10b981' }}>
-                    <div className="w-8 h-8 mx-auto mb-2 border-3 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#10b981', borderTopColor: 'transparent' }} />
-                    <p className="text-sm font-medium">Processing files...</p>
-                  </div>
-                </div>
-              ) : inputs.documentation?.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {inputs.documentation.map((doc, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm"
-                      style={{ background: '#f3f4f6', border: '1px solid #e5e7eb' }}
+            {extractingDoc ? (
+              <div className="flex items-center justify-center py-4">
+                <div
+                  className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin mr-2"
+                  style={{ borderColor: '#10b981', borderTopColor: 'transparent' }}
+                />
+                <span style={{ fontSize: '12px', color: '#10b981' }}>Processing...</span>
+              </div>
+            ) : inputs.documentation?.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {inputs.documentation.map((doc, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-2 px-2 py-1 rounded"
+                    style={{ background: '#ffffff', border: '1px solid #e5e5e5' }}
+                  >
+                    <span style={{ fontSize: '12px', color: '#1a1a1a' }}>{doc.name}</span>
+                    <button
+                      onClick={() => {
+                        const docs = inputs.documentation.filter((_, i) => i !== idx);
+                        onChange('documentation', docs);
+                      }}
+                      className="p-0.5 rounded hover:bg-red-50"
+                      style={{ color: '#888888' }}
                     >
-                      <span style={{ color: '#374151' }}>{doc.name}</span>
-                      <span className="text-xs" style={{ color: '#9ca3af' }}>
-                        ({Math.round(doc.content.length / 1000)}KB)
-                      </span>
-                      <button
-                        onClick={() => removeDocument(idx)}
-                        className="p-1 rounded hover:bg-red-100"
-                        style={{ color: '#ef4444' }}
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    onClick={() => docFileInputRef.current?.click()}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all"
-                    style={{ background: '#10b981', color: '#ffffff' }}
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    Add More
-                  </button>
+                      {ICONS.x}
+                    </button>
+                  </div>
+                ))}
+                <button
+                  onClick={() => docFileInputRef.current?.click()}
+                  className="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium"
+                  style={{ background: '#10b981', color: '#ffffff' }}
+                >
+                  {ICONS.plus}
+                  <span>Add</span>
+                </button>
+              </div>
+            ) : (
+              <div
+                className="flex flex-col items-center justify-center py-4 cursor-pointer"
+                onClick={() => docFileInputRef.current?.click()}
+              >
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center mb-2"
+                  style={{ background: '#f5f5f5', color: '#888888' }}
+                >
+                  {ICONS.upload}
                 </div>
-              ) : (
-                <div className="h-full flex items-center justify-center">
-                  <button
-                    onClick={() => docFileInputRef.current?.click()}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all"
-                    style={{ background: '#10b981', color: '#ffffff' }}
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                    </svg>
-                    Upload Documentation
-                  </button>
-                </div>
-              )}
-            </div>
+                <span style={{ fontSize: '11px', color: '#888888' }}>Drop files or click</span>
+              </div>
+            )}
             <input
               ref={docFileInputRef}
               type="file"
               accept=".txt,.md,.pdf,.docx"
               multiple
               className="hidden"
-              onChange={handleDocFileSelect}
+              onChange={(e) => {
+                const files = Array.from(e.target.files || []);
+                if (files.length > 0) handleDocUpload(files);
+                e.target.value = '';
+              }}
             />
           </div>
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="px-6 py-3" style={{ borderTop: '1px solid #e5e5e5', background: '#ffffff' }}>
-        <div className="flex items-center justify-center">
-          <div className="text-sm">
-            {hasInputs ? (
-              <span className="flex items-center gap-2" style={{ color: '#10b981' }}>
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <strong>Ready!</strong> Select a section from the sidebar to generate content
-              </span>
-            ) : (
-              <span style={{ color: '#6b7280' }}>Add Job Description and Resume to get started</span>
-            )}
-          </div>
+      {/* Footer Status */}
+      <div className="px-4 py-2" style={{ borderTop: '1px solid #e5e5e5', background: '#f5f5f5' }}>
+        <div className="flex items-center justify-center gap-2">
+          {hasInputs ? (
+            <>
+              <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#10b981' }} />
+              <span style={{ fontSize: '11px', color: '#10b981' }}>Select a section to generate</span>
+            </>
+          ) : (
+            <span style={{ fontSize: '11px', color: '#888888' }}>Add JD & Resume to start</span>
+          )}
         </div>
       </div>
     </div>
