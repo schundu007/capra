@@ -7,7 +7,8 @@ import ExplanationPanel from './components/ExplanationPanel';
 import ProviderToggle from './components/ProviderToggle';
 import ErrorDisplay from './components/ErrorDisplay';
 import PlatformStatus from './components/PlatformStatus';
-import Login from './components/Login';
+import OAuthLogin from './components/auth/OAuthLogin';
+import { useAuth } from './contexts/AuthContext';
 import AdminPanel from './components/AdminPanel';
 import ChunduLogo from './components/ChunduLogo';
 import SettingsPanel from './components/settings/SettingsPanel';
@@ -68,8 +69,21 @@ function migrateStorageKeys() {
 // Run migration on load
 migrateStorageKeys();
 
-// Get auth token from localStorage
+// Get auth token from localStorage (supports both old and new auth formats)
 function getToken() {
+  // Try new OAuth format first (ascend_auth)
+  try {
+    const authData = localStorage.getItem('ascend_auth');
+    if (authData) {
+      const parsed = JSON.parse(authData);
+      if (parsed.accessToken) {
+        return parsed.accessToken;
+      }
+    }
+  } catch (e) {
+    // Ignore parse errors
+  }
+  // Fall back to old format
   return localStorage.getItem('chundu_token');
 }
 
@@ -283,12 +297,17 @@ export default function App() {
   // AbortController ref for cancelling ongoing operations
   const abortControllerRef = useRef(null);
 
-  // Auth state
+  // Auth from context (webapp)
+  const auth = useAuth();
+
+  // Auth state for Electron (local) mode
   const [authChecked, setAuthChecked] = useState(false);
-  const [authRequired, setAuthRequired] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
+
+  // Unified auth state - webapp uses context, Electron skips auth
+  const isAuthenticated = isElectron ? true : auth.isAuthenticated;
+  const user = isElectron ? null : auth.user;
+  const authRequired = !isElectron && auth.isWebApp;
 
   // Electron-specific state
   const [showSettings, setShowSettings] = useState(false);
@@ -329,62 +348,23 @@ export default function App() {
   };
 
   // Check if user is admin
-  const isAdmin = user?.roles?.includes('admin');
+  // Check if user is admin (supports both old roles array and new role string)
+  const isAdmin = user?.role === 'admin' || user?.roles?.includes?.('admin');
 
   // Check auth status on mount
   useEffect(() => {
-    async function checkAuth() {
-      // In Electron mode, skip auth and go straight to the app
-      if (isElectron) {
-        setAuthRequired(false);
-        setIsAuthenticated(true);
-        setAuthChecked(true);
-        return;
-      }
-
-      try {
-        const checkResponse = await fetch(API_URL + '/api/auth/check');
-        const checkData = await checkResponse.json();
-
-        if (!checkData.authEnabled) {
-          setAuthRequired(false);
-          setIsAuthenticated(true);
-          setAuthChecked(true);
-          return;
-        }
-
-        setAuthRequired(true);
-
-        const token = getToken();
-        if (!token) {
-          setIsAuthenticated(false);
-          setAuthChecked(true);
-          return;
-        }
-
-        const meResponse = await fetch(API_URL + '/api/auth/me', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (meResponse.ok) {
-          const meData = await meResponse.json();
-          setIsAuthenticated(true);
-          setUser(meData.user);
-        } else {
-          localStorage.removeItem('chundu_token');
-          setIsAuthenticated(false);
-        }
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        setAuthRequired(false);
-        setIsAuthenticated(true);
-      } finally {
-        setAuthChecked(true);
-      }
+    // In Electron mode, auth is always ready
+    if (isElectron) {
+      setAuthChecked(true);
+      return;
     }
 
-    checkAuth();
-  }, []);
+    // For webapp, auth status comes from context
+    // Wait for auth context to finish loading
+    if (!auth.loading) {
+      setAuthChecked(true);
+    }
+  }, [auth.loading]);
 
   // Listen for Electron events
   useEffect(() => {
@@ -498,16 +478,10 @@ export default function App() {
     loadPlatformStatus();
   }, []);
 
-  const handleLogin = (token, userData) => {
-    localStorage.setItem('chundu_token', token);
-    setIsAuthenticated(true);
-    setUser(userData);
-  };
-
   const handleLogout = () => {
-    localStorage.removeItem('chundu_token');
-    setIsAuthenticated(false);
-    setUser(null);
+    if (!isElectron) {
+      auth.signOut();
+    }
   };
 
   const [loadingType, setLoadingType] = useState(null);
@@ -1356,9 +1330,9 @@ EDGE CASES & RESILIENCE:
     );
   }
 
-  // Show login if auth required
+  // Show OAuth login if auth required (webapp only)
   if (authRequired && !isAuthenticated) {
-    return <Login onLogin={handleLogin} />;
+    return <OAuthLogin />;
   }
 
   // If this is the dedicated Interview Prep window, render only that
