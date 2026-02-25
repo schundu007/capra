@@ -1,4 +1,4 @@
-# Capra
+# Ascend
 
 AI-powered coding assistant.
 
@@ -15,7 +15,7 @@ AI-powered coding assistant.
 ## Project Structure
 
 ```
-capra/
+ascend/
 ├── frontend/          # React + Vite + TailwindCSS
 │   ├── src/
 │   │   ├── components/

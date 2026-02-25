@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Capra is an AI-powered coding assistant that solves programming problems from text input, screenshots, or URLs (HackerRank/LeetCode). It supports both Claude and GPT-4 providers, multiple interview modes (coding, system design, behavioral), and includes an Ascend Assistant with voice transcription.
+Ascend is an AI-powered coding assistant that solves programming problems from text input, screenshots, or URLs (HackerRank/LeetCode). It supports both Claude and GPT-4 providers, multiple interview modes (coding, system design, behavioral), and includes an Ascend Assistant with voice transcription.
 
 ## Two Platforms
 

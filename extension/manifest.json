@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Ascend - The Capra",
+  "name": "Ascend",
   "version": "2.1.0",
   "description": "Auto-detect coding problems and send to Ascend desktop app for instant solutions",
   "permissions": [

@@ -42,14 +42,14 @@ const PLATFORMS = {
   codesignal: { name: 'CodeSignal', icon: 'S', color: '#3b82f6' },
 };
 
-// Migrate old storage keys from capra_* to chundu_*
+// Migrate old storage keys from ascend_* to chundu_*
 function migrateStorageKeys() {
   const migrations = [
-    ['capra_token', 'chundu_token'],
-    ['capra_coding_history', 'chundu_coding_history'],
-    ['capra_system_design_sessions', 'chundu_system_design_sessions'],
-    ['capra_auto_switch', 'chundu_auto_switch'],
-    ['capra_sidebar_collapsed', 'chundu_sidebar_collapsed'],
+    ['ascend_token', 'chundu_token'],
+    ['ascend_coding_history', 'chundu_coding_history'],
+    ['ascend_system_design_sessions', 'chundu_system_design_sessions'],
+    ['ascend_auto_switch', 'chundu_auto_switch'],
+    ['ascend_sidebar_collapsed', 'chundu_sidebar_collapsed'],
   ];
 
   let migrated = false;
