@@ -9,6 +9,7 @@ import ErrorDisplay from './components/ErrorDisplay';
 import PlatformStatus from './components/PlatformStatus';
 import OAuthLogin from './components/auth/OAuthLogin';
 import PricingPlans from './components/billing/PricingPlans';
+import CreditBalance from './components/billing/CreditBalance';
 import OnboardingModal, { hasCompletedOnboarding, markOnboardingComplete } from './components/onboarding/OnboardingModal';
 import { useAuth } from './contexts/AuthContext';
 import AdminPanel from './components/AdminPanel';
@@ -1382,7 +1383,6 @@ EDGE CASES & RESILIENCE:
           onViewAllDesigns={() => setShowSavedDesigns(true)}
           onViewAllHistory={() => {/* Could add a history modal later */}}
           onOpenSettings={() => setShowSettings(true)}
-          onOpenPricing={() => setShowPricingPlans(true)}
           isLoading={isLoading}
           showAscendAssistant={showAscendAssistant}
           onToggleAscendAssistant={() => setShowAscendAssistant(!showAscendAssistant)}
@@ -1475,6 +1475,13 @@ EDGE CASES & RESILIENCE:
           </div>
         </div>
 
+        {/* Right: Credits (webapp only) */}
+        <div className="flex items-center gap-3" style={{ WebkitAppRegion: 'no-drag' }}>
+          <CreditBalance
+            onUpgrade={() => setShowPricingPlans(true)}
+            compact={true}
+          />
+        </div>
       </header>
 
       {/* Error Banner */}
