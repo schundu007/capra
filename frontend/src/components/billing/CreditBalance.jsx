@@ -4,15 +4,14 @@ import { useAuth } from '../../contexts/AuthContext.jsx';
  * Credit Balance Indicator Component
  */
 export default function CreditBalance({ onUpgrade, compact = false }) {
-  const { credits, subscription, isAuthenticated, useSupabaseAuth } = useAuth();
+  const { credits, subscription, isAuthenticated, isWebApp } = useAuth();
 
-  // Don't show for Electron users or if not using Supabase auth
-  if (!useSupabaseAuth || !isAuthenticated) {
+  // Don't show for Electron users or if not authenticated
+  if (!isWebApp || !isAuthenticated) {
     return null;
   }
 
   const balance = credits?.balance ?? 0;
-  const freeTierAvailable = credits?.free_tier_available ?? true;
   const planType = subscription?.plan_type ?? 'free';
 
   if (compact) {
@@ -21,19 +20,19 @@ export default function CreditBalance({ onUpgrade, compact = false }) {
         onClick={onUpgrade}
         className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all"
         style={{
-          background: balance > 0 || freeTierAvailable ? '#1a3d2e' : '#3d1f1f',
-          border: balance > 0 || freeTierAvailable ? '1px solid #166534' : '1px solid #7f1d1d',
+          background: balance > 0 ? '#1a3d2e' : '#3d1f1f',
+          border: balance > 0 ? '1px solid #166534' : '1px solid #7f1d1d',
         }}
-        title={freeTierAvailable ? 'First company free' : `${balance} credits remaining`}
+        title={`${balance} credits remaining`}
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <span
           className="text-sm font-medium"
-          style={{ color: balance > 0 || freeTierAvailable ? '#4ade80' : '#ef4444' }}
+          style={{ color: balance > 0 ? '#4ade80' : '#ef4444' }}
         >
-          {freeTierAvailable ? 'Free' : balance}
+          {balance}
         </span>
       </button>
     );
@@ -64,19 +63,9 @@ export default function CreditBalance({ onUpgrade, compact = false }) {
           <div className="text-2xl font-bold text-white">{balance}</div>
           <div className="text-xs text-gray-500">Available</div>
         </div>
-
-        {freeTierAvailable && (
-          <div
-            className="flex-1 p-3 rounded-lg text-center"
-            style={{ background: '#1a3d2e', border: '1px solid #166534' }}
-          >
-            <div className="text-lg font-bold text-emerald-400">FREE</div>
-            <div className="text-xs text-emerald-400/70">First company</div>
-          </div>
-        )}
       </div>
 
-      {balance === 0 && !freeTierAvailable && (
+      {balance === 0 && (
         <div
           className="p-3 rounded-lg mb-3 text-center"
           style={{ background: '#3d1f1f', border: '1px solid #7f1d1d' }}
@@ -92,7 +81,7 @@ export default function CreditBalance({ onUpgrade, compact = false }) {
         onMouseEnter={(e) => { e.currentTarget.style.background = '#059669'; }}
         onMouseLeave={(e) => { e.currentTarget.style.background = '#10b981'; }}
       >
-        {balance === 0 && !freeTierAvailable ? 'Get Credits' : 'Manage Plan'}
+        {balance === 0 ? 'Get Credits' : 'Manage Plan'}
       </button>
 
       {/* Usage stats */}

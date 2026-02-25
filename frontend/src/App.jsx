@@ -8,6 +8,7 @@ import ProviderToggle from './components/ProviderToggle';
 import ErrorDisplay from './components/ErrorDisplay';
 import PlatformStatus from './components/PlatformStatus';
 import OAuthLogin from './components/auth/OAuthLogin';
+import PricingPlans from './components/billing/PricingPlans';
 import { useAuth } from './contexts/AuthContext';
 import AdminPanel from './components/AdminPanel';
 import ChunduLogo from './components/ChunduLogo';
@@ -303,6 +304,7 @@ export default function App() {
   // Auth state for Electron (local) mode
   const [authChecked, setAuthChecked] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [showPricingPlans, setShowPricingPlans] = useState(false);
 
   // Unified auth state - webapp uses context, Electron skips auth
   const isAuthenticated = isElectron ? true : auth.isAuthenticated;
@@ -1371,6 +1373,7 @@ EDGE CASES & RESILIENCE:
           onViewAllDesigns={() => setShowSavedDesigns(true)}
           onViewAllHistory={() => {/* Could add a history modal later */}}
           onOpenSettings={() => setShowSettings(true)}
+          onOpenPricing={() => setShowPricingPlans(true)}
           isLoading={isLoading}
           showAscendAssistant={showAscendAssistant}
           onToggleAscendAssistant={() => setShowAscendAssistant(!showAscendAssistant)}
@@ -1786,6 +1789,12 @@ EDGE CASES & RESILIENCE:
           onClose={() => setShowAdminPanel(false)}
         />
       )}
+
+      {/* Pricing Plans Modal */}
+      <PricingPlans
+        isOpen={showPricingPlans}
+        onClose={() => setShowPricingPlans(false)}
+      />
 
       {/* Settings Panel */}
       {showSettings && (

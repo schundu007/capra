@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import CreditBalance from './billing/CreditBalance';
 
 // Check if running on macOS in Electron (needs extra padding for traffic lights)
 const isMacElectron = window.electronAPI?.isElectron && navigator.platform.toLowerCase().includes('mac');
@@ -18,6 +19,7 @@ export default function Sidebar({
   onViewAllDesigns,
   onViewAllHistory,
   onOpenSettings,
+  onOpenPricing,
   isLoading,
   showAscendAssistant,
   onToggleAscendAssistant,
@@ -360,6 +362,11 @@ export default function Sidebar({
               </button>
             </div>
           </div>
+        )}
+
+        {/* Credit Balance (webapp only) */}
+        {authRequired && user && (
+          <CreditBalance onUpgrade={onOpenPricing} />
         )}
 
         {/* Stealth Mode Toggle - Only in Electron */}

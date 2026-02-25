@@ -327,9 +327,9 @@ export default function PricingPlans({ isOpen, onClose }) {
             </div>
           )}
 
-          {/* Free tier note */}
+          {/* Pricing note */}
           <p className="mt-6 text-center text-sm text-gray-500">
-            Your first company prep is always free. No credit card required.
+            Each credit allows you to prepare for one company interview.
           </p>
         </div>
       </div>

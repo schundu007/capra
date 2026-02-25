@@ -3,7 +3,7 @@ import { logger } from '../middleware/requestLogger.js';
 
 /**
  * Check if user can create a new company prep
- * First company is free, subsequent ones require credits
+ * All companies require credits
  */
 export async function canCreateCompany(userId) {
   try {
@@ -20,16 +20,11 @@ export async function canCreateCompany(userId) {
  */
 export async function useCredit(userId, companyName) {
   try {
-    // First check if this should be free
+    // First check if user has credits
     const canCreate = await canCreateCompany(userId);
 
     if (!canCreate.allowed) {
       return { success: false, reason: canCreate.reason };
-    }
-
-    if (canCreate.free) {
-      // No credit needed, first company is free
-      return { success: true, free: true, balance: 0 };
     }
 
     // Use the database function to deduct credit
@@ -48,7 +43,6 @@ export async function useCredit(userId, companyName) {
 
     return {
       success: true,
-      free: false,
       balance: balanceResult.rows[0]?.balance || 0,
     };
   } catch (error) {
@@ -103,20 +97,10 @@ export async function getCreditInfo(userId) {
       [userId]
     );
 
-    // Check free tier status
-    const prepsResult = await query(
-      'SELECT is_free_tier FROM ascend_company_preps WHERE user_id = $1',
-      [userId]
-    );
-
-    const usedFreeTier = prepsResult.rows.some(p => p.is_free_tier);
-
     return {
       balance: credits.balance,
       lifetime_earned: credits.lifetime_earned,
       lifetime_used: credits.lifetime_used,
-      free_tier_used: usedFreeTier,
-      free_tier_available: !usedFreeTier,
       transactions: txResult.rows,
     };
   } catch (error) {
