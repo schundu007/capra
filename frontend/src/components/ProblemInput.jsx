@@ -17,12 +17,10 @@ const LANGUAGES = [
   { value: 'yaml', label: 'YAML' },
 ];
 
-export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onClear, isLoading, extractedText, onExtractedTextClear, shouldClear, hasSolution, expanded, onToggleExpand, ascendMode, loadedProblem }) {
+export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onClear, isLoading, extractedText, onExtractedTextClear, shouldClear, hasSolution, expanded, onToggleExpand, ascendMode, loadedProblem, detailLevel = 'basic', language = 'auto' }) {
   const [problemText, setProblemText] = useState('');
   const [url, setUrl] = useState('');
   const [activeTab, setActiveTab] = useState('text');
-  const [language, setLanguage] = useState('auto');
-  const [detailLevel, setDetailLevel] = useState('basic');
   const [isDragging, setIsDragging] = useState(false);
   const [preview, setPreview] = useState(null);
   const [isSelectingFile, setIsSelectingFile] = useState(false);
@@ -265,51 +263,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
           )}
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* Detail Toggle - hide in system-design mode (shown in InterviewModeSelector instead) */}
-          {ascendMode !== 'system-design' && (
-            <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid #e5e5e5' }}>
-              <button
-                type="button"
-                onClick={() => setDetailLevel('basic')}
-                disabled={isLoading}
-                className="px-2 py-1 text-[10px] font-medium transition-all"
-                style={{
-                  background: detailLevel === 'basic' ? '#333333' : 'transparent',
-                  color: detailLevel === 'basic' ? 'white' : '#666666',
-                }}
-              >
-                Basic
-              </button>
-              <button
-                type="button"
-                onClick={() => setDetailLevel('detailed')}
-                disabled={isLoading}
-                className="px-2 py-1 text-[10px] font-medium transition-all"
-                style={{
-                  background: detailLevel === 'detailed' ? '#333333' : 'transparent',
-                  color: detailLevel === 'detailed' ? 'white' : '#666666',
-                }}
-              >
-                Full
-              </button>
-            </div>
-          )}
-
-          {/* Language - hide in system-design mode */}
-          {ascendMode !== 'system-design' && (
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              disabled={isLoading}
-              className="px-2 py-1 text-[10px] rounded-lg bg-white border border-gray-200 text-gray-600"
-            >
-              {LANGUAGES.map((lang) => (
-                <option key={lang.value} value={lang.value}>{lang.label}</option>
-              ))}
-            </select>
-          )}
-        </div>
+        {/* Controls moved to PROBLEM header in App.jsx */}
       </div>
 
       {/* Content */}

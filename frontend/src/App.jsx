@@ -325,6 +325,10 @@ export default function App() {
   const [showSavedDesigns, setShowSavedDesigns] = useState(false);
   const [stealthMode, setStealthMode] = useState(false);
 
+  // Coding mode controls (lifted from ProblemInput)
+  const [codingDetailLevel, setCodingDetailLevel] = useState('basic');
+  const [codingLanguage, setCodingLanguage] = useState('auto');
+
   // System design storage hook
   const systemDesignStorage = useSystemDesignStorage();
 
@@ -1587,8 +1591,51 @@ EDGE CASES & RESILIENCE:
                         </button>
                       )}
                     </div>
-                    {/* System Design specific controls - only shown when in system-design mode */}
+                    {/* Controls - different for each mode */}
                     <div className="panel-header-right">
+                      {/* Coding mode controls */}
+                      {ascendMode === 'coding' && (
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center rounded-full p-0.5" style={{ background: '#f0f0f0', border: '1px solid #e0e0e0' }}>
+                            <button
+                              type="button"
+                              onClick={() => setCodingDetailLevel('basic')}
+                              className="px-3 py-1 text-[10px] font-semibold transition-all rounded-full"
+                              style={{
+                                background: codingDetailLevel === 'basic' ? '#10b981' : 'transparent',
+                                color: codingDetailLevel === 'basic' ? '#ffffff' : '#666666',
+                              }}
+                            >
+                              Basic
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setCodingDetailLevel('detailed')}
+                              className="px-3 py-1 text-[10px] font-semibold transition-all rounded-full"
+                              style={{
+                                background: codingDetailLevel === 'detailed' ? '#10b981' : 'transparent',
+                                color: codingDetailLevel === 'detailed' ? '#ffffff' : '#666666',
+                              }}
+                            >
+                              Full
+                            </button>
+                          </div>
+                          <select
+                            value={codingLanguage}
+                            onChange={(e) => setCodingLanguage(e.target.value)}
+                            className="px-2 py-1 text-[10px] rounded-full bg-white border border-gray-200 text-gray-600"
+                          >
+                            <option value="auto">Auto</option>
+                            <option value="python">Python</option>
+                            <option value="javascript">JS</option>
+                            <option value="typescript">TS</option>
+                            <option value="java">Java</option>
+                            <option value="cpp">C++</option>
+                            <option value="go">Go</option>
+                          </select>
+                        </div>
+                      )}
+                      {/* System Design mode controls */}
                       <AscendModeSelector
                         ascendMode={ascendMode}
                         designDetailLevel={designDetailLevel}
@@ -1615,6 +1662,8 @@ EDGE CASES & RESILIENCE:
                       onToggleExpand={() => setProblemExpanded(prev => !prev)}
                       ascendMode={ascendMode}
                       loadedProblem={loadedProblem}
+                      detailLevel={codingDetailLevel}
+                      language={codingLanguage}
                     />
                   </div>
                 </div>
