@@ -498,13 +498,10 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
                   </button>
                 </div>
               ) : (
-                <div className="h-full flex flex-col items-center justify-center" style={{ color: '#9ca3af' }}>
-                  <div className="text-3xl mb-2 opacity-40">📚</div>
-                  <p className="text-sm font-medium">Drop files or click to upload</p>
-                  <p className="text-xs mt-1">PDF, DOCX, TXT, MD - The AI will learn from all uploaded materials</p>
+                <div className="h-full flex items-center justify-center">
                   <button
                     onClick={() => docFileInputRef.current?.click()}
-                    className="mt-3 flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all"
                     style={{ background: '#10b981', color: '#ffffff' }}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
