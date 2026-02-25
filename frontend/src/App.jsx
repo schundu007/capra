@@ -9,6 +9,7 @@ import ErrorDisplay from './components/ErrorDisplay';
 import PlatformStatus from './components/PlatformStatus';
 import OAuthLogin from './components/auth/OAuthLogin';
 import PricingPlans from './components/billing/PricingPlans';
+import OnboardingModal, { hasCompletedOnboarding, markOnboardingComplete } from './components/onboarding/OnboardingModal';
 import { useAuth } from './contexts/AuthContext';
 import AdminPanel from './components/AdminPanel';
 import ChunduLogo from './components/ChunduLogo';
@@ -305,6 +306,7 @@ export default function App() {
   const [authChecked, setAuthChecked] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showPricingPlans, setShowPricingPlans] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   // Unified auth state - webapp uses context, Electron skips auth
   const isAuthenticated = isElectron ? true : auth.isAuthenticated;
@@ -367,6 +369,13 @@ export default function App() {
       setAuthChecked(true);
     }
   }, [auth.loading]);
+
+  // Show onboarding for new webapp users
+  useEffect(() => {
+    if (!isElectron && isAuthenticated && authChecked && !hasCompletedOnboarding()) {
+      setShowOnboarding(true);
+    }
+  }, [isAuthenticated, authChecked]);
 
   // Listen for Electron events
   useEffect(() => {
@@ -1794,6 +1803,13 @@ EDGE CASES & RESILIENCE:
       <PricingPlans
         isOpen={showPricingPlans}
         onClose={() => setShowPricingPlans(false)}
+      />
+
+      {/* Onboarding Modal */}
+      <OnboardingModal
+        isOpen={showOnboarding}
+        onComplete={() => setShowOnboarding(false)}
+        onOpenPricing={() => setShowPricingPlans(true)}
       />
 
       {/* Settings Panel */}
