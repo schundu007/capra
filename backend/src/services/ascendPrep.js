@@ -24,6 +24,7 @@ function getOpenAIClient() {
 const DEFAULT_CLAUDE_MODEL = 'claude-sonnet-4-20250514';
 const DEFAULT_OPENAI_MODEL = 'gpt-4o';
 const MAX_TOKENS_PER_SECTION = 16000; // Increased significantly for detailed explanations
+const MAX_TOKENS_CUSTOM_SECTION = 64000; // Much higher for custom sections to extract ALL content from documents
 
 /**
  * Search for real interview questions from the internet
@@ -799,32 +800,53 @@ CRITICAL: Reference prep materials. Provide code examples. Be comprehensive, not
   custom: `Generate comprehensive interview preparation based on the provided documentation.
 
 You have been given a specific document that the candidate wants to learn from and be tested on.
-Analyze the document thoroughly and create interview-style preparation material.
+Analyze the document thoroughly and extract ALL meaningful content from it.
 
 CRITICAL REQUIREMENTS:
-1. THOROUGHLY analyze the uploaded document content provided
-2. Extract key concepts, principles, and actionable knowledge
-3. Generate interview questions that test understanding of this material
-4. Provide detailed answers based on the document content
-5. Connect the document content to the job role where relevant
+1. EXTRACT ALL UNIQUE QUESTIONS from the document - do NOT summarize or skip any
+2. REMOVE DUPLICATES: If the same question appears multiple times (even with slight wording differences), include it ONLY ONCE
+3. FILTER OUT NONSENSE: Skip any malformed text, incomplete sentences, or gibberish content
+4. QUALITY CHECK: Each question must be:
+   - A complete, coherent question
+   - Actually answerable (not truncated or corrupted)
+   - Relevant to the document's topic
+5. If the document contains 30 unique questions, you MUST include all 30
+6. Provide detailed answers for EVERY valid question found
+
+DUPLICATE DETECTION:
+- Questions asking the same thing with different wording = DUPLICATE (keep only one)
+- Questions with identical meaning = DUPLICATE
+- Questions that are subsets of other questions = keep the more comprehensive one
+
+FILTERING CRITERIA (skip these):
+- Incomplete sentences or partial text
+- Random characters or formatting artifacts
+- Headers/footers/page numbers
+- Table of contents entries without actual content
+- Copyright notices or metadata
+
+IMPORTANT: The candidate uploaded this document to study ALL valid content.
+Extract EVERY unique, meaningful question while filtering garbage and duplicates.
 
 Return JSON:
 {
-  "summary": "Overview of the document content and how it applies to interviews",
+  "summary": "Overview of the document - mention total unique questions found (after deduplication)",
   "documentInsights": {
     "mainTopics": ["Key topics covered in the document"],
+    "totalUniqueQuestions": "Number of unique questions after removing duplicates",
+    "duplicatesRemoved": "Number of duplicate questions filtered out",
     "keyTakeaways": ["Most important points to remember"],
     "relevanceToRole": "How this material relates to the target job"
   },
   "questions": [
     {
-      "question": "Interview question based on document content",
+      "question": "EXACT question from the document (deduplicated, no nonsense)",
       "category": "Conceptual / Technical / Scenario / Application",
       "difficulty": "Easy / Medium / Hard",
-      "answer": "Detailed answer derived from the document",
+      "answer": "Detailed answer - if answer is in document use it, otherwise provide comprehensive answer",
       "keyPoints": ["Key points to mention in your answer"],
       "followUps": ["Possible follow-up questions"],
-      "documentReference": "Which part of the document this relates to"
+      "documentReference": "Which section of the document this is from"
     }
   ],
   "practiceScenarios": [
@@ -845,7 +867,7 @@ Return JSON:
   "abbreviations": [{"abbr": "ABBR", "full": "Full term"}]
 }
 
-IMPORTANT: Base ALL content on the provided document. Do not make up information not in the document.`
+CRITICAL: You MUST include ALL questions from the document. If there are 30 questions, include 30. If there are 50, include 50. Do NOT skip any.`
 };
 
 // Clean up text content - remove extra whitespace and empty lines
@@ -1005,9 +1027,12 @@ Return ONLY valid JSON - no markdown, no code blocks. Start with { and end with 
 
   const userMessage = `${context}\n\n${sectionPrompt}\n\nCRITICAL: Return ONLY the JSON object. Do NOT wrap in \`\`\`json code blocks. Start directly with { and end with }.`;
 
+  // Use higher token limit for custom sections to extract ALL content
+  const maxTokens = section.startsWith('custom') ? MAX_TOKENS_CUSTOM_SECTION : MAX_TOKENS_PER_SECTION;
+
   const stream = await getClaudeClient().messages.stream({
     model,
-    max_tokens: MAX_TOKENS_PER_SECTION,
+    max_tokens: maxTokens,
     system: systemPrompt,
     messages: [{ role: 'user', content: userMessage }],
   });
@@ -1059,9 +1084,12 @@ Return valid JSON.`
 
   const userMessage = `${context}\n\n${sectionPrompt}`;
 
+  // Use higher token limit for custom sections to capture all content
+  const maxTokens = section.startsWith('custom') ? MAX_TOKENS_CUSTOM_SECTION : MAX_TOKENS_PER_SECTION;
+
   const stream = await getOpenAIClient().chat.completions.create({
     model,
-    max_tokens: MAX_TOKENS_PER_SECTION,
+    max_tokens: maxTokens,
     stream: true,
     messages: [
       { role: 'system', content: systemPrompt },
