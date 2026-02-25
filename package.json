@@ -45,8 +45,8 @@
     "uuid": "^9.0.1"
   },
   "build": {
-    "appId": "com.chundu.app",
-    "productName": "Chundu",
+    "appId": "com.ascend.app",
+    "productName": "Ascend",
     "directories": {
       "output": "release",
       "buildResources": "build"
