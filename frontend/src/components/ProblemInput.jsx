@@ -192,7 +192,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
     return (
       <div className="flex items-center gap-2 py-2 px-3 rounded-lg" style={{ background: '#f5f5f5', border: '1px solid #e5e5e5' }}>
         <div className="flex-1 min-w-0">
-          <p className="text-[11px] truncate" style={{ color: '#666666' }}>{getPreviewText()}</p>
+          <p className="text-[11px] truncate" style={{ color: '#000000' }}>{getPreviewText()}</p>
         </div>
         <button
           onClick={onToggleExpand}
@@ -223,7 +223,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                 className="px-2.5 py-1 text-[10px] font-medium rounded-md transition-all"
                 style={{
                   background: activeTab === tab.id ? '#ffffff' : 'transparent',
-                  color: activeTab === tab.id ? '#333333' : '#999999',
+                  color: activeTab === tab.id ? '#000000' : '#000000',
                   border: activeTab === tab.id ? '1px solid #e5e5e5' : '1px solid transparent',
                 }}
               >
@@ -235,7 +235,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
           {problemText && onToggleExpand && (
             <button
               onClick={onToggleExpand}
-              className="ml-1 p-1.5 rounded-lg transition-all text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+              className="ml-1 p-1.5 rounded-lg transition-all text-black hover:bg-gray-100 hover:text-black"
               title="Collapse problem"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -253,7 +253,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                 if (fileInputRef.current) fileInputRef.current.value = '';
                 onClear?.();
               }}
-              className="ml-1 p-1.5 rounded-lg transition-all text-gray-400 hover:bg-red-50 hover:text-red-500"
+              className="ml-1 p-1.5 rounded-lg transition-all text-black hover:bg-red-50 hover:text-red-500"
               title="Clear problem"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -292,7 +292,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               disabled={isLoading}
             />
             <div className="flex items-center justify-between mt-2 flex-shrink-0">
-              <span className="text-[10px] text-gray-400">
+              <span className="text-[10px] text-black">
                 {problemText.length > 0 && `${problemText.length} chars`}
               </span>
               <button
@@ -358,7 +358,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                 </button>
               </div>
             ) : isSelectingFile ? (
-              <div className="flex-1 flex items-center justify-center py-8 text-sm" style={{ color: '#999999' }}>
+              <div className="flex-1 flex items-center justify-center py-8 text-sm" style={{ color: '#000000' }}>
                 Select an image...
               </div>
             ) : (
@@ -373,10 +373,10 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                   background: isDragging ? 'rgba(16, 185, 129, 0.05)' : '#f9fafb',
                 }}
               >
-                <svg className="w-8 h-8 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-8 h-8 mb-2 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span className="text-[11px] text-gray-500">Drop image or click to upload</span>
+                <span className="text-[11px] text-black">Drop image or click to upload</span>
               </div>
             )}
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />

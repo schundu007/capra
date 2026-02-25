@@ -37,10 +37,10 @@
   --text-muted: #808080;
   --text-caption: #606060;
 
-  /* Text - Light theme (for content panels) */
-  --text-dark: #1a1a1a;
-  --text-dark-secondary: #505050;
-  --text-dark-muted: #909090;
+  /* Text - Light theme (for content panels) - BLACK for high visibility */
+  --text-dark: #000000;
+  --text-dark-secondary: #000000;
+  --text-dark-muted: #333333;
 
   /* Primary Accent - Subtle teal/green (professional, easy on eyes) */
   --accent-primary: #10b981;
@@ -1228,7 +1228,7 @@ code, pre, kbd {
 .panel-title {
   font-size: 11px;
   font-weight: 600;
-  color: #666666;
+  color: #000000;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }

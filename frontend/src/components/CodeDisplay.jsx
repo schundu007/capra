@@ -213,7 +213,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
               cloudProvider={cloudProvider}
             />
           ) : isStreaming ? (
-            <div className="flex flex-col items-center justify-center h-full" style={{ color: '#999999' }}>
+            <div className="flex flex-col items-center justify-center h-full" style={{ color: '#000000' }}>
               <div className="flex gap-1 mb-2">
                 <span className="w-2 h-2 rounded-full animate-bounce" style={{ background: '#10b981', animationDelay: '0ms' }} />
                 <span className="w-2 h-2 rounded-full animate-bounce" style={{ background: '#10b981', animationDelay: '150ms' }} />
@@ -284,7 +284,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
         <div className="panel-header-left">
           <div className="panel-indicator" />
           <span className="panel-title">Code</span>
-          <span className="panel-badge" style={{ background: '#f0f0f0', color: '#666666' }}>
+          <span className="panel-badge" style={{ background: '#f0f0f0', color: '#000000' }}>
             {normalizedLanguage}
           </span>
         </div>
@@ -292,7 +292,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
           <button
             onClick={handleCopy}
             className="px-2 py-1 text-[10px] font-medium rounded transition-colors"
-            style={{ color: '#666666', background: '#f5f5f5' }}
+            style={{ color: '#000000', background: '#f5f5f5' }}
             onMouseEnter={(e) => { e.target.style.background = '#e8e8e8'; e.target.style.color = '#333333'; }}
             onMouseLeave={(e) => { e.target.style.background = '#f5f5f5'; e.target.style.color = '#666666'; }}
           >
@@ -337,7 +337,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
       <div className="px-3 py-2 flex items-center justify-between" style={{ background: '#fafafa', borderTop: '1px solid #e8e8e8' }}>
         <div className="flex items-center gap-2">
           {/* Test input toggle */}
-          <label className="flex items-center gap-1.5 text-[10px] cursor-pointer" style={{ color: '#666666' }}>
+          <label className="flex items-center gap-1.5 text-[10px] cursor-pointer" style={{ color: '#000000' }}>
             <input
               type="checkbox"
               checked={showTestInput}
@@ -447,7 +447,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
               <button
                 onClick={() => setOutputExpanded(true)}
                 className="text-[9px] px-1.5 py-0.5 rounded hover:bg-gray-200 transition-colors flex items-center gap-1"
-                style={{ color: '#666666' }}
+                style={{ color: '#000000' }}
                 title="Expand output"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -460,7 +460,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
                   navigator.clipboard.writeText(output.success ? output.output : output.error);
                 }}
                 className="text-[9px] px-1.5 py-0.5 rounded hover:bg-gray-200 transition-colors"
-                style={{ color: '#666666' }}
+                style={{ color: '#000000' }}
                 title="Copy output"
               >
                 Copy

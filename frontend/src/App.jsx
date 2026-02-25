@@ -1339,7 +1339,7 @@ EDGE CASES & RESILIENCE:
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse" />
-            <span className="text-gray-500">Loading...</span>
+            <span className="text-black">Loading...</span>
           </div>
         </div>
       </div>
@@ -1603,7 +1603,7 @@ EDGE CASES & RESILIENCE:
                               className="px-3 py-1 text-[10px] font-semibold transition-all rounded-full"
                               style={{
                                 background: codingDetailLevel === 'basic' ? '#10b981' : 'transparent',
-                                color: codingDetailLevel === 'basic' ? '#ffffff' : '#666666',
+                                color: codingDetailLevel === 'basic' ? '#ffffff' : '#000000',
                               }}
                             >
                               Basic
@@ -1614,7 +1614,7 @@ EDGE CASES & RESILIENCE:
                               className="px-3 py-1 text-[10px] font-semibold transition-all rounded-full"
                               style={{
                                 background: codingDetailLevel === 'detailed' ? '#10b981' : 'transparent',
-                                color: codingDetailLevel === 'detailed' ? '#ffffff' : '#666666',
+                                color: codingDetailLevel === 'detailed' ? '#ffffff' : '#000000',
                               }}
                             >
                               Full
@@ -1623,7 +1623,7 @@ EDGE CASES & RESILIENCE:
                           <select
                             value={codingLanguage}
                             onChange={(e) => setCodingLanguage(e.target.value)}
-                            className="px-2 py-1 text-[10px] rounded-full bg-white border border-gray-200 text-gray-600"
+                            className="px-2 py-1 text-[10px] rounded-full bg-white border border-gray-200 text-black"
                           >
                             <option value="auto">Auto</option>
                             <option value="python">Python</option>
