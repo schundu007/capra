@@ -18,7 +18,6 @@ export default function Sidebar({
   onViewAllDesigns,
   onViewAllHistory,
   onOpenSettings,
-  onOpenSupport,
   isLoading,
   showAscendAssistant,
   onToggleAscendAssistant,
@@ -361,26 +360,6 @@ export default function Sidebar({
               </button>
             </div>
           </div>
-        )}
-
-        {/* Support Button */}
-        {onOpenSupport && (
-          <button
-            onClick={onOpenSupport}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all"
-            style={{
-              background: '#422006',
-              color: '#fbbf24',
-              border: '1px solid #b45309',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = '#4a2608'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = '#422006'; }}
-          >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-            </svg>
-            <span className="text-sm font-semibold">Support Ascend</span>
-          </button>
         )}
 
         {/* Stealth Mode Toggle - Only in Electron */}

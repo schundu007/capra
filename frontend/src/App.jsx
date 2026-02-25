@@ -18,7 +18,6 @@ import AscendModeSelector from './components/AscendModeSelector';
 import PrepTab from './components/PrepTab';
 import AscendPrepModal from './components/AscendPrepModal';
 import SavedSystemDesignsModal from './components/SavedSystemDesignsModal';
-import FundingPage from './components/FundingPage';
 import { getApiUrl } from './hooks/useElectron';
 import useKeyboardShortcuts from './hooks/useKeyboardShortcuts';
 import { useSystemDesignStorage } from './hooks/useSystemDesignStorage';
@@ -300,7 +299,6 @@ export default function App() {
   const [platformStatus, setPlatformStatus] = useState({});
   const [showPrepTab, setShowPrepTab] = useState(false);
   const [showSavedDesigns, setShowSavedDesigns] = useState(false);
-  const [showFundingPage, setShowFundingPage] = useState(false);
   const [stealthMode, setStealthMode] = useState(false);
 
   // System design storage hook
@@ -728,7 +726,7 @@ export default function App() {
 
   // Check if any modal is open (disable shortcuts when modals are open)
   const isModalOpen = showSettings || showSetupWizard || showPlatformAuth ||
-                      showPrepTab || showAdminPanel || showSavedDesigns || showFundingPage;
+                      showPrepTab || showAdminPanel || showSavedDesigns;
 
   // Global keyboard shortcuts
   useKeyboardShortcuts({
@@ -1399,7 +1397,6 @@ EDGE CASES & RESILIENCE:
           onViewAllDesigns={() => setShowSavedDesigns(true)}
           onViewAllHistory={() => {/* Could add a history modal later */}}
           onOpenSettings={() => setShowSettings(true)}
-          onOpenSupport={() => setShowFundingPage(true)}
           isLoading={isLoading}
           showAscendAssistant={showAscendAssistant}
           onToggleAscendAssistant={() => setShowAscendAssistant(!showAscendAssistant)}
@@ -1861,11 +1858,6 @@ EDGE CASES & RESILIENCE:
         onDeleteSession={systemDesignStorage.deleteSession}
         onClearAll={systemDesignStorage.clearAllSessions}
       />
-
-      {/* Funding/Support Page Modal */}
-      {showFundingPage && (
-        <FundingPage onClose={() => setShowFundingPage(false)} />
-      )}
 
       {/* Copy Toast Notification */}
       {copyToast && (
