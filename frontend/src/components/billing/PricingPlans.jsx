@@ -205,14 +205,14 @@ export default function PricingPlans({ isOpen, onClose }) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold mb-2" style={{ color: '#000000' }}>
-              Upgrade Your Interview Prep
+            <h2 className="text-2xl font-bold" style={{ color: '#000000' }}>
+              Crack Interview with Pro Plans
             </h2>
-            <p style={{ color: '#666666' }}>
-              {hasActiveSubscription
-                ? `You're on the ${subscription.plan_type} plan`
-                : 'Choose a plan to unlock your full potential'}
-            </p>
+            {hasActiveSubscription && (
+              <p style={{ color: '#666666' }}>
+                You're on the {subscription.plan_type} plan
+              </p>
+            )}
           </div>
 
           {/* Current subscription management */}
