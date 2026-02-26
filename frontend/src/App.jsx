@@ -1414,7 +1414,7 @@ EDGE CASES & RESILIENCE:
   const showSidebar = !sidebarCollapsed && ascendMode !== 'ascend-prep';
 
   return (
-    <div className="h-screen flex overflow-hidden" style={{ background: 'var(--content-bg)', color: 'var(--text-primary)' }}>
+    <div className="h-screen flex overflow-hidden" style={{ background: 'var(--content-bg)', color: '#1a1a1a' }}>
       {/* Sidebar */}
       {showSidebar && (
         <Sidebar

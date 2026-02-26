@@ -1,14 +1,14 @@
 import { useState, useCallback } from 'react';
 
-// Slack-inspired dark color palette using CSS variables
+// Color palette using explicit dark text for light backgrounds
 const colors = {
   bg: 'var(--content-bg)',
   paper: 'var(--content-bg-secondary)',
   accent: 'var(--accent-green)',
   accentLight: 'var(--accent-green-bg)',
-  text: 'var(--text-primary)',
-  textMuted: 'var(--text-muted)',
-  textLight: 'var(--text-caption)',
+  text: '#1a1a1a',  // Dark text for light backgrounds
+  textMuted: '#666666',  // Medium gray for secondary text
+  textLight: '#888888',  // Light gray for captions
   border: 'var(--border-default)',
 };
 
