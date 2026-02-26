@@ -51,10 +51,24 @@
       "output": "release",
       "buildResources": "build"
     },
+    "asar": true,
     "files": [
-      "electron/**/*",
-      "frontend/dist/**/*",
-      "backend/src/**/*",
+      "package.json",
+      {
+        "from": "electron",
+        "to": "electron",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "frontend/dist",
+        "to": "frontend/dist",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "backend/src",
+        "to": "backend/src",
+        "filter": ["**/*"]
+      },
       "backend/package.json",
       "node_modules/**/*",
       "!node_modules/**/test/**",
