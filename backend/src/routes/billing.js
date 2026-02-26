@@ -223,6 +223,44 @@ router.get('/subscription', jwtAuth, async (req, res) => {
 });
 
 /**
+ * Verify subscription status (for cross-service verification)
+ * Used by jobs.cariara.com to check if user has quarterly_pro access
+ * GET /api/billing/verify-subscription/:userId
+ */
+router.get('/verify-subscription/:userId', async (req, res) => {
+  const { userId } = req.params;
+  const apiKey = req.headers['x-api-key'];
+
+  // Verify internal API key for cross-service auth
+  if (!process.env.INTERNAL_API_KEY || apiKey !== process.env.INTERNAL_API_KEY) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  try {
+    const result = await query(
+      'SELECT plan_type, status, current_period_end FROM ascend_subscriptions WHERE user_id = $1',
+      [userId]
+    );
+
+    const subscription = result.rows[0];
+
+    // Check if user has active quarterly_pro subscription
+    const hasAccess = subscription?.plan_type === 'quarterly_pro' &&
+                      subscription?.status === 'active';
+
+    res.json({
+      hasAccess,
+      planType: subscription?.plan_type || 'free',
+      status: subscription?.status || 'none',
+      currentPeriodEnd: subscription?.current_period_end || null,
+    });
+  } catch (error) {
+    logger.error({ error: error.message, userId }, 'Subscription verification failed');
+    res.status(500).json({ error: 'Failed to verify subscription' });
+  }
+});
+
+/**
  * Stripe webhook handler
  * POST /api/billing/webhook
  */
