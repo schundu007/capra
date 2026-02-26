@@ -276,28 +276,36 @@ export default function PricingPlans({ isOpen, onClose }) {
           )}
 
           {/* Add-on */}
-          <div className="p-4 rounded-lg flex items-center justify-between" style={{ background: '#fafafa', border: '1px solid #e5e5e5' }}>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#dbeafe' }}>
-                <svg className="w-5 h-5" style={{ color: '#3b82f6' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
+          <div className="p-4 rounded-lg" style={{ background: '#fafafa', border: '1px solid #e5e5e5' }}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#dbeafe' }}>
+                  <svg className="w-5 h-5" style={{ color: '#3b82f6' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="font-medium" style={{ color: '#000' }}>Need More Credits?</p>
+                  <p className="text-xs" style={{ color: '#666' }}>5 credits one-time</p>
+                </div>
               </div>
-              <div>
-                <p className="font-medium" style={{ color: '#000' }}>Need More Credits?</p>
-                <p className="text-xs" style={{ color: '#666' }}>5 credits one-time</p>
+              <div className="flex items-center gap-3">
+                <span className="text-xl font-bold" style={{ color: '#000' }}>$50</span>
+                <button
+                  onClick={handleBuyCredits}
+                  disabled={loading !== null}
+                  className="px-4 py-2 rounded-lg font-medium text-sm disabled:opacity-50"
+                  style={{ background: '#3b82f6', color: 'white' }}
+                >
+                  {loading === 'addon' ? '...' : 'Buy'}
+                </button>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="text-xl font-bold" style={{ color: '#000' }}>$50</span>
-              <button
-                onClick={handleBuyCredits}
-                disabled={loading !== null}
-                className="px-4 py-2 rounded-lg font-medium text-sm disabled:opacity-50"
-                style={{ background: '#3b82f6', color: 'white' }}
-              >
-                {loading === 'addon' ? '...' : 'Buy'}
-              </button>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs" style={{ color: '#666' }}>
+              <span>50 coding</span>
+              <span>25 system design</span>
+              <span>5 company preps</span>
+              <span>6.25 hrs interview</span>
             </div>
           </div>
 
