@@ -10,6 +10,7 @@ import PlatformStatus from './components/PlatformStatus';
 import OAuthLogin from './components/auth/OAuthLogin';
 import PricingPlans from './components/billing/PricingPlans';
 import CreditBalance from './components/billing/CreditBalance';
+import DownloadPage from './components/billing/DownloadPage';
 import OnboardingModal, { hasCompletedOnboarding, markOnboardingComplete } from './components/onboarding/OnboardingModal';
 import { useAuth } from './contexts/AuthContext';
 import AdminPanel from './components/AdminPanel';
@@ -321,6 +322,7 @@ export default function App() {
 
   // URL-based routing for webapp
   const isLoginPage = !isElectron && window.location.pathname === '/login';
+  const isDownloadPage = !isElectron && window.location.pathname === '/download';
 
   // Electron-specific state
   const [showSettings, setShowSettings] = useState(false);
@@ -1389,6 +1391,11 @@ EDGE CASES & RESILIENCE:
   // If authenticated but somehow on /login, redirect to main app
   if (authRequired && isAuthenticated && window.location.pathname === '/login') {
     window.history.replaceState({}, '', '/');
+  }
+
+  // Show download page if authenticated and on /download path
+  if (isDownloadPage && isAuthenticated) {
+    return <DownloadPage />;
   }
 
   // If this is the dedicated Interview Prep window, render only that

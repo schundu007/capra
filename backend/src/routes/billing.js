@@ -124,6 +124,14 @@ router.post('/checkout', jwtAuth, async (req, res) => {
       }
     }
 
+    // Determine purchase type for metadata
+    let purchaseType = 'subscription';
+    if (priceId === STRIPE_PRICES.ADDON) {
+      purchaseType = 'addon';
+    } else if (priceId === STRIPE_PRICES.DESKTOP_LIFETIME) {
+      purchaseType = 'desktop_lifetime';
+    }
+
     // Create checkout session
     const sessionConfig = {
       customer: customerId,
@@ -140,7 +148,7 @@ router.post('/checkout', jwtAuth, async (req, res) => {
       metadata: {
         user_id: userId.toString(),
         price_id: priceId,
-        type: isOneTime ? 'addon' : 'subscription',
+        type: purchaseType,
       },
     };
 
@@ -219,6 +227,63 @@ router.get('/subscription', jwtAuth, async (req, res) => {
   } catch (error) {
     logger.error({ error: error.message }, 'Failed to get subscription');
     res.status(500).json({ error: 'Failed to get subscription' });
+  }
+});
+
+/**
+ * Check desktop app download access
+ * GET /api/billing/download-access
+ */
+router.get('/download-access', jwtAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Check if user has purchased desktop_lifetime
+    const result = await query(
+      `SELECT created_at FROM ascend_credit_transactions
+       WHERE user_id = $1 AND type = 'desktop_lifetime'
+       ORDER BY created_at DESC LIMIT 1`,
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.json({ hasAccess: false });
+    }
+
+    // Get download links from environment or use defaults
+    const version = process.env.DESKTOP_VERSION || '1.0.0';
+    const baseUrl = process.env.DESKTOP_DOWNLOAD_URL ||
+      'https://github.com/schundu007/capra/releases/download';
+
+    res.json({
+      hasAccess: true,
+      purchaseDate: result.rows[0].created_at,
+      version,
+      downloads: {
+        mac: {
+          arm64: {
+            url: `${baseUrl}/v${version}/Ascend-${version}-arm64.dmg`,
+            label: 'Mac (Apple Silicon)',
+            size: '~120 MB'
+          },
+          x64: {
+            url: `${baseUrl}/v${version}/Ascend-${version}-x64.dmg`,
+            label: 'Mac (Intel)',
+            size: '~125 MB'
+          }
+        },
+        windows: {
+          x64: {
+            url: `${baseUrl}/v${version}/Ascend-${version}-Setup.exe`,
+            label: 'Windows (64-bit)',
+            size: '~100 MB'
+          }
+        }
+      }
+    });
+  } catch (error) {
+    logger.error({ error: error.message }, 'Failed to check download access');
+    res.status(500).json({ error: 'Failed to check download access' });
   }
 });
 
@@ -354,7 +419,7 @@ async function handleCheckoutComplete(session) {
   logger.info({ userId, priceId, type }, 'Processing checkout completion');
 
   if (type === 'addon') {
-    // One-time purchase - add credits immediately
+    // Credit add-on purchase
     await addCredits(
       userId,
       CREDITS_PER_PLAN.addon,
@@ -362,6 +427,15 @@ async function handleCheckoutComplete(session) {
       'Credit add-on purchase',
       session.id
     );
+  } else if (type === 'desktop_lifetime') {
+    // Desktop lifetime purchase - record for download access
+    await query(
+      `INSERT INTO ascend_credit_transactions
+       (user_id, amount, type, description, reference_id)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [userId, 0, 'desktop_lifetime', 'Desktop app lifetime purchase', session.id]
+    );
+    logger.info({ userId, sessionId: session.id }, 'Desktop lifetime purchase recorded');
   }
   // Subscription credits are added via invoice.paid
 }

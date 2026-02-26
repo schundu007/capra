@@ -70,7 +70,7 @@ export default function PricingPlans({ isOpen, onClose }) {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           priceId,
-          successUrl: `${window.location.origin}?checkout=success`,
+          successUrl: `${window.location.origin}?checkout=success&plan=${planId}`,
           cancelUrl: `${window.location.origin}?checkout=canceled`,
         }),
       });
@@ -99,7 +99,7 @@ export default function PricingPlans({ isOpen, onClose }) {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           priceId: prices.addon.priceId,
-          successUrl: `${window.location.origin}?checkout=success`,
+          successUrl: `${window.location.origin}?checkout=success&plan=addon`,
           cancelUrl: `${window.location.origin}?checkout=canceled`,
         }),
       });

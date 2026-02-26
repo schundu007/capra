@@ -122,7 +122,7 @@ export function AuthProvider({ children }) {
                   },
                   body: JSON.stringify({
                     priceId,
-                    successUrl: `${window.location.origin}?checkout=success`,
+                    successUrl: `${window.location.origin}?checkout=success&plan=${pendingPlan}`,
                     cancelUrl: `${window.location.origin}?checkout=canceled`,
                   }),
                 });
@@ -148,6 +148,40 @@ export function AuthProvider({ children }) {
 
           // Fetch user data
           await fetchUserData(hashAuth.accessToken);
+
+          setLoading(false);
+          return;
+        }
+
+        // Check for checkout success redirect
+        const urlParams = new URLSearchParams(window.location.search);
+        const checkoutStatus = urlParams.get('checkout');
+        const planType = urlParams.get('plan');
+
+        if (checkoutStatus === 'success') {
+          // Clear the URL params
+          window.history.replaceState(null, '', window.location.pathname);
+
+          // Get stored auth to refresh user data
+          const storedAuth = getStoredAuth();
+          if (storedAuth?.accessToken) {
+            setUser(storedAuth.user);
+            setAccessToken(storedAuth.accessToken);
+            setRefreshToken(storedAuth.refreshToken);
+
+            // Refresh user data after purchase
+            await fetchUserData(storedAuth.accessToken);
+
+            // Redirect to download page for desktop_lifetime purchases
+            if (planType === 'desktop_lifetime') {
+              setLoading(false);
+              window.location.href = '/download';
+              return;
+            }
+
+            // For other plans, show success (could add a toast notification here)
+            console.log('Payment successful for plan:', planType);
+          }
 
           setLoading(false);
           return;
