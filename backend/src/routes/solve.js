@@ -3,6 +3,8 @@ import * as claude from '../services/claude.js';
 import * as openai from '../services/openai.js';
 import { validate } from '../middleware/validators.js';
 import { AppError, ErrorCode } from '../middleware/errorHandler.js';
+import * as usageService from '../services/usageService.js';
+import { verifyJWT } from '../middleware/jwtAuth.js';
 
 const router = Router();
 
@@ -32,6 +34,40 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
     const { problem, provider = 'claude', language = 'auto', detailLevel = 'detailed', model, ascendMode = 'coding', designDetailLevel = 'basic', autoSwitch = false } = req.body;
 
     console.log('[Solve Stream] EXTRACTED VALUES - ascendMode:', ascendMode, 'designDetailLevel:', designDetailLevel, 'provider:', provider, 'autoSwitch:', autoSwitch);
+
+    // Check for webapp user (JWT auth) and verify usage allowance
+    let webappUserId = null;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.substring(7);
+        const decoded = await verifyJWT(token);
+        if (decoded && decoded.id) {
+          webappUserId = decoded.id;
+          console.log('[Solve Stream] Webapp user detected:', webappUserId);
+
+          // Check usage allowance based on mode
+          let canUse;
+          if (ascendMode === 'system_design') {
+            canUse = await usageService.canUseSystemDesign(webappUserId);
+          } else {
+            canUse = await usageService.canUseCoding(webappUserId);
+          }
+
+          if (!canUse.allowed) {
+            console.log('[Solve Stream] User out of credits:', canUse.reason);
+            res.setHeader('Content-Type', 'text/event-stream');
+            res.write(`data: ${JSON.stringify({ error: canUse.reason, needCredits: true })}\n\n`);
+            res.end();
+            return;
+          }
+          console.log('[Solve Stream] Usage check passed, remaining:', canUse.remaining);
+        }
+      } catch (jwtError) {
+        // JWT verification failed - might be Electron user, continue
+        console.log('[Solve Stream] JWT verification skipped (likely Electron):', jwtError.message);
+      }
+    }
 
     // Set SSE headers
     res.setHeader('Content-Type', 'text/event-stream');
@@ -144,6 +180,22 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
         if (result.code && typeof result.code !== 'string') {
           console.warn('[Solve Stream] result.code is not a string, converting');
           result.code = JSON.stringify(result.code);
+        }
+      }
+
+      // Deduct usage for webapp users after successful completion
+      if (webappUserId) {
+        try {
+          if (ascendMode === 'system_design') {
+            await usageService.useSystemDesign(webappUserId);
+            console.log('[Solve Stream] Deducted system design usage for user:', webappUserId);
+          } else {
+            await usageService.useCoding(webappUserId);
+            console.log('[Solve Stream] Deducted coding usage for user:', webappUserId);
+          }
+        } catch (usageError) {
+          console.error('[Solve Stream] Failed to deduct usage:', usageError.message);
+          // Don't fail the request, just log the error
         }
       }
 

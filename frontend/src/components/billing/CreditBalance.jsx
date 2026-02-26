@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext.jsx';
  * Credit Balance - Slack style
  */
 export default function CreditBalance({ onUpgrade, compact = false }) {
-  const { credits, subscription, isAuthenticated, isWebApp } = useAuth();
+  const { credits, subscription, usage, isAuthenticated, isWebApp } = useAuth();
 
   // Don't show for Electron users or if not authenticated
   if (!isWebApp || !isAuthenticated) {
@@ -68,7 +68,37 @@ export default function CreditBalance({ onUpgrade, compact = false }) {
         <div className="text-caption">Available</div>
       </div>
 
-      {balance === 0 && (
+      {/* Usage breakdown */}
+      {usage && (
+        <div className="mb-3 space-y-2">
+          <div className="flex justify-between items-center text-sm">
+            <span style={{ color: '#666' }}>Coding</span>
+            <span style={{ color: usage.coding?.remaining > 0 ? '#10b981' : '#ef4444', fontWeight: 600 }}>
+              {usage.coding?.remaining ?? 0} left
+            </span>
+          </div>
+          <div className="flex justify-between items-center text-sm">
+            <span style={{ color: '#666' }}>System Design</span>
+            <span style={{ color: usage.systemDesign?.remaining > 0 ? '#10b981' : '#ef4444', fontWeight: 600 }}>
+              {usage.systemDesign?.remaining ?? 0} left
+            </span>
+          </div>
+          <div className="flex justify-between items-center text-sm">
+            <span style={{ color: '#666' }}>Company Prep</span>
+            <span style={{ color: usage.companyPrep?.remaining > 0 ? '#10b981' : '#ef4444', fontWeight: 600 }}>
+              {usage.companyPrep?.remaining ?? 0} left
+            </span>
+          </div>
+          <div className="flex justify-between items-center text-sm">
+            <span style={{ color: '#666' }}>Interview</span>
+            <span style={{ color: usage.interview?.remaining > 0 ? '#10b981' : '#ef4444', fontWeight: 600 }}>
+              {Math.round((usage.interview?.remaining ?? 0) / 60 * 10) / 10} hrs left
+            </span>
+          </div>
+        </div>
+      )}
+
+      {balance === 0 && !usage && (
         <div
           className="p-3 rounded-lg mb-3 flex items-center gap-2"
           style={{ background: 'rgba(224, 30, 90, 0.1)' }}

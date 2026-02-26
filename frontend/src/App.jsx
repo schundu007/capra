@@ -271,11 +271,16 @@ async function solveWithStream(problem, provider, language, detailLevel, model, 
             }
           }
           if (data.error) {
-            throw new Error(data.error);
+            const error = new Error(data.error);
+            if (data.needCredits) {
+              error.needCredits = true;
+            }
+            throw error;
           }
         } catch (e) {
           if (e.message !== 'Unexpected end of JSON input') {
             console.error('SSE parse error:', e);
+            if (e.needCredits) throw e;
           }
         }
       }
@@ -1023,8 +1028,15 @@ EDGE CASES & RESILIENCE:
       if (err.name === 'AbortError') {
         return;
       }
-      setError(err.message);
-      setErrorType('solve');
+      // Handle needCredits error - show pricing modal
+      if (err.needCredits) {
+        setShowPricingPlans(true);
+        setError('You need more credits to continue. Please purchase a plan or add-on.');
+        setErrorType('credits');
+      } else {
+        setError(err.message);
+        setErrorType('solve');
+      }
     } finally {
       setIsLoading(false);
       setLoadingType(null);

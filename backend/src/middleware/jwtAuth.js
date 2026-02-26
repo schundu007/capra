@@ -144,4 +144,29 @@ export async function optionalJwtAuth(req, res, next) {
   next();
 }
 
+/**
+ * Verify JWT token and return decoded payload
+ * Returns user object with id, email, role or throws error
+ */
+export async function verifyJWT(token) {
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET_KEY not configured');
+  }
+
+  const payload = jwt.verify(token, JWT_SECRET, {
+    algorithms: [JWT_ALGORITHM],
+  });
+
+  if (payload.type !== 'access' || !payload.sub) {
+    throw new Error('Invalid token payload');
+  }
+
+  const userId = parseInt(payload.sub, 10);
+  return {
+    id: userId,
+    email: payload.email,
+    role: payload.role || 'user',
+  };
+}
+
 export default jwtAuth;

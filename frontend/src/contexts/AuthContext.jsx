@@ -73,6 +73,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [credits, setCredits] = useState(null);
   const [subscription, setSubscription] = useState(null);
+  const [usage, setUsage] = useState(null);
 
   // Check if webapp auth is enabled (not in Electron)
   const isWebApp = !window.electronAPI?.isElectron;
@@ -152,6 +153,13 @@ export function AuthProvider({ children }) {
         const subData = await subRes.json();
         setSubscription(subData.subscription);
       }
+
+      // Fetch usage
+      const usageRes = await fetch(`${API_URL}/api/usage`, { headers });
+      if (usageRes.ok) {
+        const usageData = await usageRes.json();
+        setUsage(usageData.usage);
+      }
     } catch (error) {
       console.error('Failed to fetch user data:', error);
       if (error.message === 'Token expired') {
@@ -202,6 +210,7 @@ export function AuthProvider({ children }) {
     setRefreshToken(null);
     setCredits(null);
     setSubscription(null);
+    setUsage(null);
   }, []);
 
   // Check if user can create company
@@ -227,6 +236,7 @@ export function AuthProvider({ children }) {
     loading,
     credits,
     subscription,
+    usage,
     isWebApp,
     isAuthenticated: !!user,
     signIn,
