@@ -21,11 +21,62 @@ export default function OAuthLogin() {
     { lang: 'sql', code: 'SELECT d.name, COUNT(e.id)\nFROM departments d\nLEFT JOIN employees e\n  ON d.id = e.dept_id\nGROUP BY d.id\nHAVING COUNT(e.id) > 5;' },
   ];
 
-  // System Design components
+  // System Design architectures with positions for diagram
   const systemDesigns = [
-    { title: 'URL Shortener', components: ['Load Balancer', 'API Gateway', 'Redis Cache', 'PostgreSQL', 'CDN'] },
-    { title: 'Chat System', components: ['WebSocket Server', 'Message Queue', 'MongoDB', 'Redis PubSub', 'S3 Storage'] },
-    { title: 'E-commerce', components: ['Microservices', 'Kafka', 'Elasticsearch', 'Payment Gateway', 'CDN'] },
+    {
+      title: 'URL Shortener',
+      subtitle: 'High-throughput link shortening service',
+      nodes: [
+        { id: 'users', label: 'Users', icon: '👥', x: 5, y: 40, color: '#8b5cf6' },
+        { id: 'lb', label: 'Load Balancer', icon: '⚖️', x: 25, y: 40, color: '#f59e0b' },
+        { id: 'api', label: 'API Servers', icon: '🖥️', x: 50, y: 25, color: '#10b981' },
+        { id: 'cache', label: 'Redis Cache', icon: '⚡', x: 50, y: 55, color: '#ef4444' },
+        { id: 'db', label: 'PostgreSQL', icon: '🗄️', x: 75, y: 40, color: '#3b82f6' },
+      ],
+      connections: [
+        { from: 'users', to: 'lb' },
+        { from: 'lb', to: 'api' },
+        { from: 'lb', to: 'cache' },
+        { from: 'api', to: 'db' },
+        { from: 'cache', to: 'db' },
+      ]
+    },
+    {
+      title: 'Real-time Chat',
+      subtitle: 'Scalable messaging architecture',
+      nodes: [
+        { id: 'clients', label: 'Clients', icon: '📱', x: 5, y: 40, color: '#8b5cf6' },
+        { id: 'ws', label: 'WebSocket', icon: '🔌', x: 28, y: 40, color: '#10b981' },
+        { id: 'pubsub', label: 'Redis PubSub', icon: '📡', x: 52, y: 25, color: '#ef4444' },
+        { id: 'queue', label: 'Message Queue', icon: '📬', x: 52, y: 55, color: '#f59e0b' },
+        { id: 'mongo', label: 'MongoDB', icon: '🍃', x: 78, y: 40, color: '#22c55e' },
+      ],
+      connections: [
+        { from: 'clients', to: 'ws' },
+        { from: 'ws', to: 'pubsub' },
+        { from: 'ws', to: 'queue' },
+        { from: 'pubsub', to: 'mongo' },
+        { from: 'queue', to: 'mongo' },
+      ]
+    },
+    {
+      title: 'E-commerce Platform',
+      subtitle: 'Microservices architecture',
+      nodes: [
+        { id: 'web', label: 'Web/Mobile', icon: '🌐', x: 5, y: 40, color: '#8b5cf6' },
+        { id: 'gateway', label: 'API Gateway', icon: '🚪', x: 28, y: 40, color: '#f59e0b' },
+        { id: 'orders', label: 'Order Service', icon: '📦', x: 52, y: 20, color: '#10b981' },
+        { id: 'payments', label: 'Payment', icon: '💳', x: 52, y: 55, color: '#3b82f6' },
+        { id: 'kafka', label: 'Kafka', icon: '🔄', x: 78, y: 40, color: '#ef4444' },
+      ],
+      connections: [
+        { from: 'web', to: 'gateway' },
+        { from: 'gateway', to: 'orders' },
+        { from: 'gateway', to: 'payments' },
+        { from: 'orders', to: 'kafka' },
+        { from: 'payments', to: 'kafka' },
+      ]
+    },
   ];
 
   // Interview Q&A
@@ -279,16 +330,114 @@ export default function OAuthLogin() {
                   )}
 
                   {activeDemo === 1 && (
-                    <div className="p-6">
-                      <div className="text-blue-400 font-semibold text-lg mb-4">{systemDesigns[designIndex].title}</div>
-                      <div className="space-y-2">
-                        {systemDesigns[designIndex].components.map((comp, i) => (
-                          <div key={i} className="flex items-center gap-3 p-3 rounded-lg" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', animation: `slideIn 0.5s ease-out ${i * 0.1}s both` }}>
-                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(59, 130, 246, 0.2)' }}><span className="text-blue-400 text-xs font-bold">{i + 1}</span></div>
-                            <span className="text-white font-medium">{comp}</span>
-                            <div className="ml-auto"><div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></div></div>
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <div className="text-blue-400 font-semibold text-lg">{systemDesigns[designIndex].title}</div>
+                          <div className="text-gray-500 text-xs">{systemDesigns[designIndex].subtitle}</div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></div>
+                          <span className="text-xs text-blue-400">Live</span>
+                        </div>
+                      </div>
+
+                      {/* Architecture Diagram */}
+                      <div className="relative h-48 rounded-lg overflow-hidden" style={{ background: 'rgba(0, 0, 0, 0.3)' }}>
+                        {/* Grid Background */}
+                        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(rgba(59, 130, 246, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(59, 130, 246, 0.3) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+
+                        {/* SVG for connections */}
+                        <svg className="absolute inset-0 w-full h-full">
+                          <defs>
+                            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                              <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
+                            </marker>
+                            <linearGradient id="flowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0" />
+                              <stop offset="50%" stopColor="#3b82f6" stopOpacity="1" />
+                              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+                            </linearGradient>
+                          </defs>
+
+                          {/* Connection Lines with animated flow */}
+                          {systemDesigns[designIndex].connections.map((conn, i) => {
+                            const fromNode = systemDesigns[designIndex].nodes.find(n => n.id === conn.from);
+                            const toNode = systemDesigns[designIndex].nodes.find(n => n.id === conn.to);
+                            if (!fromNode || !toNode) return null;
+
+                            const x1 = fromNode.x + 8;
+                            const y1 = fromNode.y;
+                            const x2 = toNode.x - 2;
+                            const y2 = toNode.y;
+
+                            return (
+                              <g key={i}>
+                                {/* Base line */}
+                                <line
+                                  x1={`${x1}%`} y1={`${y1}%`}
+                                  x2={`${x2}%`} y2={`${y2}%`}
+                                  stroke="rgba(59, 130, 246, 0.3)"
+                                  strokeWidth="2"
+                                  markerEnd="url(#arrowhead)"
+                                />
+                                {/* Animated data packet */}
+                                <circle r="4" fill="#3b82f6" style={{ filter: 'drop-shadow(0 0 4px #3b82f6)' }}>
+                                  <animateMotion
+                                    dur={`${1.5 + i * 0.3}s`}
+                                    repeatCount="indefinite"
+                                    path={`M${x1 * 3.5},${y1 * 1.92} L${x2 * 3.5},${y2 * 1.92}`}
+                                  />
+                                </circle>
+                              </g>
+                            );
+                          })}
+                        </svg>
+
+                        {/* Component Nodes */}
+                        {systemDesigns[designIndex].nodes.map((node, i) => (
+                          <div
+                            key={node.id}
+                            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-500"
+                            style={{
+                              left: `${node.x}%`,
+                              top: `${node.y}%`,
+                              animation: `nodeAppear 0.5s ease-out ${i * 0.1}s both`
+                            }}
+                          >
+                            <div
+                              className="flex flex-col items-center gap-1 p-2 rounded-lg backdrop-blur-sm"
+                              style={{
+                                background: `${node.color}15`,
+                                border: `1px solid ${node.color}40`,
+                                boxShadow: `0 0 20px ${node.color}20`
+                              }}
+                            >
+                              <span className="text-lg">{node.icon}</span>
+                              <span className="text-xs font-medium text-white whitespace-nowrap">{node.label}</span>
+                            </div>
                           </div>
                         ))}
+                      </div>
+
+                      {/* Metrics Bar */}
+                      <div className="mt-3 grid grid-cols-4 gap-2 text-center">
+                        <div className="p-2 rounded-lg" style={{ background: 'rgba(59, 130, 246, 0.1)' }}>
+                          <div className="text-xs text-gray-500">Latency</div>
+                          <div className="text-blue-400 font-semibold text-sm">&lt;50ms</div>
+                        </div>
+                        <div className="p-2 rounded-lg" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+                          <div className="text-xs text-gray-500">Throughput</div>
+                          <div className="text-green-400 font-semibold text-sm">10K/s</div>
+                        </div>
+                        <div className="p-2 rounded-lg" style={{ background: 'rgba(139, 92, 246, 0.1)' }}>
+                          <div className="text-xs text-gray-500">Availability</div>
+                          <div className="text-purple-400 font-semibold text-sm">99.99%</div>
+                        </div>
+                        <div className="p-2 rounded-lg" style={{ background: 'rgba(245, 158, 11, 0.1)' }}>
+                          <div className="text-xs text-gray-500">Scale</div>
+                          <div className="text-yellow-400 font-semibold text-sm">Auto</div>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -676,6 +825,16 @@ export default function OAuthLogin() {
         @keyframes slideIn {
           from { opacity: 0; transform: translateX(-20px); }
           to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes nodeAppear {
+          from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+          to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        @keyframes dataFlow {
+          0% { offset-distance: 0%; opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { offset-distance: 100%; opacity: 0; }
         }
         @keyframes marquee {
           0% { transform: translateX(0); }
