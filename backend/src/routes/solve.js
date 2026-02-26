@@ -5,6 +5,7 @@ import { validate } from '../middleware/validators.js';
 import { AppError, ErrorCode } from '../middleware/errorHandler.js';
 import * as usageService from '../services/usageService.js';
 import { verifyJWT } from '../middleware/jwtAuth.js';
+import { query } from '../config/database.js';
 
 const router = Router();
 
@@ -35,16 +36,45 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
 
     console.log('[Solve Stream] EXTRACTED VALUES - ascendMode:', ascendMode, 'designDetailLevel:', designDetailLevel, 'provider:', provider, 'autoSwitch:', autoSwitch);
 
-    // Check for webapp user (JWT auth) and verify usage allowance
+    // Check for webapp user (JWT auth) and verify subscription + usage allowance
     let webappUserId = null;
     const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
+    const isElectron = req.headers['x-electron-app'] === 'true';
+
+    if (authHeader && authHeader.startsWith('Bearer ') && !isElectron) {
       try {
         const token = authHeader.substring(7);
         const decoded = await verifyJWT(token);
         if (decoded && decoded.id) {
           webappUserId = decoded.id;
           console.log('[Solve Stream] Webapp user detected:', webappUserId);
+
+          // Check subscription status - require paid plan
+          const subResult = await query(
+            'SELECT plan_type, status FROM ascend_subscriptions WHERE user_id = $1',
+            [webappUserId]
+          );
+          const subscription = subResult.rows[0];
+          const isPaidPlan = subscription?.plan_type === 'monthly' ||
+                             subscription?.plan_type === 'quarterly_pro';
+          const isActive = subscription?.status === 'active';
+
+          if (!isPaidPlan || !isActive) {
+            console.log('[Solve Stream] Subscription required - user blocked:', {
+              planType: subscription?.plan_type,
+              status: subscription?.status
+            });
+            res.setHeader('Content-Type', 'text/event-stream');
+            res.write(`data: ${JSON.stringify({
+              error: 'Active subscription required to solve problems',
+              subscriptionRequired: true,
+              planType: subscription?.plan_type || 'free',
+              upgradeUrl: '/pricing'
+            })}\n\n`);
+            res.end();
+            return;
+          }
+          console.log('[Solve Stream] Subscription verified:', subscription.plan_type);
 
           // Check usage allowance based on mode
           let canUse;

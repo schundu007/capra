@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { query } from '../config/database.js';
 import { jwtAuth } from '../middleware/jwtAuth.js';
+import { subscriptionRequired } from '../middleware/subscriptionRequired.js';
 import { canCreateCompany, useCredit } from '../services/creditService.js';
 import { logger } from '../middleware/requestLogger.js';
 
@@ -57,8 +58,9 @@ router.get('/:id', jwtAuth, async (req, res) => {
 /**
  * Create new company prep
  * POST /api/company-preps
+ * Requires active subscription
  */
-router.post('/', jwtAuth, async (req, res) => {
+router.post('/', jwtAuth, subscriptionRequired, async (req, res) => {
   try {
     const userId = req.user.id;
     const { company_name, inputs = {}, generated = {}, custom_sections = [] } = req.body;

@@ -2,8 +2,80 @@ import { Router } from 'express';
 import * as ascendPrepService from '../services/ascendPrep.js';
 import { generatePDF, generateDOCX } from '../services/exportPrep.js';
 import * as pythonDiagrams from '../services/pythonDiagrams.js';
+import { verifyJWT } from '../middleware/jwtAuth.js';
+import { query } from '../config/database.js';
 
 const router = Router();
+
+/**
+ * Check subscription for webapp users
+ * Returns true if allowed (Electron or paid subscription)
+ */
+async function checkSubscription(req, res) {
+  const isElectron = req.headers['x-electron-app'] === 'true';
+  if (isElectron) return true;
+
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.write(`data: ${JSON.stringify({
+      error: 'Authentication required',
+      authRequired: true
+    })}\n\n`);
+    res.end();
+    return false;
+  }
+
+  try {
+    const token = authHeader.substring(7);
+    const decoded = await verifyJWT(token);
+
+    if (!decoded?.id) {
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.write(`data: ${JSON.stringify({
+        error: 'Invalid authentication',
+        authRequired: true
+      })}\n\n`);
+      res.end();
+      return false;
+    }
+
+    // Check subscription
+    const subResult = await query(
+      'SELECT plan_type, status FROM ascend_subscriptions WHERE user_id = $1',
+      [decoded.id]
+    );
+    const subscription = subResult.rows[0];
+    const isPaidPlan = subscription?.plan_type === 'monthly' ||
+                       subscription?.plan_type === 'quarterly_pro';
+    const isActive = subscription?.status === 'active';
+
+    if (!isPaidPlan || !isActive) {
+      console.log('[AscendPrep] Subscription required - user blocked:', decoded.id);
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.write(`data: ${JSON.stringify({
+        error: 'Active subscription required to use interview prep',
+        subscriptionRequired: true,
+        planType: subscription?.plan_type || 'free',
+        upgradeUrl: '/pricing'
+      })}\n\n`);
+      res.end();
+      return false;
+    }
+
+    req.userId = decoded.id;
+    return true;
+  } catch (err) {
+    console.error('[AscendPrep] Auth check failed:', err.message);
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.write(`data: ${JSON.stringify({
+      error: 'Authentication failed',
+      authRequired: true
+    })}\n\n`);
+    res.end();
+    return false;
+  }
+}
 
 /**
  * Generate diagrams for system design questions
@@ -52,6 +124,9 @@ async function generateDiagramsForQuestions(result) {
 
 // Stream all sections
 router.post('/stream', async (req, res) => {
+  // Check subscription first
+  if (!await checkSubscription(req, res)) return;
+
   const { jobDescription, resume, coverLetter, prepMaterials, documentation, sections, provider = 'claude', model } = req.body;
 
   if (!jobDescription || !resume) {
@@ -89,6 +164,9 @@ router.post('/stream', async (req, res) => {
 
 // Regenerate a single section
 router.post('/section', async (req, res) => {
+  // Check subscription first
+  if (!await checkSubscription(req, res)) return;
+
   const { jobDescription, resume, coverLetter, prepMaterials, documentation, section, customDocumentContent, customDocumentName, provider = 'claude', model } = req.body;
 
   if (!jobDescription || !resume) {

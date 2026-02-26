@@ -171,37 +171,39 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
             </div>
           </div>
 
-          {/* Divider */}
-          <div style={{ borderTop: '1px solid #e5e5e5' }} />
+          {/* API Keys Section - Desktop only (webapp users don't manage keys) */}
+          {window.electronAPI?.isElectron && (
+            <>
+              <div style={{ borderTop: '1px solid #e5e5e5' }} />
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#666666' }}>API Keys</p>
 
-          {/* API Keys Section */}
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#666666' }}>API Keys</p>
+                <ApiKeyInput
+                  provider="anthropic"
+                  currentKey={apiKeys.anthropic}
+                  hasKey={apiKeys.hasAnthropic}
+                  onSave={(key) => handleSaveKey('anthropic', key)}
+                  onDelete={() => handleDeleteKey('anthropic')}
+                />
 
-            <ApiKeyInput
-              provider="anthropic"
-              currentKey={apiKeys.anthropic}
-              hasKey={apiKeys.hasAnthropic}
-              onSave={(key) => handleSaveKey('anthropic', key)}
-              onDelete={() => handleDeleteKey('anthropic')}
-            />
+                <ApiKeyInput
+                  provider="openai"
+                  currentKey={apiKeys.openai}
+                  hasKey={apiKeys.hasOpenai}
+                  onSave={(key) => handleSaveKey('openai', key)}
+                  onDelete={() => handleDeleteKey('openai')}
+                />
 
-            <ApiKeyInput
-              provider="openai"
-              currentKey={apiKeys.openai}
-              hasKey={apiKeys.hasOpenai}
-              onSave={(key) => handleSaveKey('openai', key)}
-              onDelete={() => handleDeleteKey('openai')}
-            />
-
-            <ApiKeyInput
-              provider="eraser"
-              currentKey={apiKeys.eraser}
-              hasKey={apiKeys.hasEraser}
-              onSave={(key) => handleSaveKey('eraser', key)}
-              onDelete={() => handleDeleteKey('eraser')}
-            />
-          </div>
+                <ApiKeyInput
+                  provider="eraser"
+                  currentKey={apiKeys.eraser}
+                  hasKey={apiKeys.hasEraser}
+                  onSave={(key) => handleSaveKey('eraser', key)}
+                  onDelete={() => handleDeleteKey('eraser')}
+                />
+              </div>
+            </>
+          )}
 
           {/* Platforms Section - Desktop only */}
           {window.electronAPI?.isElectron && onOpenPlatforms && (
