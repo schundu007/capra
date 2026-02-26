@@ -61,7 +61,7 @@ export default function OAuthLogin() {
   const companies = ['Google', 'Meta', 'Amazon', 'Apple', 'Netflix', 'Microsoft', 'Stripe', 'Uber', 'Airbnb', 'LinkedIn'];
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ background: '#030712' }}>
+    <div className="min-h-screen relative overflow-hidden scroll-smooth" style={{ background: '#030712' }}>
       {/* Animated Gradient Orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
@@ -127,8 +127,18 @@ export default function OAuthLogin() {
             <span className="text-xl font-bold text-white">Ascend</span>
           </div>
           <div className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-gray-400 hover:text-white transition-colors text-sm">Features</a>
-            <a href="#pricing" className="text-gray-400 hover:text-white transition-colors text-sm">Pricing</a>
+            <button
+              onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+              className="text-gray-400 hover:text-white transition-colors text-sm"
+            >
+              Features
+            </button>
+            <button
+              onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
+              className="text-gray-400 hover:text-white transition-colors text-sm"
+            >
+              Pricing
+            </button>
             <button
               onClick={() => handleOAuthLogin('google')}
               className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
@@ -344,38 +354,47 @@ export default function OAuthLogin() {
           </div>
         </div>
 
-        {/* Features Strip */}
-        <div
-          className="py-6 overflow-hidden"
-          style={{
-            background: 'rgba(255, 255, 255, 0.02)',
-            borderTop: '1px solid rgba(255, 255, 255, 0.05)',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-          }}
-        >
-          <div className="flex animate-marquee whitespace-nowrap">
-            {[...features, ...features].map((feature, i) => (
-              <div
-                key={i}
-                className="inline-flex items-center gap-3 mx-8 px-5 py-3 rounded-full"
-                style={{
-                  background: activeFeature === (i % 4) ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
-                  border: `1px solid ${activeFeature === (i % 4) ? 'rgba(16, 185, 129, 0.3)' : 'rgba(255, 255, 255, 0.05)'}`,
-                }}
-              >
-                <span className="text-xl">{feature.emoji}</span>
-                <span className="text-white font-medium">{feature.title}</span>
-                <span className="text-gray-500">•</span>
-                <span className="text-green-400 text-sm">{feature.stat}</span>
-              </div>
-            ))}
+        {/* Features Section */}
+        <div id="features" className="py-20 px-6 lg:px-12">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                Everything You Need to
+                <span className="bg-clip-text text-transparent ml-2" style={{ backgroundImage: 'linear-gradient(135deg, #10b981, #34d399)' }}>
+                  Ace Your Interview
+                </span>
+              </h2>
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+                From coding challenges to behavioral questions, we've got you covered with AI-powered assistance.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {features.map((feature, i) => (
+                <div
+                  key={i}
+                  className="p-6 rounded-2xl transition-all hover:scale-105"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                  }}
+                >
+                  <div className="text-4xl mb-4">{feature.emoji}</div>
+                  <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
+                  <p className="text-gray-400 text-sm mb-4">{feature.desc}</p>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+                    <span className="text-green-400 text-sm font-medium">{feature.stat}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Social Proof */}
-        <div className="py-12 px-6 lg:px-12">
-          <div className="text-center mb-8">
-            <p className="text-gray-500 text-sm mb-4">Trusted by engineers who landed offers at</p>
+        <div className="py-12 px-6 lg:px-12" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+          <div className="text-center">
+            <p className="text-gray-500 text-sm mb-6">Trusted by engineers who landed offers at</p>
             <div className="flex flex-wrap justify-center gap-x-8 gap-y-4">
               {companies.map((company, i) => (
                 <span
@@ -386,6 +405,186 @@ export default function OAuthLogin() {
                 </span>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* Pricing Section */}
+        <div id="pricing" className="py-20 px-6 lg:px-12">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                Simple, Transparent Pricing
+              </h2>
+              <p className="text-gray-400 text-lg">
+                Start free. Upgrade when you're ready to land your dream job.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Monthly */}
+              <div
+                className="relative p-8 rounded-2xl"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.03)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                }}
+              >
+                <h3 className="text-xl font-bold text-white mb-2">Monthly</h3>
+                <div className="flex items-baseline gap-1 mb-6">
+                  <span className="text-4xl font-bold text-white">$99</span>
+                  <span className="text-gray-500">/month</span>
+                </div>
+                <ul className="space-y-3 mb-8">
+                  <li className="flex items-center gap-3 text-gray-300">
+                    <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    5 credits
+                  </li>
+                  <li className="flex items-center gap-3 text-gray-300">
+                    <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    25 coding problems
+                  </li>
+                  <li className="flex items-center gap-3 text-gray-300">
+                    <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    10 system designs
+                  </li>
+                  <li className="flex items-center gap-3 text-gray-300">
+                    <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    2.5 hrs interview prep
+                  </li>
+                </ul>
+                <button
+                  onClick={() => handleOAuthLogin('google')}
+                  className="w-full py-3 rounded-xl font-semibold transition-all"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    color: '#fff',
+                  }}
+                >
+                  Get Started
+                </button>
+              </div>
+
+              {/* Quarterly - Popular */}
+              <div
+                className="relative p-8 rounded-2xl scale-105"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05))',
+                  border: '2px solid #10b981',
+                  boxShadow: '0 0 40px rgba(16, 185, 129, 0.2)',
+                }}
+              >
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold" style={{ background: '#10b981', color: '#fff' }}>
+                  MOST POPULAR
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Quarterly</h3>
+                <div className="flex items-baseline gap-1 mb-2">
+                  <span className="text-4xl font-bold text-white">$200</span>
+                  <span className="text-gray-500">/quarter</span>
+                </div>
+                <p className="text-green-400 text-sm mb-6">Save $98</p>
+                <ul className="space-y-3 mb-8">
+                  <li className="flex items-center gap-3 text-gray-300">
+                    <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    10 credits
+                  </li>
+                  <li className="flex items-center gap-3 text-gray-300">
+                    <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    50 coding problems
+                  </li>
+                  <li className="flex items-center gap-3 text-gray-300">
+                    <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    20 system designs
+                  </li>
+                  <li className="flex items-center gap-3 text-gray-300">
+                    <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    5 hrs interview prep
+                  </li>
+                </ul>
+                <button
+                  onClick={() => handleOAuthLogin('google')}
+                  className="w-full py-3 rounded-xl font-semibold transition-all"
+                  style={{
+                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                    color: '#fff',
+                  }}
+                >
+                  Get Started
+                </button>
+              </div>
+
+              {/* Add-on */}
+              <div
+                className="relative p-8 rounded-2xl"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.03)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                }}
+              >
+                <h3 className="text-xl font-bold text-white mb-2">Credit Pack</h3>
+                <div className="flex items-baseline gap-1 mb-6">
+                  <span className="text-4xl font-bold text-white">$30</span>
+                  <span className="text-gray-500">one-time</span>
+                </div>
+                <ul className="space-y-3 mb-8">
+                  <li className="flex items-center gap-3 text-gray-300">
+                    <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    3 credits
+                  </li>
+                  <li className="flex items-center gap-3 text-gray-300">
+                    <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    15 coding problems
+                  </li>
+                  <li className="flex items-center gap-3 text-gray-300">
+                    <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    6 system designs
+                  </li>
+                  <li className="flex items-center gap-3 text-gray-300">
+                    <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    1.5 hrs interview prep
+                  </li>
+                </ul>
+                <button
+                  onClick={() => handleOAuthLogin('google')}
+                  className="w-full py-3 rounded-xl font-semibold transition-all"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    color: '#fff',
+                  }}
+                >
+                  Buy Credits
+                </button>
+              </div>
+            </div>
+
+            <p className="text-center text-gray-500 text-sm mt-8">
+              1 credit = 5 coding problems + 2 system designs + 1 company prep + 30 min interview
+            </p>
           </div>
         </div>
 
