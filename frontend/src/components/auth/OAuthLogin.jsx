@@ -830,73 +830,117 @@ export default function OAuthLogin() {
 
         {/* Pricing Section */}
         <div id="pricing" className="py-20 px-6 lg:px-12">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Buy Credits or <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #10b981, #34d399)' }}>Go Unlimited</span> ✨</h2>
-              <p className="text-gray-400 text-lg">Start free. Upgrade when you're ready.</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Choose Your <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #10b981, #34d399)' }}>Success Path</span> ✨</h2>
+              <p className="text-gray-400 text-lg">Cloud credits or Desktop lifetime - pick what works for you</p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Monthly */}
-              <div className="group relative p-8 rounded-2xl transition-all duration-500 hover:scale-105 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div className="group relative p-6 rounded-2xl transition-all duration-500 hover:scale-105 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                 <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.05), transparent)' }} />
                 <div className="relative">
-                  <h3 className="text-xl font-bold text-white mb-2">Monthly</h3>
-                  <div className="flex items-baseline gap-1 mb-6"><span className="text-4xl font-bold text-white">$99</span><span className="text-gray-500">/month</span></div>
-                  <ul className="space-y-3 mb-8">
-                    {['5 credits', '25 coding problems', '10 system designs', '5 company preps', '2.5 hrs interview'].map((item, i) => (
-                      <li key={i} className="flex items-center gap-3 text-gray-300 transition-transform duration-300" style={{ transitionDelay: `${i * 50}ms` }}><svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>{item}</li>
+                  <div className="text-2xl mb-2">☁️</div>
+                  <h3 className="text-lg font-bold text-white mb-1">Monthly</h3>
+                  <p className="text-gray-500 text-xs mb-3">Cloud Interview Assistant</p>
+                  <div className="flex items-baseline gap-1 mb-4"><span className="text-3xl font-bold text-white">$99</span><span className="text-gray-500 text-sm">/month</span></div>
+                  <ul className="space-y-2 mb-6 text-sm">
+                    {['5 credits included', '25 coding problems', '10 system designs', '5 company preps', '2.5 hrs interview time'].map((item, i) => (
+                      <li key={i} className="flex items-center gap-2 text-gray-300"><svg className="w-4 h-4 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>{item}</li>
                     ))}
                   </ul>
-                  <button onClick={() => handleOAuthLogin('google')} className="w-full py-3 rounded-xl font-semibold transition-all hover:bg-white/20" style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#fff' }}>Get Started</button>
+                  <button onClick={() => handleOAuthLogin('google')} className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all hover:bg-white/20" style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#fff' }}>Get Started</button>
                 </div>
               </div>
 
-              {/* Quarterly - Popular */}
-              <div className="group relative p-8 rounded-2xl scale-105 transition-all duration-500 hover:scale-110 hover:-translate-y-2" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05))', border: '2px solid #10b981', boxShadow: '0 0 40px rgba(16, 185, 129, 0.2)', animation: 'glow 3s ease-in-out infinite' }}>
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold animate-bounce" style={{ background: '#10b981', color: '#fff' }}>MOST POPULAR</div>
-                {/* Animated border */}
-                <div className="absolute inset-0 rounded-2xl overflow-hidden">
-                  <div className="absolute inset-0 animate-spin-slow" style={{ background: 'conic-gradient(from 0deg, transparent, rgba(16, 185, 129, 0.3), transparent)', animation: 'spin 4s linear infinite' }} />
+              {/* Quarterly Pro - Most Popular */}
+              <div className="group relative p-6 rounded-2xl scale-105 transition-all duration-500 hover:scale-110 hover:-translate-y-2" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05))', border: '2px solid #10b981', boxShadow: '0 0 40px rgba(16, 185, 129, 0.2)', animation: 'glow 3s ease-in-out infinite' }}>
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold animate-bounce" style={{ background: '#10b981', color: '#fff' }}>BEST VALUE</div>
+                <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+                  <div className="absolute inset-0" style={{ background: 'conic-gradient(from 0deg, transparent, rgba(16, 185, 129, 0.3), transparent)', animation: 'spin 4s linear infinite' }} />
                 </div>
                 <div className="relative">
-                  <h3 className="text-xl font-bold text-white mb-2">Quarterly</h3>
-                  <div className="flex items-baseline gap-1 mb-2"><span className="text-4xl font-bold text-white">$200</span><span className="text-gray-500">/quarter</span></div>
-                  <p className="text-green-400 text-sm mb-6 flex items-center gap-1">
-                    <span className="inline-block animate-pulse">💰</span> Save $98 (33% off)
-                  </p>
-                  <ul className="space-y-3 mb-8">
-                    {['10 credits', '50 coding problems', '20 system designs', '10 company preps', '5 hrs interview'].map((item, i) => (
-                      <li key={i} className="flex items-center gap-3 text-gray-300"><svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>{item}</li>
+                  <div className="text-2xl mb-2">🚀</div>
+                  <h3 className="text-lg font-bold text-white mb-1">Quarterly Pro</h3>
+                  <p className="text-gray-500 text-xs mb-3">Interview + Job Discovery</p>
+                  <div className="flex items-baseline gap-1 mb-1"><span className="text-3xl font-bold text-white">$300</span><span className="text-gray-500 text-sm">/quarter</span></div>
+                  <div className="flex gap-2 mb-4">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400">$200 Interview</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400">$100 Jobs</span>
+                  </div>
+                  <ul className="space-y-2 mb-6 text-sm">
+                    {['10 credits included', '50 coding problems', '20 system designs', '10 company preps', '5 hrs interview time'].map((item, i) => (
+                      <li key={i} className="flex items-center gap-2 text-gray-300"><svg className="w-4 h-4 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>{item}</li>
                     ))}
+                    <li className="flex items-center gap-2 text-blue-300 font-medium"><svg className="w-4 h-4 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Auto Job Discovery</li>
+                    <li className="flex items-center gap-2 text-blue-300 font-medium"><svg className="w-4 h-4 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>jobs.cariara.com access</li>
                   </ul>
-                  <button onClick={() => handleOAuthLogin('google')} className="w-full py-3 rounded-xl font-semibold transition-all relative overflow-hidden group/btn" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff' }}>
-                    <span className="relative z-10">Get Started</span>
+                  <button onClick={() => handleOAuthLogin('google')} className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all relative overflow-hidden group/btn" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff' }}>
+                    <span className="relative z-10">Get Pro Access</span>
                     <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)' }} />
                   </button>
                 </div>
               </div>
 
-              {/* Credit Pack */}
-              <div className="group relative p-8 rounded-2xl transition-all duration-500 hover:scale-105 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.05), transparent)' }} />
+              {/* Desktop Lifetime */}
+              <div className="group relative p-6 rounded-2xl transition-all duration-500 hover:scale-105 hover:-translate-y-2" style={{ background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05))', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold" style={{ background: '#8b5cf6', color: '#fff' }}>LIFETIME</div>
                 <div className="relative">
-                  <h3 className="text-xl font-bold text-white mb-2">Credit Pack</h3>
-                  <div className="flex items-baseline gap-1 mb-6"><span className="text-4xl font-bold text-white">$30</span><span className="text-gray-500">one-time</span></div>
-                  <ul className="space-y-3 mb-8">
-                    {['3 credits', '15 coding problems', '6 system designs', '3 company preps', '1.5 hrs interview'].map((item, i) => (
-                      <li key={i} className="flex items-center gap-3 text-gray-300"><svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>{item}</li>
+                  <div className="text-2xl mb-2">🖥️</div>
+                  <h3 className="text-lg font-bold text-white mb-1">Desktop App</h3>
+                  <p className="text-gray-500 text-xs mb-3">Mac & Windows • Own Keys</p>
+                  <div className="flex items-baseline gap-1 mb-4"><span className="text-3xl font-bold text-white">$300</span><span className="text-gray-500 text-sm">one-time</span></div>
+                  <ul className="space-y-2 mb-6 text-sm">
+                    {['Download Mac/Windows app', 'Use your own API keys', 'Claude, OpenAI, Eraser', 'Unlimited usage forever', 'No recurring fees', 'All features included', 'Offline capable'].map((item, i) => (
+                      <li key={i} className="flex items-center gap-2 text-gray-300"><svg className="w-4 h-4 text-purple-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>{item}</li>
                     ))}
                   </ul>
-                  <button onClick={() => handleOAuthLogin('google')} className="w-full py-3 rounded-xl font-semibold transition-all hover:bg-white/20" style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#fff' }}>Buy Credits</button>
+                  <button onClick={() => handleOAuthLogin('google')} className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all" style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: '#fff' }}>
+                    Buy Lifetime Access
+                  </button>
+                  <p className="text-center text-xs text-gray-500 mt-2">Instant download after purchase</p>
+                </div>
+              </div>
+
+              {/* Credit Pack */}
+              <div className="group relative p-6 rounded-2xl transition-all duration-500 hover:scale-105 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.05), transparent)' }} />
+                <div className="relative">
+                  <div className="text-2xl mb-2">🎫</div>
+                  <h3 className="text-lg font-bold text-white mb-1">Credit Pack</h3>
+                  <p className="text-gray-500 text-xs mb-3">Top up anytime</p>
+                  <div className="flex items-baseline gap-1 mb-4"><span className="text-3xl font-bold text-white">$30</span><span className="text-gray-500 text-sm">one-time</span></div>
+                  <ul className="space-y-2 mb-6 text-sm">
+                    {['3 credits', '15 coding problems', '6 system designs', '3 company preps', '1.5 hrs interview', 'No expiration', 'Stack with subscription'].map((item, i) => (
+                      <li key={i} className="flex items-center gap-2 text-gray-300"><svg className="w-4 h-4 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>{item}</li>
+                    ))}
+                  </ul>
+                  <button onClick={() => handleOAuthLogin('google')} className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all hover:bg-white/20" style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#fff' }}>Buy Credits</button>
                 </div>
               </div>
             </div>
 
-            <div className="mt-10 text-center">
+            {/* Comparison note */}
+            <div className="mt-12 p-6 rounded-2xl" style={{ background: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">💼</span>
+                  <div>
+                    <h4 className="text-white font-bold">Auto Job Discovery & Apply</h4>
+                    <p className="text-gray-400 text-sm">Included with Quarterly Pro - Access jobs.cariara.com to discover and auto-apply to matching jobs</p>
+                  </div>
+                </div>
+                <a href="https://jobs.cariara.com" target="_blank" rel="noopener noreferrer" className="px-6 py-2 rounded-lg font-semibold text-sm transition-all" style={{ background: 'rgba(59, 130, 246, 0.2)', border: '1px solid rgba(59, 130, 246, 0.3)', color: '#3b82f6' }}>
+                  Preview Jobs Portal →
+                </a>
+              </div>
+            </div>
+
+            <div className="mt-8 text-center">
               <p className="text-gray-500 text-sm mb-4">1 credit = 5 coding + 2 system design + 1 company prep + 30 min interview</p>
-              <p className="text-gray-600 text-sm mb-4">30-Day Money Back Guarantee</p>
-              <div className="flex items-center justify-center gap-4">
+              <p className="text-gray-600 text-sm mb-4">30-Day Money Back Guarantee on all plans</p>
+              <div className="flex items-center justify-center gap-4 flex-wrap">
                 <span className="text-gray-500 text-sm">Accepted:</span>
                 {['💳 Visa', '💳 Mastercard', '💳 Amex', '🍎 Apple Pay', '📱 Google Pay'].map((method, i) => (
                   <span key={i} className="text-gray-400 text-sm">{method}</span>
