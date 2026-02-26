@@ -19,8 +19,8 @@ export const STRIPE_PRICES = {
 // Credits per plan
 export const CREDITS_PER_PLAN = {
   monthly: 5,
-  quarterly: 15,
-  addon: 5,
+  quarterly: 10,
+  addon: 3,
 };
 
 /**

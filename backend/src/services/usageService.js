@@ -5,10 +5,10 @@ import { logger } from '../middleware/requestLogger.js';
  * Usage allowances per credit
  */
 export const ALLOWANCES_PER_CREDIT = {
-  codingProblems: 10,
-  systemDesigns: 5,
+  codingProblems: 5,
+  systemDesigns: 2,
   companyPreps: 1,
-  interviewMinutes: 75,
+  interviewMinutes: 30,
 };
 
 /**

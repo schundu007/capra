@@ -13,10 +13,10 @@ export default function PricingPlans({ isOpen, onClose }) {
 
   // Per credit allowances
   const PER_CREDIT = {
-    codingProblems: 10,
-    systemDesigns: 5,
+    codingProblems: 5,
+    systemDesigns: 2,
     companyPreps: 1,
-    interviewMinutes: 75,
+    interviewMinutes: 30,
   };
 
   const plans = [
@@ -33,8 +33,8 @@ export default function PricingPlans({ isOpen, onClose }) {
       name: 'Quarterly',
       price: '$200',
       period: '/qtr',
-      credits: 15,
-      savings: 'Save $97',
+      credits: 10,
+      savings: 'Save $98',
     },
   ].map(plan => ({
     ...plan,
@@ -286,11 +286,11 @@ export default function PricingPlans({ isOpen, onClose }) {
                 </div>
                 <div>
                   <p className="font-medium" style={{ color: '#000' }}>Need More Credits?</p>
-                  <p className="text-xs" style={{ color: '#666' }}>5 credits one-time</p>
+                  <p className="text-xs" style={{ color: '#666' }}>3 credits one-time</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-xl font-bold" style={{ color: '#000' }}>$50</span>
+                <span className="text-xl font-bold" style={{ color: '#000' }}>$30</span>
                 <button
                   onClick={handleBuyCredits}
                   disabled={loading !== null}
@@ -302,10 +302,10 @@ export default function PricingPlans({ isOpen, onClose }) {
               </div>
             </div>
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs" style={{ color: '#666' }}>
-              <span>50 coding</span>
-              <span>25 system design</span>
-              <span>5 company preps</span>
-              <span>6.25 hrs interview</span>
+              <span>15 coding</span>
+              <span>6 system design</span>
+              <span>3 company preps</span>
+              <span>1.5 hrs interview</span>
             </div>
           </div>
 
@@ -321,7 +321,7 @@ export default function PricingPlans({ isOpen, onClose }) {
 
           {/* Note */}
           <p className="mt-4 text-center text-xs" style={{ color: '#999' }}>
-            1 credit = 10 coding problems + 5 system designs + 1 company prep + 75 min interview
+            1 credit = 5 coding problems + 2 system designs + 1 company prep + 30 min interview
           </p>
         </div>
       </div>

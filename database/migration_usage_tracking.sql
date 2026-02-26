@@ -34,7 +34,7 @@ CREATE INDEX IF NOT EXISTS idx_ascend_usage_user_id ON ascend_usage(user_id);
 -- =============================================================================
 -- CONSTANTS FOR CREDIT MULTIPLIERS
 -- =============================================================================
--- 1 credit = 10 coding problems, 5 system designs, 1 company prep, 75 minutes interview
+-- 1 credit = 5 coding problems, 2 system designs, 1 company prep, 30 minutes interview
 
 -- =============================================================================
 -- UPDATED INIT FUNCTION
@@ -89,13 +89,14 @@ BEGIN
     VALUES (p_user_id, p_amount, p_type, p_description, p_reference_id);
 
     -- Add usage allowances (only for positive credit additions)
+    -- NEW RATES: 1 credit = 5 coding, 2 system design, 1 company prep, 30 min interview
     IF p_amount > 0 THEN
         UPDATE ascend_usage
         SET
-            coding_problems_allowance = coding_problems_allowance + (p_amount * 10),
-            system_designs_allowance = system_designs_allowance + (p_amount * 5),
+            coding_problems_allowance = coding_problems_allowance + (p_amount * 5),
+            system_designs_allowance = system_designs_allowance + (p_amount * 2),
             company_preps_allowance = company_preps_allowance + (p_amount * 1),
-            interview_minutes_allowance = interview_minutes_allowance + (p_amount * 75),
+            interview_minutes_allowance = interview_minutes_allowance + (p_amount * 30),
             updated_at = NOW()
         WHERE user_id = p_user_id;
     END IF;
