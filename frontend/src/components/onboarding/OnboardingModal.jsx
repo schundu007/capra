@@ -217,9 +217,9 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
                 border: '1px solid rgba(6, 182, 212, 0.3)'
               }}
             >
-              <div className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>$200</div>
-              <div className="text-sm font-medium" style={{ color: 'var(--accent-teal-light)' }}>Quarterly</div>
-              <div className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>5 credits/quarter</div>
+              <div className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>$300</div>
+              <div className="text-sm font-medium" style={{ color: 'var(--accent-teal-light)' }}>Quarterly Pro</div>
+              <div className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>10 credits/quarter</div>
             </div>
           </div>
           <div
@@ -227,7 +227,7 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
             style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}
           >
             <span style={{ color: 'var(--text-secondary)' }}>Need more? </span>
-            <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>$50 for 5 additional credits</span>
+            <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>$30 for 3 additional credits</span>
           </div>
         </div>
       ),

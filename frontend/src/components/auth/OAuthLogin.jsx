@@ -885,8 +885,8 @@ export default function OAuthLogin() {
                   <p className="text-gray-500 text-xs mb-3">Interview + Job Discovery</p>
                   <div className="flex items-baseline gap-1 mb-1"><span className="text-3xl font-bold text-white">$300</span><span className="text-gray-500 text-sm">/quarter</span></div>
                   <div className="flex gap-2 mb-4">
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400">$200 Interview</span>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400">$100 Jobs</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400">Interview Prep</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400">Job Discovery</span>
                   </div>
                   <ul className="space-y-2 mb-6 text-sm">
                     {['10 credits included', '50 coding problems', '20 system designs', '10 company preps', '5 hrs interview time'].map((item, i) => (
