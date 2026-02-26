@@ -91,23 +91,15 @@ export function AuthProvider({ children }) {
         // First check URL hash for OAuth callback tokens
         const hashAuth = parseAuthFromHash();
         if (hashAuth) {
-          // Store tokens and clear hash
-          storeAuth(hashAuth);
-          setUser(hashAuth.user);
-          setAccessToken(hashAuth.accessToken);
-          setRefreshToken(hashAuth.refreshToken);
-
-          // Clear the hash from URL
+          // Clear the hash from URL immediately
           window.history.replaceState(null, '', window.location.pathname);
 
-          // Fetch user data
-          await fetchUserData(hashAuth.accessToken);
-
-          // Check for pending plan purchase (set from landing page pricing buttons)
+          // Check for pending plan purchase BEFORE setting user state
+          // This prevents the app from showing the main page briefly
           const pendingPlan = localStorage.getItem('ascend_pending_plan');
           if (pendingPlan) {
             localStorage.removeItem('ascend_pending_plan');
-            // Redirect to Stripe checkout
+            // Redirect to Stripe checkout immediately
             try {
               const pricesRes = await fetch(`${API_URL}/api/billing/prices`);
               const prices = await pricesRes.json();
@@ -137,6 +129,8 @@ export function AuthProvider({ children }) {
 
                 if (checkoutRes.ok) {
                   const { url } = await checkoutRes.json();
+                  // Store auth before redirecting so user is logged in when they return
+                  storeAuth(hashAuth);
                   window.location.href = url;
                   return; // Don't set loading to false, we're redirecting
                 }
@@ -145,6 +139,15 @@ export function AuthProvider({ children }) {
               console.error('Failed to create checkout session:', error);
             }
           }
+
+          // No pending plan or checkout failed - proceed with normal login
+          storeAuth(hashAuth);
+          setUser(hashAuth.user);
+          setAccessToken(hashAuth.accessToken);
+          setRefreshToken(hashAuth.refreshToken);
+
+          // Fetch user data
+          await fetchUserData(hashAuth.accessToken);
 
           setLoading(false);
           return;
