@@ -10,6 +10,9 @@ export default function OAuthLogin() {
   const [error, setError] = useState('');
   const [activeFeature, setActiveFeature] = useState(0);
   const [codeIndex, setCodeIndex] = useState(0);
+  const [designIndex, setDesignIndex] = useState(0);
+  const [interviewIndex, setInterviewIndex] = useState(0);
+  const [activeDemo, setActiveDemo] = useState(0);
 
   // Animated code snippets
   const codeSnippets = [
@@ -18,11 +21,49 @@ export default function OAuthLogin() {
     { lang: 'sql', code: 'SELECT d.name, COUNT(e.id)\nFROM departments d\nLEFT JOIN employees e\n  ON d.id = e.dept_id\nGROUP BY d.id\nHAVING COUNT(e.id) > 5;' },
   ];
 
+  // System Design components
+  const systemDesigns = [
+    { title: 'URL Shortener', components: ['Load Balancer', 'API Gateway', 'Redis Cache', 'PostgreSQL', 'CDN'] },
+    { title: 'Chat System', components: ['WebSocket Server', 'Message Queue', 'MongoDB', 'Redis PubSub', 'S3 Storage'] },
+    { title: 'E-commerce', components: ['Microservices', 'Kafka', 'Elasticsearch', 'Payment Gateway', 'CDN'] },
+  ];
+
+  // Interview Q&A
+  const interviewQA = [
+    { q: 'Tell me about a challenging project', a: 'Led migration of monolith to microservices, reducing deploy time by 80% and improving team velocity...' },
+    { q: 'How do you handle conflict?', a: 'I focus on understanding perspectives first. In one case, I mediated between design and engineering...' },
+    { q: 'Why do you want this role?', a: 'Your focus on developer experience aligns with my passion for building tools that empower engineers...' },
+  ];
+
   // Rotate code snippets
   useEffect(() => {
     const interval = setInterval(() => {
       setCodeIndex((prev) => (prev + 1) % codeSnippets.length);
     }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Rotate system designs
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDesignIndex((prev) => (prev + 1) % systemDesigns.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Rotate interview Q&A
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setInterviewIndex((prev) => (prev + 1) % interviewQA.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Rotate active demo
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveDemo((prev) => (prev + 1) % 3);
+    }, 8000);
     return () => clearInterval(interval);
   }, []);
 
@@ -250,14 +291,36 @@ export default function OAuthLogin() {
           {/* Right Content - Interactive Demo */}
           <div className="w-full lg:w-1/2 flex justify-center lg:justify-end">
             <div className="relative w-full max-w-lg">
+              {/* Demo Tabs */}
+              <div className="flex gap-2 mb-4 justify-center lg:justify-start">
+                {[
+                  { id: 0, label: '💻 Coding', color: '#10b981' },
+                  { id: 1, label: '🏗️ System Design', color: '#3b82f6' },
+                  { id: 2, label: '🎯 Behavioral', color: '#8b5cf6' },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveDemo(tab.id)}
+                    className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                    style={{
+                      background: activeDemo === tab.id ? `${tab.color}20` : 'rgba(255,255,255,0.05)',
+                      border: `1px solid ${activeDemo === tab.id ? tab.color : 'rgba(255,255,255,0.1)'}`,
+                      color: activeDemo === tab.id ? tab.color : '#9ca3af',
+                    }}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
               {/* Main Card */}
               <div
-                className="relative rounded-2xl overflow-hidden"
+                className="relative rounded-2xl overflow-hidden transition-all duration-500"
                 style={{
                   background: 'rgba(255, 255, 255, 0.03)',
                   backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                  border: `1px solid ${activeDemo === 0 ? 'rgba(16, 185, 129, 0.3)' : activeDemo === 1 ? 'rgba(59, 130, 246, 0.3)' : 'rgba(139, 92, 246, 0.3)'}`,
+                  boxShadow: `0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px ${activeDemo === 0 ? 'rgba(16, 185, 129, 0.1)' : activeDemo === 1 ? 'rgba(59, 130, 246, 0.1)' : 'rgba(139, 92, 246, 0.1)'}`,
                 }}
               >
                 {/* Window Header */}
@@ -274,81 +337,141 @@ export default function OAuthLogin() {
                     <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
                   </div>
                   <div className="flex-1 text-center">
-                    <span className="text-xs text-gray-500 font-mono">ascend_interview.{codeSnippets[codeIndex].lang}</span>
+                    <span className="text-xs text-gray-500 font-mono">
+                      {activeDemo === 0 && `ascend_coding.${codeSnippets[codeIndex].lang}`}
+                      {activeDemo === 1 && `system_design_${systemDesigns[designIndex].title.toLowerCase().replace(' ', '_')}`}
+                      {activeDemo === 2 && 'behavioral_interview.md'}
+                    </span>
                   </div>
                 </div>
 
-                {/* Code Display */}
-                <div className="p-6 font-mono text-sm">
-                  <div className="text-gray-500 mb-2 text-xs">// AI solving in real-time...</div>
-                  <pre className="text-green-400 leading-relaxed whitespace-pre-wrap">
-                    {codeSnippets[codeIndex].code}
-                  </pre>
-                  <div className="mt-4 flex items-center gap-2">
-                    <div className="h-1 flex-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
-                      <div
-                        className="h-full rounded-full transition-all duration-1000"
-                        style={{
-                          width: '100%',
-                          background: 'linear-gradient(90deg, #10b981, #34d399)',
-                          animation: 'progress 4s linear infinite',
-                        }}
-                      />
+                {/* Coding Demo */}
+                {activeDemo === 0 && (
+                  <div className="p-6">
+                    <div className="font-mono text-sm">
+                      <div className="text-gray-500 mb-2 text-xs">// AI solving in real-time...</div>
+                      <pre className="text-green-400 leading-relaxed whitespace-pre-wrap">
+                        {codeSnippets[codeIndex].code}
+                      </pre>
+                      <div className="mt-4 flex items-center gap-2">
+                        <div className="h-1 flex-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: '100%',
+                              background: 'linear-gradient(90deg, #10b981, #34d399)',
+                              animation: 'progress 4s linear infinite',
+                            }}
+                          />
+                        </div>
+                        <span className="text-xs text-green-400">Solved ✓</span>
+                      </div>
                     </div>
-                    <span className="text-xs text-green-400">Solved ✓</span>
-                  </div>
-                </div>
-
-                {/* Analysis Panel */}
-                <div
-                  className="px-6 py-4"
-                  style={{
-                    background: 'rgba(16, 185, 129, 0.05)',
-                    borderTop: '1px solid rgba(16, 185, 129, 0.1)',
-                  }}
-                >
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div>
-                      <div className="text-xs text-gray-500">Time</div>
-                      <div className="text-green-400 font-semibold">O(n)</div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-gray-500">Space</div>
-                      <div className="text-green-400 font-semibold">O(n)</div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-gray-500">Edge Cases</div>
-                      <div className="text-green-400 font-semibold">5/5</div>
+                    <div
+                      className="mt-4 px-4 py-3 rounded-lg grid grid-cols-3 gap-4 text-center"
+                      style={{ background: 'rgba(16, 185, 129, 0.05)' }}
+                    >
+                      <div>
+                        <div className="text-xs text-gray-500">Time</div>
+                        <div className="text-green-400 font-semibold">O(n)</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-500">Space</div>
+                        <div className="text-green-400 font-semibold">O(n)</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-500">Edge Cases</div>
+                        <div className="text-green-400 font-semibold">5/5</div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                )}
 
-              {/* Floating Feature Cards */}
-              <div
-                className="absolute -left-16 top-1/4 p-4 rounded-xl hidden lg:block"
-                style={{
-                  background: 'rgba(59, 130, 246, 0.1)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(59, 130, 246, 0.2)',
-                  animation: 'floatSide 6s ease-in-out infinite',
-                }}
-              >
-                <div className="text-2xl mb-1">🏗️</div>
-                <div className="text-xs text-blue-400 font-medium">System Design</div>
-              </div>
+                {/* System Design Demo */}
+                {activeDemo === 1 && (
+                  <div className="p-6">
+                    <div className="text-blue-400 font-semibold text-lg mb-4">
+                      {systemDesigns[designIndex].title}
+                    </div>
+                    <div className="space-y-3">
+                      {systemDesigns[designIndex].components.map((comp, i) => (
+                        <div
+                          key={i}
+                          className="flex items-center gap-3 p-3 rounded-lg transition-all"
+                          style={{
+                            background: 'rgba(59, 130, 246, 0.1)',
+                            border: '1px solid rgba(59, 130, 246, 0.2)',
+                            animation: `slideIn 0.5s ease-out ${i * 0.1}s both`,
+                          }}
+                        >
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(59, 130, 246, 0.2)' }}>
+                            <span className="text-blue-400 text-xs font-bold">{i + 1}</span>
+                          </div>
+                          <span className="text-white font-medium">{comp}</span>
+                          <div className="ml-auto flex items-center gap-1">
+                            <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-4 flex items-center justify-between text-xs">
+                      <span className="text-gray-500">Scalability: <span className="text-blue-400">High</span></span>
+                      <span className="text-gray-500">Latency: <span className="text-blue-400">&lt;100ms</span></span>
+                      <span className="text-gray-500">Availability: <span className="text-blue-400">99.99%</span></span>
+                    </div>
+                  </div>
+                )}
 
-              <div
-                className="absolute -right-12 bottom-1/4 p-4 rounded-xl hidden lg:block"
-                style={{
-                  background: 'rgba(139, 92, 246, 0.1)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(139, 92, 246, 0.2)',
-                  animation: 'floatSide 5s ease-in-out infinite reverse',
-                }}
-              >
-                <div className="text-2xl mb-1">🎯</div>
-                <div className="text-xs text-purple-400 font-medium">Behavioral</div>
+                {/* Interview Prep Demo */}
+                {activeDemo === 2 && (
+                  <div className="p-6">
+                    <div className="mb-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
+                          <span className="text-purple-400">Q</span>
+                        </div>
+                        <span className="text-gray-400 text-sm">Interviewer</span>
+                      </div>
+                      <p className="text-white font-medium pl-10">"{interviewQA[interviewIndex].q}"</p>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                          <span className="text-green-400">A</span>
+                        </div>
+                        <span className="text-gray-400 text-sm">AI-Crafted Response (STAR Method)</span>
+                      </div>
+                      <p className="text-purple-300 pl-10 leading-relaxed">"{interviewQA[interviewIndex].a}"</p>
+                    </div>
+                    <div className="mt-4 flex items-center gap-2">
+                      <div className="h-1 flex-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                        <div
+                          className="h-full rounded-full"
+                          style={{
+                            width: '100%',
+                            background: 'linear-gradient(90deg, #8b5cf6, #a78bfa)',
+                            animation: 'progress 6s linear infinite',
+                          }}
+                        />
+                      </div>
+                      <span className="text-xs text-purple-400">Generating...</span>
+                    </div>
+                    <div className="mt-4 flex gap-2 flex-wrap">
+                      {['Situation', 'Task', 'Action', 'Result'].map((tag, i) => (
+                        <span
+                          key={tag}
+                          className="px-2 py-1 rounded text-xs font-medium"
+                          style={{
+                            background: i <= 2 ? 'rgba(139, 92, 246, 0.2)' : 'rgba(139, 92, 246, 0.1)',
+                            color: i <= 2 ? '#a78bfa' : '#6b7280',
+                          }}
+                        >
+                          {tag} {i <= 2 && '✓'}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -716,6 +839,24 @@ export default function OAuthLogin() {
         @keyframes marquee {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
+        }
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateX(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes typing {
+          from { width: 0; }
+          to { width: 100%; }
         }
         .animate-marquee {
           animation: marquee 30s linear infinite;
