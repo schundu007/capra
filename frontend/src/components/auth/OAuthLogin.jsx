@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 
 /**
- * OAuth Login Component - Modern Design System
+ * OAuth Login Component - Light Theme Design
  */
 export default function OAuthLogin() {
   const { signIn } = useAuth();
@@ -38,7 +38,7 @@ export default function OAuthLogin() {
       id: 'github',
       name: 'GitHub',
       icon: (
-        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+        <svg className="w-5 h-5" fill="#000000" viewBox="0 0 24 24">
           <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
         </svg>
       ),
@@ -56,90 +56,86 @@ export default function OAuthLogin() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
-      style={{ background: 'var(--bg-base)' }}
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{ background: '#f5f5f5' }}
     >
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-radial pointer-events-none" />
-      <div className="absolute inset-0 bg-grid-pattern pointer-events-none opacity-50" />
-
-      {/* Floating Orbs */}
-      <div
-        className="absolute top-20 left-20 w-64 h-64 rounded-full blur-3xl animate-float"
-        style={{ background: 'rgba(124, 58, 237, 0.15)' }}
-      />
-      <div
-        className="absolute bottom-20 right-20 w-96 h-96 rounded-full blur-3xl animate-float"
-        style={{ background: 'rgba(6, 182, 212, 0.1)', animationDelay: '-1.5s' }}
-      />
-
-      <div className="relative w-full max-w-md z-10">
+      <div className="w-full max-w-md">
         {/* Main Card */}
         <div
-          className="glass-card p-10 animate-scale-in"
+          className="p-10 rounded-2xl"
           style={{
-            boxShadow: 'var(--shadow-lg), var(--shadow-glow-purple)',
+            background: '#ffffff',
+            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.1)',
+            border: '1px solid #e5e5e5'
           }}
         >
           {/* Logo & Header */}
           <div className="text-center mb-10">
             <div className="flex justify-center mb-6">
               <div
-                className="w-20 h-20 rounded-2xl flex items-center justify-center animate-pulse-glow"
-                style={{
-                  background: 'var(--brand-gradient)',
-                  boxShadow: '0 8px 32px rgba(124, 58, 237, 0.4)'
-                }}
+                className="w-16 h-16 rounded-xl flex items-center justify-center"
+                style={{ background: '#10b981' }}
               >
                 <img
                   src="/ascend-logo.png"
                   alt="Ascend"
-                  className="h-12 w-auto object-contain filter brightness-0 invert"
+                  className="h-10 w-auto object-contain filter brightness-0 invert"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.parentElement.innerHTML = '<svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>';
+                  }}
                 />
               </div>
             </div>
-            <h1 className="text-3xl font-bold mb-3">
-              <span className="gradient-text">Welcome to Ascend</span>
+            <h1 className="text-2xl font-bold" style={{ color: '#000000' }}>
+              Welcome to Ascend
             </h1>
-            <p className="text-base" style={{ color: 'var(--text-secondary)' }}>
-              Your AI-powered interview prep companion
-            </p>
           </div>
 
           {/* Feature Pills */}
           <div className="flex justify-center gap-2 mb-8">
-            <span className="badge badge-primary">Coding</span>
-            <span className="badge badge-success">System Design</span>
-            <span className="badge" style={{ background: 'rgba(6, 182, 212, 0.2)', color: 'var(--accent-teal-light)', borderColor: 'rgba(6, 182, 212, 0.3)' }}>Behavioral</span>
+            <span
+              className="px-3 py-1 rounded-full text-xs font-medium"
+              style={{ background: '#f0fdf4', color: '#059669', border: '1px solid #dcfce7' }}
+            >
+              Coding
+            </span>
+            <span
+              className="px-3 py-1 rounded-full text-xs font-medium"
+              style={{ background: '#f0fdf4', color: '#059669', border: '1px solid #dcfce7' }}
+            >
+              System Design
+            </span>
+            <span
+              className="px-3 py-1 rounded-full text-xs font-medium"
+              style={{ background: '#f0fdf4', color: '#059669', border: '1px solid #dcfce7' }}
+            >
+              Behavioral
+            </span>
           </div>
 
           {/* OAuth Buttons */}
           <div className="space-y-3">
-            {providers.map((provider, index) => (
+            {providers.map((provider) => (
               <button
                 key={provider.id}
                 onClick={() => handleOAuthLogin(provider.id)}
                 disabled={loading !== null}
-                className="w-full flex items-center justify-center gap-3 px-5 py-4 rounded-xl font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group"
+                className="w-full flex items-center gap-3 px-5 py-4 rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
-                  background: 'var(--bg-elevated)',
-                  color: 'var(--text-primary)',
-                  border: '1px solid var(--border-default)',
-                  animationDelay: `${index * 0.1}s`,
+                  background: '#ffffff',
+                  color: '#000000',
+                  border: '1px solid #e5e5e5',
                 }}
                 onMouseEnter={(e) => {
                   if (loading === null) {
-                    e.currentTarget.style.background = 'var(--bg-hover)';
-                    e.currentTarget.style.borderColor = 'var(--border-accent)';
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                    e.currentTarget.style.background = '#f5f5f5';
+                    e.currentTarget.style.borderColor = '#10b981';
                   }
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'var(--bg-elevated)';
-                  e.currentTarget.style.borderColor = 'var(--border-default)';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.background = '#ffffff';
+                  e.currentTarget.style.borderColor = '#e5e5e5';
                 }}
               >
                 {loading === provider.id ? (
@@ -153,15 +149,6 @@ export default function OAuthLogin() {
                   </span>
                 )}
                 <span>Continue with {provider.name}</span>
-                <svg
-                  className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  style={{ color: 'var(--text-muted)' }}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
               </button>
             ))}
           </div>
@@ -169,54 +156,32 @@ export default function OAuthLogin() {
           {/* Error Message */}
           {error && (
             <div
-              className="mt-6 p-4 rounded-xl animate-fade-in flex items-start gap-3"
+              className="mt-6 p-4 rounded-lg flex items-start gap-3"
               style={{
-                background: 'rgba(239, 68, 68, 0.1)',
-                border: '1px solid rgba(239, 68, 68, 0.3)'
+                background: '#fef2f2',
+                border: '1px solid #fecaca'
               }}
             >
-              <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="var(--accent-error)" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="#ef4444" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <p className="text-sm" style={{ color: 'var(--accent-error-light)' }}>{error}</p>
+              <p className="text-sm" style={{ color: '#dc2626' }}>{error}</p>
             </div>
           )}
 
-          {/* Divider */}
-          <div className="divider my-8" />
-
           {/* Terms */}
-          <p className="text-center text-sm" style={{ color: 'var(--text-muted)' }}>
+          <p className="mt-8 text-center text-sm" style={{ color: '#666666' }}>
             By signing in, you agree to our{' '}
-            <a
-              href="/terms"
-              className="transition-colors hover:underline"
-              style={{ color: 'var(--brand-primary-light)' }}
-            >
+            <a href="/terms" className="underline" style={{ color: '#10b981' }}>
               Terms
             </a>
             {' '}and{' '}
-            <a
-              href="/privacy"
-              className="transition-colors hover:underline"
-              style={{ color: 'var(--brand-primary-light)' }}
-            >
+            <a href="/privacy" className="underline" style={{ color: '#10b981' }}>
               Privacy Policy
             </a>
           </p>
         </div>
 
-        {/* Footer */}
-        <div className="mt-8 text-center">
-          <p className="text-sm" style={{ color: 'var(--text-subtle)' }}>
-            Powered by AI for interview excellence
-          </p>
-          <div className="flex justify-center gap-1 mt-2">
-            <span className="status-dot" style={{ animationDelay: '0s' }} />
-            <span className="status-dot" style={{ animationDelay: '0.2s' }} />
-            <span className="status-dot" style={{ animationDelay: '0.4s' }} />
-          </div>
-        </div>
       </div>
     </div>
   );
