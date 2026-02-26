@@ -395,8 +395,8 @@ async function handleSubscriptionUpdated(subscription) {
 
   if (priceId === STRIPE_PRICES.MONTHLY) {
     planType = 'monthly';
-  } else if (priceId === STRIPE_PRICES.QUARTERLY) {
-    planType = 'quarterly';
+  } else if (priceId === STRIPE_PRICES.QUARTERLY_PRO) {
+    planType = 'quarterly_pro';
   }
 
   // Map Stripe status to our status
