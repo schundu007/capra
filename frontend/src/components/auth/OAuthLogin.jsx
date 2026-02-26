@@ -134,13 +134,69 @@ export default function OAuthLogin() {
         />
       </div>
 
-      {/* Grid Pattern Overlay */}
+      {/* Animated Star Field */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(50)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              width: Math.random() > 0.7 ? '3px' : '2px',
+              height: Math.random() > 0.7 ? '3px' : '2px',
+              background: `rgba(255, 255, 255, ${0.1 + Math.random() * 0.4})`,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animation: `twinkle ${2 + Math.random() * 3}s ease-in-out infinite`,
+              animationDelay: `${Math.random() * 2}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Plus Pattern Grid */}
       <div
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0 opacity-[0.04]"
         style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                           linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-          backgroundSize: '50px 50px',
+          backgroundImage: `
+            radial-gradient(circle at center, rgba(16, 185, 129, 0.3) 1px, transparent 1px),
+            linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)
+          `,
+          backgroundSize: '4px 4px, 60px 60px, 60px 60px',
+          backgroundPosition: '0 0, -1px -1px, -1px -1px',
+        }}
+      />
+
+      {/* Floating Plus Signs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={`plus-${i}`}
+            className="absolute text-white/[0.03] font-light select-none"
+            style={{
+              fontSize: `${20 + Math.random() * 40}px`,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animation: `floatPlus ${15 + Math.random() * 20}s ease-in-out infinite`,
+              animationDelay: `${Math.random() * 10}s`,
+            }}
+          >
+            +
+          </div>
+        ))}
+      </div>
+
+      {/* Diagonal Lines Pattern */}
+      <div
+        className="absolute inset-0 opacity-[0.02]"
+        style={{
+          backgroundImage: `repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 35px,
+            rgba(255,255,255,0.1) 35px,
+            rgba(255,255,255,0.1) 36px
+          )`,
         }}
       />
 
@@ -826,6 +882,16 @@ export default function OAuthLogin() {
           0%, 100% { transform: translate(0, 0) scale(1); }
           33% { transform: translate(30px, -30px) scale(1.05); }
           66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+        @keyframes twinkle {
+          0%, 100% { opacity: 0.2; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.5); }
+        }
+        @keyframes floatPlus {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.03; }
+          25% { transform: translate(10px, -20px) rotate(45deg); opacity: 0.06; }
+          50% { transform: translate(-5px, -40px) rotate(90deg); opacity: 0.03; }
+          75% { transform: translate(-15px, -20px) rotate(135deg); opacity: 0.06; }
         }
         @keyframes floatSide {
           0%, 100% { transform: translateY(0); }
