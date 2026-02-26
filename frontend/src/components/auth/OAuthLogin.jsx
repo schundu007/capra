@@ -25,9 +25,61 @@ export default function OAuthLogin() {
   ];
 
   const systemDesigns = [
-    { title: 'URL Shortener', subtitle: 'High-throughput link shortening service' },
-    { title: 'Real-time Chat', subtitle: 'Scalable messaging architecture' },
-    { title: 'E-commerce Platform', subtitle: 'Microservices architecture' },
+    {
+      title: 'URL Shortener',
+      subtitle: 'High-throughput link shortening service',
+      nodes: [
+        { id: 'client', label: 'Client', icon: 'globe', x: 10, y: 40, color: '#10b981' },
+        { id: 'lb', label: 'Load Balancer', icon: 'server', x: 30, y: 40, color: '#3b82f6' },
+        { id: 'api', label: 'API Server', icon: 'cpu', x: 50, y: 25, color: '#8b5cf6' },
+        { id: 'cache', label: 'Redis Cache', icon: 'activity', x: 50, y: 55, color: '#f59e0b' },
+        { id: 'db', label: 'Database', icon: 'layers', x: 75, y: 40, color: '#ef4444' },
+      ],
+      connections: [
+        { from: 'client', to: 'lb' },
+        { from: 'lb', to: 'api' },
+        { from: 'api', to: 'cache' },
+        { from: 'api', to: 'db' },
+        { from: 'cache', to: 'db' },
+      ]
+    },
+    {
+      title: 'Real-time Chat',
+      subtitle: 'Scalable messaging architecture',
+      nodes: [
+        { id: 'users', label: 'Users', icon: 'users', x: 10, y: 40, color: '#10b981' },
+        { id: 'ws', label: 'WebSocket', icon: 'wifi', x: 30, y: 40, color: '#3b82f6' },
+        { id: 'pubsub', label: 'Pub/Sub', icon: 'activity', x: 50, y: 25, color: '#8b5cf6' },
+        { id: 'presence', label: 'Presence', icon: 'eye', x: 50, y: 55, color: '#f59e0b' },
+        { id: 'store', label: 'Message Store', icon: 'layers', x: 75, y: 40, color: '#ef4444' },
+      ],
+      connections: [
+        { from: 'users', to: 'ws' },
+        { from: 'ws', to: 'pubsub' },
+        { from: 'ws', to: 'presence' },
+        { from: 'pubsub', to: 'store' },
+      ]
+    },
+    {
+      title: 'E-commerce Platform',
+      subtitle: 'Microservices architecture',
+      nodes: [
+        { id: 'gateway', label: 'API Gateway', icon: 'shield', x: 10, y: 40, color: '#10b981' },
+        { id: 'catalog', label: 'Catalog', icon: 'puzzle', x: 35, y: 20, color: '#3b82f6' },
+        { id: 'cart', label: 'Cart', icon: 'package', x: 35, y: 60, color: '#8b5cf6' },
+        { id: 'payment', label: 'Payment', icon: 'wallet', x: 60, y: 20, color: '#f59e0b' },
+        { id: 'orders', label: 'Orders', icon: 'clipboard', x: 60, y: 60, color: '#ef4444' },
+        { id: 'queue', label: 'Queue', icon: 'inbox', x: 85, y: 40, color: '#06b6d4' },
+      ],
+      connections: [
+        { from: 'gateway', to: 'catalog' },
+        { from: 'gateway', to: 'cart' },
+        { from: 'catalog', to: 'payment' },
+        { from: 'cart', to: 'orders' },
+        { from: 'payment', to: 'queue' },
+        { from: 'orders', to: 'queue' },
+      ]
+    },
   ];
 
   const interviewQA = [
@@ -305,11 +357,72 @@ export default function OAuthLogin() {
                         <div className="text-gray-500 text-xs">{systemDesigns[designIndex].subtitle}</div>
                       </div>
                     </div>
-                    <div className="grid grid-cols-4 gap-3">
+                    {/* Architecture Diagram */}
+                    <div className="relative h-48 rounded-lg overflow-hidden" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                      {/* Grid Background */}
+                      <svg className="absolute inset-0 w-full h-full opacity-10">
+                        <defs>
+                          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#3b82f6" strokeWidth="0.5"/>
+                          </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#grid)" />
+                      </svg>
+
+                      {/* Connection Lines */}
+                      <svg className="absolute inset-0 w-full h-full">
+                        {systemDesigns[designIndex].connections.map((conn, i) => {
+                          const fromNode = systemDesigns[designIndex].nodes.find(n => n.id === conn.from);
+                          const toNode = systemDesigns[designIndex].nodes.find(n => n.id === conn.to);
+                          if (!fromNode || !toNode) return null;
+                          return (
+                            <g key={i}>
+                              <line
+                                x1={`${fromNode.x + 5}%`}
+                                y1={`${fromNode.y}%`}
+                                x2={`${toNode.x - 5}%`}
+                                y2={`${toNode.y}%`}
+                                stroke="rgba(59, 130, 246, 0.4)"
+                                strokeWidth="2"
+                                strokeDasharray="4,4"
+                              />
+                              {/* Animated data packet */}
+                              <circle r="3" fill="#3b82f6">
+                                <animateMotion
+                                  dur={`${1.5 + i * 0.3}s`}
+                                  repeatCount="indefinite"
+                                  path={`M${fromNode.x + 5},${fromNode.y * 1.92} L${toNode.x - 5},${toNode.y * 1.92}`}
+                                />
+                              </circle>
+                            </g>
+                          );
+                        })}
+                      </svg>
+
+                      {/* Nodes */}
+                      {systemDesigns[designIndex].nodes.map((node) => (
+                        <div
+                          key={node.id}
+                          className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 transition-all duration-500"
+                          style={{ left: `${node.x}%`, top: `${node.y}%` }}
+                        >
+                          <div
+                            className="w-10 h-10 rounded-lg flex items-center justify-center shadow-lg"
+                            style={{ background: `${node.color}20`, border: `1px solid ${node.color}`, boxShadow: `0 0 15px ${node.color}40` }}
+                          >
+                            <Icon name={node.icon} size={18} style={{ color: node.color }} />
+                          </div>
+                          <span className="text-xs text-gray-400 whitespace-nowrap">{node.label}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Metrics Row */}
+                    <div className="grid grid-cols-4 gap-3 mt-4">
                       {['Latency', 'Throughput', 'Availability', 'Scale'].map((metric, i) => (
-                        <div key={metric} className="p-3 rounded-lg text-center" style={{ background: 'rgba(59, 130, 246, 0.1)' }}>
+                        <div key={metric} className="p-2 rounded-lg text-center" style={{ background: 'rgba(59, 130, 246, 0.1)' }}>
                           <div className="text-xs text-gray-500">{metric}</div>
-                          <div className="text-blue-400 font-semibold text-sm">{['<50ms', '10K/s', '99.99%', 'Auto'][i]}</div>
+                          <div className="text-blue-400 font-semibold text-xs">{['<50ms', '10K/s', '99.99%', 'Auto'][i]}</div>
                         </div>
                       ))}
                     </div>
