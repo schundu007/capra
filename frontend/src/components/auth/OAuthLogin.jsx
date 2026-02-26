@@ -35,12 +35,24 @@ export default function OAuthLogin() {
     { q: 'Why do you want this role?', a: 'Your focus on developer experience aligns with my passion...' },
   ];
 
-  // User reviews
+  // User reviews with job titles
   const reviews = [
-    { name: 'Sarah M.', email: 'sarah.m...@gmail.com', text: 'Absolutely incredible! Got offers from 3 FAANG companies. The coding assistance was flawless.', date: 'Feb 2025', rating: 5 },
-    { name: 'James K.', email: 'james.k...@outlook.com', text: 'The system design help alone is worth it. Helped me nail my Amazon interview.', date: 'Jan 2025', rating: 5 },
-    { name: 'Priya R.', email: 'priya.r...@gmail.com', text: 'Game changer for behavioral interviews. The STAR method responses were perfect.', date: 'Feb 2025', rating: 5 },
-    { name: 'Michael C.', email: 'michael.c...@yahoo.com', text: 'Used it for my Google interview. The real-time coding solutions saved me multiple times.', date: 'Jan 2025', rating: 5 },
+    { name: 'Sarah M.', title: 'Senior Software Engineer', email: 'sarah.m...@gmail.com', text: 'Absolutely incredible! Got offers from 3 FAANG companies. The coding assistance was flawless and the system design diagrams were exactly what I needed.', date: 'Feb 2025', rating: 5 },
+    { name: 'James K.', title: 'Staff Engineer', email: 'james.k...@outlook.com', text: 'The system design help alone is worth it. Helped me nail my Amazon L6 interview. The architecture explanations were crystal clear.', date: 'Jan 2025', rating: 5 },
+    { name: 'Priya R.', title: 'Engineering Manager', email: 'priya.r...@gmail.com', text: 'Game changer for behavioral interviews. The STAR method responses were perfect and helped me articulate my leadership experience.', date: 'Feb 2025', rating: 5 },
+    { name: 'Michael C.', title: 'Frontend Developer', email: 'michael.c...@yahoo.com', text: 'Used it for my Google interview. The real-time coding solutions saved me multiple times. Went from rejection to L5 offer!', date: 'Jan 2025', rating: 5 },
+    { name: 'Emma L.', title: 'Data Engineer', email: 'emma.l...@gmail.com', text: 'The SQL and data pipeline questions were spot on. Ascend helped me understand complex query optimizations in real-time.', date: 'Feb 2025', rating: 5 },
+    { name: 'David T.', title: 'DevOps Engineer', email: 'david.t...@outlook.com', text: 'System design for infrastructure was incredible. Got offers from both Netflix and Uber after using Ascend for a month.', date: 'Jan 2025', rating: 5 },
+  ];
+
+  // FAQ items
+  const faqItems = [
+    { q: 'How does Ascend work?', a: 'Ascend uses advanced AI to listen to your interview in real-time, transcribe questions, and provide instant answers for coding, system design, and behavioral interviews. It works invisibly alongside any video conferencing platform.' },
+    { q: 'Is Ascend really undetectable?', a: 'Yes. Ascend is completely invisible during screen sharing, doesn\'t appear in your dock or task manager, and cannot be detected by any interview platform. We continuously verify against all major platforms.' },
+    { q: 'What platforms does it work with?', a: 'Ascend works with Zoom, Google Meet, Microsoft Teams, HackerRank, LeetCode, CoderPad, Amazon Chime, Webex, and virtually any other interview platform.' },
+    { q: 'What programming languages are supported?', a: 'We support 20+ languages including Python, JavaScript, TypeScript, Java, C++, Go, Rust, SQL, and more. Our AI can solve problems and explain solutions in any of these languages.' },
+    { q: 'Can I use my own AI API keys?', a: 'Yes! The desktop app supports using your own Claude or OpenAI API keys, giving you unlimited usage and full control over your data.' },
+    { q: 'What is the credit system?', a: 'Credits let you pay for what you use. 1 credit = 5 coding problems + 2 system designs + 1 company prep + 30 min interview assistance. Your first company prep is always free!' },
   ];
 
   // Supported platforms
@@ -164,6 +176,7 @@ export default function OAuthLogin() {
             <button onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })} className="text-gray-400 hover:text-white transition-colors text-sm">Reviews</button>
             <button onClick={() => document.getElementById('privacy')?.scrollIntoView({ behavior: 'smooth' })} className="text-gray-400 hover:text-white transition-colors text-sm">Privacy</button>
             <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })} className="text-gray-400 hover:text-white transition-colors text-sm">Pricing</button>
+            <button onClick={() => document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' })} className="text-gray-400 hover:text-white transition-colors text-sm">FAQ</button>
             <button onClick={() => handleOAuthLogin('google')} className="px-4 py-2 rounded-lg text-sm font-medium transition-all" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#10b981' }}>Sign In</button>
           </div>
         </nav>
@@ -313,6 +326,29 @@ export default function OAuthLogin() {
           </div>
         </div>
 
+        {/* Big Stats Section */}
+        <div className="py-20 px-6 lg:px-12">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center p-8 rounded-2xl" style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                <div className="text-5xl md:text-6xl font-black text-green-400 mb-2">300%+</div>
+                <div className="text-xl font-bold text-white mb-2">Higher Success Rate</div>
+                <p className="text-gray-400 text-sm">Ascend users' interview pass rate exceeds 60%, far higher than the average of 5-20%</p>
+              </div>
+              <div className="text-center p-8 rounded-2xl" style={{ background: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                <div className="text-5xl md:text-6xl font-black text-blue-400 mb-2">17,000+</div>
+                <div className="text-xl font-bold text-white mb-2">Offers Received</div>
+                <p className="text-gray-400 text-sm">Our users have received offers from 5,000+ companies worldwide</p>
+              </div>
+              <div className="text-center p-8 rounded-2xl" style={{ background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
+                <div className="text-5xl md:text-6xl font-black text-purple-400 mb-2">30%+</div>
+                <div className="text-xl font-bold text-white mb-2">Salary Increase</div>
+                <p className="text-gray-400 text-sm">Users achieved 30%+ salary increases, surpassing the 10-20% average</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Platform Compatibility */}
         <div className="py-16 px-6 lg:px-12">
           <div className="max-w-6xl mx-auto text-center">
@@ -361,6 +397,54 @@ export default function OAuthLogin() {
           </div>
         </div>
 
+        {/* Advantages Metrics */}
+        <div className="py-16 px-6 lg:px-12" style={{ background: 'rgba(255, 255, 255, 0.01)' }}>
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl font-bold text-white text-center mb-12">What are the advantages of <span className="text-green-400">Ascend</span>?</h2>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+              {[
+                { metric: 'Real-time', desc: 'response to questions', color: '#10b981' },
+                { metric: '95%', desc: 'accuracy in identifying questions', color: '#3b82f6' },
+                { metric: '<1 sec', desc: 'to generate tailored answers', color: '#8b5cf6' },
+                { metric: '20 sec', desc: 'in-depth performance analysis', color: '#f59e0b' },
+                { metric: 'Massive', desc: 'tailored interview questions', color: '#ef4444' },
+              ].map((item, i) => (
+                <div key={i} className="text-center p-6 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                  <div className="text-2xl md:text-3xl font-black mb-2" style={{ color: item.color }}>{item.metric}</div>
+                  <div className="text-gray-400 text-sm">{item.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Benefits Section */}
+        <div className="py-20 px-6 lg:px-12">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl font-bold text-white text-center mb-4">Benefits of using <span className="text-green-400">Ascend</span></h2>
+            <p className="text-gray-400 text-center mb-12 max-w-2xl mx-auto">More than just interview help - a complete career development platform</p>
+            <div className="grid md:grid-cols-2 gap-6">
+              {[
+                { icon: '🧠', title: 'Expand Your Knowledge', desc: 'Leverage AI-driven insights to quickly master cutting-edge industry technologies. Ascend fills your knowledge gaps, helping you stay ahead with the latest technical expertise.', color: '#10b981' },
+                { icon: '💬', title: 'Enhance Communication', desc: 'Whether you\'re new to the field or an experienced pro, clear communication is key. Ascend structures your thoughts, making your expression more confident and persuasive.', color: '#3b82f6' },
+                { icon: '💪', title: 'Boost Confidence', desc: 'From virtual meetings to in-person interviews, Ascend equips you with the tools to confidently navigate every interview scenario with ease.', color: '#8b5cf6' },
+                { icon: '📈', title: 'Personalized Growth', desc: 'Ascend continuously adapts to your strengths and areas for improvement, offering personalized suggestions for ongoing skill enhancement.', color: '#f59e0b' },
+              ].map((benefit, i) => (
+                <div key={i} className="p-8 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                  <div className="flex items-start gap-4">
+                    <div className="text-4xl">{benefit.icon}</div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-white mb-2">{benefit.title}</h3>
+                      <p className="text-gray-400 mb-4">{benefit.desc}</p>
+                      <button className="text-sm font-medium transition-colors" style={{ color: benefit.color }}>Try Now →</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* Reviews Section */}
         <div id="reviews" className="py-20 px-6 lg:px-12" style={{ background: 'rgba(16, 185, 129, 0.02)' }}>
           <div className="max-w-6xl mx-auto">
@@ -369,14 +453,14 @@ export default function OAuthLogin() {
               <div className="flex items-center justify-center gap-2 text-yellow-400 text-xl">{'★★★★★'.split('').map((s, i) => <span key={i}>{s}</span>)}<span className="text-white font-bold ml-2">4.9 / 5</span><span className="text-gray-500 ml-2">• 10,000+ reviews</span></div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {reviews.map((review, i) => (
                 <div key={i} className="p-6 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 rounded-full flex items-center justify-center text-xl" style={{ background: `hsl(${i * 60 + 120}, 60%, 40%)` }}>{review.name[0]}</div>
                     <div>
                       <div className="text-white font-semibold">{review.name}</div>
-                      <div className="text-gray-500 text-sm">{review.email}</div>
+                      <div className="text-green-400 text-sm">{review.title}</div>
                     </div>
                     <div className="ml-auto text-yellow-400">{'★'.repeat(review.rating)}</div>
                   </div>
@@ -384,6 +468,41 @@ export default function OAuthLogin() {
                   <p className="text-gray-500 text-sm">{review.date}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div id="faq" className="py-20 px-6 lg:px-12">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Frequently Asked Questions</h2>
+              <p className="text-gray-400 text-lg">Everything you need to know about Ascend</p>
+            </div>
+
+            <div className="space-y-4">
+              {faqItems.map((faq, i) => (
+                <div key={i} className="p-6 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                  <div className="flex items-start gap-4">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+                      <span className="text-green-400 font-bold">Q</span>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-white mb-3">{faq.q}</h3>
+                      <p className="text-gray-400 leading-relaxed">{faq.a}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-12 text-center p-8 rounded-2xl" style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+              <h3 className="text-xl font-bold text-white mb-2">Still have questions?</h3>
+              <p className="text-gray-400 mb-4">Our team is here to help you succeed</p>
+              <a href="mailto:support@ascend.ai" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all" style={{ background: 'rgba(16, 185, 129, 0.2)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#10b981' }}>
+                Contact Support
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+              </a>
             </div>
           </div>
         </div>
