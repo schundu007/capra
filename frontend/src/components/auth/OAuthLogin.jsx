@@ -109,15 +109,20 @@ export default function OAuthLogin() {
         <nav className="flex items-center justify-between px-6 lg:px-12 py-6">
           <div className="flex items-center gap-3">
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden"
               style={{
                 background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 boxShadow: '0 0 30px rgba(16, 185, 129, 0.4)',
               }}
             >
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
+              <img
+                src="/ascend-logo.png"
+                alt="Ascend"
+                className="w-7 h-7 object-contain filter brightness-0 invert"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
+              />
             </div>
             <span className="text-xl font-bold text-white">Ascend</span>
           </div>
@@ -472,10 +477,15 @@ export default function OAuthLogin() {
         <footer className="py-8 px-6 lg:px-12 border-t" style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}>
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                <img
+                  src="/ascend-logo.png"
+                  alt="Ascend"
+                  className="w-5 h-5 object-contain filter brightness-0 invert"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
               </div>
               <span className="text-gray-500 text-sm">© 2024 Ascend. All rights reserved.</span>
             </div>
