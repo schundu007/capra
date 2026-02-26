@@ -37,6 +37,16 @@ export default function PricingPlans({ isOpen, onClose }) {
       popular: true,
       features: ['Job Discovery', 'jobs.cariara.com access'],
     },
+    {
+      id: 'desktop_lifetime',
+      name: 'Desktop App',
+      price: '$300',
+      period: 'one-time',
+      credits: 0,
+      popular: false,
+      isDesktop: true,
+      desktopFeatures: ['Lifetime access', 'Use your own API keys', 'Unlimited usage', 'No credits needed'],
+    },
   ].map(plan => ({
     ...plan,
     codingProblems: plan.credits * PER_CREDIT.codingProblems,
@@ -198,14 +208,14 @@ export default function PricingPlans({ isOpen, onClose }) {
 
           {/* Plans */}
           {!hasActiveSubscription && (
-            <div className="grid md:grid-cols-2 gap-4 mb-5">
+            <div className="grid md:grid-cols-3 gap-4 mb-5">
               {plans.map((plan) => (
                 <div
                   key={plan.id}
                   className="relative rounded-lg p-5"
                   style={{
-                    background: plan.popular ? '#fafafa' : '#fff',
-                    border: plan.popular ? '2px solid #10b981' : '1px solid #e5e5e5',
+                    background: plan.popular ? '#fafafa' : plan.isDesktop ? '#fff7ed' : '#fff',
+                    border: plan.popular ? '2px solid #10b981' : plan.isDesktop ? '2px solid #f97316' : '1px solid #e5e5e5',
                   }}
                 >
                   {plan.popular && (
@@ -213,9 +223,9 @@ export default function PricingPlans({ isOpen, onClose }) {
                       POPULAR
                     </div>
                   )}
-                  {plan.savings && (
-                    <div className="absolute -top-2.5 right-3 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: '#f59e0b', color: 'white' }}>
-                      {plan.savings}
+                  {plan.isDesktop && (
+                    <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-bold" style={{ background: '#f97316', color: 'white' }}>
+                      LIFETIME
                     </div>
                   )}
 
@@ -225,39 +235,63 @@ export default function PricingPlans({ isOpen, onClose }) {
                     <span className="text-sm" style={{ color: '#666' }}>{plan.period}</span>
                   </div>
 
-                  <div className="flex items-center gap-2 mb-3 p-2 rounded-lg" style={{ background: '#f0fdf4' }}>
-                    <svg className="w-4 h-4" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span className="text-sm font-medium" style={{ color: '#059669' }}>{plan.credits} credits</span>
-                  </div>
+                  {!plan.isDesktop && (
+                    <div className="flex items-center gap-2 mb-3 p-2 rounded-lg" style={{ background: '#f0fdf4' }}>
+                      <svg className="w-4 h-4" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="text-sm font-medium" style={{ color: '#059669' }}>{plan.credits} credits</span>
+                    </div>
+                  )}
+
+                  {plan.isDesktop && (
+                    <div className="flex items-center gap-2 mb-3 p-2 rounded-lg" style={{ background: '#fff7ed' }}>
+                      <svg className="w-4 h-4" style={{ color: '#f97316' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-sm font-medium" style={{ color: '#ea580c' }}>Desktop App</span>
+                    </div>
+                  )}
 
                   {/* Features list */}
                   <div className="space-y-2 mb-4 text-sm" style={{ color: '#333' }}>
-                    <div className="flex items-center gap-2">
-                      <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span>{plan.codingProblems} coding problems</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span>{plan.systemDesigns} system designs</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span>{plan.companyPreps} company prep{plan.companyPreps > 1 ? 's' : ''}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span>{plan.interviewHours} hrs interview session</span>
-                    </div>
+                    {plan.isDesktop ? (
+                      plan.desktopFeatures.map((feature, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#f97316' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>{feature}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>{plan.codingProblems} coding problems</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>{plan.systemDesigns} system designs</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>{plan.companyPreps} company prep{plan.companyPreps > 1 ? 's' : ''}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>{plan.interviewHours} hrs interview session</span>
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   <button
@@ -265,12 +299,12 @@ export default function PricingPlans({ isOpen, onClose }) {
                     disabled={loading !== null}
                     className="w-full py-2.5 rounded-lg font-semibold text-sm transition-all disabled:opacity-50"
                     style={{
-                      background: plan.popular ? '#10b981' : '#fff',
-                      color: plan.popular ? '#fff' : '#000',
-                      border: plan.popular ? 'none' : '1px solid #e5e5e5',
+                      background: plan.popular ? '#10b981' : plan.isDesktop ? '#f97316' : '#fff',
+                      color: plan.popular || plan.isDesktop ? '#fff' : '#000',
+                      border: plan.popular || plan.isDesktop ? 'none' : '1px solid #e5e5e5',
                     }}
                   >
-                    {loading === plan.id ? 'Processing...' : 'Subscribe'}
+                    {loading === plan.id ? 'Processing...' : plan.isDesktop ? 'Buy Now' : 'Subscribe'}
                   </button>
                 </div>
               ))}
