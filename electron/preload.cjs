@@ -113,6 +113,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
   deleteSystemDesign: (sessionId) => ipcRenderer.invoke('delete-system-design', sessionId),
   clearAllSystemDesigns: () => ipcRenderer.invoke('clear-all-system-designs'),
 
+  // Device License Management
+  getDeviceInfo: () => ipcRenderer.invoke('get-device-info'),
+  verifyDeviceLicense: (token) => ipcRenderer.invoke('verify-device-license', token),
+  getLicenseStatus: () => ipcRenderer.invoke('get-license-status'),
+  clearLicenseCache: () => ipcRenderer.invoke('clear-license-cache'),
+  onLicenseStatusChanged: (callback) => {
+    ipcRenderer.on('license-status-changed', (event, status) => callback(status));
+    return () => ipcRenderer.removeListener('license-status-changed', callback);
+  },
+
 });
 
 // Expose a flag to detect Electron environment

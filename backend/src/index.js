@@ -24,6 +24,7 @@ import billingRouter from './routes/billing.js';
 import creditsRouter from './routes/credits.js';
 import companyPrepsRouter from './routes/companyPreps.js';
 import usageRouter from './routes/usage.js';
+import deviceRouter from './routes/device.js';
 import { authenticate } from './middleware/authenticate.js';
 import { isDatabaseConfigured } from './config/database.js';
 import { isStripeConfigured } from './config/stripe.js';
@@ -239,6 +240,7 @@ app.use('/api/billing', billingRouter);
 app.use('/api/credits', creditsRouter);
 app.use('/api/company-preps', companyPrepsRouter);
 app.use('/api/usage', usageRouter);
+app.use('/api/device', deviceRouter);
 
 // Enhanced health check
 app.get('/api/health', (req, res) => {

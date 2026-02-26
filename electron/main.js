@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import { startBackendServer } from './backend-server.js';
 import { setupApiKeyHandlers } from './ipc/api-keys.js';
 import { setupSettingsHandlers } from './ipc/settings.js';
+import { setupDeviceLicenseHandlers } from './ipc/device-license.js';
 import { configStore } from './store/config-store.js';
 import { secureStore } from './store/secure-store.js';
 import * as systemDesignsStore from './store/system-designs-store.js';
@@ -343,6 +344,7 @@ app.whenReady().then(async () => {
   // Set up IPC handlers
   setupApiKeyHandlers();
   setupSettingsHandlers();
+  setupDeviceLicenseHandlers();
 
   // Check for first run
   const firstRun = await isFirstRun();
