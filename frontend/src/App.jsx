@@ -314,6 +314,9 @@ export default function App() {
   const user = isElectron ? null : auth.user;
   const authRequired = !isElectron && auth.isWebApp;
 
+  // URL-based routing for webapp
+  const isLoginPage = !isElectron && window.location.pathname === '/login';
+
   // Electron-specific state
   const [showSettings, setShowSettings] = useState(false);
   const [showSetupWizard, setShowSetupWizard] = useState(false);
@@ -379,6 +382,22 @@ export default function App() {
   useEffect(() => {
     if (!isElectron && isAuthenticated && authChecked && !hasCompletedOnboarding()) {
       setShowOnboarding(true);
+    }
+  }, [isAuthenticated, authChecked]);
+
+  // URL-based routing for webapp
+  useEffect(() => {
+    if (isElectron || !authChecked) return;
+
+    const path = window.location.pathname;
+
+    // If authenticated and on /login, redirect to main app
+    if (isAuthenticated && path === '/login') {
+      window.history.replaceState({}, '', '/');
+    }
+    // If not authenticated and not on /login, redirect to login
+    else if (!isAuthenticated && path !== '/login') {
+      window.history.replaceState({}, '', '/login');
     }
   }, [isAuthenticated, authChecked]);
 
@@ -1346,9 +1365,18 @@ EDGE CASES & RESILIENCE:
     );
   }
 
-  // Show OAuth login if auth required (webapp only)
+  // Show OAuth login if auth required (webapp only) and on login page
   if (authRequired && !isAuthenticated) {
+    // Ensure we're on /login for the login page
+    if (window.location.pathname !== '/login') {
+      window.history.replaceState({}, '', '/login');
+    }
     return <OAuthLogin />;
+  }
+
+  // If authenticated but somehow on /login, redirect to main app
+  if (authRequired && isAuthenticated && window.location.pathname === '/login') {
+    window.history.replaceState({}, '', '/');
   }
 
   // If this is the dedicated Interview Prep window, render only that
