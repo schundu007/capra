@@ -1417,8 +1417,8 @@ EDGE CASES & RESILIENCE:
   const isMacElectron = isElectron && navigator.platform.toLowerCase().includes('mac');
 
   // Determine if sidebar should be shown (both Electron and webapp)
-  // Hide sidebar completely in Preparation mode for full-page experience
-  const showSidebar = !sidebarCollapsed && ascendMode !== 'ascend-prep';
+  // Hide sidebar completely in Preparation mode and Behavioral mode for full-page experience
+  const showSidebar = !sidebarCollapsed && ascendMode !== 'ascend-prep' && ascendMode !== 'behavioral';
 
   return (
     <div className="h-screen flex overflow-hidden" style={{ background: 'var(--content-bg)', color: '#1a1a1a' }}>
@@ -1461,8 +1461,8 @@ EDGE CASES & RESILIENCE:
       >
         {/* Left: Logo & Tabs */}
         <div className="flex items-center gap-4" style={{ WebkitAppRegion: 'no-drag' }}>
-          {/* Sidebar Toggle - hidden in Preparation mode */}
-          {sidebarCollapsed && ascendMode !== 'ascend-prep' && (
+          {/* Sidebar Toggle - hidden in Preparation and Behavioral modes */}
+          {sidebarCollapsed && ascendMode !== 'ascend-prep' && ascendMode !== 'behavioral' && (
             <button
               onClick={toggleSidebar}
               className="slack-btn-icon"
