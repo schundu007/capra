@@ -197,29 +197,40 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
           <p style={{ color: 'var(--text-secondary)' }}>
             Each credit allows you to create one company interview preparation package.
           </p>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-3">
             <div
-              className="p-5 rounded-xl text-center relative overflow-hidden"
+              className="p-4 rounded-xl text-center relative overflow-hidden"
               style={{
                 background: 'linear-gradient(145deg, rgba(124, 58, 237, 0.2) 0%, rgba(124, 58, 237, 0.1) 100%)',
                 border: '1px solid rgba(124, 58, 237, 0.3)'
               }}
             >
-              <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: 'var(--brand-primary)', color: 'white' }}>POPULAR</div>
-              <div className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>$99</div>
+              <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>$99</div>
               <div className="text-sm font-medium" style={{ color: 'var(--brand-primary-light)' }}>Monthly</div>
-              <div className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>5 credits/month</div>
+              <div className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>5 credits/mo</div>
             </div>
             <div
-              className="p-5 rounded-xl text-center"
+              className="p-4 rounded-xl text-center relative overflow-hidden"
               style={{
                 background: 'linear-gradient(145deg, rgba(6, 182, 212, 0.2) 0%, rgba(6, 182, 212, 0.1) 100%)',
                 border: '1px solid rgba(6, 182, 212, 0.3)'
               }}
             >
-              <div className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>$300</div>
+              <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded-full text-[8px] font-bold" style={{ background: '#10b981', color: 'white' }}>POPULAR</div>
+              <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>$300</div>
               <div className="text-sm font-medium" style={{ color: 'var(--accent-teal-light)' }}>Quarterly Pro</div>
-              <div className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>10 credits/quarter</div>
+              <div className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>10 credits/qtr</div>
+            </div>
+            <div
+              className="p-4 rounded-xl text-center"
+              style={{
+                background: 'linear-gradient(145deg, rgba(249, 115, 22, 0.2) 0%, rgba(249, 115, 22, 0.1) 100%)',
+                border: '1px solid rgba(249, 115, 22, 0.3)'
+              }}
+            >
+              <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>$300</div>
+              <div className="text-sm font-medium" style={{ color: '#fb923c' }}>Desktop</div>
+              <div className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>Lifetime access</div>
             </div>
           </div>
           <div
