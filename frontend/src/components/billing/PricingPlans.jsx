@@ -11,6 +11,14 @@ export default function PricingPlans({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
+  // Per credit allowances
+  const PER_CREDIT = {
+    codingProblems: 10,
+    systemDesigns: 5,
+    companyPreps: 1,
+    interviewMinutes: 75,
+  };
+
   const plans = [
     {
       id: 'monthly',
@@ -28,7 +36,13 @@ export default function PricingPlans({ isOpen, onClose }) {
       credits: 15,
       savings: 'Save $97',
     },
-  ];
+  ].map(plan => ({
+    ...plan,
+    codingProblems: plan.credits * PER_CREDIT.codingProblems,
+    systemDesigns: plan.credits * PER_CREDIT.systemDesigns,
+    companyPreps: plan.credits * PER_CREDIT.companyPreps,
+    interviewHours: Math.round((plan.credits * PER_CREDIT.interviewMinutes) / 60 * 10) / 10,
+  }));
 
   const handleSubscribe = async (planId) => {
     setLoading(planId);
@@ -215,11 +229,33 @@ export default function PricingPlans({ isOpen, onClose }) {
                     </svg>
                     <span className="text-sm font-medium" style={{ color: '#059669' }}>{plan.credits} credits</span>
                   </div>
-                  <div className="flex items-center gap-2 mb-4 text-sm" style={{ color: '#333' }}>
-                    <svg className="w-4 h-4" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Crack {plan.credits} interviews with {plan.credits} credits</span>
+
+                  {/* Features list */}
+                  <div className="space-y-2 mb-4 text-sm" style={{ color: '#333' }}>
+                    <div className="flex items-center gap-2">
+                      <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>{plan.codingProblems} coding problems</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>{plan.systemDesigns} system designs</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>{plan.companyPreps} company prep{plan.companyPreps > 1 ? 's' : ''}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>{plan.interviewHours} hrs interview session</span>
+                    </div>
                   </div>
 
                   <button
@@ -277,7 +313,7 @@ export default function PricingPlans({ isOpen, onClose }) {
 
           {/* Note */}
           <p className="mt-4 text-center text-xs" style={{ color: '#999' }}>
-            1 credit = 1 company interview prep
+            1 credit = 10 coding problems + 5 system designs + 1 company prep + 75 min interview
           </p>
         </div>
       </div>
