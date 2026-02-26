@@ -25,7 +25,7 @@ export default function PricingPlans({ isOpen, onClose }) {
       name: 'Quarterly',
       price: '$200',
       period: '/qtr',
-      credits: 5,
+      credits: 15,
       savings: 'Save $97',
     },
   ];
@@ -219,7 +219,7 @@ export default function PricingPlans({ isOpen, onClose }) {
                     <svg className="w-4 h-4" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span>Crack 5 interviews with 5 credits</span>
+                    <span>Crack {plan.credits} interviews with {plan.credits} credits</span>
                   </div>
 
                   <button
