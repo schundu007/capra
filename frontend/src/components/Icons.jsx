@@ -1,0 +1,525 @@
+/**
+ * Cariara Custom Icon Library for React
+ *
+ * A curated set of inspiring, modern icons for the Capra/Ascend Interview Prep Portal.
+ * All icons use a consistent 24x24 viewBox with 2px stroke width.
+ *
+ * Usage:
+ *   import { Icon, DevOpsIcon, BrainIcon } from './Icons';
+ *   <Icon name="devops" className="w-6 h-6" />
+ *   <BrainIcon className="w-6 h-6 text-blue-500" />
+ */
+
+import React from 'react';
+
+// Base Icon component that renders SVG icons by name
+export const Icon = ({ name, className = '', size = 24, ...props }) => {
+    const icon = icons[name];
+    if (!icon) {
+        console.warn(`Icon "${name}" not found`);
+        return null;
+    }
+
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            width={size}
+            height={size}
+            className={className}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            {...props}
+            dangerouslySetInnerHTML={{ __html: icon }}
+        />
+    );
+};
+
+// Icon definitions (inner SVG content only)
+const icons = {
+    // =========================================================================
+    // ROLE / CATEGORY ICONS
+    // =========================================================================
+    devops: `<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/>`,
+
+    sre: `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><circle cx="12" cy="16" r="1" fill="currentColor"/>`,
+
+    cloudArchitect: `<path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/><path d="M12 12v5"/><path d="M9 15l3 3 3-3"/>`,
+
+    platform: `<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><circle cx="12" cy="12" r="2" fill="currentColor"/>`,
+
+    backend: `<rect x="2" y="3" width="20" height="6" rx="2"/><rect x="2" y="15" width="20" height="6" rx="2"/><path d="M6 6h.01M6 18h.01"/><path d="M12 9v6"/><path d="M9 12h6"/>`,
+
+    fullstack: `<path d="M4 4h16v16H4z"/><path d="M4 9h16"/><path d="M9 9v11"/><circle cx="6.5" cy="6.5" r="1" fill="currentColor"/><path d="M14 14l2 2-2 2"/><path d="M18 14l-2 2 2 2"/>`,
+
+    data: `<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M12 8v4"/><circle cx="12" cy="15" r="1.5" fill="currentColor"/>`,
+
+    ml: `<circle cx="12" cy="12" r="3"/><circle cx="12" cy="4" r="2"/><circle cx="20" cy="12" r="2"/><circle cx="12" cy="20" r="2"/><circle cx="4" cy="12" r="2"/><path d="M12 6v3M15 12h3M12 15v3M9 12H6"/><path d="M16.24 7.76l-2.12 2.12M16.24 16.24l-2.12-2.12M7.76 16.24l2.12-2.12M7.76 7.76l2.12 2.12"/>`,
+
+    security: `<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M12 3a4 4 0 014 4v4H8V7a4 4 0 014-4z"/><circle cx="12" cy="16" r="1.5" fill="currentColor"/><path d="M12 17.5v1.5"/>`,
+
+    frontend: `<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 8l3 3-3 3"/><path d="M13 14h4"/>`,
+
+    mobile: `<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/><path d="M9 6h6"/><path d="M9 10h6"/><path d="M9 14h3"/>`,
+
+    // =========================================================================
+    // AI & ASSISTANT ICONS
+    // =========================================================================
+    brain: `<path d="M9.5 2A2.5 2.5 0 0112 4.5v15a2.5 2.5 0 01-4.96.44 2.5 2.5 0 01-2.96-3.08 3 3 0 01-.34-5.58 2.5 2.5 0 011.32-4.24 2.5 2.5 0 013.44-3.04"/><path d="M14.5 2A2.5 2.5 0 0012 4.5v15a2.5 2.5 0 004.96.44 2.5 2.5 0 002.96-3.08 3 3 0 00.34-5.58 2.5 2.5 0 00-1.32-4.24 2.5 2.5 0 00-3.44-3.04"/>`,
+
+    aiAssistant: `<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8"/><path d="M12 16v4"/><circle cx="9" cy="10" r="1" fill="currentColor"/><circle cx="15" cy="10" r="1" fill="currentColor"/><path d="M9 13c.6.9 1.7 1.5 3 1.5s2.4-.6 3-1.5"/>`,
+
+    robot: `<rect x="3" y="8" width="18" height="12" rx="2"/><path d="M12 2v6"/><circle cx="12" cy="2" r="2"/><circle cx="9" cy="13" r="1.5" fill="currentColor"/><circle cx="15" cy="13" r="1.5" fill="currentColor"/><path d="M8 17h8"/><path d="M1 12h2"/><path d="M21 12h2"/>`,
+
+    wand: `<path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8L19 13"/><path d="M15 9h0"/><path d="M17.8 6.2L19 5"/><path d="M3 21l9-9"/><path d="M12.2 6.2L11 5"/>`,
+
+    sparkles: `<path d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>`,
+
+    // =========================================================================
+    // INTERVIEW PRACTICE ICONS
+    // =========================================================================
+    microphone: `<path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>`,
+
+    microphoneOff: `<line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 005.12 2.12M15 9.34V4a3 3 0 00-5.94-.6"/><path d="M17 16.95A7 7 0 015 12v-2m14 0v2a7 7 0 01-.11 1.23"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>`,
+
+    camera: `<path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>`,
+
+    video: `<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>`,
+
+    headphones: `<path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/>`,
+
+    // =========================================================================
+    // PRACTICE & LEARNING ICONS
+    // =========================================================================
+    practice: `<circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"/>`,
+
+    play: `<polygon points="5 3 19 12 5 21 5 3"/>`,
+
+    pause: `<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>`,
+
+    stop: `<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>`,
+
+    repeat: `<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/>`,
+
+    // =========================================================================
+    // QUESTIONS & ANSWERS ICONS
+    // =========================================================================
+    question: `<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/>`,
+
+    questionBubble: `<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><path d="M12 8a1.5 1.5 0 011.5 1.5c0 1-1.5 1.5-1.5 2.5"/><circle cx="12" cy="14" r="0.5" fill="currentColor"/>`,
+
+    answer: `<path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/><path d="M9 12l2 2 4-4"/>`,
+
+    lightbulb: `<path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0018 8 6 6 0 006 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 018.91 14"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="19.07" y1="4.93" x2="17.66" y2="6.34"/><line x1="20" y1="12" x2="22" y2="12"/>`,
+
+    // =========================================================================
+    // TIMER & SCORES ICONS
+    // =========================================================================
+    timer: `<circle cx="12" cy="14" r="8"/><line x1="12" y1="10" x2="12" y2="14"/><line x1="12" y1="14" x2="15" y2="14"/><line x1="9" y1="2" x2="15" y2="2"/><line x1="12" y1="2" x2="12" y2="6"/>`,
+
+    stopwatch: `<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3L2 6"/><path d="M22 6l-3-3"/><path d="M6.38 18.7L4 21"/><path d="M17.64 18.67L20 21"/>`,
+
+    hourglass: `<path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 00-.586-1.414L12 12l-4.414 4.414A2 2 0 007 17.828V22"/><path d="M7 2v4.172a2 2 0 00.586 1.414L12 12l4.414-4.414A2 2 0 0017 6.172V2"/>`,
+
+    score: `<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>`,
+
+    chartBar: `<line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>`,
+
+    chartLine: `<path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>`,
+
+    trendUp: `<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>`,
+
+    trendDown: `<polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>`,
+
+    // =========================================================================
+    // PROGRESS & ACHIEVEMENT ICONS
+    // =========================================================================
+    progress: `<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>`,
+
+    badge: `<path d="M12 15l-2 5-1-1-1 1 3.5-7"/><path d="M12 15l2 5 1-1 1 1-3.5-7"/><circle cx="12" cy="8" r="6"/><path d="M9 8l2 2 4-4"/>`,
+
+    medal: `<path d="M7.21 15L2.66 7.14a2 2 0 01.13-2.2L4.4 2.8A2 2 0 016 2h12a2 2 0 011.6.8l1.6 2.14a2 2 0 01.14 2.2L16.79 15"/><path d="M11 12L5.12 2.2"/><path d="M13 12l5.88-9.8"/><path d="M8 7h8"/><circle cx="12" cy="17" r="5"/><path d="M12 14.5v5"/><path d="M9.5 17h5"/>`,
+
+    trophy: `<path d="M6 9H4.5a2.5 2.5 0 010-5H6"/><path d="M18 9h1.5a2.5 2.5 0 000-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0012 0V2z"/>`,
+
+    award: `<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>`,
+
+    streak: `<path d="M12 2L8 10l4 2-2 10 8-12h-6l4-8z"/>`,
+
+    crown: `<path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z"/><path d="M3 20h18"/>`,
+
+    certificate: `<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20l4-2 4 2"/><path d="M12 14v4"/><circle cx="12" cy="10" r="2"/>`,
+
+    // =========================================================================
+    // STUDY & NOTES ICONS
+    // =========================================================================
+    book: `<path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>`,
+
+    bookOpen: `<path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>`,
+
+    notebook: `<path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M12 6h4"/><path d="M12 10h4"/><path d="M12 14h4"/>`,
+
+    notes: `<path d="M16 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V8z"/><polyline points="14 3 14 8 21 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/>`,
+
+    flashcard: `<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M12 8v8"/><path d="M8 12h8"/><path d="M6 4v-2"/><path d="M18 4v-2"/>`,
+
+    pencil: `<path d="M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>`,
+
+    // =========================================================================
+    // FEEDBACK & REVIEW ICONS
+    // =========================================================================
+    feedback: `<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><path d="M12 7v2"/><path d="M12 13h.01"/>`,
+
+    thumbsUp: `<path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/>`,
+
+    thumbsDown: `<path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3zm7-13h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"/>`,
+
+    comment: `<path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/>`,
+
+    review: `<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/>`,
+
+    // =========================================================================
+    // CATEGORIES / TOPICS ICONS
+    // =========================================================================
+    code: `<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>`,
+
+    terminal: `<polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>`,
+
+    database: `<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>`,
+
+    systemDesign: `<rect x="2" y="3" width="6" height="5" rx="1"/><rect x="16" y="3" width="6" height="5" rx="1"/><rect x="9" y="16" width="6" height="5" rx="1"/><path d="M5 8v3a2 2 0 002 2h10a2 2 0 002-2V8"/><path d="M12 13v3"/>`,
+
+    behavioral: `<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>`,
+
+    algorithm: `<rect x="3" y="3" width="6" height="6"/><rect x="15" y="3" width="6" height="6"/><rect x="9" y="15" width="6" height="6"/><path d="M9 6h6"/><path d="M12 15V9"/><path d="M6 9v3a3 3 0 003 3"/><path d="M18 9v3a3 3 0 01-3 3"/>`,
+
+    // =========================================================================
+    // NAVIGATION ICONS
+    // =========================================================================
+    home: `<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>`,
+
+    discover: `<circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="currentColor" stroke="none"/>`,
+
+    search: `<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/><path d="M11 8v6"/><path d="M8 11h6"/>`,
+
+    filter: `<path d="M4 6h16"/><path d="M6 12h12"/><path d="M8 18h8"/><circle cx="8" cy="6" r="2" fill="currentColor"/><circle cx="16" cy="12" r="2" fill="currentColor"/><circle cx="10" cy="18" r="2" fill="currentColor"/>`,
+
+    menu: `<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>`,
+
+    close: `<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>`,
+
+    chevronDown: `<polyline points="6 9 12 15 18 9"/>`,
+    chevronUp: `<polyline points="18 15 12 9 6 15"/>`,
+    chevronLeft: `<polyline points="15 18 9 12 15 6"/>`,
+    chevronRight: `<polyline points="9 18 15 12 9 6"/>`,
+    chevronsLeft: `<polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/>`,
+    chevronsRight: `<polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/>`,
+
+    arrowLeft: `<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>`,
+    arrowRight: `<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>`,
+
+    externalLink: `<path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>`,
+
+    // =========================================================================
+    // USER / PROFILE ICONS
+    // =========================================================================
+    user: `<path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>`,
+
+    userCircle: `<circle cx="12" cy="12" r="10"/><path d="M18 19a6 6 0 00-12 0"/><circle cx="12" cy="10" r="3"/>`,
+
+    settings: `<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>`,
+
+    logout: `<path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>`,
+
+    login: `<path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>`,
+
+    users: `<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>`,
+
+    userPlus: `<path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>`,
+
+    // =========================================================================
+    // ACTION ICONS
+    // =========================================================================
+    save: `<path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>`,
+
+    bookmark: `<path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>`,
+    bookmarkFilled: `<path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" fill="currentColor"/>`,
+
+    heart: `<path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>`,
+    heartFilled: `<path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" fill="currentColor"/>`,
+
+    star: `<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>`,
+    starFilled: `<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/>`,
+
+    share: `<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>`,
+
+    copy: `<rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>`,
+
+    edit: `<path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>`,
+
+    trash: `<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>`,
+
+    download: `<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>`,
+
+    upload: `<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>`,
+
+    refresh: `<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>`,
+
+    plus: `<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>`,
+    minus: `<line x1="5" y1="12" x2="19" y2="12"/>`,
+    check: `<polyline points="20 6 9 17 4 12"/>`,
+    x: `<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>`,
+
+    // =========================================================================
+    // STATUS ICONS
+    // =========================================================================
+    checkCircle: `<circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/>`,
+    alertCircle: `<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>`,
+    alertTriangle: `<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>`,
+    info: `<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>`,
+    helpCircle: `<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>`,
+    loader: `<line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/>`,
+
+    // =========================================================================
+    // DOCUMENT ICONS
+    // =========================================================================
+    document: `<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>`,
+
+    resume: `<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><circle cx="10" cy="12" r="2"/><path d="M14 16h2"/><path d="M14 12h2"/><path d="M8 20v-1a2 2 0 012-2h0a2 2 0 012 2v1"/>`,
+
+    coverLetter: `<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h8"/><path d="M8 17h5"/><path d="M8 9h1"/>`,
+
+    folder: `<path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>`,
+    folderOpen: `<path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/><path d="M2 10h20"/>`,
+
+    // =========================================================================
+    // THEME ICONS
+    // =========================================================================
+    sun: `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`,
+
+    moon: `<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>`,
+
+    // =========================================================================
+    // SOCIAL / AUTH ICONS (with fill for brand colors)
+    // =========================================================================
+    google: `<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" stroke="none"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" stroke="none"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" stroke="none"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" stroke="none"/>`,
+
+    linkedin: `<path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" fill="#0A66C2" stroke="none"/>`,
+
+    github: `<path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" stroke="none"/>`,
+
+    email: `<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>`,
+
+    // =========================================================================
+    // JOB / WORK ICONS
+    // =========================================================================
+    briefcase: `<rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/>`,
+
+    building: `<rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/>`,
+
+    mapPin: `<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>`,
+
+    clock: `<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>`,
+
+    calendar: `<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>`,
+
+    dollarSign: `<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>`,
+
+    rocket: `<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>`,
+
+    target: `<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>`,
+
+    zap: `<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>`,
+
+    // =========================================================================
+    // MISC ICONS
+    // =========================================================================
+    eye: `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`,
+    eyeOff: `<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`,
+    lock: `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>`,
+    unlock: `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 019.9-1"/>`,
+    globe: `<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>`,
+    link: `<path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>`,
+    phone: `<path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>`,
+    tag: `<path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>`,
+    gift: `<polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/>`,
+
+    // Capra/Ascend branding
+    capra: `<path d="M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z"/><path d="M8 12l3 3 5-6"/>`,
+    ascend: `<path d="M12 19V5"/><path d="M5 12l7-7 7 7"/><path d="M5 19h14"/>`,
+    mountain: `<path d="M8 3l4 8 5-5 5 15H2L8 3z"/><path d="M4.14 15.08c2.62-1.57 5.24-1.43 7.86.42 2.74 1.94 5.49 2 8.23.19"/>`,
+};
+
+// Named icon component exports for common icons
+export const DevOpsIcon = (props) => <Icon name="devops" {...props} />;
+export const SREIcon = (props) => <Icon name="sre" {...props} />;
+export const CloudArchitectIcon = (props) => <Icon name="cloudArchitect" {...props} />;
+export const PlatformIcon = (props) => <Icon name="platform" {...props} />;
+export const BackendIcon = (props) => <Icon name="backend" {...props} />;
+export const FullstackIcon = (props) => <Icon name="fullstack" {...props} />;
+export const DataIcon = (props) => <Icon name="data" {...props} />;
+export const MLIcon = (props) => <Icon name="ml" {...props} />;
+export const SecurityIcon = (props) => <Icon name="security" {...props} />;
+export const FrontendIcon = (props) => <Icon name="frontend" {...props} />;
+export const MobileIcon = (props) => <Icon name="mobile" {...props} />;
+
+export const BrainIcon = (props) => <Icon name="brain" {...props} />;
+export const AIAssistantIcon = (props) => <Icon name="aiAssistant" {...props} />;
+export const RobotIcon = (props) => <Icon name="robot" {...props} />;
+export const SparklesIcon = (props) => <Icon name="sparkles" {...props} />;
+
+export const MicrophoneIcon = (props) => <Icon name="microphone" {...props} />;
+export const CameraIcon = (props) => <Icon name="camera" {...props} />;
+export const VideoIcon = (props) => <Icon name="video" {...props} />;
+export const HeadphonesIcon = (props) => <Icon name="headphones" {...props} />;
+
+export const PracticeIcon = (props) => <Icon name="practice" {...props} />;
+export const PlayIcon = (props) => <Icon name="play" {...props} />;
+export const PauseIcon = (props) => <Icon name="pause" {...props} />;
+export const StopIcon = (props) => <Icon name="stop" {...props} />;
+
+export const QuestionIcon = (props) => <Icon name="question" {...props} />;
+export const AnswerIcon = (props) => <Icon name="answer" {...props} />;
+export const LightbulbIcon = (props) => <Icon name="lightbulb" {...props} />;
+
+export const TimerIcon = (props) => <Icon name="timer" {...props} />;
+export const StopwatchIcon = (props) => <Icon name="stopwatch" {...props} />;
+export const ScoreIcon = (props) => <Icon name="score" {...props} />;
+export const ChartBarIcon = (props) => <Icon name="chartBar" {...props} />;
+export const TrendUpIcon = (props) => <Icon name="trendUp" {...props} />;
+
+export const BadgeIcon = (props) => <Icon name="badge" {...props} />;
+export const MedalIcon = (props) => <Icon name="medal" {...props} />;
+export const TrophyIcon = (props) => <Icon name="trophy" {...props} />;
+export const AwardIcon = (props) => <Icon name="award" {...props} />;
+export const StreakIcon = (props) => <Icon name="streak" {...props} />;
+export const CrownIcon = (props) => <Icon name="crown" {...props} />;
+export const CertificateIcon = (props) => <Icon name="certificate" {...props} />;
+
+export const BookIcon = (props) => <Icon name="book" {...props} />;
+export const BookOpenIcon = (props) => <Icon name="bookOpen" {...props} />;
+export const NotebookIcon = (props) => <Icon name="notebook" {...props} />;
+export const NotesIcon = (props) => <Icon name="notes" {...props} />;
+export const FlashcardIcon = (props) => <Icon name="flashcard" {...props} />;
+
+export const FeedbackIcon = (props) => <Icon name="feedback" {...props} />;
+export const ThumbsUpIcon = (props) => <Icon name="thumbsUp" {...props} />;
+export const ThumbsDownIcon = (props) => <Icon name="thumbsDown" {...props} />;
+export const CommentIcon = (props) => <Icon name="comment" {...props} />;
+export const ReviewIcon = (props) => <Icon name="review" {...props} />;
+
+export const CodeIcon = (props) => <Icon name="code" {...props} />;
+export const TerminalIcon = (props) => <Icon name="terminal" {...props} />;
+export const DatabaseIcon = (props) => <Icon name="database" {...props} />;
+export const SystemDesignIcon = (props) => <Icon name="systemDesign" {...props} />;
+export const BehavioralIcon = (props) => <Icon name="behavioral" {...props} />;
+export const AlgorithmIcon = (props) => <Icon name="algorithm" {...props} />;
+
+export const HomeIcon = (props) => <Icon name="home" {...props} />;
+export const DiscoverIcon = (props) => <Icon name="discover" {...props} />;
+export const SearchIcon = (props) => <Icon name="search" {...props} />;
+export const FilterIcon = (props) => <Icon name="filter" {...props} />;
+export const MenuIcon = (props) => <Icon name="menu" {...props} />;
+export const CloseIcon = (props) => <Icon name="close" {...props} />;
+
+export const UserIcon = (props) => <Icon name="user" {...props} />;
+export const UsersIcon = (props) => <Icon name="users" {...props} />;
+export const SettingsIcon = (props) => <Icon name="settings" {...props} />;
+export const LogoutIcon = (props) => <Icon name="logout" {...props} />;
+export const LoginIcon = (props) => <Icon name="login" {...props} />;
+
+export const SaveIcon = (props) => <Icon name="save" {...props} />;
+export const BookmarkIcon = (props) => <Icon name="bookmark" {...props} />;
+export const HeartIcon = (props) => <Icon name="heart" {...props} />;
+export const StarIcon = (props) => <Icon name="star" {...props} />;
+export const ShareIcon = (props) => <Icon name="share" {...props} />;
+export const CopyIcon = (props) => <Icon name="copy" {...props} />;
+export const EditIcon = (props) => <Icon name="edit" {...props} />;
+export const TrashIcon = (props) => <Icon name="trash" {...props} />;
+export const DownloadIcon = (props) => <Icon name="download" {...props} />;
+export const UploadIcon = (props) => <Icon name="upload" {...props} />;
+export const RefreshIcon = (props) => <Icon name="refresh" {...props} />;
+export const PlusIcon = (props) => <Icon name="plus" {...props} />;
+export const MinusIcon = (props) => <Icon name="minus" {...props} />;
+export const CheckIcon = (props) => <Icon name="check" {...props} />;
+export const XIcon = (props) => <Icon name="x" {...props} />;
+
+export const CheckCircleIcon = (props) => <Icon name="checkCircle" {...props} />;
+export const AlertCircleIcon = (props) => <Icon name="alertCircle" {...props} />;
+export const AlertTriangleIcon = (props) => <Icon name="alertTriangle" {...props} />;
+export const InfoIcon = (props) => <Icon name="info" {...props} />;
+export const HelpCircleIcon = (props) => <Icon name="helpCircle" {...props} />;
+export const LoaderIcon = (props) => <Icon name="loader" {...props} />;
+
+export const DocumentIcon = (props) => <Icon name="document" {...props} />;
+export const ResumeIcon = (props) => <Icon name="resume" {...props} />;
+export const CoverLetterIcon = (props) => <Icon name="coverLetter" {...props} />;
+export const FolderIcon = (props) => <Icon name="folder" {...props} />;
+
+export const SunIcon = (props) => <Icon name="sun" {...props} />;
+export const MoonIcon = (props) => <Icon name="moon" {...props} />;
+
+export const GoogleIcon = (props) => <Icon name="google" {...props} />;
+export const LinkedInIcon = (props) => <Icon name="linkedin" {...props} />;
+export const GitHubIcon = (props) => <Icon name="github" {...props} />;
+export const EmailIcon = (props) => <Icon name="email" {...props} />;
+
+export const BriefcaseIcon = (props) => <Icon name="briefcase" {...props} />;
+export const BuildingIcon = (props) => <Icon name="building" {...props} />;
+export const MapPinIcon = (props) => <Icon name="mapPin" {...props} />;
+export const ClockIcon = (props) => <Icon name="clock" {...props} />;
+export const CalendarIcon = (props) => <Icon name="calendar" {...props} />;
+export const DollarSignIcon = (props) => <Icon name="dollarSign" {...props} />;
+export const RocketIcon = (props) => <Icon name="rocket" {...props} />;
+export const TargetIcon = (props) => <Icon name="target" {...props} />;
+export const ZapIcon = (props) => <Icon name="zap" {...props} />;
+
+export const EyeIcon = (props) => <Icon name="eye" {...props} />;
+export const EyeOffIcon = (props) => <Icon name="eyeOff" {...props} />;
+export const LockIcon = (props) => <Icon name="lock" {...props} />;
+export const UnlockIcon = (props) => <Icon name="unlock" {...props} />;
+export const GlobeIcon = (props) => <Icon name="globe" {...props} />;
+export const LinkIcon = (props) => <Icon name="link" {...props} />;
+export const PhoneIcon = (props) => <Icon name="phone" {...props} />;
+export const TagIcon = (props) => <Icon name="tag" {...props} />;
+export const GiftIcon = (props) => <Icon name="gift" {...props} />;
+
+export const CapraIcon = (props) => <Icon name="capra" {...props} />;
+export const AscendIcon = (props) => <Icon name="ascend" {...props} />;
+export const MountainIcon = (props) => <Icon name="mountain" {...props} />;
+
+// Get list of all available icons
+export const getIconNames = () => Object.keys(icons);
+
+// Role icons mapping
+export const RoleIcons = {
+    devops: icons.devops,
+    sre: icons.sre,
+    cloud_architect: icons.cloudArchitect,
+    platform: icons.platform,
+    backend: icons.backend,
+    fullstack: icons.fullstack,
+    data: icons.data,
+    ml: icons.ml,
+    security: icons.security,
+    frontend: icons.frontend,
+    mobile: icons.mobile,
+};
+
+// Category icons for interview topics
+export const CategoryIcons = {
+    coding: icons.code,
+    system_design: icons.systemDesign,
+    behavioral: icons.behavioral,
+    algorithms: icons.algorithm,
+    database: icons.database,
+    frontend: icons.frontend,
+    backend: icons.backend,
+    devops: icons.devops,
+    security: icons.security,
+    ml: icons.ml,
+};
+
+export default Icon;

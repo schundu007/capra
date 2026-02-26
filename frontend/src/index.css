@@ -1020,11 +1020,13 @@ code, pre, kbd {
   background: transparent;
   border: none;
   cursor: pointer;
+  color: var(--text-primary);
   transition: all var(--transition-fast);
 }
 
 .slack-btn-icon:hover {
   background: var(--sidebar-hover);
+  color: var(--sidebar-text-bright);
 }
 
 .slack-spinner {

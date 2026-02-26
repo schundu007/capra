@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Icon } from './Icons';
 
 // Check if running on macOS in Electron
 const isMacElectron = window.electronAPI?.isElectron && navigator.platform.toLowerCase().includes('mac');
@@ -77,9 +78,7 @@ export default function Sidebar({
       >
         <div className="slack-workspace-name" style={{ WebkitAppRegion: 'no-drag' }}>
           <span>Ascend</span>
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
+          <Icon name="chevronDown" size={16} />
           {isLoading && <div className="slack-spinner" style={{ width: '14px', height: '14px', marginLeft: '8px' }} />}
         </div>
         <button
@@ -88,9 +87,7 @@ export default function Sidebar({
           title="Collapse sidebar"
           style={{ WebkitAppRegion: 'no-drag', width: '28px', height: '28px' }}
         >
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '14px', height: '14px' }}>
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-          </svg>
+          <Icon name="chevronsLeft" size={14} />
         </button>
       </div>
 
@@ -104,10 +101,7 @@ export default function Sidebar({
             style={{ height: '32px', paddingLeft: '16px' }}
           >
             <div className="slack-item-icon">
-              <svg fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-              </svg>
+              <Icon name="microphone" size={18} />
             </div>
             <span className="slack-item-text">Voice Assistant</span>
             {showAscendAssistant && <div className="slack-status-dot" style={{ marginLeft: 'auto' }} />}
@@ -123,9 +117,7 @@ export default function Sidebar({
             onClick={() => setDesignsCollapsed(!designsCollapsed)}
           >
             <span className={`slack-section-title ${designsCollapsed ? 'collapsed' : ''}`}>
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
+              <Icon name="chevronDown" size={14} />
               Saved Designs
             </span>
             <span className="slack-badge" style={{ fontSize: '11px', padding: '0 6px' }}>
@@ -148,9 +140,7 @@ export default function Sidebar({
                       onClick={() => onLoadDesign(design.id)}
                     >
                       <div className="slack-item-icon">
-                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
+                        <Icon name="document" size={16} />
                       </div>
                       <span className="slack-item-text">{design.title || 'Untitled'}</span>
                       {onDeleteDesign && (
@@ -190,9 +180,7 @@ export default function Sidebar({
             onClick={() => setHistoryCollapsed(!historyCollapsed)}
           >
             <span className={`slack-section-title ${historyCollapsed ? 'collapsed' : ''}`}>
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
+              <Icon name="chevronDown" size={14} />
               Recent History
             </span>
             <span className="slack-badge" style={{ fontSize: '11px', padding: '0 6px' }}>
@@ -215,9 +203,7 @@ export default function Sidebar({
                       onClick={() => onLoadHistory(entry.id)}
                     >
                       <div className="slack-item-icon">
-                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                        <Icon name="clock" size={16} />
                       </div>
                       <span className="slack-item-text">{entry.title || 'Untitled'}</span>
                       {onDeleteHistory && (
@@ -262,13 +248,7 @@ export default function Sidebar({
             title={stealthMode ? 'Stealth ON' : 'Stealth OFF'}
           >
             <div className="slack-item-icon">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                {stealthMode ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                )}
-              </svg>
+              <Icon name={stealthMode ? 'eyeOff' : 'eye'} size={18} />
             </div>
             <span className="slack-item-text">Stealth Mode</span>
             <span
@@ -291,10 +271,7 @@ export default function Sidebar({
           style={{ height: '36px', paddingLeft: '16px' }}
         >
           <div className="slack-item-icon">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
+            <Icon name="settings" size={18} />
           </div>
           <span className="slack-item-text">Settings</span>
         </button>
@@ -317,9 +294,7 @@ export default function Sidebar({
                   style={{ width: '28px', height: '28px', color: 'var(--sidebar-text)' }}
                   title="Admin"
                 >
-                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '14px', height: '14px' }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
+                  <Icon name="users" size={14} />
                 </button>
               )}
               <button
@@ -328,9 +303,7 @@ export default function Sidebar({
                 style={{ width: '28px', height: '28px', color: 'var(--sidebar-text)' }}
                 title="Sign out"
               >
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '14px', height: '14px' }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
+                <Icon name="logout" size={14} />
               </button>
             </div>
           </div>
