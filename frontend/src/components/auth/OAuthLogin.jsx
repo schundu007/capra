@@ -238,6 +238,25 @@ export default function OAuthLogin() {
     }
   };
 
+  // Handle pricing button clicks - store plan and redirect to Stripe after login
+  const handlePricingClick = async (planId) => {
+    setLoading(planId);
+    setError('');
+
+    // Store the selected plan for after login
+    localStorage.setItem('ascend_pending_plan', planId);
+
+    try {
+      // First sign in the user
+      await signIn('google');
+      // After successful sign in, the AuthContext will handle redirect to checkout
+    } catch (err) {
+      localStorage.removeItem('ascend_pending_plan');
+      setError(err.message || 'Failed to sign in');
+      setLoading(null);
+    }
+  };
+
   const providers = [
     { id: 'google', name: 'Google' },
     { id: 'github', name: 'GitHub' },
@@ -850,7 +869,7 @@ export default function OAuthLogin() {
                       <li key={i} className="flex items-center gap-2 text-gray-300"><svg className="w-4 h-4 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>{item}</li>
                     ))}
                   </ul>
-                  <button onClick={() => handleOAuthLogin('google')} className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all hover:bg-white/20" style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#fff' }}>Get Started</button>
+                  <button onClick={() => handlePricingClick('monthly')} className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all hover:bg-white/20" style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#fff' }}>{loading === 'monthly' ? 'Processing...' : 'Get Started'}</button>
                 </div>
               </div>
 
@@ -876,8 +895,8 @@ export default function OAuthLogin() {
                     <li className="flex items-center gap-2 text-blue-300 font-medium"><svg className="w-4 h-4 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Auto Job Discovery</li>
                     <li className="flex items-center gap-2 text-blue-300 font-medium"><svg className="w-4 h-4 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>jobs.cariara.com access</li>
                   </ul>
-                  <button onClick={() => handleOAuthLogin('google')} className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all relative overflow-hidden group/btn" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff' }}>
-                    <span className="relative z-10">Get Pro Access</span>
+                  <button onClick={() => handlePricingClick('quarterly_pro')} className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all relative overflow-hidden group/btn" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff' }}>
+                    <span className="relative z-10">{loading === 'quarterly_pro' ? 'Processing...' : 'Get Pro Access'}</span>
                     <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)' }} />
                   </button>
                 </div>
@@ -896,8 +915,8 @@ export default function OAuthLogin() {
                       <li key={i} className="flex items-center gap-2 text-gray-300"><svg className="w-4 h-4 text-purple-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>{item}</li>
                     ))}
                   </ul>
-                  <button onClick={() => handleOAuthLogin('google')} className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all" style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: '#fff' }}>
-                    Buy Lifetime Access
+                  <button onClick={() => handlePricingClick('desktop_lifetime')} className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all" style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: '#fff' }}>
+                    {loading === 'desktop_lifetime' ? 'Processing...' : 'Buy Lifetime Access'}
                   </button>
                   <p className="text-center text-xs text-gray-500 mt-2">Instant download after purchase</p>
                 </div>
@@ -916,7 +935,7 @@ export default function OAuthLogin() {
                       <li key={i} className="flex items-center gap-2 text-gray-300"><svg className="w-4 h-4 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>{item}</li>
                     ))}
                   </ul>
-                  <button onClick={() => handleOAuthLogin('google')} className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all hover:bg-white/20" style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#fff' }}>Buy Credits</button>
+                  <button onClick={() => handlePricingClick('addon')} className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all hover:bg-white/20" style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#fff' }}>{loading === 'addon' ? 'Processing...' : 'Buy Credits'}</button>
                 </div>
               </div>
             </div>

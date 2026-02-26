@@ -24,16 +24,25 @@ router.get('/prices', (req, res) => {
       interval: 'month',
       credits: CREDITS_PER_PLAN.monthly,
     },
-    quarterly: {
-      priceId: STRIPE_PRICES.QUARTERLY,
-      amount: 20000, // $200.00
+    quarterly_pro: {
+      priceId: STRIPE_PRICES.QUARTERLY_PRO,
+      amount: 30000, // $300.00
       currency: 'usd',
       interval: 'quarter',
-      credits: CREDITS_PER_PLAN.quarterly,
+      credits: CREDITS_PER_PLAN.quarterly_pro,
+      features: ['interview_assistant', 'job_discovery'],
+    },
+    desktop_lifetime: {
+      priceId: STRIPE_PRICES.DESKTOP_LIFETIME,
+      amount: 30000, // $300.00
+      currency: 'usd',
+      type: 'one_time',
+      credits: 0,
+      features: ['desktop_app', 'own_api_keys', 'unlimited_usage'],
     },
     addon: {
       priceId: STRIPE_PRICES.ADDON,
-      amount: 5000, // $50.00
+      amount: 3000, // $30.00
       currency: 'usd',
       type: 'one_time',
       credits: CREDITS_PER_PLAN.addon,
@@ -60,7 +69,13 @@ router.post('/checkout', jwtAuth, async (req, res) => {
     }
 
     // Validate price ID
-    const validPrices = [STRIPE_PRICES.MONTHLY, STRIPE_PRICES.QUARTERLY, STRIPE_PRICES.ADDON];
+    const validPrices = [
+      STRIPE_PRICES.MONTHLY,
+      STRIPE_PRICES.QUARTERLY_PRO,
+      STRIPE_PRICES.DESKTOP_LIFETIME,
+      STRIPE_PRICES.ADDON,
+    ].filter(Boolean); // Filter out undefined prices
+
     if (!validPrices.includes(priceId)) {
       return res.status(400).json({ error: 'Invalid price ID' });
     }
@@ -91,10 +106,10 @@ router.post('/checkout', jwtAuth, async (req, res) => {
     }
 
     // Determine if this is a subscription or one-time purchase
-    const isAddon = priceId === STRIPE_PRICES.ADDON;
+    const isOneTime = priceId === STRIPE_PRICES.ADDON || priceId === STRIPE_PRICES.DESKTOP_LIFETIME;
 
     // For subscriptions, don't allow if already subscribed
-    if (!isAddon) {
+    if (!isOneTime) {
       const existingSubResult = await query(
         'SELECT plan_type, status FROM ascend_subscriptions WHERE user_id = $1',
         [userId]
@@ -119,13 +134,13 @@ router.post('/checkout', jwtAuth, async (req, res) => {
           quantity: 1,
         },
       ],
-      mode: isAddon ? 'payment' : 'subscription',
+      mode: isOneTime ? 'payment' : 'subscription',
       success_url: successUrl,
       cancel_url: cancelUrl,
       metadata: {
         user_id: userId.toString(),
         price_id: priceId,
-        type: isAddon ? 'addon' : 'subscription',
+        type: isOneTime ? 'addon' : 'subscription',
       },
     };
 

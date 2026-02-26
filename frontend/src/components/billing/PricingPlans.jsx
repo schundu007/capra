@@ -26,15 +26,16 @@ export default function PricingPlans({ isOpen, onClose }) {
       price: '$99',
       period: '/mo',
       credits: 5,
-      popular: true,
+      popular: false,
     },
     {
-      id: 'quarterly',
-      name: 'Quarterly',
-      price: '$200',
+      id: 'quarterly_pro',
+      name: 'Quarterly Pro',
+      price: '$300',
       period: '/qtr',
       credits: 10,
-      savings: 'Save $98',
+      popular: true,
+      features: ['Job Discovery', 'jobs.cariara.com access'],
     },
   ].map(plan => ({
     ...plan,
@@ -52,7 +53,8 @@ export default function PricingPlans({ isOpen, onClose }) {
       if (!token) throw new Error('Please sign in first');
       const pricesRes = await fetch(`${API_URL}/api/billing/prices`);
       const prices = await pricesRes.json();
-      const priceId = planId === 'monthly' ? prices.monthly.priceId : prices.quarterly.priceId;
+      const priceId = prices[planId]?.priceId;
+      if (!priceId) throw new Error('Invalid plan');
       const res = await fetch(`${API_URL}/api/billing/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },

@@ -102,6 +102,50 @@ export function AuthProvider({ children }) {
 
           // Fetch user data
           await fetchUserData(hashAuth.accessToken);
+
+          // Check for pending plan purchase (set from landing page pricing buttons)
+          const pendingPlan = localStorage.getItem('ascend_pending_plan');
+          if (pendingPlan) {
+            localStorage.removeItem('ascend_pending_plan');
+            // Redirect to Stripe checkout
+            try {
+              const pricesRes = await fetch(`${API_URL}/api/billing/prices`);
+              const prices = await pricesRes.json();
+
+              // Map plan ID to price ID
+              const priceMap = {
+                monthly: prices.monthly?.priceId,
+                quarterly_pro: prices.quarterly_pro?.priceId,
+                desktop_lifetime: prices.desktop_lifetime?.priceId,
+                addon: prices.addon?.priceId,
+              };
+
+              const priceId = priceMap[pendingPlan];
+              if (priceId) {
+                const checkoutRes = await fetch(`${API_URL}/api/billing/checkout`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${hashAuth.accessToken}`,
+                  },
+                  body: JSON.stringify({
+                    priceId,
+                    successUrl: `${window.location.origin}?checkout=success`,
+                    cancelUrl: `${window.location.origin}?checkout=canceled`,
+                  }),
+                });
+
+                if (checkoutRes.ok) {
+                  const { url } = await checkoutRes.json();
+                  window.location.href = url;
+                  return; // Don't set loading to false, we're redirecting
+                }
+              }
+            } catch (error) {
+              console.error('Failed to create checkout session:', error);
+            }
+          }
+
           setLoading(false);
           return;
         }
