@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 
 /**
- * World-Class Landing Page - Inspired by ParakeetAI
+ * World-Class Landing Page - Inspired by ParakeetAI & OfferGoose
  */
 export default function OAuthLogin() {
   const { signIn } = useAuth();
@@ -13,6 +13,11 @@ export default function OAuthLogin() {
   const [designIndex, setDesignIndex] = useState(0);
   const [interviewIndex, setInterviewIndex] = useState(0);
   const [reviewIndex, setReviewIndex] = useState(0);
+  const [visibleSections, setVisibleSections] = useState({});
+  const [counters, setCounters] = useState({ success: 0, offers: 0, salary: 0 });
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const statsRef = useRef(null);
+  const [statsAnimated, setStatsAnimated] = useState(false);
 
   // Animated code snippets
   const codeSnippets = [
@@ -163,6 +168,65 @@ export default function OAuthLogin() {
     return () => clearInterval(interval);
   }, []);
 
+  // Mouse parallax effect
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMousePos({ x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Intersection Observer for scroll animations
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisibleSections((prev) => ({ ...prev, [entry.target.id]: true }));
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    document.querySelectorAll('[data-animate]').forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  // Counter animation for stats
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !statsAnimated) {
+            setStatsAnimated(true);
+            // Animate counters
+            const duration = 2000;
+            const steps = 60;
+            const targets = { success: 300, offers: 17000, salary: 30 };
+            let step = 0;
+            const interval = setInterval(() => {
+              step++;
+              const progress = step / steps;
+              const eased = 1 - Math.pow(1 - progress, 3); // ease out cubic
+              setCounters({
+                success: Math.round(targets.success * eased),
+                offers: Math.round(targets.offers * eased),
+                salary: Math.round(targets.salary * eased),
+              });
+              if (step >= steps) clearInterval(interval);
+            }, duration / steps);
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    if (statsRef.current) observer.observe(statsRef.current);
+    return () => observer.disconnect();
+  }, [statsAnimated]);
+
   const handleOAuthLogin = async (provider) => {
     setLoading(provider);
     setError('');
@@ -195,11 +259,31 @@ export default function OAuthLogin() {
 
   return (
     <div className="min-h-screen relative overflow-hidden scroll-smooth" style={{ background: '#030712' }}>
-      {/* Animated Gradient Orbs */}
+      {/* Animated Gradient Orbs with Parallax */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute w-[800px] h-[800px] rounded-full opacity-30 blur-3xl" style={{ background: 'radial-gradient(circle, #10b981 0%, transparent 70%)', top: '-20%', left: '-10%', animation: 'float 20s ease-in-out infinite' }} />
-        <div className="absolute w-[600px] h-[600px] rounded-full opacity-20 blur-3xl" style={{ background: 'radial-gradient(circle, #3b82f6 0%, transparent 70%)', bottom: '-10%', right: '-5%', animation: 'float 15s ease-in-out infinite reverse' }} />
-        <div className="absolute w-[400px] h-[400px] rounded-full opacity-20 blur-3xl" style={{ background: 'radial-gradient(circle, #8b5cf6 0%, transparent 70%)', top: '40%', right: '20%', animation: 'float 18s ease-in-out infinite' }} />
+        <div className="absolute w-[800px] h-[800px] rounded-full opacity-30 blur-3xl transition-transform duration-1000" style={{ background: 'radial-gradient(circle, #10b981 0%, transparent 70%)', top: '-20%', left: '-10%', animation: 'float 20s ease-in-out infinite', transform: `translate(${mousePos.x * 30}px, ${mousePos.y * 30}px)` }} />
+        <div className="absolute w-[600px] h-[600px] rounded-full opacity-20 blur-3xl transition-transform duration-1000" style={{ background: 'radial-gradient(circle, #3b82f6 0%, transparent 70%)', bottom: '-10%', right: '-5%', animation: 'float 15s ease-in-out infinite reverse', transform: `translate(${-mousePos.x * 20}px, ${-mousePos.y * 20}px)` }} />
+        <div className="absolute w-[400px] h-[400px] rounded-full opacity-20 blur-3xl transition-transform duration-1000" style={{ background: 'radial-gradient(circle, #8b5cf6 0%, transparent 70%)', top: '40%', right: '20%', animation: 'float 18s ease-in-out infinite', transform: `translate(${mousePos.x * 15}px, ${-mousePos.y * 15}px)` }} />
+        <div className="absolute w-[300px] h-[300px] rounded-full opacity-15 blur-3xl" style={{ background: 'radial-gradient(circle, #f59e0b 0%, transparent 70%)', top: '60%', left: '10%', animation: 'float 22s ease-in-out infinite reverse' }} />
+      </div>
+
+      {/* Floating Code Symbols */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {['{ }', '< />', '( )', '[ ]', '=> ', '&&', '||', '++', '**'].map((symbol, i) => (
+          <div
+            key={i}
+            className="absolute text-green-500/10 font-mono font-bold select-none"
+            style={{
+              fontSize: `${20 + Math.random() * 30}px`,
+              left: `${10 + (i * 10)}%`,
+              top: `${20 + (i % 3) * 30}%`,
+              animation: `floatSymbol ${15 + i * 2}s ease-in-out infinite`,
+              animationDelay: `${i * 0.5}s`
+            }}
+          >
+            {symbol}
+          </div>
+        ))}
       </div>
 
       {/* Star Field */}
@@ -255,14 +339,18 @@ export default function OAuthLogin() {
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
-                  <button onClick={() => handleOAuthLogin('google')} disabled={loading !== null} className="group px-8 py-4 rounded-xl font-semibold text-lg transition-all disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 0 40px rgba(16, 185, 129, 0.3)', color: '#fff' }}>
-                    <span className="flex items-center justify-center gap-2">
+                  <button onClick={() => handleOAuthLogin('google')} disabled={loading !== null} className="group relative px-8 py-4 rounded-xl font-semibold text-lg transition-all disabled:opacity-50 overflow-hidden" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 0 40px rgba(16, 185, 129, 0.3)', color: '#fff' }}>
+                    {/* Animated shine effect */}
+                    <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)' }} />
+                    {/* Pulse ring */}
+                    <div className="absolute inset-0 rounded-xl animate-ping-slow opacity-30" style={{ border: '2px solid #10b981' }} />
+                    <span className="relative flex items-center justify-center gap-2">
                       {loading ? <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg> : <>Try For Free <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg></>}
                     </span>
                   </button>
-                  <button className="px-8 py-4 rounded-xl font-semibold text-lg transition-all" style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#fff' }}>
+                  <button className="group px-8 py-4 rounded-xl font-semibold text-lg transition-all hover:bg-white/10" style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#fff' }}>
                     <span className="flex items-center gap-2">
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                      <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                       Watch Demo
                     </span>
                   </button>
@@ -468,31 +556,62 @@ export default function OAuthLogin() {
         {/* Trusted Companies Marquee */}
         <div className="py-8 border-y" style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}>
           <p className="text-center text-gray-500 text-sm mb-6">Used for 100,000+ Interviews at Top Companies</p>
-          <div className="flex justify-center gap-8 md:gap-16 flex-wrap px-6">
+          <div className="flex justify-center gap-8 md:gap-16 flex-wrap px-6 mb-6">
             {companies.map((company, i) => (
-              <span key={i} className="text-gray-500 font-bold text-xl hover:text-white transition-colors">{company}</span>
+              <span key={i} className="text-gray-500 font-bold text-xl hover:text-white hover:scale-110 transition-all cursor-default">{company}</span>
             ))}
+          </div>
+
+          {/* Live Hire Ticker */}
+          <div className="relative overflow-hidden py-3" style={{ background: 'rgba(16, 185, 129, 0.05)' }}>
+            <div className="flex animate-marquee-fast whitespace-nowrap">
+              {[...Array(2)].map((_, setIndex) => (
+                <div key={setIndex} className="flex">
+                  {['🎉 Sarah just got hired at Google', '🚀 James landed a role at Meta', '💼 Priya accepted offer from Amazon', '⭐ Michael joined Netflix', '🔥 Emma got into Stripe', '🎯 David hired at Apple', '💎 Lisa joined Microsoft', '🏆 Tom got into Uber'].map((text, i) => (
+                    <span key={`${setIndex}-${i}`} className="mx-8 text-sm text-green-400/80 flex items-center gap-2">
+                      {text}
+                      <span className="text-gray-600">•</span>
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Big Stats Section */}
-        <div className="py-20 px-6 lg:px-12">
+        {/* Big Stats Section with Animated Counters */}
+        <div ref={statsRef} className="py-20 px-6 lg:px-12">
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-3 gap-8">
-              <div className="text-center p-8 rounded-2xl" style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                <div className="text-5xl md:text-6xl font-black text-green-400 mb-2">300%+</div>
+              <div className="text-center p-8 rounded-2xl transform transition-all duration-500 hover:scale-105 hover:-translate-y-2" style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)', boxShadow: statsAnimated ? '0 0 40px rgba(16, 185, 129, 0.1)' : 'none' }}>
+                <div className="text-5xl md:text-6xl font-black text-green-400 mb-2 tabular-nums">
+                  {counters.success}%+
+                </div>
                 <div className="text-xl font-bold text-white mb-2">Higher Success Rate</div>
                 <p className="text-gray-400 text-sm">Ascend users' interview pass rate exceeds 60%, far higher than the average of 5-20%</p>
+                <div className="mt-4 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(16, 185, 129, 0.2)' }}>
+                  <div className="h-full rounded-full transition-all duration-1000" style={{ width: statsAnimated ? '100%' : '0%', background: 'linear-gradient(90deg, #10b981, #34d399)' }} />
+                </div>
               </div>
-              <div className="text-center p-8 rounded-2xl" style={{ background: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                <div className="text-5xl md:text-6xl font-black text-blue-400 mb-2">17,000+</div>
+              <div className="text-center p-8 rounded-2xl transform transition-all duration-500 hover:scale-105 hover:-translate-y-2" style={{ background: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.2)', boxShadow: statsAnimated ? '0 0 40px rgba(59, 130, 246, 0.1)' : 'none' }}>
+                <div className="text-5xl md:text-6xl font-black text-blue-400 mb-2 tabular-nums">
+                  {counters.offers.toLocaleString()}+
+                </div>
                 <div className="text-xl font-bold text-white mb-2">Offers Received</div>
                 <p className="text-gray-400 text-sm">Our users have received offers from 5,000+ companies worldwide</p>
+                <div className="mt-4 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(59, 130, 246, 0.2)' }}>
+                  <div className="h-full rounded-full transition-all duration-1000 delay-200" style={{ width: statsAnimated ? '100%' : '0%', background: 'linear-gradient(90deg, #3b82f6, #60a5fa)' }} />
+                </div>
               </div>
-              <div className="text-center p-8 rounded-2xl" style={{ background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
-                <div className="text-5xl md:text-6xl font-black text-purple-400 mb-2">30%+</div>
+              <div className="text-center p-8 rounded-2xl transform transition-all duration-500 hover:scale-105 hover:-translate-y-2" style={{ background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.2)', boxShadow: statsAnimated ? '0 0 40px rgba(139, 92, 246, 0.1)' : 'none' }}>
+                <div className="text-5xl md:text-6xl font-black text-purple-400 mb-2 tabular-nums">
+                  {counters.salary}%+
+                </div>
                 <div className="text-xl font-bold text-white mb-2">Salary Increase</div>
                 <p className="text-gray-400 text-sm">Users achieved 30%+ salary increases, surpassing the 10-20% average</p>
+                <div className="mt-4 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(139, 92, 246, 0.2)' }}>
+                  <div className="h-full rounded-full transition-all duration-1000 delay-400" style={{ width: statsAnimated ? '100%' : '0%', background: 'linear-gradient(90deg, #8b5cf6, #a78bfa)' }} />
+                </div>
               </div>
             </div>
           </div>
@@ -524,22 +643,33 @@ export default function OAuthLogin() {
         </div>
 
         {/* Features Section */}
-        <div id="features" className="py-20 px-6 lg:px-12">
+        <div id="features" data-animate className="py-20 px-6 lg:px-12">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Everything You Need to <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #10b981, #34d399)' }}>Ace Your Interview</span></h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Everything You Need to <span className="bg-clip-text text-transparent animate-gradient-x" style={{ backgroundImage: 'linear-gradient(135deg, #10b981, #34d399, #10b981)', backgroundSize: '200% 200%' }}>Ace Your Interview</span></h2>
               <p className="text-gray-400 text-lg max-w-2xl mx-auto">From coding challenges to behavioral questions, we've got you covered with AI-powered assistance.</p>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {features.map((feature, i) => (
-                <div key={i} className="p-6 rounded-2xl transition-all hover:scale-105 hover:border-green-500/30" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                  <div className="text-4xl mb-4">{feature.emoji}</div>
-                  <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
+                <div
+                  key={i}
+                  className="group p-6 rounded-2xl transition-all duration-500 hover:scale-105 hover:-translate-y-2 cursor-pointer"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    animation: visibleSections['features'] ? `fadeSlideUp 0.6s ease-out ${i * 0.1}s both` : 'none'
+                  }}
+                >
+                  <div className="text-4xl mb-4 transform transition-transform duration-300 group-hover:scale-125 group-hover:rotate-12">{feature.emoji}</div>
+                  <h3 className="text-xl font-bold text-white mb-2 group-hover:text-green-400 transition-colors">{feature.title}</h3>
                   <p className="text-gray-400 text-sm mb-4">{feature.desc}</p>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full transition-all group-hover:px-4" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
                     <span className="text-green-400 text-sm font-medium">{feature.highlight}</span>
                   </div>
+                  {/* Hover glow effect */}
+                  <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ background: 'radial-gradient(circle at center, rgba(16, 185, 129, 0.1) 0%, transparent 70%)' }} />
                 </div>
               ))}
             </div>
@@ -579,13 +709,21 @@ export default function OAuthLogin() {
                 { icon: '💪', title: 'Boost Confidence', desc: 'From virtual meetings to in-person interviews, Ascend equips you with the tools to confidently navigate every interview scenario with ease.', color: '#8b5cf6' },
                 { icon: '📈', title: 'Personalized Growth', desc: 'Ascend continuously adapts to your strengths and areas for improvement, offering personalized suggestions for ongoing skill enhancement.', color: '#f59e0b' },
               ].map((benefit, i) => (
-                <div key={i} className="p-8 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                  <div className="flex items-start gap-4">
-                    <div className="text-4xl">{benefit.icon}</div>
+                <div
+                  key={i}
+                  className="group p-8 rounded-2xl transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1 cursor-pointer relative overflow-hidden"
+                  style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}
+                >
+                  {/* Animated border gradient */}
+                  <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `linear-gradient(135deg, ${benefit.color}20, transparent)` }} />
+                  <div className="relative flex items-start gap-4">
+                    <div className="text-4xl transform transition-all duration-500 group-hover:scale-125 group-hover:rotate-12">{benefit.icon}</div>
                     <div className="flex-1">
-                      <h3 className="text-xl font-bold text-white mb-2">{benefit.title}</h3>
+                      <h3 className="text-xl font-bold text-white mb-2 group-hover:text-green-400 transition-colors">{benefit.title}</h3>
                       <p className="text-gray-400 mb-4">{benefit.desc}</p>
-                      <button className="text-sm font-medium transition-colors" style={{ color: benefit.color }}>Try Now →</button>
+                      <button className="text-sm font-medium transition-all group-hover:translate-x-2" style={{ color: benefit.color }}>
+                        Try Now <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -700,41 +838,58 @@ export default function OAuthLogin() {
 
             <div className="grid md:grid-cols-3 gap-6">
               {/* Monthly */}
-              <div className="relative p-8 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <h3 className="text-xl font-bold text-white mb-2">Monthly</h3>
-                <div className="flex items-baseline gap-1 mb-6"><span className="text-4xl font-bold text-white">$99</span><span className="text-gray-500">/month</span></div>
-                <ul className="space-y-3 mb-8">
-                  {['5 credits', '25 coding problems', '10 system designs', '5 company preps', '2.5 hrs interview'].map((item, i) => (
-                    <li key={i} className="flex items-center gap-3 text-gray-300"><svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>{item}</li>
-                  ))}
-                </ul>
-                <button onClick={() => handleOAuthLogin('google')} className="w-full py-3 rounded-xl font-semibold transition-all" style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#fff' }}>Get Started</button>
+              <div className="group relative p-8 rounded-2xl transition-all duration-500 hover:scale-105 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.05), transparent)' }} />
+                <div className="relative">
+                  <h3 className="text-xl font-bold text-white mb-2">Monthly</h3>
+                  <div className="flex items-baseline gap-1 mb-6"><span className="text-4xl font-bold text-white">$99</span><span className="text-gray-500">/month</span></div>
+                  <ul className="space-y-3 mb-8">
+                    {['5 credits', '25 coding problems', '10 system designs', '5 company preps', '2.5 hrs interview'].map((item, i) => (
+                      <li key={i} className="flex items-center gap-3 text-gray-300 transition-transform duration-300" style={{ transitionDelay: `${i * 50}ms` }}><svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>{item}</li>
+                    ))}
+                  </ul>
+                  <button onClick={() => handleOAuthLogin('google')} className="w-full py-3 rounded-xl font-semibold transition-all hover:bg-white/20" style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#fff' }}>Get Started</button>
+                </div>
               </div>
 
               {/* Quarterly - Popular */}
-              <div className="relative p-8 rounded-2xl scale-105" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05))', border: '2px solid #10b981', boxShadow: '0 0 40px rgba(16, 185, 129, 0.2)' }}>
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold" style={{ background: '#10b981', color: '#fff' }}>MOST POPULAR</div>
-                <h3 className="text-xl font-bold text-white mb-2">Quarterly</h3>
-                <div className="flex items-baseline gap-1 mb-2"><span className="text-4xl font-bold text-white">$200</span><span className="text-gray-500">/quarter</span></div>
-                <p className="text-green-400 text-sm mb-6">Save $98 (33% off)</p>
-                <ul className="space-y-3 mb-8">
-                  {['10 credits', '50 coding problems', '20 system designs', '10 company preps', '5 hrs interview'].map((item, i) => (
-                    <li key={i} className="flex items-center gap-3 text-gray-300"><svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>{item}</li>
-                  ))}
-                </ul>
-                <button onClick={() => handleOAuthLogin('google')} className="w-full py-3 rounded-xl font-semibold transition-all" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff' }}>Get Started</button>
+              <div className="group relative p-8 rounded-2xl scale-105 transition-all duration-500 hover:scale-110 hover:-translate-y-2" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05))', border: '2px solid #10b981', boxShadow: '0 0 40px rgba(16, 185, 129, 0.2)', animation: 'glow 3s ease-in-out infinite' }}>
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold animate-bounce" style={{ background: '#10b981', color: '#fff' }}>MOST POPULAR</div>
+                {/* Animated border */}
+                <div className="absolute inset-0 rounded-2xl overflow-hidden">
+                  <div className="absolute inset-0 animate-spin-slow" style={{ background: 'conic-gradient(from 0deg, transparent, rgba(16, 185, 129, 0.3), transparent)', animation: 'spin 4s linear infinite' }} />
+                </div>
+                <div className="relative">
+                  <h3 className="text-xl font-bold text-white mb-2">Quarterly</h3>
+                  <div className="flex items-baseline gap-1 mb-2"><span className="text-4xl font-bold text-white">$200</span><span className="text-gray-500">/quarter</span></div>
+                  <p className="text-green-400 text-sm mb-6 flex items-center gap-1">
+                    <span className="inline-block animate-pulse">💰</span> Save $98 (33% off)
+                  </p>
+                  <ul className="space-y-3 mb-8">
+                    {['10 credits', '50 coding problems', '20 system designs', '10 company preps', '5 hrs interview'].map((item, i) => (
+                      <li key={i} className="flex items-center gap-3 text-gray-300"><svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>{item}</li>
+                    ))}
+                  </ul>
+                  <button onClick={() => handleOAuthLogin('google')} className="w-full py-3 rounded-xl font-semibold transition-all relative overflow-hidden group/btn" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff' }}>
+                    <span className="relative z-10">Get Started</span>
+                    <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)' }} />
+                  </button>
+                </div>
               </div>
 
               {/* Credit Pack */}
-              <div className="relative p-8 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <h3 className="text-xl font-bold text-white mb-2">Credit Pack</h3>
-                <div className="flex items-baseline gap-1 mb-6"><span className="text-4xl font-bold text-white">$30</span><span className="text-gray-500">one-time</span></div>
-                <ul className="space-y-3 mb-8">
-                  {['3 credits', '15 coding problems', '6 system designs', '3 company preps', '1.5 hrs interview'].map((item, i) => (
-                    <li key={i} className="flex items-center gap-3 text-gray-300"><svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>{item}</li>
-                  ))}
-                </ul>
-                <button onClick={() => handleOAuthLogin('google')} className="w-full py-3 rounded-xl font-semibold transition-all" style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#fff' }}>Buy Credits</button>
+              <div className="group relative p-8 rounded-2xl transition-all duration-500 hover:scale-105 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.05), transparent)' }} />
+                <div className="relative">
+                  <h3 className="text-xl font-bold text-white mb-2">Credit Pack</h3>
+                  <div className="flex items-baseline gap-1 mb-6"><span className="text-4xl font-bold text-white">$30</span><span className="text-gray-500">one-time</span></div>
+                  <ul className="space-y-3 mb-8">
+                    {['3 credits', '15 coding problems', '6 system designs', '3 company preps', '1.5 hrs interview'].map((item, i) => (
+                      <li key={i} className="flex items-center gap-3 text-gray-300"><svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>{item}</li>
+                    ))}
+                  </ul>
+                  <button onClick={() => handleOAuthLogin('google')} className="w-full py-3 rounded-xl font-semibold transition-all hover:bg-white/20" style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#fff' }}>Buy Credits</button>
+                </div>
               </div>
             </div>
 
@@ -842,6 +997,64 @@ export default function OAuthLogin() {
         }
         .animate-marquee {
           animation: marquee 20s linear infinite;
+        }
+        .animate-marquee-fast {
+          animation: marquee 30s linear infinite;
+        }
+        @keyframes floatSymbol {
+          0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.1; }
+          25% { transform: translateY(-20px) rotate(5deg); opacity: 0.15; }
+          50% { transform: translateY(-40px) rotate(-5deg); opacity: 0.1; }
+          75% { transform: translateY(-20px) rotate(3deg); opacity: 0.15; }
+        }
+        @keyframes fadeSlideUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes ping-slow {
+          0% { transform: scale(1); opacity: 0.3; }
+          50% { transform: scale(1.1); opacity: 0; }
+          100% { transform: scale(1); opacity: 0; }
+        }
+        .animate-ping-slow {
+          animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        @keyframes gradient-x {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        .animate-gradient-x {
+          animation: gradient-x 3s ease infinite;
+        }
+        @keyframes bounce-subtle {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
+        }
+        @keyframes glow {
+          0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+          50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.5); }
+        }
+        @keyframes typewriter {
+          from { width: 0; }
+          to { width: 100%; }
+        }
+        @keyframes blink {
+          0%, 50% { border-color: transparent; }
+          51%, 100% { border-color: #10b981; }
+        }
+        @keyframes rotate3d {
+          0% { transform: perspective(1000px) rotateY(0deg); }
+          100% { transform: perspective(1000px) rotateY(360deg); }
+        }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-5px); }
+          75% { transform: translateX(5px); }
+        }
+        @keyframes popIn {
+          0% { transform: scale(0); opacity: 0; }
+          70% { transform: scale(1.1); }
+          100% { transform: scale(1); opacity: 1; }
         }
       `}</style>
     </div>
