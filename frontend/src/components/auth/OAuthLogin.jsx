@@ -969,6 +969,102 @@ export default function OAuthLogin() {
           </div>
         </div>
 
+        {/* Job Discovery Section - Inspired by AIApply */}
+        <div className="py-20 px-6 lg:px-12" style={{ background: 'linear-gradient(180deg, rgba(59, 130, 246, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%)' }}>
+          <div className="max-w-6xl mx-auto">
+            {/* Section Header */}
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                <span className="text-2xl">🚀</span>
+                <span className="text-blue-400 font-medium text-sm">Included with Quarterly Pro</span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                Stop Searching for Jobs.<br />
+                <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #3b82f6, #10b981)' }}>Let Jobs Find You.</span>
+              </h2>
+              <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+                Access <a href="https://jobs.cariara.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-semibold">jobs.cariara.com</a> — AI-powered job discovery that matches your skills to opportunities automatically.
+              </p>
+            </div>
+
+            {/* Stats Row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+              {[
+                { value: '10,000+', label: 'Active Jobs', icon: '💼' },
+                { value: '500+', label: 'Companies', icon: '🏢' },
+                { value: '95%', label: 'Match Accuracy', icon: '🎯' },
+                { value: '3x', label: 'Faster Hiring', icon: '⚡' },
+              ].map((stat, i) => (
+                <div key={i} className="text-center p-6 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                  <div className="text-3xl mb-2">{stat.icon}</div>
+                  <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
+                  <div className="text-gray-400 text-sm">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* How It Works - 3 Steps */}
+            <div className="mb-16">
+              <h3 className="text-2xl font-bold text-white text-center mb-10">How It Works</h3>
+              <div className="grid md:grid-cols-3 gap-8">
+                {[
+                  { step: '1', title: 'Create Your Profile', desc: 'Upload your resume or build your profile. Our AI extracts your skills, experience, and preferences.', icon: '📝', color: '#8b5cf6' },
+                  { step: '2', title: 'Get Matched Daily', desc: 'Receive personalized job matches delivered to your inbox. No more endless scrolling through job boards.', icon: '🎯', color: '#3b82f6' },
+                  { step: '3', title: 'Apply with One Click', desc: 'Auto-apply to matched positions with tailored resumes and cover letters generated instantly.', icon: '🚀', color: '#10b981' },
+                ].map((item, i) => (
+                  <div key={i} className="relative">
+                    {i < 2 && <div className="hidden md:block absolute top-12 left-full w-full h-0.5 -translate-x-1/2" style={{ background: 'linear-gradient(90deg, rgba(255,255,255,0.1) 0%, transparent 100%)' }} />}
+                    <div className="p-6 rounded-2xl h-full" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-4" style={{ background: `${item.color}20`, border: `1px solid ${item.color}40` }}>
+                        {item.icon}
+                      </div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: item.color, color: 'white' }}>{item.step}</span>
+                        <h4 className="text-white font-bold">{item.title}</h4>
+                      </div>
+                      <p className="text-gray-400 text-sm">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Features Grid */}
+            <div className="grid md:grid-cols-2 gap-6 mb-16">
+              {[
+                { icon: '🔍', title: 'Smart Job Matching', desc: 'AI analyzes your skills and experience to find roles where you have the highest chance of success.' },
+                { icon: '📧', title: 'Daily Job Alerts', desc: 'Get curated job recommendations delivered to your inbox every morning. Never miss an opportunity.' },
+                { icon: '📄', title: 'Auto Resume Tailoring', desc: 'Automatically customize your resume for each application to maximize your match score.' },
+                { icon: '✉️', title: 'Cover Letter Generator', desc: 'Generate personalized cover letters that highlight relevant experience for each role.' },
+                { icon: '📊', title: 'Application Tracker', desc: 'Track all your applications in one dashboard. Know where you stand at every stage.' },
+                { icon: '🏆', title: 'Interview Prep Integration', desc: 'Seamlessly prepare for interviews with company-specific prep from your Ascend subscription.' },
+              ].map((feature, i) => (
+                <div key={i} className="flex gap-4 p-5 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                  <div className="text-3xl">{feature.icon}</div>
+                  <div>
+                    <h4 className="text-white font-semibold mb-1">{feature.title}</h4>
+                    <p className="text-gray-400 text-sm">{feature.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* CTA Banner */}
+            <div className="p-8 rounded-2xl text-center" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(16, 185, 129, 0.2) 100%)', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+              <h3 className="text-2xl font-bold text-white mb-2">Ready to Land Your Dream Job?</h3>
+              <p className="text-gray-300 mb-6">Get full access to jobs.cariara.com with the Quarterly Pro plan</p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <button onClick={() => handlePricingClick('quarterly_pro')} className="px-8 py-3 rounded-xl font-semibold transition-all" style={{ background: 'linear-gradient(135deg, #3b82f6, #10b981)', color: 'white' }}>
+                  Get Quarterly Pro - $300/qtr
+                </button>
+                <a href="https://jobs.cariara.com" target="_blank" rel="noopener noreferrer" className="px-8 py-3 rounded-xl font-semibold transition-all" style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', color: 'white' }}>
+                  Preview Jobs Portal →
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* CTA Section */}
         <div className="py-16 px-6 lg:px-12">
           <div className="max-w-md mx-auto p-8 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.03)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255, 255, 255, 0.1)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
