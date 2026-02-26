@@ -6,6 +6,7 @@ import { AppError, ErrorCode } from '../middleware/errorHandler.js';
 import * as usageService from '../services/usageService.js';
 import { verifyJWT } from '../middleware/jwtAuth.js';
 import { query } from '../config/database.js';
+import * as freeUsageService from '../services/freeUsageService.js';
 
 const router = Router();
 
@@ -49,49 +50,30 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
           webappUserId = decoded.id;
           console.log('[Solve Stream] Webapp user detected:', webappUserId);
 
-          // Check subscription status - require paid plan
-          const subResult = await query(
-            'SELECT plan_type, status FROM ascend_subscriptions WHERE user_id = $1',
-            [webappUserId]
-          );
-          const subscription = subResult.rows[0];
-          const isPaidPlan = subscription?.plan_type === 'monthly' ||
-                             subscription?.plan_type === 'quarterly_pro';
-          const isActive = subscription?.status === 'active';
+          // Check subscription OR free usage (freemium model)
+          const featureType = ascendMode === 'system_design' ? 'design' : 'coding';
+          const canUseResult = await freeUsageService.canUseFeature(webappUserId, featureType);
+          console.log('[Solve Stream] Feature access check:', canUseResult);
 
-          if (!isPaidPlan || !isActive) {
-            console.log('[Solve Stream] Subscription required - user blocked:', {
-              planType: subscription?.plan_type,
-              status: subscription?.status
-            });
+          if (!canUseResult.allowed) {
+            console.log('[Solve Stream] Feature access denied:', canUseResult);
             res.setHeader('Content-Type', 'text/event-stream');
             res.write(`data: ${JSON.stringify({
-              error: 'Active subscription required to solve problems',
+              error: canUseResult.reason || 'Free trial exhausted. Please subscribe to continue.',
+              freeTrialExhausted: canUseResult.freeTrialExhausted || false,
               subscriptionRequired: true,
-              planType: subscription?.plan_type || 'free',
+              freeUsed: canUseResult.freeUsed,
+              freeLimit: canUseResult.freeLimit,
               upgradeUrl: '/pricing'
             })}\n\n`);
             res.end();
             return;
           }
-          console.log('[Solve Stream] Subscription verified:', subscription.plan_type);
-
-          // Check usage allowance based on mode
-          let canUse;
-          if (ascendMode === 'system_design') {
-            canUse = await usageService.canUseSystemDesign(webappUserId);
-          } else {
-            canUse = await usageService.canUseCoding(webappUserId);
-          }
-
-          if (!canUse.allowed) {
-            console.log('[Solve Stream] User out of credits:', canUse.reason);
-            res.setHeader('Content-Type', 'text/event-stream');
-            res.write(`data: ${JSON.stringify({ error: canUse.reason, needCredits: true })}\n\n`);
-            res.end();
-            return;
-          }
-          console.log('[Solve Stream] Usage check passed, remaining:', canUse.remaining);
+          console.log('[Solve Stream] Feature access granted:', {
+            hasSubscription: canUseResult.hasSubscription,
+            freeRemaining: canUseResult.freeRemaining,
+            planType: canUseResult.planType
+          });
         }
       } catch (jwtError) {
         // JWT verification failed - might be Electron user, continue
@@ -216,12 +198,23 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
       // Deduct usage for webapp users after successful completion
       if (webappUserId) {
         try {
-          if (ascendMode === 'system_design') {
-            await usageService.useSystemDesign(webappUserId);
-            console.log('[Solve Stream] Deducted system design usage for user:', webappUserId);
+          const featureType = ascendMode === 'system_design' ? 'design' : 'coding';
+          // Check subscription status to determine which usage to deduct
+          const subStatus = await freeUsageService.getSubscriptionStatus(webappUserId);
+
+          if (subStatus.hasSubscription) {
+            // Subscribed user - deduct from subscription allowance
+            if (ascendMode === 'system_design') {
+              await usageService.useSystemDesign(webappUserId);
+              console.log('[Solve Stream] Deducted subscription design usage for user:', webappUserId);
+            } else {
+              await usageService.useCoding(webappUserId);
+              console.log('[Solve Stream] Deducted subscription coding usage for user:', webappUserId);
+            }
           } else {
-            await usageService.useCoding(webappUserId);
-            console.log('[Solve Stream] Deducted coding usage for user:', webappUserId);
+            // Free trial user - deduct from free allowance
+            const usedFree = await freeUsageService.useFreeAllowance(webappUserId, featureType);
+            console.log('[Solve Stream] Deducted free allowance for user:', webappUserId, 'feature:', featureType, 'success:', usedFree);
           }
         } catch (usageError) {
           console.error('[Solve Stream] Failed to deduct usage:', usageError.message);

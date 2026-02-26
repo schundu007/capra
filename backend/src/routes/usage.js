@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { jwtAuth } from '../middleware/jwtAuth.js';
 import * as usageService from '../services/usageService.js';
+import * as freeUsageService from '../services/freeUsageService.js';
 import { logger } from '../middleware/requestLogger.js';
 
 const router = Router();
@@ -56,6 +57,36 @@ router.get('/can-use/:feature', jwtAuth, async (req, res) => {
   } catch (error) {
     logger.error({ error: error.message }, 'Failed to check usage');
     res.status(500).json({ error: 'Failed to check usage' });
+  }
+});
+
+/**
+ * Get user's free trial usage status (freemium model)
+ * GET /api/usage/free-status
+ */
+router.get('/free-status', jwtAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Get free usage status for all features
+    const freeUsage = await freeUsageService.getFreeUsageStatus(userId);
+
+    // Get subscription status
+    const subscription = await freeUsageService.getSubscriptionStatus(userId);
+
+    res.json({
+      hasSubscription: subscription.hasSubscription,
+      planType: subscription.planType,
+      status: subscription.status,
+      freeUsage: {
+        coding: freeUsage.coding,
+        design: freeUsage.design,
+        company_prep: freeUsage.company_prep,
+      },
+    });
+  } catch (error) {
+    logger.error({ error: error.message }, 'Failed to get free usage status');
+    res.status(500).json({ error: 'Failed to get free usage status' });
   }
 });
 

@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { query } from '../config/database.js';
 import { jwtAuth } from '../middleware/jwtAuth.js';
-import { subscriptionRequired } from '../middleware/subscriptionRequired.js';
 import { canCreateCompany, useCredit } from '../services/creditService.js';
 import { logger } from '../middleware/requestLogger.js';
+import * as freeUsageService from '../services/freeUsageService.js';
 
 const router = Router();
 
@@ -58,9 +58,9 @@ router.get('/:id', jwtAuth, async (req, res) => {
 /**
  * Create new company prep
  * POST /api/company-preps
- * Requires active subscription
+ * Requires active subscription OR free allowance
  */
-router.post('/', jwtAuth, subscriptionRequired, async (req, res) => {
+router.post('/', jwtAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { company_name, inputs = {}, generated = {}, custom_sections = [] } = req.body;
@@ -69,10 +69,25 @@ router.post('/', jwtAuth, subscriptionRequired, async (req, res) => {
       return res.status(400).json({ error: 'Company name is required' });
     }
 
-    // Check if user can create a new company
+    // Check subscription OR free usage (freemium model)
+    const canUseResult = await freeUsageService.canUseFeature(userId, 'company_prep');
+    logger.info({ userId, canUseResult }, 'Company prep feature access check');
+
+    if (!canUseResult.allowed) {
+      return res.status(403).json({
+        error: canUseResult.reason || 'Free trial exhausted. Please subscribe to continue.',
+        code: 'FREE_TRIAL_EXHAUSTED',
+        freeTrialExhausted: canUseResult.freeTrialExhausted || false,
+        freeUsed: canUseResult.freeUsed,
+        freeLimit: canUseResult.freeLimit,
+        upgradeUrl: '/pricing',
+      });
+    }
+
+    // Check if user can create a new company (legacy credit system)
     const canCreate = await canCreateCompany(userId);
 
-    if (!canCreate.allowed) {
+    if (!canCreate.allowed && canUseResult.hasSubscription) {
       return res.status(403).json({
         error: canCreate.reason || 'Cannot create company prep',
         code: 'INSUFFICIENT_CREDITS',
@@ -80,12 +95,18 @@ router.post('/', jwtAuth, subscriptionRequired, async (req, res) => {
       });
     }
 
-    // Use credit if not free tier
+    // Determine if using free tier or credit
     let isFreeTier = false;
-    if (canCreate.free) {
+    if (!canUseResult.hasSubscription) {
+      // Free trial user - use free allowance
+      isFreeTier = true;
+      const usedFree = await freeUsageService.useFreeAllowance(userId, 'company_prep');
+      logger.info({ userId, usedFree }, 'Company prep free allowance deducted');
+    } else if (canCreate.free) {
+      // Subscribed user's first free company
       isFreeTier = true;
     } else {
-      // Deduct credit
+      // Subscribed user using credits
       const creditResult = await useCredit(userId, company_name);
       if (!creditResult.success) {
         return res.status(403).json({
@@ -106,8 +127,9 @@ router.post('/', jwtAuth, subscriptionRequired, async (req, res) => {
 
     res.status(201).json({
       prep: result.rows[0],
-      credit_used: !isFreeTier,
+      credit_used: !isFreeTier && canUseResult.hasSubscription,
       was_free: isFreeTier,
+      freeTrialRemaining: canUseResult.hasSubscription ? null : (canUseResult.freeRemaining - 1),
     });
   } catch (error) {
     logger.error({ error: error.message }, 'Failed to create company prep');

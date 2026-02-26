@@ -4,14 +4,15 @@ import { generatePDF, generateDOCX } from '../services/exportPrep.js';
 import * as pythonDiagrams from '../services/pythonDiagrams.js';
 import { verifyJWT } from '../middleware/jwtAuth.js';
 import { query } from '../config/database.js';
+import * as freeUsageService from '../services/freeUsageService.js';
 
 const router = Router();
 
 /**
- * Check subscription for webapp users
- * Returns true if allowed (Electron or paid subscription)
+ * Check subscription OR free usage for webapp users (freemium model)
+ * Returns true if allowed (Electron or subscription or free allowance remaining)
  */
-async function checkSubscription(req, res) {
+async function checkFeatureAccess(req, res, featureType = 'design') {
   const isElectron = req.headers['x-electron-app'] === 'true';
   if (isElectron) return true;
 
@@ -40,30 +41,34 @@ async function checkSubscription(req, res) {
       return false;
     }
 
-    // Check subscription
-    const subResult = await query(
-      'SELECT plan_type, status FROM ascend_subscriptions WHERE user_id = $1',
-      [decoded.id]
-    );
-    const subscription = subResult.rows[0];
-    const isPaidPlan = subscription?.plan_type === 'monthly' ||
-                       subscription?.plan_type === 'quarterly_pro';
-    const isActive = subscription?.status === 'active';
+    // Check subscription OR free usage (freemium model)
+    const canUseResult = await freeUsageService.canUseFeature(decoded.id, featureType);
+    console.log('[AscendPrep] Feature access check:', canUseResult);
 
-    if (!isPaidPlan || !isActive) {
-      console.log('[AscendPrep] Subscription required - user blocked:', decoded.id);
+    if (!canUseResult.allowed) {
+      console.log('[AscendPrep] Feature access denied:', decoded.id, canUseResult);
       res.setHeader('Content-Type', 'text/event-stream');
       res.write(`data: ${JSON.stringify({
-        error: 'Active subscription required to use interview prep',
+        error: canUseResult.reason || 'Free trial exhausted. Please subscribe to continue.',
+        freeTrialExhausted: canUseResult.freeTrialExhausted || false,
         subscriptionRequired: true,
-        planType: subscription?.plan_type || 'free',
+        freeUsed: canUseResult.freeUsed,
+        freeLimit: canUseResult.freeLimit,
         upgradeUrl: '/pricing'
       })}\n\n`);
       res.end();
       return false;
     }
 
+    console.log('[AscendPrep] Feature access granted:', {
+      userId: decoded.id,
+      hasSubscription: canUseResult.hasSubscription,
+      freeRemaining: canUseResult.freeRemaining,
+      planType: canUseResult.planType
+    });
+
     req.userId = decoded.id;
+    req.featureAccess = canUseResult;
     return true;
   } catch (err) {
     console.error('[AscendPrep] Auth check failed:', err.message);
@@ -124,8 +129,8 @@ async function generateDiagramsForQuestions(result) {
 
 // Stream all sections
 router.post('/stream', async (req, res) => {
-  // Check subscription first
-  if (!await checkSubscription(req, res)) return;
+  // Check subscription OR free usage first
+  if (!await checkFeatureAccess(req, res, 'design')) return;
 
   const { jobDescription, resume, coverLetter, prepMaterials, documentation, sections, provider = 'claude', model } = req.body;
 
@@ -154,6 +159,16 @@ router.post('/stream', async (req, res) => {
       }
       res.write(`data: ${JSON.stringify(event)}\n\n`);
     }
+
+    // Deduct free usage for webapp users after successful completion
+    if (req.userId && req.featureAccess && !req.featureAccess.hasSubscription) {
+      try {
+        const usedFree = await freeUsageService.useFreeAllowance(req.userId, 'design');
+        console.log('[AscendPrep] Deducted free allowance for user:', req.userId, 'success:', usedFree);
+      } catch (usageError) {
+        console.error('[AscendPrep] Failed to deduct free usage:', usageError.message);
+      }
+    }
   } catch (err) {
     console.error('[InterviewPrep] Stream error:', err);
     res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
@@ -164,8 +179,8 @@ router.post('/stream', async (req, res) => {
 
 // Regenerate a single section
 router.post('/section', async (req, res) => {
-  // Check subscription first
-  if (!await checkSubscription(req, res)) return;
+  // Check subscription OR free usage first
+  if (!await checkFeatureAccess(req, res, 'design')) return;
 
   const { jobDescription, resume, coverLetter, prepMaterials, documentation, section, customDocumentContent, customDocumentName, provider = 'claude', model } = req.body;
 
@@ -201,6 +216,16 @@ router.post('/section', async (req, res) => {
         res.write(`data: ${JSON.stringify({ done: true, result: finalResult })}\n\n`);
       } else {
         res.write(`data: ${JSON.stringify(event)}\n\n`);
+      }
+    }
+
+    // Deduct free usage for webapp users after successful completion
+    if (req.userId && req.featureAccess && !req.featureAccess.hasSubscription) {
+      try {
+        const usedFree = await freeUsageService.useFreeAllowance(req.userId, 'design');
+        console.log('[AscendPrep] Section - Deducted free allowance for user:', req.userId, 'success:', usedFree);
+      } catch (usageError) {
+        console.error('[AscendPrep] Section - Failed to deduct free usage:', usageError.message);
       }
     }
   } catch (err) {
