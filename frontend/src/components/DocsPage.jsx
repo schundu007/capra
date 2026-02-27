@@ -12715,6 +12715,395 @@ Confidence interval:
       color: '#2d8cff',
       difficulty: 'Hard',
       description: 'Design a video conferencing platform for real-time communication.',
+
+      introduction: `Video conferencing requires real-time media streaming with < 150ms latency - far lower than typical web applications. The core challenge is handling the N² problem: in a meeting with N participants, each person needs to receive N-1 video streams.
+
+The solution is an SFU (Selective Forwarding Unit) that receives each participant's stream once and forwards it to others, rather than peer-to-peer connections that don't scale.`,
+
+      functionalRequirements: [
+        'Video and audio calls',
+        'Screen sharing',
+        'In-meeting chat',
+        'Recording and playback',
+        'Virtual backgrounds',
+        'Breakout rooms',
+        'Support 2-1000 participants',
+        'Waiting room and host controls'
+      ],
+
+      nonFunctionalRequirements: [
+        'End-to-end latency < 150ms',
+        'Support 10M concurrent participants',
+        'Video quality: 720p-1080p',
+        'Audio quality: Clear with noise cancellation',
+        '99.99% availability',
+        'Work on varying network conditions',
+        'Secure (end-to-end encryption optional)'
+      ],
+
+      dataModel: {
+        description: 'Meetings, participants, and media sessions',
+        schema: `meetings {
+  id: uuid PK
+  host_user_id: uuid FK
+  title: varchar(200)
+  password_hash: varchar(256) nullable
+  scheduled_start: timestamp
+  actual_start: timestamp nullable
+  actual_end: timestamp nullable
+  settings: jsonb -- waiting room, mute on entry, etc.
+}
+
+participants {
+  meeting_id: uuid FK
+  user_id: uuid FK nullable -- null for guests
+  display_name: varchar(100)
+  joined_at: timestamp
+  left_at: timestamp nullable
+  role: enum(HOST, COHOST, PARTICIPANT)
+  audio_enabled: boolean
+  video_enabled: boolean
+}
+
+media_sessions {
+  participant_id: uuid FK
+  sfu_server: varchar(255)
+  sdp_offer: text
+  sdp_answer: text
+  ice_candidates: jsonb[]
+}
+
+recordings {
+  meeting_id: uuid FK
+  storage_url: varchar(500)
+  duration_seconds: int
+  status: enum(RECORDING, PROCESSING, READY, FAILED)
+}`
+      },
+
+      apiDesign: {
+        description: 'Meeting management and real-time signaling',
+        endpoints: [
+          { method: 'POST', path: '/api/meetings', params: '{ title, scheduledStart, settings }', response: '{ meetingId, joinUrl, hostKey }' },
+          { method: 'POST', path: '/api/meetings/:id/join', params: '{ displayName, password }', response: '{ participantId, sfuUrl, iceServers[] }' },
+          { method: 'WS', path: '/signaling/:meetingId', params: '-', response: 'SDP offer/answer, ICE candidates' },
+          { method: 'POST', path: '/api/meetings/:id/record/start', params: '-', response: '{ recordingId }' },
+          { method: 'GET', path: '/api/recordings/:id', params: '-', response: '{ url, duration, status }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'What is an SFU and why use it?',
+          answer: `**The N² Problem**:
+\`\`\`
+Peer-to-Peer (P2P):
+  5 participants = each sends 4 streams = 20 streams total
+  50 participants = each sends 49 streams = 2,450 streams!
+
+  Each participant uploads N-1 copies of their stream
+  Doesn't scale!
+\`\`\`
+
+**SFU (Selective Forwarding Unit)**:
+\`\`\`
+┌────────────────────────────────────────────────────────┐
+│                         SFU                            │
+├────────────────────────────────────────────────────────┤
+│                                                        │
+│   Participant A ──upload─► SFU ──download──► B, C, D   │
+│   Participant B ──upload─► SFU ──download──► A, C, D   │
+│   Participant C ──upload─► SFU ──download──► A, B, D   │
+│   Participant D ──upload─► SFU ──download──► A, B, C   │
+│                                                        │
+│   Each participant uploads 1 stream                    │
+│   SFU forwards to N-1 recipients                       │
+│   Upload bandwidth: 1 stream (not N-1)                 │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+\`\`\`
+
+**SFU vs MCU**:
+\`\`\`
+SFU (Selective Forwarding Unit):
+  - Forwards streams as-is
+  - Lower server CPU
+  - Client decodes multiple streams
+  - Better quality (no re-encoding)
+
+MCU (Multipoint Control Unit):
+  - Mixes all streams into one
+  - Higher server CPU
+  - Client decodes one stream
+  - Older approach, less flexible
+\`\`\`
+
+**Simulcast**:
+\`\`\`
+Sender encodes 3 quality levels:
+  High: 1080p @ 2 Mbps
+  Medium: 480p @ 500 Kbps
+  Low: 180p @ 100 Kbps
+
+SFU sends appropriate quality to each receiver
+  - Active speaker gets high quality
+  - Thumbnails get low quality
+\`\`\``
+        },
+        {
+          question: 'How does WebRTC signaling work?',
+          answer: `**WebRTC Overview**:
+\`\`\`
+WebRTC = Web Real-Time Communication
+  - Browser API for peer-to-peer media
+  - Handles codec negotiation, encryption, NAT traversal
+  - We provide signaling (how peers find each other)
+\`\`\`
+
+**Signaling Flow**:
+\`\`\`
+┌────────────────────────────────────────────────────────┐
+│                  Signaling Exchange                    │
+├────────────────────────────────────────────────────────┤
+│                                                        │
+│   1. Alice creates "offer" (SDP describing her media)  │
+│      → Send to signaling server                        │
+│      → Server forwards to SFU                          │
+│                                                        │
+│   2. SFU creates "answer" (SDP describing its media)   │
+│      → Send back via signaling                         │
+│                                                        │
+│   3. ICE candidate exchange (network paths)            │
+│      Alice: "I can be reached at IP:port"              │
+│      SFU: "I can be reached at IP:port"                │
+│                                                        │
+│   4. Direct media connection established               │
+│      (using best available path)                       │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+\`\`\`
+
+**SDP (Session Description Protocol)**:
+\`\`\`
+v=0
+o=- 123456 2 IN IP4 127.0.0.1
+s=-
+t=0 0
+m=audio 49170 UDP/TLS/RTP/SAVPF 111
+a=rtpmap:111 opus/48000/2
+m=video 51372 UDP/TLS/RTP/SAVPF 96
+a=rtpmap:96 VP8/90000
+
+Describes: codecs, ports, encryption, etc.
+\`\`\`
+
+**NAT Traversal (STUN/TURN)**:
+\`\`\`
+Most users are behind NAT (private IP)
+
+STUN: "What's my public IP?"
+  → Quick, free, works 80% of time
+
+TURN: "Relay my traffic through server"
+  → Fallback when direct fails
+  → More bandwidth cost
+  → Always works
+\`\`\``
+        },
+        {
+          question: 'How do we handle large meetings (100+ participants)?',
+          answer: `**Challenges**:
+\`\`\`
+100 participants:
+  - 100 video streams to decode (CPU intensive)
+  - 100 thumbnails to render
+  - Bandwidth: 100 × 100 Kbps = 10 Mbps minimum
+\`\`\`
+
+**Optimization 1: Tile-based rendering**
+\`\`\`
+Only render visible tiles:
+  - User sees 3×3 grid = 9 videos
+  - Only decode/download those 9
+  - Scroll → pause old, start new
+
+"Pagination" for video
+\`\`\`
+
+**Optimization 2: Active speaker detection**
+\`\`\`
+┌────────────────────────────────────────────────────────┐
+│              Active Speaker Layout                     │
+├────────────────────────────────────────────────────────┤
+│                                                        │
+│   ┌────────────────────────────┐ ┌───┐ ┌───┐ ┌───┐    │
+│   │                            │ │   │ │   │ │   │    │
+│   │    Active Speaker (HD)     │ │   │ │   │ │   │    │
+│   │                            │ │ ▣ │ │ ▣ │ │ ▣ │    │
+│   │                            │ │   │ │   │ │   │    │
+│   └────────────────────────────┘ └───┘ └───┘ └───┘    │
+│                                  (Low quality thumbs)  │
+│                                                        │
+│   SFU detects speaker via audio levels                 │
+│   Automatically switches main view                     │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+\`\`\`
+
+**Optimization 3: Cascaded SFUs**
+\`\`\`
+For 1000 participants across globe:
+  - Single SFU can't handle all
+  - Deploy regional SFUs
+  - SFUs relay between each other
+
+SFU(US-West) ←→ SFU(US-East) ←→ SFU(Europe)
+
+Each user connects to nearest SFU
+\`\`\`
+
+**Optimization 4: Audio-only mode**
+\`\`\`
+For very large meetings (webinars):
+  - Only host/panelists have video
+  - Attendees are audio-only or listen-only
+  - Reduces bandwidth dramatically
+\`\`\``
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Simple Video Call',
+        description: 'Peer-to-peer for 2 participants',
+        architecture: `
+┌─────────────────────────────────────────────────────────────┐
+│                  Basic P2P Video Call                       │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   Alice ←──────── Signaling Server ──────────► Bob          │
+│      │                                            │         │
+│      │  1. Exchange SDP via WebSocket             │         │
+│      │  2. Exchange ICE candidates                │         │
+│      │                                            │         │
+│      └────────── Direct P2P Media ───────────────┘          │
+│                 (WebRTC UDP stream)                         │
+│                                                             │
+│   STUN Server: Helps discover public IPs                    │
+│   TURN Server: Relay when direct fails                      │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Only works for 2-4 participants (N² problem)',
+          'No recording',
+          'No screen sharing support',
+          'Relies on participants\' upload bandwidth'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Video Conferencing',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      Video Conferencing Platform                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                  Meeting Lifecycle                  │                   │
+│   │                                                     │                   │
+│   │   User → API Gateway → Meeting Service              │                   │
+│   │                             │                       │                   │
+│   │              ┌──────────────┴──────────────┐        │                   │
+│   │              ▼                             ▼        │                   │
+│   │   ┌──────────────────┐          ┌──────────────────┐│                   │
+│   │   │ PostgreSQL       │          │ Redis            ││                   │
+│   │   │ (meeting data)   │          │ (active sessions)││                   │
+│   │   └──────────────────┘          └──────────────────┘│                   │
+│   │                                                     │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                    Media Path                       │                   │
+│   │                                                     │                   │
+│   │   Client → Signaling Server (WebSocket)             │                   │
+│   │                    │                                │                   │
+│   │                    ▼                                │                   │
+│   │   ┌─────────────────────────────────────────────┐   │                   │
+│   │   │              SFU Cluster                    │   │                   │
+│   │   │                                             │   │                   │
+│   │   │   ┌─────────┐   ┌─────────┐   ┌─────────┐   │   │                   │
+│   │   │   │ SFU 1   │←→│ SFU 2   │←→│ SFU 3   │   │   │                   │
+│   │   │   │(US-West)│   │(US-East)│   │(Europe) │   │   │                   │
+│   │   │   └─────────┘   └─────────┘   └─────────┘   │   │                   │
+│   │   │         │             │             │       │   │                   │
+│   │   │   ┌─────┴─────────────┴─────────────┴────┐  │   │                   │
+│   │   │   │         TURN Server Pool            │  │   │                   │
+│   │   │   │     (NAT traversal fallback)        │  │   │                   │
+│   │   │   └─────────────────────────────────────┘  │   │                   │
+│   │   │                                             │   │                   │
+│   │   └─────────────────────────────────────────────┘   │                   │
+│   │                    │                                │                   │
+│   │                    ▼                                │                   │
+│   │   ┌─────────────────────────────────────────────┐   │                   │
+│   │   │           Recording Pipeline                │   │                   │
+│   │   │                                             │   │                   │
+│   │   │  SFU → Recording Bot → Transcoding → S3    │   │                   │
+│   │   │              (joins as participant)         │   │                   │
+│   │   │                                             │   │                   │
+│   │   └─────────────────────────────────────────────┘   │                   │
+│   │                                                     │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                 Quality Optimization                │                   │
+│   │                                                     │                   │
+│   │   - Simulcast: Encode 3 quality levels              │                   │
+│   │   - Bandwidth estimation: Adjust quality dynamically│                   │
+│   │   - Active speaker detection: Focus bandwidth       │                   │
+│   │   - FEC: Forward error correction for packet loss   │                   │
+│   │                                                     │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'SFU-based architecture for scalability',
+          'Cascaded SFUs for global distribution',
+          'Simulcast for adaptive quality',
+          'TURN servers for reliable NAT traversal',
+          'Recording bot joins meeting to capture streams'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'End-to-End Encryption',
+          points: [
+            'WebRTC encrypts by default (DTLS-SRTP)',
+            'But SFU can see content (decrypts/re-encrypts)',
+            'True E2E: Insertable Streams API',
+            'Challenge: Recording, transcription with E2E'
+          ]
+        },
+        {
+          topic: 'Network Resilience',
+          points: [
+            'Handle packet loss (FEC, retransmission)',
+            'Bandwidth estimation algorithms',
+            'Graceful quality degradation',
+            'Reconnection handling'
+          ]
+        },
+        {
+          topic: 'Feature Complexity',
+          points: [
+            'Virtual backgrounds: Real-time ML segmentation',
+            'Breakout rooms: Sub-meetings with own SFU',
+            'Waiting room: Hold before joining',
+            'Polls/reactions: WebSocket side channel'
+          ]
+        }
+      ],
+
+      // Backward compatibility
       requirements: ['Video/audio calls', 'Screen sharing', 'Chat', 'Recording', 'Virtual backgrounds', 'Up to 1000 participants'],
       components: ['Signaling server', 'Media server (SFU)', 'TURN servers', 'Recording service', 'Chat service'],
       keyDecisions: [
@@ -12723,17 +13112,6 @@ Confidence interval:
         'Adaptive bitrate: Adjust quality based on bandwidth',
         'Large meetings: Tile-based view, only render visible participants',
         'Recording: Server-side capture and transcoding'
-      ],
-      estimations: {
-        meetings: '300M meeting participants/day',
-        concurrent: '10M concurrent participants at peak',
-        bandwidth: '3 Mbps per participant video',
-        latency: '<150ms end-to-end target'
-      },
-      apiDesign: [
-        'POST /api/meetings → { meetingId, joinUrl }',
-        'WS /signaling/{meetingId} → offer/answer/ice-candidate exchange',
-        'WebRTC streams for media'
       ]
     },
     {
@@ -12744,6 +13122,443 @@ Confidence interval:
       color: '#0a66c2',
       difficulty: 'Hard',
       description: 'Design a professional networking platform with connections and job search.',
+
+      introduction: `LinkedIn combines a social graph with professional data to power networking, job matching, and content discovery. With 900M members and 100B+ connections, the graph operations are the core technical challenge.
+
+Key features include connection degree computation (1st/2nd/3rd), job-candidate matching, and a feed that balances engagement with professional relevance.`,
+
+      functionalRequirements: [
+        'User profiles with work history, skills, education',
+        'Connection requests and networking',
+        'Connection degrees (1st, 2nd, 3rd)',
+        'Professional feed with posts and articles',
+        'Job postings and applications',
+        'Messaging between members',
+        'Search for people, jobs, companies, content',
+        'Recommendations (jobs, connections, skills)'
+      ],
+
+      nonFunctionalRequirements: [
+        'Support 900M+ members',
+        'Store 100B+ connections (edges)',
+        'Compute 2nd-degree connections in real-time',
+        'Job recommendations personalized per user',
+        'Feed refresh < 500ms',
+        'Search results < 200ms',
+        '99.99% availability'
+      ],
+
+      dataModel: {
+        description: 'Members, connections, jobs, and content',
+        schema: `members {
+  id: bigint PK
+  name: varchar(200)
+  headline: varchar(300)
+  location: varchar(100)
+  industry: varchar(100)
+  profile_photo_url: varchar(500)
+  skills: varchar[] -- for skill matching
+}
+
+experiences {
+  id: bigint PK
+  member_id: bigint FK
+  company_id: bigint FK
+  title: varchar(200)
+  start_date: date
+  end_date: date nullable
+  description: text
+}
+
+connections {
+  member_id: bigint
+  connected_member_id: bigint
+  connected_at: timestamp
+  PK (member_id, connected_member_id)
+  -- Bidirectional: store both directions
+}
+
+jobs {
+  id: bigint PK
+  company_id: bigint FK
+  title: varchar(200)
+  location: varchar(100)
+  description: text
+  skills_required: varchar[]
+  experience_level: varchar(50)
+  posted_at: timestamp
+  status: enum(OPEN, CLOSED, FILLED)
+}
+
+posts {
+  id: bigint PK
+  author_id: bigint FK
+  content: text
+  media_urls: varchar[]
+  posted_at: timestamp
+  like_count: int
+  comment_count: int
+}`
+      },
+
+      apiDesign: {
+        description: 'Profile, network, jobs, and feed APIs',
+        endpoints: [
+          { method: 'GET', path: '/api/members/:id', params: '-', response: '{ member, experiences[], skills[] }' },
+          { method: 'GET', path: '/api/network/connections', params: 'degree, limit, offset', response: '{ connections[], totalCount }' },
+          { method: 'POST', path: '/api/network/connect', params: '{ memberId, message }', response: '{ requestId }' },
+          { method: 'GET', path: '/api/jobs/search', params: 'keywords, location, experience', response: '{ jobs[], totalCount }' },
+          { method: 'GET', path: '/api/jobs/recommended', params: '-', response: '{ jobs[] } (personalized)' },
+          { method: 'GET', path: '/api/feed', params: 'cursor', response: '{ posts[], nextCursor }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How do we compute connection degrees?',
+          answer: `**Connection Degrees**:
+\`\`\`
+1st degree: Direct connections (friends)
+2nd degree: Friends of friends
+3rd degree: Friends of friends of friends
+
+"You and John have 15 mutual connections"
+\`\`\`
+
+**Challenge**:
+\`\`\`
+User with 500 connections:
+  1st degree: 500 (stored)
+  2nd degree: 500 × 500 = 250,000 (not stored!)
+  3rd degree: 250,000 × 500 = 125M (way too many)
+
+Can't precompute 2nd/3rd degree for everyone
+\`\`\`
+
+**Solution: Real-time Computation**
+\`\`\`
+// Finding 2nd degree connections
+def get_2nd_degree(user_id, limit=100):
+    # Get my connections
+    my_connections = get_connections(user_id)  # ~500
+
+    # Get their connections (batched)
+    second_degree = Set()
+    for batch in chunk(my_connections, 50):
+        connections_of_connections = get_connections_batch(batch)
+        second_degree.update(connections_of_connections)
+
+    # Remove my 1st degree and myself
+    second_degree -= my_connections
+    second_degree.remove(user_id)
+
+    return second_degree[:limit]
+\`\`\`
+
+**Mutual Connections**:
+\`\`\`
+// "You and John have 15 mutual connections"
+def get_mutual_connections(user_a, user_b):
+    connections_a = get_connections(user_a)
+    connections_b = get_connections(user_b)
+    return connections_a.intersection(connections_b)
+
+// Can be computed in Redis with SINTER
+SINTER connections:user_a connections:user_b
+\`\`\`
+
+**Graph Database Option**:
+\`\`\`
+// LinkedIn uses custom graph DB (Liquid)
+// Can query: "2nd degree with skill:Python"
+
+MATCH (me:Member {id: 123})-[:CONNECTED_TO]->
+      (friend)-[:CONNECTED_TO]->(stranger)
+WHERE "Python" IN stranger.skills
+RETURN stranger LIMIT 100
+\`\`\``
+        },
+        {
+          question: 'How does job-candidate matching work?',
+          answer: `**Two-Sided Matching**:
+\`\`\`
+Jobs → Candidates (recruiter search)
+Candidates → Jobs (job recommendations)
+
+Both need efficient, relevant matching
+\`\`\`
+
+**Feature Extraction**:
+\`\`\`
+Job Features:
+  - Required skills (normalized)
+  - Experience level (0-5 scale)
+  - Location
+  - Industry
+  - Company size
+  - Job function embedding (from description)
+
+Candidate Features:
+  - Skills (from profile + endorsements)
+  - Years of experience
+  - Current/past titles
+  - Location + willingness to relocate
+  - Industry experience
+  - Career trajectory embedding
+\`\`\`
+
+**Matching Score**:
+\`\`\`
+score(job, candidate) =
+    skill_match × 0.4 +
+    experience_match × 0.2 +
+    location_match × 0.15 +
+    industry_match × 0.1 +
+    title_similarity × 0.1 +
+    ml_score × 0.05
+
+skill_match = |job.skills ∩ candidate.skills| / |job.skills|
+\`\`\`
+
+**ML Enhancement**:
+\`\`\`
+Train on historical data:
+  - Which jobs did similar candidates apply to?
+  - Which candidates did similar jobs hire?
+  - Click-through and apply rates
+
+Embedding Model:
+  - Encode job description → vector
+  - Encode candidate profile → vector
+  - Similarity = cosine(job_vec, candidate_vec)
+\`\`\`
+
+**Indexing for Search**:
+\`\`\`
+Elasticsearch for filtering:
+  - Location, skills, experience (structured filters)
+  - Full-text search on titles and descriptions
+
+Then re-rank top 1000 with ML model
+\`\`\``
+        },
+        {
+          question: 'How does the LinkedIn feed work?',
+          answer: `**Feed Content Sources**:
+\`\`\`
+1. Connection activity (posts, new jobs, work anniversaries)
+2. Followed companies/influencers
+3. Sponsored content (ads)
+4. Recommended posts (viral, relevant)
+5. Job recommendations
+\`\`\`
+
+**Fan-out Strategy** (similar to Facebook):
+\`\`\`
+On post creation:
+  - Connections < 10K: Push to connections' feeds
+  - Influencers > 10K: Pull at read time
+
+Why different?
+  - Most users have < 500 connections (push is fine)
+  - Influencers would create too many writes
+\`\`\`
+
+**Ranking Signals**:
+\`\`\`
+┌────────────────────────────────────────────────────────┐
+│               Feed Ranking Factors                     │
+├────────────────────────────────────────────────────────┤
+│                                                        │
+│   Content Quality:                                     │
+│     - Engagement (likes, comments, shares)             │
+│     - Dwell time on similar content                    │
+│     - Author credibility                               │
+│                                                        │
+│   Relevance:                                           │
+│     - Shared skills/industry with author               │
+│     - Connection strength (frequent interactions)      │
+│     - Topic relevance to your interests                │
+│                                                        │
+│   Freshness:                                           │
+│     - Time decay (newer = better)                      │
+│     - But don't show same content repeatedly           │
+│                                                        │
+│   Business Goals:                                      │
+│     - Mix in sponsored content                         │
+│     - Show job recommendations                         │
+│     - Promote engagement (comments > likes)            │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+\`\`\`
+
+**"Who Viewed Your Profile"**:
+\`\`\`
+Async processing pipeline:
+  Profile view → Kafka → View Counter Service
+
+Store recent viewers:
+  profile_views {
+    viewed_member_id
+    viewer_member_id
+    viewed_at
+    viewer_degree (1st, 2nd, 3rd)
+  }
+
+Privacy: Option to view anonymously (hides viewer)
+\`\`\``
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Simple Professional Network',
+        description: 'Basic profiles and connections',
+        architecture: `
+┌─────────────────────────────────────────────────────────────┐
+│                  Basic LinkedIn Clone                       │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   Client → API Server → PostgreSQL                          │
+│                              │                              │
+│              ┌───────────────┼───────────────┐              │
+│              ▼               ▼               ▼              │
+│       ┌──────────┐   ┌──────────┐   ┌──────────┐            │
+│       │ Profiles │   │Connections│   │  Jobs   │            │
+│       └──────────┘   └──────────┘   └──────────┘            │
+│                                                             │
+│   2nd degree = SQL subquery (slow)                          │
+│   Search = SQL LIKE (very slow)                             │
+│   Feed = Sort by time (no ranking)                          │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘`,
+        problems: [
+          '2nd degree queries are O(N²)',
+          'SQL search doesn\'t scale',
+          'No personalization in feed',
+          'No job matching'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production LinkedIn Architecture',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      LinkedIn Platform                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                  Profile Service                    │                   │
+│   │                                                     │                   │
+│   │   Client → API Gateway → Profile Service            │                   │
+│   │                               │                     │                   │
+│   │              ┌────────────────┴────────────┐        │                   │
+│   │              ▼                             ▼        │                   │
+│   │   ┌──────────────────┐          ┌──────────────────┐│                   │
+│   │   │ PostgreSQL       │          │ Elasticsearch    ││                   │
+│   │   │ (profile data)   │          │ (search index)   ││                   │
+│   │   └──────────────────┘          └──────────────────┘│                   │
+│   │                                                     │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                  Graph Service                      │                   │
+│   │                                                     │                   │
+│   │   ┌─────────────────────────────────────────────┐   │                   │
+│   │   │            Graph Database (Liquid)          │   │                   │
+│   │   │                                             │   │                   │
+│   │   │   - 900M member nodes                       │   │                   │
+│   │   │   - 100B connection edges                   │   │                   │
+│   │   │   - Real-time 2nd degree queries            │   │                   │
+│   │   │   - "People You May Know" computation       │   │                   │
+│   │   │                                             │   │                   │
+│   │   └─────────────────────────────────────────────┘   │                   │
+│   │                                                     │                   │
+│   │   Redis: Connection sets for fast mutual lookup     │                   │
+│   │                                                     │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                  Jobs Service                       │                   │
+│   │                                                     │                   │
+│   │   ┌──────────────────┐   ┌──────────────────┐       │                   │
+│   │   │ Elasticsearch    │   │ ML Ranking       │       │                   │
+│   │   │ (job search)     │──►│ Service          │       │                   │
+│   │   └──────────────────┘   └──────────────────┘       │                   │
+│   │          │                        │                 │                   │
+│   │          └────────────────────────┘                 │                   │
+│   │                    │                                │                   │
+│   │                    ▼                                │                   │
+│   │   Candidate-Job matching: Skill overlap + ML        │                   │
+│   │   Recommendations: Collaborative filtering          │                   │
+│   │                                                     │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                  Feed Service                       │                   │
+│   │                                                     │                   │
+│   │   Post → Kafka → Fan-out Workers                    │                   │
+│   │                        │                            │                   │
+│   │              ┌─────────┴─────────┐                  │                   │
+│   │              ▼                   ▼                  │                   │
+│   │   ┌──────────────────┐   ┌──────────────────┐       │                   │
+│   │   │ Redis            │   │ Ranking Service  │       │                   │
+│   │   │ (feed cache)     │   │ (ML + rules)     │       │                   │
+│   │   └──────────────────┘   └──────────────────┘       │                   │
+│   │                                                     │                   │
+│   │   Mix: Connection posts + Sponsored + Recommended   │                   │
+│   │                                                     │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                  Messaging Service                  │                   │
+│   │                                                     │                   │
+│   │   WebSocket → Message Router → Kafka → Storage      │                   │
+│   │                                                     │                   │
+│   │   Similar to Slack/chat system design               │                   │
+│   │                                                     │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Custom graph database for connection queries',
+          'Redis for fast connection set operations',
+          'Elasticsearch for search with ML re-ranking',
+          'Hybrid fan-out for feed (push small, pull large)',
+          'ML models for job matching and recommendations'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'People You May Know (PYMK)',
+          points: [
+            'Based on mutual connections (triadic closure)',
+            'Same company, school, location signals',
+            'Avoid recommending blocked/rejected',
+            'Collaborative filtering from similar users'
+          ]
+        },
+        {
+          topic: 'Skill Endorsements',
+          points: [
+            'Endorser credibility matters (do they know you?)',
+            'Weight by endorser\'s expertise in skill',
+            'Prevent gaming (rate limiting)',
+            'Used in job matching signals'
+          ]
+        },
+        {
+          topic: 'Privacy Considerations',
+          points: [
+            'Anonymous profile viewing option',
+            'Who can see your connections',
+            'Data export (GDPR compliance)',
+            'InMail limits and blocking'
+          ]
+        }
+      ],
+
+      // Backward compatibility
       requirements: ['User profiles', 'Connections (1st/2nd/3rd degree)', 'Feed', 'Jobs', 'Messaging', 'Search', 'Recommendations'],
       components: ['Profile service', 'Graph service', 'Feed service', 'Job service', 'Search (Elasticsearch)', 'Messaging', 'Recommendation engine'],
       keyDecisions: [
@@ -12752,17 +13567,6 @@ Confidence interval:
         'Job matching: ML model on skills, experience, preferences',
         'Search: People + jobs + companies + content',
         '"Who viewed your profile": Async processing of view events'
-      ],
-      estimations: {
-        users: '900M members',
-        connections: '100B connections (edges in graph)',
-        jobs: '20M job postings',
-        messages: '100M messages/day'
-      },
-      apiDesign: [
-        'GET /api/network/connections?degrees=1,2 → { connections[] }',
-        'GET /api/jobs/recommended → { jobs[] }',
-        'GET /api/feed?cursor= → { posts[] }'
       ]
     },
   ];
