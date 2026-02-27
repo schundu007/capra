@@ -10674,6 +10674,374 @@ Merkle Tree sync:
       color: '#17bf63',
       difficulty: 'Easy',
       description: 'Design a distributed unique ID generation service.',
+
+      introduction: `Every tweet, order, and user in a distributed system needs a unique identifier. You can't use auto-incrementing database IDs because that creates a single point of failure and doesn't scale across data centers.
+
+Twitter's Snowflake solves this elegantly: each machine generates IDs independently using a combination of timestamp, machine ID, and sequence number - no coordination required.`,
+
+      functionalRequirements: [
+        'Generate globally unique IDs',
+        'IDs should be sortable by time',
+        'High throughput (millions per second)',
+        'No single point of failure',
+        'Works across data centers',
+        '64-bit IDs (fit in long integer)'
+      ],
+
+      nonFunctionalRequirements: [
+        'Generate 10,000+ IDs/second per machine',
+        'Latency < 1ms per ID',
+        'Zero coordination between machines',
+        'Handle clock skew gracefully',
+        'Support 1000+ machines',
+        'IDs unique for 69+ years'
+      ],
+
+      dataModel: {
+        description: 'Snowflake 64-bit ID structure',
+        schema: `64-bit Snowflake ID:
+┌────────────────────────────────────────────────────────────────┐
+│ Sign │     Timestamp (41 bits)     │Machine│   Sequence        │
+│  0   │  milliseconds since epoch   │ (10)  │   (12 bits)       │
+└────────────────────────────────────────────────────────────────┘
+  1 bit      41 bits = 69 years       1024     4096 per ms
+                                    machines   per machine
+
+Example: 1288834974657 + 1023 + 4095
+Binary: 0_10010110001101011010101110010000001_1111111111_111111111111
+Decimal: 1234567890123456789`
+      },
+
+      apiDesign: {
+        description: 'Simple ID generation API',
+        endpoints: [
+          { method: 'GET', path: '/api/id', params: '-', response: '{ id: 1234567890123456789 }' },
+          { method: 'GET', path: '/api/ids', params: 'count (max 1000)', response: '{ ids: [...] }' },
+          { method: 'GET', path: '/api/id/parse/:id', params: '-', response: '{ timestamp, machineId, sequence }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'Why not just use UUIDs?',
+          answer: `**UUID (128-bit)**:
+\`\`\`
+550e8400-e29b-41d4-a716-446655440000
+
+Pros:
+- No coordination needed
+- Virtually impossible collision
+
+Cons:
+- 128 bits = takes more storage
+- Not sortable by time
+- Not human-readable
+- Poor cache locality (random distribution)
+\`\`\`
+
+**Snowflake (64-bit)**:
+\`\`\`
+1234567890123456789
+
+Pros:
+- Sortable by time (great for DB indexes)
+- 64 bits = fits in long, smaller storage
+- Roughly sequential = better cache locality
+- Can extract timestamp from ID
+
+Cons:
+- Requires machine ID assignment
+- Limited to 69 years and 1024 machines
+\`\`\`
+
+**When to use which**:
+- UUID: User-generated content, offline-first apps
+- Snowflake: Tweets, orders, anything needing time ordering`
+        },
+        {
+          question: 'How does the Snowflake algorithm work?',
+          answer: `**ID Structure**:
+\`\`\`
+┌─────────────────────────────────────────────────────────────┐
+│                    64-bit Snowflake ID                      │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   Bit 63     │  Bits 62-22    │ Bits 21-12  │  Bits 11-0   │
+│   (sign=0)   │  (timestamp)   │ (machine)   │  (sequence)  │
+│              │   41 bits      │   10 bits   │   12 bits    │
+│              │   69 years     │   1024 max  │   4096/ms    │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+\`\`\`
+
+**Generation Algorithm**:
+\`\`\`python
+class SnowflakeGenerator:
+    EPOCH = 1288834974657  # Custom epoch (Nov 4, 2010)
+    MACHINE_BITS = 10
+    SEQUENCE_BITS = 12
+
+    def __init__(self, machine_id):
+        self.machine_id = machine_id
+        self.sequence = 0
+        self.last_timestamp = -1
+
+    def generate_id(self):
+        timestamp = current_time_ms()
+
+        if timestamp < self.last_timestamp:
+            raise ClockMovedBackwardsError()
+
+        if timestamp == self.last_timestamp:
+            self.sequence = (self.sequence + 1) & 4095  # 12-bit mask
+            if self.sequence == 0:
+                # Sequence exhausted, wait for next millisecond
+                timestamp = wait_for_next_ms(self.last_timestamp)
+        else:
+            self.sequence = 0
+
+        self.last_timestamp = timestamp
+
+        return ((timestamp - EPOCH) << 22) |
+               (self.machine_id << 12) |
+               self.sequence
+\`\`\`
+
+**Extracting Components**:
+\`\`\`python
+def parse_id(snowflake_id):
+    timestamp = (snowflake_id >> 22) + EPOCH
+    machine_id = (snowflake_id >> 12) & 0x3FF  # 10 bits
+    sequence = snowflake_id & 0xFFF  # 12 bits
+    return timestamp, machine_id, sequence
+\`\`\``
+        },
+        {
+          question: 'How do we handle clock skew?',
+          answer: `**The Problem**:
+\`\`\`
+Server clock can drift or jump backwards due to:
+- NTP synchronization
+- Leap seconds
+- VM migration
+- Manual time changes
+
+If timestamp goes backwards, we could generate duplicate IDs!
+\`\`\`
+
+**Solution 1: Reject and Wait**
+\`\`\`python
+if current_time < last_timestamp:
+    if (last_timestamp - current_time) < 5ms:
+        # Small drift: wait it out
+        sleep(last_timestamp - current_time)
+    else:
+        # Large drift: error
+        raise ClockSkewError("Clock moved backwards")
+\`\`\`
+
+**Solution 2: Use Logical Clock**
+\`\`\`
+Instead of wall clock:
+  - Track (physical_time, logical_counter)
+  - If physical time same or backwards, increment logical
+  - Always move forward
+
+Hybrid Logical Clocks (HLC)
+\`\`\`
+
+**Solution 3: Add More Randomness**
+\`\`\`
+Some systems (like ULID) add random bits:
+  - 48 bits timestamp
+  - 80 bits random
+
+Collision probability tiny even with clock issues
+\`\`\`
+
+**Best Practices**:
+- Use NTP with multiple reliable sources
+- Monitor for clock drift
+- Have alerts for backwards jumps
+- Consider HLC for critical systems`
+        },
+        {
+          question: 'How do we assign machine IDs?',
+          answer: `**Option 1: Configuration File**
+\`\`\`
+# machine_config.yaml
+machine_id: 42
+
+Simple, but:
+- Manual management
+- Risk of duplicate assignment
+\`\`\`
+
+**Option 2: ZooKeeper/etcd**
+\`\`\`
+┌───────────────────────────────────────────────────────┐
+│                Machine ID Assignment                  │
+├───────────────────────────────────────────────────────┤
+│                                                       │
+│   Server starts → Connect to ZooKeeper                │
+│                         │                             │
+│                         ▼                             │
+│   Create sequential ephemeral node:                   │
+│   /snowflake/machines/machine-0000000042              │
+│                         │                             │
+│                         ▼                             │
+│   Extract sequence number as machine_id = 42          │
+│                         │                             │
+│                         ▼                             │
+│   If server dies, ephemeral node deleted              │
+│   ID can be reused (after lease expires)              │
+│                                                       │
+└───────────────────────────────────────────────────────┘
+\`\`\`
+
+**Option 3: Database Counter**
+\`\`\`sql
+-- On server startup
+INSERT INTO machine_ids (hostname, assigned_at)
+VALUES ('server-42.prod', NOW())
+RETURNING id;
+
+-- Use RETURNING id as machine_id
+\`\`\`
+
+**Option 4: MAC Address + PID**
+\`\`\`
+machine_id = (MAC_ADDRESS[last 6 bytes] XOR PID) % 1024
+
+No coordination, but:
+- Risk of collision with many servers
+- VM cloning can duplicate MAC
+\`\`\``
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Single Server Snowflake',
+        description: 'Simple in-memory generator',
+        architecture: `
+┌─────────────────────────────────────────────────────────────┐
+│                  Single Server Generator                    │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   Client → API Server → Snowflake Generator                 │
+│                              │                              │
+│                    ┌─────────┴─────────┐                    │
+│                    │                   │                    │
+│                    ▼                   ▼                    │
+│             ┌──────────┐         ┌──────────┐               │
+│             │ Clock    │         │ Sequence │               │
+│             │ (NTP)    │         │ Counter  │               │
+│             └──────────┘         └──────────┘               │
+│                    │                   │                    │
+│                    └─────────┬─────────┘                    │
+│                              ▼                              │
+│                    Generate 64-bit ID                       │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Single point of failure',
+          'Limited to 4096 IDs/ms',
+          'No failover',
+          'Clock skew not handled'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Distributed Snowflake Service',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      Distributed ID Generation                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   ┌─────────────┐                                                           │
+│   │   Client    │                                                           │
+│   │ (embedded   │  ← Each service can embed ID generator                    │
+│   │  library)   │     No network call needed!                               │
+│   └──────┬──────┘                                                           │
+│          │                                                                  │
+│          ▼                                                                  │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │              Local Snowflake Generator              │                   │
+│   │                                                     │                   │
+│   │   machine_id = assigned at startup                  │                   │
+│   │   sequence = thread-local counter                   │                   │
+│   │   timestamp = System.currentTimeMillis()            │                   │
+│   │                                                     │                   │
+│   │   Generate: (timestamp << 22) | (machine << 12)     │                   │
+│   │             | sequence                              │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │              Machine ID Assignment                  │                   │
+│   │                                                     │                   │
+│   │   ┌──────────────────────────────────────────────┐  │                   │
+│   │   │           ZooKeeper / etcd Cluster           │  │                   │
+│   │   │                                              │  │                   │
+│   │   │   /snowflake/machines/                       │  │                   │
+│   │   │     ├── machine-0001 → server-a.prod         │  │                   │
+│   │   │     ├── machine-0002 → server-b.prod         │  │                   │
+│   │   │     └── machine-0003 → server-c.prod         │  │                   │
+│   │   │                                              │  │                   │
+│   │   │   Ephemeral nodes: auto-delete on crash      │  │                   │
+│   │   │   Leases: prevent rapid ID reuse             │  │                   │
+│   │   └──────────────────────────────────────────────┘  │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                    Monitoring                       │                   │
+│   │                                                     │                   │
+│   │   - IDs generated per second (per machine)          │                   │
+│   │   - Sequence exhaustion events                      │                   │
+│   │   - Clock skew alerts                               │                   │
+│   │   - Machine ID utilization                          │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Embedded library - no network overhead',
+          'ZooKeeper for machine ID assignment',
+          'Thread-local sequence for concurrency',
+          'Clock skew detection and alerts',
+          'Graceful degradation on coordinator failure'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Alternative Approaches',
+          points: [
+            'UUID v7: Time-ordered UUID (new standard)',
+            'ULID: 128-bit, lexicographically sortable',
+            'MongoDB ObjectId: 96-bit, includes machine + process',
+            'Database sequences with ranges (pre-allocate blocks)'
+          ]
+        },
+        {
+          topic: 'Scaling Considerations',
+          points: [
+            '10 bits = 1024 machines max (can split into datacenter + machine)',
+            'Run out of sequence? Wait 1ms (rare at 4096/ms)',
+            'Multiple generators per machine using datacenter bits',
+            'Pre-generate IDs in batches for batch inserts'
+          ]
+        },
+        {
+          topic: 'Security Concerns',
+          points: [
+            'Sequential IDs leak information (creation time, volume)',
+            'Can enumerate recent records if pattern known',
+            'Consider shuffling bits for external-facing IDs',
+            'Add random suffix for rate limit bypass protection'
+          ]
+        }
+      ],
+
+      // Backward compatibility
       requirements: ['Globally unique IDs', 'Sortable by time', 'High throughput', 'Low latency', 'No coordination'],
       components: ['ID generator service', 'Time sync (NTP)', 'Machine ID registry'],
       keyDecisions: [
@@ -10682,15 +11050,6 @@ Merkle Tree sync:
         'No coordination needed: Each machine generates independently',
         'Clock skew: Reject requests if clock goes backwards',
         'UUID alternative: 128-bit, no coordination, not sortable'
-      ],
-      estimations: {
-        throughput: '4096 IDs/ms per machine = 4M IDs/sec per machine',
-        latency: '<1ms per ID generation',
-        uniqueness: 'Guaranteed unique across 1024 machines for 69 years'
-      },
-      apiDesign: [
-        'GET /api/id → { id: 1234567890123456789 }',
-        'GET /api/ids?count=100 → { ids[] }'
       ]
     },
     {
@@ -10701,6 +11060,403 @@ Merkle Tree sync:
       color: '#4285f4',
       difficulty: 'Medium',
       description: 'Design a news aggregation service that collects and ranks news from multiple sources.',
+
+      introduction: `Google News aggregates articles from 50,000+ sources, groups similar articles into stories, and ranks them by relevance and freshness. The key challenges are: ingesting millions of articles daily, detecting duplicate/similar content, and personalizing the feed for each user.
+
+Unlike social feeds, news requires understanding what a story *is* (clustering), not just who posted it. Multiple outlets cover the same event - we need to group them and show diverse perspectives.`,
+
+      functionalRequirements: [
+        'Aggregate from 50,000+ news sources',
+        'Deduplicate and cluster similar articles',
+        'Categorize into topics (Politics, Sports, Tech, etc.)',
+        'Personalize feed based on user interests',
+        'Show trending/breaking news',
+        'Support multiple countries/languages',
+        'Full Coverage view (all sources for a story)'
+      ],
+
+      nonFunctionalRequirements: [
+        'Ingest 5M+ articles per day',
+        'Detect breaking news within 5 minutes',
+        'Feed generation < 200ms',
+        'Support 100M+ monthly users',
+        'Handle 1B+ article views per day',
+        'Fresh content (< 1 hour old) always available'
+      ],
+
+      dataModel: {
+        description: 'Articles, stories (clusters), and sources',
+        schema: `articles {
+  id: bigint PK
+  source_id: bigint FK
+  url: varchar(2000) UNIQUE
+  title: varchar(500)
+  content: text
+  summary: text -- auto-generated
+  published_at: timestamp
+  crawled_at: timestamp
+  category: varchar(50)
+  language: varchar(10)
+  entities: jsonb -- extracted people, places, orgs
+  embedding: vector(768) -- for similarity
+}
+
+stories {
+  id: bigint PK
+  headline: varchar(500) -- best headline from cluster
+  category: varchar(50)
+  created_at: timestamp
+  updated_at: timestamp
+  article_count: int
+  trending_score: float
+}
+
+story_articles {
+  story_id: bigint FK
+  article_id: bigint FK
+  is_primary: boolean -- main article for story
+  added_at: timestamp
+}
+
+sources {
+  id: bigint PK
+  name: varchar(200)
+  domain: varchar(255)
+  rss_url: varchar(500)
+  authority_score: float -- PageRank-like
+  category: varchar(50) -- primary focus
+  country: varchar(2)
+  language: varchar(10)
+}`
+      },
+
+      apiDesign: {
+        description: 'News feed with filtering and personalization',
+        endpoints: [
+          { method: 'GET', path: '/api/news', params: 'category, country, language, cursor', response: '{ stories[], nextCursor }' },
+          { method: 'GET', path: '/api/news/for-you', params: 'cursor', response: '{ stories[] } (personalized)' },
+          { method: 'GET', path: '/api/news/story/:id', params: '-', response: '{ story, articles[], relatedStories[] }' },
+          { method: 'GET', path: '/api/news/trending', params: 'country', response: '{ stories[] }' },
+          { method: 'GET', path: '/api/news/search', params: 'q, dateRange', response: '{ articles[] }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How do we ingest articles from 50K+ sources?',
+          answer: `**Ingestion Sources**:
+
+1. **RSS/Atom Feeds** (preferred)
+\`\`\`
+Poll each source's RSS feed based on update frequency:
+- Major outlets (CNN, BBC): Every 5 minutes
+- Medium sources: Every 15 minutes
+- Small blogs: Every hour
+
+Adaptive polling: Increase frequency if source is actively publishing
+\`\`\`
+
+2. **Web Crawling** (fallback)
+\`\`\`
+For sources without RSS:
+- Crawl homepage for new article links
+- Follow sitemaps for article discovery
+- Respect robots.txt and rate limits
+\`\`\`
+
+**Ingestion Pipeline**:
+\`\`\`
+┌────────────────────────────────────────────────────────────┐
+│                    Article Ingestion                       │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│   ┌──────────────┐                                         │
+│   │ Feed Poller  │ ──► Check each source's RSS             │
+│   │ (scheduled)  │     Extract new article URLs            │
+│   └──────┬───────┘                                         │
+│          │                                                 │
+│          ▼                                                 │
+│   ┌──────────────┐                                         │
+│   │ URL Dedup    │ ──► Check if URL already crawled        │
+│   │ (Bloom)      │     Skip duplicates                     │
+│   └──────┬───────┘                                         │
+│          │                                                 │
+│          ▼                                                 │
+│   ┌──────────────┐                                         │
+│   │ Content      │ ──► Fetch full article                  │
+│   │ Fetcher      │     Extract text, images, metadata      │
+│   └──────┬───────┘                                         │
+│          │                                                 │
+│          ▼                                                 │
+│   ┌──────────────┐                                         │
+│   │ NLP Pipeline │ ──► Extract entities, categorize        │
+│   │              │     Generate embedding, summarize       │
+│   └──────┬───────┘                                         │
+│          │                                                 │
+│          ▼                                                 │
+│   Store in Elasticsearch (search) + PostgreSQL (metadata)  │
+│                                                            │
+└────────────────────────────────────────────────────────────┘
+\`\`\`
+
+**Handling Volume**:
+- Kafka queue for async processing
+- Distributed crawlers (100+ workers)
+- Prioritize major sources during breaking news`
+        },
+        {
+          question: 'How do we cluster similar articles into stories?',
+          answer: `**The Problem**:
+100 articles about "Election Results" → should be ONE story with 100 sources
+
+**Solution: Embedding-Based Clustering**:
+\`\`\`
+1. Generate embedding for each article:
+   - Title + first 200 words
+   - BERT/sentence-transformers model
+   - Output: 768-dim vector
+
+2. Find similar articles:
+   - Index embeddings in vector DB (Pinecone, Milvus)
+   - Query: "Find articles with similarity > 0.85"
+   - Use approximate nearest neighbor (HNSW)
+
+3. Cluster similar articles:
+   - Hierarchical clustering or DBSCAN
+   - Merge articles with high similarity
+   - Create/update story
+\`\`\`
+
+**Clustering Algorithm**:
+\`\`\`
+def cluster_article(new_article):
+    embedding = generate_embedding(new_article)
+
+    # Find similar recent stories (last 48 hours)
+    similar_stories = vector_db.search(
+        embedding,
+        filter={"created_at": "> now() - 48h"},
+        top_k=5,
+        threshold=0.85
+    )
+
+    if similar_stories:
+        # Add to existing story
+        best_story = similar_stories[0]
+        add_to_story(best_story, new_article)
+        update_story_headline(best_story)
+    else:
+        # Create new story
+        create_story(new_article)
+\`\`\`
+
+**Headline Selection**:
+\`\`\`
+For a story with 50 articles, which headline to show?
+- Prefer high-authority sources (AP, Reuters)
+- Choose most concise, informative title
+- Consider recency (newer = better)
+- A/B test click-through rates
+\`\`\``
+        },
+        {
+          question: 'How do we rank stories in the feed?',
+          answer: `**Ranking Signals**:
+
+\`\`\`
+Story Score = Freshness × Authority × Engagement × Relevance
+
+Where:
+  Freshness = decay(story.updated_at)  # Newer = higher
+  Authority = avg(source.authority_score for sources in story)
+  Engagement = clicks + shares (velocity matters)
+  Relevance = personalization_score(user, story)
+\`\`\`
+
+**Freshness Decay**:
+\`\`\`
+def freshness_score(story):
+    hours_old = (now - story.updated_at).hours
+
+    if hours_old < 1:
+        return 1.0  # Breaking news boost
+    elif hours_old < 6:
+        return 0.8
+    elif hours_old < 24:
+        return 0.5
+    else:
+        return 0.3 * exp(-hours_old / 48)  # Exponential decay
+\`\`\`
+
+**Authority Score**:
+\`\`\`
+Source authority computed like PageRank:
+- Links from other news sources
+- Citations in Wikipedia
+- Social media followers
+- Historical accuracy (fact-checking)
+
+Pre-computed daily, stored with source
+\`\`\`
+
+**Personalization**:
+\`\`\`
+User profile:
+  - Explicit: followed topics, saved sources
+  - Implicit: click history, read time
+
+Relevance = cosine_similarity(
+    user_interest_embedding,
+    story_embedding
+)
+\`\`\`
+
+**Breaking News Boost**:
+\`\`\`
+if story.article_count grew > 10x in last hour:
+    story.score *= 2.0  # Trending boost
+
+if story involves major entity (president, CEO):
+    story.score *= 1.5  # Importance boost
+\`\`\``
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Simple News Aggregator',
+        description: 'RSS ingestion with basic ranking',
+        architecture: `
+┌─────────────────────────────────────────────────────────────┐
+│                  Basic News Aggregator                      │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   RSS Feeds → Poller (cron) → PostgreSQL                    │
+│                                    │                        │
+│                                    ▼                        │
+│   Client → API Server → Query by category/time              │
+│                                    │                        │
+│                                    ▼                        │
+│                         ORDER BY published_at DESC          │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'No deduplication - same story shown multiple times',
+          'No personalization',
+          'Slow with many sources (sequential polling)',
+          'No real-time breaking news detection'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production News Platform',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      Google News Architecture                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                 Ingestion Layer                     │                   │
+│   │                                                     │                   │
+│   │   RSS Poller ─────►┐                                │                   │
+│   │   Web Crawler ────►├──► Kafka ──► Content Workers   │                   │
+│   │   API Partners ───►┘     │            │             │                   │
+│   │                          │            ▼             │                   │
+│   │                          │    ┌──────────────┐      │                   │
+│   │                          │    │ NLP Pipeline │      │                   │
+│   │                          │    │ - Entities   │      │                   │
+│   │                          │    │ - Categories │      │                   │
+│   │                          │    │ - Embeddings │      │                   │
+│   │                          │    └──────┬───────┘      │                   │
+│   │                          │           │              │                   │
+│   └──────────────────────────│───────────│──────────────┘                   │
+│                              │           │                                  │
+│                              ▼           ▼                                  │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                  Storage Layer                      │                   │
+│   │                                                     │                   │
+│   │   ┌──────────────┐ ┌──────────────┐ ┌────────────┐  │                   │
+│   │   │ PostgreSQL   │ │Elasticsearch │ │ Vector DB  │  │                   │
+│   │   │ (metadata)   │ │ (search)     │ │ (clusters) │  │                   │
+│   │   └──────────────┘ └──────────────┘ └────────────┘  │                   │
+│   │                                                     │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                              │                                              │
+│                              ▼                                              │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                 Clustering Service                  │                   │
+│   │                                                     │                   │
+│   │   New article arrives:                              │                   │
+│   │   1. Query vector DB for similar articles           │                   │
+│   │   2. Assign to existing story or create new         │                   │
+│   │   3. Update story headline and metadata             │                   │
+│   │   4. Trigger trending detection                     │                   │
+│   │                                                     │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                              │                                              │
+│                              ▼                                              │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                  Feed Generation                    │                   │
+│   │                                                     │                   │
+│   │   User request → User profile lookup                │                   │
+│   │                       │                             │                   │
+│   │         ┌─────────────┼─────────────┐               │                   │
+│   │         ▼             ▼             ▼               │                   │
+│   │   Candidate      Personalize    Re-rank             │                   │
+│   │   Stories          Scores      + Diversity          │                   │
+│   │         │             │             │               │                   │
+│   │         └─────────────┴─────────────┘               │                   │
+│   │                       │                             │                   │
+│   │                       ▼                             │                   │
+│   │   ┌──────────────────────────────────────────────┐  │                   │
+│   │   │              Redis Cache                     │  │                   │
+│   │   │   (pre-computed feeds, 5 min TTL)            │  │                   │
+│   │   └──────────────────────────────────────────────┘  │                   │
+│   │                       │                             │                   │
+│   │                       ▼                             │                   │
+│   │                    CDN (edge cache)                 │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Distributed crawlers with Kafka for async processing',
+          'ML pipeline for entity extraction and categorization',
+          'Vector embeddings for similarity-based clustering',
+          'Pre-computed feeds with personalization at request time',
+          'CDN caching for "Top Stories" (same for all users)'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Content Quality',
+          points: [
+            'Detect and demote clickbait headlines',
+            'Source authority scoring (not all sources equal)',
+            'Fact-checking integration',
+            'Paywall detection and handling'
+          ]
+        },
+        {
+          topic: 'Breaking News',
+          points: [
+            'Detect surge in articles about same topic',
+            'Push notifications for major events',
+            'Reduce clustering threshold during breaking news',
+            'Manual curation for sensitive topics'
+          ]
+        },
+        {
+          topic: 'Internationalization',
+          points: [
+            'Separate pipelines per language',
+            'Cross-lingual story linking (same event, different languages)',
+            'Local vs global news ranking',
+            'Country-specific source authority'
+          ]
+        }
+      ],
+
+      // Backward compatibility
       requirements: ['Aggregate from 50K+ sources', 'Deduplicate similar articles', 'Categorization', 'Personalization', 'Real-time updates', 'Trending stories'],
       components: ['Crawler/RSS ingestion', 'NLP pipeline', 'Deduplication service', 'Ranking service', 'Personalization', 'Cache'],
       keyDecisions: [
@@ -10709,17 +11465,6 @@ Merkle Tree sync:
         'Clustering: Group similar articles about same story',
         'Ranking: Freshness, source authority, engagement',
         'Personalization: User interests + collaborative filtering'
-      ],
-      estimations: {
-        sources: '50K news sources',
-        articles: '5M articles/day',
-        users: '100M MAU',
-        reads: '1B article views/day'
-      },
-      apiDesign: [
-        'GET /api/news?category=&country= → { stories[] }',
-        'GET /api/news/personalized → { stories[] }',
-        'Each story has headline, sources[], cluster'
       ]
     },
     {
@@ -10730,6 +11475,386 @@ Merkle Tree sync:
       color: '#f59e0b',
       difficulty: 'Medium',
       description: 'Design a real-time leaderboard for millions of players.',
+
+      introduction: `Gaming leaderboards show player rankings in real-time. The classic approach uses Redis Sorted Sets, which provide O(log N) operations for both updates and rank lookups - perfect for millions of players.
+
+The key challenges are: handling high write throughput during game events, providing instant rank lookups (players want to see their rank immediately), and managing multiple leaderboards (daily, weekly, all-time, per-game-mode).`,
+
+      functionalRequirements: [
+        'Update player score in real-time',
+        'Get top N players (top 100 leaderboard)',
+        'Get a specific player\'s rank',
+        'Support multiple leaderboards (daily, weekly, all-time)',
+        'Support multiple games/modes',
+        'Time-based reset (daily/weekly)',
+        'Historical leaderboard snapshots'
+      ],
+
+      nonFunctionalRequirements: [
+        'Support 100M+ players',
+        'Handle 10K+ score updates per second',
+        'Handle 100K+ rank lookups per second',
+        'Rank lookup < 10ms',
+        'Real-time updates (< 1 second delay)',
+        'Support 1000+ different leaderboards'
+      ],
+
+      dataModel: {
+        description: 'Redis sorted sets with persistence backup',
+        schema: `Redis Sorted Set:
+  Key: leaderboard:{game_id}:{timeframe}
+  Members: player_id
+  Score: player_score
+
+Example:
+  ZADD leaderboard:fortnite:daily 1500 player123
+  ZADD leaderboard:fortnite:daily 2300 player456
+
+PostgreSQL (persistent backup):
+scores_history {
+  id: bigint PK
+  player_id: bigint FK
+  game_id: varchar(50)
+  score: bigint
+  leaderboard_type: enum(DAILY, WEEKLY, ALLTIME)
+  recorded_at: timestamp
+}
+
+leaderboard_snapshots {
+  id: bigint PK
+  game_id: varchar(50)
+  leaderboard_type: varchar(20)
+  snapshot_date: date
+  rankings: jsonb -- top 1000 for historical reference
+}`
+      },
+
+      apiDesign: {
+        description: 'Simple score update and rank queries',
+        endpoints: [
+          { method: 'POST', path: '/api/scores', params: '{ playerId, gameId, score }', response: '{ newRank }' },
+          { method: 'GET', path: '/api/leaderboard/:gameId/top', params: 'limit, timeframe', response: '{ rankings: [{ playerId, score, rank }] }' },
+          { method: 'GET', path: '/api/leaderboard/:gameId/rank/:playerId', params: 'timeframe', response: '{ rank, score, percentile }' },
+          { method: 'GET', path: '/api/leaderboard/:gameId/around/:playerId', params: 'range', response: '{ rankings[] } (players above/below)' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'Why Redis Sorted Sets?',
+          answer: `**Redis Sorted Set Operations**:
+\`\`\`
+ZADD leaderboard:game1 1500 player123  # O(log N)
+  Add/update player score
+
+ZREVRANK leaderboard:game1 player123   # O(log N)
+  Get player's rank (0-indexed, high score = rank 0)
+
+ZREVRANGE leaderboard:game1 0 99 WITHSCORES  # O(log N + M)
+  Get top 100 players with scores
+
+ZSCORE leaderboard:game1 player123     # O(1)
+  Get player's score
+
+ZCARD leaderboard:game1                # O(1)
+  Get total number of players
+\`\`\`
+
+**Why It Works**:
+\`\`\`
+Sorted Set uses Skip List internally:
+- Insert: O(log N)
+- Rank lookup: O(log N)
+- Range query: O(log N + M)
+- Memory efficient: stores only (member, score) pairs
+
+For 100M players:
+- ~100M × (8 byte score + ~20 byte player ID) ≈ 3GB
+- All fits in memory!
+\`\`\`
+
+**Compared to SQL**:
+\`\`\`sql
+-- Getting rank in SQL requires counting:
+SELECT COUNT(*) + 1 as rank
+FROM scores
+WHERE score > (SELECT score FROM scores WHERE player_id = ?)
+
+-- O(N) operation! Far too slow for 100M players
+\`\`\``
+        },
+        {
+          question: 'How do we handle multiple leaderboards?',
+          answer: `**Key Naming Convention**:
+\`\`\`
+leaderboard:{game_id}:{timeframe}
+
+Examples:
+  leaderboard:fortnite:alltime
+  leaderboard:fortnite:weekly:2024-W23
+  leaderboard:fortnite:daily:2024-06-05
+  leaderboard:valorant:ranked:season3
+\`\`\`
+
+**Time-Based Reset**:
+\`\`\`python
+# Daily leaderboard
+def get_daily_key(game_id):
+    today = datetime.now().strftime("%Y-%m-%d")
+    return f"leaderboard:{game_id}:daily:{today}"
+
+# When new day starts, old key simply stops getting writes
+# Old key expires after 7 days (for history)
+redis.expire(old_daily_key, 7 * 24 * 3600)
+
+# Weekly reset
+def reset_weekly_leaderboard(game_id):
+    week = datetime.now().strftime("%Y-W%W")
+    new_key = f"leaderboard:{game_id}:weekly:{week}"
+    # New key is empty, old key kept for history
+\`\`\`
+
+**Composite Leaderboards**:
+\`\`\`
+For complex scoring (kills × 10 + assists × 5 + wins × 100):
+
+Option 1: Compute score on client, send composite
+  POST { playerId, score: 1500 }
+
+Option 2: Store components, compute on read (slower)
+  HSET player:123 kills 50 assists 30 wins 5
+  -- Compute rank on query (not scalable)
+\`\`\``
+        },
+        {
+          question: 'How do we scale for very large leaderboards?',
+          answer: `**Problem**: 100M players in single sorted set can be slow
+
+**Solution 1: Approximate Ranking**
+\`\`\`
+For players outside top 1000:
+  - Don't store in main sorted set
+  - Estimate rank based on score percentile
+
+percentile_buckets = {
+  "99th": 2500,
+  "95th": 2000,
+  "90th": 1800,
+  ...
+}
+
+def get_approximate_rank(score, total_players):
+    for percentile, threshold in buckets:
+        if score >= threshold:
+            return total_players * (100 - percentile) / 100
+\`\`\`
+
+**Solution 2: Sharded Leaderboards**
+\`\`\`
+┌────────────────────────────────────────────────────────┐
+│                 Sharded Leaderboard                    │
+├────────────────────────────────────────────────────────┤
+│                                                        │
+│   Score ranges:                                        │
+│   ┌──────────────┐ ┌──────────────┐ ┌──────────────┐   │
+│   │ 0-999 points │ │1000-1999 pts │ │ 2000+ pts    │   │
+│   │   Shard 1    │ │   Shard 2    │ │   Shard 3    │   │
+│   │   (10M)      │ │   (50M)      │ │   (40M)      │   │
+│   └──────────────┘ └──────────────┘ └──────────────┘   │
+│                                                        │
+│   Global rank = offset[shard] + rank_within_shard      │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+\`\`\`
+
+**Solution 3: Top-K Only**
+\`\`\`
+Only maintain sorted set for top 10,000 players
+Everyone else just knows they're "not in top 10K"
+
+On score update:
+  if score > min_score_in_top_10k:
+      add_to_sorted_set(player)
+      if sorted_set.size > 10000:
+          remove_lowest()
+\`\`\``
+        },
+        {
+          question: 'How do we handle high write throughput?',
+          answer: `**Problem**: During game events, millions of score updates
+
+**Solution 1: Batch Updates**
+\`\`\`
+Instead of individual ZADD:
+  - Buffer updates for 100ms
+  - Send as pipeline
+
+pipeline = redis.pipeline()
+for update in buffer:
+    pipeline.zadd(key, {update.player: update.score})
+pipeline.execute()  # Single round trip
+\`\`\`
+
+**Solution 2: Local Aggregation**
+\`\`\`
+┌────────────────────────────────────────────────────────┐
+│                  Write Aggregation                     │
+├────────────────────────────────────────────────────────┤
+│                                                        │
+│   Game Server 1 ──┐                                    │
+│   Game Server 2 ──┼──► Local Buffer ──► Flush to Redis │
+│   Game Server 3 ──┘    (per server)     (every 1 sec)  │
+│                                                        │
+│   Multiple updates for same player? Keep only highest  │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+\`\`\`
+
+**Solution 3: Write-Behind Cache**
+\`\`\`
+In-memory sorted set (local) → async sync to Redis
+
+Pros:
+  - Instant writes
+  - Handles Redis downtime
+
+Cons:
+  - Slight delay in global consistency
+  - Recovery complexity
+\`\`\`
+
+**Redis Cluster Mode**:
+\`\`\`
+Shard by leaderboard key:
+  - Different games go to different shards
+  - Natural load distribution
+  - Hash tags for same-shard operations
+\`\`\``
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Single Redis Leaderboard',
+        description: 'Simple sorted set implementation',
+        architecture: `
+┌─────────────────────────────────────────────────────────────┐
+│                  Basic Leaderboard                          │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   Game Client → API Server → Redis Sorted Set               │
+│                                   │                         │
+│                                   ▼                         │
+│                    ┌──────────────────────────┐             │
+│                    │     Redis Commands       │             │
+│                    │                          │             │
+│                    │  ZADD (update score)     │             │
+│                    │  ZREVRANK (get rank)     │             │
+│                    │  ZREVRANGE (top N)       │             │
+│                    │                          │             │
+│                    └──────────────────────────┘             │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Single Redis instance = SPOF',
+          'No persistence (data loss on Redis restart)',
+          'No historical snapshots',
+          'High latency during write spikes'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Leaderboard System',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      Production Leaderboard                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   ┌─────────────┐                                                           │
+│   │ Game Server │ ──► Score Update ──► Write Aggregator                     │
+│   └─────────────┘                           │                               │
+│                                             ▼                               │
+│                                    ┌───────────────┐                        │
+│                                    │ Kafka Topics  │                        │
+│                                    │ (per game)    │                        │
+│                                    └───────┬───────┘                        │
+│                                            │                                │
+│                              ┌─────────────┴─────────────┐                  │
+│                              ▼                           ▼                  │
+│                    ┌──────────────────┐        ┌──────────────────┐         │
+│                    │  Score Processor │        │  Score Processor │         │
+│                    │  (consumer 1)    │        │  (consumer 2)    │         │
+│                    └────────┬─────────┘        └────────┬─────────┘         │
+│                             │                           │                   │
+│                             └───────────┬───────────────┘                   │
+│                                         ▼                                   │
+│                    ┌─────────────────────────────────────────┐              │
+│                    │              Redis Cluster              │              │
+│                    │                                         │              │
+│                    │   ┌───────────┐   ┌───────────┐         │              │
+│                    │   │  Shard 1  │   │  Shard 2  │  ...    │              │
+│                    │   │ (games A-M)│   │ (games N-Z)│         │              │
+│                    │   └───────────┘   └───────────┘         │              │
+│                    │                                         │              │
+│                    └─────────────────────────────────────────┘              │
+│                                         │                                   │
+│                                         ▼                                   │
+│                    ┌─────────────────────────────────────────┐              │
+│                    │           Persistence Layer             │              │
+│                    │                                         │              │
+│                    │   - Async backup to PostgreSQL          │              │
+│                    │   - Daily snapshots of top 1000         │              │
+│                    │   - Score history for anti-cheat        │              │
+│                    │                                         │              │
+│                    └─────────────────────────────────────────┘              │
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────────────────┐       │
+│   │                      Read Path                                  │       │
+│   │                                                                 │       │
+│   │   Client → CDN (top 100 cached) → API → Redis (direct lookup)   │       │
+│   │                                                                 │       │
+│   └─────────────────────────────────────────────────────────────────┘       │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Kafka for write buffering and exactly-once delivery',
+          'Redis Cluster for horizontal scaling',
+          'Async persistence to PostgreSQL',
+          'CDN cache for top N (changes infrequently)',
+          'Anti-cheat: flag suspicious score jumps'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Anti-Cheat Considerations',
+          points: [
+            'Validate scores server-side (don\'t trust client)',
+            'Rate limit score updates per player',
+            'Flag suspicious jumps (1000 points in 1 second)',
+            'Require game server validation before recording'
+          ]
+        },
+        {
+          topic: 'Historical Leaderboards',
+          points: [
+            'Snapshot top 1000 at end of each period',
+            'Allow viewing past day/week/season rankings',
+            'Archive old data to cold storage',
+            'Achievement unlock based on historical rank'
+          ]
+        },
+        {
+          topic: 'Friends Leaderboard',
+          points: [
+            'Filter by friends list (social graph)',
+            'Can\'t use single sorted set (different per user)',
+            'Option 1: ZINTERSTORE with friends set (slow)',
+            'Option 2: Query each friend\'s score, sort client-side'
+          ]
+        }
+      ],
+
+      // Backward compatibility
       requirements: ['Update scores in real-time', 'Get top N players', 'Get player rank', 'Support multiple leaderboards', 'Time-based reset'],
       components: ['Score service', 'Redis sorted sets', 'Sharding layer', 'Backup storage'],
       keyDecisions: [
@@ -10738,17 +11863,6 @@ Merkle Tree sync:
         'Large leaderboards: Approximate ranking for players outside top 1000',
         'Periodic snapshots to persistent storage',
         'Batch updates for very high write volume'
-      ],
-      estimations: {
-        players: '100M players',
-        writes: '10K score updates/sec',
-        reads: '100K rank lookups/sec',
-        leaderboards: '1000 different leaderboards'
-      },
-      apiDesign: [
-        'POST /api/score { playerId, score, leaderboardId }',
-        'GET /api/leaderboard/{id}/top?limit=100 → { rankings[] }',
-        'GET /api/leaderboard/{id}/rank/{playerId} → { rank, score }'
       ]
     },
     {
