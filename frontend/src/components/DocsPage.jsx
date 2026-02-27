@@ -18651,8 +18651,58 @@ The ambiguity became a clear, measurable project."`
         )}
 
         {/* Behavioral Topic Detail */}
-        {activePage === 'behavioral' && (topicDetails.sampleQuestions || topicDetails.starExample) && (
+        {activePage === 'behavioral' && (topicDetails.sampleQuestions || topicDetails.starExample || topicDetails.introduction || topicDetails.keyQuestions) && (
           <div className="space-y-8">
+            {/* Introduction */}
+            {topicDetails.introduction && (
+              <div className="p-6 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <Icon name="info" size={20} style={{ color: topicDetails.color }} />
+                  Overview
+                </h3>
+                <p className="text-gray-300 leading-relaxed whitespace-pre-line">{topicDetails.introduction}</p>
+              </div>
+            )}
+
+            {/* Key Questions with Detailed Answers */}
+            {topicDetails.keyQuestions && topicDetails.keyQuestions.length > 0 && (
+              <div className="space-y-6">
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Icon name="messageSquare" size={20} style={{ color: topicDetails.color }} />
+                  Key Questions & Answers
+                </h3>
+                {topicDetails.keyQuestions.map((item, index) => (
+                  <div key={index} className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <h4 className="text-lg font-semibold text-white mb-4 flex items-start gap-3">
+                      <span className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>
+                        {index + 1}
+                      </span>
+                      {item.question}
+                    </h4>
+                    <div className="text-gray-300 leading-relaxed whitespace-pre-line ml-11 prose prose-invert max-w-none">
+                      {item.answer.split('\n').map((line, i) => {
+                        if (line.startsWith('**') && line.endsWith('**')) {
+                          return <h5 key={i} className="text-white font-semibold mt-4 mb-2">{line.replace(/\*\*/g, '')}</h5>;
+                        } else if (line.startsWith('**')) {
+                          const parts = line.split('**');
+                          return (
+                            <p key={i} className="mb-2">
+                              {parts.map((part, j) => j % 2 === 1 ? <strong key={j} className="text-white">{part}</strong> : part)}
+                            </p>
+                          );
+                        } else if (line.startsWith('- ')) {
+                          return <li key={i} className="ml-4 mb-1">{line.substring(2)}</li>;
+                        } else if (line.trim() === '') {
+                          return <br key={i} />;
+                        }
+                        return <p key={i} className="mb-2">{line}</p>;
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {topicDetails.starExample && (
               <div className="p-6 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
                 <h3 className="text-white font-semibold mb-4">STAR Framework Example</h3>
@@ -18667,7 +18717,7 @@ The ambiguity became a clear, measurable project."`
               </div>
             )}
 
-            {topicDetails.sampleQuestions && (
+            {topicDetails.sampleQuestions && !topicDetails.keyQuestions && (
               <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <h3 className="text-white font-semibold mb-4">Sample Questions</h3>
                 <ul className="space-y-3">
@@ -18695,7 +18745,7 @@ The ambiguity became a clear, measurable project."`
               </div>
             )}
 
-            {topicDetails.principles && (
+            {topicDetails.principles && !topicDetails.keyQuestions && (
               <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <h3 className="text-white font-semibold mb-4">Key Principles</h3>
                 <div className="flex flex-wrap gap-2">
