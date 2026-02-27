@@ -4146,6 +4146,385 @@ For offline-first/P2P: CRDT`
       color: '#635bff',
       difficulty: 'Hard',
       description: 'Design a payment processing system handling cards, transfers, and refunds.',
+
+      introduction: `Payment systems like Stripe and PayPal handle trillions of dollars in transactions annually. They must be extremely reliable, secure, and compliant with financial regulations. The system processes card payments, handles refunds, detects fraud, and maintains accurate financial records.
+
+Key challenges include ensuring exactly-once payment processing, maintaining PCI-DSS compliance, implementing real-time fraud detection, and guaranteeing financial accuracy through double-entry bookkeeping.`,
+
+      functionalRequirements: [
+        'Process card payments (authorization, capture)',
+        'Handle refunds (full and partial)',
+        'Support multiple payment methods (cards, bank transfers, wallets)',
+        'Recurring billing / subscriptions',
+        'Multi-currency support with FX',
+        'Real-time fraud detection',
+        'Dispute / chargeback handling',
+        'Payout to merchants'
+      ],
+
+      nonFunctionalRequirements: [
+        'Payment latency <500ms for authorization',
+        '99.999% availability (5 min downtime/year)',
+        'PCI-DSS Level 1 compliance',
+        'Exactly-once payment processing',
+        'Handle 10K+ transactions/second',
+        'Audit trail for all financial operations'
+      ],
+
+      dataModel: {
+        description: 'Double-entry ledger with transactions and accounts',
+        schema: `payments {
+  id: varchar(27) PK (pi_xxx)
+  merchantId: bigint FK
+  customerId: bigint FK
+  amount: bigint (cents)
+  currency: varchar(3)
+  status: enum(PENDING, AUTHORIZED, CAPTURED, FAILED, REFUNDED)
+  paymentMethodId: varchar FK
+  idempotencyKey: varchar unique
+  metadata: jsonb
+  createdAt: timestamp
+}
+
+ledger_entries {
+  id: bigint PK
+  transactionId: varchar FK
+  accountId: bigint FK
+  type: enum(DEBIT, CREDIT)
+  amount: bigint
+  currency: varchar(3)
+  balance: bigint (running balance)
+  createdAt: timestamp
+}
+
+accounts {
+  id: bigint PK
+  type: enum(ASSET, LIABILITY, REVENUE, EXPENSE)
+  name: varchar
+  currency: varchar(3)
+  balance: bigint
+}
+
+payment_methods {
+  id: varchar(27) PK (pm_xxx)
+  customerId: bigint FK
+  type: enum(CARD, BANK_ACCOUNT, WALLET)
+  tokenizedData: varchar (reference to vault)
+  last4: varchar(4)
+  expiryMonth: int
+  expiryYear: int
+}
+
+refunds {
+  id: varchar(27) PK (re_xxx)
+  paymentId: varchar FK
+  amount: bigint
+  status: enum(PENDING, SUCCEEDED, FAILED)
+  reason: varchar
+  createdAt: timestamp
+}`
+      },
+
+      apiDesign: {
+        description: 'REST APIs with idempotency for safe retries',
+        endpoints: [
+          {
+            method: 'POST',
+            path: '/v1/payment_intents',
+            params: '{ amount, currency, payment_method, confirm: true }',
+            response: '{ id, status, amount, client_secret }'
+          },
+          {
+            method: 'POST',
+            path: '/v1/payment_intents/{id}/capture',
+            params: '{ amount_to_capture }',
+            response: '{ id, status: captured, amount_captured }'
+          },
+          {
+            method: 'POST',
+            path: '/v1/refunds',
+            params: '{ payment_intent, amount, reason }',
+            response: '{ id, status, amount }'
+          },
+          {
+            method: 'POST',
+            path: '/v1/payouts',
+            params: '{ amount, currency, destination }',
+            response: '{ id, status, arrival_date }'
+          },
+          {
+            method: 'GET',
+            path: '/v1/balance',
+            params: '',
+            response: '{ available: [{amount, currency}], pending: [{amount, currency}] }'
+          }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How do we ensure exactly-once payment processing?',
+          answer: `Idempotency keys are essential:
+
+1. Client generates unique key per payment attempt
+2. Server stores key → result mapping
+3. On retry with same key, return cached result
+
+Implementation:
+- Store in Redis with TTL (24 hours)
+- Check idempotency key BEFORE processing
+- Use database transaction to ensure atomic check-and-process
+- Return cached result for duplicate requests
+
+Additionally:
+- Unique constraints on payment IDs
+- Optimistic locking on balance updates
+- Saga pattern with compensating transactions`
+        },
+        {
+          question: 'How does double-entry bookkeeping work?',
+          answer: `Every transaction creates balanced entries:
+
+Example: Customer pays $100
+1. DEBIT  Stripe_Balance  $100 (asset increases)
+2. CREDIT Customer_Payable $100 (liability increases)
+
+When merchant is paid out:
+3. DEBIT  Merchant_Payable $97 (liability decreases)
+4. CREDIT Stripe_Balance   $97 (asset decreases)
+5. CREDIT Revenue          $3  (Stripe's fee)
+
+Invariant: Sum of all debits = Sum of all credits
+
+Benefits:
+- Self-auditing: Imbalance indicates bug
+- Clear money flow visibility
+- Required for financial compliance`
+        },
+        {
+          question: 'How do we handle PCI-DSS compliance?',
+          answer: `Cardholder Data Environment (CDE) isolation:
+
+1. Card data never touches main systems
+   - Tokenization at point of entry
+   - PCI vault stores actual card numbers
+   - Application uses tokens (pm_xxx)
+
+2. Network segmentation
+   - CDE in isolated VPC
+   - Strict firewall rules
+   - Separate authentication
+
+3. Client-side tokenization
+   - Stripe.js collects card data
+   - Sends directly to Stripe (not merchant server)
+   - Merchant receives token only
+
+4. Key management
+   - HSM (Hardware Security Module) for encryption
+   - Regular key rotation
+   - Audit logging of all access`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Architecture',
+        description: 'Simple payment processing without compliance isolation',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         PAYMENT SYSTEM BASIC                            │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌──────────┐      ┌──────────────┐      ┌──────────────────┐          │
+│  │  Client  │─────▶│   API Server │─────▶│   Payment DB     │          │
+│  └──────────┘      └──────┬───────┘      └──────────────────┘          │
+│                           │                                             │
+│                           │                                             │
+│                    ┌──────▼───────┐                                    │
+│                    │  Card Network │                                    │
+│                    │ (Visa, MC)    │                                    │
+│                    └───────────────┘                                    │
+│                                                                         │
+│  PROBLEMS:                                                              │
+│  - Card data stored in main DB (PCI violation)                         │
+│  - No idempotency (double charges possible)                            │
+│  - Single database = single point of failure                           │
+│  - No fraud detection                                                  │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Card data in main database (PCI violation)',
+          'No idempotency - retries cause double charges',
+          'Single point of failure',
+          'No fraud detection',
+          'No audit trail / ledger'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Architecture',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           PAYMENT SYSTEM PRODUCTION                              │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  CLIENT SIDE                                                                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │  ┌──────────┐                       ┌───────────────┐               │        │
+│  │  │ Checkout │── Card Data ────────▶│  Stripe.js    │               │        │
+│  │  │   Form   │                       │ (Tokenization)│               │        │
+│  │  └──────────┘                       └───────┬───────┘               │        │
+│  │                                             │ (pm_xxx token)        │        │
+│  │       ┌─────────────────────────────────────┘                       │        │
+│  │       ▼                                                              │        │
+│  │  ┌────────────┐                                                     │        │
+│  │  │ Merchant   │── Token only (no card data) ────────────────────▶  │        │
+│  │  │  Server    │                                                     │        │
+│  │  └────────────┘                                                     │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  STRIPE INFRASTRUCTURE                                                          │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │                                                                      │        │
+│  │  ┌─────────────────────────────────────────────────────────────┐    │        │
+│  │  │                      API GATEWAY                             │    │        │
+│  │  │   Auth → Rate Limit → Idempotency → Route                   │    │        │
+│  │  └────────────────────────────┬────────────────────────────────┘    │        │
+│  │                               │                                      │        │
+│  │     ┌─────────────────────────┼──────────────────────────────┐      │        │
+│  │     ▼                         ▼                              ▼      │        │
+│  │  ┌────────┐            ┌────────────┐               ┌────────────┐  │        │
+│  │  │Payment │            │   Fraud    │               │   Ledger   │  │        │
+│  │  │Service │◀──────────▶│  Service   │               │  Service   │  │        │
+│  │  └───┬────┘            └────────────┘               └──────┬─────┘  │        │
+│  │      │                                                      │        │        │
+│  │      │                   CARDHOLDER DATA ENV (PCI)          │        │        │
+│  │      │    ┌──────────────────────────────────────────┐     │        │        │
+│  │      │    │                                          │     │        │        │
+│  │      └───▶│  ┌──────────┐         ┌──────────┐      │     │        │        │
+│  │           │  │   Token  │────────▶│   Card   │      │     │        │        │
+│  │           │  │  Service │         │   Vault  │      │     │        │        │
+│  │           │  └────┬─────┘         │   (HSM)  │      │     │        │        │
+│  │           │       │               └──────────┘      │     │        │        │
+│  │           │       ▼                                  │     │        │        │
+│  │           │  ┌──────────────┐                       │     │        │        │
+│  │           │  │ Card Network │                       │     │        │        │
+│  │           │  │ Integration  │                       │     │        │        │
+│  │           │  │(Visa/MC/Amex)│                       │     │        │        │
+│  │           │  └──────────────┘                       │     │        │        │
+│  │           └──────────────────────────────────────────┘     │        │        │
+│  │                                                            │        │        │
+│  │  ┌────────────────────────────────────────────────────────┴──┐     │        │
+│  │  │                     LEDGER DATABASE                        │     │        │
+│  │  │  Double-entry bookkeeping for all money movements         │     │        │
+│  │  │  ┌─────────────────────────────────────────────────────┐  │     │        │
+│  │  │  │ Every payment:                                       │  │     │        │
+│  │  │  │   DEBIT  stripe_balance    $100                     │  │     │        │
+│  │  │  │   CREDIT customer_payable  $100                     │  │     │        │
+│  │  │  └─────────────────────────────────────────────────────┘  │     │        │
+│  │  └────────────────────────────────────────────────────────────┘     │        │
+│  │                                                                      │        │
+│  └──────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  FRAUD DETECTION                                                                │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │  Real-time scoring on every payment:                                │        │
+│  │  - Velocity checks (too many payments from same card)              │        │
+│  │  - Location anomalies (card used in different country)             │        │
+│  │  - Amount patterns (unusual purchase amount)                       │        │
+│  │  - Device fingerprinting                                           │        │
+│  │  - ML models trained on chargeback data                            │        │
+│  │                                                                      │        │
+│  │  Actions: Block, 3DS challenge, flag for review                    │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Client-side tokenization: Card data never touches merchant server',
+          'PCI-isolated vault: Card numbers stored in HSM-backed vault',
+          'Idempotency layer: Prevents duplicate charges on retry',
+          'Double-entry ledger: Self-auditing financial records',
+          'Real-time fraud scoring: ML models on every transaction',
+          'Multi-network integration: Visa, Mastercard, Amex, etc.'
+        ]
+      },
+
+      paymentFlow: {
+        title: 'Payment Flow',
+        steps: [
+          'Customer enters card details in Stripe.js form',
+          'Stripe.js tokenizes card, returns payment method ID (pm_xxx)',
+          'Merchant server creates PaymentIntent with token',
+          'Stripe checks idempotency key - return cached if duplicate',
+          'Fraud service scores transaction in real-time',
+          'If high risk: Trigger 3D Secure challenge',
+          'Token service retrieves card from vault',
+          'Send authorization request to card network',
+          'Card network returns approval/decline',
+          'Create ledger entries for successful payment',
+          'Return result to merchant, send webhook',
+          'Capture later or auto-capture based on settings'
+        ]
+      },
+
+      refundFlow: {
+        title: 'Refund Flow',
+        steps: [
+          'Merchant initiates refund via API',
+          'Validate: Amount <= original payment, payment is captured',
+          'Create refund record with idempotency check',
+          'For card payments: Send reversal to card network',
+          'Card network processes, returns result',
+          'Create ledger entries (reverse original entries)',
+          'Update payment status to REFUNDED',
+          'Send webhook notification to merchant',
+          'Customer receives funds in 5-10 business days'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Authorization vs Capture',
+          points: [
+            'Authorize: Bank reserves funds, no actual charge',
+            'Capture: Actually transfers money',
+            'Use case: E-commerce captures at ship time',
+            'Auth holds expire (typically 7 days)',
+            'Auth + capture in one call for simple cases'
+          ]
+        },
+        {
+          topic: 'Handling Disputes/Chargebacks',
+          points: [
+            'Customer disputes charge with their bank',
+            'Bank reverses charge, notifies merchant',
+            'Merchant has 7-14 days to provide evidence',
+            'Evidence: Receipt, delivery proof, communication',
+            'Win rate: ~20-30% with good evidence'
+          ]
+        },
+        {
+          topic: 'Multi-Currency Support',
+          points: [
+            'Store amounts in smallest unit (cents)',
+            'FX conversion at payment time vs settlement time',
+            'Currency conversion fees: 1-2%',
+            'Local acquiring: Route to local bank in customers country',
+            'Presentment currency: Show price in customers currency'
+          ]
+        },
+        {
+          topic: 'Reconciliation',
+          points: [
+            'Match internal ledger with bank statements',
+            'Daily automated reconciliation',
+            'Flag discrepancies for manual review',
+            'Handle timing differences (T+1, T+2)',
+            'Settlement batching with card networks'
+          ]
+        }
+      ],
+
       requirements: ['Process payments', 'Handle refunds', 'Fraud detection', 'Multi-currency', 'Recurring billing', 'Compliance (PCI-DSS)'],
       components: ['Payment gateway', 'Ledger service', 'Fraud detection', 'Notification service', 'Reconciliation', 'Compliance service'],
       keyDecisions: [
@@ -4154,17 +4533,6 @@ For offline-first/P2P: CRDT`
         'Saga pattern: Handle distributed transaction failures',
         'PCI-DSS: Tokenize card data, isolate cardholder data environment',
         'Real-time fraud scoring with ML models'
-      ],
-      estimations: {
-        transactions: '10K transactions/sec',
-        volume: '$1T annual payment volume',
-        latency: '<500ms end-to-end for authorization',
-        availability: '99.999% (5.26 min downtime/year)'
-      },
-      apiDesign: [
-        'POST /api/payments { amount, currency, source, idempotencyKey }',
-        'POST /api/refunds { paymentId, amount }',
-        'GET /api/balance → { available, pending }'
       ]
     },
     {
@@ -4256,6 +4624,404 @@ For offline-first/P2P: CRDT`
       color: '#026cdf',
       difficulty: 'Hard',
       description: 'Design a ticket booking system handling high-traffic events with seat selection.',
+
+      introduction: `Ticketmaster is the world's largest ticket marketplace, selling over 500 million tickets annually. The system must handle extreme traffic spikes (14M users trying to buy Taylor Swift tickets), prevent overselling, and provide fair access during high-demand sales.
+
+The key challenges include managing seat inventory with strong consistency, handling millions of concurrent users during on-sales, and implementing fair queuing mechanisms.`,
+
+      functionalRequirements: [
+        'Browse events by category, venue, artist',
+        'View venue seat map with availability',
+        'Select and hold seats temporarily',
+        'Complete purchase with payment',
+        'Digital ticket delivery',
+        'Ticket transfer and resale',
+        'Waitlist for sold-out events',
+        'Pre-sale access for fan clubs'
+      ],
+
+      nonFunctionalRequirements: [
+        'Never oversell (strong consistency for bookings)',
+        'Handle 14M+ concurrent users during major on-sales',
+        'Seat hold expires in 10-15 minutes',
+        'Fair access: No bots, proper queuing',
+        '99.99% availability during events',
+        'Sub-second seat map updates'
+      ],
+
+      dataModel: {
+        description: 'Events, venues, seats, and bookings',
+        schema: `events {
+  id: uuid PK
+  venueId: uuid FK
+  artistId: uuid FK
+  name: varchar(200)
+  dateTime: timestamp
+  onsaleDate: timestamp
+  presaleDates: jsonb
+  status: enum(UPCOMING, ONSALE, SOLDOUT, CANCELLED)
+}
+
+venues {
+  id: uuid PK
+  name: varchar(200)
+  address: jsonb
+  sections: jsonb -- section layout
+  totalCapacity: int
+}
+
+seats {
+  id: uuid PK
+  eventId: uuid FK
+  section: varchar(20)
+  row: varchar(10)
+  number: int
+  status: enum(AVAILABLE, HELD, SOLD, BLOCKED)
+  price: decimal(10,2)
+  holdExpiry: timestamp nullable
+  holdUserId: bigint nullable
+  version: int -- optimistic locking
+}
+
+bookings {
+  id: uuid PK
+  userId: bigint FK
+  eventId: uuid FK
+  seatIds: uuid[]
+  totalAmount: decimal(10,2)
+  paymentId: varchar FK
+  status: enum(CONFIRMED, CANCELLED, REFUNDED)
+  barcode: varchar unique
+  createdAt: timestamp
+}
+
+queue_positions {
+  eventId: uuid PK
+  userId: bigint PK
+  position: bigint
+  joinedAt: timestamp
+  status: enum(WAITING, SHOPPING, EXPIRED)
+}`
+      },
+
+      apiDesign: {
+        description: 'APIs with hold-based checkout flow',
+        endpoints: [
+          {
+            method: 'GET',
+            path: '/api/events/{id}/seats',
+            params: '?section=',
+            response: '{ seats: [{id, row, number, status, price}] }'
+          },
+          {
+            method: 'POST',
+            path: '/api/events/{id}/hold',
+            params: '{ seatIds[] }',
+            response: '{ holdId, expiresAt, total } or { error: ALREADY_HELD }'
+          },
+          {
+            method: 'POST',
+            path: '/api/checkout',
+            params: '{ holdId, paymentMethod }',
+            response: '{ bookingId, tickets[], barcodes[] }'
+          },
+          {
+            method: 'DELETE',
+            path: '/api/holds/{holdId}',
+            params: '',
+            response: '{ released: true }'
+          },
+          {
+            method: 'GET',
+            path: '/api/queue/{eventId}',
+            params: '',
+            response: '{ position, estimatedWait, status }'
+          },
+          {
+            method: 'POST',
+            path: '/api/queue/{eventId}/join',
+            params: '{}',
+            response: '{ queueToken, position }'
+          }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How do we prevent overselling?',
+          answer: `Multiple layers of protection:
+
+1. Pessimistic locking on seat selection:
+   - Redis SETNX with userId and TTL
+   - Only holder can proceed to checkout
+   - Auto-release after 10-15 minutes
+
+2. Database-level consistency:
+   - Optimistic locking with version number
+   - UPDATE seats SET status='SOLD', version=version+1
+     WHERE id=X AND status='HELD' AND version=Y
+   - Rollback if row count != expected
+
+3. Idempotent operations:
+   - holdId required for checkout
+   - Same holdId always returns same result
+
+4. Inventory buffer:
+   - Hold back 1-2% of seats
+   - Release gradually to handle failed payments`
+        },
+        {
+          question: 'How does the virtual waiting room work?',
+          answer: `When traffic exceeds capacity:
+
+1. Queue Join:
+   - User gets queue token with random position
+   - (Random prevents gaming by early refresh)
+   - Show estimated wait time
+
+2. Processing:
+   - Let N users/minute into shopping experience
+   - Control N based on checkout capacity
+   - Shopping timer starts when admitted
+
+3. Fairness measures:
+   - CAPTCHA to filter bots
+   - One queue position per verified account
+   - Device fingerprinting
+   - Rate limiting on queue joins
+
+4. Communication:
+   - WebSocket for real-time position updates
+   - SMS/email notification when its your turn
+   - Grace period if you miss your turn`
+        },
+        {
+          question: 'How do we handle 14M concurrent users?',
+          answer: `Architecture for extreme scale:
+
+1. CDN for static content:
+   - Event pages, images, seat maps (read-only)
+   - 99% of requests never hit origin
+
+2. Queue absorbs traffic:
+   - Only 10K shopping at a time
+   - Rest waiting in queue (cheap to scale)
+   - Queue state in Redis Cluster
+
+3. Sharding by event:
+   - Each event handled by dedicated shard
+   - No cross-event transactions
+   - Hot events get more resources
+
+4. Pre-computed seat maps:
+   - Generate snapshots every 500ms
+   - Push updates via WebSocket
+   - Reduce database reads`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Architecture',
+        description: 'Simple booking without queue or advanced locking',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         TICKETMASTER BASIC                              │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌──────────┐      ┌──────────────┐      ┌──────────────────┐          │
+│  │  Client  │─────▶│ Load Balancer│─────▶│   App Server     │          │
+│  └──────────┘      └──────────────┘      └────────┬─────────┘          │
+│                                                    │                    │
+│  BOOKING FLOW:                            ┌────────▼─────────┐          │
+│  1. View seats (no lock)                  │    PostgreSQL    │          │
+│  2. Click "Buy"                           │   - Events       │          │
+│  3. Payment form                          │   - Seats        │          │
+│  4. Submit payment                        │   - Bookings     │          │
+│  5. Update seat status                    └──────────────────┘          │
+│                                                                         │
+│  PROBLEM: Two users can buy same seat                                  │
+│           Both see "available", both submit payment                    │
+│           Last write wins OR duplicate booking                         │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Race condition: Multiple users can select same seat',
+          'No protection during checkout process',
+          'System crashes under high load',
+          'Bots can grab all tickets',
+          'No fair access during on-sales'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Architecture',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           TICKETMASTER PRODUCTION                                │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  TRAFFIC MANAGEMENT                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │  ┌──────────┐                                                        │        │
+│  │  │ 14M Users│                                                        │        │
+│  │  └────┬─────┘                                                        │        │
+│  │       │                                                              │        │
+│  │       ▼                                                              │        │
+│  │  ┌──────────────────────────────────────────────────────────┐       │        │
+│  │  │               VIRTUAL WAITING ROOM                        │       │        │
+│  │  │                                                           │       │        │
+│  │  │   ┌─────────┐  ┌─────────┐  ┌─────────┐                 │       │        │
+│  │  │   │Position │  │Position │  │Position │  ... 14M        │       │        │
+│  │  │   │   1     │  │   2     │  │   3     │                 │       │        │
+│  │  │   └────┬────┘  └────┬────┘  └────┬────┘                 │       │        │
+│  │  │        │            │            │                       │       │        │
+│  │  │        └────────────┼────────────┘                       │       │        │
+│  │  │                     ▼                                     │       │        │
+│  │  │   Let through: 100 users/second (controlled rate)        │       │        │
+│  │  └───────────────────────────────────────────────────────────┘       │        │
+│  │                        │                                              │        │
+│  │                        ▼                                              │        │
+│  │  ┌───────────────────────────────────────────────────────────┐       │        │
+│  │  │                SHOPPING EXPERIENCE                         │       │        │
+│  │  │            (10K concurrent shoppers max)                   │       │        │
+│  │  └───────────────────────────────────────────────────────────┘       │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  SEAT SELECTION & BOOKING                                                       │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │                                                                      │        │
+│  │    ┌──────────┐         ┌──────────────┐        ┌──────────────┐   │        │
+│  │    │ Seat Map │────────▶│ Seat Service │───────▶│    Redis     │   │        │
+│  │    │(Cached)  │         │              │        │  (Seat Locks) │   │        │
+│  │    └──────────┘         └──────┬───────┘        │              │   │        │
+│  │                                │                │  SETNX       │   │        │
+│  │                                │                │  seat:123 →  │   │        │
+│  │                                │                │  userId:456  │   │        │
+│  │                                │                │  TTL: 15min  │   │        │
+│  │                                │                └──────────────┘   │        │
+│  │                                ▼                                    │        │
+│  │                      ┌──────────────────┐                          │        │
+│  │                      │    PostgreSQL    │                          │        │
+│  │                      │                  │                          │        │
+│  │                      │ UPDATE seats     │                          │        │
+│  │                      │ SET status=SOLD  │                          │        │
+│  │                      │ WHERE id=123     │                          │        │
+│  │                      │ AND status=HELD  │                          │        │
+│  │                      │ AND version=X    │                          │        │
+│  │                      └──────────────────┘                          │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  HOLD & CHECKOUT FLOW                                                           │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │                                                                      │        │
+│  │   SELECT SEATS ──▶ HOLD (10min) ──▶ PAYMENT ──▶ CONFIRM            │        │
+│  │        │               │              │             │                │        │
+│  │        │          Redis lock     Payment API    Update DB          │        │
+│  │        │          with TTL       (Stripe)       Release lock       │        │
+│  │        │               │              │             │                │        │
+│  │        │          Auto-release    Idempotent    Create ticket      │        │
+│  │        │          on timeout      with holdId   with barcode       │        │
+│  │        │                                                            │        │
+│  │   RELEASE ◀─────────── (if timeout or cancel) ◀────────────────    │        │
+│  │                                                                      │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  REAL-TIME UPDATES                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │  Seat status changes ──▶ Redis Pub/Sub ──▶ WebSocket ──▶ Clients  │        │
+│  │                                                                      │        │
+│  │  - Seat sold/released: Update map in <500ms                        │        │
+│  │  - Queue position: Update every 10 seconds                         │        │
+│  │  - Hold expiry countdown: Client-side timer                        │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Virtual waiting room: Queue absorbs traffic spikes',
+          'Controlled admission: Only N users shopping at once',
+          'Redis locks with TTL: Seat holds auto-release',
+          'Optimistic locking: Prevent race conditions at DB level',
+          'WebSocket updates: Real-time seat availability',
+          'Idempotent checkout: Safe retries with holdId'
+        ]
+      },
+
+      bookingFlow: {
+        title: 'Ticket Booking Flow',
+        steps: [
+          'User arrives at event page during on-sale',
+          'If over capacity: Join virtual waiting room',
+          'Wait for your position to be called (WebSocket updates)',
+          'When admitted: Start shopping timer (15 minutes)',
+          'View seat map (CDN-cached with WebSocket updates)',
+          'Select seats → Redis SETNX to acquire hold',
+          'If already held: Show error, suggest alternatives',
+          'Hold acquired: Proceed to checkout with holdId',
+          'Enter payment details, submit',
+          'Backend validates hold, processes payment',
+          'On success: Update seat status to SOLD, create booking',
+          'Generate digital ticket with unique barcode',
+          'Send confirmation email with tickets'
+        ]
+      },
+
+      releaseFlow: {
+        title: 'Seat Release Flow',
+        steps: [
+          'User abandons checkout or timer expires',
+          'Redis key TTL expires, lock released automatically',
+          'Background job checks for expired holds',
+          'Update seat status back to AVAILABLE in DB',
+          'Publish release event to Redis Pub/Sub',
+          'WebSocket pushes update to all connected clients',
+          'Seat map updates in real-time',
+          'Released seats become available for others'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Bot Prevention',
+          points: [
+            'CAPTCHA at queue join and checkout',
+            'Device fingerprinting to detect automation',
+            'Behavioral analysis: Click patterns, timing',
+            'Verified fan programs: Real identity required',
+            'Purchase limits per account'
+          ]
+        },
+        {
+          topic: 'Fair Access Programs',
+          points: [
+            'Verified Fan: Pre-register, lottery for access',
+            'Presales: Staggered access by fan tier',
+            'Dynamic pricing: Market-based pricing reduces scalping',
+            'Transfer restrictions: Non-transferable tickets',
+            'Mobile-only entry: Harder to resell'
+          ]
+        },
+        {
+          topic: 'High-Demand Event Strategies',
+          points: [
+            'Scale infrastructure in advance',
+            'Pre-cache all static content',
+            'Dedicated shard for the event',
+            'War room monitoring during on-sale',
+            'Graceful degradation: Disable non-essential features'
+          ]
+        },
+        {
+          topic: 'Inventory Management',
+          points: [
+            'Hold back 1-2% as buffer',
+            'Dynamic release of held inventory',
+            'ADA compliance: Accessible seating rules',
+            'Group seating: Keep parties together',
+            'Best available algorithm'
+          ]
+        }
+      ],
+
       requirements: ['Browse events', 'Seat selection', 'Inventory management', 'Waitlist', 'Prevent overselling', 'Handle flash sales'],
       components: ['Event service', 'Inventory service', 'Booking service', 'Payment service', 'Queue service', 'Notification'],
       keyDecisions: [
@@ -4264,16 +5030,6 @@ For offline-first/P2P: CRDT`
         'Seat hold with TTL: Release unpurchased seats after timeout',
         'Distributed locks: Redis SETNX for seat reservation',
         'Eventual consistency for sold counts, strong consistency for bookings'
-      ],
-      estimations: {
-        events: '100K events/year',
-        seats: '100M tickets/year',
-        peak: 'Taylor Swift: 14M users in queue, 1M tickets'
-      },
-      apiDesign: [
-        'GET /api/events/{id}/seats?section= → { seats[], held[] }',
-        'POST /api/hold { eventId, seatIds[] } → { holdId, expiresAt }',
-        'POST /api/book { holdId, payment } → { ticketIds[] }'
       ]
     },
     {
