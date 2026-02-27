@@ -3,8 +3,7 @@ import { useAuth } from '../../contexts/AuthContext.jsx';
 import { Icon } from '../Icons.jsx';
 
 /**
- * Ascend Landing Page - Modern AI-Inspired Design
- * Custom SVG icons, Inter font, 75% width container
+ * Ascend Landing Page - Modern Design with Distinct Sections
  */
 export default function OAuthLogin() {
   const { signIn } = useAuth();
@@ -36,11 +35,7 @@ export default function OAuthLogin() {
         { id: 'db', label: 'Database', icon: 'layers', x: 75, y: 40, color: '#ef4444' },
       ],
       connections: [
-        { from: 'client', to: 'lb' },
-        { from: 'lb', to: 'api' },
-        { from: 'api', to: 'cache' },
-        { from: 'api', to: 'db' },
-        { from: 'cache', to: 'db' },
+        { from: 'client', to: 'lb' }, { from: 'lb', to: 'api' }, { from: 'api', to: 'cache' }, { from: 'api', to: 'db' }, { from: 'cache', to: 'db' },
       ]
     },
     {
@@ -54,30 +49,7 @@ export default function OAuthLogin() {
         { id: 'store', label: 'Message Store', icon: 'layers', x: 75, y: 40, color: '#ef4444' },
       ],
       connections: [
-        { from: 'users', to: 'ws' },
-        { from: 'ws', to: 'pubsub' },
-        { from: 'ws', to: 'presence' },
-        { from: 'pubsub', to: 'store' },
-      ]
-    },
-    {
-      title: 'E-commerce Platform',
-      subtitle: 'Microservices architecture',
-      nodes: [
-        { id: 'gateway', label: 'API Gateway', icon: 'shield', x: 10, y: 40, color: '#10b981' },
-        { id: 'catalog', label: 'Catalog', icon: 'puzzle', x: 35, y: 20, color: '#3b82f6' },
-        { id: 'cart', label: 'Cart', icon: 'package', x: 35, y: 60, color: '#8b5cf6' },
-        { id: 'payment', label: 'Payment', icon: 'wallet', x: 60, y: 20, color: '#f59e0b' },
-        { id: 'orders', label: 'Orders', icon: 'clipboard', x: 60, y: 60, color: '#ef4444' },
-        { id: 'queue', label: 'Queue', icon: 'inbox', x: 85, y: 40, color: '#06b6d4' },
-      ],
-      connections: [
-        { from: 'gateway', to: 'catalog' },
-        { from: 'gateway', to: 'cart' },
-        { from: 'catalog', to: 'payment' },
-        { from: 'cart', to: 'orders' },
-        { from: 'payment', to: 'queue' },
-        { from: 'orders', to: 'queue' },
+        { from: 'users', to: 'ws' }, { from: 'ws', to: 'pubsub' }, { from: 'ws', to: 'presence' }, { from: 'pubsub', to: 'store' },
       ]
     },
   ];
@@ -89,52 +61,45 @@ export default function OAuthLogin() {
   ];
 
   const reviews = [
-    { name: 'Sarah M.', title: 'Senior Software Engineer', text: 'Got offers from 3 FAANG companies. The coding assistance was flawless.', rating: 5 },
-    { name: 'James K.', title: 'Staff Engineer', text: 'The system design help alone is worth it. Helped me nail my Amazon L6 interview.', rating: 5 },
-    { name: 'Priya R.', title: 'Engineering Manager', text: 'Game changer for behavioral interviews. The STAR method responses were perfect.', rating: 5 },
+    { name: 'Sarah M.', title: 'Senior SWE @ Meta', text: 'Got offers from 3 FAANG companies. The coding assistance was flawless.', rating: 5 },
+    { name: 'James K.', title: 'Staff Engineer @ Google', text: 'The system design help alone is worth it. Helped me nail my Amazon L6 interview.', rating: 5 },
+    { name: 'Priya R.', title: 'Eng Manager @ Netflix', text: 'Game changer for behavioral interviews. The STAR method responses were perfect.', rating: 5 },
   ];
 
   const faqItems = [
-    { q: 'How does Ascend work?', a: 'Ascend uses advanced AI to listen to your interview in real-time, transcribe questions, and provide instant answers for coding, system design, and behavioral interviews.' },
-    { q: 'Is Ascend really undetectable?', a: 'Yes. Ascend is completely invisible during screen sharing, doesn\'t appear in your dock or task manager, and cannot be detected by any interview platform.' },
-    { q: 'What platforms does it work with?', a: 'Ascend works with Zoom, Google Meet, Microsoft Teams, HackerRank, LeetCode, CoderPad, Amazon Chime, Webex, and virtually any other interview platform.' },
-    { q: 'What programming languages are supported?', a: 'We support 20+ languages including Python, JavaScript, TypeScript, Java, C++, Go, Rust, SQL, and more.' },
+    { q: 'How does Ascend work?', a: 'Ascend uses advanced AI to listen to your interview in real-time, transcribe questions, and provide instant answers.' },
+    { q: 'Is it really undetectable?', a: 'Yes. Completely invisible during screen sharing, not in dock/taskbar, undetectable by any platform.' },
+    { q: 'What platforms work?', a: 'Zoom, Google Meet, Teams, HackerRank, LeetCode, CoderPad, and virtually any interview platform.' },
+    { q: 'What languages supported?', a: '20+ languages including Python, JavaScript, TypeScript, Java, C++, Go, Rust, SQL.' },
   ];
 
   const features = [
-    { icon: 'microphone', title: 'Speech Recognition', desc: 'Blazing fast transcription with state-of-the-art AI models', highlight: 'Real-time' },
-    { icon: 'robot', title: 'AI Answers', desc: 'Powered by Claude & GPT-4 for accurate, contextual responses', highlight: '99% Accurate' },
-    { icon: 'code', title: 'Full Coding Support', desc: 'Solves LeetCode, HackerRank problems with optimal solutions', highlight: 'All Languages' },
-    { icon: 'systemDesign', title: 'System Design', desc: 'Architecture diagrams, trade-offs, and scalability analysis', highlight: 'Visual Diagrams' },
-    { icon: 'resume', title: 'Resume Upload', desc: 'Upload once, get personalized answers matching your experience', highlight: 'Personalized' },
-    { icon: 'target', title: 'Auto Generate', desc: 'Automatically detects questions and generates responses', highlight: 'Hands-free' },
-    { icon: 'globe', title: 'Multi-Language', desc: 'Support for 20+ programming languages and frameworks', highlight: '20+ Languages' },
-    { icon: 'chartBar', title: 'AI Summary', desc: 'Post-interview analysis with performance insights', highlight: 'Analytics' },
-  ];
-
-  const benefits = [
-    { icon: 'brain', title: 'Expand Your Knowledge', desc: 'Leverage AI-driven insights to quickly master cutting-edge industry technologies.', color: '#10b981' },
-    { icon: 'messageSquare', title: 'Enhance Communication', desc: 'Ascend structures your thoughts, making your expression more confident and persuasive.', color: '#3b82f6' },
-    { icon: 'muscle', title: 'Boost Confidence', desc: 'From virtual meetings to in-person interviews, navigate every scenario with ease.', color: '#8b5cf6' },
-    { icon: 'growth', title: 'Personalized Growth', desc: 'Ascend continuously adapts, offering personalized suggestions for ongoing skill enhancement.', color: '#f59e0b' },
+    { icon: 'microphone', title: 'Live Transcription', color: '#10b981' },
+    { icon: 'robot', title: 'AI Answers', color: '#3b82f6' },
+    { icon: 'code', title: 'Code Solutions', color: '#8b5cf6' },
+    { icon: 'systemDesign', title: 'System Design', color: '#f59e0b' },
+    { icon: 'resume', title: 'Resume Sync', color: '#ef4444' },
+    { icon: 'target', title: 'Auto Detect', color: '#06b6d4' },
+    { icon: 'globe', title: '20+ Languages', color: '#ec4899' },
+    { icon: 'chartBar', title: 'Analytics', color: '#84cc16' },
   ];
 
   const privacyFeatures = [
-    { icon: 'eye', title: 'Invisible on Screen Share' },
-    { icon: 'target', title: 'Invisible in Dock' },
-    { icon: 'clipboard', title: 'Invisible in Task Manager' },
+    { icon: 'eye', title: 'Screen Share Safe' },
+    { icon: 'target', title: 'Hidden in Dock' },
+    { icon: 'clipboard', title: 'No Task Manager' },
     { icon: 'keyboard', title: 'Tab Switch Safe' },
-    { icon: 'mouse', title: 'Cursor Undetectable' },
   ];
 
   const platforms = [
     { name: 'Zoom', icon: 'video' },
-    { name: 'Google Meet', icon: 'camera' },
+    { name: 'Meet', icon: 'camera' },
     { name: 'Teams', icon: 'briefcase' },
     { name: 'HackerRank', icon: 'terminal' },
     { name: 'LeetCode', icon: 'puzzle' },
-    { name: 'CoderPad', icon: 'notes' },
   ];
+
+  const companies = ['Google', 'Meta', 'Amazon', 'Apple', 'Netflix'];
 
   useEffect(() => {
     const interval = setInterval(() => setCodeIndex((prev) => (prev + 1) % codeSnippets.length), 4000);
@@ -162,19 +127,12 @@ export default function OAuthLogin() {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !statsAnimated) {
             setStatsAnimated(true);
-            const duration = 2000;
-            const steps = 60;
-            const targets = { success: 300, offers: 17000, salary: 30 };
+            const duration = 2000, steps = 60, targets = { success: 300, offers: 17000, salary: 30 };
             let step = 0;
             const interval = setInterval(() => {
               step++;
-              const progress = step / steps;
-              const eased = 1 - Math.pow(1 - progress, 3);
-              setCounters({
-                success: Math.round(targets.success * eased),
-                offers: Math.round(targets.offers * eased),
-                salary: Math.round(targets.salary * eased),
-              });
+              const eased = 1 - Math.pow(1 - step / steps, 3);
+              setCounters({ success: Math.round(targets.success * eased), offers: Math.round(targets.offers * eased), salary: Math.round(targets.salary * eased) });
               if (step >= steps) clearInterval(interval);
             }, duration / steps);
           }
@@ -189,563 +147,381 @@ export default function OAuthLogin() {
   const handleOAuthLogin = async (provider) => {
     setLoading(provider);
     setError('');
-    try {
-      await signIn(provider);
-    } catch (err) {
-      setError(err.message || 'Failed to sign in');
-      setLoading(null);
-    }
+    try { await signIn(provider); } catch (err) { setError(err.message || 'Failed to sign in'); setLoading(null); }
   };
 
   const handlePricingClick = async (planId) => {
     setLoading(planId);
     setError('');
     localStorage.setItem('ascend_pending_plan', planId);
-    try {
-      await signIn('google');
-    } catch (err) {
-      localStorage.removeItem('ascend_pending_plan');
-      setError(err.message || 'Failed to sign in');
-      setLoading(null);
-    }
+    try { await signIn('google'); } catch (err) { localStorage.removeItem('ascend_pending_plan'); setError(err.message || 'Failed to sign in'); setLoading(null); }
   };
 
-  const providers = [
-    { id: 'google', name: 'Google' },
-    { id: 'github', name: 'GitHub' },
-    { id: 'linkedin', name: 'LinkedIn' },
-  ];
-
-  const companies = ['Google', 'Meta', 'Amazon', 'Apple', 'Netflix', 'Microsoft', 'Stripe', 'Uber'];
+  const providers = [{ id: 'google', name: 'Google' }, { id: 'github', name: 'GitHub' }, { id: 'linkedin', name: 'LinkedIn' }];
 
   return (
-    <div className="min-h-screen relative" style={{ background: '#030712', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
-      {/* Grid background + gradient blobs */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {/* Grid pattern */}
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)',
-          backgroundSize: '60px 60px'
-        }} />
-        {/* Gradient blobs */}
-        <div className="absolute w-[600px] h-[600px] rounded-full opacity-20 blur-3xl" style={{ background: 'radial-gradient(circle, #10b981 0%, transparent 70%)', top: '-200px', left: '-100px' }} />
-        <div className="absolute w-[500px] h-[500px] rounded-full opacity-15 blur-3xl" style={{ background: 'radial-gradient(circle, #3b82f6 0%, transparent 70%)', bottom: '0', right: '-100px' }} />
+    <div className="min-h-screen relative" style={{ background: '#0a0a0f', fontFamily: "'Inter', sans-serif" }}>
+      {/* Grid Background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
+        <div className="absolute w-[800px] h-[800px] rounded-full opacity-30 blur-3xl" style={{ background: 'radial-gradient(circle, #10b98120 0%, transparent 60%)', top: '-300px', left: '-200px' }} />
+        <div className="absolute w-[600px] h-[600px] rounded-full opacity-20 blur-3xl" style={{ background: 'radial-gradient(circle, #3b82f620 0%, transparent 60%)', bottom: '0', right: '-100px' }} />
       </div>
 
-      {/* Main Container - 75% width, centered */}
-      <div className="relative z-10 mx-auto" style={{ width: '75%', maxWidth: '1400px', minWidth: '320px' }}>
+      <div className="relative z-10 mx-auto px-6" style={{ maxWidth: '1200px' }}>
 
-        {/* Navigation */}
-        <nav className="flex items-center justify-between py-6">
+        {/* ═══════════════════════════════════════════════════════════════════════════════
+            NAVIGATION - Floating glass nav
+        ═══════════════════════════════════════════════════════════════════════════════ */}
+        <nav className="flex items-center justify-between py-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
-              <Icon name="ascend" size={24} className="text-white" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+              <Icon name="ascend" size={20} className="text-white" />
             </div>
-            <span className="text-xl font-bold text-white tracking-tight">Ascend</span>
+            <span className="text-lg font-bold text-white">Ascend</span>
           </div>
-          <div className="hidden md:flex items-center gap-8">
-            <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} className="text-gray-400 hover:text-white transition-colors text-sm font-medium">Features</button>
-            <button onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })} className="text-gray-400 hover:text-white transition-colors text-sm font-medium">Reviews</button>
-            <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })} className="text-gray-400 hover:text-white transition-colors text-sm font-medium">Pricing</button>
-            <button onClick={() => handleOAuthLogin('google')} className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff' }}>
+          <div className="hidden md:flex items-center gap-6">
+            <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} className="text-gray-400 hover:text-white text-sm">Features</button>
+            <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })} className="text-gray-400 hover:text-white text-sm">Pricing</button>
+            <a href="/docs" className="text-gray-400 hover:text-white text-sm">Docs</a>
+            <button onClick={() => handleOAuthLogin('google')} className="px-4 py-2 rounded-lg text-sm font-medium" style={{ background: '#10b981', color: '#fff' }}>
               Get Started
             </button>
           </div>
         </nav>
 
-        {/* Hero Section */}
-        <div className="py-10 lg:py-16">
-          <div className="flex flex-col lg:flex-row items-center gap-10">
-            {/* Left Content */}
+        {/* ═══════════════════════════════════════════════════════════════════════════════
+            HERO SECTION
+        ═══════════════════════════════════════════════════════════════════════════════ */}
+        <section className="py-12 lg:py-16">
+          <div className="flex flex-col lg:flex-row items-center gap-12">
             <div className="w-full lg:w-1/2 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                <Icon name="sparkles" size={14} className="text-green-400" />
-                <span className="text-green-400 text-xs font-medium">AI-Powered Interview Assistant</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs mb-6" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#10b981' }}>
+                <Icon name="sparkles" size={12} />
+                AI Interview Assistant
               </div>
-
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 leading-tight tracking-tight">
-                <span className="text-white">Ace Every</span>
-                <br />
-                <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%)' }}>Technical Interview</span>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+                <span className="text-white">Ace Every</span><br />
+                <span style={{ background: 'linear-gradient(135deg, #10b981, #34d399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Technical Interview</span>
               </h1>
-
-              <p className="text-gray-400 mb-6 max-w-xl mx-auto lg:mx-0">
-                Real-time AI for coding, system design & behavioral interviews.
-                <span className="text-white font-medium"> 100% invisible.</span>
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-4">
-                <button onClick={() => handleOAuthLogin('google')} disabled={loading !== null} className="px-6 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff' }}>
-                  {loading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <Icon name="loader" size={16} className="animate-spin" />
-                      Loading...
-                    </span>
-                  ) : (
-                    <span className="flex items-center justify-center gap-2">
-                      Try Free
-                      <Icon name="arrowRight" size={16} />
-                    </span>
-                  )}
+              <p className="text-gray-400 mb-8 text-lg">Real-time AI for coding, system design & behavioral. <span className="text-white">100% invisible.</span></p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                <button onClick={() => handleOAuthLogin('google')} disabled={loading} className="px-8 py-3.5 rounded-xl font-semibold text-white transition-transform hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                  {loading ? <Icon name="loader" size={18} className="animate-spin" /> : 'Start Free Trial'}
                 </button>
-                <button className="px-6 py-3 rounded-lg font-medium transition-all hover:bg-white/10" style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#fff' }}>
-                  <span className="flex items-center gap-2">
-                    <Icon name="play" size={16} />
-                    Demo
-                  </span>
+                <button className="px-6 py-3.5 rounded-xl font-medium text-gray-300 flex items-center justify-center gap-2" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <Icon name="play" size={16} /> Watch Demo
                 </button>
               </div>
-
-              <p className="text-gray-600 text-xs">No credit card required</p>
             </div>
 
-            {/* Right Content - Demo */}
+            {/* Demo Window */}
             <div className="w-full lg:w-1/2">
-              <div className="flex gap-2 mb-4 justify-center">
-                {[
-                  { id: 0, label: 'Coding', icon: 'code', color: '#10b981' },
-                  { id: 1, label: 'System Design', icon: 'systemDesign', color: '#3b82f6' },
-                  { id: 2, label: 'Behavioral', icon: 'behavioral', color: '#8b5cf6' }
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveDemo(tab.id)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
-                    style={{
-                      background: activeDemo === tab.id ? `${tab.color}20` : 'rgba(255,255,255,0.05)',
-                      border: `1px solid ${activeDemo === tab.id ? tab.color : 'rgba(255,255,255,0.1)'}`,
-                      color: activeDemo === tab.id ? tab.color : '#9ca3af'
-                    }}
-                  >
-                    <Icon name={tab.icon} size={16} />
+              <div className="flex gap-2 mb-3 justify-center">
+                {[{ id: 0, label: 'Coding', color: '#10b981' }, { id: 1, label: 'System Design', color: '#3b82f6' }, { id: 2, label: 'Behavioral', color: '#8b5cf6' }].map((tab) => (
+                  <button key={tab.id} onClick={() => setActiveDemo(tab.id)} className="px-4 py-2 rounded-lg text-sm font-medium transition-all" style={{ background: activeDemo === tab.id ? `${tab.color}20` : 'transparent', border: `1px solid ${activeDemo === tab.id ? tab.color : 'rgba(255,255,255,0.1)'}`, color: activeDemo === tab.id ? tab.color : '#6b7280' }}>
                     {tab.label}
                   </button>
                 ))}
               </div>
-
-              <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(255, 255, 255, 0.03)', backdropFilter: 'blur(20px)', border: `1px solid ${activeDemo === 0 ? 'rgba(16, 185, 129, 0.3)' : activeDemo === 1 ? 'rgba(59, 130, 246, 0.3)' : 'rgba(139, 92, 246, 0.3)'}`, minHeight: '420px', height: '420px' }}>
-                <div className="flex items-center gap-2 px-4 py-3" style={{ background: 'rgba(0, 0, 0, 0.3)', borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+              <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(0,0,0,0.4)', border: `1px solid ${['#10b981', '#3b82f6', '#8b5cf6'][activeDemo]}30`, height: '380px' }}>
+                <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: 'rgba(0,0,0,0.5)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                   <div className="flex gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
-                    <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-                    <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+                    <div className="w-3 h-3 rounded-full bg-red-500/70" />
+                    <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
+                    <div className="w-3 h-3 rounded-full bg-green-500/70" />
                   </div>
-                  <div className="flex-1 text-center">
-                    <span className="text-xs text-gray-500" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                      {activeDemo === 0 ? `solution.${codeSnippets[codeIndex].lang}` : activeDemo === 1 ? 'system_design.md' : 'behavioral.md'}
-                    </span>
-                  </div>
+                  <span className="text-xs text-gray-500 flex-1 text-center font-mono">{activeDemo === 0 ? 'solution.py' : activeDemo === 1 ? 'architecture.md' : 'response.md'}</span>
                 </div>
-
-                {activeDemo === 0 && (
-                  <div className="p-6 flex flex-col" style={{ height: '372px', overflow: 'hidden' }}>
-                    <div style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-sm flex-1 flex flex-col">
-                      <div className="text-gray-500 mb-3 text-xs">// AI solving in real-time...</div>
-                      <pre className="text-green-400 leading-loose whitespace-pre-wrap flex-1">{codeSnippets[codeIndex].code}</pre>
-                      <div className="mt-auto pt-6 flex items-center gap-2">
+                <div className="p-5" style={{ height: '332px' }}>
+                  {activeDemo === 0 && (
+                    <div className="h-full flex flex-col">
+                      <div className="text-gray-500 text-xs mb-2 font-mono">// AI solving...</div>
+                      <pre className="text-green-400 text-sm font-mono flex-1 leading-relaxed">{codeSnippets[codeIndex].code}</pre>
+                      <div className="flex items-center gap-2 mt-4">
                         <div className="h-1.5 flex-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
-                          <div className="h-full rounded-full" style={{ width: '100%', background: 'linear-gradient(90deg, #10b981, #34d399)', animation: 'progress 4s linear infinite' }} />
+                          <div className="h-full rounded-full" style={{ width: '100%', background: '#10b981', animation: 'progress 4s linear infinite' }} />
                         </div>
-                        <span className="text-sm text-green-400 flex items-center gap-1">
-                          <Icon name="check" size={14} /> Solved
-                        </span>
+                        <span className="text-green-400 text-xs flex items-center gap-1"><Icon name="check" size={12} />Done</span>
                       </div>
                     </div>
-                  </div>
-                )}
-
-                {activeDemo === 1 && (
-                  <div className="p-6 flex flex-col" style={{ height: '372px', overflow: 'hidden' }}>
-                    <div className="flex items-center gap-3 mb-4">
-                      <Icon name="layers" size={24} className="text-blue-400" />
-                      <div>
-                        <div className="text-blue-400 font-semibold">{systemDesigns[designIndex].title}</div>
-                        <div className="text-gray-500 text-xs">{systemDesigns[designIndex].subtitle}</div>
+                  )}
+                  {activeDemo === 1 && (
+                    <div className="h-full flex flex-col">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Icon name="layers" size={18} className="text-blue-400" />
+                        <span className="text-blue-400 font-medium">{systemDesigns[designIndex].title}</span>
                       </div>
-                    </div>
-                    {/* Architecture Diagram */}
-                    <div className="relative flex-1 rounded-lg overflow-hidden" style={{ background: 'rgba(0,0,0,0.3)', minHeight: '200px' }}>
-                      {/* Grid Background */}
-                      <svg className="absolute inset-0 w-full h-full opacity-10">
-                        <defs>
-                          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#3b82f6" strokeWidth="0.5"/>
-                          </pattern>
-                        </defs>
-                        <rect width="100%" height="100%" fill="url(#grid)" />
-                      </svg>
-
-                      {/* Connection Lines */}
-                      <svg className="absolute inset-0 w-full h-full">
-                        {systemDesigns[designIndex].connections.map((conn, i) => {
-                          const fromNode = systemDesigns[designIndex].nodes.find(n => n.id === conn.from);
-                          const toNode = systemDesigns[designIndex].nodes.find(n => n.id === conn.to);
-                          if (!fromNode || !toNode) return null;
-                          return (
-                            <g key={i}>
-                              <line
-                                x1={`${fromNode.x + 5}%`}
-                                y1={`${fromNode.y}%`}
-                                x2={`${toNode.x - 5}%`}
-                                y2={`${toNode.y}%`}
-                                stroke="rgba(59, 130, 246, 0.4)"
-                                strokeWidth="2"
-                                strokeDasharray="4,4"
-                              />
-                              {/* Animated data packet */}
-                              <circle r="3" fill="#3b82f6">
-                                <animateMotion
-                                  dur={`${1.5 + i * 0.3}s`}
-                                  repeatCount="indefinite"
-                                  path={`M${fromNode.x + 5},${fromNode.y * 1.92} L${toNode.x - 5},${toNode.y * 1.92}`}
-                                />
-                              </circle>
-                            </g>
-                          );
-                        })}
-                      </svg>
-
-                      {/* Nodes */}
-                      {systemDesigns[designIndex].nodes.map((node) => (
-                        <div
-                          key={node.id}
-                          className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 transition-all duration-500"
-                          style={{ left: `${node.x}%`, top: `${node.y}%` }}
-                        >
-                          <div
-                            className="w-10 h-10 rounded-lg flex items-center justify-center shadow-lg"
-                            style={{ background: `${node.color}20`, border: `1px solid ${node.color}`, boxShadow: `0 0 15px ${node.color}40` }}
-                          >
-                            <Icon name={node.icon} size={18} style={{ color: node.color }} />
+                      <div className="relative flex-1 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                        <svg className="absolute inset-0 w-full h-full opacity-5"><defs><pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="#3b82f6" strokeWidth="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#g)"/></svg>
+                        {systemDesigns[designIndex].nodes.map((node) => (
+                          <div key={node.id} className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center" style={{ left: `${node.x}%`, top: `${node.y}%` }}>
+                            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: `${node.color}20`, border: `1px solid ${node.color}` }}>
+                              <Icon name={node.icon} size={16} style={{ color: node.color }} />
+                            </div>
+                            <span className="text-[10px] text-gray-400 mt-1">{node.label}</span>
                           </div>
-                          <span className="text-xs text-gray-400 whitespace-nowrap">{node.label}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Metrics Row */}
-                    <div className="grid grid-cols-4 gap-3 mt-4">
-                      {['Latency', 'Throughput', 'Availability', 'Scale'].map((metric, i) => (
-                        <div key={metric} className="p-2 rounded-lg text-center" style={{ background: 'rgba(59, 130, 246, 0.1)' }}>
-                          <div className="text-xs text-gray-500">{metric}</div>
-                          <div className="text-blue-400 font-semibold text-xs">{['<50ms', '10K/s', '99.99%', 'Auto'][i]}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {activeDemo === 2 && (
-                  <div className="p-6 flex flex-col" style={{ height: '372px', overflow: 'hidden' }}>
-                    <div className="mb-6">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
-                          <Icon name="question" size={20} className="text-purple-400" />
-                        </div>
-                        <span className="text-gray-400 text-sm font-medium">Interviewer</span>
-                      </div>
-                      <p className="text-white font-medium pl-13 text-lg leading-relaxed" style={{ paddingLeft: '52px' }}>"{interviewQA[interviewIndex].q}"</p>
-                    </div>
-                    <div className="flex-1 p-4 rounded-xl" style={{ background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
-                          <Icon name="answer" size={20} className="text-green-400" />
-                        </div>
-                        <div>
-                          <span className="text-gray-400 text-sm font-medium">Your STAR Response</span>
-                          <div className="flex gap-2 mt-1">
-                            {['Situation', 'Task', 'Action', 'Result'].map((s, i) => (
-                              <span key={s} className="text-xs px-2 py-0.5 rounded" style={{ background: 'rgba(139, 92, 246, 0.2)', color: '#a78bfa' }}>{s}</span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-purple-300 leading-relaxed" style={{ paddingLeft: '52px' }}>"{interviewQA[interviewIndex].a}"</p>
-                    </div>
-                    <div className="mt-4 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Icon name="microphone" size={16} className="text-purple-400" />
-                        <span className="text-xs text-gray-500">Live transcription active</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                        <span className="text-xs text-green-400">Recording</span>
+                        ))}
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                  {activeDemo === 2 && (
+                    <div className="h-full flex flex-col">
+                      <div className="mb-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center"><Icon name="question" size={16} className="text-purple-400" /></div>
+                          <span className="text-gray-400 text-sm">Interviewer</span>
+                        </div>
+                        <p className="text-white ml-10">"{interviewQA[interviewIndex].q}"</p>
+                      </div>
+                      <div className="flex-1 p-4 rounded-xl" style={{ background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center"><Icon name="answer" size={16} className="text-green-400" /></div>
+                          <span className="text-gray-400 text-sm">STAR Response</span>
+                        </div>
+                        <p className="text-purple-300 ml-10 text-sm">"{interviewQA[interviewIndex].a}"</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Trusted Companies + Stats Combined */}
-        <div className="py-8 border-y" style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}>
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-6 flex-wrap justify-center">
-              <span className="text-gray-500 text-xs">Trusted by engineers at</span>
-              {companies.slice(0, 5).map((company, i) => (
-                <span key={i} className="text-gray-400 font-medium text-sm">{company}</span>
-              ))}
+        {/* ═══════════════════════════════════════════════════════════════════════════════
+            SOCIAL PROOF BAR - Minimal horizontal strip
+        ═══════════════════════════════════════════════════════════════════════════════ */}
+        <section ref={statsRef} className="py-6 mb-8 rounded-2xl" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(59, 130, 246, 0.05))', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <div className="flex flex-wrap items-center justify-center gap-8 px-6">
+            <div className="flex items-center gap-4">
+              <span className="text-gray-500 text-sm">Trusted by</span>
+              {companies.map((c, i) => <span key={i} className="text-gray-400 font-medium">{c}</span>)}
             </div>
-            <div ref={statsRef} className="flex items-center gap-4">
-              {[
-                { value: `${counters.success}%+`, label: 'Success', color: '#10b981' },
-                { value: `${counters.offers.toLocaleString()}+`, label: 'Offers', color: '#3b82f6' },
-                { value: `${counters.salary}%+`, label: 'Salary ↑', color: '#8b5cf6' },
-              ].map((stat, i) => (
+            <div className="h-8 w-px bg-white/10 hidden md:block" />
+            <div className="flex items-center gap-6">
+              {[{ v: `${counters.success}%`, l: 'Success', c: '#10b981' }, { v: counters.offers.toLocaleString(), l: 'Offers', c: '#3b82f6' }, { v: `${counters.salary}%`, l: 'Salary↑', c: '#8b5cf6' }].map((s, i) => (
                 <div key={i} className="text-center">
-                  <div className="text-sm font-bold tabular-nums" style={{ color: stat.color }}>{stat.value}</div>
-                  <div className="text-gray-500 text-[10px]">{stat.label}</div>
+                  <div className="text-lg font-bold tabular-nums" style={{ color: s.c }}>{s.v}</div>
+                  <div className="text-gray-500 text-xs">{s.l}</div>
                 </div>
               ))}
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Platform Compatibility - Inline */}
-        <div className="py-8 flex flex-wrap items-center justify-center gap-3">
-          <span className="text-gray-400 text-sm">Works with</span>
-          {platforms.map((platform, i) => (
-            <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-              <Icon name={platform.icon} size={14} className="text-gray-400" />
-              <span className="text-white text-xs font-medium">{platform.name}</span>
+        {/* ═══════════════════════════════════════════════════════════════════════════════
+            FEATURES SECTION - Icon grid with colored accents
+        ═══════════════════════════════════════════════════════════════════════════════ */}
+        <section id="features" className="py-12">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-white mb-2">Powerful Features</h2>
+            <p className="text-gray-500">Everything you need to ace any interview</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {features.map((f, i) => (
+              <div key={i} className="group p-5 rounded-xl transition-all hover:scale-105" style={{ background: `linear-gradient(135deg, ${f.color}08, ${f.color}03)`, border: `1px solid ${f.color}20` }}>
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3" style={{ background: `${f.color}15` }}>
+                  <Icon name={f.icon} size={20} style={{ color: f.color }} />
+                </div>
+                <h3 className="text-white font-medium text-sm">{f.title}</h3>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════════════════════════════
+            PRIVACY SECTION - Shield themed card
+        ═══════════════════════════════════════════════════════════════════════════════ */}
+        <section className="py-8">
+          <div className="p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.02))', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(16, 185, 129, 0.15)' }}>
+                <Icon name="shield" size={24} className="text-green-400" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold">100% Undetectable</h3>
+                <p className="text-gray-400 text-sm">Works invisibly on any platform</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {privacyFeatures.map((f, i) => (
+                <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                  <Icon name={f.icon} size={14} className="text-green-400" />
+                  <span className="text-gray-300 text-xs">{f.title}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════════════════════════════
+            PLATFORMS SECTION - Pill badges
+        ═══════════════════════════════════════════════════════════════════════════════ */}
+        <section className="py-6 flex flex-wrap items-center justify-center gap-3">
+          <span className="text-gray-500 text-sm">Works with:</span>
+          {platforms.map((p, i) => (
+            <div key={i} className="flex items-center gap-2 px-4 py-2 rounded-full" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <Icon name={p.icon} size={14} className="text-gray-400" />
+              <span className="text-white text-sm">{p.name}</span>
             </div>
           ))}
-        </div>
+        </section>
 
-        {/* Combined Features & Benefits Section */}
-        <div id="features" className="py-10">
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-white">
-              Everything to <span className="text-green-400">Ace Your Interview</span>
-            </h2>
-          </div>
-
-          {/* Features Grid - Ultra compact 2 rows */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6">
-            {features.map((feature, i) => (
-              <div key={i} className="flex items-center gap-2 p-2 rounded-lg" style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
-                <Icon name={feature.icon} size={14} className="text-green-400 flex-shrink-0" />
-                <span className="text-xs text-white truncate">{feature.title}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Benefits - Inline */}
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            {benefits.map((benefit, i) => (
-              <span key={i} className="flex items-center gap-1.5 px-2 py-1 rounded text-xs" style={{ background: `${benefit.color}10` }}>
-                <Icon name={benefit.icon} size={12} style={{ color: benefit.color }} />
-                <span className="text-gray-300">{benefit.title}</span>
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Reviews Section - Compact */}
-        <div id="reviews" className="py-10">
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <h2 className="text-xl font-bold text-white">People love <span className="text-green-400">Ascend</span></h2>
-            <div className="flex items-center gap-1 text-yellow-400">
-              {[...Array(5)].map((_, i) => <Icon key={i} name="star5" size={14} />)}
-              <span className="text-white text-sm font-bold ml-1">4.9</span>
+        {/* ═══════════════════════════════════════════════════════════════════════════════
+            REVIEWS SECTION - Testimonial cards
+        ═══════════════════════════════════════════════════════════════════════════════ */}
+        <section id="reviews" className="py-12">
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <h2 className="text-xl font-bold text-white">Loved by Engineers</h2>
+            <div className="flex items-center gap-1 px-3 py-1 rounded-full" style={{ background: 'rgba(250, 204, 21, 0.1)' }}>
+              {[...Array(5)].map((_, i) => <Icon key={i} name="star5" size={12} className="text-yellow-400" />)}
+              <span className="text-yellow-400 text-sm font-bold ml-1">4.9</span>
             </div>
           </div>
           <div className="grid md:grid-cols-3 gap-4">
-            {reviews.map((review, i) => (
-              <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold" style={{ background: `hsl(${i * 60 + 120}, 60%, 40%)` }}>
-                    {review.name[0]}
+            {reviews.map((r, i) => (
+              <div key={i} className="p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style={{ background: `linear-gradient(135deg, ${['#10b981', '#3b82f6', '#8b5cf6'][i]}, ${['#059669', '#2563eb', '#7c3aed'][i]})` }}>
+                    {r.name[0]}
                   </div>
                   <div>
-                    <div className="text-white text-sm font-medium">{review.name}</div>
-                    <div className="text-green-400 text-xs">{review.title}</div>
+                    <div className="text-white font-medium text-sm">{r.name}</div>
+                    <div className="text-gray-500 text-xs">{r.title}</div>
                   </div>
                 </div>
-                <p className="text-gray-400 text-xs">"{review.text}"</p>
+                <p className="text-gray-400 text-sm leading-relaxed">"{r.text}"</p>
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* Privacy Section - Single line */}
-        <div className="py-6">
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <span className="text-white font-medium text-sm">100% Private & Undetectable:</span>
-            {privacyFeatures.map((feature, i) => (
-              <span key={i} className="flex items-center gap-1.5 text-xs text-gray-400">
-                <Icon name={feature.icon} size={14} className="text-green-400" />
-                {feature.title}
-              </span>
-            ))}
+        {/* ═══════════════════════════════════════════════════════════════════════════════
+            PRICING SECTION - Large prominent cards
+        ═══════════════════════════════════════════════════════════════════════════════ */}
+        <section id="pricing" className="py-12">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-white mb-2">Simple Pricing</h2>
+            <p className="text-gray-500">Start free, upgrade when ready</p>
           </div>
-        </div>
-
-        {/* Pricing Section - Compact */}
-        <div id="pricing" className="py-10">
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-white">Choose Your <span className="text-green-400">Plan</span></h2>
-          </div>
-
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {/* Monthly */}
-            <div className="p-6 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-              <div className="flex items-center gap-2 mb-3">
+            <div className="p-6 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div className="flex items-center gap-2 mb-4">
                 <Icon name="cloud" size={20} className="text-gray-400" />
-                <h3 className="text-base font-bold text-white">Monthly</h3>
+                <h3 className="text-lg font-bold text-white">Monthly</h3>
               </div>
-              <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-3xl font-bold text-white">$99</span>
-                <span className="text-gray-500 text-sm">/mo</span>
+              <div className="flex items-baseline gap-1 mb-6">
+                <span className="text-4xl font-bold text-white">$99</span>
+                <span className="text-gray-500">/mo</span>
               </div>
-              <ul className="space-y-2 mb-4 text-sm">
-                {['5 credits', '25 coding problems'].map((item, j) => (
-                  <li key={j} className="flex items-center gap-2 text-gray-400">
-                    <Icon name="check" size={14} className="text-green-400" />{item}
+              <ul className="space-y-3 mb-6">
+                {['5 credits/month', '25 coding problems', 'Basic support'].map((item, j) => (
+                  <li key={j} className="flex items-center gap-2 text-gray-400 text-sm">
+                    <Icon name="check" size={16} className="text-green-400" />{item}
                   </li>
                 ))}
               </ul>
-              <button onClick={() => handlePricingClick('monthly')} className="w-full py-2.5 rounded-lg font-medium text-sm" style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#fff' }}>
+              <button onClick={() => handlePricingClick('monthly')} className="w-full py-3 rounded-xl font-medium" style={{ background: 'rgba(255,255,255,0.1)', color: '#fff' }}>
                 {loading === 'monthly' ? '...' : 'Get Started'}
               </button>
             </div>
 
-            {/* Quarterly Pro */}
-            <div className="relative p-6 rounded-2xl" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05))', border: '2px solid #10b981' }}>
-              <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold" style={{ background: '#10b981', color: '#fff' }}>BEST</div>
-              <div className="flex items-center gap-2 mb-3">
+            {/* Quarterly Pro - Featured */}
+            <div className="relative p-6 rounded-2xl" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05))', border: '2px solid #10b981' }}>
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold" style={{ background: '#10b981', color: '#fff' }}>POPULAR</div>
+              <div className="flex items-center gap-2 mb-4">
                 <Icon name="rocket" size={20} className="text-green-400" />
-                <h3 className="text-base font-bold text-white">Quarterly Pro</h3>
+                <h3 className="text-lg font-bold text-white">Quarterly Pro</h3>
               </div>
-              <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-3xl font-bold text-white">$300</span>
-                <span className="text-gray-500 text-sm">/qtr</span>
+              <div className="flex items-baseline gap-1 mb-6">
+                <span className="text-4xl font-bold text-white">$300</span>
+                <span className="text-gray-500">/qtr</span>
               </div>
-              <ul className="space-y-2 mb-4 text-sm">
-                {['10 credits', 'Job Discovery'].map((item, j) => (
-                  <li key={j} className="flex items-center gap-2 text-gray-400">
-                    <Icon name="check" size={14} className="text-green-400" />{item}
+              <ul className="space-y-3 mb-6">
+                {['10 credits/month', 'Unlimited problems', 'Job Discovery Portal', 'Priority support'].map((item, j) => (
+                  <li key={j} className="flex items-center gap-2 text-gray-300 text-sm">
+                    <Icon name="check" size={16} className="text-green-400" />{item}
                   </li>
                 ))}
               </ul>
-              <button onClick={() => handlePricingClick('quarterly_pro')} className="w-full py-2.5 rounded-lg font-medium text-sm" style={{ background: '#10b981', color: '#fff' }}>
+              <button onClick={() => handlePricingClick('quarterly_pro')} className="w-full py-3 rounded-xl font-semibold" style={{ background: '#10b981', color: '#fff' }}>
                 {loading === 'quarterly_pro' ? '...' : 'Get Pro'}
               </button>
             </div>
 
             {/* Desktop Lifetime */}
-            <div className="relative p-6 rounded-2xl" style={{ background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05))', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
-              <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold" style={{ background: '#8b5cf6', color: '#fff' }}>LIFETIME</div>
-              <div className="flex items-center gap-2 mb-3">
+            <div className="relative p-6 rounded-2xl" style={{ background: 'linear-gradient(180deg, rgba(139, 92, 246, 0.12), rgba(139, 92, 246, 0.04))', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold" style={{ background: '#8b5cf6', color: '#fff' }}>LIFETIME</div>
+              <div className="flex items-center gap-2 mb-4">
                 <Icon name="terminal" size={20} className="text-purple-400" />
-                <h3 className="text-base font-bold text-white">Desktop</h3>
+                <h3 className="text-lg font-bold text-white">Desktop</h3>
               </div>
-              <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-3xl font-bold text-white">$300</span>
-                <span className="text-gray-500 text-sm">once</span>
+              <div className="flex items-baseline gap-1 mb-6">
+                <span className="text-4xl font-bold text-white">$300</span>
+                <span className="text-gray-500">once</span>
               </div>
-              <ul className="space-y-2 mb-4 text-sm">
-                {['Unlimited forever', 'Your API keys'].map((item, j) => (
-                  <li key={j} className="flex items-center gap-2 text-gray-400">
-                    <Icon name="check" size={14} className="text-purple-400" />{item}
+              <ul className="space-y-3 mb-6">
+                {['Unlimited forever', 'Use your own API keys', 'Offline mode', 'No subscription'].map((item, j) => (
+                  <li key={j} className="flex items-center gap-2 text-gray-400 text-sm">
+                    <Icon name="check" size={16} className="text-purple-400" />{item}
                   </li>
                 ))}
               </ul>
-              <button onClick={() => handlePricingClick('desktop_lifetime')} className="w-full py-2.5 rounded-lg font-medium text-sm" style={{ background: '#8b5cf6', color: '#fff' }}>
-                {loading === 'desktop_lifetime' ? '...' : 'Buy'}
-              </button>
-            </div>
-
-            {/* Credit Pack */}
-            <div className="p-6 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-              <div className="flex items-center gap-2 mb-3">
-                <Icon name="ticket" size={20} className="text-gray-400" />
-                <h3 className="text-base font-bold text-white">Credits</h3>
-              </div>
-              <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-3xl font-bold text-white">$30</span>
-                <span className="text-gray-500 text-sm">pack</span>
-              </div>
-              <ul className="space-y-2 mb-4 text-sm">
-                {['3 credits', 'No expiration'].map((item, j) => (
-                  <li key={j} className="flex items-center gap-2 text-gray-400">
-                    <Icon name="check" size={14} className="text-green-400" />{item}
-                  </li>
-                ))}
-              </ul>
-              <button onClick={() => handlePricingClick('addon')} className="w-full py-2.5 rounded-lg font-medium text-sm" style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#fff' }}>
-                {loading === 'addon' ? '...' : 'Buy'}
+              <button onClick={() => handlePricingClick('desktop_lifetime')} className="w-full py-3 rounded-xl font-medium" style={{ background: '#8b5cf6', color: '#fff' }}>
+                {loading === 'desktop_lifetime' ? '...' : 'Buy Now'}
               </button>
             </div>
           </div>
-          <p className="text-center text-gray-500 text-xs mt-4">30-Day Money Back Guarantee</p>
-        </div>
+          <p className="text-center text-gray-500 text-sm mt-6">30-day money back guarantee</p>
+        </section>
 
-        {/* FAQ Section - Compact */}
-        <div className="py-8">
-          <h2 className="text-xl font-bold text-white text-center mb-4">FAQ</h2>
-          <div className="grid md:grid-cols-2 gap-3">
+        {/* ═══════════════════════════════════════════════════════════════════════════════
+            FAQ SECTION - Clean accordion style
+        ═══════════════════════════════════════════════════════════════════════════════ */}
+        <section className="py-12">
+          <h2 className="text-xl font-bold text-white text-center mb-6">Frequently Asked Questions</h2>
+          <div className="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto">
             {faqItems.map((faq, i) => (
-              <div key={i} className="p-3 rounded-lg" style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
-                <h3 className="text-sm font-medium text-white mb-1">{faq.q}</h3>
-                <p className="text-gray-500 text-xs leading-relaxed">{faq.a.slice(0, 100)}...</p>
+              <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <h3 className="text-white font-medium text-sm mb-2">{faq.q}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">{faq.a}</p>
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* CTA Section - Compact */}
-        <div className="py-8">
-          <div className="max-w-sm mx-auto p-6 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-            <div className="text-center mb-4">
-              <h2 className="text-lg font-bold text-white">Get Started Free</h2>
-              <p className="text-gray-500 text-xs">No credit card required</p>
-            </div>
-
+        {/* ═══════════════════════════════════════════════════════════════════════════════
+            CTA SECTION - Glowing card
+        ═══════════════════════════════════════════════════════════════════════════════ */}
+        <section className="py-12">
+          <div className="max-w-md mx-auto p-8 rounded-2xl text-center" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.02))', border: '1px solid rgba(16, 185, 129, 0.2)', boxShadow: '0 0 60px rgba(16, 185, 129, 0.1)' }}>
+            <h2 className="text-xl font-bold text-white mb-2">Ready to Ace Your Interview?</h2>
+            <p className="text-gray-400 text-sm mb-6">Start your free trial today. No credit card required.</p>
             <div className="space-y-2">
-              {providers.map((provider) => (
-                <button
-                  key={provider.id}
-                  onClick={() => handleOAuthLogin(provider.id)}
-                  disabled={loading !== null}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all disabled:opacity-50 hover:bg-white/10"
-                  style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#fff' }}
-                >
-                  {loading === provider.id ? (
-                    <Icon name="loader" size={16} className="animate-spin" />
-                  ) : (
-                    <>
-                      <Icon name={provider.id} size={16} />
-                      {provider.name}
-                    </>
-                  )}
+              {providers.map((p) => (
+                <button key={p.id} onClick={() => handleOAuthLogin(p.id)} disabled={loading !== null} className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium text-sm transition-all hover:bg-white/10" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}>
+                  {loading === p.id ? <Icon name="loader" size={16} className="animate-spin" /> : <><Icon name={p.id} size={16} />{p.name}</>}
                 </button>
               ))}
             </div>
-
-            {error && (
-              <div className="mt-3 p-2 rounded-lg" style={{ background: 'rgba(239, 68, 68, 0.1)' }}>
-                <p className="text-red-400 text-xs text-center">{error}</p>
-              </div>
-            )}
-
-            <p className="mt-4 text-center text-[10px] text-gray-600">
-              By signing up, you agree to our <a href="/terms" className="text-gray-500 hover:text-white">Terms</a> & <a href="/privacy" className="text-gray-500 hover:text-white">Privacy</a>
-            </p>
+            {error && <p className="text-red-400 text-xs mt-3">{error}</p>}
+            <p className="mt-4 text-[11px] text-gray-600">By signing up, you agree to our <a href="/terms" className="text-gray-500 hover:text-white">Terms</a> & <a href="/privacy" className="text-gray-500 hover:text-white">Privacy</a></p>
           </div>
-        </div>
+        </section>
 
-        {/* Footer - Compact */}
-        <footer className="py-6 border-t flex items-center justify-between" style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+        {/* ═══════════════════════════════════════════════════════════════════════════════
+            FOOTER
+        ═══════════════════════════════════════════════════════════════════════════════ */}
+        <footer className="py-8 border-t flex items-center justify-between" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
               <Icon name="ascend" size={14} className="text-white" />
             </div>
-            <span className="text-white font-semibold text-sm">Ascend</span>
+            <span className="text-white font-semibold">Ascend</span>
           </div>
-          <div className="flex items-center gap-4 text-xs text-gray-500">
+          <div className="flex items-center gap-4 text-sm text-gray-500">
             <a href="/privacy" className="hover:text-white">Privacy</a>
             <a href="/terms" className="hover:text-white">Terms</a>
             <span>© 2025</span>
@@ -753,15 +529,9 @@ export default function OAuthLogin() {
         </footer>
       </div>
 
-      {/* CSS Animations */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
-
-        @keyframes progress {
-          0% { width: 0%; }
-          90% { width: 100%; }
-          100% { width: 100%; }
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @keyframes progress { 0% { width: 0; } 100% { width: 100%; } }
       `}</style>
     </div>
   );
