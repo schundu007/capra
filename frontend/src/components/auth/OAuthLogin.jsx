@@ -180,12 +180,12 @@ export default function OAuthLogin() {
             </div>
             <span className="text-lg font-bold text-white">Ascend</span>
           </div>
-          <div className="hidden md:flex items-center gap-6">
-            <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} className="text-gray-400 hover:text-white text-sm">Features</button>
-            <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })} className="text-gray-400 hover:text-white text-sm">Pricing</button>
-            <a href="/docs" className="text-gray-400 hover:text-white text-sm">Docs</a>
-            <button onClick={() => handleOAuthLogin('google')} className="px-4 py-2 rounded-lg text-sm font-medium" style={{ background: '#10b981', color: '#fff' }}>
-              Get Started
+          <div className="flex items-center gap-4 md:gap-6">
+            <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} className="text-gray-400 hover:text-white text-xs md:text-sm">Features</button>
+            <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })} className="text-gray-400 hover:text-white text-xs md:text-sm">Pricing</button>
+            <a href="/docs" className="text-gray-400 hover:text-white text-xs md:text-sm">Docs</a>
+            <button onClick={() => handleOAuthLogin('google')} className="px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium" style={{ background: '#10b981', color: '#fff' }}>
+              Start
             </button>
           </div>
         </nav>
