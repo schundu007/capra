@@ -1299,28 +1299,153 @@ def network_delay_time(times, n, k):
       color: '#3b82f6',
       questions: 42,
       description: 'Optimal substructure and overlapping subproblems. Break into smaller problems.',
-      keyPatterns: ['1D DP', '2D DP', 'Knapsack variants', 'LCS/LIS', 'State machine'],
+
+      introduction: `Dynamic Programming (DP) is one of the most important and challenging topics in coding interviews. It's used when a problem has overlapping subproblems and optimal substructure.
+
+**Two Approaches:**
+1. **Top-Down (Memoization)**: Start with the main problem, recursively solve subproblems, cache results
+2. **Bottom-Up (Tabulation)**: Start with base cases, build up to the solution iteratively
+
+**Common DP Patterns:**
+- **1D DP**: State depends on previous element(s) - dp[i]
+- **2D DP**: State depends on two dimensions - dp[i][j]
+- **Knapsack**: Include/exclude items with capacity constraint
+- **LCS/LIS**: Subsequence problems
+- **State Machine**: Multiple states to track (e.g., buy/sell stock)
+
+**Key Insight:** If you can express a problem as "the optimal solution to problem of size n uses optimal solutions to smaller problems," it's likely DP.`,
+
+      whenToUse: [
+        'Optimization problems (min/max of something)',
+        'Counting problems (number of ways to do something)',
+        'Problems with overlapping subproblems',
+        '"Can we achieve X?" type problems',
+        'Problems involving sequences or grids',
+        'When brute force would repeat the same calculations'
+      ],
+
+      keyPatterns: ['1D DP', '2D DP', 'Knapsack variants', 'LCS/LIS', 'State machine', 'Interval DP', 'Bitmask DP'],
       timeComplexity: 'Varies: O(n), O(n²), O(n*W)',
       spaceComplexity: 'Can often optimize from O(n) to O(1)',
-      commonProblems: ['Climbing Stairs', 'Coin Change', 'Longest Increasing Subsequence', 'Edit Distance', 'House Robber'],
+
+      approach: [
+        'Identify if problem has optimal substructure and overlapping subproblems',
+        'Define state: What does dp[i] (or dp[i][j]) represent?',
+        'Write recurrence relation: How does dp[i] depend on previous states?',
+        'Identify base cases: What are dp[0], dp[1], etc.?',
+        'Determine iteration order: Which states need to be computed first?',
+        'Consider space optimization: Do we need the full DP table?'
+      ],
+
+      commonProblems: [
+        { name: 'Climbing Stairs', difficulty: 'Easy' },
+        { name: 'House Robber', difficulty: 'Medium' },
+        { name: 'Coin Change', difficulty: 'Medium' },
+        { name: 'Longest Increasing Subsequence', difficulty: 'Medium' },
+        { name: 'Unique Paths', difficulty: 'Medium' },
+        { name: 'Edit Distance', difficulty: 'Medium' },
+        { name: 'Longest Common Subsequence', difficulty: 'Medium' },
+        { name: 'Word Break', difficulty: 'Medium' }
+      ],
+
+      commonMistakes: [
+        'Not clearly defining what dp[i] represents',
+        'Wrong base cases or off-by-one errors',
+        'Wrong iteration order (filling dp in wrong direction)',
+        'Not handling edge cases (empty input, zero, negative)',
+        'Forgetting to return the actual answer (often dp[n] or dp[n-1])'
+      ],
+
       tips: [
         'Start with recursion + memoization, then convert to tabulation',
         'Define state clearly: what does dp[i] represent?',
         'Identify base cases and recurrence relation',
-        'Look for space optimization by tracking only needed previous states'
+        'Look for space optimization by tracking only needed previous states',
+        'Draw out the DP table for small examples to verify logic'
       ],
-      codeExample: `# Coin Change - Bottom-up DP
-def coin_change(coins, amount):
+
+      interviewTips: [
+        'Start by identifying subproblems: "The solution to n uses solutions to smaller problems"',
+        'Explain your state definition: "dp[i] represents..."',
+        'Walk through the recurrence: "dp[i] = dp[i-1] + dp[i-2] because..."',
+        'Verify with a small example before coding',
+        'Mention potential space optimization even if you don\'t implement it'
+      ],
+
+      codeExamples: [
+        {
+          title: 'Climbing Stairs - Classic 1D DP',
+          description: 'Number of ways to climb n stairs (1 or 2 steps at a time).',
+          code: `def climb_stairs(n):
+    if n <= 2:
+        return n
+    dp = [0] * (n + 1)
+    dp[1], dp[2] = 1, 2
+
+    for i in range(3, n + 1):
+        dp[i] = dp[i-1] + dp[i-2]
+
+    return dp[n]
+
+# Space optimized: O(1)
+def climb_stairs_optimized(n):
+    if n <= 2:
+        return n
+    prev2, prev1 = 1, 2
+    for _ in range(3, n + 1):
+        prev2, prev1 = prev1, prev2 + prev1
+    return prev1`
+        },
+        {
+          title: 'Coin Change - Unbounded Knapsack',
+          description: 'Minimum coins needed to make amount.',
+          code: `def coin_change(coins, amount):
     dp = [float('inf')] * (amount + 1)
-    dp[0] = 0
+    dp[0] = 0  # 0 coins needed for amount 0
 
-    for coin in coins:
-        for x in range(coin, amount + 1):
-            dp[x] = min(dp[x], dp[x - coin] + 1)
+    for i in range(1, amount + 1):
+        for coin in coins:
+            if coin <= i and dp[i - coin] != float('inf'):
+                dp[i] = min(dp[i], dp[i - coin] + 1)
 
-    return dp[amount] if dp[amount] != float('inf') else -1
+    return dp[amount] if dp[amount] != float('inf') else -1`
+        },
+        {
+          title: 'Longest Increasing Subsequence',
+          description: 'Find length of longest strictly increasing subsequence.',
+          code: `def length_of_lis(nums):
+    if not nums:
+        return 0
 
-# Time: O(amount * coins), Space: O(amount)`
+    n = len(nums)
+    dp = [1] * n  # dp[i] = LIS ending at index i
+
+    for i in range(1, n):
+        for j in range(i):
+            if nums[j] < nums[i]:
+                dp[i] = max(dp[i], dp[j] + 1)
+
+    return max(dp)
+
+# O(n log n) solution uses binary search with patience sorting`
+        },
+        {
+          title: 'Longest Common Subsequence - 2D DP',
+          description: 'Find LCS of two strings.',
+          code: `def longest_common_subsequence(text1, text2):
+    m, n = len(text1), len(text2)
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if text1[i-1] == text2[j-1]:
+                dp[i][j] = dp[i-1][j-1] + 1
+            else:
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+
+    return dp[m][n]`
+        }
+      ]
     },
     {
       id: 'heaps',
@@ -1329,31 +1454,144 @@ def coin_change(coins, amount):
       color: '#f97316',
       questions: 33,
       description: 'Efficient min/max access. Essential for top-k problems and scheduling.',
-      keyPatterns: ['Top-K elements', 'Merge K sorted', 'Two heaps (median)', 'Scheduling'],
+
+      introduction: `A heap is a complete binary tree that satisfies the heap property: every parent is smaller (min-heap) or larger (max-heap) than its children. It provides O(log n) insert/delete and O(1) access to min/max.
+
+**Key Operations:**
+- **Push**: O(log n) - Add element and bubble up
+- **Pop**: O(log n) - Remove root and heapify down
+- **Peek**: O(1) - Access min/max without removing
+- **Heapify**: O(n) - Convert array to heap
+
+**Common Patterns:**
+- **Top-K Largest**: Use min-heap of size K (counterintuitive!)
+- **Top-K Smallest**: Use max-heap of size K
+- **Merge K Sorted**: Use min-heap to track smallest from each list
+- **Two Heaps**: Track median with max-heap (smaller half) + min-heap (larger half)`,
+
+      whenToUse: [
+        'Finding K largest/smallest elements',
+        'Merging K sorted lists or streams',
+        'Running median or percentile calculations',
+        'Task scheduling with priorities',
+        'Dijkstra\'s shortest path algorithm',
+        'Huffman coding'
+      ],
+
+      keyPatterns: ['Top-K elements', 'Merge K sorted', 'Two heaps (median)', 'Scheduling', 'K closest', 'Stream processing'],
       timeComplexity: 'O(log n) push/pop, O(1) peek',
       spaceComplexity: 'O(k) for top-k problems',
-      commonProblems: ['Kth Largest Element', 'Top K Frequent Elements', 'Merge K Sorted Lists', 'Find Median from Data Stream', 'Task Scheduler'],
+
+      approach: [
+        'Identify if you need repeated access to min or max',
+        'For top-K largest, use min-heap of size K (smallest of K largest is at top)',
+        'For top-K smallest, use max-heap of size K',
+        'For median, use two heaps: max-heap for lower half, min-heap for upper half',
+        'In Python, negate values to simulate max-heap using heapq',
+        'Consider heapify O(n) vs n insertions O(n log n)'
+      ],
+
+      commonProblems: [
+        { name: 'Kth Largest Element in an Array', difficulty: 'Medium' },
+        { name: 'Top K Frequent Elements', difficulty: 'Medium' },
+        { name: 'Merge K Sorted Lists', difficulty: 'Hard' },
+        { name: 'Find Median from Data Stream', difficulty: 'Hard' },
+        { name: 'Task Scheduler', difficulty: 'Medium' },
+        { name: 'K Closest Points to Origin', difficulty: 'Medium' },
+        { name: 'Reorganize String', difficulty: 'Medium' },
+        { name: 'Meeting Rooms II', difficulty: 'Medium' }
+      ],
+
+      commonMistakes: [
+        'Confusing min-heap vs max-heap for top-K problems',
+        'Forgetting Python heapq is min-heap only (negate for max)',
+        'Not handling empty heap edge cases',
+        'Using wrong comparison for custom objects',
+        'Modifying heap size incorrectly in two-heap pattern'
+      ],
+
       tips: [
         'Python heapq is min-heap; negate values for max-heap',
         'For top-K largest, use min-heap of size K',
         'Two heaps pattern: max-heap for smaller half, min-heap for larger',
-        'Heapify is O(n), more efficient than n insertions'
+        'Heapify is O(n), more efficient than n insertions',
+        'Use tuple (priority, index, data) for stable sorting'
       ],
-      codeExample: `# Kth Largest Element
-import heapq
+
+      interviewTips: [
+        'Clarify: K largest or K smallest? Sorted output needed?',
+        'Explain heap choice: "I use min-heap of size K because..."',
+        'State time complexity: O(n log k) for top-K is better than O(n log n) sort',
+        'Mention space-time tradeoff between heap and QuickSelect',
+        'For two-heap problems, explain rebalancing logic'
+      ],
+
+      codeExamples: [
+        {
+          title: 'Kth Largest Element - Min Heap',
+          description: 'Keep K largest in min-heap, top is Kth largest.',
+          code: `import heapq
 
 def find_kth_largest(nums, k):
-    # Min-heap of size k
+    # Min-heap of size k holds k largest elements
     heap = nums[:k]
     heapq.heapify(heap)
 
     for num in nums[k:]:
-        if num > heap[0]:
+        if num > heap[0]:  # Larger than smallest of k largest
             heapq.heapreplace(heap, num)
 
-    return heap[0]
+    return heap[0]  # Smallest of k largest = kth largest`
+        },
+        {
+          title: 'Merge K Sorted Lists',
+          description: 'Use min-heap to always get smallest element.',
+          code: `import heapq
 
-# Time: O(n log k), Space: O(k)`
+def merge_k_lists(lists):
+    heap = []
+    for i, lst in enumerate(lists):
+        if lst:
+            heapq.heappush(heap, (lst.val, i, lst))
+
+    dummy = ListNode(0)
+    current = dummy
+
+    while heap:
+        val, i, node = heapq.heappop(heap)
+        current.next = node
+        current = current.next
+        if node.next:
+            heapq.heappush(heap, (node.next.val, i, node.next))
+
+    return dummy.next`
+        },
+        {
+          title: 'Find Median from Data Stream',
+          description: 'Two heaps: max-heap for lower, min-heap for upper.',
+          code: `import heapq
+
+class MedianFinder:
+    def __init__(self):
+        self.small = []  # Max-heap (negated values)
+        self.large = []  # Min-heap
+
+    def addNum(self, num):
+        # Add to max-heap (small)
+        heapq.heappush(self.small, -num)
+        # Move largest from small to large
+        heapq.heappush(self.large, -heapq.heappop(self.small))
+
+        # Balance: small can have at most 1 more than large
+        if len(self.large) > len(self.small):
+            heapq.heappush(self.small, -heapq.heappop(self.large))
+
+    def findMedian(self):
+        if len(self.small) > len(self.large):
+            return -self.small[0]
+        return (-self.small[0] + self.large[0]) / 2`
+        }
+      ]
     },
     {
       id: 'backtracking',
@@ -1362,15 +1600,177 @@ def find_kth_largest(nums, k):
       color: '#10b981',
       questions: 25,
       description: 'Explore all possibilities with pruning. Generate permutations, combinations, subsets.',
-      keyPatterns: ['Permutations', 'Combinations', 'Subsets', 'N-Queens', 'Sudoku solver'],
+
+      introduction: `Backtracking is a systematic way to explore all possible solutions by building candidates incrementally and abandoning ("pruning") candidates that cannot lead to a valid solution.
+
+**The Backtracking Template:**
+1. **Choose**: Make a choice from available options
+2. **Explore**: Recursively explore with that choice
+3. **Unchoose**: Undo the choice (backtrack) and try next option
+
+**Key Problem Types:**
+- **Subsets**: All 2^n combinations (include or exclude each element)
+- **Permutations**: All n! orderings (use each element exactly once)
+- **Combinations**: All ways to choose k from n (order doesn't matter)
+- **Constraint Satisfaction**: Find solutions meeting constraints (N-Queens, Sudoku)
+
+**Pruning is Critical:** Early termination of invalid paths dramatically improves performance from exponential worst case.`,
+
+      whenToUse: [
+        'Generate all permutations, combinations, or subsets',
+        'Solve constraint satisfaction problems (Sudoku, N-Queens)',
+        'Path finding in grid/maze problems',
+        'Word search in matrix',
+        'Partition problems (can we split into k subsets?)',
+        'Generate all valid expressions or strings'
+      ],
+
+      keyPatterns: ['Permutations', 'Combinations', 'Subsets', 'N-Queens', 'Sudoku solver', 'Word search', 'Partition'],
       timeComplexity: 'Exponential: O(n!), O(2^n), O(n^n)',
       spaceComplexity: 'O(n) recursion depth',
-      commonProblems: ['Subsets', 'Permutations', 'Combination Sum', 'Word Search', 'N-Queens'],
+
+      approach: [
+        'Define the state: What information do you track at each step?',
+        'Identify choices: What are valid options at current position?',
+        'Write base case: When is a solution complete?',
+        'Make choice, recurse, then backtrack (undo choice)',
+        'Add pruning: How to skip invalid branches early?',
+        'Handle duplicates: Sort input and skip duplicates if needed'
+      ],
+
+      commonProblems: [
+        { name: 'Subsets', difficulty: 'Medium' },
+        { name: 'Permutations', difficulty: 'Medium' },
+        { name: 'Combination Sum', difficulty: 'Medium' },
+        { name: 'Word Search', difficulty: 'Medium' },
+        { name: 'N-Queens', difficulty: 'Hard' },
+        { name: 'Palindrome Partitioning', difficulty: 'Medium' },
+        { name: 'Sudoku Solver', difficulty: 'Hard' },
+        { name: 'Letter Combinations of Phone Number', difficulty: 'Medium' }
+      ],
+
+      commonMistakes: [
+        'Forgetting to backtrack (undo the choice after recursion)',
+        'Not handling duplicates in input (leads to duplicate solutions)',
+        'Wrong base case causing missing or extra solutions',
+        'Not pruning invalid branches (TLE on large inputs)',
+        'Mutating instead of copying for result collection'
+      ],
+
       tips: [
         'Use a path/current list to track current state',
         'Make choice, recurse, then undo choice (backtrack)',
         'Prune early to avoid unnecessary exploration',
-        'For combinations, use start index to avoid duplicates'
+        'For combinations, use start index to avoid duplicates',
+        'Sort input and skip duplicates: if i > start and nums[i] == nums[i-1]: continue'
+      ],
+
+      interviewTips: [
+        'Identify the problem type: subsets, permutations, or constraint satisfaction?',
+        'Explain the choices at each step and how you backtrack',
+        'Discuss pruning strategies to optimize',
+        'Walk through a small example showing the recursion tree',
+        'State time complexity honestly (exponential) and why pruning helps'
+      ],
+
+      codeExamples: [
+        {
+          title: 'Subsets - Include/Exclude Pattern',
+          description: 'Generate all 2^n subsets of an array.',
+          code: `def subsets(nums):
+    result = []
+
+    def backtrack(start, path):
+        result.append(path[:])  # Add current subset
+
+        for i in range(start, len(nums)):
+            path.append(nums[i])      # Choose
+            backtrack(i + 1, path)     # Explore
+            path.pop()                 # Unchoose (backtrack)
+
+    backtrack(0, [])
+    return result`
+        },
+        {
+          title: 'Permutations - Use Each Once',
+          description: 'Generate all n! permutations.',
+          code: `def permute(nums):
+    result = []
+
+    def backtrack(path, used):
+        if len(path) == len(nums):
+            result.append(path[:])
+            return
+
+        for i in range(len(nums)):
+            if used[i]:
+                continue
+            used[i] = True          # Choose
+            path.append(nums[i])
+            backtrack(path, used)   # Explore
+            path.pop()              # Unchoose
+            used[i] = False
+
+    backtrack([], [False] * len(nums))
+    return result`
+        },
+        {
+          title: 'Combination Sum - Reuse Allowed',
+          description: 'Find combinations that sum to target, can reuse elements.',
+          code: `def combination_sum(candidates, target):
+    result = []
+
+    def backtrack(start, path, remaining):
+        if remaining == 0:
+            result.append(path[:])
+            return
+        if remaining < 0:
+            return  # Prune
+
+        for i in range(start, len(candidates)):
+            path.append(candidates[i])
+            # Can reuse same element, so pass i not i+1
+            backtrack(i, path, remaining - candidates[i])
+            path.pop()
+
+    backtrack(0, [], target)
+    return result`
+        },
+        {
+          title: 'N-Queens - Constraint Satisfaction',
+          description: 'Place N queens on N×N board with no attacks.',
+          code: `def solve_n_queens(n):
+    result = []
+    board = [['.'] * n for _ in range(n)]
+
+    def is_safe(row, col):
+        # Check column
+        for i in range(row):
+            if board[i][col] == 'Q':
+                return False
+        # Check diagonals
+        for i, j in zip(range(row-1, -1, -1), range(col-1, -1, -1)):
+            if board[i][j] == 'Q':
+                return False
+        for i, j in zip(range(row-1, -1, -1), range(col+1, n)):
+            if board[i][j] == 'Q':
+                return False
+        return True
+
+    def backtrack(row):
+        if row == n:
+            result.append([''.join(r) for r in board])
+            return
+
+        for col in range(n):
+            if is_safe(row, col):
+                board[row][col] = 'Q'  # Choose
+                backtrack(row + 1)      # Explore
+                board[row][col] = '.'  # Unchoose
+
+    backtrack(0)
+    return result`
+        }
       ],
       codeExample: `# Subsets - Backtracking
 def subsets(nums):
@@ -1395,30 +1795,240 @@ def subsets(nums):
       color: '#06b6d4',
       questions: 18,
       description: 'Make locally optimal choices. Works when local optimum leads to global optimum.',
-      keyPatterns: ['Interval scheduling', 'Activity selection', 'Huffman coding', 'Fractional knapsack'],
+
+      introduction: `Greedy algorithms make the locally optimal choice at each step, hoping this leads to a globally optimal solution. Unlike Dynamic Programming which explores all possibilities, greedy commits to decisions without reconsidering them.
+
+The key insight: if making the best choice right now doesn't hurt future choices, greedy works.
+
+Greedy algorithms are powerful because they're typically:
+• Simple to understand and implement
+• Fast (often O(n) or O(n log n))
+• Space efficient (often O(1))
+
+However, greedy doesn't always work. Two properties must hold:
+1. **Greedy Choice Property**: A locally optimal choice leads to a globally optimal solution
+2. **Optimal Substructure**: The optimal solution contains optimal solutions to subproblems
+
+Classic greedy success stories: Huffman coding, Dijkstra's shortest path, Kruskal's/Prim's MST, Activity Selection.
+
+Classic greedy failures: 0/1 Knapsack (use DP), Traveling Salesman (NP-hard), Coin Change with arbitrary denominations.
+
+In interviews, greedy problems often involve intervals, scheduling, or making sequential decisions where early choices don't affect later options.`,
+
+      whenToUse: [
+        'Interval scheduling and activity selection problems',
+        'Fractional optimization (can take partial items)',
+        'Jump/reach problems (can I reach the end?)',
+        'Huffman encoding and optimal merge patterns',
+        'Minimum spanning tree algorithms',
+        'Task scheduling with deadlines',
+        'Coin change with standard denominations (1, 5, 10, 25)',
+        'Gas station / circular route problems'
+      ],
+
+      keyPatterns: ['Interval scheduling', 'Activity selection', 'Huffman coding', 'Fractional knapsack', 'Jump game', 'Task scheduling'],
       timeComplexity: 'Often O(n log n) due to sorting',
       spaceComplexity: 'O(1) extra space typically',
-      commonProblems: ['Jump Game', 'Gas Station', 'Merge Intervals', 'Non-overlapping Intervals', 'Partition Labels'],
+
+      approach: [
+        'Identify if greedy choice property holds (prove or disprove)',
+        'Sort elements by the greedy criteria (end time, ratio, deadline)',
+        'Process elements in sorted order, making greedy choice each step',
+        'For interval problems: sort by end time to maximize non-overlapping',
+        'For scheduling: sort by deadline or profit-to-time ratio',
+        'Track running state (current position, remaining capacity, etc.)',
+        'If greedy fails, pivot to Dynamic Programming'
+      ],
+
+      commonProblems: [
+        { name: 'Jump Game', difficulty: 'Medium' },
+        { name: 'Jump Game II', difficulty: 'Medium' },
+        { name: 'Gas Station', difficulty: 'Medium' },
+        { name: 'Merge Intervals', difficulty: 'Medium' },
+        { name: 'Non-overlapping Intervals', difficulty: 'Medium' },
+        { name: 'Partition Labels', difficulty: 'Medium' },
+        { name: 'Task Scheduler', difficulty: 'Medium' },
+        { name: 'Candy', difficulty: 'Hard' },
+        { name: 'Minimum Number of Arrows', difficulty: 'Medium' }
+      ],
+
+      commonMistakes: [
+        'Applying greedy when DP is needed (0/1 Knapsack)',
+        'Sorting by wrong criteria (start time vs end time)',
+        'Not handling edge cases (empty input, single element)',
+        'Off-by-one errors in interval overlap checks',
+        'Forgetting that greedy requires proof - not just intuition',
+        'In jump problems: not tracking the maximum reachable position',
+        'In gas station: not recognizing circular nature of problem'
+      ],
+
       tips: [
         'Prove greedy works: optimal substructure + greedy choice property',
         'Often involves sorting by start/end time or value/weight ratio',
         'If greedy doesn\'t work, consider DP instead',
         'Interval problems: usually sort by end time'
       ],
-      codeExample: `# Merge Intervals
-def merge_intervals(intervals):
-    intervals.sort(key=lambda x: x[0])
-    merged = [intervals[0]]
 
-    for start, end in intervals[1:]:
-        if start <= merged[-1][1]:
-            merged[-1][1] = max(merged[-1][1], end)
+      interviewTips: [
+        'Always ask yourself: "Does making the best local choice hurt future choices?"',
+        'If you can\'t prove greedy works, mention DP as fallback',
+        'For interval problems, clarify: overlapping includes touching? [1,2] and [2,3]?',
+        'Explain WHY sorting by end time works (leaves most room for future activities)',
+        'Draw examples to verify greedy works before coding',
+        'Know the classic counter-example: coin change with [1, 3, 4], amount 6',
+        'Mention time complexity improvement over DP when applicable'
+      ],
+
+      codeExamples: [
+        {
+          title: 'Jump Game - Can Reach End?',
+          description: 'Track the farthest position reachable at each step.',
+          code: `def canJump(nums):
+    """
+    Each element = max jump length from that position.
+    Return True if we can reach the last index.
+    """
+    max_reach = 0
+
+    for i in range(len(nums)):
+        # Can't reach current position
+        if i > max_reach:
+            return False
+
+        # Update farthest reachable
+        max_reach = max(max_reach, i + nums[i])
+
+        # Early termination
+        if max_reach >= len(nums) - 1:
+            return True
+
+    return True
+
+# Time: O(n), Space: O(1)
+# Example: [2,3,1,1,4] -> True
+#          [3,2,1,0,4] -> False`
+        },
+        {
+          title: 'Non-overlapping Intervals',
+          description: 'Remove minimum intervals to make rest non-overlapping. Classic greedy.',
+          code: `def eraseOverlapIntervals(intervals):
+    """
+    Sort by END time (greedy choice: keep interval ending earliest).
+    Count overlapping intervals to remove.
+    """
+    if not intervals:
+        return 0
+
+    # Sort by end time
+    intervals.sort(key=lambda x: x[1])
+
+    removals = 0
+    prev_end = intervals[0][1]
+
+    for i in range(1, len(intervals)):
+        start, end = intervals[i]
+
+        if start < prev_end:
+            # Overlap! Remove current (it ends later)
+            removals += 1
         else:
-            merged.append([start, end])
+            # No overlap, update end
+            prev_end = end
 
-    return merged
+    return removals
 
-# Time: O(n log n), Space: O(n)`
+# Time: O(n log n), Space: O(1)
+# Why end time? Ending earlier leaves more room for future intervals`
+        },
+        {
+          title: 'Gas Station - Circular Route',
+          description: 'Find starting station to complete circular journey.',
+          code: `def canCompleteCircuit(gas, cost):
+    """
+    If total gas >= total cost, solution exists.
+    Find starting point where we never go negative.
+    """
+    total_tank = 0
+    current_tank = 0
+    start = 0
+
+    for i in range(len(gas)):
+        gain = gas[i] - cost[i]
+        total_tank += gain
+        current_tank += gain
+
+        # Can't reach next station from current start
+        if current_tank < 0:
+            # Start from next station
+            start = i + 1
+            current_tank = 0
+
+    # If total is negative, impossible
+    return start if total_tank >= 0 else -1
+
+# Time: O(n), Space: O(1)
+# Key insight: If we fail at station i, all stations
+# between start and i would also fail as starting points`
+        },
+        {
+          title: 'Partition Labels',
+          description: 'Partition string so each letter appears in at most one part.',
+          code: `def partitionLabels(s):
+    """
+    Greedy: extend partition until it contains all
+    occurrences of letters seen so far.
+    """
+    # Find last occurrence of each character
+    last = {char: i for i, char in enumerate(s)}
+
+    result = []
+    start = 0
+    end = 0
+
+    for i, char in enumerate(s):
+        # Extend partition to include all of this char
+        end = max(end, last[char])
+
+        # Reached end of current partition
+        if i == end:
+            result.append(end - start + 1)
+            start = i + 1
+
+    return result
+
+# Time: O(n), Space: O(1) - only 26 letters
+# Example: "ababcbacadefegdehijhklij"
+# Output: [9, 7, 8] -> "ababcbaca", "defegde", "hijhklij"`
+        },
+        {
+          title: 'Task Scheduler with Cooldown',
+          description: 'Minimum intervals to execute all tasks with cooldown between same tasks.',
+          code: `def leastInterval(tasks, n):
+    """
+    Greedy: Schedule most frequent task first.
+    Fill cooldown gaps with other tasks.
+    """
+    from collections import Counter
+
+    freq = Counter(tasks)
+    max_freq = max(freq.values())
+
+    # Count tasks with max frequency
+    max_count = sum(1 for f in freq.values() if f == max_freq)
+
+    # Formula: (max_freq - 1) * (n + 1) + max_count
+    # This is: frames for scheduling + final batch
+    result = (max_freq - 1) * (n + 1) + max_count
+
+    # But can't be less than total tasks
+    return max(result, len(tasks))
+
+# Time: O(n), Space: O(1)
+# Example: tasks = ["A","A","A","B","B","B"], n = 2
+# Optimal: A -> B -> idle -> A -> B -> idle -> A -> B
+# Output: 8`
+        }
+      ]
     },
     {
       id: 'tries',
@@ -1427,26 +2037,97 @@ def merge_intervals(intervals):
       color: '#ec4899',
       questions: 12,
       description: 'Prefix tree for string operations. Efficient autocomplete and spell check.',
-      keyPatterns: ['Insert/Search', 'Prefix matching', 'Word dictionary', 'Autocomplete'],
+
+      introduction: `A Trie (pronounced "try") or Prefix Tree is a specialized tree data structure used to store and retrieve strings efficiently. Unlike binary search trees where each node holds a single key, in a trie, each node represents a character, and paths from root to leaf spell out words.
+
+Tries excel at prefix-based operations, making them essential for:
+• Autocomplete systems (Google search suggestions)
+• Spell checkers and dictionary lookups
+• IP routing (longest prefix matching)
+• Phone directories and contact search
+• Word games (Scrabble, Boggle solvers)
+
+The key insight is that common prefixes are shared - storing "car", "card", "care" uses far less space than storing them separately because "car" is shared. This structure enables O(m) search where m is the word length, regardless of how many words are stored.
+
+Every trie interview problem fundamentally comes down to: tree traversal with character-by-character path building.`,
+
+      whenToUse: [
+        'Multiple prefix queries on a fixed dictionary',
+        'Autocomplete or typeahead suggestions',
+        'Spell checking with edit distance',
+        'Word search problems in grids (Word Search II)',
+        'Longest common prefix among strings',
+        'IP routing and address lookup',
+        'Pattern matching with wildcards',
+        'Dictionary-based problems (replace words, word break)'
+      ],
+
+      keyPatterns: ['Insert/Search', 'Prefix matching', 'Word dictionary', 'Autocomplete', 'Wildcard search', 'Word frequency'],
       timeComplexity: 'O(m) where m is word length',
       spaceComplexity: 'O(alphabet_size * max_word_length * num_words)',
-      commonProblems: ['Implement Trie', 'Word Search II', 'Design Add and Search Words', 'Replace Words'],
+
+      approach: [
+        'Create TrieNode class with children dictionary and is_word flag',
+        'Insert: traverse char by char, create nodes for missing chars, mark end',
+        'Search: traverse char by char, return False if any char missing',
+        'StartsWith: same as search but don\'t check is_word at end',
+        'For wildcards: use recursion to try all children for "."',
+        'For word search in grid: combine DFS with trie traversal',
+        'Store additional data at nodes if needed (count, original word)'
+      ],
+
+      commonProblems: [
+        { name: 'Implement Trie', difficulty: 'Medium' },
+        { name: 'Word Search II', difficulty: 'Hard' },
+        { name: 'Design Add and Search Words', difficulty: 'Medium' },
+        { name: 'Replace Words', difficulty: 'Medium' },
+        { name: 'Longest Word in Dictionary', difficulty: 'Medium' },
+        { name: 'Map Sum Pairs', difficulty: 'Medium' },
+        { name: 'Concatenated Words', difficulty: 'Hard' },
+        { name: 'Word Squares', difficulty: 'Hard' }
+      ],
+
+      commonMistakes: [
+        'Forgetting to mark is_word = True at end of insert',
+        'Confusing search (exact match) with startsWith (prefix)',
+        'Not handling empty string edge case',
+        'Memory issues: using array[26] instead of hashmap for large alphabets',
+        'In Word Search II: not removing words after finding to avoid duplicates',
+        'Not backtracking properly in grid-based trie problems',
+        'Forgetting that trie stores characters, not whole strings at nodes'
+      ],
+
       tips: [
         'Each node has children map and end-of-word flag',
         'More space efficient than storing all prefixes in hash set',
         'Use for problems involving multiple prefix queries',
         'Can store additional data at nodes (count, word itself)'
       ],
-      codeExample: `class TrieNode:
+
+      interviewTips: [
+        'Always clarify character set: lowercase only? a-z? Unicode?',
+        'Mention tradeoff: array[26] faster but more space vs HashMap flexible',
+        'For Word Search II, explain how trie beats checking each word separately',
+        'Discuss space optimization: storing words at leaf, compressed trie',
+        'Show you understand when trie beats hashmap: prefix queries, sorted iteration',
+        'Be ready to implement from scratch - this is common interview ask',
+        'For autocomplete: discuss how to return top-k suggestions efficiently'
+      ],
+
+      codeExamples: [
+        {
+          title: 'Basic Trie Implementation',
+          description: 'Complete trie with insert, search, and startsWith operations.',
+          code: `class TrieNode:
     def __init__(self):
-        self.children = {}
+        self.children = {}  # char -> TrieNode
         self.is_word = False
 
 class Trie:
     def __init__(self):
         self.root = TrieNode()
 
-    def insert(self, word):
+    def insert(self, word: str) -> None:
         node = self.root
         for char in word:
             if char not in node.children:
@@ -1454,9 +2135,153 @@ class Trie:
             node = node.children[char]
         node.is_word = True
 
-    def search(self, word):
-        node = self._find(word)
-        return node is not None and node.is_word`
+    def search(self, word: str) -> bool:
+        node = self._find_node(word)
+        return node is not None and node.is_word
+
+    def startsWith(self, prefix: str) -> bool:
+        return self._find_node(prefix) is not None
+
+    def _find_node(self, prefix: str) -> TrieNode:
+        node = self.root
+        for char in prefix:
+            if char not in node.children:
+                return None
+            node = node.children[char]
+        return node
+
+# Usage:
+# trie = Trie()
+# trie.insert("apple")
+# trie.search("apple")   # True
+# trie.search("app")     # False
+# trie.startsWith("app") # True`
+        },
+        {
+          title: 'Word Search II - Trie + DFS',
+          description: 'Find all words from dictionary that exist in a grid. Classic hard problem.',
+          code: `def findWords(board, words):
+    # Build trie from words
+    root = {}
+    for word in words:
+        node = root
+        for char in word:
+            node = node.setdefault(char, {})
+        node['$'] = word  # Store word at end
+
+    result = []
+    rows, cols = len(board), len(board[0])
+
+    def dfs(r, c, node):
+        char = board[r][c]
+        if char not in node:
+            return
+
+        next_node = node[char]
+
+        # Found a word
+        if '$' in next_node:
+            result.append(next_node['$'])
+            del next_node['$']  # Remove to avoid duplicates
+
+        # Mark visited
+        board[r][c] = '#'
+
+        # Explore neighbors
+        for dr, dc in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+            nr, nc = r + dr, c + dc
+            if 0 <= nr < rows and 0 <= nc < cols:
+                dfs(nr, nc, next_node)
+
+        # Restore
+        board[r][c] = char
+
+        # Prune: remove empty nodes
+        if not next_node:
+            del node[char]
+
+    for r in range(rows):
+        for c in range(cols):
+            dfs(r, c, root)
+
+    return result
+
+# Time: O(m*n*4^L) where L is max word length`
+        },
+        {
+          title: 'Design Add and Search Words (Wildcard)',
+          description: 'Support "." wildcard that matches any character.',
+          code: `class WordDictionary:
+    def __init__(self):
+        self.root = {}
+
+    def addWord(self, word: str) -> None:
+        node = self.root
+        for char in word:
+            node = node.setdefault(char, {})
+        node['$'] = True
+
+    def search(self, word: str) -> bool:
+        def dfs(index, node):
+            if index == len(word):
+                return '$' in node
+
+            char = word[index]
+
+            if char == '.':
+                # Try all possible children
+                for child in node:
+                    if child != '$' and dfs(index + 1, node[child]):
+                        return True
+                return False
+            else:
+                if char not in node:
+                    return False
+                return dfs(index + 1, node[char])
+
+        return dfs(0, self.root)
+
+# Usage:
+# dict = WordDictionary()
+# dict.addWord("bad")
+# dict.addWord("dad")
+# dict.search("pad")  # False
+# dict.search(".ad")  # True
+# dict.search("b..")  # True`
+        },
+        {
+          title: 'Replace Words with Roots',
+          description: 'Replace words with their shortest root from dictionary.',
+          code: `def replaceWords(dictionary, sentence):
+    # Build trie from dictionary
+    root = {}
+    for word in dictionary:
+        node = root
+        for char in word:
+            node = node.setdefault(char, {})
+        node['$'] = word  # Store root word
+
+    def find_root(word):
+        node = root
+        for char in word:
+            if char not in node:
+                return word  # No root found
+            node = node[char]
+            if '$' in node:
+                return node['$']  # Return shortest root
+        return word
+
+    words = sentence.split()
+    return ' '.join(find_root(word) for word in words)
+
+# Example:
+# dictionary = ["cat", "bat", "rat"]
+# sentence = "the cattle was rattled by the battery"
+# Output: "the cat was rat by the bat"
+
+# Time: O(n) where n is total characters in sentence`
+        }
+      ]
     },
     {
       id: 'bit-manipulation',
@@ -1465,10 +2290,75 @@ class Trie:
       color: '#8b5cf6',
       questions: 13,
       description: 'Operations on binary representations. XOR, AND, OR, shifts.',
-      keyPatterns: ['XOR tricks', 'Counting bits', 'Power of two', 'Bit masking'],
+
+      introduction: `Bit manipulation involves operating directly on the binary representation of numbers using bitwise operators. It's one of the most efficient techniques - operating at the hardware level with O(1) operations.
+
+Master these operators:
+• **AND (&)**: Both bits must be 1 → 1 & 1 = 1, otherwise 0
+• **OR (|)**: At least one bit is 1 → 0 | 1 = 1
+• **XOR (^)**: Different bits → 1 ^ 0 = 1, same bits → 1 ^ 1 = 0
+• **NOT (~)**: Flip all bits → ~0 = 1111...1
+• **Left shift (<<)**: Multiply by 2^n → 1 << 3 = 8
+• **Right shift (>>)**: Divide by 2^n → 8 >> 2 = 2
+
+The magic of XOR:
+• a ^ a = 0 (any number XOR itself is 0)
+• a ^ 0 = a (any number XOR 0 is itself)
+• XOR is commutative and associative
+
+This makes XOR perfect for finding unique elements - pairs cancel out!
+
+Bit manipulation appears in: finding duplicates/missing numbers, efficient math (multiply/divide by powers of 2), state compression in DP, and low-level system programming.`,
+
+      whenToUse: [
+        'Finding single/unique number among duplicates',
+        'Checking if number is power of two',
+        'Counting set bits (Hamming weight)',
+        'Generating all subsets (bitmask)',
+        'State compression in DP',
+        'Swapping without temporary variable',
+        'Fast multiplication/division by powers of 2',
+        'Checking odd/even (n & 1)',
+        'Two numbers appearing once among triplets'
+      ],
+
+      keyPatterns: ['XOR tricks', 'Counting bits', 'Power of two', 'Bit masking', 'Brian Kernighan\'s algorithm', 'Subset generation'],
       timeComplexity: 'O(1) for single operations, O(log n) for all bits',
       spaceComplexity: 'O(1)',
-      commonProblems: ['Single Number', 'Number of 1 Bits', 'Counting Bits', 'Reverse Bits', 'Missing Number'],
+
+      approach: [
+        'Identify if problem has XOR pattern (cancel duplicates)',
+        'For subset problems, consider bitmask where each bit = include/exclude',
+        'Use n & (n-1) to remove lowest set bit (counting, power of 2)',
+        'For finding single unique: XOR all elements',
+        'For two unique: XOR all → get diff bits → partition by any diff bit',
+        'Check bit i: (n >> i) & 1',
+        'Set bit i: n | (1 << i)',
+        'Clear bit i: n & ~(1 << i)'
+      ],
+
+      commonProblems: [
+        { name: 'Single Number', difficulty: 'Easy' },
+        { name: 'Single Number II', difficulty: 'Medium' },
+        { name: 'Single Number III', difficulty: 'Medium' },
+        { name: 'Number of 1 Bits', difficulty: 'Easy' },
+        { name: 'Counting Bits', difficulty: 'Easy' },
+        { name: 'Reverse Bits', difficulty: 'Easy' },
+        { name: 'Missing Number', difficulty: 'Easy' },
+        { name: 'Sum of Two Integers', difficulty: 'Medium' },
+        { name: 'Power of Two', difficulty: 'Easy' }
+      ],
+
+      commonMistakes: [
+        'Forgetting that >> in Python doesn\'t sign-extend (use // for signed)',
+        'Off-by-one in bit positions (bit 0 is rightmost)',
+        'Not handling negative numbers correctly (two\'s complement)',
+        'Using & when you meant && (bitwise vs logical)',
+        'Forgetting operator precedence: (n & mask) == 0, need parentheses',
+        'Integer overflow when left shifting in some languages',
+        'Confusing arithmetic right shift vs logical right shift'
+      ],
+
       tips: [
         'XOR: a ^ a = 0, a ^ 0 = a (find single number)',
         'Check bit: (n >> i) & 1',
@@ -1476,20 +2366,164 @@ class Trie:
         'Clear bit: n & ~(1 << i)',
         'n & (n-1) removes lowest set bit'
       ],
-      codeExample: `# Single Number (find unique in pairs)
-def single_number(nums):
+
+      interviewTips: [
+        'Know Brian Kernighan\'s algorithm: n & (n-1) removes lowest set bit',
+        'Power of 2 check: n > 0 && (n & (n-1)) == 0',
+        'For "appears once among triplets": count bits at each position mod 3',
+        'XOR of range [0,n] follows pattern: n, 1, n+1, 0 based on n % 4',
+        'Mention hardware efficiency: bit ops are single CPU instruction',
+        'For interview, draw binary representation to visualize operations',
+        'Know how to add without +: use XOR for sum, AND + shift for carry'
+      ],
+
+      codeExamples: [
+        {
+          title: 'Single Number - XOR Magic',
+          description: 'Every element appears twice except one. Find it in O(n) time, O(1) space.',
+          code: `def singleNumber(nums):
+    """
+    XOR properties:
+    - a ^ a = 0 (pairs cancel)
+    - a ^ 0 = a (identity)
+    - XOR is commutative and associative
+
+    So: a ^ b ^ a ^ c ^ b = c
+    """
     result = 0
     for num in nums:
         result ^= num
     return result
 
-# Count set bits
-def count_bits(n):
+# Time: O(n), Space: O(1)
+# Example: [4,1,2,1,2] -> 4
+# Process: 0^4^1^2^1^2 = 4^(1^1)^(2^2) = 4^0^0 = 4`
+        },
+        {
+          title: 'Single Number III - Two Unique Numbers',
+          description: 'Two numbers appear once, others twice. Find both.',
+          code: `def singleNumberIII(nums):
+    """
+    1. XOR all → gives xor of two unique numbers (a ^ b)
+    2. Find any bit where a and b differ (they must differ somewhere!)
+    3. Partition nums by that bit → separates a and b
+    4. XOR each partition → get a and b
+    """
+    # Step 1: XOR all numbers
+    xor_all = 0
+    for num in nums:
+        xor_all ^= num
+
+    # Step 2: Find rightmost set bit (a differs from b here)
+    # xor_all & (-xor_all) gets lowest set bit
+    diff_bit = xor_all & (-xor_all)
+
+    # Step 3 & 4: Partition and XOR
+    a = b = 0
+    for num in nums:
+        if num & diff_bit:
+            a ^= num
+        else:
+            b ^= num
+
+    return [a, b]
+
+# Time: O(n), Space: O(1)
+# Example: [1,2,1,3,2,5] -> [3,5]`
+        },
+        {
+          title: 'Number of 1 Bits (Hamming Weight)',
+          description: 'Count set bits using Brian Kernighan\'s algorithm.',
+          code: `def hammingWeight(n):
+    """
+    Brian Kernighan's Algorithm:
+    n & (n-1) removes the lowest set bit
+
+    Example: n = 12 (1100)
+    12 & 11 = 1100 & 1011 = 1000 (8)
+    8 & 7 = 1000 & 0111 = 0000 (0)
+    Count = 2
+    """
     count = 0
     while n:
         n &= (n - 1)  # Remove lowest set bit
         count += 1
+    return count
+
+# Time: O(k) where k is number of set bits
+# Space: O(1)
+
+# Alternative: count all 32 bits
+def hammingWeight_v2(n):
+    count = 0
+    for i in range(32):
+        if (n >> i) & 1:
+            count += 1
     return count`
+        },
+        {
+          title: 'Missing Number - XOR with Indices',
+          description: 'Find missing number in [0,n] using XOR.',
+          code: `def missingNumber(nums):
+    """
+    XOR all numbers [0,n] with all array elements.
+    Pairs cancel, leaving missing number.
+
+    Example: [3,0,1] (missing 2)
+    XOR: 0^1^2^3 ^ 3^0^1 = (0^0)^(1^1)^2^(3^3) = 2
+    """
+    n = len(nums)
+    result = n  # Start with n (since array indices are 0 to n-1)
+
+    for i, num in enumerate(nums):
+        result ^= i ^ num
+
+    return result
+
+# Time: O(n), Space: O(1)
+
+# Alternative using math:
+def missingNumber_math(nums):
+    n = len(nums)
+    expected = n * (n + 1) // 2
+    return expected - sum(nums)`
+        },
+        {
+          title: 'Sum of Two Integers Without +',
+          description: 'Add two numbers using only bit operations.',
+          code: `def getSum(a, b):
+    """
+    XOR gives sum without carry: 5 ^ 3 = 6 (but wrong!)
+    AND + shift gives carry: (5 & 3) << 1 = 2
+
+    Repeat until no carry.
+
+    5 + 3:
+    Step 1: sum=5^3=6, carry=(5&3)<<1=2
+    Step 2: sum=6^2=4, carry=(6&2)<<1=4
+    Step 3: sum=4^4=0, carry=(4&4)<<1=8
+    Step 4: sum=0^8=8, carry=0 → Done!
+    """
+    # Handle negative numbers in Python (32-bit mask)
+    MASK = 0xFFFFFFFF
+    MAX_INT = 0x7FFFFFFF
+
+    while b != 0:
+        # Carry: AND then shift
+        carry = ((a & b) & MASK) << 1
+
+        # Sum without carry: XOR
+        a = (a ^ b) & MASK
+
+        b = carry & MASK
+
+    # Handle negative result in Python
+    return a if a <= MAX_INT else ~(a ^ MASK)
+
+# Time: O(1) - max 32 iterations
+# Space: O(1)`
+        }
+      ]
     },
     {
       id: 'math-geometry',
@@ -1498,30 +2532,254 @@ def count_bits(n):
       color: '#14b8a6',
       questions: 10,
       description: 'Mathematical algorithms and geometric computations.',
-      keyPatterns: ['GCD/LCM', 'Prime numbers', 'Modular arithmetic', 'Line intersection', 'Polygon area'],
+
+      introduction: `Math and geometry problems test your understanding of fundamental algorithms and mathematical reasoning. These problems often have elegant O(1) or O(log n) solutions once you know the right formula or technique.
+
+Key mathematical concepts:
+• **GCD/LCM**: Foundation for fraction simplification, coprime checks
+• **Prime Numbers**: Sieve of Eratosthenes, primality testing
+• **Modular Arithmetic**: Essential for avoiding overflow in large calculations
+• **Fast Exponentiation**: O(log n) power calculation via binary method
+
+Geometry concepts:
+• **Cross Product**: Determine orientation (clockwise/counterclockwise)
+• **Dot Product**: Project vectors, find angles
+• **Line Intersection**: Parametric equations, determinant method
+• **Convex Hull**: Graham scan, Jarvis march
+
+Common interview patterns:
+• Digit manipulation (reverse integer, palindrome number)
+• Random sampling (reservoir sampling, shuffle)
+• Coordinate geometry (rectangle overlap, valid square)
+• Matrix transformations (rotate, spiral)
+
+The key insight for math problems: look for patterns, use modular arithmetic to avoid overflow, and remember that brute force is often O(n) but smart math gives O(log n) or O(1).`,
+
+      whenToUse: [
+        'Number manipulation (reverse, digits, palindrome)',
+        'Power/exponentiation calculations',
+        'GCD/LCM for fraction operations',
+        'Prime number generation or testing',
+        'Rectangle/geometric intersection problems',
+        'Matrix rotation or transformation',
+        'Probability and random sampling',
+        'Detecting cycles (Floyd\'s algorithm)',
+        'Coordinate geometry problems'
+      ],
+
+      keyPatterns: ['GCD/LCM', 'Prime numbers', 'Modular arithmetic', 'Fast exponentiation', 'Cross product', 'Spiral traversal', 'Matrix rotation'],
       timeComplexity: 'Varies by algorithm',
       spaceComplexity: 'Usually O(1)',
-      commonProblems: ['Pow(x, n)', 'Sqrt(x)', 'Happy Number', 'Plus One', 'Rotate Image', 'Spiral Matrix'],
+
+      approach: [
+        'For power: use binary exponentiation (square and multiply)',
+        'For GCD: use Euclidean algorithm gcd(a,b) = gcd(b, a%b)',
+        'For primes up to n: Sieve of Eratosthenes O(n log log n)',
+        'For large numbers: use modular arithmetic to avoid overflow',
+        'For rotation: transpose + reverse (or reverse + transpose)',
+        'For spiral: use 4 boundary pointers, shrink after each direction',
+        'For geometry: cross product for orientation, dot product for projection'
+      ],
+
+      commonProblems: [
+        { name: 'Pow(x, n)', difficulty: 'Medium' },
+        { name: 'Sqrt(x)', difficulty: 'Easy' },
+        { name: 'Happy Number', difficulty: 'Easy' },
+        { name: 'Plus One', difficulty: 'Easy' },
+        { name: 'Rotate Image', difficulty: 'Medium' },
+        { name: 'Spiral Matrix', difficulty: 'Medium' },
+        { name: 'Count Primes', difficulty: 'Medium' },
+        { name: 'Rectangle Overlap', difficulty: 'Easy' },
+        { name: 'Valid Square', difficulty: 'Medium' }
+      ],
+
+      commonMistakes: [
+        'Integer overflow when squaring or multiplying',
+        'Not handling negative exponents in power function',
+        'Off-by-one in spiral matrix boundaries',
+        'Forgetting to handle n=0 edge case',
+        'Using floating point for integer square root (precision issues)',
+        'Wrong rotation direction (clockwise vs counterclockwise)',
+        'Not considering 32-bit vs 64-bit integer limits'
+      ],
+
       tips: [
         'Use Euclidean algorithm for GCD: O(log min(a,b))',
         'Fast exponentiation: Square and multiply for O(log n)',
         'Be careful with integer overflow in multiplication',
         'For geometry, use cross product for orientation'
       ],
-      codeExample: `# Fast Exponentiation
-def power(x, n):
+
+      interviewTips: [
+        'Always clarify integer constraints (32-bit, 64-bit, BigInteger)',
+        'Mention overflow handling explicitly - interviewers look for this',
+        'For sqrt(x), binary search is cleaner than Newton-Raphson',
+        'Know Euclidean GCD: gcd(a, b) = gcd(b, a % b) until b = 0',
+        'For matrix rotation: draw 4x4 example, show index mapping',
+        'Modular arithmetic: (a*b) % m = ((a%m) * (b%m)) % m',
+        'For primes, mention Sieve vs trial division tradeoffs'
+      ],
+
+      codeExamples: [
+        {
+          title: 'Fast Exponentiation (Binary Method)',
+          description: 'Calculate x^n in O(log n) time using binary method.',
+          code: `def myPow(x, n):
+    """
+    Binary exponentiation: x^10 = x^8 * x^2
+    10 = 1010 in binary → multiply when bit is 1
+
+    For negative n: x^-n = 1/(x^n)
+    """
     if n < 0:
         x = 1 / x
         n = -n
+
     result = 1
     while n > 0:
-        if n % 2 == 1:
+        # If current bit is 1, multiply result
+        if n & 1:
             result *= x
+
+        # Square x for next bit
         x *= x
-        n //= 2
+        n >>= 1  # Move to next bit
+
     return result
 
-# Time: O(log n), Space: O(1)`
+# Time: O(log n), Space: O(1)
+# Example: 2^10 = 1024
+# 10 = 1010: 2^2 * 2^8 = 4 * 256 = 1024`
+        },
+        {
+          title: 'Sqrt(x) - Binary Search',
+          description: 'Find integer square root without using built-in functions.',
+          code: `def mySqrt(x):
+    """
+    Binary search for largest k where k^2 <= x
+    """
+    if x < 2:
+        return x
+
+    left, right = 1, x // 2
+
+    while left <= right:
+        mid = left + (right - left) // 2
+        square = mid * mid
+
+        if square == x:
+            return mid
+        elif square < x:
+            left = mid + 1
+        else:
+            right = mid - 1
+
+    return right  # Largest k where k^2 <= x
+
+# Time: O(log x), Space: O(1)
+# Example: sqrt(8) = 2 (not 2.82...)
+
+# Newton-Raphson (faster convergence):
+def mySqrt_newton(x):
+    if x < 2:
+        return x
+    r = x
+    while r * r > x:
+        r = (r + x // r) // 2
+    return r`
+        },
+        {
+          title: 'GCD and LCM',
+          description: 'Greatest Common Divisor using Euclidean algorithm.',
+          code: `def gcd(a, b):
+    """
+    Euclidean Algorithm:
+    gcd(a, b) = gcd(b, a % b) until b = 0
+
+    Example: gcd(48, 18)
+    48 % 18 = 12 → gcd(18, 12)
+    18 % 12 = 6  → gcd(12, 6)
+    12 % 6 = 0   → gcd(6, 0) = 6
+    """
+    while b:
+        a, b = b, a % b
+    return a
+
+def lcm(a, b):
+    """
+    LCM formula: lcm(a,b) = a * b / gcd(a,b)
+    Avoid overflow: a // gcd(a,b) * b
+    """
+    return a // gcd(a, b) * b
+
+# Time: O(log min(a,b)), Space: O(1)
+
+# Useful: GCD of array
+def gcd_array(arr):
+    from functools import reduce
+    return reduce(gcd, arr)
+
+# Example: gcd([12, 18, 24]) = 6`
+        },
+        {
+          title: 'Sieve of Eratosthenes',
+          description: 'Find all primes up to n efficiently.',
+          code: `def countPrimes(n):
+    """
+    Sieve of Eratosthenes:
+    1. Assume all numbers 2..n are prime
+    2. For each prime p, mark p*2, p*3, ... as not prime
+    3. Optimization: start marking from p^2 (smaller multiples already marked)
+    """
+    if n < 2:
+        return 0
+
+    is_prime = [True] * n
+    is_prime[0] = is_prime[1] = False
+
+    # Only need to check up to sqrt(n)
+    for i in range(2, int(n ** 0.5) + 1):
+        if is_prime[i]:
+            # Mark all multiples starting from i^2
+            for j in range(i * i, n, i):
+                is_prime[j] = False
+
+    return sum(is_prime)
+
+# Time: O(n log log n), Space: O(n)
+# Example: countPrimes(10) = 4 (primes: 2,3,5,7)`
+        },
+        {
+          title: 'Rotate Image 90° Clockwise',
+          description: 'In-place matrix rotation using transpose + reverse.',
+          code: `def rotate(matrix):
+    """
+    90° clockwise = Transpose + Reverse each row
+
+    Original:     Transpose:    Reverse rows:
+    1 2 3         1 4 7         7 4 1
+    4 5 6    →    2 5 8    →    8 5 2
+    7 8 9         3 6 9         9 6 3
+
+    For counterclockwise: Reverse rows first, then transpose
+    """
+    n = len(matrix)
+
+    # Step 1: Transpose (swap matrix[i][j] with matrix[j][i])
+    for i in range(n):
+        for j in range(i + 1, n):  # Only upper triangle
+            matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+
+    # Step 2: Reverse each row
+    for row in matrix:
+        row.reverse()
+
+# Time: O(n²), Space: O(1)
+
+# Direct formula (for understanding):
+# matrix[i][j] → matrix[j][n-1-i]`
+        }
+      ]
     },
     {
       id: 'matrix',
@@ -1530,28 +2788,290 @@ def power(x, n):
       color: '#6366f1',
       questions: 7,
       description: 'Two-dimensional array traversal and manipulation.',
-      keyPatterns: ['Spiral traversal', 'Rotation', 'Search in sorted matrix', 'Dynamic programming on grid'],
+
+      introduction: `Matrix problems involve 2D arrays and test your ability to navigate, transform, and search within grid structures. These problems are common because they combine array manipulation with spatial reasoning.
+
+Key traversal patterns:
+• **Row-major**: Process row by row (standard iteration)
+• **Column-major**: Process column by column
+• **Diagonal**: Process along diagonals
+• **Spiral**: Outside-in or inside-out circular pattern
+• **Layer by layer**: Process outer ring, then inner rings
+
+Common operations:
+• **Rotation**: 90°, 180°, 270° rotations
+• **Transpose**: Swap rows and columns
+• **Search**: Binary search on sorted matrix
+• **Path finding**: DFS/BFS for connected components
+
+Matrix in disguise problems:
+• Game boards (Sudoku, Tic-Tac-Toe, Game of Life)
+• Image processing (flood fill, filters)
+• Grid DP (unique paths, minimum path sum)
+
+The key insight: matrices are just indexed by (row, col) pairs. Master the index transformations for rotation, and use boundary pointers for spiral traversal.`,
+
+      whenToUse: [
+        'Image rotation or transformation',
+        'Spiral or diagonal traversal',
+        'Search in row-wise or column-wise sorted matrix',
+        'Connected components in grid (island problems)',
+        'Game boards (Sudoku validation, Game of Life)',
+        'Path finding with obstacles',
+        'Setting rows/columns to zero based on conditions',
+        'Matrix multiplication or power'
+      ],
+
+      keyPatterns: ['Spiral traversal', 'Rotation', 'Search in sorted matrix', 'Diagonal traversal', 'Layer processing', 'In-place modification'],
       timeComplexity: 'O(m × n) for traversal',
       spaceComplexity: 'O(1) for in-place, O(m × n) for copy',
-      commonProblems: ['Rotate Image', 'Spiral Matrix', 'Set Matrix Zeroes', 'Search 2D Matrix', 'Valid Sudoku'],
+
+      approach: [
+        'For rotation: transpose then reverse rows (clockwise) or reverse then transpose (counter-clockwise)',
+        'For spiral: use 4 boundary pointers (top, bottom, left, right), shrink after each direction',
+        'For search in sorted matrix: binary search treating matrix as 1D array, or staircase from corner',
+        'For in-place modification: use first row/column as markers',
+        'For diagonals: (i + j) is constant for anti-diagonals, (i - j) is constant for main diagonals',
+        'For BFS/DFS in grid: track visited cells, check bounds before recursion'
+      ],
+
+      commonProblems: [
+        { name: 'Rotate Image', difficulty: 'Medium' },
+        { name: 'Spiral Matrix', difficulty: 'Medium' },
+        { name: 'Spiral Matrix II', difficulty: 'Medium' },
+        { name: 'Set Matrix Zeroes', difficulty: 'Medium' },
+        { name: 'Search a 2D Matrix', difficulty: 'Medium' },
+        { name: 'Search a 2D Matrix II', difficulty: 'Medium' },
+        { name: 'Valid Sudoku', difficulty: 'Medium' },
+        { name: 'Game of Life', difficulty: 'Medium' },
+        { name: 'Diagonal Traverse', difficulty: 'Medium' }
+      ],
+
+      commonMistakes: [
+        'Confusing row and column indices (matrix[row][col])',
+        'Off-by-one errors in boundary conditions',
+        'Modifying matrix while iterating (need markers or copy)',
+        'Wrong rotation direction (clockwise vs counterclockwise)',
+        'Not handling rectangular matrices (m != n)',
+        'Forgetting to update all 4 boundaries in spiral',
+        'Integer overflow when computing linear index from 2D'
+      ],
+
       tips: [
         'For rotation: transpose then reverse rows (or columns)',
         'Spiral: Use 4 pointers for boundaries',
         'In-place modifications may need marker values',
         'Binary search works on row-wise and column-wise sorted matrices'
       ],
-      codeExample: `# Rotate Image 90 degrees clockwise
-def rotate(matrix):
-    n = len(matrix)
-    # Transpose
-    for i in range(n):
-        for j in range(i + 1, n):
-            matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
-    # Reverse each row
-    for row in matrix:
-        row.reverse()
 
-# Time: O(n²), Space: O(1)`
+      interviewTips: [
+        'Draw a small 3x3 or 4x4 example and trace through manually',
+        'For rotation, show index mapping: (i,j) → (j, n-1-i) for 90° CW',
+        'Clarify if matrix is square (n×n) or rectangular (m×n)',
+        'For in-place, use first row/col as markers to save O(m+n) space',
+        'Mention staircase search O(m+n) for row+col sorted matrix',
+        'For spiral, enumerate the 4 directions and boundary shrinking',
+        'Know how to convert 2D index to 1D: index = row * cols + col'
+      ],
+
+      codeExamples: [
+        {
+          title: 'Spiral Matrix Traversal',
+          description: 'Return all elements in spiral order using boundary pointers.',
+          code: `def spiralOrder(matrix):
+    """
+    Use 4 boundaries: top, bottom, left, right
+    Process: right → down → left → up → shrink boundaries
+    """
+    if not matrix:
+        return []
+
+    result = []
+    top, bottom = 0, len(matrix) - 1
+    left, right = 0, len(matrix[0]) - 1
+
+    while top <= bottom and left <= right:
+        # Go right
+        for col in range(left, right + 1):
+            result.append(matrix[top][col])
+        top += 1
+
+        # Go down
+        for row in range(top, bottom + 1):
+            result.append(matrix[row][right])
+        right -= 1
+
+        # Go left (check if row still exists)
+        if top <= bottom:
+            for col in range(right, left - 1, -1):
+                result.append(matrix[bottom][col])
+            bottom -= 1
+
+        # Go up (check if column still exists)
+        if left <= right:
+            for row in range(bottom, top - 1, -1):
+                result.append(matrix[row][left])
+            left += 1
+
+    return result
+
+# Time: O(m×n), Space: O(1) excluding output`
+        },
+        {
+          title: 'Set Matrix Zeroes In-Place',
+          description: 'If cell is 0, set entire row and column to 0. O(1) space.',
+          code: `def setZeroes(matrix):
+    """
+    Use first row and first column as markers.
+    Track separately if first row/col should be zeroed.
+    """
+    m, n = len(matrix), len(matrix[0])
+
+    # Check if first row/column need to be zeroed
+    first_row_zero = any(matrix[0][j] == 0 for j in range(n))
+    first_col_zero = any(matrix[i][0] == 0 for i in range(m))
+
+    # Use first row/col as markers
+    for i in range(1, m):
+        for j in range(1, n):
+            if matrix[i][j] == 0:
+                matrix[i][0] = 0
+                matrix[0][j] = 0
+
+    # Zero cells based on markers
+    for i in range(1, m):
+        for j in range(1, n):
+            if matrix[i][0] == 0 or matrix[0][j] == 0:
+                matrix[i][j] = 0
+
+    # Handle first row
+    if first_row_zero:
+        for j in range(n):
+            matrix[0][j] = 0
+
+    # Handle first column
+    if first_col_zero:
+        for i in range(m):
+            matrix[i][0] = 0
+
+# Time: O(m×n), Space: O(1)`
+        },
+        {
+          title: 'Search 2D Matrix II (Staircase)',
+          description: 'Matrix sorted row-wise and column-wise. O(m+n) search.',
+          code: `def searchMatrix(matrix, target):
+    """
+    Start from top-right (or bottom-left) corner.
+    - If current > target: move left (smaller)
+    - If current < target: move down (larger)
+
+    This works because:
+    - Top-right is largest in row, smallest in column
+    - Each move eliminates a row or column
+    """
+    if not matrix:
+        return False
+
+    rows, cols = len(matrix), len(matrix[0])
+    row, col = 0, cols - 1  # Start top-right
+
+    while row < rows and col >= 0:
+        if matrix[row][col] == target:
+            return True
+        elif matrix[row][col] > target:
+            col -= 1  # Go left (smaller)
+        else:
+            row += 1  # Go down (larger)
+
+    return False
+
+# Time: O(m + n), Space: O(1)
+# Note: For fully sorted matrix (row[i+1] > row[i][-1]),
+# use binary search treating as 1D array: O(log(m×n))`
+        },
+        {
+          title: 'Valid Sudoku',
+          description: 'Check if 9x9 Sudoku board is valid (no duplicates in rows, cols, boxes).',
+          code: `def isValidSudoku(board):
+    """
+    Use sets to track seen numbers in:
+    - Each row (9 sets)
+    - Each column (9 sets)
+    - Each 3x3 box (9 sets, indexed by (row//3, col//3))
+    """
+    rows = [set() for _ in range(9)]
+    cols = [set() for _ in range(9)]
+    boxes = [set() for _ in range(9)]
+
+    for i in range(9):
+        for j in range(9):
+            num = board[i][j]
+            if num == '.':
+                continue
+
+            # Box index: 0-8, calculated as (row//3)*3 + col//3
+            box_idx = (i // 3) * 3 + (j // 3)
+
+            # Check for duplicates
+            if num in rows[i] or num in cols[j] or num in boxes[box_idx]:
+                return False
+
+            rows[i].add(num)
+            cols[j].add(num)
+            boxes[box_idx].add(num)
+
+    return True
+
+# Time: O(81) = O(1), Space: O(81) = O(1)
+# Note: Box index formula is key insight!`
+        },
+        {
+          title: 'Game of Life - In Place',
+          description: 'Simulate one step using bit manipulation for state encoding.',
+          code: `def gameOfLife(board):
+    """
+    Encode both current and next state in same cell:
+    - 0 (00): dead → dead
+    - 1 (01): live → dead
+    - 2 (10): dead → live
+    - 3 (11): live → live
+
+    Current state: board[i][j] & 1
+    Next state: board[i][j] >> 1
+    """
+    m, n = len(board), len(board[0])
+
+    def count_neighbors(r, c):
+        count = 0
+        for dr in [-1, 0, 1]:
+            for dc in [-1, 0, 1]:
+                if dr == 0 and dc == 0:
+                    continue
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < m and 0 <= nc < n:
+                    count += board[nr][nc] & 1  # Current state
+        return count
+
+    # First pass: compute next state
+    for i in range(m):
+        for j in range(n):
+            neighbors = count_neighbors(i, j)
+            current = board[i][j] & 1
+
+            if current == 1 and neighbors in [2, 3]:
+                board[i][j] = 3  # Live → Live (11)
+            elif current == 0 and neighbors == 3:
+                board[i][j] = 2  # Dead → Live (10)
+            # Other cases: stays 0 or 1 (next state = 0)
+
+    # Second pass: extract next state
+    for i in range(m):
+        for j in range(n):
+            board[i][j] >>= 1
+
+# Time: O(m×n), Space: O(1)`
+        }
+      ]
     },
     {
       id: 'recursion',
@@ -1560,56 +3080,137 @@ def rotate(matrix):
       color: '#10b981',
       questions: 15,
       description: 'Self-referential problem solving. Foundation for trees, graphs, and DP.',
-      keyPatterns: ['Base case + recursive case', 'Divide and conquer', 'Tail recursion', 'Memoization'],
+
+      introduction: `Recursion is a problem-solving technique where a function calls itself to solve smaller instances of the same problem. It's the foundation for understanding trees, graphs, divide and conquer, and dynamic programming.
+
+Every recursive solution has two essential parts:
+• **Base Case(s)**: The simplest case(s) that can be solved directly without recursion
+• **Recursive Case**: Breaking the problem into smaller subproblems and calling the function on them
+
+The magic of recursion: you trust that the recursive call works correctly, then just handle how to combine results.
+
+How to think recursively:
+1. What is the smallest/simplest input? (Base case)
+2. How can I reduce this problem to a smaller version of itself?
+3. How do I combine results from subproblems?
+
+Recursion vs Iteration:
+• Every recursive solution can be converted to iterative (and vice versa)
+• Recursion uses call stack space (can cause stack overflow)
+• Recursion is more natural for tree/graph traversal
+• Tail recursion can be optimized by some compilers to use O(1) space
+
+Understanding recursion deeply unlocks: binary tree problems, divide and conquer, backtracking, and dynamic programming.`,
+
+      whenToUse: [
+        'Tree and graph traversal',
+        'Divide and conquer algorithms (merge sort, quick sort)',
+        'Generating all combinations/permutations',
+        'Problems with natural recursive structure',
+        'When problem can be broken into similar subproblems',
+        'String manipulation (palindrome, reverse)',
+        'Mathematical sequences (Fibonacci, factorial)',
+        'Exploring all possibilities (backtracking)'
+      ],
+
+      keyPatterns: ['Base case + recursive case', 'Divide and conquer', 'Tail recursion', 'Memoization', 'Trust the recursion'],
       timeComplexity: 'Depends on branching factor and depth',
       spaceComplexity: 'O(depth) for call stack',
-      commonProblems: ['Fibonacci', 'Factorial', 'Reverse String', 'Merge Sort', 'Generate Parentheses'],
+
+      approach: [
+        'Identify the base case(s) - simplest input that can be solved directly',
+        'Define the recursive case - how to break into smaller subproblems',
+        'Trust the recursion: assume recursive calls return correct answers',
+        'Combine results from subproblems to solve original problem',
+        'Draw recursion tree to understand complexity',
+        'Add memoization if overlapping subproblems exist',
+        'Consider converting to iteration for deep recursion (stack overflow)'
+      ],
+
+      commonProblems: [
+        { name: 'Fibonacci', difficulty: 'Easy' },
+        { name: 'Factorial', difficulty: 'Easy' },
+        { name: 'Reverse String', difficulty: 'Easy' },
+        { name: 'Generate Parentheses', difficulty: 'Medium' },
+        { name: 'Pow(x, n)', difficulty: 'Medium' },
+        { name: 'Merge Sort', difficulty: 'Medium' },
+        { name: 'Subsets', difficulty: 'Medium' },
+        { name: 'Letter Combinations of Phone', difficulty: 'Medium' }
+      ],
+
+      commonMistakes: [
+        'Missing or incorrect base case(s)',
+        'Not making progress toward base case (infinite recursion)',
+        'Returning wrong value from base case',
+        'Not trusting the recursion - trying to trace every call',
+        'Forgetting to return recursive result',
+        'Creating too many copies of data structures',
+        'Stack overflow from deep recursion'
+      ],
+
       tips: [
         'Always define base case(s) first',
         'Trust the recursion: assume recursive calls work correctly',
         'Draw recursion tree to understand complexity',
         'Convert to iteration if stack overflow is concern'
       ],
-      codeExample: `# Generate Parentheses
-def generate_parentheses(n):
-    result = []
 
-    def backtrack(current, open_count, close_count):
-        if len(current) == 2 * n:
-            result.append(current)
-            return
-        if open_count < n:
-            backtrack(current + '(', open_count + 1, close_count)
-        if close_count < open_count:
-            backtrack(current + ')', open_count, close_count + 1)
-
-    backtrack('', 0, 0)
-    return result`
-    },
-    {
-      id: 'sorting',
-      title: 'Sorting Algorithms',
-      icon: 'chartBar',
-      color: '#f59e0b',
-      questions: 18,
-      description: 'Comparison and non-comparison based sorting techniques.',
-      keyPatterns: ['Merge sort', 'Quick sort', 'Heap sort', 'Counting/Radix sort', 'Custom comparators'],
-      timeComplexity: 'O(n log n) comparison-based, O(n) for counting/radix',
-      spaceComplexity: 'O(n) merge sort, O(log n) quick sort, O(1) heap sort',
-      commonProblems: ['Sort Array', 'Sort Colors', 'Merge Intervals', 'Largest Number', 'Meeting Rooms'],
-      tips: [
-        'Merge sort: Stable, guaranteed O(n log n), needs O(n) space',
-        'Quick sort: In-place, O(n log n) average, O(n²) worst',
-        'Use counting sort for limited range integers',
-        'Custom comparators for complex sorting criteria'
+      interviewTips: [
+        'Start with base case(s), then recursive case',
+        'Draw recursion tree for 2-3 levels to verify correctness',
+        'Mention time/space complexity including stack space',
+        'Know how to convert recursive to iterative (for follow-up)',
+        'Discuss memoization if you see repeated subproblems',
+        'For tree problems: explain left-right-root vs root-left-right order',
+        'Tail recursion mention shows depth: "can be optimized to O(1) space"'
       ],
-      codeExample: `# Merge Sort
-def merge_sort(arr):
+
+      codeExamples: [
+        {
+          title: 'Understanding Recursion - Factorial',
+          description: 'Classic example showing base case and recursive case.',
+          code: `def factorial(n):
+    """
+    Base case: n <= 1 → return 1
+    Recursive case: n! = n * (n-1)!
+
+    Trust: factorial(n-1) correctly computes (n-1)!
+    """
+    # Base case
+    if n <= 1:
+        return 1
+
+    # Recursive case
+    return n * factorial(n - 1)
+
+# Trace for factorial(4):
+# factorial(4) = 4 * factorial(3)
+#              = 4 * (3 * factorial(2))
+#              = 4 * (3 * (2 * factorial(1)))
+#              = 4 * (3 * (2 * 1))
+#              = 24
+
+# Time: O(n), Space: O(n) call stack`
+        },
+        {
+          title: 'Divide and Conquer - Merge Sort',
+          description: 'Classic divide and conquer recursion pattern.',
+          code: `def merge_sort(arr):
+    """
+    Divide: Split array in half
+    Conquer: Recursively sort each half
+    Combine: Merge two sorted halves
+    """
+    # Base case
     if len(arr) <= 1:
         return arr
+
+    # Divide
     mid = len(arr) // 2
-    left = merge_sort(arr[:mid])
-    right = merge_sort(arr[mid:])
+    left = merge_sort(arr[:mid])   # Trust: returns sorted left
+    right = merge_sort(arr[mid:])  # Trust: returns sorted right
+
+    # Combine (merge sorted halves)
     return merge(left, right)
 
 def merge(left, right):
@@ -1622,7 +3223,378 @@ def merge(left, right):
         else:
             result.append(right[j])
             j += 1
-    return result + left[i:] + right[j:]`
+    return result + left[i:] + right[j:]
+
+# Time: O(n log n), Space: O(n)`
+        },
+        {
+          title: 'Generate All Parentheses',
+          description: 'Recursive generation with constraints.',
+          code: `def generateParenthesis(n):
+    """
+    At each step, we can:
+    - Add '(' if open_count < n
+    - Add ')' if close_count < open_count
+
+    Base case: string length == 2*n
+    """
+    result = []
+
+    def backtrack(current, open_count, close_count):
+        # Base case: complete valid parentheses
+        if len(current) == 2 * n:
+            result.append(current)
+            return
+
+        # Add '(' if we haven't used all
+        if open_count < n:
+            backtrack(current + '(', open_count + 1, close_count)
+
+        # Add ')' if we have unmatched '('
+        if close_count < open_count:
+            backtrack(current + ')', open_count, close_count + 1)
+
+    backtrack('', 0, 0)
+    return result
+
+# Time: O(4^n / √n) - Catalan number
+# Space: O(n) for recursion depth`
+        },
+        {
+          title: 'Fibonacci with Memoization',
+          description: 'Converting exponential recursion to linear with memoization.',
+          code: `# Naive recursion: O(2^n) - BAD!
+def fib_naive(n):
+    if n <= 1:
+        return n
+    return fib_naive(n-1) + fib_naive(n-2)
+
+# With memoization: O(n) - GOOD!
+def fib_memo(n, memo={}):
+    if n in memo:
+        return memo[n]
+    if n <= 1:
+        return n
+    memo[n] = fib_memo(n-1, memo) + fib_memo(n-2, memo)
+    return memo[n]
+
+# Using functools (cleaner)
+from functools import lru_cache
+
+@lru_cache(maxsize=None)
+def fib(n):
+    if n <= 1:
+        return n
+    return fib(n-1) + fib(n-2)
+
+# Iterative (no stack overflow)
+def fib_iterative(n):
+    if n <= 1:
+        return n
+    prev, curr = 0, 1
+    for _ in range(2, n + 1):
+        prev, curr = curr, prev + curr
+    return curr`
+        },
+        {
+          title: 'Letter Combinations of Phone',
+          description: 'Generate all combinations recursively.',
+          code: `def letterCombinations(digits):
+    """
+    Recursively build all combinations.
+    Each digit adds 3-4 options (branching factor).
+    """
+    if not digits:
+        return []
+
+    phone = {
+        '2': 'abc', '3': 'def', '4': 'ghi', '5': 'jkl',
+        '6': 'mno', '7': 'pqrs', '8': 'tuv', '9': 'wxyz'
+    }
+
+    result = []
+
+    def backtrack(index, current):
+        # Base case: used all digits
+        if index == len(digits):
+            result.append(current)
+            return
+
+        # Try each letter for current digit
+        for letter in phone[digits[index]]:
+            backtrack(index + 1, current + letter)
+
+    backtrack(0, '')
+    return result
+
+# Time: O(4^n) where n = len(digits)
+# Space: O(n) recursion depth
+
+# Example: "23" -> ["ad","ae","af","bd","be","bf","cd","ce","cf"]`
+        }
+      ]
+    },
+    {
+      id: 'sorting',
+      title: 'Sorting Algorithms',
+      icon: 'chartBar',
+      color: '#f59e0b',
+      questions: 18,
+      description: 'Comparison and non-comparison based sorting techniques.',
+
+      introduction: `Sorting is a fundamental operation that arranges elements in a specific order. Understanding sorting algorithms is crucial because:
+1. Many problems become easier after sorting (binary search, two pointers)
+2. Sorting is often a key step in algorithms (greedy, intervals)
+3. Custom comparators enable complex sorting logic
+
+Comparison-based sorting (O(n log n) lower bound):
+• **Merge Sort**: Stable, guaranteed O(n log n), but O(n) space
+• **Quick Sort**: In-place, average O(n log n), worst O(n²)
+• **Heap Sort**: In-place, guaranteed O(n log n), not stable
+
+Non-comparison sorting (can beat O(n log n)):
+• **Counting Sort**: O(n + k) for integers in range [0, k]
+• **Radix Sort**: O(d × (n + k)) for d-digit numbers
+• **Bucket Sort**: O(n) average for uniformly distributed data
+
+Stability: A sort is stable if equal elements maintain their relative order. Important when sorting by multiple keys.
+
+In interviews, you'll rarely implement sort from scratch. Instead, focus on:
+• Choosing the right algorithm for the situation
+• Writing custom comparators
+• Understanding when pre-sorting helps the overall algorithm`,
+
+      whenToUse: [
+        'Pre-processing for binary search or two pointers',
+        'Interval problems (merge, schedule)',
+        'Finding kth element (quick select)',
+        'Custom ordering (largest number, alien dictionary)',
+        'Reducing search space',
+        'Meeting room scheduling',
+        'When O(n log n) pre-processing saves repeated O(n) searches',
+        'Grouping related elements together'
+      ],
+
+      keyPatterns: ['Merge sort', 'Quick sort', 'Heap sort', 'Counting sort', 'Radix sort', 'Custom comparators', 'Quick select'],
+      timeComplexity: 'O(n log n) comparison-based, O(n) for counting/radix',
+      spaceComplexity: 'O(n) merge sort, O(log n) quick sort, O(1) heap sort',
+
+      approach: [
+        'Determine if sorting helps simplify the problem',
+        'Choose algorithm based on constraints (space, stability, worst case)',
+        'For custom ordering: define comparison function clearly',
+        'Consider partial sorting (kth element) if full sort not needed',
+        'Use built-in sort with custom key/comparator when possible',
+        'For integers in limited range: consider counting sort',
+        'Remember: sorting is O(n log n), often acceptable overhead'
+      ],
+
+      commonProblems: [
+        { name: 'Sort an Array', difficulty: 'Medium' },
+        { name: 'Sort Colors', difficulty: 'Medium' },
+        { name: 'Kth Largest Element', difficulty: 'Medium' },
+        { name: 'Merge Intervals', difficulty: 'Medium' },
+        { name: 'Largest Number', difficulty: 'Medium' },
+        { name: 'Meeting Rooms II', difficulty: 'Medium' },
+        { name: 'Sort List', difficulty: 'Medium' },
+        { name: 'Wiggle Sort II', difficulty: 'Medium' }
+      ],
+
+      commonMistakes: [
+        'Not handling empty array or single element',
+        'Wrong partition logic in quicksort (off-by-one)',
+        'Forgetting to handle duplicates in custom comparator',
+        'Using unstable sort when stability matters',
+        'Integer overflow in custom comparator',
+        'Not considering worst case for quicksort',
+        'Comparing strings numerically (use custom comparator)'
+      ],
+
+      tips: [
+        'Merge sort: Stable, guaranteed O(n log n), needs O(n) space',
+        'Quick sort: In-place, O(n log n) average, O(n²) worst',
+        'Use counting sort for limited range integers',
+        'Custom comparators for complex sorting criteria'
+      ],
+
+      interviewTips: [
+        'Know complexity and tradeoffs of major algorithms',
+        'Python: sorted() with key parameter, or functools.cmp_to_key',
+        'Java: Collections.sort with Comparator, Arrays.sort',
+        'For "top K" problems, consider heap O(n log k) vs sort O(n log n)',
+        'Quick select is O(n) average for kth element',
+        'Dutch National Flag for 3-way partitioning (Sort Colors)',
+        'Mention stability when relevant: "Merge sort is stable..."'
+      ],
+
+      codeExamples: [
+        {
+          title: 'Quick Sort - In-Place',
+          description: 'Partition-based sorting with Lomuto scheme.',
+          code: `def quicksort(arr, low=0, high=None):
+    """
+    Choose pivot, partition so elements < pivot are left,
+    elements > pivot are right, then recurse.
+    """
+    if high is None:
+        high = len(arr) - 1
+
+    if low < high:
+        pivot_idx = partition(arr, low, high)
+        quicksort(arr, low, pivot_idx - 1)
+        quicksort(arr, pivot_idx + 1, high)
+
+def partition(arr, low, high):
+    """Lomuto partition: pivot is last element"""
+    pivot = arr[high]
+    i = low - 1  # Index of smaller element
+
+    for j in range(low, high):
+        if arr[j] <= pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    return i + 1
+
+# Time: O(n log n) average, O(n²) worst
+# Space: O(log n) for recursion stack
+# Note: Randomize pivot to avoid worst case`
+        },
+        {
+          title: 'Quick Select - Kth Element in O(n)',
+          description: 'Find kth largest/smallest without full sort.',
+          code: `def findKthLargest(nums, k):
+    """
+    Quick select: partition once, recurse on correct half.
+    Average O(n), worst O(n²).
+    """
+    k = len(nums) - k  # Convert to kth smallest
+
+    def quickselect(left, right):
+        pivot_idx = partition(nums, left, right)
+
+        if pivot_idx == k:
+            return nums[k]
+        elif pivot_idx < k:
+            return quickselect(pivot_idx + 1, right)
+        else:
+            return quickselect(left, pivot_idx - 1)
+
+    return quickselect(0, len(nums) - 1)
+
+def partition(nums, left, right):
+    pivot = nums[right]
+    i = left
+    for j in range(left, right):
+        if nums[j] <= pivot:
+            nums[i], nums[j] = nums[j], nums[i]
+            i += 1
+    nums[i], nums[right] = nums[right], nums[i]
+    return i
+
+# Alternative: Use heap for O(n log k)
+import heapq
+def findKthLargest_heap(nums, k):
+    return heapq.nlargest(k, nums)[-1]`
+        },
+        {
+          title: 'Sort Colors - Dutch National Flag',
+          description: 'Three-way partitioning in single pass.',
+          code: `def sortColors(nums):
+    """
+    Dutch National Flag algorithm:
+    - 0s on left, 1s in middle, 2s on right
+    - Three pointers: low, mid, high
+
+    Process:
+    - 0: swap with low, move both low and mid right
+    - 1: just move mid right
+    - 2: swap with high, move high left (don't move mid!)
+    """
+    low, mid, high = 0, 0, len(nums) - 1
+
+    while mid <= high:
+        if nums[mid] == 0:
+            nums[low], nums[mid] = nums[mid], nums[low]
+            low += 1
+            mid += 1
+        elif nums[mid] == 1:
+            mid += 1
+        else:  # nums[mid] == 2
+            nums[mid], nums[high] = nums[high], nums[mid]
+            high -= 1
+            # Don't increment mid! New element needs checking
+
+# Time: O(n), Space: O(1)
+# Single pass, in-place`
+        },
+        {
+          title: 'Largest Number - Custom Comparator',
+          description: 'Form largest number by custom string comparison.',
+          code: `def largestNumber(nums):
+    """
+    Custom comparator: a+b vs b+a
+    Example: 3 vs 30
+    "330" > "303", so 3 should come before 30
+    """
+    from functools import cmp_to_key
+
+    def compare(a, b):
+        # Return negative if a should come first
+        # Return positive if b should come first
+        if a + b > b + a:
+            return -1
+        elif a + b < b + a:
+            return 1
+        return 0
+
+    # Convert to strings
+    nums = [str(n) for n in nums]
+
+    # Sort with custom comparator
+    nums.sort(key=cmp_to_key(compare))
+
+    # Handle leading zeros
+    result = ''.join(nums)
+    return '0' if result[0] == '0' else result
+
+# Example: [3, 30, 34, 5, 9] -> "9534330"
+# Time: O(n log n), where comparison is O(k) for k digits`
+        },
+        {
+          title: 'Counting Sort - O(n) for Limited Range',
+          description: 'Non-comparison sort for integers in known range.',
+          code: `def counting_sort(arr, max_val=None):
+    """
+    Count occurrences of each value, then reconstruct.
+    Works for non-negative integers in range [0, k].
+    """
+    if not arr:
+        return arr
+
+    if max_val is None:
+        max_val = max(arr)
+
+    # Count occurrences
+    count = [0] * (max_val + 1)
+    for num in arr:
+        count[num] += 1
+
+    # Reconstruct sorted array
+    result = []
+    for num, freq in enumerate(count):
+        result.extend([num] * freq)
+
+    return result
+
+# Time: O(n + k), Space: O(k)
+# k = range of values
+
+# Use case: Sort array where elements are in range [0, 100]
+# Much faster than O(n log n) when k << n`
+        }
+      ]
     },
     {
       id: 'intervals',
@@ -1631,30 +3603,255 @@ def merge(left, right):
       color: '#84cc16',
       questions: 5,
       description: 'Problems involving ranges and overlapping segments.',
-      keyPatterns: ['Merge intervals', 'Insert interval', 'Meeting rooms', 'Interval scheduling'],
+
+      introduction: `Interval problems involve operations on ranges or segments, often requiring merging, insertion, or conflict detection. These problems appear frequently in scheduling, calendar, and resource allocation contexts.
+
+Key concepts:
+• **Overlap detection**: Two intervals [a, b] and [c, d] overlap if a < d AND c < b
+• **Sorting strategy**: Sort by start time (merging) or end time (scheduling)
+• **Sweep line**: Process events (start/end) in sorted order
+
+Common patterns:
+1. **Merge Intervals**: Combine overlapping intervals
+2. **Insert Interval**: Add new interval and merge if needed
+3. **Meeting Rooms**: Can all meetings fit? How many rooms needed?
+4. **Interval Scheduling**: Maximize non-overlapping intervals (greedy)
+5. **Minimum Removals**: Remove fewest intervals to eliminate overlaps
+
+The key insight: sorting transforms interval problems into linear scans. Sort by start time for merging, end time for scheduling/greedy selection.
+
+Sweep line technique: Instead of treating intervals as wholes, process START and END events separately in sorted order. This handles complex queries like "maximum overlapping at any point."`,
+
+      whenToUse: [
+        'Merging overlapping ranges',
+        'Meeting room scheduling',
+        'Calendar conflict detection',
+        'Resource allocation problems',
+        'Interval coverage problems',
+        'Time slot availability',
+        'Finding gaps between intervals',
+        'Maximum concurrent events'
+      ],
+
+      keyPatterns: ['Merge intervals', 'Insert interval', 'Meeting rooms', 'Interval scheduling', 'Sweep line', 'Min heap for end times'],
       timeComplexity: 'O(n log n) after sorting',
       spaceComplexity: 'O(n) for result',
-      commonProblems: ['Merge Intervals', 'Insert Interval', 'Meeting Rooms', 'Non-overlapping Intervals', 'Minimum Intervals to Remove'],
+
+      approach: [
+        'Sort intervals by start time (usually) or end time (greedy scheduling)',
+        'For merging: track last interval, extend or add new',
+        'For overlap check: a.start < b.end AND b.start < a.end',
+        'For meeting rooms: use min heap of end times, or sweep line',
+        'For greedy (max non-overlapping): sort by END time, greedily pick',
+        'For complex queries: use sweep line with event processing',
+        'Consider edge cases: touching intervals [1,2] and [2,3]'
+      ],
+
+      commonProblems: [
+        { name: 'Merge Intervals', difficulty: 'Medium' },
+        { name: 'Insert Interval', difficulty: 'Medium' },
+        { name: 'Meeting Rooms', difficulty: 'Easy' },
+        { name: 'Meeting Rooms II', difficulty: 'Medium' },
+        { name: 'Non-overlapping Intervals', difficulty: 'Medium' },
+        { name: 'Minimum Number of Arrows', difficulty: 'Medium' },
+        { name: 'Interval List Intersections', difficulty: 'Medium' },
+        { name: 'Employee Free Time', difficulty: 'Hard' }
+      ],
+
+      commonMistakes: [
+        'Sorting by wrong attribute (start vs end)',
+        'Off-by-one in overlap check (< vs <=)',
+        'Not handling touching intervals correctly',
+        'Forgetting to sort before processing',
+        'Modifying intervals while iterating',
+        'Not considering empty input',
+        'Using wrong comparison for min heap'
+      ],
+
       tips: [
         'Sort by start time (or end time depending on problem)',
         'Check overlap: intervals overlap if a.start < b.end AND b.start < a.end',
         'For scheduling: greedy by end time minimizes conflicts',
         'Use sweep line for complex interval operations'
       ],
-      codeExample: `# Merge Intervals
-def merge(intervals):
+
+      interviewTips: [
+        'Clarify: are intervals sorted? Can they touch? [1,2] and [2,3]?',
+        'State sorting strategy explicitly and why',
+        'For Meeting Rooms II: explain min heap stores end times',
+        'Know sweep line for "max overlap at any point"',
+        'For greedy problems, explain why sorting by end time works',
+        'Draw interval timeline diagram to visualize',
+        'Mention edge cases: empty input, single interval, all overlapping'
+      ],
+
+      codeExamples: [
+        {
+          title: 'Merge Intervals',
+          description: 'Combine all overlapping intervals.',
+          code: `def merge(intervals):
+    """
+    Sort by start time, then merge overlapping.
+    Two intervals overlap if current.start <= last.end
+    """
+    if not intervals:
+        return []
+
+    # Sort by start time
     intervals.sort(key=lambda x: x[0])
     merged = [intervals[0]]
 
     for start, end in intervals[1:]:
-        if start <= merged[-1][1]:
-            merged[-1][1] = max(merged[-1][1], end)
+        last = merged[-1]
+
+        if start <= last[1]:
+            # Overlap: extend the last interval
+            last[1] = max(last[1], end)
         else:
+            # No overlap: add new interval
             merged.append([start, end])
 
     return merged
 
-# Time: O(n log n), Space: O(n)`
+# Time: O(n log n), Space: O(n)
+# Example: [[1,3],[2,6],[8,10],[15,18]] -> [[1,6],[8,10],[15,18]]`
+        },
+        {
+          title: 'Meeting Rooms II - Min Heap',
+          description: 'Find minimum number of meeting rooms needed.',
+          code: `def minMeetingRooms(intervals):
+    """
+    Use min heap to track end times of ongoing meetings.
+    - Sort by start time
+    - For each meeting: if earliest ending room is free, reuse it
+    - Otherwise, need new room
+
+    Heap size = number of concurrent meetings
+    """
+    import heapq
+
+    if not intervals:
+        return 0
+
+    # Sort by start time
+    intervals.sort(key=lambda x: x[0])
+
+    # Min heap of end times
+    heap = []
+
+    for start, end in intervals:
+        # If earliest ending meeting has ended, remove it
+        if heap and heap[0] <= start:
+            heapq.heappop(heap)
+
+        # Add current meeting's end time
+        heapq.heappush(heap, end)
+
+    return len(heap)
+
+# Time: O(n log n), Space: O(n)
+# Example: [[0,30],[5,10],[15,20]] -> 2 rooms`
+        },
+        {
+          title: 'Insert Interval',
+          description: 'Insert new interval and merge if needed.',
+          code: `def insert(intervals, newInterval):
+    """
+    Three phases:
+    1. Add all intervals ending before newInterval starts
+    2. Merge all overlapping intervals with newInterval
+    3. Add all intervals starting after newInterval ends
+    """
+    result = []
+    i = 0
+    n = len(intervals)
+    start, end = newInterval
+
+    # Phase 1: Add intervals that end before new interval starts
+    while i < n and intervals[i][1] < start:
+        result.append(intervals[i])
+        i += 1
+
+    # Phase 2: Merge overlapping intervals
+    while i < n and intervals[i][0] <= end:
+        start = min(start, intervals[i][0])
+        end = max(end, intervals[i][1])
+        i += 1
+    result.append([start, end])
+
+    # Phase 3: Add remaining intervals
+    while i < n:
+        result.append(intervals[i])
+        i += 1
+
+    return result
+
+# Time: O(n), Space: O(n) - already sorted input!`
+        },
+        {
+          title: 'Meeting Rooms II - Sweep Line',
+          description: 'Alternative approach using event processing.',
+          code: `def minMeetingRooms_sweep(intervals):
+    """
+    Sweep line: process START (+1) and END (-1) events.
+    Track running count of concurrent meetings.
+    """
+    events = []
+
+    for start, end in intervals:
+        events.append((start, 1))   # Meeting starts
+        events.append((end, -1))    # Meeting ends
+
+    # Sort by time, with ends before starts at same time
+    # (free room before claiming new one)
+    events.sort(key=lambda x: (x[0], x[1]))
+
+    max_rooms = 0
+    current_rooms = 0
+
+    for time, delta in events:
+        current_rooms += delta
+        max_rooms = max(max_rooms, current_rooms)
+
+    return max_rooms
+
+# Time: O(n log n), Space: O(n)
+# Useful when you need "max concurrent at any point"`
+        },
+        {
+          title: 'Interval List Intersections',
+          description: 'Find intersections of two sorted interval lists.',
+          code: `def intervalIntersection(firstList, secondList):
+    """
+    Two pointers, one for each list.
+    Intersection exists if max(starts) < min(ends).
+    Advance pointer with smaller end time.
+    """
+    result = []
+    i, j = 0, 0
+
+    while i < len(firstList) and j < len(secondList):
+        a_start, a_end = firstList[i]
+        b_start, b_end = secondList[j]
+
+        # Check for intersection
+        start = max(a_start, b_start)
+        end = min(a_end, b_end)
+
+        if start <= end:
+            result.append([start, end])
+
+        # Advance pointer with smaller end time
+        if a_end < b_end:
+            i += 1
+        else:
+            j += 1
+
+    return result
+
+# Time: O(m + n), Space: O(1) excluding output`
+        }
+      ]
     },
     {
       id: 'search-algorithms',
@@ -1663,19 +3860,102 @@ def merge(intervals):
       color: '#0ea5e9',
       questions: 23,
       description: 'Linear search, binary search, and advanced search techniques.',
-      keyPatterns: ['Linear search', 'Binary search', 'Ternary search', 'Exponential search', 'Interpolation search'],
+
+      introduction: `Search algorithms are fundamental techniques for finding elements or optimal values. Binary search is the most important - it reduces O(n) to O(log n) and appears in countless interview problems.
+
+Binary Search Basics:
+• Requires sorted data (or monotonic property)
+• Repeatedly halve the search space
+• O(log n) time, O(1) space
+
+Beyond basic search, binary search applies to:
+• **Search on answer space**: Find minimum/maximum valid answer
+• **Search for boundary**: First/last occurrence, insertion point
+• **Peak finding**: Find local maximum/minimum in unsorted data
+• **Rotated arrays**: Modified binary search
+
+The key insight: Binary search works whenever you can make a binary decision that eliminates half the search space. This extends far beyond sorted arrays!
+
+Common variations:
+• Find exact match vs insertion point
+• Find first vs last occurrence
+• Search in rotated sorted array
+• Binary search on real numbers (floating point)
+• Binary search on answer (minimum days, maximum capacity)`,
+
+      whenToUse: [
+        'Searching in sorted array',
+        'Finding first/last occurrence',
+        'Search insertion position',
+        'Searching in rotated sorted array',
+        'Optimization: minimize/maximize with constraint',
+        'Finding peak element',
+        'Square root, nth root calculation',
+        'Koko eating bananas, shipping packages patterns'
+      ],
+
+      keyPatterns: ['Binary search', 'Search on answer', 'First/last occurrence', 'Peak finding', 'Rotated array', 'Lower/upper bound'],
       timeComplexity: 'O(n) linear, O(log n) binary',
       spaceComplexity: 'O(1)',
-      commonProblems: ['Binary Search', 'Search Insert Position', 'Find Peak Element', 'Search in Rotated Array', 'First Bad Version'],
+
+      approach: [
+        'Identify if data is sorted or has monotonic property',
+        'Define search space: [left, right] bounds',
+        'Choose loop condition: left <= right OR left < right',
+        'Calculate mid carefully: left + (right - left) // 2',
+        'Define branching: when to move left, when to move right',
+        'Consider what to return: mid, left, or right',
+        'For "first occurrence": continue searching left even after finding',
+        'For "search on answer": check if mid satisfies constraint'
+      ],
+
+      commonProblems: [
+        { name: 'Binary Search', difficulty: 'Easy' },
+        { name: 'Search Insert Position', difficulty: 'Easy' },
+        { name: 'First Bad Version', difficulty: 'Easy' },
+        { name: 'Find First and Last Position', difficulty: 'Medium' },
+        { name: 'Search in Rotated Array', difficulty: 'Medium' },
+        { name: 'Find Peak Element', difficulty: 'Medium' },
+        { name: 'Find Minimum in Rotated Array', difficulty: 'Medium' },
+        { name: 'Koko Eating Bananas', difficulty: 'Medium' },
+        { name: 'Capacity To Ship Packages', difficulty: 'Medium' }
+      ],
+
+      commonMistakes: [
+        'Integer overflow: use left + (right - left) // 2',
+        'Infinite loop: not moving left/right correctly',
+        'Off-by-one: returning left vs right',
+        'Wrong comparison: < vs <=',
+        'Not handling empty array',
+        'Forgetting array must be sorted',
+        'Using wrong template for boundary search'
+      ],
+
       tips: [
         'Binary search requires sorted data',
         'Watch for off-by-one errors in boundary conditions',
         'Use binary search on answer space for optimization problems',
         'Ternary search for unimodal functions'
       ],
-      codeExample: `# Binary Search - Find exact or insertion point
-def binary_search(nums, target):
+
+      interviewTips: [
+        'State clearly: "The array is sorted, so I\'ll use binary search"',
+        'Know two templates: find exact vs find boundary',
+        'For "search on answer": define canAchieve(mid) function clearly',
+        'Draw the search space and show how it shrinks',
+        'Mention overflow prevention: left + (right - left) // 2',
+        'For rotated array: explain how to determine which half is sorted',
+        'Know Python bisect_left/bisect_right for quick solutions'
+      ],
+
+      codeExamples: [
+        {
+          title: 'Binary Search Templates',
+          description: 'Two common templates: exact match and boundary.',
+          code: `# Template 1: Find exact match (return -1 if not found)
+def binary_search_exact(nums, target):
     left, right = 0, len(nums) - 1
+
     while left <= right:
         mid = left + (right - left) // 2
         if nums[mid] == target:
@@ -1684,9 +3964,158 @@ def binary_search(nums, target):
             left = mid + 1
         else:
             right = mid - 1
-    return -1  # or 'left' for insertion point
+
+    return -1
+
+# Template 2: Find leftmost position where condition is true
+def binary_search_left(nums, target):
+    """Find first index where nums[i] >= target"""
+    left, right = 0, len(nums)
+
+    while left < right:
+        mid = left + (right - left) // 2
+        if nums[mid] >= target:
+            right = mid
+        else:
+            left = mid + 1
+
+    return left  # Insertion point
+
+# Python built-in:
+# bisect_left(nums, target) - leftmost position
+# bisect_right(nums, target) - rightmost position + 1`
+        },
+        {
+          title: 'First and Last Position',
+          description: 'Find boundaries of target in sorted array.',
+          code: `def searchRange(nums, target):
+    """Find first and last index of target"""
+    def find_left():
+        left, right = 0, len(nums)
+        while left < right:
+            mid = left + (right - left) // 2
+            if nums[mid] >= target:
+                right = mid
+            else:
+                left = mid + 1
+        return left
+
+    def find_right():
+        left, right = 0, len(nums)
+        while left < right:
+            mid = left + (right - left) // 2
+            if nums[mid] > target:
+                right = mid
+            else:
+                left = mid + 1
+        return left - 1
+
+    left = find_left()
+
+    # Check if target exists
+    if left >= len(nums) or nums[left] != target:
+        return [-1, -1]
+
+    return [left, find_right()]
 
 # Time: O(log n), Space: O(1)`
+        },
+        {
+          title: 'Search in Rotated Sorted Array',
+          description: 'Binary search when array is rotated.',
+          code: `def search(nums, target):
+    """
+    Key insight: One half is always sorted.
+    Check which half is sorted, then check if target is in that half.
+    """
+    left, right = 0, len(nums) - 1
+
+    while left <= right:
+        mid = left + (right - left) // 2
+
+        if nums[mid] == target:
+            return mid
+
+        # Check which half is sorted
+        if nums[left] <= nums[mid]:
+            # Left half is sorted
+            if nums[left] <= target < nums[mid]:
+                right = mid - 1
+            else:
+                left = mid + 1
+        else:
+            # Right half is sorted
+            if nums[mid] < target <= nums[right]:
+                left = mid + 1
+            else:
+                right = mid - 1
+
+    return -1
+
+# Time: O(log n), Space: O(1)
+# Example: [4,5,6,7,0,1,2], target=0 -> 4`
+        },
+        {
+          title: 'Find Peak Element',
+          description: 'Binary search in unsorted array using local comparison.',
+          code: `def findPeakElement(nums):
+    """
+    Peak: nums[i] > nums[i-1] and nums[i] > nums[i+1]
+    Key insight: If nums[mid] < nums[mid+1], peak is on right.
+    Always guaranteed to find a peak (edges are -∞).
+    """
+    left, right = 0, len(nums) - 1
+
+    while left < right:
+        mid = left + (right - left) // 2
+
+        if nums[mid] < nums[mid + 1]:
+            # Peak is on the right
+            left = mid + 1
+        else:
+            # Peak is at mid or on the left
+            right = mid
+
+    return left
+
+# Time: O(log n), Space: O(1)
+# Why it works: We always move toward "uphill" direction
+# Example: [1,2,1,3,5,6,4] -> 5 (index of 6)`
+        },
+        {
+          title: 'Binary Search on Answer - Koko Eating Bananas',
+          description: 'Search for minimum speed to finish within hours.',
+          code: `def minEatingSpeed(piles, h):
+    """
+    Binary search on answer space [1, max(piles)].
+    For each speed k, check if Koko can finish in h hours.
+    Find minimum k that works.
+    """
+    def can_finish(speed):
+        hours = 0
+        for pile in piles:
+            # Ceiling division: (pile + speed - 1) // speed
+            hours += (pile + speed - 1) // speed
+        return hours <= h
+
+    left, right = 1, max(piles)
+
+    while left < right:
+        mid = left + (right - left) // 2
+        if can_finish(mid):
+            # Try smaller speed
+            right = mid
+        else:
+            # Need faster speed
+            left = mid + 1
+
+    return left
+
+# Time: O(n * log(max)), Space: O(1)
+# Example: piles=[3,6,7,11], h=8 -> speed=4`
+        }
+      ]
+    }
     },
     {
       id: 'queues',
