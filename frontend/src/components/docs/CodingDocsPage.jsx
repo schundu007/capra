@@ -70,7 +70,7 @@ export default function CodingDocsPage() {
         </div>
 
         {/* Content */}
-        <div className="px-8 py-8 max-w-6xl">
+        <div className="px-8 py-8 max-w-6xl mx-auto">
           {/* Page Title */}
           <h1 className="text-3xl font-bold text-white mb-8">Data Structures & Algorithms</h1>
 

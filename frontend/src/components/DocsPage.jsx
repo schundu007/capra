@@ -22370,7 +22370,7 @@ The ambiguity became a clear, measurable project."`
         </div>
 
         {/* Content */}
-        <div className="px-8 py-8 max-w-6xl">
+        <div className="px-8 py-8 max-w-6xl mx-auto">
           {/* Show topic detail or list */}
           {selectedTopic ? renderTopicDetail() : (
             <>
