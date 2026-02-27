@@ -317,7 +317,7 @@ export default function OAuthLogin() {
                 ))}
               </div>
 
-              <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(255, 255, 255, 0.03)', backdropFilter: 'blur(20px)', border: `1px solid ${activeDemo === 0 ? 'rgba(16, 185, 129, 0.3)' : activeDemo === 1 ? 'rgba(59, 130, 246, 0.3)' : 'rgba(139, 92, 246, 0.3)'}` }}>
+              <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(255, 255, 255, 0.03)', backdropFilter: 'blur(20px)', border: `1px solid ${activeDemo === 0 ? 'rgba(16, 185, 129, 0.3)' : activeDemo === 1 ? 'rgba(59, 130, 246, 0.3)' : 'rgba(139, 92, 246, 0.3)'}`, minHeight: '420px', height: '420px' }}>
                 <div className="flex items-center gap-2 px-4 py-3" style={{ background: 'rgba(0, 0, 0, 0.3)', borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                   <div className="flex gap-1.5">
                     <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
@@ -332,7 +332,7 @@ export default function OAuthLogin() {
                 </div>
 
                 {activeDemo === 0 && (
-                  <div className="p-6">
+                  <div className="p-6" style={{ height: '372px', overflow: 'hidden' }}>
                     <div style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-sm">
                       <div className="text-gray-500 mb-2 text-xs">// AI solving in real-time...</div>
                       <pre className="text-green-400 leading-relaxed whitespace-pre-wrap">{codeSnippets[codeIndex].code}</pre>
@@ -349,7 +349,7 @@ export default function OAuthLogin() {
                 )}
 
                 {activeDemo === 1 && (
-                  <div className="p-6">
+                  <div className="p-6" style={{ height: '372px', overflow: 'hidden' }}>
                     <div className="flex items-center gap-3 mb-4">
                       <Icon name="layers" size={24} className="text-blue-400" />
                       <div>
@@ -430,7 +430,7 @@ export default function OAuthLogin() {
                 )}
 
                 {activeDemo === 2 && (
-                  <div className="p-6">
+                  <div className="p-6" style={{ height: '372px', overflow: 'hidden' }}>
                     <div className="mb-4">
                       <div className="flex items-center gap-2 mb-2">
                         <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
