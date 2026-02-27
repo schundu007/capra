@@ -519,51 +519,50 @@ export default function OAuthLogin() {
           </div>
         </div>
 
-        {/* Features Section */}
-        <div id="features" className="py-20">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+        {/* Combined Features & Benefits Section */}
+        <div id="features" className="py-16">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
               Everything to <span className="text-green-400">Ace Your Interview</span>
             </h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">From coding challenges to behavioral questions, we've got you covered.</p>
+            <p className="text-gray-400 max-w-2xl mx-auto">From coding challenges to behavioral questions, we've got you covered.</p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Features Grid - Compact 2 rows */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
             {features.map((feature, i) => (
-              <div key={i} className="group p-6 rounded-2xl transition-all hover:scale-105 cursor-pointer" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
-                  <Icon name={feature.icon} size={24} className="text-green-400" />
+              <div key={i} className="group p-4 rounded-xl transition-all hover:scale-105 cursor-pointer" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+                    <Icon name={feature.icon} size={18} className="text-green-400" />
+                  </div>
+                  <h3 className="text-sm font-semibold text-white group-hover:text-green-400 transition-colors">{feature.title}</h3>
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2 group-hover:text-green-400 transition-colors">{feature.title}</h3>
-                <p className="text-gray-400 text-sm mb-4">{feature.desc}</p>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
-                  <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                  <span className="text-green-400 text-xs font-medium">{feature.highlight}</span>
-                </div>
+                <p className="text-gray-500 text-xs leading-relaxed">{feature.desc}</p>
               </div>
             ))}
           </div>
-        </div>
 
-        {/* Benefits Section */}
-        <div className="py-20">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white mb-4">Why <span className="text-green-400">Ascend</span>?</h2>
-          </div>
-          <div className="grid md:grid-cols-2 gap-6">
-            {benefits.map((benefit, i) => (
-              <div key={i} className="group p-8 rounded-2xl transition-all hover:scale-[1.02] cursor-pointer" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div className="flex items-start gap-4">
-                  <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110" style={{ background: `${benefit.color}15` }}>
-                    <Icon name={benefit.icon} size={28} style={{ color: benefit.color }} />
+          {/* Benefits - Horizontal compact strip */}
+          <div className="p-6 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <span className="text-lg font-semibold text-white">Why</span>
+              <span className="text-lg font-semibold text-green-400">Ascend</span>
+              <span className="text-lg font-semibold text-white">?</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {benefits.map((benefit, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 rounded-lg" style={{ background: `${benefit.color}08` }}>
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${benefit.color}15` }}>
+                    <Icon name={benefit.icon} size={16} style={{ color: benefit.color }} />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-green-400 transition-colors">{benefit.title}</h3>
-                    <p className="text-gray-400">{benefit.desc}</p>
+                    <div className="text-white text-sm font-medium">{benefit.title}</div>
+                    <div className="text-gray-500 text-xs">{benefit.desc.split(' ').slice(0, 4).join(' ')}...</div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
