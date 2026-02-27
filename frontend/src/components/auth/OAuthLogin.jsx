@@ -343,6 +343,344 @@ export default function OAuthLogin() {
         </section>
 
         {/* ══════════════════════════════════════════════════════════════════════════════════
+            ALL-IN-ONE PLATFORM HUB
+        ══════════════════════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 overflow-hidden">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">Everything you need to land offers from top tech companies</h2>
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">The all-inclusive AI-powered platform. Save time, learn faster, and maximize your offer rate.</p>
+            </div>
+
+            {/* Hub Diagram */}
+            <div className="relative py-12 mb-20">
+              {/* Connection Lines SVG - Desktop */}
+              <svg className="absolute inset-0 w-full h-full hidden lg:block" style={{ zIndex: 0 }}>
+                <defs>
+                  <linearGradient id="lineGradientLeft" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="rgba(255,255,255,0.05)" />
+                    <stop offset="100%" stopColor="rgba(255,255,255,0.2)" />
+                  </linearGradient>
+                  <linearGradient id="lineGradientRight" x1="100%" y1="0%" x2="0%" y2="0%">
+                    <stop offset="0%" stopColor="rgba(255,255,255,0.05)" />
+                    <stop offset="100%" stopColor="rgba(255,255,255,0.2)" />
+                  </linearGradient>
+                </defs>
+                {/* Left side connections */}
+                <path d="M 15% 20% Q 25% 20%, 35% 35%" stroke="url(#lineGradientLeft)" strokeWidth="1" fill="none" />
+                <path d="M 15% 40% Q 25% 40%, 35% 43%" stroke="url(#lineGradientLeft)" strokeWidth="1" fill="none" />
+                <path d="M 15% 60% Q 25% 60%, 35% 52%" stroke="url(#lineGradientLeft)" strokeWidth="1" fill="none" />
+                <path d="M 15% 80% Q 25% 80%, 35% 65%" stroke="url(#lineGradientLeft)" strokeWidth="1" fill="none" />
+                {/* Right side connections */}
+                <path d="M 85% 20% Q 75% 20%, 65% 35%" stroke="url(#lineGradientRight)" strokeWidth="1" fill="none" />
+                <path d="M 85% 40% Q 75% 40%, 65% 43%" stroke="url(#lineGradientRight)" strokeWidth="1" fill="none" />
+                <path d="M 85% 60% Q 75% 60%, 65% 52%" stroke="url(#lineGradientRight)" strokeWidth="1" fill="none" />
+                <path d="M 85% 80% Q 75% 80%, 65% 65%" stroke="url(#lineGradientRight)" strokeWidth="1" fill="none" />
+              </svg>
+
+              <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-4 relative z-10">
+                {/* Left Features */}
+                <div className="flex flex-col gap-4 w-full lg:w-auto">
+                  {[
+                    { icon: 'code', label: 'Data Structures & Algorithms', color: '#10b981' },
+                    { icon: 'systemDesign', label: 'System Design', color: '#3b82f6' },
+                    { icon: 'layers', label: 'Low Level Design', color: '#8b5cf6' },
+                    { icon: 'terminal', label: 'Full Stack Coding', color: '#f59e0b' },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-3 px-5 py-3 rounded-xl transition-all hover:scale-105 cursor-pointer" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <Icon name={item.icon} size={18} style={{ color: item.color }} />
+                      <span className="text-gray-300 text-sm font-medium">{item.label}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Center - Company Logos Grid */}
+                <div className="p-8 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <div className="grid grid-cols-3 gap-6">
+                    {[
+                      { name: 'amazon', display: 'amazon' },
+                      { name: 'Google', display: 'Google' },
+                      { name: 'Meta', display: 'Meta', prefix: '∞' },
+                      { name: 'Rivian', display: 'RIVIAN', style: 'tracking-wider text-xs' },
+                      { name: 'OpenAI', display: 'OpenAI', prefix: '◐' },
+                      { name: 'Jane Street', display: 'Jane Street', style: 'text-xs' },
+                      { name: 'stripe', display: 'stripe', style: 'font-bold' },
+                      { name: 'Uber', display: 'Uber' },
+                      { name: 'Microsoft', display: 'Microsoft', prefix: '⊞' },
+                    ].map((company, i) => (
+                      <div key={i} className="flex items-center justify-center px-4 py-3 text-gray-400 hover:text-white transition-colors cursor-default">
+                        <span className={`font-semibold whitespace-nowrap ${company.style || ''}`}>
+                          {company.prefix && <span className="mr-1">{company.prefix}</span>}
+                          {company.display}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right Features */}
+                <div className="flex flex-col gap-4 w-full lg:w-auto">
+                  {[
+                    { icon: 'users', label: 'Behavioral', color: '#ec4899' },
+                    { icon: 'building', label: 'Company Questions', color: '#06b6d4' },
+                    { icon: 'briefcase', label: 'Projects', color: '#84cc16' },
+                    { icon: 'compass', label: 'Roadmaps', color: '#f97316' },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-3 px-5 py-3 rounded-xl transition-all hover:scale-105 cursor-pointer lg:flex-row-reverse" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <Icon name={item.icon} size={18} style={{ color: item.color }} />
+                      <span className="text-gray-300 text-sm font-medium">{item.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Feature Category Cards */}
+            <div className="space-y-8">
+              {/* DSA Card */}
+              <div className="grid lg:grid-cols-2 gap-8 items-center p-8 rounded-3xl" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.02))', border: '1px solid rgba(16, 185, 129, 0.15)' }}>
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(16, 185, 129, 0.15)' }}>
+                      <Icon name="code" size={24} className="text-green-400" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white">Data Structures & Algorithms</h3>
+                  </div>
+                  <p className="text-gray-400 text-lg mb-6 leading-relaxed">
+                    Level up your DSA skills by studying our optimal time and space complexity solutions. Get instant AI-powered explanations for any problem.
+                  </p>
+                  <button className="flex items-center gap-2 text-green-400 font-semibold hover:gap-3 transition-all mb-6">
+                    Start with Data Structures & Algorithms <Icon name="arrowRight" size={18} />
+                  </button>
+                  <div className="flex flex-wrap gap-3">
+                    <span className="text-gray-500 text-sm">See also:</span>
+                    <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors underline underline-offset-2">Ascend 100</a>
+                    <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors underline underline-offset-2">Blind 75</a>
+                    <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors underline underline-offset-2">NeetCode 150</a>
+                  </div>
+                </div>
+                <div className="relative h-64 lg:h-80 rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #0f172a, #1e293b)' }}>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                      <pre className="text-green-400 text-xs md:text-sm font-mono text-left inline-block">
+{`def two_sum(nums, target):
+    seen = {}
+    for i, n in enumerate(nums):
+        comp = target - n
+        if comp in seen:
+            return [seen[comp], i]
+        seen[n] = i
+    return []`}
+                      </pre>
+                      <div className="mt-4 flex justify-center gap-4">
+                        <div className="px-3 py-1.5 rounded-lg text-xs" style={{ background: 'rgba(16, 185, 129, 0.2)' }}>
+                          <span className="text-green-400">O(n) time</span>
+                        </div>
+                        <div className="px-3 py-1.5 rounded-lg text-xs" style={{ background: 'rgba(59, 130, 246, 0.2)' }}>
+                          <span className="text-blue-400">O(n) space</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* System Design Card */}
+              <div className="grid lg:grid-cols-2 gap-8 items-center p-8 rounded-3xl" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.02))', border: '1px solid rgba(59, 130, 246, 0.15)' }}>
+                <div className="order-2 lg:order-1 relative h-64 lg:h-80 rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #0f172a, #1e293b)' }}>
+                  <div className="absolute inset-0 p-6">
+                    <div className="grid grid-cols-3 gap-3 h-full">
+                      {['Client', 'Load Balancer', 'API Gateway', 'Cache', 'Database', 'CDN'].map((comp, i) => (
+                        <div key={i} className="flex items-center justify-center p-3 rounded-lg text-xs text-center" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                          <span className="text-blue-300">{comp}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="order-1 lg:order-2">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(59, 130, 246, 0.15)' }}>
+                      <Icon name="systemDesign" size={24} className="text-blue-400" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white">System Design</h3>
+                  </div>
+                  <p className="text-gray-400 text-lg mb-6 leading-relaxed">
+                    Enhance your system design knowledge and impress your interviewer with expert-level solutions and real-time AI-powered feedback with auto-generated diagrams.
+                  </p>
+                  <button className="flex items-center gap-2 text-blue-400 font-semibold hover:gap-3 transition-all mb-6">
+                    Start with System Design <Icon name="arrowRight" size={18} />
+                  </button>
+                  <div className="flex flex-wrap gap-3">
+                    <span className="text-gray-500 text-sm">See also:</span>
+                    <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors underline underline-offset-2">High Level Design</a>
+                    <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors underline underline-offset-2">Low Level Design</a>
+                    <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors underline underline-offset-2">AI Whiteboard</a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Full Stack Card */}
+              <div className="grid lg:grid-cols-2 gap-8 items-center p-8 rounded-3xl" style={{ background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.02))', border: '1px solid rgba(245, 158, 11, 0.15)' }}>
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(245, 158, 11, 0.15)' }}>
+                      <Icon name="layers" size={24} className="text-amber-400" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white">Full Stack</h3>
+                  </div>
+                  <p className="text-gray-400 text-lg mb-6 leading-relaxed">
+                    Nail every question and stay ahead of the competition by studying the most relevant full stack questions covering frontend, backend, and database topics.
+                  </p>
+                  <button className="flex items-center gap-2 text-amber-400 font-semibold hover:gap-3 transition-all mb-6">
+                    Start with Full Stack <Icon name="arrowRight" size={18} />
+                  </button>
+                  <div className="flex flex-wrap gap-3">
+                    <span className="text-gray-500 text-sm">See also:</span>
+                    <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors underline underline-offset-2">React</a>
+                    <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors underline underline-offset-2">REST API</a>
+                    <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors underline underline-offset-2">SQL</a>
+                  </div>
+                </div>
+                <div className="relative h-64 lg:h-80 rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #0f172a, #1e293b)' }}>
+                  <div className="absolute inset-0 p-6 flex flex-col justify-center">
+                    <div className="space-y-3">
+                      <div className="p-3 rounded-lg" style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                        <div className="text-amber-400 text-xs mb-1">Frontend</div>
+                        <div className="text-gray-300 text-sm">React, TypeScript, Next.js</div>
+                      </div>
+                      <div className="p-3 rounded-lg" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                        <div className="text-green-400 text-xs mb-1">Backend</div>
+                        <div className="text-gray-300 text-sm">Node.js, Python, Go</div>
+                      </div>
+                      <div className="p-3 rounded-lg" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                        <div className="text-blue-400 text-xs mb-1">Database</div>
+                        <div className="text-gray-300 text-sm">PostgreSQL, MongoDB, Redis</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Behavioral Card */}
+              <div className="grid lg:grid-cols-2 gap-8 items-center p-8 rounded-3xl" style={{ background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(139, 92, 246, 0.02))', border: '1px solid rgba(139, 92, 246, 0.15)' }}>
+                <div className="order-2 lg:order-1 relative h-64 lg:h-80 rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #0f172a, #1e293b)' }}>
+                  <div className="absolute inset-0 p-6 flex items-center justify-center">
+                    <div className="space-y-4 w-full max-w-sm">
+                      {[
+                        { letter: 'S', word: 'Situation', color: '#8b5cf6' },
+                        { letter: 'T', word: 'Task', color: '#a78bfa' },
+                        { letter: 'A', word: 'Action', color: '#c4b5fd' },
+                        { letter: 'R', word: 'Result', color: '#ddd6fe' },
+                      ].map((item, i) => (
+                        <div key={i} className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-white" style={{ background: item.color }}>
+                            {item.letter}
+                          </div>
+                          <span className="text-gray-300 font-medium">{item.word}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="order-1 lg:order-2">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(139, 92, 246, 0.15)' }}>
+                      <Icon name="users" size={24} className="text-purple-400" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white">Behavioral</h3>
+                  </div>
+                  <p className="text-gray-400 text-lg mb-6 leading-relaxed">
+                    Become a top candidate and impress your interviewer using our vetted list of the most frequently asked behavioral questions with AI-generated STAR responses.
+                  </p>
+                  <button className="flex items-center gap-2 text-purple-400 font-semibold hover:gap-3 transition-all mb-6">
+                    Start with Behavioral <Icon name="arrowRight" size={18} />
+                  </button>
+                  <div className="flex flex-wrap gap-3">
+                    <span className="text-gray-500 text-sm">See also:</span>
+                    <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors underline underline-offset-2">Playbook</a>
+                    <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors underline underline-offset-2">Leadership Principles</a>
+                    <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors underline underline-offset-2">Common Questions</a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Roadmaps & Projects - Side by Side */}
+              <div className="grid lg:grid-cols-2 gap-8">
+                {/* Roadmaps Card */}
+                <div className="p-8 rounded-3xl" style={{ background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(249, 115, 22, 0.02))', border: '1px solid rgba(249, 115, 22, 0.15)' }}>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(249, 115, 22, 0.15)' }}>
+                      <Icon name="compass" size={24} className="text-orange-400" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white">Roadmaps</h3>
+                  </div>
+                  <p className="text-gray-400 mb-6 leading-relaxed">
+                    Fast-track your interview prep and land any job by studying our curated list of the most frequently asked interview questions.
+                  </p>
+                  <div className="relative h-40 rounded-xl overflow-hidden mb-6" style={{ background: 'linear-gradient(135deg, #0f172a, #1e293b)' }}>
+                    <div className="absolute inset-0 p-4">
+                      <div className="flex items-center justify-between h-full">
+                        {['Week 1', 'Week 2', 'Week 3', 'Week 4'].map((week, i) => (
+                          <div key={i} className="text-center">
+                            <div className="w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-2" style={{ background: i === 0 ? '#f97316' : 'rgba(249, 115, 22, 0.2)', border: '2px solid #f97316' }}>
+                              <span className="text-xs text-white font-bold">{i + 1}</span>
+                            </div>
+                            <span className="text-xs text-gray-400">{week}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="absolute top-1/2 left-8 right-8 h-0.5 -translate-y-1/2 -z-0" style={{ background: 'rgba(249, 115, 22, 0.3)' }} />
+                    </div>
+                  </div>
+                  <button className="flex items-center gap-2 text-orange-400 font-semibold hover:gap-3 transition-all mb-4">
+                    Start with Roadmaps <Icon name="arrowRight" size={18} />
+                  </button>
+                  <div className="flex flex-wrap gap-3">
+                    <span className="text-gray-500 text-sm">See also:</span>
+                    <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors underline underline-offset-2">Elite Candidate</a>
+                    <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors underline underline-offset-2">Company Specific</a>
+                  </div>
+                </div>
+
+                {/* Projects Card */}
+                <div className="p-8 rounded-3xl" style={{ background: 'linear-gradient(135deg, rgba(132, 204, 22, 0.08), rgba(132, 204, 22, 0.02))', border: '1px solid rgba(132, 204, 22, 0.15)' }}>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(132, 204, 22, 0.15)' }}>
+                      <Icon name="briefcase" size={24} className="text-lime-400" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white">Projects</h3>
+                  </div>
+                  <p className="text-gray-400 mb-6 leading-relaxed">
+                    Increase your resume acceptance rate and become a top candidate by practicing modern projects to hone your programming skills.
+                  </p>
+                  <div className="relative h-40 rounded-xl overflow-hidden mb-6" style={{ background: 'linear-gradient(135deg, #0f172a, #1e293b)' }}>
+                    <div className="absolute inset-0 p-4">
+                      <div className="grid grid-cols-2 gap-3 h-full">
+                        {['URL Shortener', 'Rate Limiter', 'Chat App', 'Task Queue'].map((project, i) => (
+                          <div key={i} className="flex items-center gap-2 p-2 rounded-lg" style={{ background: 'rgba(132, 204, 22, 0.1)', border: '1px solid rgba(132, 204, 22, 0.2)' }}>
+                            <Icon name="folder" size={14} className="text-lime-400" />
+                            <span className="text-xs text-gray-300">{project}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <button className="flex items-center gap-2 text-lime-400 font-semibold hover:gap-3 transition-all mb-4">
+                    Start with Projects <Icon name="arrowRight" size={18} />
+                  </button>
+                  <div className="flex flex-wrap gap-3">
+                    <span className="text-gray-500 text-sm">See also:</span>
+                    <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors underline underline-offset-2">Take Home</a>
+                    <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors underline underline-offset-2">Portfolio</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════════════════════
             DEMO SECTION
         ══════════════════════════════════════════════════════════════════════════════════ */}
         <section id="demo" className="py-20" style={{ background: 'rgba(255,255,255,0.01)' }}>
