@@ -11,6 +11,7 @@ import OAuthLogin from './components/auth/OAuthLogin';
 import PricingPlans from './components/billing/PricingPlans';
 import CreditBalance from './components/billing/CreditBalance';
 import DownloadPage from './components/billing/DownloadPage';
+import DocsPage from './components/DocsPage';
 import OnboardingModal, { hasCompletedOnboarding, markOnboardingComplete } from './components/onboarding/OnboardingModal';
 import { useAuth } from './contexts/AuthContext';
 import AdminPanel from './components/AdminPanel';
@@ -324,6 +325,7 @@ export default function App() {
   const currentPath = !isElectron ? window.location.pathname : '';
   const isLandingPage = !isElectron && (currentPath === '/' || currentPath === '/login');
   const isDownloadPage = !isElectron && currentPath === '/download';
+  const isDocsPage = !isElectron && currentPath === '/docs';
   const isAppPage = !isElectron && currentPath === '/app';
 
   // Electron-specific state
@@ -1396,6 +1398,11 @@ EDGE CASES & RESILIENCE:
   // Show download page if authenticated and on /download path
   if (isDownloadPage && isAuthenticated) {
     return <DownloadPage />;
+  }
+
+  // Show docs page (publicly accessible)
+  if (isDocsPage) {
+    return <DocsPage />;
   }
 
   // If this is the dedicated Interview Prep window, render only that
