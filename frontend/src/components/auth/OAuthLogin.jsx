@@ -332,16 +332,16 @@ export default function OAuthLogin() {
                 </div>
 
                 {activeDemo === 0 && (
-                  <div className="p-6" style={{ height: '372px', overflow: 'hidden' }}>
-                    <div style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-sm">
-                      <div className="text-gray-500 mb-2 text-xs">// AI solving in real-time...</div>
-                      <pre className="text-green-400 leading-relaxed whitespace-pre-wrap">{codeSnippets[codeIndex].code}</pre>
-                      <div className="mt-4 flex items-center gap-2">
-                        <div className="h-1 flex-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                  <div className="p-6 flex flex-col" style={{ height: '372px', overflow: 'hidden' }}>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-sm flex-1 flex flex-col">
+                      <div className="text-gray-500 mb-3 text-xs">// AI solving in real-time...</div>
+                      <pre className="text-green-400 leading-loose whitespace-pre-wrap flex-1">{codeSnippets[codeIndex].code}</pre>
+                      <div className="mt-auto pt-6 flex items-center gap-2">
+                        <div className="h-1.5 flex-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
                           <div className="h-full rounded-full" style={{ width: '100%', background: 'linear-gradient(90deg, #10b981, #34d399)', animation: 'progress 4s linear infinite' }} />
                         </div>
-                        <span className="text-xs text-green-400 flex items-center gap-1">
-                          <Icon name="check" size={12} /> Solved
+                        <span className="text-sm text-green-400 flex items-center gap-1">
+                          <Icon name="check" size={14} /> Solved
                         </span>
                       </div>
                     </div>
@@ -349,7 +349,7 @@ export default function OAuthLogin() {
                 )}
 
                 {activeDemo === 1 && (
-                  <div className="p-6" style={{ height: '372px', overflow: 'hidden' }}>
+                  <div className="p-6 flex flex-col" style={{ height: '372px', overflow: 'hidden' }}>
                     <div className="flex items-center gap-3 mb-4">
                       <Icon name="layers" size={24} className="text-blue-400" />
                       <div>
@@ -358,7 +358,7 @@ export default function OAuthLogin() {
                       </div>
                     </div>
                     {/* Architecture Diagram */}
-                    <div className="relative h-48 rounded-lg overflow-hidden" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                    <div className="relative flex-1 rounded-lg overflow-hidden" style={{ background: 'rgba(0,0,0,0.3)', minHeight: '200px' }}>
                       {/* Grid Background */}
                       <svg className="absolute inset-0 w-full h-full opacity-10">
                         <defs>
@@ -430,24 +430,41 @@ export default function OAuthLogin() {
                 )}
 
                 {activeDemo === 2 && (
-                  <div className="p-6" style={{ height: '372px', overflow: 'hidden' }}>
-                    <div className="mb-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-                          <Icon name="question" size={16} className="text-purple-400" />
+                  <div className="p-6 flex flex-col" style={{ height: '372px', overflow: 'hidden' }}>
+                    <div className="mb-6">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
+                          <Icon name="question" size={20} className="text-purple-400" />
                         </div>
-                        <span className="text-gray-400 text-sm">Interviewer</span>
+                        <span className="text-gray-400 text-sm font-medium">Interviewer</span>
                       </div>
-                      <p className="text-white font-medium pl-10">"{interviewQA[interviewIndex].q}"</p>
+                      <p className="text-white font-medium pl-13 text-lg leading-relaxed" style={{ paddingLeft: '52px' }}>"{interviewQA[interviewIndex].q}"</p>
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                          <Icon name="answer" size={16} className="text-green-400" />
+                    <div className="flex-1 p-4 rounded-xl" style={{ background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+                          <Icon name="answer" size={20} className="text-green-400" />
                         </div>
-                        <span className="text-gray-400 text-sm">STAR Response</span>
+                        <div>
+                          <span className="text-gray-400 text-sm font-medium">Your STAR Response</span>
+                          <div className="flex gap-2 mt-1">
+                            {['Situation', 'Task', 'Action', 'Result'].map((s, i) => (
+                              <span key={s} className="text-xs px-2 py-0.5 rounded" style={{ background: 'rgba(139, 92, 246, 0.2)', color: '#a78bfa' }}>{s}</span>
+                            ))}
+                          </div>
+                        </div>
                       </div>
-                      <p className="text-purple-300 pl-10">"{interviewQA[interviewIndex].a}"</p>
+                      <p className="text-purple-300 leading-relaxed" style={{ paddingLeft: '52px' }}>"{interviewQA[interviewIndex].a}"</p>
+                    </div>
+                    <div className="mt-4 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Icon name="microphone" size={16} className="text-purple-400" />
+                        <span className="text-xs text-gray-500">Live transcription active</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                        <span className="text-xs text-green-400">Recording</span>
+                      </div>
                     </div>
                   </div>
                 )}
