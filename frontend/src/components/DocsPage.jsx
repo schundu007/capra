@@ -1130,25 +1130,252 @@ The web server requests a base-10 number from the count cache, converts it to ba
       color: '#3b82f6',
       difficulty: 'Hard',
       description: 'Design a social media platform where users post short messages, follow others, and view personalized timelines.',
-      requirements: ['Post tweets (280 chars)', 'Follow/unfollow users', 'Home timeline', 'Search tweets', 'Notifications', 'Trending topics'],
-      components: ['Tweet service', 'Timeline service', 'Fan-out service', 'Search (Elasticsearch)', 'Cache (Redis)', 'Notification service'],
-      keyDecisions: [
-        'Fan-out on write: Pre-compute timelines for users with <10K followers',
-        'Fan-out on read: For celebrities (>10K followers), fetch at read time',
-        'Hybrid approach: Mix both based on follower count threshold',
-        'Redis sorted sets for timeline caching by timestamp',
-        'Separate read replicas for timeline reads'
+
+      introduction: `Twitter is a classic system design question that tests your understanding of feed generation, fan-out strategies, and handling viral content. The key challenge is delivering personalized timelines to hundreds of millions of users with low latency.
+
+The most interesting aspect is the fan-out problem: when a user tweets, how do you efficiently deliver that tweet to all their followers? This becomes especially challenging for celebrities with millions of followers.`,
+
+      functionalRequirements: [
+        'Post tweets (280 character limit)',
+        'Follow and unfollow users',
+        'View home timeline (feed of followed users)',
+        'View user profile and their tweets',
+        'Like and retweet',
+        'Search tweets and users',
+        'Trending topics'
       ],
-      estimations: {
-        qps: '500M DAU, avg 50 reads/day = 290K reads/sec, 5K writes/sec',
-        storage: 'Tweet: 500M × 280 bytes = 140GB/day for tweets alone',
-        fanout: 'Avg 200 followers × 5K tweets/sec = 1M timeline updates/sec'
+
+      nonFunctionalRequirements: [
+        'High availability (99.99%)',
+        'Low latency timeline reads (<200ms)',
+        'Eventual consistency is acceptable',
+        'Scale to 500M+ daily active users',
+        'Handle viral tweets (celebrity problem)'
+      ],
+
+      dataModel: {
+        description: 'Core tables for users, tweets, and relationships',
+        schema: `users {
+  id: bigint PK
+  username: varchar(15) unique
+  displayName: varchar(50)
+  bio: varchar(160)
+  followerCount: int
+  followingCount: int
+  createdAt: timestamp
+}
+
+tweets {
+  id: bigint PK (Snowflake ID)
+  userId: bigint FK
+  content: varchar(280)
+  mediaUrls: json
+  replyToId: bigint nullable
+  retweetOf: bigint nullable
+  likeCount: int
+  retweetCount: int
+  createdAt: timestamp
+}
+
+follows {
+  followerId: bigint
+  followeeId: bigint
+  createdAt: timestamp
+  PRIMARY KEY (followerId, followeeId)
+}`
       },
-      apiDesign: [
-        'POST /api/tweets { content, mediaIds? } → { tweetId }',
-        'GET /api/timeline?cursor= → { tweets[], nextCursor }',
-        'POST /api/follow/{userId}',
-        'GET /api/search?q=&type=tweets|users'
+
+      apiDesign: {
+        description: 'RESTful API with cursor-based pagination for infinite scroll',
+        endpoints: [
+          {
+            method: 'POST',
+            path: '/api/tweets',
+            params: 'content, mediaIds[], replyToId?',
+            response: '201 Created { tweetId, createdAt }',
+            notes: 'Creates a new tweet, triggers fan-out'
+          },
+          {
+            method: 'GET',
+            path: '/api/timeline',
+            params: 'cursor?, limit=20',
+            response: '200 { tweets[], nextCursor }',
+            notes: 'Returns personalized home timeline'
+          },
+          {
+            method: 'POST',
+            path: '/api/users/{id}/follow',
+            response: '200 { following: true }',
+            notes: 'Follow a user'
+          },
+          {
+            method: 'GET',
+            path: '/api/search',
+            params: 'q, type=tweets|users, cursor?',
+            response: '200 { results[], nextCursor }',
+            notes: 'Full-text search via Elasticsearch'
+          }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How to handle the fan-out problem?',
+          answer: `Three approaches:
+
+1. Fan-out on Write (Push Model):
+   • When user tweets, push to all followers' timelines
+   • Good for users with few followers
+   • Problem: Celebrity with 10M followers = 10M writes per tweet
+
+2. Fan-out on Read (Pull Model):
+   • Timeline generated on request by fetching from followed users
+   • Good for celebrities
+   • Problem: Slow for users following many people
+
+3. Hybrid Approach (Twitter's solution):
+   • Fan-out on write for users with < 10K followers
+   • Fan-out on read for celebrities
+   • Best of both worlds`
+        },
+        {
+          question: 'How to generate Snowflake IDs?',
+          answer: `64-bit unique IDs that are:
+• Sortable by time (first 41 bits = timestamp)
+• Globally unique without coordination
+• Generated at 10K+ IDs/second per machine
+
+Structure:
+| 41 bits timestamp | 10 bits machine ID | 12 bits sequence |
+= 69 years × 1024 machines × 4096 IDs/ms`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Implementation (Fan-out on Write)',
+        description: 'When a user posts a tweet, immediately push it to all followers\' timeline caches.',
+        architecture: `
+┌────────┐    ┌──────────────┐    ┌─────────────┐
+│ Client │───▶│ Tweet Service│───▶│  Tweet DB   │
+└────────┘    └──────────────┘    └─────────────┘
+                     │
+                     ▼
+              ┌─────────────┐
+              │  Fan-out    │
+              │  Service    │
+              └─────────────┘
+                     │
+         ┌──────────┴──────────┐
+         ▼                     ▼
+┌─────────────────┐    ┌─────────────────┐
+│ Timeline Cache  │    │ Timeline Cache  │
+│  (Follower 1)   │    │  (Follower N)   │
+└─────────────────┘    └─────────────────┘`,
+        problems: [
+          'Celebrity tweets to 10M followers = 10M cache writes',
+          'Hot celebrities cause massive write amplification',
+          'Wasted storage for inactive users',
+          'Delay in tweet appearing (fan-out takes time)'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Hybrid Fan-out (Twitter\'s Approach)',
+        description: 'Use fan-out on write for regular users (<10K followers), fan-out on read for celebrities. Timeline reads merge cached feed with celebrity tweets fetched on-demand.',
+        architecture: `
+┌────────┐    ┌──────────────┐    ┌─────────────┐
+│ Client │───▶│ Tweet Service│───▶│  Tweet DB   │
+└────────┘    └──────────────┘    └─────────────┘
+                     │
+        ┌────────────┴────────────┐
+        ▼                         ▼
+┌───────────────┐         ┌───────────────┐
+│ Fan-out Write │         │ Celebrity     │
+│ (< 10K foll.) │         │ Tweet Cache   │
+└───────────────┘         └───────────────┘
+        │                         │
+        ▼                         │
+┌───────────────┐                 │
+│ User Timeline │◀────────────────┘
+│    Cache      │    (merged on read)
+└───────────────┘`,
+        keyPoints: [
+          'Follower threshold (e.g., 10K) determines fan-out strategy',
+          'Timeline read merges pre-computed feed + celebrity tweets',
+          'Redis sorted sets store timeline (score = timestamp)',
+          'Only keep last 800 tweets in cache per user',
+          'Celebrities\' tweets fetched and merged on read'
+        ],
+        databaseChoice: 'MySQL with sharding by userId for tweets; Redis for timeline cache',
+        caching: 'Redis sorted sets (ZADD/ZRANGE) with tweet IDs, 800 items max per timeline'
+      },
+
+      createFlow: {
+        title: 'Post Tweet Flow',
+        steps: [
+          'Client sends POST /api/tweets with content',
+          'Tweet Service validates content (280 chars, spam check)',
+          'Generate Snowflake ID for the tweet',
+          'Store tweet in Tweet DB (sharded by userId)',
+          'Check user\'s follower count',
+          'If < 10K followers: Fan-out service pushes tweetId to all followers\' timeline caches',
+          'If >= 10K followers: Only store in celebrity cache (no fan-out)',
+          'Update user\'s tweet count, return tweetId to client'
+        ]
+      },
+
+      redirectFlow: {
+        title: 'Read Timeline Flow',
+        steps: [
+          'Client requests GET /api/timeline with cursor',
+          'Timeline Service fetches user\'s pre-computed timeline from Redis',
+          'Fetch list of celebrities user follows',
+          'Query celebrity cache for recent tweets from those celebrities',
+          'Merge pre-computed timeline with celebrity tweets',
+          'Sort by timestamp, apply cursor pagination',
+          'Hydrate tweet IDs with full tweet data',
+          'Return tweets with next cursor for pagination'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Search Architecture',
+          points: [
+            'Elasticsearch cluster for full-text search',
+            'Index tweets asynchronously via Kafka',
+            'Separate indices for tweets vs users',
+            'Real-time indexing for trending topics'
+          ]
+        },
+        {
+          topic: 'Trending Topics',
+          points: [
+            'Stream processing (Kafka + Flink) for real-time counts',
+            'Count-min sketch for approximate hashtag counting',
+            'Time-decay to favor recent activity',
+            'Geographic segmentation for local trends'
+          ]
+        },
+        {
+          topic: 'Media Storage',
+          points: [
+            'Store images/videos in object storage (S3)',
+            'CDN for global delivery',
+            'Transcode videos to multiple resolutions',
+            'Lazy loading for timeline performance'
+          ]
+        }
+      ],
+
+      requirements: ['Post tweets (280 chars)', 'Follow/unfollow users', 'Home timeline', 'Search tweets', 'Notifications', 'Trending topics'],
+      components: ['Tweet Service', 'Timeline Service', 'Fan-out Service', 'Search (Elasticsearch)', 'Cache (Redis)', 'Notification Service'],
+      keyDecisions: [
+        'Hybrid fan-out: Push for regular users, pull for celebrities',
+        'Snowflake IDs for globally unique, time-sortable tweet IDs',
+        'Redis sorted sets for O(log N) timeline operations',
+        'Elasticsearch for real-time tweet search',
+        'Kafka for async fan-out and search indexing'
       ]
     },
     {
@@ -1159,24 +1386,271 @@ The web server requests a base-10 number from the count cache, converts it to ba
       color: '#8b5cf6',
       difficulty: 'Hard',
       description: 'Design a ride-sharing platform that matches riders with nearby drivers in real-time.',
-      requirements: ['Match riders with drivers', 'Real-time location tracking', 'ETA calculation', 'Payments', 'Ratings', 'Surge pricing'],
-      components: ['Location service', 'Matching service', 'Maps/routing', 'Payment service', 'Notification service', 'Pricing service'],
-      keyDecisions: [
-        'Geospatial indexing: QuadTree or Geohash for efficient nearby lookup',
-        'WebSockets for real-time location updates',
-        'Cell-based matching: divide city into cells for parallel matching',
-        'Kafka for location event streaming',
-        'Separate write path (location updates) from read path (matching)'
+
+      introduction: `Uber is a location-based service that matches riders with nearby drivers in real-time. The key challenges are efficient geospatial queries (finding nearby drivers), handling millions of location updates per second, and calculating accurate ETAs.
+
+This problem tests your understanding of geospatial indexing, real-time systems, and handling geographic distribution of load.`,
+
+      functionalRequirements: [
+        'Riders can request rides with pickup/dropoff locations',
+        'Match riders with nearby available drivers',
+        'Real-time location tracking during ride',
+        'Calculate fare based on distance and time',
+        'Driver and rider ratings',
+        'Payment processing',
+        'Ride history'
       ],
-      estimations: {
-        qps: '1M drivers sending location every 3 sec = 333K updates/sec',
-        matching: '100K rides/hour = 28 matches/sec per city',
-        storage: 'Location: 1M × 20 bytes × 20 updates/min = 400MB/min'
+
+      nonFunctionalRequirements: [
+        'Match driver within 30 seconds',
+        'Location updates with <1 second latency',
+        'Handle 1M+ concurrent drivers',
+        '99.99% availability',
+        'Surge pricing during high demand'
+      ],
+
+      dataModel: {
+        description: 'Users (riders/drivers), rides, and location tracking',
+        schema: `users {
+  id: bigint PK
+  type: enum(RIDER, DRIVER)
+  name: varchar
+  phoneNumber: varchar
+  rating: decimal
+  paymentMethods: json
+}
+
+drivers {
+  userId: bigint FK
+  vehicleInfo: json
+  licenseNumber: varchar
+  isAvailable: boolean
+  currentLocation: point
+  lastLocationUpdate: timestamp
+}
+
+rides {
+  id: bigint PK
+  riderId: bigint FK
+  driverId: bigint FK nullable
+  pickup: point
+  dropoff: point
+  status: enum(REQUESTED, MATCHED, ARRIVING, IN_PROGRESS, COMPLETED, CANCELLED)
+  fare: decimal nullable
+  distance: decimal nullable
+  requestedAt: timestamp
+  startedAt: timestamp nullable
+  completedAt: timestamp nullable
+}`
       },
-      apiDesign: [
-        'POST /api/ride/request { pickup, dropoff } → { rideId, estimatedETA, price }',
-        'PUT /api/driver/location { lat, lng, heading, speed }',
-        'GET /api/ride/{id}/status → { status, driverLocation, eta }'
+
+      apiDesign: {
+        description: 'REST for ride management, WebSocket for real-time updates',
+        endpoints: [
+          {
+            method: 'POST',
+            path: '/api/rides',
+            params: 'pickupLocation, dropoffLocation',
+            response: '201 { rideId, estimatedFare, estimatedETA }',
+            notes: 'Request a ride, triggers driver matching'
+          },
+          {
+            method: 'PUT',
+            path: '/api/drivers/location',
+            params: 'latitude, longitude, heading, speed',
+            response: '200 { success }',
+            notes: 'Driver location update (every 3-4 seconds)'
+          },
+          {
+            method: 'GET',
+            path: '/api/rides/{id}',
+            response: '200 { ride, driverLocation, eta }',
+            notes: 'Get ride status with real-time driver location'
+          },
+          {
+            method: 'WS',
+            path: '/ws/ride/{id}',
+            response: 'Real-time ride updates',
+            notes: 'WebSocket for live location during ride'
+          }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How to efficiently find nearby drivers?',
+          answer: `Geospatial Indexing Options:
+
+1. Geohash:
+   • Encode lat/lng into string prefix (e.g., "9q8yyk")
+   • Same prefix = nearby locations
+   • Query: Find all drivers with prefix "9q8yy*"
+   • Pros: Simple, works with any database
+
+2. QuadTree:
+   • Recursively divide space into 4 quadrants
+   • Each leaf node contains drivers in that area
+   • Query: Find leaf containing pickup, get nearby leaves
+   • Pros: Adaptive to density, efficient updates
+
+3. S2 Geometry (Google's choice):
+   • Maps sphere to cells at multiple levels
+   • Better handling of edge cases near poles
+   • Used by Google Maps, Uber`
+        },
+        {
+          question: 'How to handle 1M location updates/second?',
+          answer: `Write Path Optimization:
+
+1. Batch location updates:
+   • Aggregate updates over 1-2 second windows
+   • Bulk write to database
+
+2. In-memory spatial index:
+   • Keep recent locations in Redis with geospatial commands
+   • GEOADD, GEORADIUS for nearby queries
+
+3. Separate hot/warm/cold storage:
+   • Hot: Last 5 min in Redis (for matching)
+   • Warm: Last 24h in time-series DB (for analytics)
+   • Cold: S3 for historical data
+
+4. Cell-based sharding:
+   • Divide city into cells
+   • Each cell handled by dedicated server
+   • Reduces contention`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Implementation',
+        description: 'Simple approach with single database and basic matching.',
+        architecture: `
+┌────────┐    ┌──────────────┐    ┌─────────────┐
+│ Rider  │───▶│ Ride Service │◀───│   Driver    │
+│  App   │    └──────────────┘    │     App     │
+└────────┘           │            └─────────────┘
+                     ▼
+              ┌─────────────┐
+              │  Database   │
+              │  (PostGIS)  │
+              └─────────────┘`,
+        problems: [
+          'Database cannot handle 1M location updates/second',
+          'PostGIS queries slow at scale',
+          'Single point of failure',
+          'No real-time tracking capability'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Scalable Implementation with Cell-based Architecture',
+        description: 'Divide the city into cells, each managed by dedicated services. Use in-memory spatial index for fast matching.',
+        architecture: `
+┌────────┐    ┌──────────────┐    ┌─────────────┐
+│ Rider  │───▶│   Gateway    │◀───│   Driver    │
+└────────┘    └──────────────┘    └─────────────┘
+                     │
+        ┌────────────┼────────────┐
+        ▼            ▼            ▼
+┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+│  Cell A     │ │  Cell B     │ │  Cell C     │
+│  Service    │ │  Service    │ │  Service    │
+└─────────────┘ └─────────────┘ └─────────────┘
+        │            │            │
+        └────────────┼────────────┘
+                     ▼
+              ┌─────────────┐    ┌─────────────┐
+              │   Redis     │    │   Kafka     │
+              │ (Locations) │    │  (Events)   │
+              └─────────────┘    └─────────────┘
+                                       │
+                                       ▼
+                              ┌─────────────┐
+                              │    Ride     │
+                              │  Database   │
+                              └─────────────┘`,
+        keyPoints: [
+          'Divide city into S2 cells (roughly 1km²)',
+          'Each cell service manages drivers in that area',
+          'Redis GEOADD/GEORADIUS for O(log N + M) nearby queries',
+          'Kafka streams location updates to analytics',
+          'Gateway routes requests to appropriate cell',
+          'Cross-cell matching when driver moves between cells'
+        ],
+        databaseChoice: 'PostgreSQL with PostGIS for ride records; Redis for real-time location',
+        caching: 'Redis Geo for driver locations, sorted sets for availability'
+      },
+
+      createFlow: {
+        title: 'Ride Request Flow',
+        steps: [
+          'Rider opens app, sends pickup and dropoff locations',
+          'Gateway determines cell containing pickup location',
+          'Route request to that cell\'s matching service',
+          'Matching service queries Redis GEORADIUS for drivers within 5km',
+          'Filter by availability, rating, vehicle type',
+          'Select best match (closest, highest rating)',
+          'Send ride request to selected driver via push notification',
+          'If driver accepts within 15s, confirm match',
+          'If no accept, try next best driver',
+          'Return matched driver info and ETA to rider'
+        ]
+      },
+
+      redirectFlow: {
+        title: 'Ride Tracking Flow',
+        steps: [
+          'Match confirmed, both apps establish WebSocket connection',
+          'Driver app sends location updates every 3-4 seconds',
+          'Location service updates Redis and broadcasts to rider',
+          'Rider app renders driver position on map in real-time',
+          'ETA service continuously recalculates arrival time',
+          'When driver arrives, status changes to ARRIVING',
+          'Rider confirms pickup, ride status changes to IN_PROGRESS',
+          'During ride, continue tracking for fare calculation',
+          'On arrival at destination, calculate final fare'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'ETA Calculation',
+          points: [
+            'Historical travel times by road segment',
+            'Real-time traffic from driver locations',
+            'Machine learning model for predictions',
+            'Update ETA continuously during approach'
+          ]
+        },
+        {
+          topic: 'Surge Pricing',
+          points: [
+            'Monitor supply (drivers) vs demand (requests)',
+            'Per-cell surge multiplier',
+            'Smooth transitions to avoid gaming',
+            'Cap surge at reasonable levels'
+          ]
+        },
+        {
+          topic: 'Dispatch Optimization',
+          points: [
+            'Minimize total wait time across all requests',
+            'Consider driver heading (already driving toward pickup)',
+            'Balance driver utilization',
+            'Handle simultaneous requests'
+          ]
+        }
+      ],
+
+      requirements: ['Match riders with drivers', 'Real-time location tracking', 'ETA calculation', 'Payments', 'Ratings', 'Surge pricing'],
+      components: ['Cell Services', 'Redis (Geospatial)', 'Kafka', 'Matching Service', 'ETA Service', 'Payment Service'],
+      keyDecisions: [
+        'S2/Geohash cells for geographic sharding',
+        'Redis GEORADIUS for O(log N) nearby driver queries',
+        'WebSocket for real-time location streaming',
+        'Kafka for location event processing',
+        'Cell-based architecture for horizontal scaling'
       ]
     },
     {
@@ -1187,6 +1661,320 @@ The web server requests a base-10 number from the count cache, converts it to ba
       color: '#ef4444',
       difficulty: 'Hard',
       description: 'Design a video sharing platform supporting upload, processing, streaming, and recommendations.',
+
+      introduction: `YouTube is the world's largest video sharing platform, handling over 500 hours of video uploaded every minute and serving 1 billion hours of video watched daily. The system must handle massive-scale video upload, processing, storage, and delivery.
+
+The key challenges include efficient video transcoding, global content delivery, search and recommendation at scale, and supporting various viewing experiences (mobile, TV, web).`,
+
+      functionalRequirements: [
+        'Upload videos (up to 12 hours, 256GB)',
+        'Process videos into multiple resolutions/formats',
+        'Stream videos with adaptive bitrate',
+        'Search videos by title, description, tags',
+        'Recommend videos based on user behavior',
+        'Support likes, comments, subscriptions',
+        'Live streaming capability',
+        'Video analytics (views, watch time, demographics)'
+      ],
+
+      nonFunctionalRequirements: [
+        'Video available within 10 minutes of upload (for standard quality)',
+        'Global playback latency <100ms to start',
+        '99.99% availability for streaming',
+        'Support 2B+ users, 800M DAU',
+        'Handle 500 hours video uploaded per minute',
+        'Serve 1 billion hours of video daily'
+      ],
+
+      dataModel: {
+        description: 'Videos, users, channels, and engagement data',
+        schema: `videos {
+  id: varchar(11) PK (e.g., "dQw4w9WgXcQ")
+  channelId: bigint FK
+  title: varchar(100)
+  description: text
+  uploadStatus: enum(PROCESSING, READY, FAILED)
+  duration: int (seconds)
+  viewCount: bigint
+  likeCount: bigint
+  uploadedAt: timestamp
+  thumbnailUrl: varchar
+}
+
+video_formats {
+  videoId: varchar(11) FK
+  resolution: enum(360, 480, 720, 1080, 1440, 2160)
+  codec: enum(H264, VP9, AV1)
+  bitrate: int
+  storageUrl: varchar
+  segmentManifest: varchar (HLS/DASH)
+}
+
+channels {
+  id: bigint PK
+  userId: bigint FK
+  name: varchar(100)
+  subscriberCount: bigint
+  totalViews: bigint
+  createdAt: timestamp
+}
+
+watch_history {
+  userId: bigint PK
+  videoId: varchar(11) PK
+  watchedAt: timestamp
+  watchDuration: int (seconds)
+  completionRate: float
+}`
+      },
+
+      apiDesign: {
+        description: 'Chunked upload for large files, HLS/DASH for streaming',
+        endpoints: [
+          {
+            method: 'POST',
+            path: '/api/upload/init',
+            params: '{ title, description, tags[], privacy }',
+            response: '{ uploadId, uploadUrl, chunkSize }'
+          },
+          {
+            method: 'PUT',
+            path: '/api/upload/{uploadId}/chunk',
+            params: '{ chunkNumber, data, checksum }',
+            response: '{ received: true, progress: 45% }'
+          },
+          {
+            method: 'POST',
+            path: '/api/upload/{uploadId}/complete',
+            params: '{}',
+            response: '{ videoId, status: PROCESSING, eta: 600 }'
+          },
+          {
+            method: 'GET',
+            path: '/api/video/{id}/manifest',
+            params: '?format=hls|dash',
+            response: 'HLS/DASH manifest with quality options'
+          },
+          {
+            method: 'GET',
+            path: '/api/feed/home',
+            params: '?pageToken=',
+            response: '{ videos[], nextPageToken }'
+          }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How much storage do we need daily?',
+          answer: `500 hours/min × 60 min × 24 hours = 720,000 hours of video/day
+Raw upload: ~1GB per hour = 720TB raw/day
+Transcoded (5 resolutions): 720TB × 5 = 3.6PB/day
+Monthly: 3.6PB × 30 = 108PB/month
+This requires massive object storage (S3-like) with hot/cold tiering.`
+        },
+        {
+          question: 'How do we handle peak streaming load?',
+          answer: `1B hours watched/day ÷ 86400 sec = 11,574 hours/sec average
+Peak is ~3x average = 35,000 hours streaming simultaneously
+Average bitrate 5 Mbps = 175 Tbps peak bandwidth
+CDN with 100+ PoPs globally, cache hit ratio >95% for popular content.`
+        },
+        {
+          question: 'How long does transcoding take?',
+          answer: `Standard: 1-2x realtime (1 hour video = 1-2 hours processing)
+Optimized with distributed workers: Process in parallel chunks
+Priority queue: Higher priority for popular uploaders
+Quick quality first: 360p available in minutes, 4K later`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Architecture',
+        description: 'Monolithic upload, transcoding, and streaming with single CDN',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────┐
+│                              YOUTUBE BASIC                              │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌──────────┐      ┌──────────────┐      ┌──────────────────┐          │
+│  │  Client  │─────▶│ API Gateway  │─────▶│  Upload Service  │          │
+│  └──────────┘      └──────────────┘      └────────┬─────────┘          │
+│                                                    │                    │
+│                                           ┌────────▼─────────┐          │
+│                                           │   Raw Storage    │          │
+│                                           │      (S3)        │          │
+│                                           └────────┬─────────┘          │
+│                                                    │                    │
+│                                           ┌────────▼─────────┐          │
+│                                           │  Transcoding     │          │
+│                                           │    Workers       │          │
+│                                           └────────┬─────────┘          │
+│                                                    │                    │
+│  ┌──────────┐      ┌──────────────┐      ┌────────▼─────────┐          │
+│  │  Client  │◀────▶│     CDN      │◀────▶│ Transcoded Store │          │
+│  │ (Watch)  │      │              │      │      (S3)        │          │
+│  └──────────┘      └──────────────┘      └──────────────────┘          │
+│                                                                         │
+│  ┌───────────────────────────────────────────────────────────┐         │
+│  │                      Metadata DB                           │         │
+│  │    videos | channels | comments | subscriptions            │         │
+│  └───────────────────────────────────────────────────────────┘         │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Single transcoding queue becomes bottleneck',
+          'No adaptive bitrate - fixed quality',
+          'Single region storage - high latency globally',
+          'Basic recommendation - just popular videos',
+          'No live streaming support'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Architecture',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           YOUTUBE PRODUCTION                                     │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  UPLOAD PIPELINE                                                                │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │ Client → Chunked Upload → Upload Service → Message Queue            │        │
+│  │    │                            │               │                    │        │
+│  │    └── Resume Capability        │               ▼                    │        │
+│  │                            ┌────▼────┐   ┌──────────────┐           │        │
+│  │                            │Raw Store│──▶│  Transcode   │           │        │
+│  │                            │  (S3)   │   │  Coordinator │           │        │
+│  │                            └─────────┘   └──────┬───────┘           │        │
+│  │                                                 │                    │        │
+│  │         ┌───────────────────────────────────────┼───────────────┐   │        │
+│  │         ▼                   ▼                   ▼               ▼   │        │
+│  │   ┌──────────┐        ┌──────────┐        ┌──────────┐   ┌──────┐  │        │
+│  │   │ 360p GPU │        │ 720p GPU │        │1080p GPU │   │ 4K   │  │        │
+│  │   │ Worker   │        │ Worker   │        │ Worker   │   │Worker│  │        │
+│  │   └────┬─────┘        └────┬─────┘        └────┬─────┘   └──┬───┘  │        │
+│  │        └───────────────────┼───────────────────┼────────────┘      │        │
+│  │                            ▼                                        │        │
+│  │                   ┌─────────────────┐                              │        │
+│  │                   │ Transcoded Store│                              │        │
+│  │                   │ (Multi-Region)  │                              │        │
+│  │                   └─────────────────┘                              │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  STREAMING / CDN                                                                │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │                                                                      │        │
+│  │  Client ◀──▶ Edge PoP ◀──▶ Regional PoP ◀──▶ Origin                 │        │
+│  │    │           │              │                │                     │        │
+│  │    │    ┌──────┴─────┐  ┌─────┴────┐    ┌─────┴────┐               │        │
+│  │    │    │Edge Cache  │  │Regional  │    │ Origin   │               │        │
+│  │    │    │(Popular)   │  │Cache     │    │ Storage  │               │        │
+│  │    │    └────────────┘  └──────────┘    └──────────┘               │        │
+│  │    │                                                                 │        │
+│  │    └── Adaptive Bitrate (HLS/DASH)                                  │        │
+│  │        - Quality selection based on bandwidth                        │        │
+│  │        - Seamless quality switching                                  │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  RECOMMENDATION ENGINE                                                          │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │  User Activity ──▶ Kafka ──▶ ML Pipeline ──▶ Feature Store         │        │
+│  │        │                          │                │                 │        │
+│  │        │                    ┌─────▼─────┐    ┌────▼────┐           │        │
+│  │        │                    │Candidate  │    │Ranking  │           │        │
+│  │        │                    │Generation │──▶ │Model    │──▶ Feed   │        │
+│  │        │                    │(1000s)    │    │(Top 50) │           │        │
+│  │        │                    └───────────┘    └─────────┘           │        │
+│  │        │                                                            │        │
+│  │        └── Watch history, likes, subscriptions, demographics        │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Chunked upload with resume: Handle large files (up to 256GB)',
+          'Parallel transcoding: Each resolution processed independently',
+          'Multi-codec support: H.264 for compatibility, VP9/AV1 for efficiency',
+          'Tiered CDN: Edge PoPs for popular content, regional for medium, origin for rare',
+          'Two-stage recommendation: Candidate generation (1000s) → Ranking (top 50)',
+          'Hot/cold storage: Recent/popular in fast storage, old in Glacier'
+        ]
+      },
+
+      uploadFlow: {
+        title: 'Video Upload Flow',
+        steps: [
+          'Client initiates upload with POST /api/upload/init, receives uploadId and chunk size',
+          'Client splits video into chunks (typically 5-50MB each)',
+          'Upload each chunk with checksum, server validates and stores',
+          'If network fails, client resumes from last successful chunk',
+          'On completion, server merges chunks and queues for transcoding',
+          'Transcoding workers pull from queue, process in parallel per resolution',
+          'Each resolution generates HLS/DASH segments and manifest',
+          'Notify client when first quality (360p) ready, continue processing higher',
+          'Update video status to READY, make searchable/recommendable'
+        ]
+      },
+
+      watchFlow: {
+        title: 'Video Watch Flow',
+        steps: [
+          'Client requests video page, metadata loaded from DB',
+          'Request manifest file for adaptive streaming (HLS/DASH)',
+          'Manifest contains URLs for each quality level segments',
+          'Client measures bandwidth, selects appropriate quality',
+          'Request video segments from CDN (edge PoP)',
+          'CDN cache hit: Serve immediately from edge',
+          'CDN cache miss: Fetch from regional cache or origin',
+          'Client buffers segments, adjusts quality based on buffer health',
+          'Track watch events: Start, 25%, 50%, 75%, 100% completion',
+          'Send analytics asynchronously to Kafka for processing'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Adaptive Bitrate Streaming',
+          points: [
+            'HLS (Apple) vs DASH (Google) - most use both',
+            'Video split into 2-10 second segments',
+            'Manifest lists all available quality levels',
+            'Client decides quality based on bandwidth/buffer',
+            'Seamless quality transitions during playback'
+          ]
+        },
+        {
+          topic: 'Video Transcoding Optimization',
+          points: [
+            'GPU-accelerated encoding (NVENC, Intel QSV)',
+            'Per-title encoding: Optimize bitrate per content type',
+            'Scene detection for efficient keyframe placement',
+            'Parallel encoding: Split video, encode chunks, merge',
+            'Priority queuing: Popular uploaders get faster processing'
+          ]
+        },
+        {
+          topic: 'Content Delivery at Scale',
+          points: [
+            'CDN with 100+ global PoPs',
+            'Predictive pre-warming: Cache likely viral content',
+            'Long-tail challenge: Most videos rarely watched',
+            'Cost optimization: Hot/warm/cold storage tiers',
+            'Regional origin replication for disaster recovery'
+          ]
+        },
+        {
+          topic: 'Recommendation System',
+          points: [
+            'Watch time is primary optimization metric',
+            'Collaborative filtering: Similar users like similar videos',
+            'Content-based: Analyze video features (topics, thumbnails)',
+            'Deep learning: Two-tower models for candidate generation',
+            'Explore vs exploit: Balance showing popular vs new content'
+          ]
+        }
+      ],
+
       requirements: ['Upload videos', 'Stream videos globally', 'Search', 'Recommendations', 'Comments', 'Live streaming'],
       components: ['Upload service', 'Transcoding pipeline', 'CDN', 'Metadata DB', 'Search service', 'Recommendation engine'],
       keyDecisions: [
@@ -1195,17 +1983,6 @@ The web server requests a base-10 number from the count cache, converts it to ba
         'Adaptive bitrate (HLS/DASH): Client switches quality based on bandwidth',
         'Chunked upload for large files with resume capability',
         'Separate hot/cold storage: S3 Glacier for old videos'
-      ],
-      estimations: {
-        uploads: '500 hours video/min = 720K hours/day',
-        views: '1B views/day = 11.5K views/sec',
-        storage: '720K hours × 1GB/hour = 720TB raw/day, 3.6PB transcoded',
-        bandwidth: 'Peak: 50Tbps globally'
-      },
-      apiDesign: [
-        'POST /api/upload/init { title, description } → { uploadId, uploadUrl }',
-        'PUT /api/upload/{id}/chunk { chunk, offset }',
-        'GET /api/video/{id}/stream?quality= → HLS manifest'
       ]
     },
     {
@@ -1216,25 +1993,247 @@ The web server requests a base-10 number from the count cache, converts it to ba
       color: '#25d366',
       difficulty: 'Hard',
       description: 'Design a real-time messaging application supporting 1-1 chat, group chat, and media sharing.',
+
+      introduction: `WhatsApp is a real-time messaging system handling billions of messages daily. The key challenges are maintaining persistent connections, ensuring message delivery even when users are offline, and implementing end-to-end encryption.
+
+Unlike social media feeds, messaging requires strong delivery guarantees - users expect messages to arrive in order and not be lost. This makes the consistency and reliability requirements much stricter.`,
+
+      functionalRequirements: [
+        'One-on-one messaging',
+        'Group chat (up to 256 members)',
+        'Media sharing (images, videos, documents)',
+        'Read receipts (sent, delivered, read)',
+        'Online/last seen status',
+        'Typing indicators',
+        'Message history sync across devices'
+      ],
+
+      nonFunctionalRequirements: [
+        'Real-time delivery (<100ms when both online)',
+        'Guaranteed delivery (even if recipient offline)',
+        'End-to-end encryption',
+        'Message ordering within conversation',
+        'Support 2B+ users, 500M DAU',
+        'Handle 100B+ messages/day'
+      ],
+
+      dataModel: {
+        description: 'Users, conversations, and messages with delivery tracking',
+        schema: `users {
+  id: bigint PK
+  phoneNumber: varchar(15) unique
+  publicKey: blob (for E2E encryption)
+  lastSeen: timestamp
+  pushToken: varchar (for notifications)
+}
+
+conversations {
+  id: bigint PK
+  type: enum(DIRECT, GROUP)
+  name: varchar (for groups)
+  participants: bigint[]
+  createdAt: timestamp
+}
+
+messages {
+  id: uuid PK
+  conversationId: bigint FK
+  senderId: bigint FK
+  content: blob (encrypted)
+  mediaUrl: varchar nullable
+  sentAt: timestamp
+  deliveredAt: timestamp nullable
+  readAt: timestamp nullable
+}`
+      },
+
+      apiDesign: {
+        description: 'WebSocket for real-time + REST for offline sync',
+        endpoints: [
+          {
+            method: 'WS',
+            path: '/ws/chat',
+            params: 'authToken in header',
+            response: 'Bidirectional message stream',
+            notes: 'Primary channel for real-time messaging'
+          },
+          {
+            method: 'POST',
+            path: '/api/messages',
+            params: 'conversationId, content, mediaUrl?',
+            response: '201 { messageId, sentAt }',
+            notes: 'Fallback when WebSocket unavailable'
+          },
+          {
+            method: 'GET',
+            path: '/api/conversations/{id}/messages',
+            params: 'before?, limit=50',
+            response: '200 { messages[], hasMore }',
+            notes: 'Sync message history'
+          },
+          {
+            method: 'PUT',
+            path: '/api/messages/{id}/read',
+            response: '200 { readAt }',
+            notes: 'Mark message as read'
+          }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How to handle offline message delivery?',
+          answer: `Message Queue Pattern:
+
+1. Sender sends message via WebSocket
+2. Server stores in persistent queue for recipient
+3. If recipient online: deliver immediately via WebSocket
+4. If recipient offline: hold in queue
+5. When recipient connects: flush queued messages
+6. Recipient ACKs receipt → remove from queue
+
+Use Kafka or similar for reliable message queuing with
+at-least-once delivery semantics.`
+        },
+        {
+          question: 'How to scale WebSocket connections?',
+          answer: `Connection Management:
+
+• 500M concurrent connections ÷ 100K per server = 5000 servers
+• Use consistent hashing to route user to specific chat server
+• Store connection mapping: userId → serverId in Redis
+• For cross-server messaging:
+  1. Look up recipient's server
+  2. Route message via internal message bus
+
+Sticky sessions ensure reconnection goes to same server.`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Implementation',
+        description: 'Single chat server handling WebSocket connections and message routing.',
+        architecture: `
+┌────────┐    ┌──────────────┐    ┌─────────────┐
+│ Client │◀══▶│  Chat Server │───▶│ Message DB  │
+│  (WS)  │    │  (WebSocket) │    └─────────────┘
+└────────┘    └──────────────┘
+                     │
+                     ▼
+              ┌─────────────┐
+              │   Redis     │
+              │ (Sessions)  │
+              └─────────────┘`,
+        problems: [
+          'Single server limits concurrent connections',
+          'No message persistence if server crashes',
+          'Cannot route between users on different servers',
+          'No offline message delivery'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Distributed Chat System',
+        description: 'Multiple chat servers with message broker for cross-server communication and persistent message queue for offline delivery.',
+        architecture: `
+┌────────┐    ┌──────────────┐    ┌─────────────┐
+│ Client │◀══▶│   Gateway    │───▶│ Chat Server │
+│  (WS)  │    │ (Load Bal.)  │    │   Cluster   │
+└────────┘    └──────────────┘    └─────────────┘
+                                        │
+                    ┌───────────────────┼───────────────────┐
+                    ▼                   ▼                   ▼
+             ┌───────────┐      ┌─────────────┐     ┌─────────────┐
+             │  Kafka    │      │   Redis     │     │ Message DB  │
+             │ (Message  │      │ (Sessions/  │     │ (Cassandra) │
+             │   Bus)    │      │  Presence)  │     └─────────────┘
+             └───────────┘      └─────────────┘
+                    │
+                    ▼
+             ┌─────────────┐
+             │ Push Service│
+             │  (Offline)  │
+             └─────────────┘`,
+        keyPoints: [
+          'Consistent hashing routes users to specific chat servers',
+          'Kafka enables cross-server message routing',
+          'Redis stores session mapping (userId → serverId)',
+          'Cassandra for message persistence (write-heavy workload)',
+          'Push notifications via FCM/APNs for offline users',
+          'Message queue holds messages until delivery confirmed'
+        ],
+        databaseChoice: 'Cassandra - optimized for write-heavy workloads, eventual consistency acceptable',
+        caching: 'Redis for session storage, recent messages cache, presence status'
+      },
+
+      createFlow: {
+        title: 'Send Message Flow',
+        steps: [
+          'Sender types message, client encrypts with recipient\'s public key',
+          'Client sends encrypted message via WebSocket',
+          'Chat server receives message, generates messageId and timestamp',
+          'Store message in Cassandra with status=SENT',
+          'Look up recipient\'s chat server from Redis session store',
+          'If recipient online: Route message via Kafka to their chat server',
+          'If recipient offline: Queue message, trigger push notification',
+          'Recipient\'s chat server delivers to client via WebSocket',
+          'Client ACKs delivery → update status to DELIVERED',
+          'When recipient reads → update status to READ, notify sender'
+        ]
+      },
+
+      redirectFlow: {
+        title: 'Receive Message Flow',
+        steps: [
+          'User opens app, establishes WebSocket connection',
+          'Chat server registers connection in Redis session store',
+          'Server checks message queue for pending messages',
+          'Deliver all queued messages via WebSocket',
+          'Client decrypts messages with private key',
+          'Client sends delivery ACK for each message',
+          'Server updates message status, removes from queue',
+          'Server notifies sender of delivery status'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'End-to-End Encryption',
+          points: [
+            'Signal Protocol for E2E encryption',
+            'Key exchange during first message',
+            'Server cannot read message content',
+            'Forward secrecy with ratcheting keys'
+          ]
+        },
+        {
+          topic: 'Group Messaging',
+          points: [
+            'Fan-out to all group members',
+            'Sender keys optimization (encrypt once)',
+            'Group size limit (256) for performance',
+            'Admin controls for membership'
+          ]
+        },
+        {
+          topic: 'Media Handling',
+          points: [
+            'Encrypt media before upload',
+            'Store in object storage (S3)',
+            'CDN for delivery, signed URLs',
+            'Thumbnail generation for previews'
+          ]
+        }
+      ],
+
       requirements: ['1-1 messaging', 'Group chat (256 members)', 'Media sharing', 'Read receipts', 'Online status', 'End-to-end encryption'],
-      components: ['Chat servers', 'Message queue', 'User service', 'Media service', 'Push notification', 'Presence service'],
+      components: ['Chat Servers', 'Kafka (Message Bus)', 'Redis (Sessions)', 'Cassandra', 'Push Service', 'Media Service'],
       keyDecisions: [
         'WebSocket for real-time bidirectional communication',
-        'Message queue for offline message delivery',
-        'Last-write-wins for message ordering within conversation',
-        'End-to-end encryption: Signal protocol',
-        'Store messages temporarily, delete after delivery confirmation'
-      ],
-      estimations: {
-        users: '2B users, 500M DAU',
-        messages: '100B messages/day = 1.2M messages/sec',
-        connections: '500M concurrent WebSocket connections',
-        storage: 'Messages: 100B × 100 bytes = 10TB/day (temporary)'
-      },
-      apiDesign: [
-        'WS /connect { authToken } → bidirectional channel',
-        'SEND { to, type, content, mediaUrl? }',
-        'ACK { messageId, status: delivered|read }'
+        'Kafka for cross-server message routing',
+        'Message queue with ACK for guaranteed delivery',
+        'Signal Protocol for end-to-end encryption',
+        'Cassandra for write-heavy message storage'
       ]
     },
     {
@@ -1245,6 +2244,364 @@ The web server requests a base-10 number from the count cache, converts it to ba
       color: '#e4405f',
       difficulty: 'Medium',
       description: 'Design a photo-sharing social network with feeds, stories, and social features.',
+
+      introduction: `Instagram is a photo and video sharing social network with over 2 billion monthly active users. The system handles image uploads, processing, feed generation, stories, and social interactions at massive scale.
+
+The key challenges include generating personalized feeds for hundreds of millions of users, processing and delivering billions of images daily, and implementing ephemeral content (Stories) that disappears after 24 hours.`,
+
+      functionalRequirements: [
+        'Upload photos and videos with filters',
+        'Create posts with captions and hashtags',
+        'Generate personalized news feed',
+        'Stories (disappear after 24 hours)',
+        'Follow/unfollow users',
+        'Like and comment on posts',
+        'Direct messaging (DMs)',
+        'Explore page with trending content',
+        'User search and hashtag discovery'
+      ],
+
+      nonFunctionalRequirements: [
+        'Feed loads in <500ms',
+        'Media upload completes in <5 seconds',
+        'Stories available within 1 second of posting',
+        'Support 2B+ users, 500M DAU',
+        'Handle 95M+ posts per day',
+        '99.9% availability'
+      ],
+
+      dataModel: {
+        description: 'Users, posts, media, and social graph',
+        schema: `users {
+  id: bigint PK
+  username: varchar(30) unique
+  displayName: varchar(100)
+  bio: text
+  profilePicUrl: varchar
+  followerCount: int
+  followingCount: int
+  postCount: int
+  isPrivate: boolean
+  createdAt: timestamp
+}
+
+posts {
+  id: bigint PK
+  userId: bigint FK
+  caption: text
+  location: varchar
+  likeCount: int
+  commentCount: int
+  createdAt: timestamp
+}
+
+media {
+  id: bigint PK
+  postId: bigint FK
+  type: enum(IMAGE, VIDEO, CAROUSEL)
+  url: varchar
+  thumbnailUrl: varchar
+  width: int
+  height: int
+  duration: int (for video)
+  orderIndex: int
+}
+
+stories {
+  id: bigint PK
+  userId: bigint FK
+  mediaUrl: varchar
+  type: enum(IMAGE, VIDEO)
+  createdAt: timestamp
+  expiresAt: timestamp (createdAt + 24h)
+  viewCount: int
+}
+
+follows {
+  followerId: bigint PK
+  followeeId: bigint PK
+  createdAt: timestamp
+  status: enum(ACTIVE, PENDING) -- for private accounts
+}
+
+feed_cache {
+  userId: bigint PK
+  posts: jsonb -- pre-computed list of postIds
+  updatedAt: timestamp
+}`
+      },
+
+      apiDesign: {
+        description: 'REST APIs for posts, feed, and social features',
+        endpoints: [
+          {
+            method: 'POST',
+            path: '/api/media/upload',
+            params: '{ type: IMAGE|VIDEO, data }',
+            response: '{ mediaId, uploadUrl }'
+          },
+          {
+            method: 'POST',
+            path: '/api/post',
+            params: '{ mediaIds[], caption, location, tags[] }',
+            response: '{ postId, createdAt }'
+          },
+          {
+            method: 'GET',
+            path: '/api/feed',
+            params: '?cursor=&limit=20',
+            response: '{ posts[], nextCursor }'
+          },
+          {
+            method: 'GET',
+            path: '/api/stories',
+            params: '',
+            response: '{ stories[] grouped by user }'
+          },
+          {
+            method: 'POST',
+            path: '/api/story',
+            params: '{ mediaId }',
+            response: '{ storyId, expiresAt }'
+          },
+          {
+            method: 'POST',
+            path: '/api/follow/{userId}',
+            params: '{}',
+            response: '{ status: FOLLOWING|PENDING }'
+          }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How do we generate feeds for 500M daily users?',
+          answer: `Two approaches:
+1. Push model (active users): Pre-generate feed when followees post
+   - Store feed in Redis/Cassandra cache
+   - Update on new posts from followed users
+   - Good for users with <1000 followings
+
+2. Pull model (inactive/celebrity followers): Generate on-demand
+   - Query posts from followed users at read time
+   - Merge and rank in real-time
+   - Cache result for short TTL
+
+Hybrid: Push for regular users, pull for celebrity followers (>1M)`
+        },
+        {
+          question: 'How much storage for images?',
+          answer: `95M posts/day × average 1.5 images/post = 142M images/day
+Average image 2MB (multiple resolutions) = 284TB/day
+Monthly: 284TB × 30 = 8.5PB/month
+Use object storage (S3) with CDN caching for delivery.
+Generate thumbnails + multiple resolutions (150px, 320px, 640px, 1080px).`
+        },
+        {
+          question: 'How do Stories work with 24h expiry?',
+          answer: `Store stories with createdAt and expiresAt (createdAt + 24h)
+Query: WHERE expiresAt > NOW() for active stories
+Background job cleans up expired stories
+Use Redis sorted set with expiry timestamp as score
+Ring buffer pattern: Stories are circular, auto-evict after 24h`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Architecture',
+        description: 'Monolithic service with pull-based feed generation',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           INSTAGRAM BASIC                               │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌──────────┐      ┌──────────────┐      ┌──────────────────┐          │
+│  │  Client  │─────▶│ API Gateway  │─────▶│   App Server     │          │
+│  └──────────┘      └──────────────┘      └────────┬─────────┘          │
+│                                                    │                    │
+│                    ┌───────────────────────────────┼──────────────┐     │
+│                    │                               │              │     │
+│               ┌────▼────┐    ┌─────────┐    ┌─────▼────┐        │     │
+│               │ Media   │    │ Users   │    │  Posts   │        │     │
+│               │ Storage │    │   DB    │    │   DB     │        │     │
+│               │  (S3)   │    │(Postgres)│   │(Postgres)│        │     │
+│               └─────────┘    └─────────┘    └──────────┘        │     │
+│                    │                                              │     │
+│               ┌────▼──────────────────────────────────────┐      │     │
+│               │                   CDN                      │      │     │
+│               └────────────────────────────────────────────┘      │     │
+│                                                                         │
+│  FEED GENERATION (Pull Model):                                          │
+│  1. Get list of followed users                                         │
+│  2. Query recent posts from each user                                  │
+│  3. Merge, sort by timestamp                                           │
+│  4. Return top N posts                                                 │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Feed query is slow: N+1 queries for each followed user',
+          'Celebrities cause fan-out explosion',
+          'No ranking - just chronological',
+          'Stories not efficiently handled',
+          'Single database becomes bottleneck'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Architecture',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           INSTAGRAM PRODUCTION                                   │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  MEDIA UPLOAD PIPELINE                                                          │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │ Client ─▶ Upload Service ─▶ S3 Raw ─▶ Image Processing Queue       │        │
+│  │                                              │                       │        │
+│  │         ┌───────────────────────────────────┼───────────────┐       │        │
+│  │         ▼                   ▼               ▼               ▼       │        │
+│  │   ┌──────────┐        ┌──────────┐   ┌──────────┐    ┌──────────┐  │        │
+│  │   │Thumbnail │        │  320px   │   │  640px   │    │  1080px  │  │        │
+│  │   │ 150px    │        │ resize   │   │ resize   │    │ original │  │        │
+│  │   └────┬─────┘        └────┬─────┘   └────┬─────┘    └────┬─────┘  │        │
+│  │        └───────────────────┴──────────────┴───────────────┘        │        │
+│  │                            ▼                                        │        │
+│  │                   ┌─────────────────┐                              │        │
+│  │                   │  S3 Processed   │─▶ CDN                        │        │
+│  │                   └─────────────────┘                              │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  FEED GENERATION (Hybrid Push/Pull)                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │                                                                      │        │
+│  │  NEW POST ───▶ Fan-out Service                                      │        │
+│  │                     │                                                │        │
+│  │     ┌───────────────┼────────────────┐                              │        │
+│  │     ▼               ▼                ▼                              │        │
+│  │ ┌────────┐    ┌──────────┐    ┌──────────────┐                     │        │
+│  │ │Active  │    │ Regular  │    │ Celebrity    │                     │        │
+│  │ │Follower│    │ Follower │    │ Followers    │                     │        │
+│  │ │(<1000) │    │ (1K-100K)│    │   (>100K)    │                     │        │
+│  │ │        │    │          │    │              │                     │        │
+│  │ │  PUSH  │    │  PUSH    │    │   SKIP       │                     │        │
+│  │ │to feed │    │ to feed  │    │ (pull later) │                     │        │
+│  │ │ cache  │    │  cache   │    │              │                     │        │
+│  │ └────────┘    └──────────┘    └──────────────┘                     │        │
+│  │                                                                      │        │
+│  │  FEED READ ───▶ Feed Service                                        │        │
+│  │                     │                                                │        │
+│  │     ┌───────────────┴────────────────┐                              │        │
+│  │     ▼                                ▼                              │        │
+│  │ ┌──────────┐                  ┌──────────────┐                     │        │
+│  │ │Get cached│                  │Pull celebrity│                     │        │
+│  │ │feed posts│──────────────────│posts on-demand│                    │        │
+│  │ └────┬─────┘                  └──────┬───────┘                     │        │
+│  │      └────────────┬──────────────────┘                              │        │
+│  │                   ▼                                                  │        │
+│  │           ┌──────────────┐                                          │        │
+│  │           │ ML Ranker    │ ─▶ Personalized Feed                    │        │
+│  │           │(engagement)  │                                          │        │
+│  │           └──────────────┘                                          │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  STORIES                                                                        │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │  Redis Cluster (Sorted Set per user)                                │        │
+│  │  ┌─────────────────────────────────────────────────────────┐        │        │
+│  │  │ user:123:stories = { storyId: expiryTimestamp, ... }   │        │        │
+│  │  │                                                         │        │        │
+│  │  │ TTL-based cleanup: ZREMRANGEBYSCORE stories 0 NOW()    │        │        │
+│  │  └─────────────────────────────────────────────────────────┘        │        │
+│  │                                                                      │        │
+│  │  Query: ZRANGEBYSCORE user:123:stories NOW() +INF                   │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Hybrid feed model: Push for regular users, pull for celebrity followers',
+          'Image processing pipeline: Multiple resolutions generated async',
+          'ML-based ranking: Optimize for engagement, not just chronology',
+          'Stories in Redis: Sorted sets with TTL for 24h expiry',
+          'Sharding: Users sharded by userId, posts by postId',
+          'CDN caching: Popular images cached at edge locations'
+        ]
+      },
+
+      postFlow: {
+        title: 'Create Post Flow',
+        steps: [
+          'Client uploads media to pre-signed S3 URL',
+          'Image processing queue picks up raw image',
+          'Generate multiple resolutions (150, 320, 640, 1080px)',
+          'Apply filters if requested (server-side or client-side)',
+          'Store processed images in S3, update URLs in DB',
+          'Create post record with mediaIds, caption, tags',
+          'Fan-out service triggers: push to followers feed caches',
+          'For users with many followers, skip push (pull model)',
+          'Update hashtag counts for Explore page',
+          'Send notifications to tagged users'
+        ]
+      },
+
+      feedFlow: {
+        title: 'Feed Generation Flow',
+        steps: [
+          'Client requests feed with cursor for pagination',
+          'Check feed cache (Redis) for pre-computed posts',
+          'If cache hit and fresh: return cached posts',
+          'If cache miss or stale: regenerate feed',
+          'Fetch pushed posts from feed cache',
+          'Pull recent posts from followed celebrities',
+          'Merge all posts, remove duplicates',
+          'ML ranking: Score by engagement, recency, relationship',
+          'Cache ranked feed with short TTL (5 min)',
+          'Return paginated results with media URLs'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Feed Ranking Algorithm',
+          points: [
+            'Engagement signals: likes, comments, saves, shares',
+            'Relationship: Close friends weighted higher',
+            'Recency: Decay factor for older posts',
+            'Interest: Match with users past engagement patterns',
+            'Diversity: Avoid showing too many posts from same user'
+          ]
+        },
+        {
+          topic: 'Celebrity Problem',
+          points: [
+            'Celebrities have millions of followers',
+            'Pushing to all followers on every post is expensive',
+            'Solution: Pull model for celebrity content',
+            'Hybrid approach based on follower count threshold',
+            'Async fan-out with priority queues'
+          ]
+        },
+        {
+          topic: 'Stories Architecture',
+          points: [
+            'Ephemeral content - auto-deletes after 24h',
+            'Redis sorted sets for efficient range queries',
+            'Story ring at top of feed - separate from main feed',
+            'View tracking: Who viewed your story',
+            'Story highlights: Saved stories that persist'
+          ]
+        },
+        {
+          topic: 'Image Optimization',
+          points: [
+            'Multiple resolutions for different devices',
+            'WebP format for smaller file sizes',
+            'Lazy loading in feed - load as user scrolls',
+            'Blur placeholders while loading',
+            'CDN with aggressive caching for popular images'
+          ]
+        }
+      ],
+
       requirements: ['Upload photos/videos', 'Apply filters', 'News feed', 'Stories (24h)', 'Follow users', 'Likes/comments', 'Direct messages'],
       components: ['Media service', 'Feed service', 'User service', 'CDN', 'Search', 'Notification service'],
       keyDecisions: [
@@ -1253,17 +2610,6 @@ The web server requests a base-10 number from the count cache, converts it to ba
         'Stories: TTL-based storage with Redis',
         'Image processing pipeline: resize, compress, filter',
         'Shard user data by userId for locality'
-      ],
-      estimations: {
-        dau: '500M DAU, 95M posts/day',
-        reads: '500M × 100 feed views = 50B impressions/day',
-        storage: '95M × 2MB = 190TB images/day',
-        cdn: '10M requests/sec to CDN'
-      },
-      apiDesign: [
-        'POST /api/media/upload → { mediaId, uploadUrl }',
-        'POST /api/post { mediaIds[], caption, tags[] }',
-        'GET /api/feed?cursor= → { posts[], nextCursor }'
       ]
     },
     {
@@ -1274,6 +2620,353 @@ The web server requests a base-10 number from the count cache, converts it to ba
       color: '#0061ff',
       difficulty: 'Hard',
       description: 'Design a cloud file storage system with sync, sharing, and real-time collaboration.',
+
+      introduction: `Dropbox and Google Drive are cloud file storage services that allow users to store files online and sync them across multiple devices. The key challenges include efficient file synchronization (only transferring changes), handling large files, maintaining consistency across devices, and supporting real-time collaboration.
+
+The system must handle millions of concurrent users, petabytes of data, and ensure files are never lost while remaining responsive.`,
+
+      functionalRequirements: [
+        'Upload and download files of any size',
+        'Sync files across multiple devices automatically',
+        'File and folder sharing with permissions',
+        'File versioning and history',
+        'Real-time collaboration on documents',
+        'Offline access with local caching',
+        'Search files by name and content',
+        'File organization (folders, favorites, tags)'
+      ],
+
+      nonFunctionalRequirements: [
+        'Sync latency <30 seconds for small files',
+        'Support files up to 50GB',
+        '99.99% durability - never lose data',
+        '99.9% availability',
+        'Efficient bandwidth usage (delta sync)',
+        'Support 500M+ users, 100M DAU'
+      ],
+
+      dataModel: {
+        description: 'Files, folders, blocks, and sharing metadata',
+        schema: `files {
+  id: uuid PK
+  userId: bigint FK
+  parentFolderId: uuid FK nullable
+  name: varchar(255)
+  size: bigint
+  contentHash: varchar(64) -- SHA-256 of full file
+  blockHashes: varchar[] -- ordered list of block hashes
+  version: int
+  mimeType: varchar
+  isDeleted: boolean
+  createdAt: timestamp
+  modifiedAt: timestamp
+}
+
+blocks {
+  hash: varchar(64) PK -- content-addressed
+  size: int
+  storageUrl: varchar -- S3 location
+  referenceCount: int -- for deduplication
+}
+
+file_versions {
+  fileId: uuid FK
+  version: int
+  blockHashes: varchar[]
+  modifiedAt: timestamp
+  modifiedBy: bigint FK
+}
+
+shares {
+  id: uuid PK
+  fileId: uuid FK
+  sharedWith: bigint FK (userId or groupId)
+  permission: enum(VIEW, EDIT, OWNER)
+  shareLink: varchar unique nullable
+  expiresAt: timestamp nullable
+}
+
+sync_cursors {
+  userId: bigint PK
+  deviceId: varchar PK
+  cursor: varchar -- position in change stream
+  lastSyncAt: timestamp
+}`
+      },
+
+      apiDesign: {
+        description: 'Block-level APIs for efficient sync, with metadata separation',
+        endpoints: [
+          {
+            method: 'GET',
+            path: '/api/files/{id}/metadata',
+            params: '',
+            response: '{ id, name, size, contentHash, blockHashes[], version }'
+          },
+          {
+            method: 'POST',
+            path: '/api/files/upload/init',
+            params: '{ path, size, contentHash }',
+            response: '{ uploadId, missingBlockHashes[] }'
+          },
+          {
+            method: 'PUT',
+            path: '/api/blocks/{hash}',
+            params: 'binary block data',
+            response: '{ stored: true }'
+          },
+          {
+            method: 'POST',
+            path: '/api/files/upload/complete',
+            params: '{ uploadId, blockHashes[] }',
+            response: '{ fileId, version }'
+          },
+          {
+            method: 'GET',
+            path: '/api/sync/changes',
+            params: '?cursor=',
+            response: '{ changes[], newCursor, hasMore }'
+          },
+          {
+            method: 'POST',
+            path: '/api/share',
+            params: '{ fileId, email, permission }',
+            response: '{ shareId, shareLink }'
+          }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How does block-level sync work?',
+          answer: `Files are split into fixed-size blocks (typically 4MB).
+Each block is hashed (SHA-256) for identification.
+
+When syncing:
+1. Client computes block hashes locally
+2. Sends hashes to server
+3. Server returns which blocks it doesn't have
+4. Client uploads only missing/changed blocks
+5. Server assembles file from blocks
+
+Benefits:
+- Small change in large file = upload one block
+- Deduplication: Same block only stored once globally
+- Resume interrupted uploads: Skip already-uploaded blocks`
+        },
+        {
+          question: 'How do we handle conflicts?',
+          answer: `Conflicts occur when same file modified on multiple devices offline.
+
+Detection:
+- Each device tracks version number
+- On sync, compare local vs server version
+- If server version > local expected = conflict
+
+Resolution options:
+1. Last-writer-wins (by timestamp)
+2. Create conflicted copy (Dropbox approach)
+3. Three-way merge for text files
+4. User chooses which version to keep
+
+For real-time collaboration (Google Docs), use OT/CRDT to merge concurrent edits.`
+        },
+        {
+          question: 'How do we notify devices of changes?',
+          answer: `Options:
+1. Polling: Simple but delayed and wasteful
+2. Long polling: Client holds connection, server responds on change
+3. WebSocket: Bidirectional, real-time, persistent connection
+4. Server-Sent Events (SSE): One-way push from server
+
+Dropbox uses long polling with fallback to regular polling.
+Changes are pushed through notification service, client then fetches full delta.`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Architecture',
+        description: 'Simple upload/download without block-level sync',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           DROPBOX BASIC                                 │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌──────────┐      ┌──────────────┐      ┌──────────────────┐          │
+│  │  Client  │─────▶│ API Gateway  │─────▶│   File Service   │          │
+│  │  (Sync)  │      └──────────────┘      └────────┬─────────┘          │
+│  └──────────┘                                      │                    │
+│                                           ┌────────┴────────┐           │
+│                                           │                 │           │
+│                                    ┌──────▼──────┐   ┌──────▼──────┐   │
+│                                    │  Metadata   │   │  File Store │   │
+│                                    │     DB      │   │    (S3)     │   │
+│                                    └─────────────┘   └─────────────┘   │
+│                                                                         │
+│  SYNC PROCESS:                                                          │
+│  1. Poll server for changes every 30 seconds                           │
+│  2. Download entire changed files                                      │
+│  3. Upload entire modified files                                       │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Entire file uploaded/downloaded on any change',
+          'Polling wastes bandwidth when no changes',
+          'No deduplication - duplicate files stored multiple times',
+          'Conflicts not handled gracefully',
+          'No offline support'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Architecture',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           DROPBOX PRODUCTION                                     │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  CLIENT (Desktop/Mobile)                                                        │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌───────────┐  │        │
+│  │  │ File Watcher│  │Block Chunker│  │  Local DB   │  │Sync Engine│  │        │
+│  │  │ (inotify)   │  │(4MB blocks) │  │(SQLite)     │  │           │  │        │
+│  │  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └─────┬─────┘  │        │
+│  │         └────────────────┴────────────────┴───────────────┘        │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                      │                                           │
+│                                      ▼                                           │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │                            API GATEWAY                               │        │
+│  │    Load Balancer → Auth → Rate Limit → Route to Service             │        │
+│  └────────────────────────────────────┬────────────────────────────────┘        │
+│                                       │                                          │
+│     ┌─────────────────────────────────┼─────────────────────────────────┐       │
+│     │                                 │                                  │       │
+│     ▼                                 ▼                                  ▼       │
+│  ┌──────────────┐            ┌──────────────┐               ┌────────────────┐  │
+│  │ Block Server │            │Metadata Svc  │               │ Notification   │  │
+│  │              │            │              │               │    Service     │  │
+│  │ - Upload     │            │- File tree   │               │                │  │
+│  │ - Download   │            │- Versions    │               │ - Long polling │  │
+│  │ - Dedup check│            │- Permissions │               │ - WebSocket    │  │
+│  └──────┬───────┘            └──────┬───────┘               └────────────────┘  │
+│         │                           │                                            │
+│         ▼                           ▼                                            │
+│  ┌──────────────┐            ┌──────────────┐                                   │
+│  │ Block Store  │            │ Metadata DB  │                                   │
+│  │    (S3)      │            │  (Postgres)  │                                   │
+│  │              │            │              │                                   │
+│  │Content-addr- │            │- Sharded by  │                                   │
+│  │essed storage │            │  userId      │                                   │
+│  │              │            │- Versioned   │                                   │
+│  └──────────────┘            └──────────────┘                                   │
+│                                                                                  │
+│  SYNC FLOW                                                                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │  1. File change detected → compute block hashes                      │        │
+│  │  2. Send hashes to server → receive missing block list              │        │
+│  │  3. Upload only missing blocks (dedup!)                              │        │
+│  │  4. Commit file metadata with new block list                        │        │
+│  │  5. Notification service pushes change to other devices             │        │
+│  │  6. Other devices sync only changed blocks                          │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  DEDUPLICATION                                                                  │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │  Block Hash: SHA-256 of block content                               │        │
+│  │  Same content → Same hash → Stored once globally                    │        │
+│  │                                                                      │        │
+│  │  Example: 1M users upload same PDF                                  │        │
+│  │           → Stored ONCE, referenced 1M times                        │        │
+│  │           → Massive storage savings                                 │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Block-level sync: 4MB chunks, only upload changed blocks',
+          'Content-addressed storage: SHA-256 hash as block ID',
+          'Global deduplication: Same block stored once across all users',
+          'Long polling for instant sync notifications',
+          'Client-side chunking: Work happens on client, server just stores blocks',
+          'Metadata/data separation: Different scaling requirements'
+        ]
+      },
+
+      uploadFlow: {
+        title: 'File Upload Flow',
+        steps: [
+          'Client detects file change via filesystem watcher',
+          'Split file into 4MB blocks',
+          'Compute SHA-256 hash for each block',
+          'Send block hashes to server (not data yet)',
+          'Server checks which blocks already exist (dedup check)',
+          'Server returns list of missing blocks',
+          'Client uploads only missing blocks in parallel',
+          'Server stores blocks with hash as key',
+          'Client sends commit request with ordered block list',
+          'Server creates new file version, updates metadata',
+          'Notification sent to users other devices'
+        ]
+      },
+
+      syncFlow: {
+        title: 'Sync Flow (Changes)',
+        steps: [
+          'Client maintains long-poll connection to notification service',
+          'When server has changes, connection returns with delta cursor',
+          'Client fetches change list from cursor',
+          'For each changed file, get metadata including block hashes',
+          'Check which blocks client already has locally',
+          'Download only missing blocks',
+          'Assemble file from blocks',
+          'Update local database with new version',
+          'Update cursor position for next sync'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Chunking Strategies',
+          points: [
+            'Fixed-size (4MB): Simple, good for random access',
+            'Content-defined (Rabin fingerprinting): Better dedup across versions',
+            'Trade-off: Content-defined better for text, fixed better for binary',
+            'Block size: Smaller = more metadata, larger = less dedup benefit',
+            'Dropbox uses 4MB fixed blocks'
+          ]
+        },
+        {
+          topic: 'Conflict Resolution',
+          points: [
+            'Dropbox: Creates "conflicted copy" file',
+            'Google Drive: Last writer wins with version history',
+            'Real-time collab: OT (Google Docs) or CRDT',
+            'Detection: Compare version vectors',
+            'User notification: Alert when conflict occurs'
+          ]
+        },
+        {
+          topic: 'Deduplication',
+          points: [
+            'Block-level dedup: Same block across users stored once',
+            'File-level dedup: Whole-file hash check before chunking',
+            'Cross-user dedup: Privacy concerns, use hash only',
+            'Storage savings: Can be 50%+ for enterprise accounts',
+            'Trade-off: CPU cost of hashing vs storage savings'
+          ]
+        },
+        {
+          topic: 'Security Considerations',
+          points: [
+            'Encryption at rest: Server-side (default) or client-side',
+            'Encryption in transit: TLS for all connections',
+            'Zero-knowledge option: Client encrypts before upload',
+            'Key management: Enterprise key management integration',
+            'Sharing security: Signed URLs with expiry'
+          ]
+        }
+      ],
+
       requirements: ['Upload/download files', 'Sync across devices', 'File versioning', 'Sharing', 'Real-time collaboration', 'Offline access'],
       components: ['Block server', 'Metadata service', 'Sync service', 'Notification service', 'CDN'],
       keyDecisions: [
@@ -1282,17 +2975,6 @@ The web server requests a base-10 number from the count cache, converts it to ba
         'Operational Transform or CRDT for real-time collaboration',
         'Long polling or WebSocket for sync notifications',
         'Client-side encryption option for enterprise'
-      ],
-      estimations: {
-        users: '500M users, 100M DAU',
-        storage: '15PB total storage',
-        sync: '1B file changes/day = 12K changes/sec',
-        upload: '100TB uploaded/day'
-      },
-      apiDesign: [
-        'GET /api/files/{id}/metadata → { size, hash, blocks[] }',
-        'PUT /api/blocks/{hash} { blockData }',
-        'POST /api/files { path, blockHashes[] } → { fileId }'
       ]
     },
     {
@@ -1303,6 +2985,386 @@ The web server requests a base-10 number from the count cache, converts it to ba
       color: '#e50914',
       difficulty: 'Hard',
       description: 'Design a subscription video streaming service with personalized recommendations.',
+
+      introduction: `Netflix is the world's leading streaming entertainment service with over 230 million paid memberships. The system must deliver high-quality video streams to millions of concurrent users worldwide while providing personalized content recommendations.
+
+The key challenges include building a global content delivery network, maintaining consistent streaming quality, and creating a recommendation engine that keeps users engaged.`,
+
+      functionalRequirements: [
+        'Stream movies and TV shows in multiple qualities',
+        'Support multiple user profiles per account',
+        'Personalized content recommendations',
+        'Continue watching across devices',
+        'Download content for offline viewing',
+        'Search content by title, actor, genre',
+        'Support subtitles and multiple audio tracks',
+        'Parental controls and content ratings'
+      ],
+
+      nonFunctionalRequirements: [
+        'Stream start time <3 seconds',
+        'Zero buffering during playback',
+        'Support 8M+ concurrent streams at peak',
+        '99.99% availability',
+        'Global reach with consistent quality',
+        'Adaptive quality based on network conditions'
+      ],
+
+      dataModel: {
+        description: 'Content metadata, user profiles, and viewing history',
+        schema: `content {
+  id: varchar(10) PK
+  type: enum(MOVIE, SERIES)
+  title: varchar(200)
+  releaseYear: int
+  duration: int (minutes)
+  maturityRating: enum(G, PG, PG13, R, NC17)
+  genres: varchar[]
+  cast: varchar[]
+  director: varchar
+  synopsis: text
+  thumbnailUrl: varchar
+  trailerUrl: varchar
+}
+
+episodes {
+  id: varchar(10) PK
+  contentId: varchar(10) FK
+  seasonNumber: int
+  episodeNumber: int
+  title: varchar(200)
+  duration: int
+}
+
+video_assets {
+  contentId: varchar(10) FK
+  quality: enum(SD, HD, FHD, UHD)
+  codec: enum(H264, H265, VP9, AV1)
+  bitrate: int
+  manifestUrl: varchar (HLS/DASH)
+}
+
+profiles {
+  id: uuid PK
+  accountId: bigint FK
+  name: varchar(50)
+  avatarUrl: varchar
+  maturitySetting: enum
+  language: varchar
+}
+
+watch_history {
+  profileId: uuid PK
+  contentId: varchar(10) PK
+  position: int (seconds)
+  duration: int
+  watchedAt: timestamp
+  completed: boolean
+}`
+      },
+
+      apiDesign: {
+        description: 'REST APIs for browsing and streaming',
+        endpoints: [
+          {
+            method: 'GET',
+            path: '/api/browse/home',
+            params: '?profileId=',
+            response: '{ rows: [{ title, items[] }] }'
+          },
+          {
+            method: 'GET',
+            path: '/api/content/{id}',
+            params: '',
+            response: '{ content, episodes[], similar[] }'
+          },
+          {
+            method: 'GET',
+            path: '/api/playback/{contentId}',
+            params: '?profileId=',
+            response: '{ manifestUrl, subtitles[], audioTracks[], position }'
+          },
+          {
+            method: 'POST',
+            path: '/api/watch/progress',
+            params: '{ contentId, position, duration }',
+            response: '{ saved: true }'
+          },
+          {
+            method: 'GET',
+            path: '/api/search',
+            params: '?q=&profileId=',
+            response: '{ results[], suggestions[] }'
+          },
+          {
+            method: 'GET',
+            path: '/api/download/{contentId}',
+            params: '?quality=',
+            response: '{ downloadUrl, expiresAt, license }'
+          }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How does Netflix deliver content globally?',
+          answer: `Netflix built Open Connect - their own CDN with 17,000+ servers worldwide.
+
+Deployment:
+- Open Connect Appliances (OCAs) placed at ISPs
+- Edge servers in IXPs (Internet Exchange Points)
+- Each OCA stores popular content for that region
+
+Content Placement:
+- ML predicts what content will be popular in each region
+- Pre-position content overnight during off-peak hours
+- 95%+ of traffic served from edge (not origin)
+
+Benefits:
+- Reduced latency: Content is 1-2 hops away
+- Better quality: Consistent bitrate from nearby server
+- Cost savings: Less transit bandwidth needed`
+        },
+        {
+          question: 'How does the recommendation system work?',
+          answer: `Two-stage system:
+
+1. Candidate Generation (1000s of titles):
+   - Collaborative filtering: Users like you watched X
+   - Content-based: Similar genres, actors, directors
+   - Trending: Popular in your region
+   - Because you watched: Direct similarity
+
+2. Ranking (order within rows):
+   - ML model scores each title for this user
+   - Features: Watch history, time of day, device, profile
+   - Optimizes for: Engagement (will they click + watch)
+
+Personalization touches:
+- Artwork selection: Different thumbnails per user
+- Row ordering: Most relevant rows first
+- Within-row ordering: Most likely to watch first`
+        },
+        {
+          question: 'How do we handle 8M concurrent streams?',
+          answer: `Key strategies:
+
+1. Distributed CDN: 17,000+ edge servers globally
+   - Most streams served from local ISP/region
+   - Origin only for cache misses
+
+2. Adaptive Bitrate Streaming:
+   - Multiple quality levels encoded per video
+   - Client switches quality based on bandwidth
+   - Buffer management: Pre-buffer next segments
+
+3. Microservices Architecture:
+   - Each service scales independently
+   - Critical path: Playback service, manifest service
+   - Graceful degradation: Recommendations can be cached
+
+4. Chaos Engineering:
+   - Chaos Monkey: Random instance failures
+   - Test failure scenarios in production
+   - Systems designed for failure`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Architecture',
+        description: 'Simple streaming with single CDN',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────┐
+│                            NETFLIX BASIC                                │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌──────────┐      ┌──────────────┐      ┌──────────────────┐          │
+│  │  Client  │─────▶│ API Gateway  │─────▶│   App Server     │          │
+│  └──────────┘      └──────────────┘      └────────┬─────────┘          │
+│       │                                           │                     │
+│       │                               ┌───────────┴───────────┐        │
+│       │                               │                       │        │
+│       │                        ┌──────▼──────┐        ┌───────▼──────┐ │
+│       │                        │ Content DB  │        │ User DB      │ │
+│       │                        │ (Postgres)  │        │ (Postgres)   │ │
+│       │                        └─────────────┘        └──────────────┘ │
+│       │                                                                 │
+│       │            ┌─────────────────────────────────────┐             │
+│       └───────────▶│              CDN                     │◀──┐        │
+│         (stream)   │     (Third-party: Akamai)           │   │        │
+│                    └─────────────────────────────────────┘   │        │
+│                                                               │        │
+│                                               ┌───────────────┘        │
+│                                               │                        │
+│                                        ┌──────▼──────┐                 │
+│                                        │  Video      │                 │
+│                                        │  Storage    │                 │
+│                                        │    (S3)     │                 │
+│                                        └─────────────┘                 │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Third-party CDN is expensive at scale',
+          'Limited control over edge placement',
+          'No regional content pre-positioning',
+          'Basic recommendations - just popularity',
+          'Single quality level - no adaptation'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Architecture',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           NETFLIX PRODUCTION                                     │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  CONTROL PLANE (AWS)                                                            │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │  ┌──────────┐  ┌───────────┐  ┌────────────┐  ┌────────────────┐   │        │
+│  │  │ API Svc  │  │Browse Svc │  │Playback Svc│  │Recommendation  │   │        │
+│  │  └────┬─────┘  └─────┬─────┘  └──────┬─────┘  │   Service      │   │        │
+│  │       │              │               │         └────────────────┘   │        │
+│  │       └──────────────┴───────────────┘                              │        │
+│  │                      │                                               │        │
+│  │  ┌───────────────────▼────────────────────────────────────────┐    │        │
+│  │  │                    DATA LAYER                               │    │        │
+│  │  │  ┌─────────┐  ┌──────────┐  ┌──────────┐  ┌────────────┐   │    │        │
+│  │  │  │Cassandra│  │   EVCache│  │Elasticsearch│  │  Kafka  │   │    │        │
+│  │  │  │(history)│  │  (cache) │  │  (search)  │  │(events) │   │    │        │
+│  │  │  └─────────┘  └──────────┘  └──────────┘  └────────────┘   │    │        │
+│  │  └────────────────────────────────────────────────────────────┘    │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  DATA PLANE (Open Connect CDN)                                                  │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │                                                                      │        │
+│  │  CLIENT ──▶ ISP OCA ──▶ IXP OCA ──▶ Regional ──▶ Origin (S3)       │        │
+│  │    │          │            │                                         │        │
+│  │    │    ┌─────┴────┐  ┌────┴────┐                                   │        │
+│  │    │    │ 95% hit  │  │ 4% hit  │  (1% goes to origin)             │        │
+│  │    │    │ rate     │  │ rate    │                                   │        │
+│  │    │    └──────────┘  └─────────┘                                   │        │
+│  │    │                                                                 │        │
+│  │    └── Adaptive Bitrate Selection                                   │        │
+│  │        - Measure bandwidth continuously                              │        │
+│  │        - Switch quality mid-stream                                   │        │
+│  │        - Buffer 30-60 seconds ahead                                  │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  CONTENT PIPELINE                                                               │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │  Master ──▶ Encoding ──▶ Quality Check ──▶ Encryption ──▶ Deploy   │        │
+│  │    │           │              │                │             │       │        │
+│  │    │     Multiple         Automated        DRM (Widevine,    │       │        │
+│  │    │     bitrates         testing         PlayReady)       │       │        │
+│  │    │     & codecs                                     ▼       │        │
+│  │    │                                          ┌────────────┐  │        │
+│  │    └── 8K Master                             │Predictive  │  │        │
+│  │        10+ encoded versions                  │Placement   │  │        │
+│  │        (144p to 4K HDR)                     │Algorithm   │  │        │
+│  │                                              └────────────┘  │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  RECOMMENDATION ENGINE                                                          │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │  Watch Events ──▶ Spark/Flink ──▶ Feature Store ──▶ ML Models     │        │
+│  │                                                         │            │        │
+│  │                                      ┌──────────────────┘            │        │
+│  │                                      ▼                               │        │
+│  │                              ┌──────────────┐                       │        │
+│  │                              │ Personalized │                       │        │
+│  │                              │  Rankings    │                       │        │
+│  │                              │ + Artwork    │                       │        │
+│  │                              └──────────────┘                       │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Open Connect CDN: 17,000+ edge servers at ISPs worldwide',
+          'Control/Data plane separation: AWS for logic, Open Connect for video',
+          '95% cache hit rate: Most content served from ISP-local servers',
+          'Adaptive streaming: 10+ quality levels, seamless switching',
+          'Content pre-positioning: ML predicts regional popularity',
+          'Chaos engineering: Designed for failure, tested in production'
+        ]
+      },
+
+      playbackFlow: {
+        title: 'Video Playback Flow',
+        steps: [
+          'Client requests playback for content ID',
+          'Playback service checks entitlement (subscription valid?)',
+          'Get license for DRM-protected content',
+          'Receive manifest URL pointing to optimal edge server',
+          'Client downloads manifest (HLS/DASH) with quality options',
+          'Start buffering segments, beginning with lower quality',
+          'Measure bandwidth, upgrade quality as buffer fills',
+          'Continuous quality adaptation based on network conditions',
+          'Report playback events to analytics (start, buffer, quality changes)',
+          'Save watch position every 30 seconds for continue watching'
+        ]
+      },
+
+      contentFlow: {
+        title: 'Content Ingestion Flow',
+        steps: [
+          'Receive master content from studio (8K/4K source)',
+          'Encoding pipeline: Generate 10+ quality levels',
+          'Encode multiple codecs: H.264, H.265, VP9, AV1',
+          'Quality assurance: Automated testing + human review',
+          'Encrypt with DRM (Widevine, PlayReady, FairPlay)',
+          'Upload to origin storage (S3)',
+          'Predictive placement: ML determines regional popularity',
+          'Pre-position on relevant Open Connect Appliances',
+          'Content becomes available for streaming',
+          'Monitor initial performance, adjust placement if needed'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Open Connect Architecture',
+          points: [
+            'Custom hardware appliances at ISPs/IXPs',
+            '150+ Tbps capacity globally',
+            'ISPs get free appliance + reduced transit costs',
+            'Netflix controls software, updates remotely',
+            'Fill during off-peak: Overnight content placement'
+          ]
+        },
+        {
+          topic: 'Adaptive Bitrate Streaming',
+          points: [
+            'DASH + HLS support (different devices)',
+            'Per-shot encoding: Complex scenes get more bits',
+            'Buffer-based adaptation (BBA) algorithm',
+            'Quality of Experience metrics: rebuffer ratio, startup time',
+            'AV1 codec: 20% better compression, rolling out for 4K'
+          ]
+        },
+        {
+          topic: 'Recommendation Personalization',
+          points: [
+            'Not just what to recommend, but how to present',
+            'Personalized artwork: Different images for different users',
+            'Row ordering: Most engaging categories first',
+            'Time-of-day awareness: Different recommendations morning vs evening',
+            'Explore vs exploit: Balance new content discovery'
+          ]
+        },
+        {
+          topic: 'Resilience & Chaos Engineering',
+          points: [
+            'Chaos Monkey: Random instance termination',
+            'Chaos Kong: Simulated region failure',
+            'Latency injection: Test degraded network conditions',
+            'Circuit breakers: Graceful degradation',
+            'Bulkheads: Isolate failures to prevent cascade'
+          ]
+        }
+      ],
+
       requirements: ['Stream movies/shows', 'Multiple profiles', 'Personalized recommendations', 'Continue watching', 'Download for offline', 'Multiple devices'],
       components: ['Video delivery', 'Content management', 'User service', 'Recommendation engine', 'CDN (Open Connect)', 'Playback service'],
       keyDecisions: [
@@ -1311,17 +3373,6 @@ The web server requests a base-10 number from the count cache, converts it to ba
         'Pre-position popular content at edge',
         'ML-based recommendations: Collaborative + content-based filtering',
         'A/B testing infrastructure for UI experiments'
-      ],
-      estimations: {
-        users: '230M subscribers',
-        concurrent: '8M concurrent streams at peak',
-        bandwidth: '400+ Gbps during peak hours',
-        library: '15K titles, 100K hours of content'
-      },
-      apiDesign: [
-        'GET /api/content/{id}/playback → { streamUrls, subtitles, progress }',
-        'POST /api/watch/{contentId} { position, completed }',
-        'GET /api/recommendations → { rows: { title, items[] }[] }'
       ]
     },
     {
@@ -1332,6 +3383,373 @@ The web server requests a base-10 number from the count cache, converts it to ba
       color: '#ff9900',
       difficulty: 'Hard',
       description: 'Design an e-commerce platform handling millions of products, orders, and payments.',
+
+      introduction: `Amazon is the world's largest e-commerce platform, selling 350+ million products and processing millions of orders daily. The system must handle enormous catalog sizes, high-throughput transactions, real-time inventory management, and complex fulfillment operations.
+
+Key challenges include maintaining inventory consistency during flash sales, providing sub-second search across millions of products, and orchestrating the checkout flow across multiple services reliably.`,
+
+      functionalRequirements: [
+        'Browse and search products with filters',
+        'View product details, images, reviews',
+        'Add products to cart',
+        'Checkout with multiple payment methods',
+        'Real-time inventory tracking',
+        'Order tracking and status updates',
+        'Product recommendations',
+        'Customer reviews and ratings',
+        'Wishlist and save for later'
+      ],
+
+      nonFunctionalRequirements: [
+        'Search results in <200ms',
+        'Handle 66K orders/sec during Prime Day',
+        'Inventory never goes negative (overselling)',
+        '99.99% availability for checkout',
+        'Support 300M+ active customers',
+        'Scale to 350M+ products'
+      ],
+
+      dataModel: {
+        description: 'Products, inventory, orders, and user data',
+        schema: `products {
+  id: varchar(10) PK (ASIN)
+  title: varchar(500)
+  description: text
+  categoryId: int FK
+  sellerId: bigint FK
+  price: decimal(10,2)
+  images: varchar[]
+  attributes: jsonb
+  rating: decimal(2,1)
+  reviewCount: int
+  createdAt: timestamp
+}
+
+inventory {
+  productId: varchar(10) PK
+  warehouseId: int PK
+  quantity: int
+  reservedQuantity: int
+  lastUpdated: timestamp
+  version: int -- optimistic locking
+}
+
+orders {
+  id: bigint PK
+  userId: bigint FK
+  status: enum(PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED)
+  totalAmount: decimal(10,2)
+  shippingAddress: jsonb
+  paymentId: varchar FK
+  createdAt: timestamp
+  updatedAt: timestamp
+}
+
+order_items {
+  orderId: bigint FK
+  productId: varchar(10) FK
+  quantity: int
+  priceAtPurchase: decimal(10,2)
+  fulfillmentStatus: enum
+}
+
+cart {
+  userId: bigint PK
+  items: jsonb -- [{productId, quantity, addedAt}]
+  updatedAt: timestamp
+}`
+      },
+
+      apiDesign: {
+        description: 'RESTful APIs with event-driven backend',
+        endpoints: [
+          {
+            method: 'GET',
+            path: '/api/search',
+            params: '?q=&category=&brand=&minPrice=&maxPrice=&page=',
+            response: '{ products[], facets, totalCount }'
+          },
+          {
+            method: 'GET',
+            path: '/api/products/{asin}',
+            params: '',
+            response: '{ product, reviews[], similar[], alsoViewed[] }'
+          },
+          {
+            method: 'POST',
+            path: '/api/cart/add',
+            params: '{ productId, quantity }',
+            response: '{ cart, subtotal }'
+          },
+          {
+            method: 'POST',
+            path: '/api/checkout/start',
+            params: '{ cartId }',
+            response: '{ checkoutSessionId, summary, deliveryOptions[] }'
+          },
+          {
+            method: 'POST',
+            path: '/api/checkout/complete',
+            params: '{ sessionId, paymentMethod, shippingOption }',
+            response: '{ orderId, estimatedDelivery }'
+          },
+          {
+            method: 'GET',
+            path: '/api/orders/{id}',
+            params: '',
+            response: '{ order, items[], tracking }'
+          }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How do we prevent overselling during flash sales?',
+          answer: `Multiple strategies combined:
+
+1. Inventory Reservation:
+   - Reserve inventory when added to cart (soft hold)
+   - TTL on reservation (15 min) - auto-release if not purchased
+   - Confirm reservation during checkout
+
+2. Optimistic Locking:
+   - Version number on inventory record
+   - UPDATE ... WHERE quantity >= requested AND version = expected
+   - Retry with backoff if version mismatch
+
+3. Distributed Locks (for hot products):
+   - Redis lock per productId
+   - Short TTL to prevent deadlocks
+   - Queue requests during flash sales
+
+4. Pre-allocated inventory:
+   - For Prime Day: Pre-allocate inventory pools
+   - Partition by region/warehouse`
+        },
+        {
+          question: 'How does checkout work with multiple services?',
+          answer: `Saga pattern for distributed transaction:
+
+1. Cart Service: Validate cart, lock prices
+2. Inventory Service: Reserve inventory (compensation: release)
+3. Payment Service: Charge card (compensation: refund)
+4. Order Service: Create order record
+5. Notification Service: Send confirmation
+6. Fulfillment: Queue for warehouse
+
+If any step fails, run compensation actions in reverse.
+Use event-driven choreography or orchestrator (Step Functions).
+
+Idempotency keys prevent duplicate charges on retry.`
+        },
+        {
+          question: 'How do we search 350M products fast?',
+          answer: `Elasticsearch cluster with optimizations:
+
+Index Design:
+- Sharded by category (better relevance)
+- Separate indices for different product types
+- Denormalized data (no JOINs needed)
+
+Query Optimization:
+- Multi-level caching: Query cache, field data cache
+- Use filters (cached) before scoring
+- Pre-computed facets for common categories
+
+ML-Enhanced:
+- Learning-to-rank for result ordering
+- Personalized ranking based on user history
+- Query understanding: "iPhone 15 case" → brand:Apple AND category:cases`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Architecture',
+        description: 'Monolithic e-commerce with single database',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────┐
+│                            AMAZON BASIC                                 │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌──────────┐      ┌──────────────┐      ┌──────────────────┐          │
+│  │  Client  │─────▶│ Load Balancer│─────▶│   Monolith App   │          │
+│  └──────────┘      └──────────────┘      └────────┬─────────┘          │
+│                                                    │                    │
+│                                           ┌────────▼─────────┐          │
+│                                           │    PostgreSQL    │          │
+│                                           │   (Everything)   │          │
+│                                           │                  │          │
+│                                           │ - Products       │          │
+│                                           │ - Inventory      │          │
+│                                           │ - Orders         │          │
+│                                           │ - Users          │          │
+│                                           └──────────────────┘          │
+│                                                                         │
+│  CHECKOUT:                                                              │
+│  BEGIN TRANSACTION                                                      │
+│    1. Decrement inventory                                               │
+│    2. Charge payment (external call)                                    │
+│    3. Create order                                                      │
+│  COMMIT                                                                 │
+│                                                                         │
+│  Problem: External payment call inside transaction = bad                │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Single database bottleneck',
+          'Long transactions with external calls',
+          'Cannot scale services independently',
+          'Full table scans for search',
+          'Inventory locks cause contention'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Architecture',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           AMAZON PRODUCTION                                      │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │                         API GATEWAY                                  │        │
+│  │    Auth → Rate Limit → Route → Load Balance                         │        │
+│  └────────────────────────────────┬────────────────────────────────────┘        │
+│                                   │                                              │
+│     ┌────────────┬────────────────┼────────────────┬─────────────┐              │
+│     │            │                │                │             │              │
+│     ▼            ▼                ▼                ▼             ▼              │
+│  ┌──────┐   ┌────────┐    ┌──────────┐    ┌───────────┐   ┌──────────┐         │
+│  │Search│   │Product │    │   Cart   │    │  Order    │   │ Payment  │         │
+│  │ Svc  │   │  Svc   │    │   Svc    │    │   Svc     │   │   Svc    │         │
+│  └──┬───┘   └───┬────┘    └────┬─────┘    └─────┬─────┘   └────┬─────┘         │
+│     │           │              │                │              │                │
+│     ▼           ▼              ▼                ▼              ▼                │
+│  ┌──────┐   ┌────────┐    ┌────────┐    ┌──────────┐    ┌──────────┐           │
+│  │Elastic│   │Product │    │ Redis  │    │Order DB  │    │Payment   │           │
+│  │search │   │  DB    │    │(Cart)  │    │(Postgres)│    │Gateway   │           │
+│  └──────┘   └────────┘    └────────┘    └──────────┘    └──────────┘           │
+│                                                                                  │
+│  INVENTORY SERVICE                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │                                                                      │        │
+│  │  ┌──────────────┐     ┌────────────┐     ┌───────────────┐         │        │
+│  │  │ Inventory DB │◀───│ Inventory  │◀───│  Reservation   │         │        │
+│  │  │  (Postgres)  │     │  Service   │     │    Queue       │         │        │
+│  │  │              │     │            │     │   (SQS)        │         │        │
+│  │  │ Partitioned  │     │ Optimistic │     │               │         │        │
+│  │  │ by warehouse │     │  Locking   │     │               │         │        │
+│  │  └──────────────┘     └────────────┘     └───────────────┘         │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  CHECKOUT SAGA (Orchestrator Pattern)                                           │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │                                                                      │        │
+│  │   ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐        │        │
+│  │   │ Reserve │───▶│ Charge  │───▶│ Create  │───▶│ Notify  │        │        │
+│  │   │Inventory│    │ Payment │    │  Order  │    │  User   │        │        │
+│  │   └────┬────┘    └────┬────┘    └────┬────┘    └─────────┘        │        │
+│  │        │              │              │                             │        │
+│  │        ▼              ▼              ▼                             │        │
+│  │   (compensate)   (compensate)   (compensate)                      │        │
+│  │    Release        Refund        Cancel order                      │        │
+│  │                                                                      │        │
+│  │   State machine tracks progress, handles retries & compensations   │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  EVENT BUS (Kafka)                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │  order.created ──▶ Inventory, Shipping, Analytics, Recommendation  │        │
+│  │  payment.completed ──▶ Order, Notification                         │        │
+│  │  inventory.low ──▶ Procurement, Alerting                           │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Microservices: Each domain has own database and scales independently',
+          'Saga pattern: Distributed transactions with compensation',
+          'Event-driven: Kafka for async communication between services',
+          'Elasticsearch: Sub-200ms search across 350M products',
+          'Inventory locking: Optimistic + reservation queue for hot items',
+          'Cart in Redis: Fast reads, TTL-based cleanup'
+        ]
+      },
+
+      checkoutFlow: {
+        title: 'Checkout Flow (Saga)',
+        steps: [
+          'User clicks checkout, cart validated against current prices',
+          'Checkout service creates checkout session with idempotency key',
+          'Reserve inventory for all items (with 15-min TTL)',
+          'If inventory unavailable, return error with alternatives',
+          'User selects shipping option, confirms address',
+          'Payment service authorizes card (not charged yet)',
+          'Order service creates order record with PENDING status',
+          'Payment service captures charge',
+          'Order status updated to CONFIRMED',
+          'Events published: Inventory committed, shipping queued, email sent',
+          'If any step fails, orchestrator runs compensations in reverse'
+        ]
+      },
+
+      searchFlow: {
+        title: 'Product Search Flow',
+        steps: [
+          'User enters search query',
+          'Query understanding: Spelling correction, synonyms, entity extraction',
+          'Build Elasticsearch query with filters, facets',
+          'Apply personalization: Boost based on user history',
+          'Execute search with timeouts (fallback to cached results)',
+          'ML ranking: Reorder results by predicted engagement',
+          'Fetch product details from cache/database',
+          'Return results with facets for filtering',
+          'Log search for analytics and model training'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Inventory Management',
+          points: [
+            'Distributed inventory across warehouses',
+            'Real-time sync with warehouse management system',
+            'Safety stock buffers for popular items',
+            'Reservation vs immediate decrement debate',
+            'Eventual consistency acceptable for browse, strict for checkout'
+          ]
+        },
+        {
+          topic: 'Search Optimization',
+          points: [
+            'Sharding strategy: By category vs by product ID',
+            'Learning-to-rank models trained on click data',
+            'A/B testing ranking algorithms',
+            'Query understanding pipeline (NLU)',
+            'Personalization without filter bubble'
+          ]
+        },
+        {
+          topic: 'Handling Flash Sales',
+          points: [
+            'Virtual waiting room to throttle traffic',
+            'Pre-warmed caches and scaled infrastructure',
+            'Inventory pre-allocation by region',
+            'Queue-based checkout to handle spikes',
+            'Graceful degradation: Disable reviews, recommendations'
+          ]
+        },
+        {
+          topic: 'Payment Processing',
+          points: [
+            'Authorize at checkout, capture at ship time',
+            'PCI compliance: Tokenize card data',
+            'Multiple payment method support',
+            'Fraud detection before authorization',
+            'Idempotency keys for retry safety'
+          ]
+        }
+      ],
+
       requirements: ['Product catalog', 'Search', 'Cart', 'Checkout', 'Payments', 'Order tracking', 'Reviews', 'Recommendations'],
       components: ['Product service', 'Search (Elasticsearch)', 'Cart service', 'Order service', 'Payment service', 'Inventory service', 'Recommendation'],
       keyDecisions: [
@@ -1340,17 +3758,6 @@ The web server requests a base-10 number from the count cache, converts it to ba
         'Distributed transactions: Saga pattern for checkout flow',
         'Search: Elasticsearch with product embeddings',
         'Inventory: Pessimistic locking for popular items during flash sales'
-      ],
-      estimations: {
-        products: '350M products',
-        orders: '66K orders/sec during Prime Day',
-        searches: '200M searches/day',
-        users: '300M active customers'
-      },
-      apiDesign: [
-        'GET /api/products?q=&category=&page= → { products[], facets }',
-        'POST /api/cart { productId, quantity }',
-        'POST /api/checkout { cartId, address, payment } → { orderId }'
       ]
     },
     {
@@ -1361,6 +3768,366 @@ The web server requests a base-10 number from the count cache, converts it to ba
       color: '#4285f4',
       difficulty: 'Hard',
       description: 'Design a real-time collaborative document editing system with conflict resolution.',
+
+      introduction: `Google Docs is a real-time collaborative document editing system where multiple users can simultaneously edit the same document. The system must handle concurrent edits, resolve conflicts automatically, and ensure all users see a consistent document state.
+
+The key technical challenge is maintaining consistency when multiple users edit the same document simultaneously. This requires sophisticated algorithms like Operational Transformation (OT) or Conflict-free Replicated Data Types (CRDTs).`,
+
+      functionalRequirements: [
+        'Real-time collaborative editing',
+        'Multiple cursors and selections visible',
+        'Rich text formatting (bold, italic, headings)',
+        'Comments and suggestions',
+        'Version history with restore',
+        'Offline editing with sync on reconnect',
+        'Sharing with permissions (view, comment, edit)',
+        'Document templates'
+      ],
+
+      nonFunctionalRequirements: [
+        'Operation latency <100ms for propagation',
+        'Support 100+ concurrent editors per document',
+        'Handle 5B+ documents',
+        'Eventually consistent - all clients converge',
+        '99.99% availability',
+        'Offline-first: Work without connection'
+      ],
+
+      dataModel: {
+        description: 'Documents, operations, and collaboration state',
+        schema: `documents {
+  id: uuid PK
+  ownerId: bigint FK
+  title: varchar(500)
+  content: text -- current snapshot
+  revision: bigint -- current revision number
+  createdAt: timestamp
+  updatedAt: timestamp
+}
+
+operations {
+  id: uuid PK
+  documentId: uuid FK
+  userId: bigint FK
+  revision: bigint
+  type: enum(INSERT, DELETE, RETAIN, FORMAT)
+  position: int
+  content: text nullable
+  attributes: jsonb nullable (for formatting)
+  timestamp: timestamp
+}
+
+collaborators {
+  documentId: uuid FK
+  userId: bigint FK
+  permission: enum(VIEW, COMMENT, EDIT, OWNER)
+  addedAt: timestamp
+}
+
+presence {
+  documentId: uuid PK
+  userId: bigint PK
+  cursorPosition: int
+  selectionStart: int
+  selectionEnd: int
+  color: varchar(7)
+  name: varchar(100)
+  lastSeen: timestamp
+}`
+      },
+
+      apiDesign: {
+        description: 'WebSocket for real-time sync, REST for document management',
+        endpoints: [
+          {
+            method: 'WS',
+            path: '/ws/doc/{id}/collaborate',
+            params: 'authToken in header',
+            response: 'Bidirectional: send operations, receive operations + presence'
+          },
+          {
+            method: 'OPERATION',
+            path: '(via WebSocket)',
+            params: '{ type, position, content, baseRevision }',
+            response: '{ ack, serverRevision, transformedOps[] }'
+          },
+          {
+            method: 'GET',
+            path: '/api/doc/{id}',
+            params: '',
+            response: '{ document, content, revision, collaborators[] }'
+          },
+          {
+            method: 'GET',
+            path: '/api/doc/{id}/history',
+            params: '?since=&limit=',
+            response: '{ revisions[], hasMore }'
+          },
+          {
+            method: 'POST',
+            path: '/api/doc/{id}/share',
+            params: '{ email, permission }',
+            response: '{ shareLink }'
+          },
+          {
+            method: 'POST',
+            path: '/api/doc/{id}/restore',
+            params: '{ revision }',
+            response: '{ newRevision }'
+          }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How does Operational Transformation work?',
+          answer: `OT transforms concurrent operations to maintain consistency.
+
+Example:
+- User A inserts "X" at position 5
+- User B inserts "Y" at position 3
+- Both started from same document state
+
+Without transformation:
+- A applies A's op, then B's op → result differs
+- B applies B's op, then A's op → different result
+
+With transformation:
+- When A receives B's op, transform it:
+  B's op was at position 3, A inserted before at 5
+  So B's op position stays 3
+- When B receives A's op, transform it:
+  A's op was at position 5, B inserted at 3
+  So A's op position becomes 5+1=6
+
+Result: Both converge to same document state.`
+        },
+        {
+          question: 'OT vs CRDT - which to use?',
+          answer: `Operational Transformation (Google Docs approach):
++ Proven at scale (Google uses it)
++ Compact operations
+- Complex implementation (quadratic transform)
+- Requires central server for ordering
+
+CRDT (Figma, Notion use variants):
++ No central coordination needed
++ Mathematically guaranteed convergence
++ Better for P2P scenarios
+- Larger data structures
+- Can have "surprising" merge results
+
+For Google Docs clone: OT with central server
+For offline-first/P2P: CRDT`
+        },
+        {
+          question: 'How do we handle offline editing?',
+          answer: `1. Store operations locally when offline:
+   - Queue all operations in IndexedDB
+   - Apply locally for instant feedback
+
+2. On reconnect:
+   - Send all queued operations to server
+   - Server transforms against operations that happened while offline
+   - Receive transformed operations from others
+   - Apply to local document
+
+3. Conflict resolution:
+   - OT/CRDT ensures convergence
+   - User may see content "jump" as remote changes apply
+   - Never lose user's work
+
+4. Version vector:
+   - Track which operations each client has seen
+   - Sync only missing operations`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Architecture',
+        description: 'Simple last-write-wins without real-time collaboration',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────┐
+│                          GOOGLE DOCS BASIC                              │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌──────────┐      ┌──────────────┐      ┌──────────────────┐          │
+│  │  Client  │─────▶│ API Gateway  │─────▶│  Doc Service     │          │
+│  └──────────┘      └──────────────┘      └────────┬─────────┘          │
+│                                                    │                    │
+│  EDITING:                                 ┌────────▼─────────┐          │
+│  1. Load document                         │    PostgreSQL    │          │
+│  2. Edit locally                          │                  │          │
+│  3. Save entire document                  │  - Documents     │          │
+│  4. Overwrite what's in DB                │  - Content       │          │
+│                                           │                  │          │
+│  PROBLEM: User A and B both editing       └──────────────────┘          │
+│           A saves → B saves                                             │
+│           A's changes are lost!                                         │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Last-write-wins causes data loss',
+          'No real-time collaboration',
+          'No visibility into other editors',
+          'Save entire document on each change (inefficient)',
+          'No offline support'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Architecture',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           GOOGLE DOCS PRODUCTION                                 │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  CLIENTS                                                                        │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐                          │        │
+│  │  │ Client A │  │ Client B │  │ Client C │  ... (up to 100)         │        │
+│  │  └────┬─────┘  └────┬─────┘  └────┬─────┘                          │        │
+│  │       │              │              │                               │        │
+│  │       └──────────────┼──────────────┘                               │        │
+│  │                      │ WebSocket                                    │        │
+│  │                      ▼                                               │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  COLLABORATION LAYER                                                            │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │                                                                      │        │
+│  │  ┌────────────────────────────────────────────────────────┐         │        │
+│  │  │              WebSocket Gateway                          │         │        │
+│  │  │   (Sticky sessions per document via consistent hash)   │         │        │
+│  │  └────────────────────────┬───────────────────────────────┘         │        │
+│  │                           │                                          │        │
+│  │  ┌────────────────────────▼───────────────────────────────┐         │        │
+│  │  │            Collaboration Server (per document)          │         │        │
+│  │  │                                                          │         │        │
+│  │  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐ │         │        │
+│  │  │  │ OT Engine   │  │  Presence   │  │  Op Buffer      │ │         │        │
+│  │  │  │             │  │  Manager    │  │  (in-memory)    │ │         │        │
+│  │  │  │- Transform  │  │             │  │                 │ │         │        │
+│  │  │  │- Compose    │  │- Cursors    │  │- Recent ops     │ │         │        │
+│  │  │  │- Apply      │  │- Selections │  │- For new joins  │ │         │        │
+│  │  │  └─────────────┘  └─────────────┘  └─────────────────┘ │         │        │
+│  │  └────────────────────────────────────────────────────────┘         │        │
+│  │                           │                                          │        │
+│  └───────────────────────────┼──────────────────────────────────────────┘        │
+│                              │                                                   │
+│  PERSISTENCE LAYER           │                                                   │
+│  ┌───────────────────────────┼──────────────────────────────────────────┐       │
+│  │                           ▼                                           │       │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │       │
+│  │  │ Operation    │  │  Snapshot    │  │  Document    │               │       │
+│  │  │    Log       │  │   Store      │  │   Metadata   │               │       │
+│  │  │ (Cassandra)  │  │    (GCS)     │  │  (Spanner)   │               │       │
+│  │  │              │  │              │  │              │               │       │
+│  │  │- All ops     │  │- Periodic    │  │- Ownership   │               │       │
+│  │  │- For history │  │  snapshots   │  │- Sharing     │               │       │
+│  │  │- Replay      │  │- Quick load  │  │- Permissions │               │       │
+│  │  └──────────────┘  └──────────────┘  └──────────────┘               │       │
+│  └───────────────────────────────────────────────────────────────────────┘       │
+│                                                                                  │
+│  OPERATION FLOW                                                                 │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │  1. Client sends operation with baseRevision                        │        │
+│  │  2. Server checks: is baseRevision current?                         │        │
+│  │     - Yes: Apply directly, broadcast to all clients                 │        │
+│  │     - No: Transform against ops since baseRevision                 │        │
+│  │  3. Assign new revision number, persist to op log                  │        │
+│  │  4. Broadcast transformed op to all connected clients              │        │
+│  │  5. Each client transforms its pending ops against received op     │        │
+│  │  6. All clients converge to same document state                    │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'OT engine: Transforms concurrent operations for consistency',
+          'Sticky WebSocket: All clients for a doc connect to same server',
+          'Operation log: Append-only log for history and replay',
+          'Periodic snapshots: Avoid replaying all ops from beginning',
+          'Presence system: Real-time cursor/selection sharing',
+          'Offline queue: Buffer ops locally, sync on reconnect'
+        ]
+      },
+
+      editFlow: {
+        title: 'Collaborative Edit Flow',
+        steps: [
+          'Client types character, creates INSERT operation',
+          'Apply operation locally immediately (optimistic)',
+          'Send operation to server with current baseRevision',
+          'Server receives, checks if baseRevision is current',
+          'If not current: transform operation against missed ops',
+          'Assign next revision number to operation',
+          'Persist operation to operation log',
+          'Broadcast operation to all other connected clients',
+          'Each client transforms against their pending ops',
+          'Clients apply transformed operation to their document',
+          'All documents converge to same state'
+        ]
+      },
+
+      syncFlow: {
+        title: 'Initial Load / Reconnect Flow',
+        steps: [
+          'Client connects via WebSocket with document ID',
+          'Server authenticates, checks permissions',
+          'Load latest snapshot from storage',
+          'Fetch all operations since snapshot revision',
+          'Apply operations to snapshot to get current state',
+          'Send document content + current revision to client',
+          'Send current presence (other users cursors/selections)',
+          'Client ready to send/receive operations',
+          'If offline operations queued, send them now',
+          'Server transforms offline ops, broadcasts results'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'OT Transform Functions',
+          points: [
+            'INSERT vs INSERT: Adjust positions based on order',
+            'INSERT vs DELETE: Adjust positions, may split delete',
+            'DELETE vs DELETE: Handle overlapping ranges',
+            'Commutativity: transform(a,b) + transform(b,a) converge',
+            'Google Docs uses composition for efficiency'
+          ]
+        },
+        {
+          topic: 'Presence System',
+          points: [
+            'Real-time cursor position updates via WebSocket',
+            'Color-coded for each collaborator',
+            'Selection highlighting for visible ranges',
+            'Throttle updates to prevent flooding',
+            'Show "User typing..." indicators'
+          ]
+        },
+        {
+          topic: 'Version History',
+          points: [
+            'Operation log stores every change',
+            'Group operations into sessions/revisions',
+            'Restore by replaying ops up to point',
+            'Diff view: Apply ops incrementally',
+            'Named versions for milestones'
+          ]
+        },
+        {
+          topic: 'Scale Considerations',
+          points: [
+            'Sharding: Each document handled by one server',
+            'Consistent hashing for server selection',
+            'Failover: Replay from op log on new server',
+            'Read replicas for view-only users',
+            'Rate limiting: Max ops per second per client'
+          ]
+        }
+      ],
+
       requirements: ['Real-time editing', 'Multiple cursors', 'Comments', 'Version history', 'Offline support', 'Sharing permissions'],
       components: ['Document service', 'Collaboration service', 'Storage service', 'WebSocket servers', 'Version control'],
       keyDecisions: [
@@ -1369,17 +4136,6 @@ The web server requests a base-10 number from the count cache, converts it to ba
         'WebSocket for real-time sync',
         'Presence system: Show active cursors/selections',
         'Periodic snapshots + operation log for version history'
-      ],
-      estimations: {
-        documents: '5B documents',
-        concurrent: '100 editors per document max, avg 3',
-        operations: '1M operations/sec across platform',
-        latency: '<100ms for operation propagation'
-      },
-      apiDesign: [
-        'WS /doc/{id}/collaborate → bidirectional edits',
-        'OPERATION { type, position, content, revision }',
-        'GET /api/doc/{id}/history → { revisions[] }'
       ]
     },
     {
