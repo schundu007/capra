@@ -3,136 +3,136 @@ import { useAuth } from '../../contexts/AuthContext.jsx';
 import { Icon } from '../Icons.jsx';
 
 /**
- * Ascend Landing Page - Modern Design with Distinct Sections
+ * Ascend Landing Page - Professional High-Converting Design
+ * Inspired by techprep.app
  */
 export default function OAuthLogin() {
   const { signIn } = useAuth();
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState('');
   const [activeDemo, setActiveDemo] = useState(0);
-  const [codeIndex, setCodeIndex] = useState(0);
-  const [designIndex, setDesignIndex] = useState(0);
-  const [interviewIndex, setInterviewIndex] = useState(0);
-  const [counters, setCounters] = useState({ success: 0, offers: 0, salary: 0 });
+  const [expandedFaq, setExpandedFaq] = useState(null);
+  const [counters, setCounters] = useState({ users: 0, offers: 0, salary: 0, companies: 0 });
   const statsRef = useRef(null);
   const [statsAnimated, setStatsAnimated] = useState(false);
 
-  const codeSnippets = [
-    { lang: 'python', code: 'def two_sum(nums, target):\n    seen = {}\n    for i, n in enumerate(nums):\n        if target - n in seen:\n            return [seen[target-n], i]\n        seen[n] = i' },
-    { lang: 'javascript', code: 'function maxProfit(prices) {\n  let min = prices[0], max = 0;\n  for (let p of prices) {\n    min = Math.min(min, p);\n    max = Math.max(max, p - min);\n  }\n  return max;\n}' },
-    { lang: 'sql', code: 'SELECT d.name, COUNT(e.id)\nFROM departments d\nLEFT JOIN employees e\n  ON d.id = e.dept_id\nGROUP BY d.id\nHAVING COUNT(e.id) > 5;' },
+  // Company logos where users landed offers
+  const companyLogos = [
+    { name: 'Google', color: '#4285F4' },
+    { name: 'Meta', color: '#0668E1' },
+    { name: 'Amazon', color: '#FF9900' },
+    { name: 'Apple', color: '#A2AAAD' },
+    { name: 'Netflix', color: '#E50914' },
+    { name: 'Microsoft', color: '#00A4EF' },
+    { name: 'Stripe', color: '#635BFF' },
+    { name: 'OpenAI', color: '#10A37F' },
   ];
 
-  const systemDesigns = [
+  // Pain points
+  const painPoints = [
+    { icon: 'alert', text: 'Struggling to get offers from top companies' },
+    { icon: 'x', text: 'Repeated rejections without feedback' },
+    { icon: 'clock', text: 'Wasting months on ineffective prep' },
+    { icon: 'target', text: 'Unable to identify your weak areas' },
+    { icon: 'users', text: 'Falling behind the competition' },
+    { icon: 'brain', text: 'Blanking out during live interviews' },
+    { icon: 'chartBar', text: 'Not knowing what top companies expect' },
+    { icon: 'question', text: 'Feeling unprepared and anxious' },
+  ];
+
+  // Feature categories
+  const featureCategories = [
     {
-      title: 'URL Shortener',
-      subtitle: 'High-throughput link shortening service',
-      nodes: [
-        { id: 'client', label: 'Client', icon: 'globe', x: 10, y: 40, color: '#10b981' },
-        { id: 'lb', label: 'Load Balancer', icon: 'server', x: 30, y: 40, color: '#3b82f6' },
-        { id: 'api', label: 'API Server', icon: 'cpu', x: 50, y: 25, color: '#8b5cf6' },
-        { id: 'cache', label: 'Redis Cache', icon: 'activity', x: 50, y: 55, color: '#f59e0b' },
-        { id: 'db', label: 'Database', icon: 'layers', x: 75, y: 40, color: '#ef4444' },
-      ],
-      connections: [
-        { from: 'client', to: 'lb' }, { from: 'lb', to: 'api' }, { from: 'api', to: 'cache' }, { from: 'api', to: 'db' }, { from: 'cache', to: 'db' },
-      ]
+      title: 'Coding Problems',
+      icon: 'code',
+      color: '#10b981',
+      desc: 'Real-time solutions with explanations',
+      features: ['20+ Languages', 'Auto-fix Errors', 'Complexity Analysis', 'Line-by-line Explanations']
     },
     {
-      title: 'Real-time Chat',
-      subtitle: 'Scalable messaging architecture',
-      nodes: [
-        { id: 'users', label: 'Users', icon: 'users', x: 10, y: 40, color: '#10b981' },
-        { id: 'ws', label: 'WebSocket', icon: 'wifi', x: 30, y: 40, color: '#3b82f6' },
-        { id: 'pubsub', label: 'Pub/Sub', icon: 'activity', x: 50, y: 25, color: '#8b5cf6' },
-        { id: 'presence', label: 'Presence', icon: 'eye', x: 50, y: 55, color: '#f59e0b' },
-        { id: 'store', label: 'Message Store', icon: 'layers', x: 75, y: 40, color: '#ef4444' },
-      ],
-      connections: [
-        { from: 'users', to: 'ws' }, { from: 'ws', to: 'pubsub' }, { from: 'ws', to: 'presence' }, { from: 'pubsub', to: 'store' },
-      ]
+      title: 'System Design',
+      icon: 'systemDesign',
+      color: '#3b82f6',
+      desc: 'Architecture diagrams & scalability',
+      features: ['High-level Design', 'Low-level Deep Dives', 'Auto Diagrams', 'Tech Justifications']
+    },
+    {
+      title: 'Behavioral',
+      icon: 'users',
+      color: '#8b5cf6',
+      desc: 'STAR method responses',
+      features: ['STAR Framework', 'Follow-up Q&A', 'Leadership Principles', 'Custom Stories']
+    },
+    {
+      title: 'Live Assistant',
+      icon: 'microphone',
+      color: '#f59e0b',
+      desc: 'Real-time transcription & answers',
+      features: ['Live Transcription', 'Instant Answers', '100% Invisible', 'All Platforms']
     },
   ];
 
-  const interviewQA = [
-    { q: 'Tell me about a challenging project', a: 'Led migration of monolith to microservices, reducing deploy time by 80%...' },
-    { q: 'How do you handle conflict?', a: 'I focus on understanding perspectives first. In one case, I mediated...' },
-    { q: 'Why do you want this role?', a: 'Your focus on developer experience aligns with my passion...' },
+  // How it works steps
+  const howItWorks = [
+    { num: '01', title: 'Sign Up', desc: 'Create your account in seconds with Google, GitHub, or LinkedIn', icon: 'users' },
+    { num: '02', title: 'Choose Mode', desc: 'Select Coding, System Design, or Behavioral prep based on your interview', icon: 'target' },
+    { num: '03', title: 'Get Answers', desc: 'Paste problems, take screenshots, or use live transcription for instant AI solutions', icon: 'sparkles' },
+    { num: '04', title: 'Land Offers', desc: 'Ace your interviews with confidence and secure top tech offers', icon: 'rocket' },
   ];
 
-  const reviews = [
-    { name: 'Sarah M.', title: 'Senior SWE @ Meta', text: 'Got offers from 3 FAANG companies. The coding assistance was flawless.', rating: 5 },
-    { name: 'James K.', title: 'Staff Engineer @ Google', text: 'The system design help alone is worth it. Helped me nail my Amazon L6 interview.', rating: 5 },
-    { name: 'Priya R.', title: 'Eng Manager @ Netflix', text: 'Game changer for behavioral interviews. The STAR method responses were perfect.', rating: 5 },
+  // Comparison table
+  const comparison = [
+    { feature: 'Real-time AI Answers', ascend: true, leetcode: false, bytebyte: false, interviewing: false },
+    { feature: 'Live Interview Transcription', ascend: true, leetcode: false, bytebyte: false, interviewing: false },
+    { feature: 'System Design Diagrams', ascend: true, leetcode: false, bytebyte: true, interviewing: false },
+    { feature: 'Behavioral STAR Responses', ascend: true, leetcode: false, bytebyte: false, interviewing: true },
+    { feature: 'Code Execution & Testing', ascend: true, leetcode: true, bytebyte: false, interviewing: false },
+    { feature: '100% Invisible Mode', ascend: true, leetcode: false, bytebyte: false, interviewing: false },
+    { feature: 'Screenshot Problem Solving', ascend: true, leetcode: false, bytebyte: false, interviewing: false },
+    { feature: 'Multi-language Support', ascend: true, leetcode: true, bytebyte: false, interviewing: false },
   ];
 
+  // Testimonials
+  const testimonials = [
+    { name: 'Sarah M.', role: 'Senior SWE', company: 'Meta', text: 'Got offers from 3 FAANG companies. The coding assistance was flawless. Went from rejected everywhere to multiple L5 offers.', avatar: 'S' },
+    { name: 'James K.', role: 'Staff Engineer', company: 'Google', text: 'The system design help alone is worth 10x the price. Helped me nail my Amazon L6 and Google L5 interviews.', avatar: 'J' },
+    { name: 'Priya R.', role: 'Eng Manager', company: 'Netflix', text: 'Game changer for behavioral interviews. The STAR method responses were perfect. Got promoted to EM level.', avatar: 'P' },
+    { name: 'Michael T.', role: 'SDE II', company: 'Amazon', text: 'Failed 5 interviews before Ascend. After using it, got offers from Amazon, Microsoft, and Uber. Life changing.', avatar: 'M' },
+    { name: 'Emily C.', role: 'Backend Engineer', company: 'Stripe', text: 'The live transcription feature is incredible. Never blanked out during an interview again. Highly recommend.', avatar: 'E' },
+    { name: 'David L.', role: 'Senior SWE', company: 'Microsoft', text: 'Went from 0 offers to 4 offers in 2 months. The ROI on this tool is insane. Worth every penny.', avatar: 'D' },
+  ];
+
+  // FAQ
   const faqItems = [
-    { q: 'How does Ascend work?', a: 'Ascend uses advanced AI to listen to your interview in real-time, transcribe questions, and provide instant answers.' },
-    { q: 'Is it really undetectable?', a: 'Yes. Completely invisible during screen sharing, not in dock/taskbar, undetectable by any platform.' },
-    { q: 'What platforms work?', a: 'Zoom, Google Meet, Teams, HackerRank, LeetCode, CoderPad, and virtually any interview platform.' },
-    { q: 'What languages supported?', a: '20+ languages including Python, JavaScript, TypeScript, Java, C++, Go, Rust, SQL.' },
+    { q: 'How does Ascend work?', a: 'Ascend uses advanced AI to analyze interview questions in real-time. Simply paste a problem, take a screenshot, or enable live transcription. Our AI provides instant, accurate solutions with detailed explanations.' },
+    { q: 'Is Ascend really undetectable?', a: 'Yes. Ascend is completely invisible during screen sharing. It doesn\'t appear in your dock, taskbar, or task manager. Works seamlessly with Zoom, Meet, Teams, and all coding platforms.' },
+    { q: 'What platforms and languages are supported?', a: 'We support 20+ programming languages including Python, JavaScript, TypeScript, Java, C++, Go, Rust, and SQL. Works with HackerRank, LeetCode, CoderPad, CodeSignal, and virtually any interview platform.' },
+    { q: 'Can I try before buying?', a: 'Yes! We offer a free tier with limited credits so you can experience the power of Ascend before committing. No credit card required to start.' },
+    { q: 'What\'s included in Quarterly Pro?', a: 'Quarterly Pro includes unlimited problems, all features (coding, system design, behavioral), priority support, and exclusive access to our Job Discovery Portal with curated opportunities.' },
+    { q: 'How is Desktop different from subscriptions?', a: 'Desktop is a one-time purchase that gives you lifetime access. You use your own API keys (OpenAI or Anthropic), so there are no ongoing fees. Perfect for power users who want full control.' },
+    { q: 'Do you offer refunds?', a: 'Yes, we offer a 30-day money-back guarantee. If you\'re not satisfied for any reason, contact us for a full refund. No questions asked.' },
+    { q: 'Is my data secure?', a: 'Absolutely. We don\'t store your interview questions or solutions. All processing happens in real-time and is immediately discarded. Your privacy is our priority.' },
   ];
 
-  const features = [
-    { icon: 'microphone', title: 'Live Transcription', color: '#10b981' },
-    { icon: 'robot', title: 'AI Answers', color: '#3b82f6' },
-    { icon: 'code', title: 'Code Solutions', color: '#8b5cf6' },
-    { icon: 'systemDesign', title: 'System Design', color: '#f59e0b' },
-    { icon: 'resume', title: 'Resume Sync', color: '#ef4444' },
-    { icon: 'target', title: 'Auto Detect', color: '#06b6d4' },
-    { icon: 'globe', title: '20+ Languages', color: '#ec4899' },
-    { icon: 'chartBar', title: 'Analytics', color: '#84cc16' },
-  ];
-
-  const privacyFeatures = [
-    { icon: 'eye', title: 'Screen Share Safe' },
-    { icon: 'target', title: 'Hidden in Dock' },
-    { icon: 'clipboard', title: 'No Task Manager' },
-    { icon: 'keyboard', title: 'Tab Switch Safe' },
-  ];
-
-  const platforms = [
-    { name: 'Zoom', icon: 'video' },
-    { name: 'Meet', icon: 'camera' },
-    { name: 'Teams', icon: 'briefcase' },
-    { name: 'HackerRank', icon: 'terminal' },
-    { name: 'LeetCode', icon: 'puzzle' },
-  ];
-
-  const companies = ['Google', 'Meta', 'Amazon', 'Apple', 'Netflix'];
-
-  useEffect(() => {
-    const interval = setInterval(() => setCodeIndex((prev) => (prev + 1) % codeSnippets.length), 4000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => setDesignIndex((prev) => (prev + 1) % systemDesigns.length), 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => setInterviewIndex((prev) => (prev + 1) % interviewQA.length), 6000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => setActiveDemo((prev) => (prev + 1) % 3), 8000);
-    return () => clearInterval(interval);
-  }, []);
-
+  // Animate counters on scroll
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !statsAnimated) {
             setStatsAnimated(true);
-            const duration = 2000, steps = 60, targets = { success: 300, offers: 17000, salary: 30 };
+            const duration = 2000, steps = 60;
+            const targets = { users: 50000, offers: 17500, salary: 35, companies: 500 };
             let step = 0;
             const interval = setInterval(() => {
               step++;
               const eased = 1 - Math.pow(1 - step / steps, 3);
-              setCounters({ success: Math.round(targets.success * eased), offers: Math.round(targets.offers * eased), salary: Math.round(targets.salary * eased) });
+              setCounters({
+                users: Math.round(targets.users * eased),
+                offers: Math.round(targets.offers * eased),
+                salary: Math.round(targets.salary * eased),
+                companies: Math.round(targets.companies * eased),
+              });
               if (step >= steps) clearInterval(interval);
             }, duration / steps);
           }
@@ -143,6 +143,12 @@ export default function OAuthLogin() {
     if (statsRef.current) observer.observe(statsRef.current);
     return () => observer.disconnect();
   }, [statsAnimated]);
+
+  // Auto-rotate demo
+  useEffect(() => {
+    const interval = setInterval(() => setActiveDemo((prev) => (prev + 1) % 3), 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleOAuthLogin = async (provider) => {
     setLoading(provider);
@@ -157,414 +163,580 @@ export default function OAuthLogin() {
     try { await signIn('google'); } catch (err) { localStorage.removeItem('ascend_pending_plan'); setError(err.message || 'Failed to sign in'); setLoading(null); }
   };
 
-  const providers = [{ id: 'google', name: 'Google' }, { id: 'github', name: 'GitHub' }, { id: 'linkedin', name: 'LinkedIn' }];
-
   return (
-    <div className="min-h-screen relative" style={{ background: '#0a0a0f', fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen relative" style={{ background: '#09090b', fontFamily: "'Inter', sans-serif" }}>
       {/* Grid Background */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
-        <div className="absolute w-[800px] h-[800px] rounded-full opacity-30 blur-3xl" style={{ background: 'radial-gradient(circle, #10b98120 0%, transparent 60%)', top: '-300px', left: '-200px' }} />
-        <div className="absolute w-[600px] h-[600px] rounded-full opacity-20 blur-3xl" style={{ background: 'radial-gradient(circle, #3b82f620 0%, transparent 60%)', bottom: '0', right: '-100px' }} />
+        <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+        <div className="absolute w-[1000px] h-[1000px] rounded-full opacity-20" style={{ background: 'radial-gradient(circle, #10b98115 0%, transparent 50%)', top: '-400px', left: '50%', transform: 'translateX(-50%)' }} />
       </div>
 
-      <div className="relative z-10 mx-auto px-6" style={{ maxWidth: '1200px' }}>
+      <div className="relative z-10">
 
-        {/* ═══════════════════════════════════════════════════════════════════════════════
-            NAVIGATION - Floating glass nav
-        ═══════════════════════════════════════════════════════════════════════════════ */}
-        <nav className="flex items-center justify-between py-4">
+        {/* ══════════════════════════════════════════════════════════════════════════════════
+            NAVIGATION
+        ══════════════════════════════════════════════════════════════════════════════════ */}
+        <nav className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-              <Icon name="ascend" size={20} className="text-white" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+              <Icon name="ascend" size={22} className="text-white" />
             </div>
-            <span className="text-lg font-bold text-white">Ascend</span>
+            <span className="text-xl font-bold text-white">Ascend</span>
           </div>
-          <div className="flex items-center gap-4 md:gap-6">
-            <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} className="text-gray-400 hover:text-white text-xs md:text-sm">Features</button>
-            <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })} className="text-gray-400 hover:text-white text-xs md:text-sm">Pricing</button>
-            <a href="/docs" className="text-gray-400 hover:text-white text-xs md:text-sm">Docs</a>
-            <button onClick={() => handleOAuthLogin('google')} className="px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium" style={{ background: '#10b981', color: '#fff' }}>
-              Start
-            </button>
+          <div className="hidden md:flex items-center gap-8">
+            <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} className="text-gray-400 hover:text-white text-sm transition-colors">Features</button>
+            <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })} className="text-gray-400 hover:text-white text-sm transition-colors">Pricing</button>
+            <button onClick={() => document.getElementById('testimonials')?.scrollIntoView({ behavior: 'smooth' })} className="text-gray-400 hover:text-white text-sm transition-colors">Reviews</button>
+            <a href="/docs" className="text-gray-400 hover:text-white text-sm transition-colors">Docs</a>
           </div>
+          <button onClick={() => handleOAuthLogin('google')} className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all hover:scale-105" style={{ background: '#10b981', color: '#fff' }}>
+            Get Started
+          </button>
         </nav>
 
-        {/* ═══════════════════════════════════════════════════════════════════════════════
+        {/* ══════════════════════════════════════════════════════════════════════════════════
             HERO SECTION
-        ═══════════════════════════════════════════════════════════════════════════════ */}
-        <section className="py-12 lg:py-16">
-          <div className="flex flex-col lg:flex-row items-center gap-12">
-            <div className="w-full lg:w-1/2 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs mb-6" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#10b981' }}>
-                <Icon name="sparkles" size={12} />
-                AI Interview Assistant
+        ══════════════════════════════════════════════════════════════════════════════════ */}
+        <section className="max-w-6xl mx-auto px-6 pt-16 pb-20">
+          <div className="text-center max-w-4xl mx-auto">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm mb-8" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+              <span className="text-green-400 font-medium">Join 50,000+ engineers landing top tech offers</span>
+            </div>
+
+            {/* Headline */}
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-[1.1]">
+              <span className="text-white">Ace Every Interview,</span><br />
+              <span style={{ background: 'linear-gradient(135deg, #10b981, #34d399, #6ee7b7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Secure Your Future</span>
+            </h1>
+
+            <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+              Real-time AI assistance for coding, system design & behavioral interviews.
+              <span className="text-white font-medium"> 100% invisible.</span> Used by engineers at top tech companies.
+            </p>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+              <button onClick={() => handleOAuthLogin('google')} disabled={loading} className="px-8 py-4 rounded-xl font-semibold text-lg text-white transition-all hover:scale-105 hover:shadow-lg" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 0 40px rgba(16, 185, 129, 0.3)' }}>
+                {loading === 'google' ? <Icon name="loader" size={20} className="animate-spin mx-auto" /> : 'Start Free Trial'}
+              </button>
+              <button onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })} className="px-8 py-4 rounded-xl font-semibold text-lg text-white flex items-center justify-center gap-3 transition-all hover:bg-white/10" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <Icon name="play" size={18} />
+                Watch Demo
+              </button>
+            </div>
+
+            {/* Social Proof Avatars */}
+            <div className="flex items-center justify-center gap-4">
+              <div className="flex -space-x-3">
+                {['S', 'J', 'P', 'M', 'E'].map((letter, i) => (
+                  <div key={i} className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold ring-2 ring-black" style={{ background: `linear-gradient(135deg, ${['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899'][i]}, ${['#059669', '#2563eb', '#7c3aed', '#d97706', '#db2777'][i]})` }}>
+                    {letter}
+                  </div>
+                ))}
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-                <span className="text-white">Ace Every</span><br />
-                <span style={{ background: 'linear-gradient(135deg, #10b981, #34d399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Technical Interview</span>
-              </h1>
-              <p className="text-gray-400 mb-8 text-lg">Real-time AI for coding, system design & behavioral. <span className="text-white">100% invisible.</span></p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-                <button onClick={() => handleOAuthLogin('google')} disabled={loading} className="px-8 py-3.5 rounded-xl font-semibold text-white transition-transform hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                  {loading ? <Icon name="loader" size={18} className="animate-spin" /> : 'Start Free Trial'}
-                </button>
-                <button className="px-6 py-3.5 rounded-xl font-medium text-gray-300 flex items-center justify-center gap-2" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                  <Icon name="play" size={16} /> Watch Demo
-                </button>
+              <div className="flex items-center gap-2">
+                <div className="flex">
+                  {[...Array(5)].map((_, i) => <Icon key={i} name="star5" size={16} className="text-yellow-400" />)}
+                </div>
+                <span className="text-gray-400 text-sm"><span className="text-white font-semibold">4.9/5</span> from 2,000+ reviews</span>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════════════════════
+            COMPANY LOGOS
+        ══════════════════════════════════════════════════════════════════════════════════ */}
+        <section className="py-12 border-y" style={{ borderColor: 'rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.01)' }}>
+          <div className="max-w-6xl mx-auto px-6">
+            <p className="text-center text-gray-500 text-sm mb-8">Engineers using Ascend have landed offers at</p>
+            <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
+              {companyLogos.map((company, i) => (
+                <span key={i} className="text-gray-500 font-semibold text-lg md:text-xl hover:text-white transition-colors cursor-default" style={{ letterSpacing: '-0.02em' }}>
+                  {company.name}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════════════════════
+            STATS SECTION
+        ══════════════════════════════════════════════════════════════════════════════════ */}
+        <section ref={statsRef} className="py-16">
+          <div className="max-w-5xl mx-auto px-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {[
+                { value: `${counters.users.toLocaleString()}+`, label: 'Active Users', color: '#10b981' },
+                { value: `${counters.offers.toLocaleString()}+`, label: 'Offers Secured', color: '#3b82f6' },
+                { value: `${counters.salary}%`, label: 'Avg Salary Increase', color: '#8b5cf6' },
+                { value: `${counters.companies}+`, label: 'Companies Hired From', color: '#f59e0b' },
+              ].map((stat, i) => (
+                <div key={i} className="text-center">
+                  <div className="text-4xl md:text-5xl font-bold mb-2 tabular-nums" style={{ color: stat.color }}>{stat.value}</div>
+                  <div className="text-gray-500 text-sm">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════════════════════
+            PROBLEM STATEMENT
+        ══════════════════════════════════════════════════════════════════════════════════ */}
+        <section className="py-16">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Sound Familiar?</h2>
+              <p className="text-gray-400 text-lg">These challenges hold back talented engineers every day</p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {painPoints.map((point, i) => (
+                <div key={i} className="p-5 rounded-xl transition-all hover:scale-105" style={{ background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.1)' }}>
+                  <Icon name={point.icon} size={20} className="text-red-400 mb-3" />
+                  <p className="text-gray-300 text-sm">{point.text}</p>
+                </div>
+              ))}
+            </div>
+            <div className="text-center mt-12">
+              <p className="text-xl text-white font-semibold mb-2">There's a better way.</p>
+              <p className="text-gray-400">Ascend eliminates the guesswork from interview prep.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════════════════════
+            FEATURES GRID
+        ══════════════════════════════════════════════════════════════════════════════════ */}
+        <section id="features" className="py-20">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Everything You Need to Succeed</h2>
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">Comprehensive AI-powered tools for every type of technical interview</p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              {featureCategories.map((cat, i) => (
+                <div key={i} className="p-8 rounded-2xl transition-all hover:scale-[1.02]" style={{ background: `linear-gradient(135deg, ${cat.color}08, ${cat.color}03)`, border: `1px solid ${cat.color}20` }}>
+                  <div className="flex items-start gap-4 mb-6">
+                    <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${cat.color}15` }}>
+                      <Icon name={cat.icon} size={28} style={{ color: cat.color }} />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-white mb-1">{cat.title}</h3>
+                      <p className="text-gray-400">{cat.desc}</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {cat.features.map((feat, j) => (
+                      <div key={j} className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: 'rgba(0,0,0,0.2)' }}>
+                        <Icon name="check" size={14} style={{ color: cat.color }} />
+                        <span className="text-gray-300 text-sm">{feat}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════════════════════
+            DEMO SECTION
+        ══════════════════════════════════════════════════════════════════════════════════ */}
+        <section id="demo" className="py-20" style={{ background: 'rgba(255,255,255,0.01)' }}>
+          <div className="max-w-5xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">See Ascend in Action</h2>
+              <p className="text-gray-400 text-lg">Real-time AI solving interview problems instantly</p>
+            </div>
+
+            {/* Demo Tabs */}
+            <div className="flex justify-center gap-3 mb-6">
+              {[
+                { id: 0, label: 'Coding', icon: 'code', color: '#10b981' },
+                { id: 1, label: 'System Design', icon: 'systemDesign', color: '#3b82f6' },
+                { id: 2, label: 'Behavioral', icon: 'users', color: '#8b5cf6' },
+              ].map((tab) => (
+                <button key={tab.id} onClick={() => setActiveDemo(tab.id)} className="px-6 py-3 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all" style={{ background: activeDemo === tab.id ? `${tab.color}20` : 'rgba(255,255,255,0.03)', border: `1px solid ${activeDemo === tab.id ? tab.color : 'rgba(255,255,255,0.08)'}`, color: activeDemo === tab.id ? tab.color : '#9ca3af' }}>
+                  <Icon name={tab.icon} size={16} />
+                  {tab.label}
+                </button>
+              ))}
             </div>
 
             {/* Demo Window */}
-            <div className="w-full lg:w-1/2">
-              <div className="flex gap-2 mb-3 justify-center">
-                {[{ id: 0, label: 'Coding', color: '#10b981' }, { id: 1, label: 'System Design', color: '#3b82f6' }, { id: 2, label: 'Behavioral', color: '#8b5cf6' }].map((tab) => (
-                  <button key={tab.id} onClick={() => setActiveDemo(tab.id)} className="px-4 py-2 rounded-lg text-sm font-medium transition-all" style={{ background: activeDemo === tab.id ? `${tab.color}20` : 'transparent', border: `1px solid ${activeDemo === tab.id ? tab.color : 'rgba(255,255,255,0.1)'}`, color: activeDemo === tab.id ? tab.color : '#6b7280' }}>
-                    {tab.label}
-                  </button>
-                ))}
+            <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div className="flex items-center gap-2 px-5 py-4" style={{ background: 'rgba(0,0,0,0.4)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <div className="flex gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                  <div className="w-3 h-3 rounded-full bg-green-500" />
+                </div>
+                <span className="text-gray-500 text-sm font-mono ml-4">ascend-assistant</span>
               </div>
-              <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(0,0,0,0.4)', border: `1px solid ${['#10b981', '#3b82f6', '#8b5cf6'][activeDemo]}30`, height: '380px' }}>
-                <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: 'rgba(0,0,0,0.5)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div className="flex gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-red-500/70" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
-                    <div className="w-3 h-3 rounded-full bg-green-500/70" />
+              <div className="p-8" style={{ minHeight: '350px' }}>
+                {activeDemo === 0 && (
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <div>
+                      <div className="text-gray-500 text-xs uppercase tracking-wider mb-3">Problem Detected</div>
+                      <div className="p-4 rounded-lg mb-4" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                        <p className="text-gray-300 text-sm">Given an array of integers, return indices of two numbers such that they add up to a specific target.</p>
+                      </div>
+                      <div className="text-gray-500 text-xs uppercase tracking-wider mb-3">AI Solution</div>
+                      <pre className="text-green-400 text-sm font-mono leading-relaxed">
+{`def two_sum(nums, target):
+    seen = {}
+    for i, n in enumerate(nums):
+        if target - n in seen:
+            return [seen[target-n], i]
+        seen[n] = i
+    return []`}
+                      </pre>
+                    </div>
+                    <div>
+                      <div className="text-gray-500 text-xs uppercase tracking-wider mb-3">Analysis</div>
+                      <div className="space-y-3">
+                        <div className="p-3 rounded-lg" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+                          <div className="text-green-400 text-xs font-semibold mb-1">Time Complexity</div>
+                          <div className="text-white">O(n) - Single pass</div>
+                        </div>
+                        <div className="p-3 rounded-lg" style={{ background: 'rgba(59, 130, 246, 0.1)' }}>
+                          <div className="text-blue-400 text-xs font-semibold mb-1">Space Complexity</div>
+                          <div className="text-white">O(n) - Hash map storage</div>
+                        </div>
+                        <div className="p-3 rounded-lg" style={{ background: 'rgba(139, 92, 246, 0.1)' }}>
+                          <div className="text-purple-400 text-xs font-semibold mb-1">Approach</div>
+                          <div className="text-white">Hash map for O(1) lookups</div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <span className="text-xs text-gray-500 flex-1 text-center font-mono">{activeDemo === 0 ? 'solution.py' : activeDemo === 1 ? 'architecture.md' : 'response.md'}</span>
-                </div>
-                <div className="p-5" style={{ height: '332px' }}>
-                  {activeDemo === 0 && (
-                    <div className="h-full flex flex-col">
-                      <div className="text-gray-500 text-xs mb-2 font-mono">// AI solving...</div>
-                      <pre className="text-green-400 text-sm font-mono flex-1 leading-relaxed">{codeSnippets[codeIndex].code}</pre>
-                      <div className="flex items-center gap-2 mt-4">
-                        <div className="h-1.5 flex-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
-                          <div className="h-full rounded-full" style={{ width: '100%', background: '#10b981', animation: 'progress 4s linear infinite' }} />
-                        </div>
-                        <span className="text-green-400 text-xs flex items-center gap-1"><Icon name="check" size={12} />Done</span>
-                      </div>
-                    </div>
-                  )}
-                  {activeDemo === 1 && (
-                    <div className="h-full flex flex-col">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Icon name="layers" size={18} className="text-blue-400" />
-                        <span className="text-blue-400 font-medium">{systemDesigns[designIndex].title}</span>
-                      </div>
-                      <div className="relative flex-1 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
-                        {/* Grid background */}
-                        <svg className="absolute inset-0 w-full h-full opacity-5"><defs><pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="#3b82f6" strokeWidth="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#g)"/></svg>
-                        {/* Connection lines */}
-                        <svg className="absolute inset-0 w-full h-full" style={{ zIndex: 1 }}>
-                          <defs>
-                            <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-                              <polygon points="0 0, 8 3, 0 6" fill="#4b5563" />
-                            </marker>
-                          </defs>
-                          {systemDesigns[designIndex].connections.map((conn, i) => {
-                            const fromNode = systemDesigns[designIndex].nodes.find(n => n.id === conn.from);
-                            const toNode = systemDesigns[designIndex].nodes.find(n => n.id === conn.to);
-                            if (!fromNode || !toNode) return null;
-                            return (
-                              <line
-                                key={i}
-                                x1={`${fromNode.x}%`}
-                                y1={`${fromNode.y}%`}
-                                x2={`${toNode.x}%`}
-                                y2={`${toNode.y}%`}
-                                stroke="#4b5563"
-                                strokeWidth="2"
-                                strokeDasharray="4,4"
-                                markerEnd="url(#arrowhead)"
-                                style={{ animation: `flowPulse 2s ease-in-out ${i * 0.3}s infinite` }}
-                              />
-                            );
-                          })}
-                        </svg>
-                        {/* Nodes */}
-                        {systemDesigns[designIndex].nodes.map((node) => (
-                          <div key={node.id} className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center" style={{ left: `${node.x}%`, top: `${node.y}%`, zIndex: 2 }}>
-                            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: `${node.color}20`, border: `1px solid ${node.color}`, boxShadow: `0 0 10px ${node.color}40` }}>
-                              <Icon name={node.icon} size={16} style={{ color: node.color }} />
-                            </div>
-                            <span className="text-[10px] text-gray-400 mt-1">{node.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {activeDemo === 2 && (
-                    <div className="h-full flex flex-col">
-                      <div className="mb-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center"><Icon name="question" size={16} className="text-purple-400" /></div>
-                          <span className="text-gray-400 text-sm">Interviewer</span>
-                        </div>
-                        <p className="text-white ml-10">"{interviewQA[interviewIndex].q}"</p>
-                      </div>
-                      <div className="flex-1 p-4 rounded-xl" style={{ background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center"><Icon name="answer" size={16} className="text-green-400" /></div>
-                          <span className="text-gray-400 text-sm">STAR Response</span>
-                        </div>
-                        <p className="text-purple-300 ml-10 text-sm">"{interviewQA[interviewIndex].a}"</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ═══════════════════════════════════════════════════════════════════════════════
-            SOCIAL PROOF BAR - Minimal horizontal strip
-        ═══════════════════════════════════════════════════════════════════════════════ */}
-        <section ref={statsRef} className="py-6 mb-8 rounded-2xl" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(59, 130, 246, 0.05))', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <div className="flex flex-wrap items-center justify-center gap-8 px-6">
-            <div className="flex items-center gap-4">
-              <span className="text-gray-500 text-sm">Trusted by</span>
-              {companies.map((c, i) => <span key={i} className="text-gray-400 font-medium">{c}</span>)}
-            </div>
-            <div className="h-8 w-px bg-white/10 hidden md:block" />
-            <div className="flex items-center gap-6">
-              {[{ v: `${counters.success}%`, l: 'Success', c: '#10b981' }, { v: counters.offers.toLocaleString(), l: 'Offers', c: '#3b82f6' }, { v: `${counters.salary}%`, l: 'Salary↑', c: '#8b5cf6' }].map((s, i) => (
-                <div key={i} className="text-center">
-                  <div className="text-lg font-bold tabular-nums" style={{ color: s.c }}>{s.v}</div>
-                  <div className="text-gray-500 text-xs">{s.l}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ═══════════════════════════════════════════════════════════════════════════════
-            FEATURES SECTION - Icon grid with colored accents
-        ═══════════════════════════════════════════════════════════════════════════════ */}
-        <section id="features" className="py-12">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-white mb-2">Powerful Features</h2>
-            <p className="text-gray-500">Everything you need to ace any interview</p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {features.map((f, i) => (
-              <div key={i} className="group p-5 rounded-xl transition-all hover:scale-105" style={{ background: `linear-gradient(135deg, ${f.color}08, ${f.color}03)`, border: `1px solid ${f.color}20` }}>
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3" style={{ background: `${f.color}15` }}>
-                  <Icon name={f.icon} size={20} style={{ color: f.color }} />
-                </div>
-                <h3 className="text-white font-medium text-sm">{f.title}</h3>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ═══════════════════════════════════════════════════════════════════════════════
-            PRIVACY SECTION - Shield themed card
-        ═══════════════════════════════════════════════════════════════════════════════ */}
-        <section className="py-8">
-          <div className="p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.02))', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(16, 185, 129, 0.15)' }}>
-                <Icon name="shield" size={24} className="text-green-400" />
-              </div>
-              <div>
-                <h3 className="text-white font-semibold">100% Undetectable</h3>
-                <p className="text-gray-400 text-sm">Works invisibly on any platform</p>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              {privacyFeatures.map((f, i) => (
-                <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
-                  <Icon name={f.icon} size={14} className="text-green-400" />
-                  <span className="text-gray-300 text-xs">{f.title}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ═══════════════════════════════════════════════════════════════════════════════
-            PLATFORMS SECTION - Pill badges
-        ═══════════════════════════════════════════════════════════════════════════════ */}
-        <section className="py-6 flex flex-wrap items-center justify-center gap-3">
-          <span className="text-gray-500 text-sm">Works with:</span>
-          {platforms.map((p, i) => (
-            <div key={i} className="flex items-center gap-2 px-4 py-2 rounded-full" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <Icon name={p.icon} size={14} className="text-gray-400" />
-              <span className="text-white text-sm">{p.name}</span>
-            </div>
-          ))}
-        </section>
-
-        {/* ═══════════════════════════════════════════════════════════════════════════════
-            CTA SECTION - Glowing card
-        ═══════════════════════════════════════════════════════════════════════════════ */}
-        <section className="py-12">
-          <div className="max-w-md mx-auto p-8 rounded-2xl text-center" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.02))', border: '1px solid rgba(16, 185, 129, 0.2)', boxShadow: '0 0 60px rgba(16, 185, 129, 0.1)' }}>
-            <h2 className="text-xl font-bold text-white mb-2">Ready to Ace Your Interview?</h2>
-            <p className="text-gray-400 text-sm mb-6">Start your free trial today. No credit card required.</p>
-            <div className="space-y-2">
-              {providers.map((p) => (
-                <button key={p.id} onClick={() => handleOAuthLogin(p.id)} disabled={loading !== null} className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium text-sm transition-all hover:bg-white/10" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}>
-                  {loading === p.id ? <Icon name="loader" size={16} className="animate-spin" /> : <><Icon name={p.id} size={16} />{p.name}</>}
-                </button>
-              ))}
-            </div>
-            {error && <p className="text-red-400 text-xs mt-3">{error}</p>}
-            <p className="mt-4 text-[11px] text-gray-600">By signing up, you agree to our <a href="/terms" className="text-gray-500 hover:text-white">Terms</a> & <a href="/privacy" className="text-gray-500 hover:text-white">Privacy</a></p>
-          </div>
-        </section>
-
-        {/* ═══════════════════════════════════════════════════════════════════════════════
-            PRICING SECTION - Large prominent cards
-        ═══════════════════════════════════════════════════════════════════════════════ */}
-        <section id="pricing" className="py-12">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-white mb-2">Simple Pricing</h2>
-            <p className="text-gray-500">Start free, upgrade when ready</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {/* Monthly */}
-            <div className="p-6 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <div className="flex items-center gap-2 mb-4">
-                <Icon name="cloud" size={20} className="text-gray-400" />
-                <h3 className="text-lg font-bold text-white">Monthly</h3>
-              </div>
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-bold text-white">$99</span>
-                <span className="text-gray-500">/mo</span>
-              </div>
-              <ul className="space-y-3 mb-6">
-                {['5 credits/month', '25 coding problems', 'Basic support'].map((item, j) => (
-                  <li key={j} className="flex items-center gap-2 text-gray-400 text-sm">
-                    <Icon name="check" size={16} className="text-green-400" />{item}
-                  </li>
-                ))}
-              </ul>
-              <button onClick={() => handlePricingClick('monthly')} className="w-full py-3 rounded-xl font-medium" style={{ background: 'rgba(255,255,255,0.1)', color: '#fff' }}>
-                {loading === 'monthly' ? '...' : 'Get Started'}
-              </button>
-            </div>
-
-            {/* Quarterly Pro - Featured */}
-            <div className="relative p-6 rounded-2xl" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05))', border: '2px solid #10b981' }}>
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold" style={{ background: '#10b981', color: '#fff' }}>POPULAR</div>
-              <div className="flex items-center gap-2 mb-4">
-                <Icon name="rocket" size={20} className="text-green-400" />
-                <h3 className="text-lg font-bold text-white">Quarterly Pro</h3>
-              </div>
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-bold text-white">$300</span>
-                <span className="text-gray-500">/qtr</span>
-              </div>
-              <ul className="space-y-3 mb-6">
-                {['10 credits/month', 'Unlimited problems', 'Job Discovery Portal', 'Priority support'].map((item, j) => (
-                  <li key={j} className="flex items-center gap-2 text-gray-300 text-sm">
-                    <Icon name="check" size={16} className="text-green-400" />{item}
-                  </li>
-                ))}
-              </ul>
-              <button onClick={() => handlePricingClick('quarterly_pro')} className="w-full py-3 rounded-xl font-semibold" style={{ background: '#10b981', color: '#fff' }}>
-                {loading === 'quarterly_pro' ? '...' : 'Get Pro'}
-              </button>
-            </div>
-
-            {/* Desktop Lifetime */}
-            <div className="relative p-6 rounded-2xl" style={{ background: 'linear-gradient(180deg, rgba(139, 92, 246, 0.12), rgba(139, 92, 246, 0.04))', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold" style={{ background: '#8b5cf6', color: '#fff' }}>LIFETIME</div>
-              <div className="flex items-center gap-2 mb-4">
-                <Icon name="terminal" size={20} className="text-purple-400" />
-                <h3 className="text-lg font-bold text-white">Desktop</h3>
-              </div>
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-bold text-white">$300</span>
-                <span className="text-gray-500">once</span>
-              </div>
-              <ul className="space-y-3 mb-6">
-                {['Unlimited forever', 'Use your own API keys', 'Offline mode', 'No subscription'].map((item, j) => (
-                  <li key={j} className="flex items-center gap-2 text-gray-400 text-sm">
-                    <Icon name="check" size={16} className="text-purple-400" />{item}
-                  </li>
-                ))}
-              </ul>
-              <button onClick={() => handlePricingClick('desktop_lifetime')} className="w-full py-3 rounded-xl font-medium" style={{ background: '#8b5cf6', color: '#fff' }}>
-                {loading === 'desktop_lifetime' ? '...' : 'Buy Now'}
-              </button>
-            </div>
-          </div>
-          <p className="text-center text-gray-500 text-sm mt-6">30-day money back guarantee</p>
-        </section>
-
-        {/* ═══════════════════════════════════════════════════════════════════════════════
-            REVIEWS SECTION - Testimonial cards
-        ═══════════════════════════════════════════════════════════════════════════════ */}
-        <section id="reviews" className="py-12">
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <h2 className="text-xl font-bold text-white">Loved by Engineers</h2>
-            <div className="flex items-center gap-1 px-3 py-1 rounded-full" style={{ background: 'rgba(250, 204, 21, 0.1)' }}>
-              {[...Array(5)].map((_, i) => <Icon key={i} name="star5" size={12} className="text-yellow-400" />)}
-              <span className="text-yellow-400 text-sm font-bold ml-1">4.9</span>
-            </div>
-          </div>
-          <div className="grid md:grid-cols-3 gap-4">
-            {reviews.map((r, i) => (
-              <div key={i} className="p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style={{ background: `linear-gradient(135deg, ${['#10b981', '#3b82f6', '#8b5cf6'][i]}, ${['#059669', '#2563eb', '#7c3aed'][i]})` }}>
-                    {r.name[0]}
-                  </div>
+                )}
+                {activeDemo === 1 && (
                   <div>
-                    <div className="text-white font-medium text-sm">{r.name}</div>
-                    <div className="text-gray-500 text-xs">{r.title}</div>
+                    <div className="text-blue-400 font-semibold mb-4 flex items-center gap-2">
+                      <Icon name="systemDesign" size={20} />
+                      Design: URL Shortener Service
+                    </div>
+                    <div className="grid md:grid-cols-3 gap-4 mb-6">
+                      {['API Gateway', 'Load Balancer', 'App Servers', 'Redis Cache', 'PostgreSQL', 'CDN'].map((comp, i) => (
+                        <div key={i} className="p-3 rounded-lg text-center" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                          <span className="text-white text-sm">{comp}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="p-4 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                        <div className="text-gray-400 text-xs uppercase mb-2">Scalability</div>
+                        <ul className="text-gray-300 text-sm space-y-1">
+                          <li>• Horizontal scaling with K8s</li>
+                          <li>• Read replicas for DB</li>
+                          <li>• Cache-aside pattern</li>
+                        </ul>
+                      </div>
+                      <div className="p-4 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                        <div className="text-gray-400 text-xs uppercase mb-2">Tech Stack</div>
+                        <ul className="text-gray-300 text-sm space-y-1">
+                          <li>• Go for high throughput</li>
+                          <li>• Redis for caching</li>
+                          <li>• PostgreSQL for persistence</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {activeDemo === 2 && (
+                  <div>
+                    <div className="mb-6">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
+                          <Icon name="question" size={18} className="text-purple-400" />
+                        </div>
+                        <span className="text-gray-400">Interviewer asks:</span>
+                      </div>
+                      <p className="text-white text-lg ml-13">"Tell me about a time you had to deal with a difficult teammate."</p>
+                    </div>
+                    <div className="p-6 rounded-xl" style={{ background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
+                      <div className="flex items-center gap-2 mb-4">
+                        <Icon name="sparkles" size={18} className="text-purple-400" />
+                        <span className="text-purple-400 font-semibold">STAR Response Generated</span>
+                      </div>
+                      <div className="space-y-3 text-gray-300">
+                        <p><span className="text-white font-semibold">Situation:</span> On my last project, a senior engineer was dismissive of my suggestions...</p>
+                        <p><span className="text-white font-semibold">Task:</span> I needed to find a way to collaborate effectively...</p>
+                        <p><span className="text-white font-semibold">Action:</span> I scheduled a 1:1, listened to their concerns, and proposed a compromise...</p>
+                        <p><span className="text-white font-semibold">Result:</span> We delivered the project 2 weeks early and became close collaborators...</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════════════════════
+            HOW IT WORKS
+        ══════════════════════════════════════════════════════════════════════════════════ */}
+        <section className="py-20">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">How It Works</h2>
+              <p className="text-gray-400 text-lg">Get started in minutes, land offers in weeks</p>
+            </div>
+            <div className="grid md:grid-cols-4 gap-6">
+              {howItWorks.map((step, i) => (
+                <div key={i} className="relative">
+                  {i < 3 && <div className="hidden md:block absolute top-12 left-full w-full h-px bg-gradient-to-r from-green-500/50 to-transparent" style={{ width: 'calc(100% - 2rem)' }} />}
+                  <div className="p-6 rounded-2xl text-center" style={{ background: 'rgba(16, 185, 129, 0.03)', border: '1px solid rgba(16, 185, 129, 0.1)' }}>
+                    <div className="text-green-400 text-sm font-bold mb-4">{step.num}</div>
+                    <div className="w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+                      <Icon name={step.icon} size={24} className="text-green-400" />
+                    </div>
+                    <h3 className="text-white font-bold mb-2">{step.title}</h3>
+                    <p className="text-gray-500 text-sm">{step.desc}</p>
                   </div>
                 </div>
-                <p className="text-gray-400 text-sm leading-relaxed">"{r.text}"</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ═══════════════════════════════════════════════════════════════════════════════
-            FAQ SECTION - Clean accordion style
-        ═══════════════════════════════════════════════════════════════════════════════ */}
-        <section className="py-12">
-          <h2 className="text-xl font-bold text-white text-center mb-6">Frequently Asked Questions</h2>
-          <div className="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto">
-            {faqItems.map((faq, i) => (
-              <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h3 className="text-white font-medium text-sm mb-2">{faq.q}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{faq.a}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ═══════════════════════════════════════════════════════════════════════════════
-            FOOTER
-        ═══════════════════════════════════════════════════════════════════════════════ */}
-        <footer className="py-8 border-t flex items-center justify-between" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-              <Icon name="ascend" size={14} className="text-white" />
+              ))}
             </div>
-            <span className="text-white font-semibold">Ascend</span>
           </div>
-          <div className="flex items-center gap-4 text-sm text-gray-500">
-            <a href="/privacy" className="hover:text-white">Privacy</a>
-            <a href="/terms" className="hover:text-white">Terms</a>
-            <span>© 2025</span>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════════════════════
+            COMPARISON TABLE
+        ══════════════════════════════════════════════════════════════════════════════════ */}
+        <section className="py-20" style={{ background: 'rgba(255,255,255,0.01)' }}>
+          <div className="max-w-5xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Why Engineers Choose Ascend</h2>
+              <p className="text-gray-400 text-lg">Compare us to alternatives</p>
+            </div>
+            <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr style={{ background: 'rgba(16, 185, 129, 0.05)' }}>
+                      <th className="text-left p-4 text-gray-400 font-medium text-sm">Feature</th>
+                      <th className="p-4 text-green-400 font-bold">Ascend</th>
+                      <th className="p-4 text-gray-500 font-medium text-sm">LeetCode</th>
+                      <th className="p-4 text-gray-500 font-medium text-sm">ByteByteGo</th>
+                      <th className="p-4 text-gray-500 font-medium text-sm">Interviewing.io</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {comparison.map((row, i) => (
+                      <tr key={i} style={{ background: i % 2 === 0 ? 'rgba(0,0,0,0.2)' : 'transparent' }}>
+                        <td className="p-4 text-gray-300 text-sm">{row.feature}</td>
+                        <td className="p-4 text-center">{row.ascend ? <Icon name="check" size={18} className="text-green-400 mx-auto" /> : <Icon name="x" size={18} className="text-gray-600 mx-auto" />}</td>
+                        <td className="p-4 text-center">{row.leetcode ? <Icon name="check" size={18} className="text-gray-500 mx-auto" /> : <Icon name="x" size={18} className="text-gray-600 mx-auto" />}</td>
+                        <td className="p-4 text-center">{row.bytebyte ? <Icon name="check" size={18} className="text-gray-500 mx-auto" /> : <Icon name="x" size={18} className="text-gray-600 mx-auto" />}</td>
+                        <td className="p-4 text-center">{row.interviewing ? <Icon name="check" size={18} className="text-gray-500 mx-auto" /> : <Icon name="x" size={18} className="text-gray-600 mx-auto" />}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════════════════════
+            TESTIMONIALS
+        ══════════════════════════════════════════════════════════════════════════════════ */}
+        <section id="testimonials" className="py-20">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <h2 className="text-3xl md:text-4xl font-bold text-white">Loved by Engineers</h2>
+                <div className="flex items-center gap-1 px-3 py-1.5 rounded-full" style={{ background: 'rgba(250, 204, 21, 0.1)' }}>
+                  {[...Array(5)].map((_, i) => <Icon key={i} name="star5" size={14} className="text-yellow-400" />)}
+                  <span className="text-yellow-400 font-bold ml-1">4.9</span>
+                </div>
+              </div>
+              <p className="text-gray-400 text-lg">Real success stories from engineers who landed their dream jobs</p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {testimonials.map((t, i) => (
+                <div key={i} className="p-6 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg" style={{ background: `linear-gradient(135deg, ${['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899', '#06b6d4'][i]}, ${['#059669', '#2563eb', '#7c3aed', '#d97706', '#db2777', '#0891b2'][i]})` }}>
+                      {t.avatar}
+                    </div>
+                    <div>
+                      <div className="text-white font-semibold">{t.name}</div>
+                      <div className="text-gray-500 text-sm">{t.role} @ {t.company}</div>
+                    </div>
+                  </div>
+                  <p className="text-gray-400 leading-relaxed">"{t.text}"</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════════════════════
+            PRICING
+        ══════════════════════════════════════════════════════════════════════════════════ */}
+        <section id="pricing" className="py-20" style={{ background: 'rgba(255,255,255,0.01)' }}>
+          <div className="max-w-5xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Simple, Transparent Pricing</h2>
+              <p className="text-gray-400 text-lg">Start free. Upgrade when you're ready. Cancel anytime.</p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Monthly */}
+              <div className="p-8 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <div className="flex items-center gap-3 mb-2">
+                  <Icon name="cloud" size={24} className="text-gray-400" />
+                  <h3 className="text-xl font-bold text-white">Monthly</h3>
+                </div>
+                <p className="text-gray-500 text-sm mb-6">Perfect for trying it out</p>
+                <div className="flex items-baseline gap-1 mb-6">
+                  <span className="text-5xl font-bold text-white">$99</span>
+                  <span className="text-gray-500">/month</span>
+                </div>
+                <ul className="space-y-4 mb-8">
+                  {['5 credits per month', '25 coding problems', 'System design basics', 'Email support'].map((item, j) => (
+                    <li key={j} className="flex items-center gap-3 text-gray-400">
+                      <Icon name="check" size={18} className="text-green-400 flex-shrink-0" />{item}
+                    </li>
+                  ))}
+                </ul>
+                <button onClick={() => handlePricingClick('monthly')} className="w-full py-3.5 rounded-xl font-semibold transition-all hover:bg-white/15" style={{ background: 'rgba(255,255,255,0.08)', color: '#fff' }}>
+                  {loading === 'monthly' ? <Icon name="loader" size={18} className="animate-spin mx-auto" /> : 'Get Started'}
+                </button>
+              </div>
+
+              {/* Quarterly Pro - Featured */}
+              <div className="relative p-8 rounded-2xl" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.12), rgba(16, 185, 129, 0.04))', border: '2px solid #10b981', boxShadow: '0 0 60px rgba(16, 185, 129, 0.15)' }}>
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-sm font-bold" style={{ background: '#10b981', color: '#fff' }}>MOST POPULAR</div>
+                <div className="flex items-center gap-3 mb-2">
+                  <Icon name="rocket" size={24} className="text-green-400" />
+                  <h3 className="text-xl font-bold text-white">Quarterly Pro</h3>
+                </div>
+                <p className="text-gray-400 text-sm mb-6">Best value for serious prep</p>
+                <div className="flex items-baseline gap-1 mb-2">
+                  <span className="text-5xl font-bold text-white">$300</span>
+                  <span className="text-gray-400">/quarter</span>
+                </div>
+                <div className="text-green-400 text-sm mb-6">$100/mo — Save $97 vs monthly</div>
+                <ul className="space-y-4 mb-8">
+                  {['10 credits per month', 'Unlimited problems', 'Full system design', 'Behavioral coaching', 'Job Discovery Portal', 'Priority support'].map((item, j) => (
+                    <li key={j} className="flex items-center gap-3 text-gray-300">
+                      <Icon name="check" size={18} className="text-green-400 flex-shrink-0" />{item}
+                    </li>
+                  ))}
+                </ul>
+                <button onClick={() => handlePricingClick('quarterly_pro')} className="w-full py-3.5 rounded-xl font-bold transition-all hover:scale-105" style={{ background: '#10b981', color: '#fff' }}>
+                  {loading === 'quarterly_pro' ? <Icon name="loader" size={18} className="animate-spin mx-auto" /> : 'Get Quarterly Pro'}
+                </button>
+              </div>
+
+              {/* Desktop Lifetime */}
+              <div className="relative p-8 rounded-2xl" style={{ background: 'linear-gradient(180deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.03))', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-sm font-bold" style={{ background: '#8b5cf6', color: '#fff' }}>LIFETIME</div>
+                <div className="flex items-center gap-3 mb-2">
+                  <Icon name="terminal" size={24} className="text-purple-400" />
+                  <h3 className="text-xl font-bold text-white">Desktop</h3>
+                </div>
+                <p className="text-gray-500 text-sm mb-6">One-time purchase, own forever</p>
+                <div className="flex items-baseline gap-1 mb-2">
+                  <span className="text-5xl font-bold text-white">$300</span>
+                  <span className="text-gray-500">once</span>
+                </div>
+                <div className="text-purple-400 text-sm mb-6">No subscription, ever</div>
+                <ul className="space-y-4 mb-8">
+                  {['Unlimited forever', 'Use your own API keys', 'Offline mode', 'All future updates', 'No recurring fees'].map((item, j) => (
+                    <li key={j} className="flex items-center gap-3 text-gray-400">
+                      <Icon name="check" size={18} className="text-purple-400 flex-shrink-0" />{item}
+                    </li>
+                  ))}
+                </ul>
+                <button onClick={() => handlePricingClick('desktop_lifetime')} className="w-full py-3.5 rounded-xl font-semibold transition-all hover:bg-purple-600" style={{ background: '#8b5cf6', color: '#fff' }}>
+                  {loading === 'desktop_lifetime' ? <Icon name="loader" size={18} className="animate-spin mx-auto" /> : 'Buy Desktop'}
+                </button>
+              </div>
+            </div>
+            <p className="text-center text-gray-500 mt-8">30-day money-back guarantee • Secure payment via Stripe</p>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════════════════════
+            FAQ
+        ══════════════════════════════════════════════════════════════════════════════════ */}
+        <section className="py-20">
+          <div className="max-w-3xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Frequently Asked Questions</h2>
+              <p className="text-gray-400 text-lg">Everything you need to know</p>
+            </div>
+            <div className="space-y-4">
+              {faqItems.map((faq, i) => (
+                <div key={i} className="rounded-xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <button onClick={() => setExpandedFaq(expandedFaq === i ? null : i)} className="w-full p-5 flex items-center justify-between text-left">
+                    <span className="text-white font-medium pr-4">{faq.q}</span>
+                    <Icon name={expandedFaq === i ? 'chevronUp' : 'chevronDown'} size={18} className="text-gray-500 flex-shrink-0" />
+                  </button>
+                  {expandedFaq === i && (
+                    <div className="px-5 pb-5">
+                      <p className="text-gray-400 leading-relaxed">{faq.a}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════════════════════
+            FINAL CTA
+        ══════════════════════════════════════════════════════════════════════════════════ */}
+        <section className="py-20">
+          <div className="max-w-3xl mx-auto px-6">
+            <div className="p-12 rounded-3xl text-center" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05))', border: '1px solid rgba(16, 185, 129, 0.3)', boxShadow: '0 0 80px rgba(16, 185, 129, 0.1)' }}>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Ready to Land Your Dream Job?</h2>
+              <p className="text-gray-400 text-lg mb-8 max-w-lg mx-auto">Join 50,000+ engineers who are acing interviews and securing top tech offers with Ascend.</p>
+              <button onClick={() => handleOAuthLogin('google')} disabled={loading} className="px-10 py-4 rounded-xl font-bold text-lg text-white transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 0 40px rgba(16, 185, 129, 0.4)' }}>
+                {loading === 'google' ? <Icon name="loader" size={20} className="animate-spin" /> : 'Start Free Trial — No Credit Card'}
+              </button>
+              {error && <p className="text-red-400 text-sm mt-4">{error}</p>}
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════════════════════
+            FOOTER
+        ══════════════════════════════════════════════════════════════════════════════════ */}
+        <footer className="py-12 border-t" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                  <Icon name="ascend" size={20} className="text-white" />
+                </div>
+                <div>
+                  <span className="text-white font-bold text-lg">Ascend</span>
+                  <p className="text-gray-500 text-sm">Ace every interview.</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-6 text-sm text-gray-500">
+                <a href="/docs" className="hover:text-white transition-colors">Documentation</a>
+                <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
+                <a href="/terms" className="hover:text-white transition-colors">Terms</a>
+                <a href="mailto:support@cariara.com" className="hover:text-white transition-colors">Support</a>
+              </div>
+            </div>
+            <div className="mt-8 pt-8 border-t text-center text-gray-600 text-sm" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+              © 2025 Ascend by Cariara. All rights reserved.
+            </div>
           </div>
         </footer>
       </div>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        @keyframes progress { 0% { width: 0; } 100% { width: 100%; } }
-        @keyframes flowPulse {
-          0%, 100% { stroke-opacity: 0.4; stroke-dashoffset: 0; }
-          50% { stroke-opacity: 1; stroke-dashoffset: 8; }
-        }
       `}</style>
     </div>
   );
