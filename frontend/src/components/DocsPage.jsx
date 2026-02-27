@@ -17401,8 +17401,137 @@ Now I encourage my team to challenge assumptions. Some of our best improvements 
       color: '#22c55e',
       questions: 9,
       description: 'Highlight your biggest wins and impact.',
+
+      introduction: `Achievement questions let you showcase your best work and demonstrate the impact you can bring to a new role. These are your opportunity to shine—but the key is being specific about YOUR contribution, quantifying impact, and explaining why it was challenging. A great achievement story shows technical excellence, business awareness, and the ability to deliver results.`,
+
+      keyQuestions: [
+        {
+          question: "What's your proudest professional accomplishment?",
+          answer: `**Structure for Achievement Stories**:
+
+**1. Set the Context**:
+- What made this challenging?
+- Why did it matter to the business?
+- What was at stake?
+
+**2. Your Specific Contribution**:
+- What was YOUR role vs. the team's?
+- What unique skills or insights did you bring?
+- What decisions did YOU make?
+
+**3. Quantified Impact**:
+- Numbers: performance improvement, cost savings, users affected
+- Business outcomes: revenue, efficiency, customer satisfaction
+- Technical metrics: latency, uptime, scale
+
+**STAR Example**:
+
+**Situation**: "Our e-commerce platform was losing $50K/month due to checkout failures during peak hours. The system had been problematic for 2 years with multiple failed fix attempts."
+
+**Task**: "As the senior engineer, I was asked to diagnose and fix the issue within 4 weeks before Black Friday."
+
+**Action**:
+- "I built a comprehensive observability system to trace every checkout attempt"
+- "Discovered the root cause was database connection pool exhaustion combined with a retry storm"
+- "Designed a circuit breaker pattern with graceful degradation"
+- "Implemented connection pooling optimization and async processing"
+- "Created a load testing framework to validate the fix"
+
+**Result**: "Reduced checkout failures from 15% to 0.1%. Handled 3x normal Black Friday traffic without issues. The solution became a template for other services, and I presented the approach at an internal tech talk."
+
+**Why This Works**: Shows technical depth, business impact, and influence beyond the immediate problem.`
+        },
+        {
+          question: 'Describe your biggest technical achievement',
+          answer: `**What Makes a Great Technical Achievement**:
+
+**1. Scale or Complexity**: Did you solve something that others couldn't?
+**2. Innovation**: Did you introduce new approaches or technologies?
+**3. Impact**: Did it meaningfully improve the system or business?
+**4. Learning**: What did you learn and teach others?
+
+**STAR Example**:
+
+**Situation**: "Our microservices architecture had grown to 150 services with no consistent observability. Debugging production issues took hours, and we were missing our SLA targets."
+
+**Task**: "I proposed and led an initiative to implement distributed tracing across all services."
+
+**Action**:
+- "Evaluated OpenTelemetry vs. vendor solutions; chose OpenTelemetry for flexibility"
+- "Designed a gradual rollout strategy to minimize risk"
+- "Created shared libraries and SDKs to make instrumentation easy for teams"
+- "Built custom dashboards connecting traces to business metrics"
+- "Ran workshops to train 40+ engineers on the new observability tools"
+
+**Result**:
+- "Mean time to detect (MTTD) reduced from 45 minutes to 5 minutes"
+- "Mean time to resolve (MTTR) reduced from 4 hours to 45 minutes"
+- "Engineering satisfaction with debugging tools increased 40% in surveys"
+- "The approach was adopted by two other business units"
+
+**Technical Credibility**: Mention specific technologies, trade-offs you evaluated, and technical challenges you overcame.`
+        },
+        {
+          question: 'Tell me about a time you exceeded expectations',
+          answer: `**What They Want to See**:
+- Initiative—you did more than asked
+- Business awareness—you understood broader impact
+- Quality—you delivered something exceptional
+
+**STAR Example**:
+
+**Situation**: "I was asked to create a simple data export feature for our analytics dashboard. The requirement was just a CSV download button."
+
+**Task**: "Deliver a basic export feature within one sprint."
+
+**Action**:
+- "I noticed users were requesting exports frequently for the same reports"
+- "Instead of just CSV, I built a scheduled reports system with email delivery"
+- "Added support for multiple formats (CSV, Excel, PDF) based on user research"
+- "Implemented smart caching so repeated reports generated instantly"
+- "Created a self-service UI so users could configure their own scheduled reports"
+
+**Result**: "What started as a 1-day feature became a key differentiator. Customer support tickets for data requests dropped 80%. Two enterprise clients cited scheduled reports as a deciding factor in their renewal."
+
+**Key Insight**: "I could have just done what was asked. But taking time to understand the 'why' behind the request led to a much more impactful solution."`
+        },
+        {
+          question: 'What impact have you had in your current/previous role?',
+          answer: `**Impact Categories to Highlight**:
+
+**Technical Impact**:
+- Systems you built or significantly improved
+- Performance or reliability improvements
+- Technical debt reduction
+- Architecture decisions
+
+**Team Impact**:
+- Mentoring and growing other engineers
+- Processes you improved
+- Knowledge sharing initiatives
+- Code quality improvements
+
+**Business Impact**:
+- Revenue or cost effects
+- Customer experience improvements
+- Product features that drove growth
+
+**Example Response**:
+
+"In my current role, I've had impact in three areas:
+
+**1. System Reliability**: I led the initiative to improve our payment processing reliability from 99.5% to 99.99%. This prevented an estimated $2M in annual lost transactions.
+
+**2. Team Efficiency**: I introduced automated code review checks and deployment pipelines that reduced our release cycle from 2 weeks to daily deployments. This let us respond to customer feedback 10x faster.
+
+**3. Engineering Culture**: I started our internal tech blog and brown bag lunch series. We've published 25 articles and the program has become key for knowledge sharing and onboarding.
+
+The common thread is finding high-leverage opportunities where a relatively small investment of time creates outsized returns."`
+        }
+      ],
+
       sampleQuestions: [
-        'What\'s your proudest accomplishment?',
+        "What's your proudest accomplishment?",
         'Describe your biggest technical achievement',
         'Tell me about a time you exceeded expectations'
       ],
@@ -17420,6 +17549,163 @@ Now I encourage my team to challenge assumptions. Some of our best improvements 
       color: '#ef4444',
       questions: 15,
       description: 'Demonstrate analytical thinking and creative solutions.',
+
+      introduction: `Problem-solving questions assess your analytical abilities, creativity, and structured thinking. Interviewers want to understand HOW you think, not just what you did. The best answers walk through your thought process, show how you gathered information, evaluated options, and made decisions—especially when facing ambiguity or incomplete information.`,
+
+      keyQuestions: [
+        {
+          question: 'Describe a complex problem you solved',
+          answer: `**Framework for Complex Problem Stories**:
+
+**1. Establish Complexity**: Why was this hard? Multiple variables, unknowns, stakeholders, or constraints.
+**2. Show Your Process**: How did you break it down? What framework did you use?
+**3. Demonstrate Iteration**: Did you try multiple approaches? How did you learn?
+**4. Highlight Collaboration**: Who else was involved? How did you leverage expertise?
+
+**STAR Example**:
+
+**Situation**: "Our recommendation engine was showing 40% irrelevant results. It used a basic collaborative filtering algorithm that couldn't handle our cold-start problem—new users had no history, and new products had no ratings."
+
+**Task**: "Design and implement a solution to improve recommendation relevance by at least 50%."
+
+**Action**:
+- "First, I deeply analyzed the failure cases to understand patterns"
+- "Identified three root causes: cold-start, popularity bias, and stale preferences"
+- "Researched hybrid approaches combining content-based and collaborative filtering"
+- "Prototyped three algorithms and ran A/B tests on 5% of traffic"
+- "Collaborated with data science team on feature engineering"
+- "Implemented the winning approach with real-time preference updates"
+
+**Result**: "Improved relevance score from 60% to 85%. Click-through rate increased 35%. The hybrid approach became our standard, and I documented the methodology for future improvements."
+
+**Key Insight**: "Complex problems rarely have single solutions. The key is systematic experimentation and being willing to combine approaches."`
+        },
+        {
+          question: 'How do you approach ambiguous problems?',
+          answer: `**Framework for Ambiguity**:
+
+**1. Define What You Know vs. Don't Know**
+**2. Identify Key Questions That Would Clarify**
+**3. Make Reasonable Assumptions (and state them)**
+**4. Create a Plan That Allows for Learning**
+**5. Set Checkpoints to Validate Assumptions**
+
+**Example Response**:
+
+"When facing ambiguous problems, I follow a structured approach:
+
+**Step 1 - Clarify the Goal**: 'What does success look like?' Sometimes stakeholders disagree, and aligning on outcomes prevents wasted work.
+
+**Step 2 - Map the Unknown**: I literally list what I don't know and categorize it:
+- Things I can find out quickly (ask someone, look up data)
+- Things requiring investigation (experiments, research)
+- True unknowns (have to make assumptions)
+
+**Step 3 - Start Small**: Rather than designing a complete solution upfront, I identify the smallest experiment that would validate my biggest assumption.
+
+**Step 4 - Timebox and Checkpoint**: 'I'll spend 2 days on this approach. If it's not working, I'll reassess.'
+
+**Real Example**: When asked to 'improve our CI/CD pipeline' with no specific goals, I:
+1. Interviewed 10 engineers to understand pain points
+2. Measured current metrics (build time, failure rate, deploy frequency)
+3. Identified the top 3 complaints
+4. Proposed specific improvements with expected outcomes
+5. Got stakeholder alignment before starting
+
+The ambiguity became a clear, measurable project."`
+        },
+        {
+          question: 'Tell me about a time you had to make a decision with incomplete information',
+          answer: `**What They're Assessing**:
+- Comfort with uncertainty
+- Decision-making framework
+- Ability to act despite imperfect data
+- Risk management
+
+**STAR Example**:
+
+**Situation**: "We discovered a potential security vulnerability in production on a Friday afternoon. We had evidence of unusual API calls but weren't sure if it was an attack or a misbehaving client."
+
+**Task**: "Decide whether to take drastic action (shut down the API) or investigate further while the system remained live."
+
+**Action**:
+- "Quickly gathered what we knew: 500 unusual requests from 3 IP addresses, hitting a specific endpoint"
+- "Assessed the worst case: if it was an attack, customer data could be at risk"
+- "Assessed the cost of being wrong: API shutdown would affect 10K users for ~2 hours"
+- "Made the call: temporarily block the suspicious IPs while we investigated, rather than full shutdown"
+- "Set a 30-minute timer—if we couldn't confirm benign behavior, we'd escalate to full shutdown"
+- "Pulled in security team and set up enhanced monitoring"
+
+**Result**: "Turned out to be a new partner's integration script with a bug. No attack, no data breach. We resolved it in 45 minutes with minimal user impact. I documented the decision framework for future incidents."
+
+**Decision Framework**:
+- What's the worst case if I act?
+- What's the worst case if I don't act?
+- What's the cost of reversing this decision?
+- Can I make a smaller, reversible decision first?`
+        },
+        {
+          question: 'Describe a time you had to debug a difficult production issue',
+          answer: `**What Makes a Great Debugging Story**:
+- Shows systematic thinking, not trial and error
+- Demonstrates technical depth
+- Highlights collaboration and communication
+- Includes prevention of future issues
+
+**STAR Example**:
+
+**Situation**: "Our payment service started timing out intermittently—10% of transactions were failing, but only between 2-4 PM daily. No code changes had been deployed in weeks."
+
+**Task**: "Find and fix the root cause while minimizing impact on customers."
+
+**Action**:
+- "Started with metrics: correlated timeouts with database query latency spikes"
+- "Eliminated obvious causes: checked for cron jobs, deployment, traffic patterns"
+- "Noticed pattern matched when marketing sent daily email campaigns"
+- "Hypothesized: email clicks → traffic spike → connection pool exhaustion"
+- "Validated: connection pool metrics confirmed they were maxed during failures"
+- "Temporary fix: increased pool size and added circuit breaker"
+- "Permanent fix: optimized slow queries and implemented connection pooling improvements"
+
+**Result**: "Fixed the immediate issue within 2 hours. Root cause was a combination of a slow query and undersized connection pool that only manifested under specific traffic patterns. Prevented $50K in daily transaction failures."
+
+**Post-Mortem Actions**:
+- Added monitoring for connection pool saturation
+- Set up alerts for query latency degradation
+- Documented the debugging process for the team`
+        },
+        {
+          question: 'Tell me about a time you had to balance speed vs. quality',
+          answer: `**What They Want to See**:
+- Business awareness (understanding trade-offs)
+- Technical judgment (knowing what can be deferred)
+- Communication (setting expectations)
+- Long-term thinking (not creating tech debt landmines)
+
+**STAR Example**:
+
+**Situation**: "We had a critical customer demo in 2 weeks that required a new feature. Proper implementation would take 4 weeks. Rushing it could create tech debt."
+
+**Task**: "Deliver something functional for the demo without compromising long-term system health."
+
+**Action**:
+- "Analyzed what was truly needed vs. nice-to-have for the demo"
+- "Identified core functionality that MUST be solid vs. parts that could be manual/limited"
+- "Created two implementation plans: 'demo mode' and 'production ready'"
+- "For demo: built core feature with happy-path handling, manual edge cases"
+- "Explicitly documented what was missing and created tech debt tickets"
+- "Set clear timeline with stakeholders: demo version now, production version in 3 more weeks"
+
+**Result**: "Demo was successful—customer signed a $500K contract. Completed production version 2 weeks after, addressing all edge cases. The tech debt tickets ensured nothing was forgotten."
+
+**Key Principles**:
+- Be explicit about what you're cutting and why
+- Never compromise on security or data integrity
+- Create visibility into technical debt
+- Set expectations with stakeholders about follow-up work`
+        }
+      ],
+
       sampleQuestions: [
         'Describe a complex problem you solved',
         'How do you approach ambiguous problems?',
@@ -17443,7 +17729,139 @@ Now I encourage my team to challenge assumptions. Some of our best improvements 
       icon: 'briefcase',
       color: '#f59e0b',
       count: 16,
-      principles: ['Customer Obsession', 'Ownership', 'Invent and Simplify', 'Are Right, A Lot', 'Learn and Be Curious', 'Hire and Develop the Best', 'Insist on the Highest Standards', 'Think Big']
+      principles: ['Customer Obsession', 'Ownership', 'Invent and Simplify', 'Are Right, A Lot', 'Learn and Be Curious', 'Hire and Develop the Best', 'Insist on the Highest Standards', 'Think Big'],
+
+      introduction: `Amazon's 16 Leadership Principles (LPs) are the foundation of EVERY behavioral interview at Amazon. Expect 4-6 behavioral rounds where interviewers probe deeply into specific LPs. Each story you tell should clearly demonstrate one or more principles. Prepare 2-3 strong stories per principle.`,
+
+      keyQuestions: [
+        {
+          question: 'Customer Obsession',
+          answer: `**Definition**: Leaders start with the customer and work backwards. They work vigorously to earn and keep customer trust.
+
+**What They Look For**:
+- Decisions driven by customer needs, not internal convenience
+- Going beyond requirements to delight customers
+- Sacrificing short-term gains for long-term customer trust
+
+**STAR Example**:
+
+**Situation**: "A major client reported that our analytics dashboard was too slow for their workflow—taking 30 seconds to load."
+
+**Task**: "The official roadmap had performance work scheduled for Q3, but the customer was frustrated now."
+
+**Action**:
+- "I spent a weekend profiling the specific queries they used most"
+- "Found that 80% of their load time came from 3 expensive aggregations"
+- "Implemented query result caching for these specific patterns"
+- "Delivered a hotfix within 5 days—outside the normal sprint cycle"
+
+**Result**: "Load time dropped from 30s to 2s for their use case. Customer renewed their enterprise contract. More importantly, I identified a pattern we could apply to other customers."
+
+**Key Phrase**: "I always ask: what does the customer actually need, not what's easiest for us to build?"`
+        },
+        {
+          question: 'Ownership',
+          answer: `**Definition**: Leaders act on behalf of the entire company. They never say "that's not my job." They think long-term.
+
+**What They Look For**:
+- Taking responsibility beyond your immediate scope
+- Not passing problems to others
+- Long-term thinking over short-term convenience
+
+**STAR Example**:
+
+**Situation**: "I noticed our deployment pipeline was failing frequently, causing delays across multiple teams. Officially, it was the DevOps team's responsibility."
+
+**Task**: "I could have just reported the issue, but our team was losing 2+ hours daily to failed deployments."
+
+**Action**:
+- "I spent evenings over two weeks diagnosing the root causes"
+- "Found that 60% of failures were due to flaky integration tests, not infrastructure"
+- "Proposed a fix: quarantine flaky tests while we improved them"
+- "Created a dashboard showing deployment reliability trends"
+- "Partnered with DevOps to implement the changes"
+
+**Result**: "Deployment success rate improved from 65% to 95%. Other teams adopted the same patterns. I wasn't asked to do this—I saw a problem affecting many people and took ownership."
+
+**Key Phrase**: "I never say 'that's not my job.' If I see a problem, I own it until it's solved."`
+        },
+        {
+          question: 'Invent and Simplify',
+          answer: `**Definition**: Leaders expect and require innovation from their teams. They find ways to simplify.
+
+**What They Look For**:
+- Creating new solutions, not just applying existing patterns
+- Simplifying complex processes
+- Being okay with being misunderstood (innovation is often controversial)
+
+**STAR Example**:
+
+**Situation**: "Our data pipeline had grown to 15 different services doing similar ETL work, each maintained by different teams with different approaches."
+
+**Task**: "As we scaled, this complexity was causing reliability issues and slowing development."
+
+**Action**:
+- "I proposed a unified data processing framework that teams could configure rather than build custom pipelines"
+- "Faced initial resistance—teams worried about losing flexibility"
+- "Built a prototype demonstrating how 80% of use cases could be handled with configuration"
+- "Created a migration guide and supported early adopters"
+
+**Result**: "Consolidated 15 services into one framework with plugins for custom needs. Reduced pipeline failures by 70% and cut new pipeline setup time from 2 weeks to 2 days."
+
+**Key Phrase**: "I look for complexity and ask: how can this be simpler?"`
+        },
+        {
+          question: 'Dive Deep',
+          answer: `**Definition**: Leaders operate at all levels, stay connected to the details, and audit frequently.
+
+**What They Look For**:
+- Not accepting surface-level explanations
+- Digging into data and details personally
+- Knowing when something doesn't add up
+
+**STAR Example**:
+
+**Situation**: "Our API latency metrics showed 50ms p50, which seemed great. But customers were complaining about slow responses."
+
+**Task**: "Something wasn't adding up. I needed to find the real story."
+
+**Action**:
+- "Instead of trusting the dashboard, I traced actual customer requests end-to-end"
+- "Discovered our metrics excluded network time and client-side processing"
+- "Found that p99 latency was 3 seconds—hidden by the p50 metric"
+- "Built new monitoring that captured full request lifecycle"
+- "Identified specific slow endpoints and optimized them"
+
+**Result**: "Customer-perceived latency dropped 80%. We caught a critical issue that our standard metrics had been hiding for months."
+
+**Key Phrase**: "The details matter. When something doesn't feel right, I dig until I understand why."`
+        },
+        {
+          question: 'Bias for Action',
+          answer: `**Definition**: Speed matters. Many decisions are reversible and don't require extensive study.
+
+**What They Look For**:
+- Acting quickly with calculated risk
+- Not waiting for perfect information
+- Preferring action over analysis paralysis
+
+**STAR Example**:
+
+**Situation**: "At 10 PM on a Friday, we noticed a gradual increase in error rates. Nothing was broken yet, but the trend looked concerning."
+
+**Task**: "We could wait to investigate Monday, or act now without full information."
+
+**Action**:
+- "I immediately set up enhanced monitoring to gather more data"
+- "Made a quick judgment: the rate of increase suggested we'd hit critical levels by Sunday"
+- "Identified the most likely cause (recent deployment) and proposed a rollback"
+- "Made the call to rollback within 30 minutes, accepting I might be wrong"
+
+**Result**: "The rollback stopped the error increase. Monday analysis confirmed a subtle bug in the deployment. If we'd waited, Saturday peak traffic would have caused an outage."
+
+**Key Phrase**: "I'd rather make a fast decision and be wrong 20% of the time than wait for certainty and be right too late."`
+        }
+      ]
     },
     {
       id: 'google-behavioral',
@@ -17452,7 +17870,100 @@ Now I encourage my team to challenge assumptions. Some of our best improvements 
       icon: 'code',
       color: '#4285f4',
       count: 12,
-      principles: ['Googliness', 'General Cognitive Ability', 'Leadership', 'Role-Related Knowledge']
+      principles: ['Googliness', 'General Cognitive Ability', 'Leadership', 'Role-Related Knowledge'],
+
+      introduction: `Google evaluates candidates on four key dimensions: General Cognitive Ability, Role-Related Knowledge, Leadership, and "Googliness" (culture fit). Behavioral questions at Google focus less on specific frameworks and more on how you think, collaborate, and navigate ambiguity. Expect questions about complex technical decisions and working across teams.`,
+
+      keyQuestions: [
+        {
+          question: 'Googliness (Culture Fit)',
+          answer: `**What Google Looks For**:
+- Comfort with ambiguity
+- Collaborative problem-solving
+- Intellectual humility—willing to be wrong
+- Bringing out the best in others
+- Doing the right thing even when it's hard
+
+**Example Questions**:
+- "Tell me about a time you disagreed with a decision and advocated for change"
+- "Describe a time you helped someone else succeed"
+- "How do you handle working with someone whose style is different from yours?"
+
+**STAR Example**:
+
+**Situation**: "A teammate was struggling with a high-visibility project. They hadn't asked for help, and stepping in uninvited could seem like I was taking over."
+
+**Task**: "Help them succeed without undermining their ownership."
+
+**Action**:
+- "Started by asking questions to understand their challenges"
+- "Offered to pair program on the hardest parts—framed as me learning, not them struggling"
+- "Shared relevant resources and patterns from similar projects I'd worked on"
+- "Made sure all credit went to them in team meetings"
+
+**Result**: "They delivered successfully and on time. Later told me my help had been crucial. We became close collaborators, and I learned techniques from them too."
+
+**Key Principle**: At Google, helping others succeed IS success.`
+        },
+        {
+          question: 'General Cognitive Ability',
+          answer: `**What Google Looks For**:
+- Structured thinking and problem decomposition
+- Learning on the fly
+- Handling novel situations without precedent
+- Meta-cognition—knowing what you don't know
+
+**Example Questions**:
+- "How would you improve [Google product]?"
+- "Describe a time you had to learn something completely new"
+- "Tell me about a complex problem you broke down into simpler parts"
+
+**STAR Example**:
+
+**Situation**: "I was asked to optimize a recommendation system but had no ML background."
+
+**Task**: "Deliver meaningful improvements despite not being a domain expert."
+
+**Action**:
+- "Started by mapping what I didn't know vs. what I could figure out"
+- "Read papers and talked to ML engineers to build intuition"
+- "Focused on areas where my backend skills added value—data quality, feature engineering, serving infrastructure"
+- "Proposed experiments I could validate without deep ML expertise"
+
+**Result**: "My data quality improvements increased model accuracy by 15% before any ML changes. Proved that understanding the problem space matters as much as algorithmic expertise."
+
+**Key Insight**: Google wants people who can figure things out, not people who already know everything.`
+        },
+        {
+          question: 'Leadership',
+          answer: `**What Google Looks For**:
+- Emergent leadership—leading without authority
+- Driving clarity in ambiguous situations
+- Enabling team success over personal achievement
+- Making hard calls when needed
+
+**Example Questions**:
+- "Tell me about leading a project without formal authority"
+- "Describe a time you had to make an unpopular decision"
+- "How do you handle a team that's not aligned?"
+
+**STAR Example**:
+
+**Situation**: "Our team of 8 had no clear direction. Different people were building features that overlapped or conflicted. Management was focused elsewhere."
+
+**Task**: "Someone needed to bring clarity. I stepped up even though I was the most junior."
+
+**Action**:
+- "Created a shared document mapping everyone's work and identifying conflicts"
+- "Facilitated a team discussion to align on priorities"
+- "Proposed a simple coordination process: weekly sync + shared roadmap"
+- "Volunteered to run the syncs and maintain the roadmap"
+
+**Result**: "Team velocity improved 40% in the next quarter. Conflicts dropped to near-zero. I was promoted, but more importantly, the team functioned better."
+
+**Key Principle**: At Google, you don't need a title to lead. Leadership is about creating clarity and enabling others.`
+        }
+      ]
     },
     {
       id: 'meta-behavioral',
@@ -17461,7 +17972,86 @@ Now I encourage my team to challenge assumptions. Some of our best improvements 
       icon: 'users',
       color: '#1877f2',
       count: 10,
-      principles: ['Move Fast', 'Be Bold', 'Focus on Impact', 'Be Open', 'Build Social Value']
+      principles: ['Move Fast', 'Be Bold', 'Focus on Impact', 'Be Open', 'Build Social Value'],
+
+      introduction: `Meta's behavioral interviews focus on their core values: Move Fast, Be Bold, Focus on Impact, Be Open, and Build Social Value. They want builders who ship quickly, take big swings, and prioritize impact over perfection. Expect questions about moving fast, learning from failures, and making high-impact decisions.`,
+
+      keyQuestions: [
+        {
+          question: 'Move Fast',
+          answer: `**What Meta Looks For**:
+- Speed of execution without sacrificing quality
+- Iteration over perfection
+- Removing blockers proactively
+- Making decisions quickly
+
+**STAR Example**:
+
+**Situation**: "We needed to launch a new feature before a competitive product hit the market. Normal timeline was 3 months."
+
+**Task**: "Deliver a high-quality launch in 6 weeks."
+
+**Action**:
+- "Ruthlessly scoped to minimum viable feature set"
+- "Parallelized work across team members instead of sequential reviews"
+- "Set up automated testing on day 1 to avoid manual QA bottlenecks"
+- "Held daily 15-min syncs instead of weekly hour-long meetings"
+- "Made decisions in real-time rather than waiting for consensus"
+
+**Result**: "Launched in 5 weeks with positive user reception. Iterated based on feedback while competitors were still in development. Moving fast gave us first-mover advantage."
+
+**Key Phrase**: "Done is better than perfect, as long as done means we can learn and iterate."`
+        },
+        {
+          question: 'Focus on Impact',
+          answer: `**What Meta Looks For**:
+- Prioritizing high-leverage work
+- Measuring and quantifying impact
+- Killing low-impact work, even if you've already started
+- Working on what matters, not just what's interesting
+
+**STAR Example**:
+
+**Situation**: "I was halfway through building a sophisticated analytics dashboard when I realized only 10% of users would actually use it."
+
+**Task**: "Decide whether to finish what I'd started or pivot to something higher impact."
+
+**Action**:
+- "Analyzed user data to find where the real pain points were"
+- "Discovered that a simple alert feature would help 80% of users"
+- "Made the hard call to shelve my dashboard work"
+- "Pitched the simpler feature and got quick approval"
+- "Shipped the alert feature in 2 weeks"
+
+**Result**: "Alert feature had 10x the engagement of my original dashboard plan. I learned that impact isn't about complexity—it's about solving real problems for real users."
+
+**Key Phrase**: "I constantly ask: is this the highest-impact thing I could be doing right now?"`
+        },
+        {
+          question: 'Be Bold',
+          answer: `**What Meta Looks For**:
+- Taking calculated risks
+- Proposing big ideas, not incremental improvements
+- Learning from bold failures
+- Not being afraid to challenge the status quo
+
+**STAR Example**:
+
+**Situation**: "Our team was making small, incremental improvements to a legacy system. Progress was slow and no one was excited."
+
+**Task**: "I believed we should rebuild from scratch, but that was risky and controversial."
+
+**Action**:
+- "Built a prototype of the new approach on my own time"
+- "Demonstrated 5x performance improvement with cleaner architecture"
+- "Proposed a 6-week rewrite to leadership with clear risk mitigation"
+- "Volunteered to lead the effort and own the outcome"
+
+**Result**: "Got approval for the rewrite. Delivered in 7 weeks with the promised improvements. The bold bet paid off, and the team's morale improved dramatically."
+
+**Key Phrase**: "If we only make safe bets, we'll only get safe results."`
+        }
+      ]
     },
     {
       id: 'microsoft-behavioral',
@@ -17470,7 +18060,85 @@ Now I encourage my team to challenge assumptions. Some of our best improvements 
       icon: 'layers',
       color: '#00a4ef',
       count: 8,
-      principles: ['Growth Mindset', 'Customer Obsessed', 'Diverse and Inclusive', 'One Microsoft', 'Making a Difference']
+      principles: ['Growth Mindset', 'Customer Obsessed', 'Diverse and Inclusive', 'One Microsoft', 'Making a Difference'],
+
+      introduction: `Microsoft's cultural transformation under Satya Nadella centers on Growth Mindset—the belief that abilities can be developed through dedication and hard work. Expect questions about learning from failure, embracing feedback, and collaborating across teams (One Microsoft). Show intellectual curiosity and humility.`,
+
+      keyQuestions: [
+        {
+          question: 'Growth Mindset',
+          answer: `**What Microsoft Looks For**:
+- Learning from failures, not hiding them
+- Embracing challenges as growth opportunities
+- Seeking and acting on feedback
+- Believing that skills can be developed
+
+**STAR Example**:
+
+**Situation**: "I received feedback that my code reviews were too harsh and discouraging junior developers."
+
+**Task**: "I needed to change my approach while maintaining high standards."
+
+**Action**:
+- "First, I had to accept the feedback was valid—my intention didn't match my impact"
+- "Asked colleagues for specific examples so I could understand the pattern"
+- "Studied how respected mentors gave constructive feedback"
+- "Started framing reviews as questions rather than criticisms"
+- "Added explicit praise for what was done well, not just what needed change"
+
+**Result**: "Over 6 months, my review feedback scores improved significantly. Junior developers started requesting my reviews. I learned that being right isn't enough—how you communicate matters as much as what you say."
+
+**Key Phrase**: "Feedback is a gift. Even when it's hard to hear, it's an opportunity to improve."`
+        },
+        {
+          question: 'One Microsoft',
+          answer: `**What Microsoft Looks For**:
+- Collaborating across teams and organizations
+- Putting company success over team success
+- Breaking down silos
+- Sharing knowledge and resources
+
+**STAR Example**:
+
+**Situation**: "My team had built an internal tool that could benefit other teams, but sharing it wasn't in our objectives."
+
+**Task**: "I saw an opportunity to help the company but had to make the case for investing time in sharing."
+
+**Action**:
+- "Documented the tool and created easy onboarding guides"
+- "Reached out to teams with similar problems and offered demos"
+- "Set up a support channel and committed to helping early adopters"
+- "Made the case to my manager: helping others succeed helps Microsoft succeed"
+
+**Result**: "The tool was adopted by 15 teams across 3 organizations. Total engineering hours saved: an estimated 10,000 per year. My manager highlighted this as an example of One Microsoft culture."
+
+**Key Phrase**: "We win as a company, not as individual teams. Sharing success makes everyone stronger."`
+        },
+        {
+          question: 'Customer Obsessed',
+          answer: `**What Microsoft Looks For**:
+- Deep understanding of customer problems
+- Building FOR customers, not just AT them
+- Measuring success by customer outcomes
+- Being responsive to customer feedback
+
+**STAR Example**:
+
+**Situation**: "Our product team was planning features based on internal roadmap priorities, not customer feedback."
+
+**Task**: "I believed we were building the wrong things and needed to ground our work in customer needs."
+
+**Action**:
+- "Set up a customer feedback analysis system"
+- "Identified the top 10 customer pain points from support tickets and feedback"
+- "Created a presentation showing misalignment between our roadmap and customer needs"
+- "Proposed adjusting priorities to address customer pain points first"
+
+**Result**: "Leadership approved a roadmap shift. Customer satisfaction scores increased 25% in the next quarter. More importantly, we established a process for continuously incorporating customer feedback."
+
+**Key Phrase**: "The best products come from deeply understanding customer problems, not from internal brainstorming."`
+        }
+      ]
     },
   ];
 
