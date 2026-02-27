@@ -6561,6 +6561,377 @@ Search Logs → Kafka → Flink → Aggregator → Trie Updater
       color: '#611f69',
       difficulty: 'Hard',
       description: 'Design a team communication platform with channels, threads, and integrations.',
+
+      introduction: `Slack and Discord are team communication platforms that have transformed workplace collaboration. Slack has 20M+ daily active users sending billions of messages daily, while Discord has 150M+ monthly users.
+
+The key challenges are: real-time message delivery via WebSockets, managing presence and typing indicators, searching through message history, and supporting rich integrations with bots and third-party apps.`,
+
+      functionalRequirements: [
+        'Workspaces/servers with multiple channels',
+        'Public and private channels',
+        'Direct messages (1:1 and group)',
+        'Threaded conversations',
+        'File and media sharing',
+        'Message search across channels',
+        'Reactions and emoji',
+        'Mentions and notifications',
+        'Bot and integration platform',
+        'Voice and video calls'
+      ],
+
+      nonFunctionalRequirements: [
+        'Real-time message delivery (<100ms)',
+        'Support 500K+ concurrent WebSocket connections',
+        'Handle 1B+ messages per day',
+        'Message search across years of history',
+        '99.99% availability',
+        'End-to-end encryption for DMs (optional)',
+        'Message retention and compliance'
+      ],
+
+      dataModel: {
+        description: 'Workspaces, channels, messages, and threads',
+        schema: `workspaces {
+  id: uuid PK
+  name: varchar(100)
+  domain: varchar(50) -- company.slack.com
+  plan: enum(FREE, PRO, ENTERPRISE)
+  created_at: timestamp
+}
+
+channels {
+  id: uuid PK
+  workspace_id: uuid FK
+  name: varchar(100)
+  type: enum(PUBLIC, PRIVATE, DM, GROUP_DM)
+  topic: text
+  member_count: int
+  created_at: timestamp
+}
+
+messages {
+  id: snowflake PK -- time-sorted ID
+  channel_id: uuid FK
+  user_id: uuid FK
+  thread_id: snowflake FK NULL -- parent message if thread reply
+  content: text
+  attachments: jsonb
+  reactions: jsonb
+  edited_at: timestamp
+  created_at: timestamp
+}
+
+channel_members {
+  channel_id: uuid FK
+  user_id: uuid FK
+  last_read_at: timestamp -- for unread tracking
+  notifications: enum(ALL, MENTIONS, NONE)
+}
+
+user_presence {
+  user_id: uuid PK
+  status: enum(ACTIVE, AWAY, DND, OFFLINE)
+  status_text: varchar(100)
+  last_active: timestamp
+}`
+      },
+
+      apiDesign: {
+        description: 'REST API for CRUD, WebSocket for real-time',
+        endpoints: [
+          { method: 'POST', path: '/api/messages', params: '{ channelId, content, threadId?, attachments[] }', response: '{ message }' },
+          { method: 'GET', path: '/api/channels/:id/messages', params: 'before, after, limit', response: '{ messages[], hasMore }' },
+          { method: 'GET', path: '/api/search', params: 'q, channelIds[], from, to', response: '{ messages[], total }' },
+          { method: 'WS', path: '/ws/realtime', params: 'token', response: 'MESSAGE_NEW, TYPING, PRESENCE, REACTION events' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How do we handle real-time messaging?',
+          answer: `**WebSocket Architecture**:
+\`\`\`
+┌──────────┐    ┌───────────────┐    ┌────────────────┐
+│  Client  │◀──▶│   WebSocket   │◀──▶│    Message     │
+│          │    │    Gateway    │    │    Service     │
+└──────────┘    └───────────────┘    └────────────────┘
+                       │
+                       ▼
+               ┌───────────────┐
+               │  Redis Pub/Sub │
+               │  (Fan-out)     │
+               └───────────────┘
+\`\`\`
+
+**Message Flow**:
+1. User sends message via WebSocket
+2. Gateway validates and forwards to Message Service
+3. Message Service persists to DB
+4. Publishes to Redis Pub/Sub channel (channel_id)
+5. All Gateway instances subscribed to channel receive message
+6. Gateways push to connected clients in that channel
+
+**Connection Management**:
+- Heartbeat every 30 seconds
+- Reconnect with exponential backoff
+- HTTP long-polling fallback for corporate firewalls
+- Sticky sessions not required (stateless gateways)`
+        },
+        {
+          question: 'How do we handle typing indicators and presence?',
+          answer: `**Typing Indicators**:
+- Client sends TYPING event when user starts typing
+- Gateway broadcasts to channel members
+- Auto-expire after 5 seconds (no need to persist)
+- Rate limit: 1 event per 3 seconds per user
+
+**Presence System**:
+\`\`\`
+User Activity → Presence Service → Redis
+                                     ↓
+                              TTL: 60 seconds
+                                     ↓
+                              Broadcast on change
+\`\`\`
+
+**Optimizations**:
+- Only broadcast presence to users who have "viewed" target user
+- Aggregate presence updates (batch every 5 seconds)
+- Don't show typing for large channels (>100 members)
+- Lazy presence: Fetch on demand, not push everything
+
+**Status Levels**:
+- ACTIVE: Recent activity (<5 min)
+- AWAY: No activity (5-30 min)
+- OFFLINE: No activity (>30 min) or explicit`
+        },
+        {
+          question: 'How do we design message search?',
+          answer: `**Search Architecture**:
+\`\`\`
+Messages → Kafka → Elasticsearch Indexer
+                          ↓
+                   Elasticsearch Cluster
+                   (Sharded by workspace)
+\`\`\`
+
+**Index Design**:
+- Shard by workspace_id (data locality)
+- Index: message content, sender, channel, timestamp
+- ACL: Filter by user's channel membership at query time
+
+**Search Features**:
+- Full-text search with highlighting
+- Filters: from:user, in:channel, before/after dates
+- Fuzzy matching for typos
+- Recent messages weighted higher
+
+**Performance**:
+- Async indexing (1-5 second delay acceptable)
+- Pre-filter by channel access (security)
+- Result pagination with search_after
+- Cache frequent searches`
+        },
+        {
+          question: 'How do we track unread messages?',
+          answer: `**Read Position Tracking**:
+- Store last_read_message_id per user per channel
+- Count unreads: messages with id > last_read_id
+
+**Implementation**:
+\`\`\`sql
+-- In channel_members table
+last_read_at: timestamp
+last_read_message_id: snowflake
+
+-- Unread count (at query time)
+SELECT COUNT(*) FROM messages
+WHERE channel_id = ? AND id > last_read_message_id
+\`\`\`
+
+**Optimizations**:
+- Cache unread counts in Redis
+- Invalidate on new message or mark-as-read
+- Batch updates when user scrolls through messages
+- Don't track exact count above threshold (show "99+")
+
+**Mark as Read**:
+- Automatic when user views channel
+- Debounce: Only update after 1 second of focus
+- Support "mark all as read" for workspace`
+        },
+        {
+          question: 'How do we handle file uploads?',
+          answer: `**Upload Flow**:
+1. Client requests upload URL from API
+2. API generates pre-signed S3 URL (expires in 15 min)
+3. Client uploads directly to S3
+4. Client notifies API of completion
+5. API validates, creates message with attachment
+
+**Storage**:
+- S3 for files with CDN in front
+- Thumbnails generated async (Lambda)
+- Virus scanning before making available
+- Storage limits per workspace/plan
+
+**Message with Attachment**:
+\`\`\`json
+{
+  "content": "Check out this design",
+  "attachments": [{
+    "type": "image",
+    "url": "https://cdn.slack.com/...",
+    "thumbnail_url": "...",
+    "size": 245000,
+    "name": "design.png"
+  }]
+}
+\`\`\``
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Chat Architecture',
+        description: 'Single WebSocket server with direct database',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────┐
+│                     Basic Chat System                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   ┌──────────┐        ┌──────────────┐       ┌──────────────┐   │
+│   │ Clients  │◀──────▶│  WebSocket   │──────▶│  PostgreSQL  │   │
+│   │          │        │   Server     │       │              │   │
+│   └──────────┘        └──────────────┘       └──────────────┘   │
+│                              │                                   │
+│                              ▼                                   │
+│                       ┌──────────────┐                          │
+│                       │     S3       │                          │
+│                       │   (Files)    │                          │
+│                       └──────────────┘                          │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Single server = limited connections',
+          'No fan-out mechanism for multi-server',
+          'No message search',
+          'No presence aggregation'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Chat Architecture',
+        architecture: `
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                       Production Chat Architecture                            │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────┐                                                             │
+│  │   Clients   │                                                             │
+│  └──────┬──────┘                                                             │
+│         │ WebSocket                                                          │
+│         ▼                                                                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    WebSocket Gateway Cluster                         │    │
+│  │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐              │    │
+│  │  │  Gateway 1  │    │  Gateway 2  │    │  Gateway 3  │              │    │
+│  │  │  (100K conn)│    │  (100K conn)│    │  (100K conn)│              │    │
+│  │  └──────┬──────┘    └──────┬──────┘    └──────┬──────┘              │    │
+│  └─────────┼─────────────────┼─────────────────┼───────────────────────┘    │
+│            │                 │                 │                             │
+│            └─────────────────┼─────────────────┘                             │
+│                              ▼                                               │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │                      Redis Pub/Sub Cluster                            │   │
+│  │              (Channel subscriptions for message fan-out)              │   │
+│  └──────────────────────────────────┬───────────────────────────────────┘   │
+│                                     │                                        │
+│  ┌──────────────────────────────────┼───────────────────────────────────┐   │
+│  │                          SERVICE LAYER                                │   │
+│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐     │   │
+│  │  │  Message   │  │  Channel   │  │  Presence  │  │   Search   │     │   │
+│  │  │  Service   │  │  Service   │  │  Service   │  │  Service   │     │   │
+│  │  └─────┬──────┘  └─────┬──────┘  └─────┬──────┘  └─────┬──────┘     │   │
+│  └────────┼───────────────┼───────────────┼───────────────┼─────────────┘   │
+│           │               │               │               │                  │
+│  ┌────────┼───────────────┼───────────────┼───────────────┼─────────────┐   │
+│  │        ▼               ▼               ▼               ▼             │   │
+│  │  ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────────┐      │   │
+│  │  │ Messages │   │ Channels │   │  Redis   │   │Elasticsearch │      │   │
+│  │  │   DB     │   │   DB     │   │(Presence)│   │  (Search)    │      │   │
+│  │  │(Sharded) │   │          │   │          │   │              │      │   │
+│  │  └──────────┘   └──────────┘   └──────────┘   └──────────────┘      │   │
+│  │                                                                      │   │
+│  │  ┌──────────────────────────────────────────────────────────┐       │   │
+│  │  │                        Storage                            │       │   │
+│  │  │  ┌──────────┐    ┌──────────┐    ┌──────────┐            │       │   │
+│  │  │  │    S3    │    │   CDN    │    │  Kafka   │            │       │   │
+│  │  │  │ (Files)  │    │ (Assets) │    │ (Events) │            │       │   │
+│  │  │  └──────────┘    └──────────┘    └──────────┘            │       │   │
+│  │  └──────────────────────────────────────────────────────────┘       │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'WebSocket Gateway cluster with 100K connections per node',
+          'Redis Pub/Sub for cross-gateway message fan-out',
+          'Messages DB sharded by channel_id (co-locate channel messages)',
+          'Elasticsearch for full-text message search',
+          'Kafka for event sourcing and async processing',
+          'Presence aggregated in Redis with TTL'
+        ]
+      },
+
+      messageFlow: {
+        title: 'Message Delivery Flow',
+        steps: [
+          'User sends message via WebSocket to Gateway',
+          'Gateway validates auth token and permissions',
+          'Gateway forwards to Message Service',
+          'Message Service persists to database',
+          'Message Service publishes to Redis Pub/Sub (channel topic)',
+          'All Gateways subscribed to channel receive message',
+          'Gateways push message to connected channel members',
+          'Message Service sends to Kafka for async indexing',
+          'Search indexer updates Elasticsearch',
+          'Push notification service notifies offline users'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Message Storage & Partitioning',
+          points: [
+            'Partition messages by channel_id for query locality',
+            'Use Snowflake IDs (time-sortable) for efficient range queries',
+            'Archive old messages to cold storage (S3)',
+            'Separate hot (recent) and cold (old) message stores',
+            'Consider Cassandra for write-heavy workloads'
+          ]
+        },
+        {
+          topic: 'WebSocket Scaling',
+          points: [
+            'Each gateway handles 100K-500K connections',
+            'Stateless gateways with Redis for pub/sub',
+            'Graceful shutdown: Drain connections before restart',
+            'Connection limits per user (prevent abuse)',
+            'Geographic distribution for latency'
+          ]
+        },
+        {
+          topic: 'Bot Platform Design',
+          points: [
+            'Outgoing webhooks: POST to bot URL on message',
+            'Incoming webhooks: Bot POSTs to Slack API',
+            'Slash commands: /command triggers bot',
+            'Event subscriptions: Bot subscribes to events',
+            'Rate limiting per bot/workspace'
+          ]
+        }
+      ],
+
+      // Backward compatibility
       requirements: ['Workspaces/servers', 'Channels (public/private)', 'Direct messages', 'Threads', 'File sharing', 'Search', 'Integrations/bots'],
       components: ['Message service', 'Channel service', 'User service', 'Search (Elasticsearch)', 'File storage', 'WebSocket gateway', 'Bot platform'],
       keyDecisions: [
@@ -6569,17 +6940,6 @@ Search Logs → Kafka → Flink → Aggregator → Trie Updater
         'Search: Index messages in Elasticsearch with channel ACL',
         'Threads: Parent-child message relationship',
         'Read position tracking per user per channel'
-      ],
-      estimations: {
-        users: '20M DAU, 500K concurrent connections',
-        messages: '1B messages/day',
-        channels: '50M channels, avg 20 users/channel',
-        search: '10M search queries/day'
-      },
-      apiDesign: [
-        'POST /api/messages { channelId, content, threadId? }',
-        'GET /api/channels/{id}/messages?before=&limit=',
-        'WS /ws/realtime → MESSAGE, TYPING, PRESENCE events'
       ]
     },
     {
@@ -6590,6 +6950,344 @@ Search Logs → Kafka → Flink → Aggregator → Trie Updater
       color: '#d32323',
       difficulty: 'Medium',
       description: 'Design a local business discovery and review platform.',
+
+      introduction: `Yelp is a local business discovery platform with 200M+ businesses and reviews. Users search for nearby restaurants, shops, and services based on location, category, and ratings.
+
+The key challenges are: efficient proximity search (geospatial queries), maintaining accurate aggregate ratings, handling user-generated content (reviews, photos), and detecting fake reviews.`,
+
+      functionalRequirements: [
+        'Search businesses by location, category, keywords',
+        'View business details (hours, address, phone)',
+        'Read and write reviews with ratings',
+        'Upload business photos',
+        'Make reservations or place orders',
+        'Check-in at businesses',
+        'Bookmark/save businesses',
+        'Business owner dashboard'
+      ],
+
+      nonFunctionalRequirements: [
+        'Search results in <200ms',
+        'Handle 100M+ searches per day',
+        'Support 200M+ businesses worldwide',
+        'Photos load in <2 seconds (CDN)',
+        'Review submission latency <1s',
+        '99.9% availability',
+        'Accurate ratings (fraud detection)'
+      ],
+
+      dataModel: {
+        description: 'Businesses, reviews, photos, and geospatial data',
+        schema: `businesses {
+  id: uuid PK
+  name: varchar(200)
+  category_ids: uuid[] FK
+  location: geography(POINT)
+  geohash: varchar(12) -- for efficient proximity queries
+  address: jsonb
+  phone: varchar(20)
+  hours: jsonb -- { mon: "9:00-17:00", ... }
+  price_range: int -- 1-4 ($-$$$$)
+  avg_rating: decimal(2,1) -- pre-computed
+  review_count: int -- pre-computed
+  photo_count: int
+  claimed: boolean -- owner verified
+}
+
+reviews {
+  id: uuid PK
+  business_id: uuid FK
+  user_id: uuid FK
+  rating: int -- 1-5 stars
+  text: text
+  photos: varchar[] -- S3 URLs
+  useful_count: int
+  created_at: timestamp
+}
+
+categories {
+  id: uuid PK
+  name: varchar(100)
+  parent_id: uuid FK -- hierarchy: Food > Restaurants > Pizza
+}
+
+user_actions {
+  user_id: uuid FK
+  business_id: uuid FK
+  action: enum(BOOKMARK, CHECKIN, REVIEW, PHOTO)
+  timestamp: timestamp
+}`
+      },
+
+      apiDesign: {
+        description: 'Search, business details, and review endpoints',
+        endpoints: [
+          { method: 'GET', path: '/api/search', params: 'q, lat, lng, radius, category, price, rating, sortBy', response: '{ businesses[], total, facets }' },
+          { method: 'GET', path: '/api/businesses/:id', params: '-', response: '{ business, recentReviews[], photos[] }' },
+          { method: 'POST', path: '/api/reviews', params: '{ businessId, rating, text, photos[] }', response: '{ reviewId }' },
+          { method: 'GET', path: '/api/businesses/:id/reviews', params: 'sortBy, page', response: '{ reviews[], total }' },
+          { method: 'POST', path: '/api/checkin', params: '{ businessId }', response: '{ success }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How do we implement proximity search?',
+          answer: `**Geohash Approach**:
+- Encode lat/lng into string (e.g., "9q8yy" for San Francisco)
+- Longer prefix = more precise location
+- Query: Find all businesses with geohash prefix matching
+
+**Geohash Properties**:
+\`\`\`
+Precision  Cell Size
+4 chars    ~20km
+5 chars    ~5km
+6 chars    ~1km
+7 chars    ~150m
+\`\`\`
+
+**Search Query**:
+\`\`\`sql
+-- Find restaurants within 5km
+SELECT * FROM businesses
+WHERE geohash LIKE '9q8yy%'  -- prefix match
+  AND category = 'restaurant'
+  AND ST_DWithin(location, user_point, 5000)  -- precise filter
+ORDER BY ST_Distance(location, user_point)
+LIMIT 20
+\`\`\`
+
+**Alternative: QuadTree**
+- Recursive spatial partitioning
+- Better for non-uniform distribution
+- More complex to implement`
+        },
+        {
+          question: 'How do we handle aggregate ratings efficiently?',
+          answer: `**Problem**: Can't compute AVG on every read (too slow for 200M reviews)
+
+**Solution: Pre-compute and Update**:
+\`\`\`
+businesses.avg_rating = pre-computed average
+businesses.review_count = pre-computed count
+\`\`\`
+
+**Update on New Review**:
+\`\`\`sql
+-- Atomic update when review added
+UPDATE businesses SET
+  avg_rating = ((avg_rating * review_count) + new_rating) / (review_count + 1),
+  review_count = review_count + 1
+WHERE id = business_id
+\`\`\`
+
+**Consistency Considerations**:
+- Eventual consistency is OK (few seconds delay)
+- Use database transaction for review + rating update
+- For edits/deletes: Recompute from reviews (background job)
+
+**Rating Distribution**:
+- Also store rating histogram for display
+- { 5: 120, 4: 80, 3: 30, 2: 10, 1: 5 }`
+        },
+        {
+          question: 'How do we detect fake reviews?',
+          answer: `**Fraud Signals**:
+- New account posting many reviews quickly
+- Review patterns (same text, suspicious timing)
+- IP/device fingerprinting
+- Geographic anomalies (review from different country)
+- Natural language analysis (generic, template-like)
+
+**ML Fraud Detection**:
+\`\`\`
+Features:
+- Account age, review count, verification status
+- Time since last review
+- Review length, sentiment, uniqueness
+- Geographic distance to business
+- Device/IP reputation
+
+Model: Classification → spam_probability
+If spam_probability > 0.8: Hold for manual review
+If spam_probability > 0.95: Auto-reject
+\`\`\`
+
+**Manual Review Queue**:
+- Human reviewers for borderline cases
+- Business owner can flag suspicious reviews
+- User can report reviews
+
+**Incentive Alignment**:
+- Require purchase verification where possible
+- Elite reviewer program for trusted users
+- Legal action against review farms`
+        },
+        {
+          question: 'How do we implement search with filters?',
+          answer: `**Elasticsearch for Complex Search**:
+\`\`\`json
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": { "name": "pizza" } }
+      ],
+      "filter": [
+        { "geo_distance": {
+            "distance": "5km",
+            "location": { "lat": 37.7, "lon": -122.4 }
+        }},
+        { "range": { "avg_rating": { "gte": 4.0 } } },
+        { "terms": { "price_range": [1, 2] } },
+        { "term": { "open_now": true } }
+      ]
+    }
+  },
+  "sort": [
+    { "_geo_distance": { "location": {...}, "order": "asc" } }
+  ]
+}
+\`\`\`
+
+**Faceted Search**:
+Return aggregations for filters:
+- Categories with counts
+- Price range distribution
+- Rating distribution
+- "Open Now" count
+
+**Performance**:
+- Cache common searches (city + category)
+- Pre-compute "popular near you" at regular intervals`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Yelp Architecture',
+        description: 'PostGIS for geospatial, single database',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────┐
+│                       Basic Yelp System                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   ┌──────────┐        ┌──────────────┐       ┌──────────────┐   │
+│   │  Client  │───────▶│  API Server  │──────▶│  PostgreSQL  │   │
+│   │          │        │              │       │  + PostGIS   │   │
+│   └──────────┘        └──────────────┘       └──────────────┘   │
+│                              │                                   │
+│                              ▼                                   │
+│                       ┌──────────────┐                          │
+│                       │     S3       │                          │
+│                       │   (Photos)   │                          │
+│                       └──────────────┘                          │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Single database = scaling bottleneck',
+          'No full-text search',
+          'No caching layer',
+          'No fraud detection'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Yelp Architecture',
+        architecture: `
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                        Production Yelp Architecture                           │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────┐                                                             │
+│  │   Clients   │                                                             │
+│  └──────┬──────┘                                                             │
+│         │                                                                    │
+│         ▼                                                                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                          CDN (CloudFront)                            │    │
+│  │               Photos, Static Assets, Cached Search Results           │    │
+│  └────────────────────────────────┬────────────────────────────────────┘    │
+│                                   │                                          │
+│                                   ▼                                          │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                        API Gateway / Load Balancer                   │    │
+│  └────────────────────────────────┬────────────────────────────────────┘    │
+│                                   │                                          │
+│  ┌────────────────────────────────┼────────────────────────────────────┐    │
+│  │                         SERVICE LAYER                                │    │
+│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐    │    │
+│  │  │  Search    │  │  Business  │  │  Review    │  │   User     │    │    │
+│  │  │  Service   │  │  Service   │  │  Service   │  │  Service   │    │    │
+│  │  └─────┬──────┘  └─────┬──────┘  └─────┬──────┘  └────────────┘    │    │
+│  └────────┼───────────────┼───────────────┼────────────────────────────┘    │
+│           │               │               │                                  │
+│  ┌────────┼───────────────┼───────────────┼────────────────────────────┐    │
+│  │        ▼               ▼               ▼                            │    │
+│  │  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐                │    │
+│  │  │Elasticsearch │ │  PostgreSQL  │ │    Redis     │                │    │
+│  │  │(Search +Geo) │ │  (Primary)   │ │   (Cache)    │                │    │
+│  │  └──────────────┘ └──────────────┘ └──────────────┘                │    │
+│  │                                                                     │    │
+│  │  ┌──────────────────────────────────────────────────────────────┐  │    │
+│  │  │                    ASYNC PROCESSING                           │  │    │
+│  │  │  ┌──────────┐    ┌──────────┐    ┌──────────────┐            │  │    │
+│  │  │  │  Kafka   │───▶│  Fraud   │───▶│   Rating     │            │  │    │
+│  │  │  │          │    │Detection │    │  Aggregator  │            │  │    │
+│  │  │  └──────────┘    └──────────┘    └──────────────┘            │  │    │
+│  │  └──────────────────────────────────────────────────────────────┘  │    │
+│  │                                                                     │    │
+│  │  ┌──────────────┐                                                  │    │
+│  │  │      S3      │  ← Photos with CDN in front                      │    │
+│  │  └──────────────┘                                                  │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Elasticsearch for geospatial + full-text search',
+          'Redis cache for business details and popular searches',
+          'CDN for photos and static content',
+          'Kafka pipeline for async rating aggregation',
+          'ML fraud detection for review quality',
+          'PostgreSQL for transactional data'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Search Ranking Factors',
+          points: [
+            'Distance from user (primary factor)',
+            'Rating and review count',
+            'Recency of reviews (freshness)',
+            'Business completeness (photos, hours)',
+            'Paid promotion (ads, sponsored)',
+            'User personalization (past preferences)'
+          ]
+        },
+        {
+          topic: 'Photo Management',
+          points: [
+            'User-uploaded photos with moderation queue',
+            'Automatic thumbnail generation',
+            'Photo quality scoring (blur, lighting)',
+            'Primary photo selection algorithm',
+            'CDN with regional edge caching'
+          ]
+        },
+        {
+          topic: 'Business Owner Features',
+          points: [
+            'Claim and verify business ownership',
+            'Respond to reviews publicly',
+            'Analytics dashboard (views, calls, directions)',
+            'Update hours, photos, menu',
+            'Promoted placement (paid ads)'
+          ]
+        }
+      ],
+
+      // Backward compatibility
       requirements: ['Search nearby businesses', 'Ratings/reviews', 'Photos', 'Business profiles', 'Reservations', 'Check-ins'],
       components: ['Business service', 'Search service', 'Review service', 'Geospatial index', 'CDN', 'Recommendation engine'],
       keyDecisions: [
@@ -6598,17 +7296,6 @@ Search Logs → Kafka → Flink → Aggregator → Trie Updater
         'Pre-compute aggregate ratings (avoid counting on read)',
         'CDN for business photos',
         'Fraud detection for fake reviews'
-      ],
-      estimations: {
-        businesses: '200M businesses',
-        reviews: '200M reviews, 50K new/day',
-        searches: '100M searches/day',
-        photos: '500M photos'
-      },
-      apiDesign: [
-        'GET /api/search?q=&lat=&lng=&radius=&category=',
-        'POST /api/reviews { businessId, rating, text, photos[] }',
-        'GET /api/business/{id} → { details, reviews, photos }'
       ]
     },
     {
