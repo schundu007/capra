@@ -6070,6 +6070,155 @@ Optimization:
       color: '#4285f4',
       difficulty: 'Hard',
       description: 'Design a distributed web crawler for search engine indexing.',
+
+      introduction: `A web crawler (spider/bot) systematically browses the web to download pages for search engine indexing. Google crawls billions of pages to keep its search index fresh.
+
+Key challenges include crawling at scale (billions of pages), being polite to websites (rate limiting per domain), detecting duplicate content, and prioritizing which pages to crawl first.`,
+
+      functionalRequirements: [
+        'Crawl billions of web pages',
+        'Extract and follow links',
+        'Respect robots.txt rules',
+        'Store page content for indexing',
+        'Detect and skip duplicate pages',
+        'Re-crawl pages based on change frequency',
+        'Handle different content types',
+        'Support incremental crawling'
+      ],
+
+      nonFunctionalRequirements: [
+        'Crawl 1 billion pages per day',
+        'Distributed across 10,000+ workers',
+        'Polite: Max 1 request/second per domain',
+        'Handle malformed HTML gracefully',
+        'Resume from failures (checkpointing)',
+        'Minimize duplicate fetching'
+      ],
+
+      dataModel: {
+        description: 'URLs, crawl state, and content storage',
+        schema: `urls {
+  urlHash: varchar(64) PK
+  url: text
+  domain: varchar(255)
+  priority: float
+  lastCrawled: timestamp nullable
+  nextCrawl: timestamp
+  crawlStatus: enum(PENDING, FETCHING, DONE, FAILED)
+  contentHash: varchar(64) nullable
+}
+
+domains {
+  domain: varchar(255) PK
+  robotsTxt: text
+  crawlDelay: int
+  lastFetch: timestamp
+}
+
+content {
+  contentHash: varchar(64) PK
+  url: text
+  fetchedAt: timestamp
+  html: text compressed
+  links: text[]
+}`
+      },
+
+      keyQuestions: [
+        {
+          question: 'How does the URL Frontier work?',
+          answer: `Two-level queue structure:
+
+Front queues (by priority):
+- High: Important pages (high PageRank)
+- Medium: Regular pages
+- Low: New discoveries
+
+Back queues (by domain):
+- One queue per domain
+- Enforces rate limiting
+- Only pop if enough time passed
+
+Selection: Pick from front queue → route to back queue by domain hash → only fetch if nextFetch time reached.`
+        },
+        {
+          question: 'How do we detect duplicates?',
+          answer: `Multiple strategies:
+
+1. URL Normalization: Remove trailing slashes, lowercase, sort params
+2. Content Hash: SHA-256 for exact duplicates
+3. Simhash: Fingerprint for near-duplicates (~3 bit difference threshold)
+
+Bloom filter for fast "definitely not seen" checks before expensive hash lookups.`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Architecture',
+        description: 'Single-threaded crawler',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         WEB CRAWLER BASIC                               │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  Seed URLs → Queue → Fetcher → Parser → Link Extract → Back to Queue  │
+│                         │                                               │
+│                         ▼                                               │
+│                    Storage (files)                                      │
+│                                                                         │
+│  PROBLEMS: Single-threaded, no politeness, no duplicate detection      │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘`,
+        problems: ['Single-threaded: Max 100 pages/min', 'No politeness', 'No duplicate detection']
+      },
+
+      advancedImplementation: {
+        title: 'Production Architecture',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           WEB CRAWLER PRODUCTION                                 │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  URL FRONTIER                                                                   │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │  Front Queues (priority)  ────▶  Back Queues (per domain)          │        │
+│  │  [High] [Med] [Low]              [example.com] [wiki.org] ...      │        │
+│  │                                  Rate limited per domain            │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                      │                                           │
+│  DISTRIBUTED FETCHERS                ▼                                           │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │  [Fetcher 1] [Fetcher 2] ... [Fetcher 10,000]                      │        │
+│  │  Partitioned by domain hash                                         │        │
+│  └────────────────────────────────┬────────────────────────────────────┘        │
+│                                   │                                              │
+│  CONTENT PIPELINE                 ▼                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │  Parser ──▶ Duplicate Detector ──▶ Link Extractor ──▶ Storage      │        │
+│  │              (Simhash + Bloom)      (Normalize URLs)                │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'URL Frontier: Priority + per-domain politeness',
+          'Distributed fetchers partitioned by domain',
+          'Simhash for near-duplicate detection',
+          'robots.txt cached per domain',
+          'Checkpointing for fault tolerance'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Crawl Traps',
+          points: ['Calendar traps (infinite dates)', 'Session ID traps', 'Max depth/pages per domain limits']
+        },
+        {
+          topic: 'Scheduling',
+          points: ['News: hourly', 'Static: weekly', 'Adaptive based on change rate']
+        }
+      ],
+
       requirements: ['Crawl billions of pages', 'Respect robots.txt', 'Politeness (rate limiting per domain)', 'Duplicate detection', 'Link extraction', 'Scheduling'],
       components: ['URL frontier', 'Fetcher workers', 'Content parser', 'URL filter', 'Duplicate detector', 'Storage'],
       keyDecisions: [
@@ -6078,16 +6227,6 @@ Optimization:
         'Duplicate detection: Simhash or MinHash for near-duplicate content',
         'robots.txt: Cache and respect crawl-delay directives',
         'Checkpointing: Resume crawl from last known state'
-      ],
-      estimations: {
-        pages: 'Crawl 1B pages/day',
-        fetchers: '10K fetcher workers',
-        storage: '1B × 100KB = 100TB/day raw HTML',
-        bandwidth: '1B × 100KB / 86400s = 1.2TB/s aggregate'
-      },
-      apiDesign: [
-        'Internal: Frontier → Fetcher → Parser → Indexer pipeline',
-        'Seed URLs → expand via extracted links'
       ]
     },
     {
