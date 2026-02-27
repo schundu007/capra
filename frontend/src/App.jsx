@@ -12,9 +12,6 @@ import PricingPlans from './components/billing/PricingPlans';
 import CreditBalance from './components/billing/CreditBalance';
 import DownloadPage from './components/billing/DownloadPage';
 import DocsPage from './components/DocsPage';
-import CodingDocsPage from './components/docs/CodingDocsPage';
-import SystemDesignDocsPage from './components/docs/SystemDesignDocsPage';
-import BehavioralDocsPage from './components/docs/BehavioralDocsPage';
 import OnboardingModal, { hasCompletedOnboarding, markOnboardingComplete } from './components/onboarding/OnboardingModal';
 import { useAuth } from './contexts/AuthContext';
 import AdminPanel from './components/AdminPanel';
@@ -328,10 +325,7 @@ export default function App() {
   const currentPath = !isElectron ? window.location.pathname : '';
   const isLandingPage = !isElectron && (currentPath === '/' || currentPath === '/login');
   const isDownloadPage = !isElectron && currentPath === '/download';
-  const isDocsPage = !isElectron && currentPath === '/docs';
-  const isCodingDocsPage = !isElectron && currentPath === '/docs/coding';
-  const isSystemDesignDocsPage = !isElectron && currentPath === '/docs/system-design';
-  const isBehavioralDocsPage = !isElectron && currentPath === '/docs/behavioral';
+  const isDocsPage = !isElectron && currentPath.startsWith('/docs');
   const isAppPage = !isElectron && currentPath === '/app';
 
   // Electron-specific state
@@ -1387,16 +1381,7 @@ EDGE CASES & RESILIENCE:
     );
   }
 
-  // Show docs pages (publicly accessible, check before auth)
-  if (isCodingDocsPage) {
-    return <CodingDocsPage />;
-  }
-  if (isSystemDesignDocsPage) {
-    return <SystemDesignDocsPage />;
-  }
-  if (isBehavioralDocsPage) {
-    return <BehavioralDocsPage />;
-  }
+  // Show docs page (publicly accessible, check before auth)
   if (isDocsPage) {
     return <DocsPage />;
   }

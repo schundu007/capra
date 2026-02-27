@@ -382,10 +382,10 @@ export default function OAuthLogin() {
                 {/* Left Features */}
                 <div className="flex flex-col gap-4 w-full lg:w-auto">
                   {[
-                    { icon: 'code', label: 'Data Structures & Algorithms', color: '#10b981', href: '/docs/coding' },
-                    { icon: 'systemDesign', label: 'System Design', color: '#3b82f6', href: '/docs/system-design' },
-                    { icon: 'layers', label: 'Low Level Design', color: '#8b5cf6', href: '/docs/system-design' },
-                    { icon: 'terminal', label: 'Full Stack Coding', color: '#f59e0b', href: '/docs/coding' },
+                    { icon: 'code', label: 'Data Structures & Algorithms', color: '#10b981', href: '/docs' },
+                    { icon: 'systemDesign', label: 'System Design', color: '#3b82f6', href: '/docs' },
+                    { icon: 'layers', label: 'Low Level Design', color: '#8b5cf6', href: '/docs' },
+                    { icon: 'terminal', label: 'Full Stack Coding', color: '#f59e0b', href: '/docs' },
                   ].map((item, i) => (
                     <a key={i} href={item.href} className="flex items-center gap-3 px-5 py-3 rounded-xl transition-all hover:scale-105 cursor-pointer" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
                       <Icon name={item.icon} size={18} style={{ color: item.color }} />
@@ -421,9 +421,9 @@ export default function OAuthLogin() {
                 {/* Right Features */}
                 <div className="flex flex-col gap-4 w-full lg:w-auto">
                   {[
-                    { icon: 'users', label: 'Behavioral', color: '#ec4899', href: '/docs/behavioral' },
-                    { icon: 'building', label: 'Company Questions', color: '#06b6d4', href: '/docs/behavioral' },
-                    { icon: 'briefcase', label: 'Projects', color: '#84cc16', href: '/docs/coding' },
+                    { icon: 'users', label: 'Behavioral', color: '#ec4899', href: '/docs' },
+                    { icon: 'building', label: 'Company Questions', color: '#06b6d4', href: '/docs' },
+                    { icon: 'briefcase', label: 'Projects', color: '#84cc16', href: '/docs' },
                     { icon: 'compass', label: 'Roadmaps', color: '#f97316', href: '/docs' },
                   ].map((item, i) => (
                     <a key={i} href={item.href} className="flex items-center gap-3 px-5 py-3 rounded-xl transition-all hover:scale-105 cursor-pointer lg:flex-row-reverse" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
@@ -449,7 +449,7 @@ export default function OAuthLogin() {
                   <p className="text-gray-400 text-lg mb-6 leading-relaxed">
                     Level up your DSA skills by studying our optimal time and space complexity solutions. Get instant AI-powered explanations for any problem.
                   </p>
-                  <a href="/docs/coding" className="flex items-center gap-2 text-green-400 font-semibold hover:gap-3 transition-all mb-6">
+                  <a href="/docs" className="flex items-center gap-2 text-green-400 font-semibold hover:gap-3 transition-all mb-6">
                     Start with Data Structures & Algorithms <Icon name="arrowRight" size={18} />
                   </a>
                   <div className="flex flex-wrap gap-3">
@@ -618,7 +618,7 @@ export default function OAuthLogin() {
                   <p className="text-gray-400 text-lg mb-6 leading-relaxed">
                     Enhance your system design knowledge and impress your interviewer with expert-level solutions and real-time AI-powered feedback with auto-generated diagrams.
                   </p>
-                  <a href="/docs/system-design" className="flex items-center gap-2 text-blue-400 font-semibold hover:gap-3 transition-all mb-6">
+                  <a href="/docs" className="flex items-center gap-2 text-blue-400 font-semibold hover:gap-3 transition-all mb-6">
                     Start with System Design <Icon name="arrowRight" size={18} />
                   </a>
                   <div className="flex flex-wrap gap-3">
@@ -703,7 +703,7 @@ export default function OAuthLogin() {
                   <p className="text-gray-400 text-lg mb-6 leading-relaxed">
                     Become a top candidate and impress your interviewer using our vetted list of the most frequently asked behavioral questions with AI-generated STAR responses.
                   </p>
-                  <a href="/docs/behavioral" className="flex items-center gap-2 text-purple-400 font-semibold hover:gap-3 transition-all mb-6">
+                  <a href="/docs" className="flex items-center gap-2 text-purple-400 font-semibold hover:gap-3 transition-all mb-6">
                     Start with Behavioral <Icon name="arrowRight" size={18} />
                   </a>
                   <div className="flex flex-wrap gap-3">
