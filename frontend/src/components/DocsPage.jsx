@@ -4596,8 +4596,403 @@ Benefits:
       subtitle: 'API Gateway Component',
       icon: 'shield',
       color: '#dc2626',
-      difficulty: 'Easy',
+      difficulty: 'Medium',
       description: 'Design a distributed rate limiting service for API protection.',
+
+      introduction: `A rate limiter is a mechanism that controls the number of requests or actions a user or system can perform within a specific time frame. Think of it as a bouncer managing entry flow to maintain system stability and prevent overload.
+
+Rate limiters are critical for protecting APIs from abuse, preventing DDoS attacks, ensuring fair resource usage across users, and controlling costs in usage-based billing models. Companies like Stripe, GitHub, and Twitter use sophisticated rate limiting to protect their APIs.
+
+The key challenge is implementing rate limiting that's fast (sub-millisecond), accurate, distributed across multiple servers, and configurable without downtime.`,
+
+      functionalRequirements: [
+        'Limit requests per user/IP/API key',
+        'Support multiple rate limit tiers (free, pro, enterprise)',
+        'Configure limits per endpoint or globally',
+        'Return remaining quota and reset time',
+        'Allow burst traffic within limits',
+        'Dynamic rule updates without restart',
+        'Support for sliding window precision',
+        'Whitelist/blacklist capabilities'
+      ],
+
+      nonFunctionalRequirements: [
+        'Sub-millisecond latency (<1ms cached, <5ms Redis)',
+        'Handle 1M+ rate limit checks per second',
+        'Distributed consistency across all servers',
+        'Graceful degradation (fail open vs fail closed)',
+        '99.99% availability',
+        'Support for 10K+ different rate limit rules',
+        'Real-time monitoring and alerting'
+      ],
+
+      dataModel: {
+        description: 'Rate limit rules, buckets, and request logs',
+        schema: `rate_limit_rules {
+  id: uuid PK
+  name: varchar(100)
+  key_pattern: varchar(200) -- user:{userId}, ip:{ip}
+  limit: int -- max requests
+  window_seconds: int
+  algorithm: enum(TOKEN_BUCKET, SLIDING_WINDOW, FIXED_WINDOW, LEAKY_BUCKET)
+  burst_size: int -- for token bucket
+  tier: enum(FREE, PRO, ENTERPRISE)
+  created_at: timestamp
+}
+
+token_buckets (Redis) {
+  key: string -- "bucket:user:123:api_calls"
+  tokens: float -- current tokens
+  last_refill: timestamp
+  ttl: seconds -- auto-expire
+}
+
+sliding_window (Redis Sorted Set) {
+  key: string -- "window:user:123:api_calls"
+  members: request_timestamps
+  score: timestamp
+}
+
+rate_limit_logs {
+  id: uuid PK
+  rule_id: uuid FK
+  key: varchar(200)
+  allowed: boolean
+  remaining: int
+  timestamp: timestamp
+}`
+      },
+
+      apiDesign: {
+        description: 'Rate limiting check and management endpoints',
+        endpoints: [
+          { method: 'GET', path: '/api/ratelimit/check', params: 'key, cost=1', response: '{ allowed, remaining, resetAt, retryAfter }' },
+          { method: 'POST', path: '/api/ratelimit/rules', params: '{ name, keyPattern, limit, window, algorithm }', response: '{ ruleId }' },
+          { method: 'PUT', path: '/api/ratelimit/rules/:id', params: '{ limit, window }', response: '{ success }' },
+          { method: 'GET', path: '/api/ratelimit/status/:key', params: '-', response: '{ currentUsage, limit, resetAt }' },
+          { method: 'DELETE', path: '/api/ratelimit/rules/:id', params: '-', response: '{ success }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'Which rate limiting algorithm should we use?',
+          answer: `**Token Bucket** (Recommended for most APIs):
+- Tokens accumulate at steady rate into bucket
+- Each request consumes token(s)
+- Allows bursts up to bucket capacity
+- Example: 100 tokens/min, bucket size 150 allows burst of 150
+
+**Sliding Window Log**:
+- Track timestamp of each request in sorted set
+- Count requests in rolling window
+- Most accurate but memory intensive
+- O(log n) per operation with Redis sorted sets
+
+**Fixed Window Counter**:
+- Simple: count requests per time window
+- Problem: 2x burst at window boundaries
+- User could send 100 req at 0:59 + 100 at 1:00
+
+**Leaky Bucket**:
+- Requests queue, processed at fixed rate
+- Smooths traffic but adds latency
+- Good for streaming/consistent throughput
+
+**Sliding Window Counter** (Hybrid):
+- Combines fixed window with weighted previous window
+- Formula: count = current + (previous × overlap%)
+- Lower memory than log, more accurate than fixed`
+        },
+        {
+          question: 'How do we implement distributed rate limiting?',
+          answer: `**Challenge**: Multiple servers need consistent view of rate limits.
+
+**Solution 1: Centralized Redis**
+- All servers check/update Redis
+- Use Lua scripts for atomicity:
+\`\`\`lua
+local tokens = tonumber(redis.call('GET', key) or bucket_size)
+local last_refill = tonumber(redis.call('GET', key..':time') or now)
+-- Calculate new tokens based on time elapsed
+local elapsed = now - last_refill
+tokens = math.min(bucket_size, tokens + elapsed * refill_rate)
+if tokens >= cost then
+  tokens = tokens - cost
+  redis.call('SET', key, tokens)
+  redis.call('SET', key..':time', now)
+  return {1, tokens}  -- allowed
+end
+return {0, tokens}  -- denied
+\`\`\`
+
+**Solution 2: Local Cache + Sync**
+- Each server has local counter
+- Periodically sync to Redis
+- Faster but less accurate
+- Use for high-volume, approximate limits
+
+**Solution 3: Sticky Sessions**
+- Route same user to same server
+- Local rate limiting becomes accurate
+- Reduces Redis dependency`
+        },
+        {
+          question: 'How do we handle race conditions?',
+          answer: `**Problem**: Two requests check limit simultaneously, both see 1 token, both consume it → overshooting limit.
+
+**Solution 1: Redis Lua Scripts (Recommended)**
+- Atomic check-and-decrement
+- Single-threaded Redis execution
+- No race conditions possible
+
+**Solution 2: Redis Transactions (MULTI/EXEC)**
+- WATCH key for changes
+- Retry if modified during transaction
+
+**Solution 3: Distributed Locks (Redlock)**
+- Acquire lock before check
+- Higher latency, use sparingly
+
+**Best Practice**: Always use Lua scripts for rate limiting - they're atomic, fast, and eliminate race conditions.`
+        },
+        {
+          question: 'What happens when Redis is unavailable?',
+          answer: `**Fail Open** (Allow requests):
+- Better user experience
+- Risk of system overload
+- Use for non-critical rate limits
+
+**Fail Closed** (Deny requests):
+- Protects backend systems
+- Frustrates users during outages
+- Use for critical protection (DDoS)
+
+**Hybrid Approach** (Recommended):
+- Local fallback rate limiting
+- Each server has approximate limit
+- Degraded accuracy, maintained protection
+- Example: If Redis down, allow 10 req/min per server
+
+**Circuit Breaker**:
+- After N Redis failures, switch to local
+- Periodically check Redis recovery
+- Auto-switch back when available`
+        },
+        {
+          question: 'How do we estimate storage requirements?',
+          answer: `**Token Bucket Storage**:
+- Per user: key (50 bytes) + tokens (8 bytes) + timestamp (8 bytes)
+- ~100 bytes per user bucket
+- 10M users = 1 GB Redis memory
+
+**Sliding Window Log**:
+- Per request: timestamp in sorted set (16 bytes)
+- 1000 requests/user × 10M users = 160 GB (too expensive!)
+- Solution: Use sliding window counter instead
+
+**Sliding Window Counter**:
+- 2 counters per user per rule
+- ~50 bytes per user per rule
+- 10M users × 5 rules = 2.5 GB
+
+**Practical Example (10M users)**:
+- Token bucket: ~1 GB Redis
+- 5 rate limit rules: ~2.5 GB
+- With replication: 3x = 7.5 GB
+- Cost: ~$50/month for Redis cluster`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Rate Limiter Architecture',
+        description: 'Single server rate limiting with Redis',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────┐
+│                     Basic Rate Limiter                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   ┌──────────┐        ┌──────────────┐       ┌──────────────┐  │
+│   │  Client  │───────▶│  API Server  │──────▶│   Backend    │  │
+│   └──────────┘        └──────────────┘       │   Service    │  │
+│                              │               └──────────────┘  │
+│                              │                                  │
+│                              ▼                                  │
+│                       ┌──────────────┐                         │
+│                       │    Redis     │                         │
+│                       │   (Single)   │                         │
+│                       │              │                         │
+│                       │ Token Bucket │                         │
+│                       │    State     │                         │
+│                       └──────────────┘                         │
+│                                                                 │
+│   Request Flow:                                                 │
+│   1. Request arrives at API server                              │
+│   2. Extract rate limit key (user_id, IP, API key)             │
+│   3. Execute Lua script on Redis (atomic check)                │
+│   4. If allowed: forward to backend                            │
+│   5. If denied: return 429 Too Many Requests                   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Single point of failure (Redis)',
+          'Single server bottleneck',
+          'No failover mechanism',
+          'Limited to one data center',
+          'No real-time rule updates'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Distributed Rate Limiter',
+        architecture: `
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                    Production Rate Limiter Architecture                       │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────┐                                                             │
+│  │   Clients   │                                                             │
+│  └──────┬──────┘                                                             │
+│         │                                                                    │
+│         ▼                                                                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                         CDN / Edge                                   │    │
+│  │                    (First-line rate limiting)                        │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│         │                                                                    │
+│         ▼                                                                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                      Load Balancer (L7)                              │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│         │                                                                    │
+│         ▼                                                                    │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │                        API Gateway Cluster                            │   │
+│  │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐               │   │
+│  │  │  Gateway 1  │    │  Gateway 2  │    │  Gateway 3  │               │   │
+│  │  │             │    │             │    │             │               │   │
+│  │  │ Local Cache │    │ Local Cache │    │ Local Cache │               │   │
+│  │  │  (Rules +   │    │  (Rules +   │    │  (Rules +   │               │   │
+│  │  │  Hot Keys)  │    │  Hot Keys)  │    │  Hot Keys)  │               │   │
+│  │  └──────┬──────┘    └──────┬──────┘    └──────┬──────┘               │   │
+│  └─────────┼─────────────────┼─────────────────┼────────────────────────┘   │
+│            │                 │                 │                             │
+│            └─────────────────┼─────────────────┘                             │
+│                              ▼                                               │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │                      Redis Cluster (6 nodes)                          │   │
+│  │  ┌─────────┐  ┌─────────┐  ┌─────────┐                               │   │
+│  │  │Primary 1│  │Primary 2│  │Primary 3│   ← Sharded by key hash       │   │
+│  │  └────┬────┘  └────┬────┘  └────┬────┘                               │   │
+│  │       │            │            │                                     │   │
+│  │  ┌────┴────┐  ┌────┴────┐  ┌────┴────┐                               │   │
+│  │  │Replica 1│  │Replica 2│  │Replica 3│   ← Automatic failover        │   │
+│  │  └─────────┘  └─────────┘  └─────────┘                               │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│                              │                                               │
+│            ┌─────────────────┼─────────────────┐                            │
+│            ▼                 ▼                 ▼                            │
+│  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐                    │
+│  │   Backend    │   │   Backend    │   │   Backend    │                    │
+│  │  Service 1   │   │  Service 2   │   │  Service 3   │                    │
+│  └──────────────┘   └──────────────┘   └──────────────┘                    │
+│                                                                              │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │                      Config & Monitoring                              │   │
+│  │  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐                 │   │
+│  │  │   Config    │   │  CloudWatch │   │   Admin     │                 │   │
+│  │  │   Service   │──▶│    Logs     │   │ Dashboard   │                 │   │
+│  │  │  (Rules)    │   └─────────────┘   └─────────────┘                 │   │
+│  │  └──────┬──────┘                                                      │   │
+│  │         │                                                             │   │
+│  │         ▼                                                             │   │
+│  │  ┌─────────────┐                                                      │   │
+│  │  │ SNS/Lambda  │ ← Real-time rule propagation                        │   │
+│  │  │  (Updates)  │                                                      │   │
+│  │  └─────────────┘                                                      │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Edge rate limiting at CDN for DDoS protection',
+          'Redis Cluster with 3 primaries + 3 replicas',
+          'Local cache on gateways for hot keys (<1ms)',
+          'Lua scripts for atomic operations',
+          'SNS/Lambda for real-time rule propagation',
+          'Fail-open to local limits if Redis unavailable',
+          'CloudWatch for monitoring and alerting'
+        ]
+      },
+
+      tokenBucketFlow: {
+        title: 'Token Bucket Algorithm Flow',
+        steps: [
+          'Request arrives with rate limit key (user:123:api_calls)',
+          'Calculate tokens to add based on time elapsed since last refill',
+          'new_tokens = elapsed_seconds × refill_rate',
+          'current_tokens = min(bucket_size, old_tokens + new_tokens)',
+          'If current_tokens >= request_cost: allow and deduct tokens',
+          'If current_tokens < request_cost: deny with 429 status',
+          'Update bucket state in Redis with new token count and timestamp',
+          'Return remaining tokens and reset time in response headers'
+        ]
+      },
+
+      responseHeadersFlow: {
+        title: 'Rate Limit Response Headers',
+        steps: [
+          'X-RateLimit-Limit: Maximum requests allowed in window',
+          'X-RateLimit-Remaining: Requests remaining in current window',
+          'X-RateLimit-Reset: Unix timestamp when window resets',
+          'Retry-After: Seconds until client should retry (on 429)',
+          'X-RateLimit-Policy: Description of applied policy'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Algorithm Selection Trade-offs',
+          points: [
+            'Token bucket: Best for APIs allowing bursts (most common choice)',
+            'Sliding window: Most accurate but higher memory usage',
+            'Fixed window: Simplest but has boundary burst problem',
+            'Leaky bucket: Best for smoothing traffic to constant rate',
+            'Consider hybrid: Token bucket for API limits, leaky bucket for background jobs'
+          ]
+        },
+        {
+          topic: 'Multi-tier Rate Limiting',
+          points: [
+            'Edge/CDN: Coarse limits for DDoS protection (10K req/min per IP)',
+            'API Gateway: User-level limits (1000 req/min for Pro tier)',
+            'Service-level: Endpoint-specific limits (10 writes/sec to DB)',
+            'Each tier catches different abuse patterns',
+            'Later tiers can be more lenient as load is filtered'
+          ]
+        },
+        {
+          topic: 'Handling Spiky Traffic',
+          points: [
+            'Token bucket burst capacity smooths legitimate spikes',
+            'Queue requests during brief spikes instead of rejecting',
+            'Auto-scale rate limit thresholds based on system load',
+            'Implement request priority: critical > normal > background',
+            'Use circuit breakers to shed load during extreme spikes'
+          ]
+        },
+        {
+          topic: 'Monitoring and Observability',
+          points: [
+            'Track rate limit hit rate per rule and user tier',
+            'Alert on unusual patterns (sudden spike in 429s)',
+            'Log all denied requests for security analysis',
+            'Dashboard showing limit utilization per customer',
+            'A/B test limit changes with gradual rollout'
+          ]
+        }
+      ],
+
+      // Backward compatibility
       requirements: ['Limit requests per user/IP', 'Multiple rate limit tiers', 'Distributed across servers', 'Low latency overhead', 'Graceful degradation'],
       components: ['Rate limiter service', 'Redis cluster', 'Config service'],
       keyDecisions: [
@@ -4605,15 +5000,6 @@ Benefits:
         'Redis for distributed state with Lua scripts for atomicity',
         'Local cache for hot keys to reduce Redis calls',
         'Return remaining quota and retry-after in headers'
-      ],
-      estimations: {
-        checks: '1M rate limit checks/sec',
-        latency: '<1ms per check (cached), <5ms (Redis)',
-        rules: '10K+ rate limit rules'
-      },
-      apiDesign: [
-        'GET /limit?key=userId:123&cost=1 → { allowed: bool, remaining, resetAt }',
-        'Response headers: X-RateLimit-Remaining, Retry-After'
       ]
     },
     {
