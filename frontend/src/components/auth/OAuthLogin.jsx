@@ -487,16 +487,126 @@ export default function OAuthLogin() {
 
               {/* System Design Card */}
               <div className="grid lg:grid-cols-2 gap-8 items-center p-8 rounded-3xl" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.02))', border: '1px solid rgba(59, 130, 246, 0.15)' }}>
-                <div className="order-2 lg:order-1 relative h-64 lg:h-80 rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #0f172a, #1e293b)' }}>
-                  <div className="absolute inset-0 p-6">
-                    <div className="grid grid-cols-3 gap-3 h-full">
-                      {['Client', 'Load Balancer', 'API Gateway', 'Cache', 'Database', 'CDN'].map((comp, i) => (
-                        <div key={i} className="flex items-center justify-center p-3 rounded-lg text-xs text-center" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                          <span className="text-blue-300">{comp}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                <div className="order-2 lg:order-1 relative h-72 lg:h-96 rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #0a0f1a, #111827)' }}>
+                  {/* Real System Design Diagram - URL Shortener Architecture */}
+                  <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 320" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                      <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6" />
+                      </marker>
+                      <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#10b981" />
+                      </marker>
+                      <filter id="glow">
+                        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                        <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                      </filter>
+                    </defs>
+
+                    {/* Connection Lines */}
+                    <g stroke="#3b82f6" strokeWidth="1.5" fill="none" opacity="0.6">
+                      {/* Users to CDN */}
+                      <path d="M70,50 L130,50" markerEnd="url(#arrowBlue)" />
+                      {/* CDN to Load Balancer */}
+                      <path d="M190,50 L250,50" markerEnd="url(#arrowBlue)" />
+                      {/* Load Balancer to API Servers */}
+                      <path d="M310,65 L310,95" markerEnd="url(#arrowBlue)" />
+                      <path d="M290,65 L260,95" markerEnd="url(#arrowBlue)" />
+                      <path d="M330,65 L360,95" markerEnd="url(#arrowBlue)" />
+                      {/* API to Cache */}
+                      <path d="M240,130 L170,160" markerEnd="url(#arrowGreen)" />
+                      {/* API to Message Queue */}
+                      <path d="M310,145 L310,175" markerEnd="url(#arrowBlue)" />
+                      {/* Message Queue to Workers */}
+                      <path d="M310,215 L310,245" markerEnd="url(#arrowBlue)" />
+                      {/* Workers to Database */}
+                      <path d="M280,270 L180,270" markerEnd="url(#arrowGreen)" />
+                      {/* Cache to Database */}
+                      <path d="M130,195 L130,245" markerEnd="url(#arrowGreen)" strokeDasharray="4,2" />
+                    </g>
+
+                    {/* Users */}
+                    <g transform="translate(30, 30)">
+                      <rect x="0" y="0" width="40" height="40" rx="8" fill="#1e3a5f" stroke="#3b82f6" strokeWidth="1.5" filter="url(#glow)" />
+                      <text x="20" y="25" textAnchor="middle" fill="#93c5fd" fontSize="18">👥</text>
+                      <text x="20" y="55" textAnchor="middle" fill="#64748b" fontSize="8">Users</text>
+                    </g>
+
+                    {/* CDN */}
+                    <g transform="translate(140, 30)">
+                      <rect x="0" y="0" width="50" height="40" rx="8" fill="#1e3a5f" stroke="#3b82f6" strokeWidth="1.5" />
+                      <text x="25" y="18" textAnchor="middle" fill="#60a5fa" fontSize="7" fontWeight="bold">CDN</text>
+                      <text x="25" y="30" textAnchor="middle" fill="#94a3b8" fontSize="6">CloudFront</text>
+                    </g>
+
+                    {/* Load Balancer */}
+                    <g transform="translate(260, 30)">
+                      <rect x="0" y="0" width="70" height="40" rx="8" fill="#1e3a5f" stroke="#3b82f6" strokeWidth="1.5" />
+                      <text x="35" y="18" textAnchor="middle" fill="#60a5fa" fontSize="7" fontWeight="bold">Load Balancer</text>
+                      <text x="35" y="30" textAnchor="middle" fill="#94a3b8" fontSize="6">NGINX / ALB</text>
+                    </g>
+
+                    {/* API Servers */}
+                    <g transform="translate(220, 95)">
+                      <rect x="0" y="0" width="45" height="35" rx="6" fill="#164e63" stroke="#22d3ee" strokeWidth="1.5" />
+                      <text x="22" y="15" textAnchor="middle" fill="#67e8f9" fontSize="6" fontWeight="bold">API</text>
+                      <text x="22" y="25" textAnchor="middle" fill="#94a3b8" fontSize="5">Server 1</text>
+                    </g>
+                    <g transform="translate(280, 95)">
+                      <rect x="0" y="0" width="45" height="35" rx="6" fill="#164e63" stroke="#22d3ee" strokeWidth="1.5" />
+                      <text x="22" y="15" textAnchor="middle" fill="#67e8f9" fontSize="6" fontWeight="bold">API</text>
+                      <text x="22" y="25" textAnchor="middle" fill="#94a3b8" fontSize="5">Server 2</text>
+                    </g>
+                    <g transform="translate(340, 95)">
+                      <rect x="0" y="0" width="45" height="35" rx="6" fill="#164e63" stroke="#22d3ee" strokeWidth="1.5" />
+                      <text x="22" y="15" textAnchor="middle" fill="#67e8f9" fontSize="6" fontWeight="bold">API</text>
+                      <text x="22" y="25" textAnchor="middle" fill="#94a3b8" fontSize="5">Server 3</text>
+                    </g>
+
+                    {/* Redis Cache */}
+                    <g transform="translate(90, 155)">
+                      <rect x="0" y="0" width="70" height="45" rx="8" fill="#3f1e1e" stroke="#ef4444" strokeWidth="1.5" />
+                      <text x="35" y="18" textAnchor="middle" fill="#fca5a5" fontSize="7" fontWeight="bold">Redis</text>
+                      <text x="35" y="30" textAnchor="middle" fill="#94a3b8" fontSize="6">Cache Layer</text>
+                      <text x="35" y="40" textAnchor="middle" fill="#6b7280" fontSize="5">TTL: 24h</text>
+                    </g>
+
+                    {/* Message Queue */}
+                    <g transform="translate(270, 175)">
+                      <rect x="0" y="0" width="80" height="40" rx="8" fill="#3d2e1e" stroke="#f59e0b" strokeWidth="1.5" />
+                      <text x="40" y="16" textAnchor="middle" fill="#fcd34d" fontSize="7" fontWeight="bold">Message Queue</text>
+                      <text x="40" y="28" textAnchor="middle" fill="#94a3b8" fontSize="6">Kafka / SQS</text>
+                    </g>
+
+                    {/* Worker Servers */}
+                    <g transform="translate(280, 245)">
+                      <rect x="0" y="0" width="60" height="35" rx="6" fill="#1e3a3a" stroke="#14b8a6" strokeWidth="1.5" />
+                      <text x="30" y="15" textAnchor="middle" fill="#5eead4" fontSize="7" fontWeight="bold">Workers</text>
+                      <text x="30" y="26" textAnchor="middle" fill="#94a3b8" fontSize="5">Async Jobs</text>
+                    </g>
+
+                    {/* Database */}
+                    <g transform="translate(80, 245)">
+                      <rect x="0" y="0" width="90" height="55" rx="8" fill="#1e2e1e" stroke="#22c55e" strokeWidth="1.5" />
+                      <text x="45" y="16" textAnchor="middle" fill="#86efac" fontSize="7" fontWeight="bold">PostgreSQL</text>
+                      <text x="45" y="28" textAnchor="middle" fill="#94a3b8" fontSize="6">Primary + Replicas</text>
+                      <g transform="translate(10, 35)">
+                        <rect x="0" y="0" width="20" height="12" rx="2" fill="#166534" />
+                        <text x="10" y="9" textAnchor="middle" fill="#bbf7d0" fontSize="5">P</text>
+                      </g>
+                      <g transform="translate(35, 35)">
+                        <rect x="0" y="0" width="20" height="12" rx="2" fill="#14532d" />
+                        <text x="10" y="9" textAnchor="middle" fill="#86efac" fontSize="5">R1</text>
+                      </g>
+                      <g transform="translate(60, 35)">
+                        <rect x="0" y="0" width="20" height="12" rx="2" fill="#14532d" />
+                        <text x="10" y="9" textAnchor="middle" fill="#86efac" fontSize="5">R2</text>
+                      </g>
+                    </g>
+
+                    {/* Title */}
+                    <text x="200" y="315" textAnchor="middle" fill="#64748b" fontSize="9">URL Shortener — High Level Design</text>
+                  </svg>
                 </div>
                 <div className="order-1 lg:order-2">
                   <div className="flex items-center gap-3 mb-4">
