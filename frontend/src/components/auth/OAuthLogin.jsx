@@ -220,8 +220,14 @@ export default function OAuthLogin() {
 
   return (
     <div className="min-h-screen relative" style={{ background: '#030712', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
-      {/* Subtle gradient background */}
+      {/* Grid background + gradient blobs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        {/* Grid pattern */}
+        <div className="absolute inset-0" style={{
+          backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)',
+          backgroundSize: '60px 60px'
+        }} />
+        {/* Gradient blobs */}
         <div className="absolute w-[600px] h-[600px] rounded-full opacity-20 blur-3xl" style={{ background: 'radial-gradient(circle, #10b981 0%, transparent 70%)', top: '-200px', left: '-100px' }} />
         <div className="absolute w-[500px] h-[500px] rounded-full opacity-15 blur-3xl" style={{ background: 'radial-gradient(circle, #3b82f6 0%, transparent 70%)', bottom: '0', right: '-100px' }} />
       </div>
@@ -248,49 +254,49 @@ export default function OAuthLogin() {
         </nav>
 
         {/* Hero Section */}
-        <div className="py-16 lg:py-24">
-          <div className="flex flex-col lg:flex-row items-center gap-16">
+        <div className="py-10 lg:py-16">
+          <div className="flex flex-col lg:flex-row items-center gap-10">
             {/* Left Content */}
             <div className="w-full lg:w-1/2 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                <Icon name="sparkles" size={16} className="text-green-400" />
-                <span className="text-green-400 text-sm font-medium">AI-Powered Interview Assistant</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                <Icon name="sparkles" size={14} className="text-green-400" />
+                <span className="text-green-400 text-xs font-medium">AI-Powered Interview Assistant</span>
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight tracking-tight">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 leading-tight tracking-tight">
                 <span className="text-white">Ace Every</span>
                 <br />
                 <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%)' }}>Technical Interview</span>
               </h1>
 
-              <p className="text-lg text-gray-400 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                Real-time AI assistance for coding, system design, and behavioral interviews.
-                <span className="text-white font-medium"> 100% invisible. 100% effective.</span>
+              <p className="text-gray-400 mb-6 max-w-xl mx-auto lg:mx-0">
+                Real-time AI for coding, system design & behavioral interviews.
+                <span className="text-white font-medium"> 100% invisible.</span>
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
-                <button onClick={() => handleOAuthLogin('google')} disabled={loading !== null} className="group px-8 py-4 rounded-xl font-semibold text-lg transition-all disabled:opacity-50 hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)' }}>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-4">
+                <button onClick={() => handleOAuthLogin('google')} disabled={loading !== null} className="px-6 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff' }}>
                   {loading ? (
                     <span className="flex items-center justify-center gap-2">
-                      <Icon name="loader" size={20} className="animate-spin" />
+                      <Icon name="loader" size={16} className="animate-spin" />
                       Loading...
                     </span>
                   ) : (
                     <span className="flex items-center justify-center gap-2">
                       Try Free
-                      <Icon name="arrowRight" size={20} />
+                      <Icon name="arrowRight" size={16} />
                     </span>
                   )}
                 </button>
-                <button className="px-8 py-4 rounded-xl font-semibold text-lg transition-all hover:bg-white/10" style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#fff' }}>
+                <button className="px-6 py-3 rounded-lg font-medium transition-all hover:bg-white/10" style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#fff' }}>
                   <span className="flex items-center gap-2">
-                    <Icon name="play" size={20} />
-                    Watch Demo
+                    <Icon name="play" size={16} />
+                    Demo
                   </span>
                 </button>
               </div>
 
-              <p className="text-gray-500 text-sm">No credit card required</p>
+              <p className="text-gray-600 text-xs">No credit card required</p>
             </div>
 
             {/* Right Content - Demo */}
@@ -473,288 +479,246 @@ export default function OAuthLogin() {
           </div>
         </div>
 
-        {/* Trusted Companies */}
-        <div className="py-12 border-y" style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}>
-          <p className="text-center text-gray-500 text-sm mb-8">Trusted by engineers at</p>
-          <div className="flex justify-center gap-8 md:gap-12 flex-wrap">
-            {companies.map((company, i) => (
-              <span key={i} className="text-gray-500 font-semibold text-lg hover:text-white transition-colors cursor-default">{company}</span>
-            ))}
-          </div>
-        </div>
-
-        {/* Stats Section */}
-        <div ref={statsRef} className="py-20">
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { value: `${counters.success}%+`, label: 'Higher Success Rate', desc: 'Interview pass rate exceeds 60%', color: '#10b981' },
-              { value: `${counters.offers.toLocaleString()}+`, label: 'Offers Received', desc: 'From 5,000+ companies worldwide', color: '#3b82f6' },
-              { value: `${counters.salary}%+`, label: 'Salary Increase', desc: 'Surpassing the 10-20% average', color: '#8b5cf6' },
-            ].map((stat, i) => (
-              <div key={i} className="text-center p-8 rounded-2xl transition-all hover:scale-105" style={{ background: `${stat.color}10`, border: `1px solid ${stat.color}30` }}>
-                <div className="text-5xl font-black mb-2 tabular-nums" style={{ color: stat.color }}>{stat.value}</div>
-                <div className="text-xl font-bold text-white mb-2">{stat.label}</div>
-                <p className="text-gray-400 text-sm">{stat.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Platform Compatibility */}
-        <div className="py-16">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-              <Icon name="trophy" size={16} className="text-blue-400" />
-              <span className="text-blue-400 font-medium text-sm">#1 Interview Assistant</span>
+        {/* Trusted Companies + Stats Combined */}
+        <div className="py-8 border-y" style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-6 flex-wrap justify-center">
+              <span className="text-gray-500 text-xs">Trusted by engineers at</span>
+              {companies.slice(0, 5).map((company, i) => (
+                <span key={i} className="text-gray-400 font-medium text-sm">{company}</span>
+              ))}
             </div>
-            <h2 className="text-3xl font-bold text-white mb-4">Works with any platform</h2>
+            <div ref={statsRef} className="flex items-center gap-6">
+              {[
+                { value: `${counters.success}%+`, label: 'Success', color: '#10b981' },
+                { value: `${counters.offers.toLocaleString()}+`, label: 'Offers', color: '#3b82f6' },
+                { value: `${counters.salary}%+`, label: 'Salary ↑', color: '#8b5cf6' },
+              ].map((stat, i) => (
+                <div key={i} className="text-center">
+                  <div className="text-xl font-bold tabular-nums" style={{ color: stat.color }}>{stat.value}</div>
+                  <div className="text-gray-500 text-xs">{stat.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="flex justify-center gap-4 flex-wrap">
-            {platforms.map((platform, i) => (
-              <div key={i} className="flex items-center gap-3 px-5 py-3 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <Icon name={platform.icon} size={20} className="text-gray-400" />
-                <span className="text-white font-medium">{platform.name}</span>
-              </div>
-            ))}
-          </div>
+        </div>
+
+        {/* Platform Compatibility - Inline */}
+        <div className="py-8 flex flex-wrap items-center justify-center gap-3">
+          <span className="text-gray-400 text-sm">Works with</span>
+          {platforms.map((platform, i) => (
+            <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+              <Icon name={platform.icon} size={14} className="text-gray-400" />
+              <span className="text-white text-xs font-medium">{platform.name}</span>
+            </div>
+          ))}
         </div>
 
         {/* Combined Features & Benefits Section */}
-        <div id="features" className="py-16">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
+        <div id="features" className="py-10">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-white">
               Everything to <span className="text-green-400">Ace Your Interview</span>
             </h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">From coding challenges to behavioral questions, we've got you covered.</p>
           </div>
 
           {/* Features Grid - Ultra compact 2 rows */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6">
             {features.map((feature, i) => (
-              <div key={i} className="group flex items-center gap-2.5 p-3 rounded-lg transition-all hover:bg-white/5 cursor-pointer" style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
-                  <Icon name={feature.icon} size={16} className="text-green-400" />
-                </div>
-                <div className="min-w-0">
-                  <h3 className="text-xs font-semibold text-white truncate">{feature.title}</h3>
-                  <span className="text-green-400 text-[10px]">{feature.highlight}</span>
-                </div>
+              <div key={i} className="flex items-center gap-2 p-2 rounded-lg" style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
+                <Icon name={feature.icon} size={14} className="text-green-400 flex-shrink-0" />
+                <span className="text-xs text-white truncate">{feature.title}</span>
               </div>
             ))}
           </div>
 
-          {/* Benefits - Inline compact strip */}
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            <span className="text-sm text-gray-400">Why Ascend?</span>
+          {/* Benefits - Inline */}
+          <div className="flex flex-wrap items-center justify-center gap-2">
             {benefits.map((benefit, i) => (
-              <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ background: `${benefit.color}10`, border: `1px solid ${benefit.color}30` }}>
-                <Icon name={benefit.icon} size={14} style={{ color: benefit.color }} />
-                <span className="text-white text-xs font-medium">{benefit.title}</span>
-              </div>
+              <span key={i} className="flex items-center gap-1.5 px-2 py-1 rounded text-xs" style={{ background: `${benefit.color}10` }}>
+                <Icon name={benefit.icon} size={12} style={{ color: benefit.color }} />
+                <span className="text-gray-300">{benefit.title}</span>
+              </span>
             ))}
           </div>
         </div>
 
-        {/* Reviews Section */}
-        <div id="reviews" className="py-20">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white mb-4">
-              People love <span className="text-green-400">Ascend</span>
-            </h2>
-            <div className="flex items-center justify-center gap-2 text-yellow-400">
-              {[...Array(5)].map((_, i) => <Icon key={i} name="star5" size={20} />)}
-              <span className="text-white font-bold ml-2">4.9</span>
-              <span className="text-gray-500 ml-2">• 10,000+ reviews</span>
+        {/* Reviews Section - Compact */}
+        <div id="reviews" className="py-10">
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <h2 className="text-xl font-bold text-white">People love <span className="text-green-400">Ascend</span></h2>
+            <div className="flex items-center gap-1 text-yellow-400">
+              {[...Array(5)].map((_, i) => <Icon key={i} name="star5" size={14} />)}
+              <span className="text-white text-sm font-bold ml-1">4.9</span>
             </div>
           </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-4">
             {reviews.map((review, i) => (
-              <div key={i} className="p-6 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold" style={{ background: `hsl(${i * 60 + 120}, 60%, 40%)` }}>
+              <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold" style={{ background: `hsl(${i * 60 + 120}, 60%, 40%)` }}>
                     {review.name[0]}
                   </div>
                   <div>
-                    <div className="text-white font-semibold">{review.name}</div>
-                    <div className="text-green-400 text-sm">{review.title}</div>
+                    <div className="text-white text-sm font-medium">{review.name}</div>
+                    <div className="text-green-400 text-xs">{review.title}</div>
                   </div>
                 </div>
-                <p className="text-gray-300">"{review.text}"</p>
+                <p className="text-gray-400 text-xs">"{review.text}"</p>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Privacy Section */}
-        <div className="py-20">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white mb-4">100% Private & Undetectable</h2>
-            <p className="text-gray-400">Your interview assistant stays completely hidden.</p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {/* Privacy Section - Single line */}
+        <div className="py-6">
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <span className="text-white font-medium text-sm">100% Private & Undetectable:</span>
             {privacyFeatures.map((feature, i) => (
-              <div key={i} className="p-4 rounded-xl text-center" style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                <div className="flex justify-center mb-2">
-                  <Icon name={feature.icon} size={28} className="text-green-400" />
-                </div>
-                <div className="text-white font-medium text-sm">{feature.title}</div>
-              </div>
+              <span key={i} className="flex items-center gap-1.5 text-xs text-gray-400">
+                <Icon name={feature.icon} size={14} className="text-green-400" />
+                {feature.title}
+              </span>
             ))}
           </div>
         </div>
 
-        {/* Pricing Section */}
-        <div id="pricing" className="py-20">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-white mb-4">Choose Your <span className="text-green-400">Plan</span></h2>
-            <p className="text-gray-400">Cloud credits or Desktop lifetime - pick what works for you</p>
+        {/* Pricing Section - Compact */}
+        <div id="pricing" className="py-10">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-white">Choose Your <span className="text-green-400">Plan</span></h2>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {/* Monthly */}
-            <div className="p-6 rounded-2xl transition-all hover:scale-105" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+            <div className="p-4 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
               <div className="flex items-center gap-2 mb-2">
-                <Icon name="cloud" size={24} className="text-gray-400" />
+                <Icon name="cloud" size={16} className="text-gray-400" />
+                <h3 className="text-sm font-bold text-white">Monthly</h3>
               </div>
-              <h3 className="text-lg font-bold text-white mb-1">Monthly</h3>
-              <p className="text-gray-500 text-xs mb-3">Cloud Interview Assistant</p>
-              <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-3xl font-bold text-white">$99</span>
-                <span className="text-gray-500 text-sm">/month</span>
+              <div className="flex items-baseline gap-1 mb-2">
+                <span className="text-2xl font-bold text-white">$99</span>
+                <span className="text-gray-500 text-xs">/mo</span>
               </div>
-              <ul className="space-y-2 mb-6 text-sm">
-                {['5 credits included', '25 coding problems', '10 system designs'].map((item, j) => (
-                  <li key={j} className="flex items-center gap-2 text-gray-300">
-                    <Icon name="check" size={14} className="text-green-400" />{item}
+              <ul className="space-y-1 mb-3 text-xs">
+                {['5 credits', '25 coding problems'].map((item, j) => (
+                  <li key={j} className="flex items-center gap-1.5 text-gray-400">
+                    <Icon name="check" size={10} className="text-green-400" />{item}
                   </li>
                 ))}
               </ul>
-              <button onClick={() => handlePricingClick('monthly')} className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all hover:bg-white/20" style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#fff' }}>
-                {loading === 'monthly' ? 'Processing...' : 'Get Started'}
+              <button onClick={() => handlePricingClick('monthly')} className="w-full py-2 rounded-lg font-medium text-xs" style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#fff' }}>
+                {loading === 'monthly' ? '...' : 'Get Started'}
               </button>
             </div>
 
             {/* Quarterly Pro */}
-            <div className="relative p-6 rounded-2xl scale-105" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05))', border: '2px solid #10b981' }}>
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold" style={{ background: '#10b981', color: '#fff' }}>BEST VALUE</div>
+            <div className="relative p-4 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05))', border: '2px solid #10b981' }}>
+              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: '#10b981', color: '#fff' }}>BEST</div>
               <div className="flex items-center gap-2 mb-2">
-                <Icon name="rocket" size={24} className="text-green-400" />
+                <Icon name="rocket" size={16} className="text-green-400" />
+                <h3 className="text-sm font-bold text-white">Quarterly Pro</h3>
               </div>
-              <h3 className="text-lg font-bold text-white mb-1">Quarterly Pro</h3>
-              <p className="text-gray-500 text-xs mb-3">Interview + Job Discovery</p>
-              <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-3xl font-bold text-white">$300</span>
-                <span className="text-gray-500 text-sm">/quarter</span>
+              <div className="flex items-baseline gap-1 mb-2">
+                <span className="text-2xl font-bold text-white">$300</span>
+                <span className="text-gray-500 text-xs">/qtr</span>
               </div>
-              <ul className="space-y-2 mb-6 text-sm">
-                {['10 credits included', '50 coding problems', 'Job Discovery access'].map((item, j) => (
-                  <li key={j} className="flex items-center gap-2 text-gray-300">
-                    <Icon name="check" size={14} className="text-green-400" />{item}
+              <ul className="space-y-1 mb-3 text-xs">
+                {['10 credits', 'Job Discovery'].map((item, j) => (
+                  <li key={j} className="flex items-center gap-1.5 text-gray-400">
+                    <Icon name="check" size={10} className="text-green-400" />{item}
                   </li>
                 ))}
               </ul>
-              <button onClick={() => handlePricingClick('quarterly_pro')} className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff' }}>
-                {loading === 'quarterly_pro' ? 'Processing...' : 'Get Pro Access'}
+              <button onClick={() => handlePricingClick('quarterly_pro')} className="w-full py-2 rounded-lg font-medium text-xs" style={{ background: '#10b981', color: '#fff' }}>
+                {loading === 'quarterly_pro' ? '...' : 'Get Pro'}
               </button>
             </div>
 
             {/* Desktop Lifetime */}
-            <div className="relative p-6 rounded-2xl transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05))', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold" style={{ background: '#8b5cf6', color: '#fff' }}>LIFETIME</div>
+            <div className="relative p-4 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05))', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
+              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: '#8b5cf6', color: '#fff' }}>LIFETIME</div>
               <div className="flex items-center gap-2 mb-2">
-                <Icon name="terminal" size={24} className="text-purple-400" />
+                <Icon name="terminal" size={16} className="text-purple-400" />
+                <h3 className="text-sm font-bold text-white">Desktop</h3>
               </div>
-              <h3 className="text-lg font-bold text-white mb-1">Desktop App</h3>
-              <p className="text-gray-500 text-xs mb-3">Own Keys • Mac & Windows</p>
-              <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-3xl font-bold text-white">$300</span>
-                <span className="text-gray-500 text-sm">one-time</span>
+              <div className="flex items-baseline gap-1 mb-2">
+                <span className="text-2xl font-bold text-white">$300</span>
+                <span className="text-gray-500 text-xs">once</span>
               </div>
-              <ul className="space-y-2 mb-6 text-sm">
-                {['Unlimited usage forever', 'Use your own API keys', 'All features included'].map((item, j) => (
-                  <li key={j} className="flex items-center gap-2 text-gray-300">
-                    <Icon name="check" size={14} className="text-purple-400" />{item}
+              <ul className="space-y-1 mb-3 text-xs">
+                {['Unlimited forever', 'Your API keys'].map((item, j) => (
+                  <li key={j} className="flex items-center gap-1.5 text-gray-400">
+                    <Icon name="check" size={10} className="text-purple-400" />{item}
                   </li>
                 ))}
               </ul>
-              <button onClick={() => handlePricingClick('desktop_lifetime')} className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all" style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: '#fff' }}>
-                {loading === 'desktop_lifetime' ? 'Processing...' : 'Buy Lifetime'}
+              <button onClick={() => handlePricingClick('desktop_lifetime')} className="w-full py-2 rounded-lg font-medium text-xs" style={{ background: '#8b5cf6', color: '#fff' }}>
+                {loading === 'desktop_lifetime' ? '...' : 'Buy'}
               </button>
             </div>
 
             {/* Credit Pack */}
-            <div className="p-6 rounded-2xl transition-all hover:scale-105" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+            <div className="p-4 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
               <div className="flex items-center gap-2 mb-2">
-                <Icon name="ticket" size={24} className="text-gray-400" />
+                <Icon name="ticket" size={16} className="text-gray-400" />
+                <h3 className="text-sm font-bold text-white">Credits</h3>
               </div>
-              <h3 className="text-lg font-bold text-white mb-1">Credit Pack</h3>
-              <p className="text-gray-500 text-xs mb-3">Top up anytime</p>
-              <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-3xl font-bold text-white">$30</span>
-                <span className="text-gray-500 text-sm">one-time</span>
+              <div className="flex items-baseline gap-1 mb-2">
+                <span className="text-2xl font-bold text-white">$30</span>
+                <span className="text-gray-500 text-xs">pack</span>
               </div>
-              <ul className="space-y-2 mb-6 text-sm">
-                {['3 credits', '15 coding problems', 'No expiration'].map((item, j) => (
-                  <li key={j} className="flex items-center gap-2 text-gray-300">
-                    <Icon name="check" size={14} className="text-green-400" />{item}
+              <ul className="space-y-1 mb-3 text-xs">
+                {['3 credits', 'No expiration'].map((item, j) => (
+                  <li key={j} className="flex items-center gap-1.5 text-gray-400">
+                    <Icon name="check" size={10} className="text-green-400" />{item}
                   </li>
                 ))}
               </ul>
-              <button onClick={() => handlePricingClick('addon')} className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all hover:bg-white/20" style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#fff' }}>
-                {loading === 'addon' ? 'Processing...' : 'Buy Credits'}
+              <button onClick={() => handlePricingClick('addon')} className="w-full py-2 rounded-lg font-medium text-xs" style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#fff' }}>
+                {loading === 'addon' ? '...' : 'Buy'}
               </button>
             </div>
           </div>
-
-          <p className="text-center text-gray-500 text-sm mt-8">30-Day Money Back Guarantee on all plans</p>
+          <p className="text-center text-gray-500 text-xs mt-4">30-Day Money Back Guarantee</p>
         </div>
 
-        {/* FAQ Section */}
-        <div className="py-20">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white mb-4">FAQ</h2>
-          </div>
-          <div className="grid md:grid-cols-2 gap-6">
+        {/* FAQ Section - Compact */}
+        <div className="py-8">
+          <h2 className="text-xl font-bold text-white text-center mb-4">FAQ</h2>
+          <div className="grid md:grid-cols-2 gap-3">
             {faqItems.map((faq, i) => (
-              <div key={i} className="p-6 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
-                    <Icon name="question" size={16} className="text-green-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white mb-2">{faq.q}</h3>
-                    <p className="text-gray-400 leading-relaxed">{faq.a}</p>
-                  </div>
-                </div>
+              <div key={i} className="p-3 rounded-lg" style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
+                <h3 className="text-sm font-medium text-white mb-1">{faq.q}</h3>
+                <p className="text-gray-500 text-xs leading-relaxed">{faq.a.slice(0, 100)}...</p>
               </div>
             ))}
           </div>
         </div>
 
-        {/* CTA Section */}
-        <div className="py-16">
-          <div className="max-w-md mx-auto p-8 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.03)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-white mb-2">Get Started Free</h2>
-              <p className="text-gray-400">No credit card required</p>
+        {/* CTA Section - Compact */}
+        <div className="py-8">
+          <div className="max-w-sm mx-auto p-6 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+            <div className="text-center mb-4">
+              <h2 className="text-lg font-bold text-white">Get Started Free</h2>
+              <p className="text-gray-500 text-xs">No credit card required</p>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2">
               {providers.map((provider) => (
                 <button
                   key={provider.id}
                   onClick={() => handleOAuthLogin(provider.id)}
                   disabled={loading !== null}
-                  className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-medium transition-all disabled:opacity-50 hover:bg-white/10"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all disabled:opacity-50 hover:bg-white/10"
                   style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#fff' }}
                 >
                   {loading === provider.id ? (
-                    <Icon name="loader" size={20} className="animate-spin" />
+                    <Icon name="loader" size={16} className="animate-spin" />
                   ) : (
                     <>
-                      <Icon name={provider.id} size={20} />
-                      Continue with {provider.name}
+                      <Icon name={provider.id} size={16} />
+                      {provider.name}
                     </>
                   )}
                 </button>
@@ -762,33 +726,30 @@ export default function OAuthLogin() {
             </div>
 
             {error && (
-              <div className="mt-4 p-3 rounded-lg" style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-                <p className="text-red-400 text-sm text-center">{error}</p>
+              <div className="mt-3 p-2 rounded-lg" style={{ background: 'rgba(239, 68, 68, 0.1)' }}>
+                <p className="text-red-400 text-xs text-center">{error}</p>
               </div>
             )}
 
-            <p className="mt-6 text-center text-xs text-gray-500">
-              By signing up, you agree to our <a href="/terms" className="text-gray-400 hover:text-white">Terms</a> and <a href="/privacy" className="text-gray-400 hover:text-white">Privacy Policy</a>
+            <p className="mt-4 text-center text-[10px] text-gray-600">
+              By signing up, you agree to our <a href="/terms" className="text-gray-500 hover:text-white">Terms</a> & <a href="/privacy" className="text-gray-500 hover:text-white">Privacy</a>
             </p>
           </div>
         </div>
 
-        {/* Footer */}
-        <footer className="py-12 border-t" style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}>
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                <Icon name="ascend" size={24} className="text-white" />
-              </div>
-              <span className="text-white font-bold text-lg">Ascend</span>
+        {/* Footer - Compact */}
+        <footer className="py-6 border-t flex items-center justify-between" style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+              <Icon name="ascend" size={14} className="text-white" />
             </div>
-            <div className="flex items-center gap-8 text-sm">
-              <a href="/privacy" className="text-gray-500 hover:text-white transition-colors">Privacy</a>
-              <a href="/terms" className="text-gray-500 hover:text-white transition-colors">Terms</a>
-              <a href="mailto:support@ascend.ai" className="text-gray-500 hover:text-white transition-colors">Contact</a>
-            </div>
+            <span className="text-white font-semibold text-sm">Ascend</span>
           </div>
-          <div className="text-center mt-8 text-gray-600 text-sm">© 2025 Ascend. All Rights Reserved.</div>
+          <div className="flex items-center gap-4 text-xs text-gray-500">
+            <a href="/privacy" className="hover:text-white">Privacy</a>
+            <a href="/terms" className="hover:text-white">Terms</a>
+            <span>© 2025</span>
+          </div>
         </footer>
       </div>
 
