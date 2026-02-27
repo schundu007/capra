@@ -369,31 +369,21 @@ export default function OAuthLogin() {
         </section>
 
         {/* ═══════════════════════════════════════════════════════════════════════════════
-            REVIEWS SECTION - Testimonial cards
+            CTA SECTION - Glowing card
         ═══════════════════════════════════════════════════════════════════════════════ */}
-        <section id="reviews" className="py-12">
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <h2 className="text-xl font-bold text-white">Loved by Engineers</h2>
-            <div className="flex items-center gap-1 px-3 py-1 rounded-full" style={{ background: 'rgba(250, 204, 21, 0.1)' }}>
-              {[...Array(5)].map((_, i) => <Icon key={i} name="star5" size={12} className="text-yellow-400" />)}
-              <span className="text-yellow-400 text-sm font-bold ml-1">4.9</span>
+        <section className="py-12">
+          <div className="max-w-md mx-auto p-8 rounded-2xl text-center" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.02))', border: '1px solid rgba(16, 185, 129, 0.2)', boxShadow: '0 0 60px rgba(16, 185, 129, 0.1)' }}>
+            <h2 className="text-xl font-bold text-white mb-2">Ready to Ace Your Interview?</h2>
+            <p className="text-gray-400 text-sm mb-6">Start your free trial today. No credit card required.</p>
+            <div className="space-y-2">
+              {providers.map((p) => (
+                <button key={p.id} onClick={() => handleOAuthLogin(p.id)} disabled={loading !== null} className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium text-sm transition-all hover:bg-white/10" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}>
+                  {loading === p.id ? <Icon name="loader" size={16} className="animate-spin" /> : <><Icon name={p.id} size={16} />{p.name}</>}
+                </button>
+              ))}
             </div>
-          </div>
-          <div className="grid md:grid-cols-3 gap-4">
-            {reviews.map((r, i) => (
-              <div key={i} className="p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style={{ background: `linear-gradient(135deg, ${['#10b981', '#3b82f6', '#8b5cf6'][i]}, ${['#059669', '#2563eb', '#7c3aed'][i]})` }}>
-                    {r.name[0]}
-                  </div>
-                  <div>
-                    <div className="text-white font-medium text-sm">{r.name}</div>
-                    <div className="text-gray-500 text-xs">{r.title}</div>
-                  </div>
-                </div>
-                <p className="text-gray-400 text-sm leading-relaxed">"{r.text}"</p>
-              </div>
-            ))}
+            {error && <p className="text-red-400 text-xs mt-3">{error}</p>}
+            <p className="mt-4 text-[11px] text-gray-600">By signing up, you agree to our <a href="/terms" className="text-gray-500 hover:text-white">Terms</a> & <a href="/privacy" className="text-gray-500 hover:text-white">Privacy</a></p>
           </div>
         </section>
 
@@ -478,6 +468,35 @@ export default function OAuthLogin() {
         </section>
 
         {/* ═══════════════════════════════════════════════════════════════════════════════
+            REVIEWS SECTION - Testimonial cards
+        ═══════════════════════════════════════════════════════════════════════════════ */}
+        <section id="reviews" className="py-12">
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <h2 className="text-xl font-bold text-white">Loved by Engineers</h2>
+            <div className="flex items-center gap-1 px-3 py-1 rounded-full" style={{ background: 'rgba(250, 204, 21, 0.1)' }}>
+              {[...Array(5)].map((_, i) => <Icon key={i} name="star5" size={12} className="text-yellow-400" />)}
+              <span className="text-yellow-400 text-sm font-bold ml-1">4.9</span>
+            </div>
+          </div>
+          <div className="grid md:grid-cols-3 gap-4">
+            {reviews.map((r, i) => (
+              <div key={i} className="p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style={{ background: `linear-gradient(135deg, ${['#10b981', '#3b82f6', '#8b5cf6'][i]}, ${['#059669', '#2563eb', '#7c3aed'][i]})` }}>
+                    {r.name[0]}
+                  </div>
+                  <div>
+                    <div className="text-white font-medium text-sm">{r.name}</div>
+                    <div className="text-gray-500 text-xs">{r.title}</div>
+                  </div>
+                </div>
+                <p className="text-gray-400 text-sm leading-relaxed">"{r.text}"</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════════════════════════════
             FAQ SECTION - Clean accordion style
         ═══════════════════════════════════════════════════════════════════════════════ */}
         <section className="py-12">
@@ -489,25 +508,6 @@ export default function OAuthLogin() {
                 <p className="text-gray-500 text-sm leading-relaxed">{faq.a}</p>
               </div>
             ))}
-          </div>
-        </section>
-
-        {/* ═══════════════════════════════════════════════════════════════════════════════
-            CTA SECTION - Glowing card
-        ═══════════════════════════════════════════════════════════════════════════════ */}
-        <section className="py-12">
-          <div className="max-w-md mx-auto p-8 rounded-2xl text-center" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.02))', border: '1px solid rgba(16, 185, 129, 0.2)', boxShadow: '0 0 60px rgba(16, 185, 129, 0.1)' }}>
-            <h2 className="text-xl font-bold text-white mb-2">Ready to Ace Your Interview?</h2>
-            <p className="text-gray-400 text-sm mb-6">Start your free trial today. No credit card required.</p>
-            <div className="space-y-2">
-              {providers.map((p) => (
-                <button key={p.id} onClick={() => handleOAuthLogin(p.id)} disabled={loading !== null} className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium text-sm transition-all hover:bg-white/10" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}>
-                  {loading === p.id ? <Icon name="loader" size={16} className="animate-spin" /> : <><Icon name={p.id} size={16} />{p.name}</>}
-                </button>
-              ))}
-            </div>
-            {error && <p className="text-red-400 text-xs mt-3">{error}</p>}
-            <p className="mt-4 text-[11px] text-gray-600">By signing up, you agree to our <a href="/terms" className="text-gray-500 hover:text-white">Terms</a> & <a href="/privacy" className="text-gray-500 hover:text-white">Privacy</a></p>
           </div>
         </section>
 
