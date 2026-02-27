@@ -1381,6 +1381,11 @@ EDGE CASES & RESILIENCE:
     );
   }
 
+  // Show docs page (publicly accessible, check before auth)
+  if (isDocsPage) {
+    return <DocsPage />;
+  }
+
   // Show landing page for unauthenticated users at / or /login
   if (authRequired && !isAuthenticated) {
     // Allow landing page at root /, redirect /login to /
@@ -1398,11 +1403,6 @@ EDGE CASES & RESILIENCE:
   // Show download page if authenticated and on /download path
   if (isDownloadPage && isAuthenticated) {
     return <DownloadPage />;
-  }
-
-  // Show docs page (publicly accessible)
-  if (isDocsPage) {
-    return <DocsPage />;
   }
 
   // If this is the dedicated Interview Prep window, render only that
