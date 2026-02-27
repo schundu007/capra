@@ -9,6 +9,7 @@ export default function DocsPage() {
   const [activePage, setActivePage] = useState('coding');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState('a-z');
+  const [showComingSoon, setShowComingSoon] = useState(null); // Track which topic shows "Coming Soon"
 
   // Sidebar navigation items
   const navItems = [
@@ -253,12 +254,20 @@ export default function DocsPage() {
               {/* Topic Cards Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-12">
                 {filteredTopics.map((topic) => (
-                  <a
+                  <div
                     key={topic.id}
-                    href={`#${topic.id}`}
-                    className="group p-4 rounded-xl transition-all hover:scale-[1.02] hover:bg-white/5"
+                    onClick={() => {
+                      setShowComingSoon(topic.id);
+                      setTimeout(() => setShowComingSoon(null), 2000);
+                    }}
+                    className="group p-4 rounded-xl transition-all hover:scale-[1.02] hover:bg-white/5 cursor-pointer relative"
                     style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
                   >
+                    {showComingSoon === topic.id && (
+                      <div className="absolute inset-0 flex items-center justify-center rounded-xl z-10" style={{ background: 'rgba(0,0,0,0.9)' }}>
+                        <span className="text-green-400 text-sm font-medium">Coming Soon!</span>
+                      </div>
+                    )}
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <Icon name={topic.icon} size={16} style={{ color: topic.color }} />
@@ -270,7 +279,7 @@ export default function DocsPage() {
                       <Icon name="star" size={14} />
                       <span>{topic.questions} Questions</span>
                     </div>
-                  </a>
+                  </div>
                 ))}
               </div>
 
@@ -329,12 +338,20 @@ export default function DocsPage() {
               <h2 className="text-xl font-bold text-white mb-4">Core Concepts</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-12">
                 {filteredTopics.map((topic) => (
-                  <a
+                  <div
                     key={topic.id}
-                    href={`#${topic.id}`}
-                    className="group p-4 rounded-xl transition-all hover:scale-[1.02] hover:bg-white/5"
+                    onClick={() => {
+                      setShowComingSoon(topic.id);
+                      setTimeout(() => setShowComingSoon(null), 2000);
+                    }}
+                    className="group p-4 rounded-xl transition-all hover:scale-[1.02] hover:bg-white/5 cursor-pointer relative"
                     style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
                   >
+                    {showComingSoon === topic.id && (
+                      <div className="absolute inset-0 flex items-center justify-center rounded-xl z-10" style={{ background: 'rgba(0,0,0,0.9)' }}>
+                        <span className="text-blue-400 text-sm font-medium">Coming Soon!</span>
+                      </div>
+                    )}
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <Icon name={topic.icon} size={16} style={{ color: topic.color }} />
@@ -346,7 +363,7 @@ export default function DocsPage() {
                       <Icon name="star" size={14} />
                       <span>{topic.questions} Questions</span>
                     </div>
-                  </a>
+                  </div>
                 ))}
               </div>
 
@@ -354,12 +371,20 @@ export default function DocsPage() {
               <h2 className="text-xl font-bold text-white mb-4">Common System Designs</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
                 {systemDesigns.map((design) => (
-                  <a
+                  <div
                     key={design.id}
-                    href={`#${design.id}`}
-                    className="group p-5 rounded-xl transition-all hover:scale-[1.01] hover:bg-white/5"
+                    onClick={() => {
+                      setShowComingSoon(design.id);
+                      setTimeout(() => setShowComingSoon(null), 2000);
+                    }}
+                    className="group p-5 rounded-xl transition-all hover:scale-[1.01] hover:bg-white/5 cursor-pointer relative"
                     style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
                   >
+                    {showComingSoon === design.id && (
+                      <div className="absolute inset-0 flex items-center justify-center rounded-xl z-10" style={{ background: 'rgba(0,0,0,0.9)' }}>
+                        <span className="text-blue-400 text-sm font-medium">Coming Soon!</span>
+                      </div>
+                    )}
                     <div className="flex items-start gap-4">
                       <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${design.color}15` }}>
                         <Icon name={design.icon} size={24} style={{ color: design.color }} />
@@ -375,7 +400,7 @@ export default function DocsPage() {
                         </span>
                       </div>
                     </div>
-                  </a>
+                  </div>
                 ))}
               </div>
 
@@ -480,12 +505,20 @@ export default function DocsPage() {
               <h2 className="text-xl font-bold text-white mb-4">Question Categories</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-12">
                 {filteredTopics.map((topic) => (
-                  <a
+                  <div
                     key={topic.id}
-                    href={`#${topic.id}`}
-                    className="group p-4 rounded-xl transition-all hover:scale-[1.02] hover:bg-white/5"
+                    onClick={() => {
+                      setShowComingSoon(topic.id);
+                      setTimeout(() => setShowComingSoon(null), 2000);
+                    }}
+                    className="group p-4 rounded-xl transition-all hover:scale-[1.02] hover:bg-white/5 cursor-pointer relative"
                     style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
                   >
+                    {showComingSoon === topic.id && (
+                      <div className="absolute inset-0 flex items-center justify-center rounded-xl z-10" style={{ background: 'rgba(0,0,0,0.9)' }}>
+                        <span className="text-purple-400 text-sm font-medium">Coming Soon!</span>
+                      </div>
+                    )}
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <Icon name={topic.icon} size={16} style={{ color: topic.color }} />
@@ -497,7 +530,7 @@ export default function DocsPage() {
                       <Icon name="star" size={14} />
                       <span>{topic.questions} Questions</span>
                     </div>
-                  </a>
+                  </div>
                 ))}
               </div>
 
@@ -505,12 +538,20 @@ export default function DocsPage() {
               <h2 className="text-xl font-bold text-white mb-4">Company-Specific Prep</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
                 {companyPrep.map((company) => (
-                  <a
+                  <div
                     key={company.id}
-                    href={`#${company.id}`}
-                    className="group p-5 rounded-xl transition-all hover:scale-[1.01] hover:bg-white/5"
+                    onClick={() => {
+                      setShowComingSoon(company.id);
+                      setTimeout(() => setShowComingSoon(null), 2000);
+                    }}
+                    className="group p-5 rounded-xl transition-all hover:scale-[1.01] hover:bg-white/5 cursor-pointer relative"
                     style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
                   >
+                    {showComingSoon === company.id && (
+                      <div className="absolute inset-0 flex items-center justify-center rounded-xl z-10" style={{ background: 'rgba(0,0,0,0.9)' }}>
+                        <span className="text-purple-400 text-sm font-medium">Coming Soon!</span>
+                      </div>
+                    )}
                     <div className="flex items-start gap-4">
                       <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${company.color}15` }}>
                         <Icon name={company.icon} size={24} style={{ color: company.color }} />
@@ -526,7 +567,7 @@ export default function DocsPage() {
                         </span>
                       </div>
                     </div>
-                  </a>
+                  </div>
                 ))}
               </div>
 
