@@ -382,15 +382,15 @@ export default function OAuthLogin() {
                 {/* Left Features */}
                 <div className="flex flex-col gap-4 w-full lg:w-auto">
                   {[
-                    { icon: 'code', label: 'Data Structures & Algorithms', color: '#10b981' },
-                    { icon: 'systemDesign', label: 'System Design', color: '#3b82f6' },
-                    { icon: 'layers', label: 'Low Level Design', color: '#8b5cf6' },
-                    { icon: 'terminal', label: 'Full Stack Coding', color: '#f59e0b' },
+                    { icon: 'code', label: 'Data Structures & Algorithms', color: '#10b981', href: '/docs/coding' },
+                    { icon: 'systemDesign', label: 'System Design', color: '#3b82f6', href: '/docs/system-design' },
+                    { icon: 'layers', label: 'Low Level Design', color: '#8b5cf6', href: '/docs/system-design' },
+                    { icon: 'terminal', label: 'Full Stack Coding', color: '#f59e0b', href: '/docs/coding' },
                   ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-3 px-5 py-3 rounded-xl transition-all hover:scale-105 cursor-pointer" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <a key={i} href={item.href} className="flex items-center gap-3 px-5 py-3 rounded-xl transition-all hover:scale-105 cursor-pointer" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
                       <Icon name={item.icon} size={18} style={{ color: item.color }} />
                       <span className="text-gray-300 text-sm font-medium">{item.label}</span>
-                    </div>
+                    </a>
                   ))}
                 </div>
 
@@ -421,15 +421,15 @@ export default function OAuthLogin() {
                 {/* Right Features */}
                 <div className="flex flex-col gap-4 w-full lg:w-auto">
                   {[
-                    { icon: 'users', label: 'Behavioral', color: '#ec4899' },
-                    { icon: 'building', label: 'Company Questions', color: '#06b6d4' },
-                    { icon: 'briefcase', label: 'Projects', color: '#84cc16' },
-                    { icon: 'compass', label: 'Roadmaps', color: '#f97316' },
+                    { icon: 'users', label: 'Behavioral', color: '#ec4899', href: '/docs/behavioral' },
+                    { icon: 'building', label: 'Company Questions', color: '#06b6d4', href: '/docs/behavioral' },
+                    { icon: 'briefcase', label: 'Projects', color: '#84cc16', href: '/docs/coding' },
+                    { icon: 'compass', label: 'Roadmaps', color: '#f97316', href: '/docs' },
                   ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-3 px-5 py-3 rounded-xl transition-all hover:scale-105 cursor-pointer lg:flex-row-reverse" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <a key={i} href={item.href} className="flex items-center gap-3 px-5 py-3 rounded-xl transition-all hover:scale-105 cursor-pointer lg:flex-row-reverse" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
                       <Icon name={item.icon} size={18} style={{ color: item.color }} />
                       <span className="text-gray-300 text-sm font-medium">{item.label}</span>
-                    </div>
+                    </a>
                   ))}
                 </div>
               </div>
@@ -449,9 +449,9 @@ export default function OAuthLogin() {
                   <p className="text-gray-400 text-lg mb-6 leading-relaxed">
                     Level up your DSA skills by studying our optimal time and space complexity solutions. Get instant AI-powered explanations for any problem.
                   </p>
-                  <button className="flex items-center gap-2 text-green-400 font-semibold hover:gap-3 transition-all mb-6">
+                  <a href="/docs/coding" className="flex items-center gap-2 text-green-400 font-semibold hover:gap-3 transition-all mb-6">
                     Start with Data Structures & Algorithms <Icon name="arrowRight" size={18} />
-                  </button>
+                  </a>
                   <div className="flex flex-wrap gap-3">
                     <span className="text-gray-500 text-sm">See also:</span>
                     <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors underline underline-offset-2">Ascend 100</a>
@@ -618,9 +618,9 @@ export default function OAuthLogin() {
                   <p className="text-gray-400 text-lg mb-6 leading-relaxed">
                     Enhance your system design knowledge and impress your interviewer with expert-level solutions and real-time AI-powered feedback with auto-generated diagrams.
                   </p>
-                  <button className="flex items-center gap-2 text-blue-400 font-semibold hover:gap-3 transition-all mb-6">
+                  <a href="/docs/system-design" className="flex items-center gap-2 text-blue-400 font-semibold hover:gap-3 transition-all mb-6">
                     Start with System Design <Icon name="arrowRight" size={18} />
-                  </button>
+                  </a>
                   <div className="flex flex-wrap gap-3">
                     <span className="text-gray-500 text-sm">See also:</span>
                     <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors underline underline-offset-2">High Level Design</a>
@@ -703,9 +703,9 @@ export default function OAuthLogin() {
                   <p className="text-gray-400 text-lg mb-6 leading-relaxed">
                     Become a top candidate and impress your interviewer using our vetted list of the most frequently asked behavioral questions with AI-generated STAR responses.
                   </p>
-                  <button className="flex items-center gap-2 text-purple-400 font-semibold hover:gap-3 transition-all mb-6">
+                  <a href="/docs/behavioral" className="flex items-center gap-2 text-purple-400 font-semibold hover:gap-3 transition-all mb-6">
                     Start with Behavioral <Icon name="arrowRight" size={18} />
-                  </button>
+                  </a>
                   <div className="flex flex-wrap gap-3">
                     <span className="text-gray-500 text-sm">See also:</span>
                     <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors underline underline-offset-2">Playbook</a>
@@ -868,12 +868,78 @@ export default function OAuthLogin() {
                       <Icon name="systemDesign" size={20} />
                       Design: URL Shortener Service
                     </div>
-                    <div className="grid md:grid-cols-3 gap-4 mb-6">
-                      {['API Gateway', 'Load Balancer', 'App Servers', 'Redis Cache', 'PostgreSQL', 'CDN'].map((comp, i) => (
-                        <div key={i} className="p-3 rounded-lg text-center" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                          <span className="text-white text-sm">{comp}</span>
-                        </div>
-                      ))}
+                    {/* Real System Design Diagram */}
+                    <div className="relative rounded-xl overflow-hidden mb-4" style={{ background: '#0a0f1a', height: '220px' }}>
+                      <svg className="w-full h-full" viewBox="0 0 700 200" preserveAspectRatio="xMidYMid meet">
+                        <defs>
+                          <marker id="demoArrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L8,3 z" fill="#3b82f6" />
+                          </marker>
+                          <marker id="demoArrowGreen" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L8,3 z" fill="#22c55e" />
+                          </marker>
+                        </defs>
+
+                        {/* Connection Lines */}
+                        <g stroke="#3b82f6" strokeWidth="1.5" fill="none" opacity="0.7">
+                          <path d="M75,100 L130,100" markerEnd="url(#demoArrow)" />
+                          <path d="M210,100 L265,100" markerEnd="url(#demoArrow)" />
+                          <path d="M345,100 L400,100" markerEnd="url(#demoArrow)" />
+                          <path d="M345,100 L345,145 L400,145" markerEnd="url(#demoArrowGreen)" stroke="#22c55e" />
+                          <path d="M480,100 L535,100" markerEnd="url(#demoArrow)" />
+                          <path d="M480,100 L480,55 L535,55" markerEnd="url(#demoArrow)" strokeDasharray="4,2" />
+                          <path d="M615,70 L615,130" stroke="#22c55e" strokeDasharray="4,2" />
+                        </g>
+
+                        {/* Users */}
+                        <g transform="translate(20, 75)">
+                          <rect width="55" height="50" rx="8" fill="#1e3a5f" stroke="#3b82f6" strokeWidth="1.5" />
+                          <text x="27" y="22" textAnchor="middle" fill="#93c5fd" fontSize="16">👥</text>
+                          <text x="27" y="40" textAnchor="middle" fill="#94a3b8" fontSize="8">Users</text>
+                        </g>
+
+                        {/* Load Balancer */}
+                        <g transform="translate(130, 75)">
+                          <rect width="80" height="50" rx="8" fill="#1e3a5f" stroke="#3b82f6" strokeWidth="1.5" />
+                          <text x="40" y="22" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Load Balancer</text>
+                          <text x="40" y="36" textAnchor="middle" fill="#64748b" fontSize="7">NGINX</text>
+                        </g>
+
+                        {/* API Servers */}
+                        <g transform="translate(265, 75)">
+                          <rect width="80" height="50" rx="8" fill="#164e63" stroke="#22d3ee" strokeWidth="1.5" />
+                          <text x="40" y="22" textAnchor="middle" fill="#67e8f9" fontSize="9" fontWeight="bold">API Servers</text>
+                          <text x="40" y="36" textAnchor="middle" fill="#64748b" fontSize="7">Go / Node.js</text>
+                        </g>
+
+                        {/* Redis Cache */}
+                        <g transform="translate(400, 120)">
+                          <rect width="80" height="50" rx="8" fill="#3f1e1e" stroke="#ef4444" strokeWidth="1.5" />
+                          <text x="40" y="22" textAnchor="middle" fill="#fca5a5" fontSize="9" fontWeight="bold">Redis Cache</text>
+                          <text x="40" y="36" textAnchor="middle" fill="#64748b" fontSize="7">TTL: 24h</text>
+                        </g>
+
+                        {/* Database */}
+                        <g transform="translate(400, 55)">
+                          <rect width="80" height="50" rx="8" fill="#1e2e1e" stroke="#22c55e" strokeWidth="1.5" />
+                          <text x="40" y="22" textAnchor="middle" fill="#86efac" fontSize="9" fontWeight="bold">PostgreSQL</text>
+                          <text x="40" y="36" textAnchor="middle" fill="#64748b" fontSize="7">Primary + Read</text>
+                        </g>
+
+                        {/* CDN */}
+                        <g transform="translate(535, 30)">
+                          <rect width="80" height="50" rx="8" fill="#2e1e3f" stroke="#a855f7" strokeWidth="1.5" />
+                          <text x="40" y="22" textAnchor="middle" fill="#c4b5fd" fontSize="9" fontWeight="bold">CDN</text>
+                          <text x="40" y="36" textAnchor="middle" fill="#64748b" fontSize="7">CloudFront</text>
+                        </g>
+
+                        {/* Analytics */}
+                        <g transform="translate(535, 100)">
+                          <rect width="80" height="50" rx="8" fill="#1e2e3f" stroke="#f59e0b" strokeWidth="1.5" />
+                          <text x="40" y="22" textAnchor="middle" fill="#fcd34d" fontSize="9" fontWeight="bold">Analytics</text>
+                          <text x="40" y="36" textAnchor="middle" fill="#64748b" fontSize="7">Kafka → ClickHouse</text>
+                        </g>
+                      </svg>
                     </div>
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="p-4 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)' }}>
