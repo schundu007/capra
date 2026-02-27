@@ -8903,6 +8903,415 @@ If demand > supply by X%:
       color: '#1da1f2',
       difficulty: 'Medium',
       description: 'Design a system to detect and display trending topics in real-time.',
+
+      introduction: `Twitter's trending topics feature shows what's being talked about right now across the platform. Unlike simple frequency counting, trending detection requires identifying topics that are *rising* faster than their baseline - a topic with 1M tweets isn't trending if it normally gets 1M tweets.
+
+The core challenge is processing hundreds of millions of tweets per day in real-time while distinguishing true viral content from spam campaigns and coordinated manipulation.`,
+
+      functionalRequirements: [
+        'Detect trending hashtags and keywords',
+        'Show trends personalized by location',
+        'Real-time updates (< 5 minute latency)',
+        'Support trend categories (Politics, Sports, etc.)',
+        'Show tweet volume and trend velocity',
+        'Filter out spam and manipulation'
+      ],
+
+      nonFunctionalRequirements: [
+        'Process 500M+ tweets per day (6K/sec)',
+        'Track 100K+ unique hashtags per hour',
+        'Update trends every 5 minutes',
+        'Support 100+ geographic regions',
+        '99.9% availability',
+        'Memory-efficient counting (can\'t store all tweets)'
+      ],
+
+      dataModel: {
+        description: 'Stream-based aggregates with time windows',
+        schema: `trend_aggregates {
+  topic: varchar(255)
+  region: varchar(50)
+  time_bucket: timestamp -- 5-minute windows
+  count: bigint
+  velocity: float -- tweets per second
+  baseline: float -- historical average
+  trend_score: float -- computed anomaly score
+}
+
+user_topic_counts {
+  user_id: bigint
+  topic: varchar(255)
+  count: int -- for spam detection
+  time_bucket: timestamp
+}
+
+trending_topics {
+  region: varchar(50)
+  rank: int
+  topic: varchar(255)
+  category: varchar(50)
+  tweet_count: bigint
+  trend_score: float
+  started_trending: timestamp
+  updated_at: timestamp
+}`
+      },
+
+      apiDesign: {
+        description: 'Simple read-heavy API backed by cache',
+        endpoints: [
+          { method: 'GET', path: '/api/trends', params: 'location, count, category', response: '{ trends: [{ topic, tweetCount, category, rank }] }' },
+          { method: 'GET', path: '/api/trends/:topic', params: '-', response: '{ topic, history[], relatedTopics[], topTweets[] }' },
+          { method: 'Internal', path: '/stream/tweets', params: '-', response: 'Kafka topic with tweet events' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How do we efficiently count hashtags at this scale?',
+          answer: `**The Problem**:
+- 6K tweets/second = millions of hashtags to count
+- Can't store exact counts for every hashtag (memory explosion)
+- Need approximate counts with bounded error
+
+**Count-Min Sketch**:
+\`\`\`
+Structure:
+- 2D array of counters [d rows × w columns]
+- d independent hash functions
+
+Insert(item):
+  for i in 0..d:
+    j = hash_i(item) % w
+    counters[i][j] += 1
+
+Query(item):
+  return min(counters[i][hash_i(item) % w] for i in 0..d)
+\`\`\`
+
+**Properties**:
+- Space: O(w × d) regardless of unique items
+- Error: ε = e/w, probability δ = e^(-d)
+- Typical: w=10K, d=7 → <0.1% error
+
+**Windowed Counting**:
+\`\`\`
+┌─────────────────────────────────────────┐
+│ Time Windows (sliding every 5 minutes) │
+├─────────────────────────────────────────┤
+│ [T-15, T-10] │ [T-10, T-5] │ [T-5, T]  │
+│  CM Sketch   │  CM Sketch  │ CM Sketch │
+└─────────────────────────────────────────┘
+
+Total count = sum of window counts
+Trend = compare recent window vs older windows
+\`\`\`
+
+**Memory Usage**:
+- Single sketch: 10K × 7 × 4 bytes = 280KB
+- 3 time windows: 840KB per region
+- 100 regions: ~84MB total`
+        },
+        {
+          question: 'How do we detect "trending" vs just "popular"?',
+          answer: `**The Key Insight**:
+- "Trending" = rising faster than expected
+- A topic with 1M tweets isn't trending if it always gets 1M
+- A topic with 10K tweets IS trending if it normally gets 100
+
+**Anomaly Detection Algorithm**:
+\`\`\`
+For each topic in current window:
+  current_rate = tweets_in_window / window_duration
+  baseline = historical_average_for(topic, time_of_day, day_of_week)
+  z_score = (current_rate - baseline) / std_dev
+
+  if z_score > threshold:
+    topic is trending
+    trend_score = z_score × log(current_count)  # scale by volume
+\`\`\`
+
+**Time Decay**:
+\`\`\`
+decayed_score = raw_score × e^(-λt)
+
+Where:
+  λ = decay constant (0.1 = slow decay, 0.5 = fast)
+  t = time since first trending
+
+Effect: Topics that started trending recently rank higher
+\`\`\`
+
+**Velocity Tracking**:
+\`\`\`json
+{
+  "topic": "#WorldCup",
+  "current_rate": 5000,     // tweets/min now
+  "rate_5min_ago": 2000,    // tweets/min 5 min ago
+  "acceleration": 2.5,      // velocity multiplier
+  "baseline": 100,          // normal tweets/min
+  "z_score": 45.2           // very anomalous!
+}
+\`\`\`
+
+**Preventing False Positives**:
+- Minimum absolute count threshold (ignore if < 100 tweets)
+- Minimum unique users (anti-bot)
+- Blacklist certain evergreen topics`
+        },
+        {
+          question: 'How do we filter spam and manipulation?',
+          answer: `**Spam Patterns to Detect**:
+
+1. **Bot Networks**:
+   - Multiple accounts tweeting same hashtag simultaneously
+   - Accounts created recently
+   - Similar tweet text across accounts
+
+2. **Coordinated Campaigns**:
+   - Sudden spike from specific user segments
+   - Tweets from same IP ranges
+   - Similar posting patterns
+
+**Multi-Layer Filtering**:
+\`\`\`
+Layer 1: Account Quality
+  - Account age (< 30 days = suspicious)
+  - Follower ratio
+  - Tweet history diversity
+
+Layer 2: Behavioral Signals
+  - Tweets per minute per user (rate limit)
+  - Duplicate text detection
+  - Tweet timing patterns (bot-like regularity)
+
+Layer 3: Network Analysis
+  - Graph of users tweeting same topic
+  - Cluster detection (coordinated groups)
+  - Unusual geographic patterns
+\`\`\`
+
+**Weighted Counting**:
+\`\`\`
+Instead of: count += 1
+
+Use: count += user_credibility_score
+
+Where credibility considers:
+  - Account age
+  - Follower count (log scaled)
+  - Past spam history
+  - Verification status
+\`\`\`
+
+**Real-time vs Batch**:
+- Real-time: Basic rate limiting, known bot lists
+- Batch (hourly): Network analysis, retroactive cleanup`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Single Region Architecture',
+        description: 'Handle trends for one geographic area',
+        architecture: `
+┌─────────────────────────────────────────────────────────────┐
+│                    Tweet Ingestion                          │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   Tweets → [Kafka] → [Flink Stream Processor]               │
+│              │              │                               │
+│              │              ├─ Extract hashtags             │
+│              │              ├─ Filter spam                  │
+│              │              └─ Update Count-Min Sketch      │
+│              │                       │                      │
+│              │                       ▼                      │
+│              │              ┌─────────────────┐             │
+│              │              │ Windowed Counts │             │
+│              │              │ (Redis Sorted   │             │
+│              │              │  Sets by score) │             │
+│              │              └─────────────────┘             │
+│              │                       │                      │
+│              │                       ▼                      │
+│              │              ┌─────────────────┐             │
+│              │              │ Trend Ranker    │             │
+│              │              │ (every 5 min)   │             │
+│              │              └─────────────────┘             │
+│              │                       │                      │
+│              │                       ▼                      │
+│              │              ┌─────────────────┐             │
+│              │              │ Trends Cache    │             │
+│              │              │ (CDN backed)    │             │
+│              │              └─────────────────┘             │
+│                                      │                      │
+│   Client ←──────── API Gateway ←─────┘                      │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Single region only - no geo trends',
+          'Flink as SPOF - lose data if it fails',
+          'No historical baseline yet',
+          'Spam filtering is basic'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Global Multi-Region Architecture',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           Global Trends Platform                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   ┌─────────────────────┐     ┌─────────────────────┐                       │
+│   │    Tweet Stream     │     │   User Metadata     │                       │
+│   │ (Geo-partitioned    │     │ (credibility,       │                       │
+│   │  by region)         │     │  location, etc.)    │                       │
+│   └──────────┬──────────┘     └──────────┬──────────┘                       │
+│              │                           │                                  │
+│              ▼                           ▼                                  │
+│   ┌────────────────────────────────────────────────────┐                    │
+│   │              Apache Flink Cluster                  │                    │
+│   │  ┌──────────────────────────────────────────────┐  │                    │
+│   │  │ Per-Region Stream Jobs (100+ parallel)      │  │                    │
+│   │  │                                              │  │                    │
+│   │  │  Tweet → Spam Filter → Hashtag Extract →    │  │                    │
+│   │  │         Count-Min Sketch Update              │  │                    │
+│   │  └──────────────────────────────────────────────┘  │                    │
+│   │  ┌──────────────────────────────────────────────┐  │                    │
+│   │  │ Aggregation Job (windowed every 5 min)      │  │                    │
+│   │  │                                              │  │                    │
+│   │  │  Per-region counts → Anomaly detection →    │  │                    │
+│   │  │         Trend scoring → Ranking              │  │                    │
+│   │  └──────────────────────────────────────────────┘  │                    │
+│   └────────────────────────────────────────────────────┘                    │
+│                              │                                              │
+│              ┌───────────────┼───────────────┐                              │
+│              ▼               ▼               ▼                              │
+│   ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐               │
+│   │ Regional Trends │ │ National Trends │ │  Global Trends  │               │
+│   │ (100+ regions)  │ │ (per country)   │ │ (worldwide)     │               │
+│   │    Redis        │ │    Redis        │ │    Redis        │               │
+│   └─────────────────┘ └─────────────────┘ └─────────────────┘               │
+│              │               │               │                              │
+│              └───────────────┴───────────────┘                              │
+│                              │                                              │
+│                              ▼                                              │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                    CDN Edge Cache                   │                   │
+│   │    (Trends cached at edge, TTL = 1 minute)         │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                              │                                              │
+│   ┌───────────────┐   ┌──────┴──────┐   ┌───────────────┐                   │
+│   │  Mobile App   │   │  Web Client │   │ Third-party   │                   │
+│   │   (cached)    │   │  (cached)   │   │ API consumers │                   │
+│   └───────────────┘   └─────────────┘   └───────────────┘                   │
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │              Batch Processing (Spark)               │                   │
+│   │  - Historical baseline computation                  │                   │
+│   │  - Spam network analysis                            │                   │
+│   │  - Model training for anomaly detection             │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Geo-partitioned streams for regional trends',
+          'Hierarchical aggregation: city → region → country → global',
+          'CDN caching at edge (trends change slowly)',
+          'Batch processing for baselines and ML models',
+          'Flink checkpointing for fault tolerance'
+        ]
+      },
+
+      trendFlow: {
+        title: 'Trend Detection Flow',
+        steps: `
+┌──────────────────────────────────────────────────────────────────┐
+│                     Trend Detection Pipeline                     │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  1. INGEST                                                       │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │ Tweet arrives with: text, hashtags, user_id, location    │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│                              │                                   │
+│                              ▼                                   │
+│  2. FILTER                                                       │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │ Spam check:                                               │   │
+│  │ - User credibility score                                  │   │
+│  │ - Rate limit check (tweets/min for user+hashtag)          │   │
+│  │ - Known bot list check                                    │   │
+│  │ Result: weight = 0.0 (spam) to 1.0 (trusted)              │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│                              │                                   │
+│                              ▼                                   │
+│  3. COUNT                                                        │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │ For each hashtag in tweet:                                │   │
+│  │   count_min_sketch[region].add(hashtag, weight)           │   │
+│  │   unique_users[hashtag].add(user_id)  # HyperLogLog       │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│                              │                                   │
+│                              ▼                                   │
+│  4. AGGREGATE (every 5 minutes)                                  │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │ For each hashtag with count > threshold:                  │   │
+│  │   current_rate = count / 5_minutes                        │   │
+│  │   baseline = get_historical_baseline(hashtag, time)       │   │
+│  │   z_score = (current_rate - baseline) / std_dev           │   │
+│  │   unique_users = hyperloglog.count()                      │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│                              │                                   │
+│                              ▼                                   │
+│  5. RANK                                                         │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │ trend_score = z_score × log(count) × user_diversity      │   │
+│  │ Apply time decay: score × e^(-λt)                         │   │
+│  │ Sort by trend_score, take top 10 per region               │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│                              │                                   │
+│                              ▼                                   │
+│  6. PUBLISH                                                      │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │ Write top trends to Redis (sorted set)                    │   │
+│  │ Invalidate CDN cache                                      │   │
+│  │ Push to connected clients via WebSocket                   │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│                                                                  │
+└──────────────────────────────────────────────────────────────────┘`,
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Handling Breaking News',
+          points: [
+            'Breaking news creates sudden massive spikes',
+            'Need faster detection (< 1 minute) for major events',
+            'Can trigger "emergency mode" with shorter windows',
+            'Human curation layer for sensitive topics'
+          ]
+        },
+        {
+          topic: 'Regional vs Global Trends',
+          points: [
+            'Same topic can trend in one region but not another',
+            'Normalize by regional population/activity',
+            'Consider language segmentation',
+            'Time zone affects baselines'
+          ]
+        },
+        {
+          topic: 'Trend Categories',
+          points: [
+            'Classify trends into Sports, Politics, Entertainment, etc.',
+            'Use NLP to identify topic category',
+            'Helps personalization (show more sports if user likes sports)',
+            'Enables filtering (hide political trends)'
+          ]
+        }
+      ],
+
+      // Backward compatibility
       requirements: ['Detect trending hashtags/topics', 'Real-time updates', 'Location-based trends', 'Time-decay ranking', 'Spam filtering'],
       components: ['Stream processor (Kafka/Flink)', 'Count-min sketch', 'Ranking service', 'Cache', 'API servers'],
       keyDecisions: [
@@ -8911,16 +9320,6 @@ If demand > supply by X%:
         'Time-decay: Exponential decay to favor recent activity',
         'Anomaly detection: Compare current rate vs baseline',
         'Spam filtering: Rate limit per user, detect coordinated campaigns'
-      ],
-      estimations: {
-        tweets: '500M tweets/day = 6K tweets/sec',
-        hashtags: '100K unique hashtags/hour',
-        updates: 'Trends refresh every 5 minutes',
-        regions: '100+ trend regions worldwide'
-      },
-      apiDesign: [
-        'GET /api/trends?location=&count=10 → { trends[] }',
-        'Internal: Stream processor → count aggregates → ranking → cache'
       ]
     },
     {
@@ -8931,6 +9330,354 @@ If demand > supply by X%:
       color: '#02a4d3',
       difficulty: 'Easy',
       description: 'Design a simple text/code sharing service with expiration.',
+
+      introduction: `Pastebin is a simple service for sharing text snippets or code with generated short URLs. Despite its simplicity, it demonstrates key system design concepts: unique ID generation, object storage, caching, and TTL-based cleanup.
+
+This is often asked as a warm-up or early system design question. The key is showing you understand the fundamentals while identifying non-obvious challenges like URL collision handling and abuse prevention.`,
+
+      functionalRequirements: [
+        'Create paste with text content',
+        'Generate unique short URL',
+        'Retrieve paste by URL',
+        'Set optional expiration time',
+        'Support private pastes (password protected)',
+        'Syntax highlighting for code',
+        'View count analytics'
+      ],
+
+      nonFunctionalRequirements: [
+        'Handle 100K new pastes per day',
+        'Support 1M reads per day (10:1 read ratio)',
+        'Maximum paste size: 10MB',
+        'URL length: 7-8 characters',
+        'Low latency reads (< 100ms)',
+        '99.9% availability',
+        'Content stored durably (no data loss)'
+      ],
+
+      dataModel: {
+        description: 'Simple metadata with content in object storage',
+        schema: `pastes {
+  short_key: varchar(8) PK
+  content_hash: varchar(64) -- SHA256 for dedup
+  content_url: varchar(500) -- S3 URL
+  title: varchar(200) nullable
+  syntax: varchar(50) -- 'python', 'javascript', etc.
+  password_hash: varchar(256) nullable -- bcrypt
+  expires_at: timestamp nullable
+  created_at: timestamp
+  view_count: bigint default 0
+  creator_ip: inet -- for abuse tracking
+  creator_user_id: uuid nullable
+}
+
+-- For analytics
+paste_views {
+  paste_key: varchar(8) FK
+  viewed_at: timestamp
+  viewer_ip: inet
+  -- Aggregate hourly for dashboard
+}`
+      },
+
+      apiDesign: {
+        description: 'Simple REST API for paste operations',
+        endpoints: [
+          { method: 'POST', path: '/api/paste', params: '{ content, title?, syntax?, expiresIn?, password? }', response: '{ key, url, expiresAt }' },
+          { method: 'GET', path: '/api/paste/:key', params: 'password (header)', response: '{ content, syntax, createdAt, expiresAt }' },
+          { method: 'GET', path: '/api/paste/:key/raw', params: '-', response: 'Plain text content' },
+          { method: 'DELETE', path: '/api/paste/:key', params: '-', response: '{ deleted: true }' },
+          { method: 'GET', path: '/api/paste/:key/stats', params: '-', response: '{ viewCount, createdAt }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How do we generate unique short URLs?',
+          answer: `**Options for Key Generation**:
+
+**Option 1: Base62 Encoding of Counter**
+\`\`\`
+counter = auto_increment_id  // 1, 2, 3...
+key = base62_encode(counter) // "1", "2"... "a", "b"... "10"...
+
+Pros: Simple, no collisions, sequential
+Cons: Predictable (can enumerate), single point of failure
+\`\`\`
+
+**Option 2: Random Generation + Collision Check**
+\`\`\`
+loop:
+  key = random_base62(7)  // 62^7 = 3.5 trillion combinations
+  if not exists_in_db(key):
+    return key
+
+Pros: Unpredictable, distributed friendly
+Cons: Need collision handling, DB lookup on write
+\`\`\`
+
+**Option 3: Pre-generated Key Pool (Recommended)**
+\`\`\`
+┌─────────────────────────────────────────────┐
+│            Key Generation Service           │
+├─────────────────────────────────────────────┤
+│                                             │
+│   Background job generates keys in batches: │
+│   ┌──────────────────────────────────────┐  │
+│   │ unused_keys table:                   │  │
+│   │   key: varchar(8) PK                 │  │
+│   │   created_at: timestamp              │  │
+│   │   claimed: boolean default false     │  │
+│   └──────────────────────────────────────┘  │
+│                                             │
+│   API server claims key:                    │
+│   UPDATE unused_keys                        │
+│   SET claimed = true                        │
+│   WHERE claimed = false                     │
+│   LIMIT 1                                   │
+│   RETURNING key                             │
+│                                             │
+└─────────────────────────────────────────────┘
+
+Pros: No collision at write time, fast
+Cons: Need background job, key inventory management
+\`\`\`
+
+**URL Length Analysis**:
+\`\`\`
+7 characters, Base62 = 62^7 = 3.52 trillion
+100K pastes/day = 36.5M/year
+Will last: 96,000+ years (more than enough!)
+\`\`\``
+        },
+        {
+          question: 'Where do we store the paste content?',
+          answer: `**Option 1: In Database (Small Pastes)**
+\`\`\`
+For pastes < 1KB:
+  Store directly in pastes table as TEXT column
+  Pros: Single read, simple
+  Cons: DB bloat, max row size limits
+\`\`\`
+
+**Option 2: Object Storage (Recommended)**
+\`\`\`
+┌────────────────────────────────────────────┐
+│                Write Path                  │
+├────────────────────────────────────────────┤
+│                                            │
+│   1. Upload content to S3:                 │
+│      bucket: pastebin-content              │
+│      key: {hash-prefix}/{short_key}        │
+│                                            │
+│   2. Store metadata in DB:                 │
+│      short_key, content_url, metadata      │
+│                                            │
+│   S3 features we use:                      │
+│   - Object lifecycle rules (auto-delete)   │
+│   - Cross-region replication               │
+│   - Pre-signed URLs for direct access      │
+│                                            │
+└────────────────────────────────────────────┘
+\`\`\`
+
+**Content Deduplication**:
+\`\`\`
+// Before upload
+content_hash = SHA256(content)
+
+// Check if already exists
+existing = db.find(content_hash=content_hash)
+if existing:
+  // Just create new key pointing to same content
+  return create_metadata(existing.content_url)
+else:
+  // Upload new content
+  upload_to_s3(content)
+\`\`\`
+
+**CDN for Reads**:
+\`\`\`
+Client → CDN → Origin (S3/API)
+
+Cache-Control: public, max-age=31536000
+(immutable content, cache forever)
+\`\`\``
+        },
+        {
+          question: 'How do we handle paste expiration?',
+          answer: `**TTL Options**:
+
+**Option 1: Background Cleanup Job**
+\`\`\`
+Every hour:
+  DELETE FROM pastes
+  WHERE expires_at < NOW()
+  LIMIT 10000  -- batch to avoid long locks
+
+  DELETE FROM S3
+  WHERE key in (expired_keys)
+
+Pros: Simple
+Cons: Expired content accessible until job runs
+\`\`\`
+
+**Option 2: S3 Lifecycle Rules (Better)**
+\`\`\`
+S3 Lifecycle Policy:
+  Rule: Delete objects where tag:expires_at < now
+
+When creating paste:
+  s3.putObject({
+    Key: short_key,
+    Body: content,
+    Tagging: \`expires_at=\${expiresAt.toISOString()}\`
+  })
+
+Pros: S3 handles deletion automatically
+Cons: Need to sync DB metadata cleanup
+\`\`\`
+
+**Option 3: Lazy Deletion (Most Common)**
+\`\`\`
+On read:
+  paste = db.find(key)
+  if paste.expires_at < now:
+    db.delete(key)
+    s3.delete(key)
+    return 404
+
+  return paste
+
+Pros: No background job needed
+Cons: Storage not immediately reclaimed
+\`\`\`
+
+**Recommended: Lazy + Background**
+- Lazy deletion for immediate 404 on expired
+- Background job for storage cleanup (cost)`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Simple Architecture',
+        description: 'Single server with direct S3 access',
+        architecture: `
+┌─────────────────────────────────────────────────────────────┐
+│                    Pastebin Architecture                    │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   Client ──────────────────────────────────────────────────►│
+│      │                                                      │
+│      ▼                                                      │
+│   ┌─────────────────┐                                       │
+│   │   API Server    │                                       │
+│   │   (Node.js)     │                                       │
+│   └────────┬────────┘                                       │
+│            │                                                │
+│      ┌─────┴─────┐                                          │
+│      ▼           ▼                                          │
+│   ┌──────┐   ┌──────┐                                       │
+│   │ DB   │   │ S3   │                                       │
+│   │(meta)│   │(data)│                                       │
+│   └──────┘   └──────┘                                       │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+
+Write: API → Generate key → Upload S3 → Save metadata
+Read: API → Lookup metadata → Redirect to S3 (or proxy)`,
+        problems: [
+          'Single server bottleneck',
+          'No caching - every read hits DB',
+          'No CDN for global latency',
+          'No rate limiting for abuse prevention'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Architecture',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      Production Pastebin                                │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│   ┌─────────────┐     ┌─────────────┐     ┌─────────────┐               │
+│   │   Client    │────▶│     CDN     │────▶│   Origin    │               │
+│   │             │     │ (CloudFront)│     │ (if miss)   │               │
+│   └─────────────┘     └─────────────┘     └──────┬──────┘               │
+│                                                  │                      │
+│          For writes:                             ▼                      │
+│          ┌───────────────────────────────────────────────────┐          │
+│          │                Load Balancer                      │          │
+│          └───────────────────────┬───────────────────────────┘          │
+│                    ┌─────────────┼─────────────┐                        │
+│                    ▼             ▼             ▼                        │
+│          ┌──────────────┐┌──────────────┐┌──────────────┐               │
+│          │  API Server  ││  API Server  ││  API Server  │               │
+│          └──────────────┘└──────────────┘└──────────────┘               │
+│                    │             │             │                        │
+│                    └─────────────┼─────────────┘                        │
+│                                  ▼                                      │
+│                    ┌─────────────────────────┐                          │
+│                    │       Redis Cache       │                          │
+│                    │  (hot paste metadata)   │                          │
+│                    └─────────────────────────┘                          │
+│                                  │                                      │
+│                    ┌─────────────┼─────────────┐                        │
+│                    ▼             ▼             ▼                        │
+│          ┌──────────────┐┌──────────────┐┌──────────────┐               │
+│          │  PostgreSQL  ││ PostgreSQL   ││      S3      │               │
+│          │   Primary    ││  Replica     ││  (content)   │               │
+│          └──────────────┘└──────────────┘└──────────────┘               │
+│                                                                         │
+│          ┌────────────────────────────────────────────────┐             │
+│          │              Background Workers                │             │
+│          │  - Key generation (pre-populate pool)          │             │
+│          │  - Expiration cleanup                          │             │
+│          │  - Analytics aggregation                       │             │
+│          └────────────────────────────────────────────────┘             │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'CDN caches paste content globally',
+          'Pre-signed S3 URLs for direct download (bypass API)',
+          'Redis caches hot paste metadata',
+          'Read replicas for DB scaling',
+          'Background workers for cleanup and key generation'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Abuse Prevention',
+          points: [
+            'Rate limit by IP: max 10 pastes/minute',
+            'CAPTCHA after threshold exceeded',
+            'Content scanning for malware/phishing links',
+            'Report mechanism with manual review'
+          ]
+        },
+        {
+          topic: 'Cost Optimization',
+          points: [
+            'S3 Intelligent Tiering for old pastes',
+            'Compression before storage (gzip)',
+            'Content deduplication via hashing',
+            'Delete orphaned S3 objects'
+          ]
+        },
+        {
+          topic: 'Privacy & Legal',
+          points: [
+            'DMCA takedown process needed',
+            'Encrypted storage option for sensitive data',
+            'GDPR: right to deletion',
+            'Log retention policies'
+          ]
+        }
+      ],
+
+      // Backward compatibility
       requirements: ['Create pastes', 'View pastes', 'Expiration', 'Syntax highlighting', 'Private pastes', 'Analytics'],
       components: ['API servers', 'Object storage (S3)', 'Metadata DB', 'Cache', 'CDN'],
       keyDecisions: [
@@ -8939,15 +9686,6 @@ If demand > supply by X%:
         'TTL-based expiration with background cleanup job',
         'Rate limiting to prevent abuse',
         'Private pastes: Add password/auth requirement'
-      ],
-      estimations: {
-        writes: '100K pastes/day',
-        reads: '1M reads/day (10:1 ratio)',
-        storage: '100K × 10KB = 1GB/day raw'
-      },
-      apiDesign: [
-        'POST /api/paste { content, expiry?, private? } → { key, url }',
-        'GET /api/paste/{key} → { content, createdAt, expiresAt }'
       ]
     },
     {
@@ -9125,6 +9863,400 @@ Bloom filter for fast "definitely not seen" checks before expensive hash lookups
       color: '#1877f2',
       difficulty: 'Hard',
       description: 'Design a personalized news feed showing posts from friends and followed pages.',
+
+      introduction: `Facebook's News Feed is one of the most complex personalization systems ever built. With 2+ billion daily active users, each with hundreds of friends and followed pages, the system must select and rank the most relevant content from thousands of candidates - in milliseconds.
+
+The fundamental challenge is fan-out: when a celebrity with 10M followers posts, do you write to 10M feeds (expensive write) or have each user fetch at read time (expensive read)? The answer is neither - you need a hybrid approach.`,
+
+      functionalRequirements: [
+        'Show personalized feed of posts from friends and pages',
+        'Support multiple content types (text, photo, video, link)',
+        'Real-time updates when friends post',
+        'Stories at top of feed (24-hour ephemeral)',
+        'Infinite scroll with pagination',
+        'Like, comment, share interactions',
+        'Privacy controls (who can see)'
+      ],
+
+      nonFunctionalRequirements: [
+        'Serve 2B+ daily active users',
+        'Handle 1B+ posts per day',
+        'Feed generation < 200ms latency',
+        'Real-time: new posts appear within seconds',
+        'Rank 1000+ candidate posts per feed request',
+        '99.99% availability',
+        'Support users with 5000 friends'
+      ],
+
+      dataModel: {
+        description: 'Posts, social graph, and pre-computed feeds',
+        schema: `posts {
+  id: bigint PK
+  user_id: bigint FK
+  content: text
+  media_ids: bigint[]
+  audience: enum(PUBLIC, FRIENDS, CUSTOM)
+  created_at: timestamp
+  like_count: int
+  comment_count: int
+  share_count: int
+}
+
+friendships {
+  user_id: bigint
+  friend_id: bigint
+  closeness_score: float -- ML-computed
+  created_at: timestamp
+  PK (user_id, friend_id)
+}
+
+user_feeds {
+  user_id: bigint PK
+  feed_items: jsonb[] -- [{post_id, score, timestamp}]
+  last_updated: timestamp
+  -- Denormalized for fast reads
+}
+
+feed_cache {
+  user_id: bigint
+  feed_json: bytes -- pre-rendered top 50 posts
+  ttl: 5 minutes
+}`
+      },
+
+      apiDesign: {
+        description: 'Feed retrieval with cursor-based pagination',
+        endpoints: [
+          { method: 'GET', path: '/api/feed', params: 'cursor, limit', response: '{ posts[], nextCursor, hasMore }' },
+          { method: 'POST', path: '/api/posts', params: '{ content, media[], audience }', response: '{ postId }' },
+          { method: 'POST', path: '/api/posts/:id/like', params: '-', response: '{ liked: true }' },
+          { method: 'GET', path: '/api/feed/updates', params: 'since_time', response: '{ newPostCount }' },
+          { method: 'WS', path: '/ws/feed', params: '-', response: 'REALTIME_POST, LIKE_UPDATE events' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'Push vs Pull: How do we handle fan-out?',
+          answer: `**The Celebrity Problem**:
+- User with 10M followers posts
+- Push model: Write to 10M feeds (expensive, slow)
+- Pull model: Each of 10M users queries at read time (hot spot)
+
+**Solution: Hybrid Fan-out**
+\`\`\`
+                    User Posts
+                        │
+                        ▼
+              ┌─────────────────┐
+              │ Check followers │
+              └────────┬────────┘
+                       │
+          ┌────────────┴────────────┐
+          ▼                         ▼
+    < 10K followers          > 10K followers
+    (Normal users)           (Celebrities)
+          │                         │
+          ▼                         ▼
+    PUSH to feeds             PULL at read time
+    (async fan-out)           (merge on query)
+\`\`\`
+
+**Push for Normal Users**:
+\`\`\`
+def on_post_created(post):
+    followers = get_followers(post.user_id)
+
+    if len(followers) < 10000:
+        # Push to each follower's feed cache
+        for follower_id in followers:
+            feed_cache.add(follower_id, post)
+\`\`\`
+
+**Pull for Celebrities**:
+\`\`\`
+def get_feed(user_id):
+    # Get pre-computed feed items (from push)
+    cached_posts = feed_cache.get(user_id)
+
+    # Get celebrity posts (pull)
+    celebrity_follows = get_celebrity_follows(user_id)
+    recent_celebrity_posts = db.query(
+        posts WHERE user_id IN celebrity_follows
+        AND created_at > now() - 24h
+    )
+
+    # Merge and rank
+    all_candidates = cached_posts + recent_celebrity_posts
+    return rank_posts(all_candidates, user_id)
+\`\`\`
+
+**Additional Optimization**:
+- Don't push to inactive users (haven't logged in 7+ days)
+- Priority push: close friends first, acquaintances later
+- Batch writes to same user (avoid hot keys)`
+        },
+        {
+          question: 'How does the ranking algorithm work?',
+          answer: `**Goal**: Maximize user engagement (time spent, interactions)
+
+**Features for ML Model**:
+\`\`\`
+Post Features:
+  - post_age_hours
+  - post_type (text, photo, video)
+  - like_count, comment_count
+  - creator_follower_count
+  - content_embedding
+
+User-Post Features:
+  - relationship_closeness (friend, acquaintance, follow)
+  - past_interactions_with_creator
+  - time_since_last_interaction
+  - content_interest_match (user's interests vs post content)
+
+Context Features:
+  - time_of_day
+  - user_session_length
+  - device_type
+\`\`\`
+
+**Ranking Pipeline**:
+\`\`\`
+┌────────────────────────────────────────────────────────────┐
+│                    Ranking Pipeline                        │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│  1. CANDIDATE GENERATION (from 1000+ posts)                │
+│     - Pre-filtered by eligibility (privacy, blocked)       │
+│     - Recent posts from followed accounts                  │
+│     - Suggested posts (explore)                            │
+│                                                            │
+│  2. LIGHT RANKER (score all 1000 candidates)               │
+│     - Simple logistic regression                           │
+│     - Fast: ~0.1ms per post                                │
+│     - Output: top 200 candidates                           │
+│                                                            │
+│  3. HEAVY RANKER (score top 200)                           │
+│     - Deep neural network (GBDT + embeddings)              │
+│     - Expensive: ~1ms per post                             │
+│     - Output: final ranked list                            │
+│                                                            │
+│  4. BUSINESS RULES                                         │
+│     - Diversity: max 2 posts from same creator             │
+│     - Recency: boost very new posts                        │
+│     - Quality: demote clickbait                            │
+│                                                            │
+└────────────────────────────────────────────────────────────┘
+\`\`\`
+
+**Optimization Target**:
+\`\`\`
+Score = P(like) × weight_like +
+        P(comment) × weight_comment +
+        P(share) × weight_share +
+        P(dwell > 30s) × weight_dwell
+
+Weights tuned to balance engagement metrics
+\`\`\``
+        },
+        {
+          question: 'How do we handle real-time feed updates?',
+          answer: `**Challenge**: User is viewing feed, friend posts → show it immediately
+
+**Option 1: Polling (Simple)**
+\`\`\`
+Every 30 seconds:
+  GET /api/feed/updates?since=timestamp
+
+  if new_posts > 0:
+    show "X new posts" banner
+\`\`\`
+
+**Option 2: WebSocket (Better)**
+\`\`\`
+┌────────────────────────────────────────────────────────┐
+│                Real-time Update Flow                   │
+├────────────────────────────────────────────────────────┤
+│                                                        │
+│  Friend posts → Post Service → Kafka                   │
+│                                    │                   │
+│                                    ▼                   │
+│                            ┌──────────────┐            │
+│                            │ Fan-out      │            │
+│                            │ Service      │            │
+│                            └──────┬───────┘            │
+│                                   │                    │
+│                   ┌───────────────┼───────────────┐    │
+│                   ▼               ▼               ▼    │
+│            ┌───────────┐   ┌───────────┐   ┌──────────┐│
+│            │WebSocket  │   │WebSocket  │   │WebSocket ││
+│            │Server 1   │   │Server 2   │   │Server 3  ││
+│            │(users A-M)│   │(users N-S)│   │(users T-Z││
+│            └─────┬─────┘   └─────┬─────┘   └─────┬────┘│
+│                  │               │               │     │
+│                  ▼               ▼               ▼     │
+│            Connected Users (receive push)              │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+\`\`\`
+
+**Scaling WebSockets**:
+- Partition users across WS servers
+- Use Redis Pub/Sub for cross-server messages
+- Graceful degradation: fall back to polling if WS fails
+
+**Smart Notifications**:
+\`\`\`
+Don't push every post immediately.
+Instead:
+- Close friends: real-time push
+- Acquaintances: batch every 5 min
+- Pages: low priority, batch hourly
+\`\`\``
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Pull-Based Architecture',
+        description: 'Simple pull model - compute feed on read',
+        architecture: `
+┌─────────────────────────────────────────────────────────────┐
+│                   Basic Feed System                         │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   User requests feed                                        │
+│          │                                                  │
+│          ▼                                                  │
+│   ┌──────────────┐                                          │
+│   │  API Server  │                                          │
+│   └──────┬───────┘                                          │
+│          │                                                  │
+│          ▼                                                  │
+│   1. Get friends list from Social Graph DB                  │
+│   2. Query posts table for each friend's recent posts       │
+│   3. Rank all posts                                         │
+│   4. Return top N                                           │
+│                                                             │
+│   ┌──────────────┐     ┌──────────────┐                     │
+│   │ Social Graph │     │    Posts     │                     │
+│   │      DB      │     │     DB       │                     │
+│   └──────────────┘     └──────────────┘                     │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'N+1 query problem (query per friend)',
+          'Expensive ranking on every read',
+          'Celebrity posts create DB hot spots',
+          'No real-time updates',
+          'Latency too high (500ms+)'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Hybrid Fan-out Architecture',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      Facebook News Feed Architecture                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│                           POST CREATION PATH                                │
+│   ┌─────────────────────────────────────────────────────────────────┐       │
+│   │ User creates post → Post Service → [Kafka: posts] → Fan-out    │       │
+│   │                                                        │        │       │
+│   │              ┌─────────────────────────────────────────┘        │       │
+│   │              ▼                                                  │       │
+│   │   Normal users (< 10K followers):                               │       │
+│   │     Write to each follower's feed cache (Redis)                 │       │
+│   │                                                                 │       │
+│   │   Celebrities (> 10K followers):                                │       │
+│   │     Store in celebrity_posts table only                         │       │
+│   │     Followers pull at read time                                 │       │
+│   └─────────────────────────────────────────────────────────────────┘       │
+│                                                                             │
+│                           FEED READ PATH                                    │
+│   ┌─────────────────────────────────────────────────────────────────┐       │
+│   │                                                                 │       │
+│   │   User → CDN (cached feed) → Load Balancer → Feed Service       │       │
+│   │                                         │                       │       │
+│   │              ┌──────────────────────────┘                       │       │
+│   │              ▼                                                  │       │
+│   │   ┌──────────────────────────────────────────────────────┐      │       │
+│   │   │               Feed Aggregation                       │      │       │
+│   │   │                                                      │      │       │
+│   │   │  1. Get cached feed items (Redis)  ◄──────────────┐  │      │       │
+│   │   │  2. Get celebrity posts (pull)     ◄─────────────┐│  │      │       │
+│   │   │  3. Merge all candidates                         ││  │      │       │
+│   │   │  4. Send to Ranking Service        ─────────────►││  │      │       │
+│   │   │                                                  ││  │      │       │
+│   │   └──────────────────────────────────────────────────┘│  │      │       │
+│   │                                         │             │  │      │       │
+│   │              ┌──────────────────────────┘             │  │      │       │
+│   │              ▼                                        │  │      │       │
+│   │   ┌──────────────────┐  ┌─────────────────────────────┴┐ │      │       │
+│   │   │  Ranking Service │  │       Redis Cluster          │ │      │       │
+│   │   │  (ML inference)  │  │  (feed cache per user)       │ │      │       │
+│   │   │                  │  │  TTL = 5 minutes             │ │      │       │
+│   │   │  Light ranker    │  └──────────────────────────────┘ │      │       │
+│   │   │  Heavy ranker    │                                   │      │       │
+│   │   │  Business rules  │                                   │      │       │
+│   │   └──────────────────┘                                   │      │       │
+│   │              │                                           │      │       │
+│   │              ▼                                           │      │       │
+│   │   Return ranked feed to user                             │      │       │
+│   └─────────────────────────────────────────────────────────────────┘       │
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────────────────┐       │
+│   │                    DATA STORES                                  │       │
+│   │                                                                 │       │
+│   │  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐ │       │
+│   │  │   Posts    │  │   Social   │  │   User     │  │   Media    │ │       │
+│   │  │    DB      │  │   Graph    │  │  Features  │  │   (S3+CDN) │ │       │
+│   │  │ (sharded)  │  │   (TAO)    │  │  (ML)      │  │            │ │       │
+│   │  └────────────┘  └────────────┘  └────────────┘  └────────────┘ │       │
+│   └─────────────────────────────────────────────────────────────────┘       │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Hybrid fan-out: push for normal users, pull for celebrities',
+          'Pre-computed feed cache in Redis (5 min TTL)',
+          'Two-phase ranking: light ranker → heavy ranker',
+          'Sharded posts by user_id for write scaling',
+          'TAO (social graph) for efficient friend queries'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Feed Quality vs Engagement',
+          points: [
+            'Pure engagement optimization leads to clickbait',
+            'Need "quality" signals (dwell time, not just clicks)',
+            'User controls: "See less like this"',
+            'Content moderation integration'
+          ]
+        },
+        {
+          topic: 'Cold Start Problem',
+          points: [
+            'New users have no friend activity',
+            'Use interest signals from onboarding',
+            'Show popular/trending content',
+            'Quick suggestions to follow'
+          ]
+        },
+        {
+          topic: 'Consistency Tradeoffs',
+          points: [
+            'User deletes post - may still appear in cached feeds briefly',
+            'Eventual consistency acceptable for most operations',
+            'Strong consistency for privacy-critical ops (blocking)',
+            'Fan-out can be delayed during peak traffic'
+          ]
+        }
+      ],
+
+      // Backward compatibility
       requirements: ['Personalized feed', 'Posts/photos/videos', 'Likes/comments', 'Stories', 'Real-time updates', 'Ranking'],
       components: ['Post service', 'Feed service', 'Ranking service', 'Graph service (friends)', 'Cache', 'CDN'],
       keyDecisions: [
@@ -9133,17 +10265,6 @@ Bloom filter for fast "definitely not seen" checks before expensive hash lookups
         'Edge caching: CDN for media, Redis for feed',
         'Real-time: Long polling or WebSocket for new posts',
         'Cold start: Use interest signals for new users'
-      ],
-      estimations: {
-        users: '2B DAU',
-        posts: '1B posts/day',
-        reads: '100B feed impressions/day',
-        ranking: 'Score 1000+ candidate posts per feed request'
-      },
-      apiDesign: [
-        'GET /api/feed?cursor= → { posts[], nextCursor }',
-        'POST /api/posts { content, media[], audience }',
-        'Ranking service scores posts in real-time'
       ]
     },
     {
@@ -9154,6 +10275,387 @@ Bloom filter for fast "definitely not seen" checks before expensive hash lookups
       color: '#dc382d',
       difficulty: 'Hard',
       description: 'Design a distributed key-value store with high availability.',
+
+      introduction: `Distributed key-value stores like DynamoDB, Cassandra, and Redis are the backbone of modern systems. This question tests your understanding of distributed systems fundamentals: partitioning, replication, consistency, and failure handling.
+
+The key insight is the CAP theorem: you can't have perfect Consistency, Availability, and Partition tolerance simultaneously. Most systems choose AP (available during partitions) with tunable consistency.`,
+
+      functionalRequirements: [
+        'Put(key, value) - store a value',
+        'Get(key) - retrieve a value',
+        'Delete(key) - remove a value',
+        'TTL support - auto-expire keys',
+        'Atomic operations (compare-and-swap)',
+        'Range queries (if sorted)'
+      ],
+
+      nonFunctionalRequirements: [
+        'Handle 1M+ operations per second',
+        'p99 latency < 10ms',
+        'Store 100TB+ of data',
+        'No single point of failure',
+        'Scale horizontally (add nodes = add capacity)',
+        'Survive node failures without data loss',
+        'Tunable consistency (strong vs eventual)'
+      ],
+
+      dataModel: {
+        description: 'Simple key-value with metadata',
+        schema: `storage_node {
+  key: bytes -- variable length
+  value: bytes -- up to 1MB
+  version: vector_clock -- for conflict resolution
+  created_at: timestamp
+  expires_at: timestamp nullable
+  checksum: crc32 -- data integrity
+}
+
+partition_map {
+  -- Consistent hash ring
+  hash_range_start: uint64
+  hash_range_end: uint64
+  primary_node: node_id
+  replica_nodes: node_id[]
+}
+
+node_registry {
+  node_id: uuid
+  address: varchar(255)
+  status: enum(ALIVE, SUSPECT, DEAD)
+  last_heartbeat: timestamp
+  data_size_bytes: bigint
+}`
+      },
+
+      apiDesign: {
+        description: 'Simple CRUD with consistency options',
+        endpoints: [
+          { method: 'PUT', path: '/kv/:key', params: '{ value, ttl?, consistency }', response: '{ version }' },
+          { method: 'GET', path: '/kv/:key', params: 'consistency', response: '{ value, version }' },
+          { method: 'DELETE', path: '/kv/:key', params: '-', response: '{ deleted: true }' },
+          { method: 'PUT', path: '/kv/:key/cas', params: '{ value, expectedVersion }', response: '{ success, newVersion }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How do we partition data across nodes?',
+          answer: `**Consistent Hashing**:
+
+**Problem with Simple Hashing**:
+\`\`\`
+node = hash(key) % num_nodes
+
+When node count changes:
+  3 nodes → 4 nodes
+  Most keys get reassigned (expensive!)
+\`\`\`
+
+**Consistent Hash Ring**:
+\`\`\`
+┌─────────────────────────────────────────────────────────┐
+│                    Hash Ring (0 to 2^64)                │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│                         Node A                          │
+│                           │                             │
+│                     ┌─────┴─────┐                       │
+│                0 ───┤           ├──────────── 2^64      │
+│                     │           │                       │
+│              Node C─┤   Ring    ├─Node B                │
+│                     │           │                       │
+│                     └───────────┘                       │
+│                                                         │
+│   key → hash(key) → walk clockwise → first node         │
+│                                                         │
+│   Adding/removing a node only moves keys between        │
+│   adjacent nodes! (K/N keys move, not K keys)           │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+\`\`\`
+
+**Virtual Nodes**:
+\`\`\`
+Problem: Uneven distribution with few nodes
+Solution: Each physical node → many virtual nodes
+
+Node A → hash("A-1"), hash("A-2"), ... hash("A-100")
+
+Benefits:
+- Even key distribution
+- Easier rebalancing when nodes join/leave
+- Can have more virtual nodes for stronger machines
+\`\`\``
+        },
+        {
+          question: 'How do we handle replication for fault tolerance?',
+          answer: `**Replication Strategy**:
+\`\`\`
+N = Total replicas (typically 3)
+W = Write quorum (how many acks needed)
+R = Read quorum (how many to query)
+
+For strong consistency: W + R > N
+
+Examples:
+  N=3, W=2, R=2: Strong consistency
+  N=3, W=1, R=1: Eventual consistency (fastest)
+  N=3, W=3, R=1: Read-optimized (writes slower)
+\`\`\`
+
+**Write Path**:
+\`\`\`
+┌─────────────────────────────────────────────────────────┐
+│                     Write (N=3, W=2)                    │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│   Client → Coordinator → Find 3 replicas using ring     │
+│                                │                        │
+│                    ┌───────────┴───────────┐            │
+│                    ▼           ▼           ▼            │
+│              ┌──────────┐┌──────────┐┌──────────┐       │
+│              │ Replica1 ││ Replica2 ││ Replica3 │       │
+│              │  (ACK)   ││  (ACK)   ││  (async) │       │
+│              └──────────┘└──────────┘└──────────┘       │
+│                    │           │                        │
+│                    └─────┬─────┘                        │
+│                          ▼                              │
+│              W=2 acks received → Return success         │
+│              Third replica gets eventual update         │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+\`\`\`
+
+**Hinted Handoff**:
+\`\`\`
+If Replica2 is down:
+  1. Write to temporary node (hint)
+  2. When Replica2 recovers, replay hint
+  3. Ensures writes succeed even during failures
+\`\`\``
+        },
+        {
+          question: 'How do we handle conflicts with concurrent writes?',
+          answer: `**The Problem**:
+\`\`\`
+Client A writes key=5 to Replica1
+Client B writes key=7 to Replica2 (concurrent)
+
+Which value is correct? Both replicas have different values!
+\`\`\`
+
+**Solution 1: Last-Write-Wins (LWW)**
+\`\`\`
+Each write has timestamp
+On conflict: highest timestamp wins
+
+Pros: Simple
+Cons: May lose data (later timestamp isn't always "correct")
+\`\`\`
+
+**Solution 2: Vector Clocks**
+\`\`\`
+Each replica maintains a version vector:
+  { "Replica1": 3, "Replica2": 2, "Replica3": 2 }
+
+On write at Replica1:
+  vector["Replica1"]++
+
+Compare vectors:
+  If A > B: A is newer (causally after)
+  If A < B: B is newer
+  If A || B: Concurrent (conflict!)
+\`\`\`
+
+**Conflict Resolution**:
+\`\`\`
+When conflict detected:
+  Option 1: Return both versions to client (Amazon cart)
+  Option 2: Application-specific merge function
+  Option 3: CRDTs (conflict-free replicated data types)
+\`\`\`
+
+**Read Repair**:
+\`\`\`
+On read (R=2):
+  Query Replica1 → value=5, version=[1,0,0]
+  Query Replica2 → value=7, version=[0,1,0]
+
+  Conflict! Return both to client OR
+  Merge and write back merged value to all replicas
+\`\`\``
+        },
+        {
+          question: 'How do we detect and handle node failures?',
+          answer: `**Gossip Protocol**:
+\`\`\`
+Every second, each node:
+  1. Randomly pick another node
+  2. Exchange membership lists
+  3. Update local view of cluster state
+
+Node status: ALIVE → SUSPECT → DEAD
+  - No heartbeat for 5s → SUSPECT
+  - Multiple nodes agree → DEAD
+\`\`\`
+
+**Failure Detection Flow**:
+\`\`\`
+┌─────────────────────────────────────────────────────────┐
+│                   Gossip Protocol                       │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│   Node A ──gossip──► Node B                             │
+│     │                  │                                │
+│     │   "I see: A=1,   │   "I see: A=1, B=1, C=0"       │
+│     │    B=1, C=1"     │   (C missed heartbeat!)        │
+│     │                  │                                │
+│     └────────┬─────────┘                                │
+│              │                                          │
+│              ▼                                          │
+│   Both now know: C might be dead                        │
+│   After multiple gossip rounds → C confirmed dead       │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+\`\`\`
+
+**Recovery**:
+\`\`\`
+When node recovers:
+  1. Download latest partition map
+  2. Sync data via anti-entropy (Merkle trees)
+  3. Resume serving traffic
+
+Merkle Tree sync:
+  - Hash tree of all keys
+  - Compare roots → find divergent branches
+  - Only transfer differing keys
+\`\`\``
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Single-Node Key-Value Store',
+        description: 'In-memory hash map with persistence',
+        architecture: `
+┌─────────────────────────────────────────────────────────────┐
+│                  Single Node KV Store                       │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   Client → API Server → In-Memory Hash Map                  │
+│                              │                              │
+│                              ▼                              │
+│                    ┌─────────────────┐                      │
+│                    │  Write-Ahead    │                      │
+│                    │     Log         │                      │
+│                    │  (durability)   │                      │
+│                    └─────────────────┘                      │
+│                              │                              │
+│                              ▼                              │
+│                    ┌─────────────────┐                      │
+│                    │   SSTable       │                      │
+│                    │  (compacted)    │                      │
+│                    └─────────────────┘                      │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Single point of failure',
+          'Memory limited to one machine',
+          'No horizontal scaling',
+          'Entire dataset must fit in memory'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Distributed Key-Value Store',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      Distributed Key-Value Store                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   ┌─────────────┐                                                           │
+│   │   Client    │                                                           │
+│   └──────┬──────┘                                                           │
+│          │                                                                  │
+│          ▼                                                                  │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │              Coordinator / Router                   │                   │
+│   │  - Route requests based on consistent hash          │                   │
+│   │  - Manage quorum for reads/writes                   │                   │
+│   │  - Handle timeouts and retries                      │                   │
+│   └────────────────────────┬────────────────────────────┘                   │
+│                            │                                                │
+│          ┌─────────────────┼─────────────────┐                              │
+│          ▼                 ▼                 ▼                              │
+│   ┌─────────────┐   ┌─────────────┐   ┌─────────────┐                       │
+│   │  Storage    │   │  Storage    │   │  Storage    │                       │
+│   │  Node 1     │   │  Node 2     │   │  Node 3     │  ← N storage nodes    │
+│   │             │   │             │   │             │                       │
+│   │ ┌─────────┐ │   │ ┌─────────┐ │   │ ┌─────────┐ │                       │
+│   │ │MemTable│ │   │ │MemTable│ │   │ │MemTable│ │  ← In-memory writes     │
+│   │ └────┬────┘ │   │ └────┬────┘ │   │ └────┬────┘ │                       │
+│   │      ▼      │   │      ▼      │   │      ▼      │                       │
+│   │ ┌─────────┐ │   │ ┌─────────┐ │   │ ┌─────────┐ │                       │
+│   │ │   WAL   │ │   │ │   WAL   │ │   │ │   WAL   │ │  ← Write-ahead log    │
+│   │ └────┬────┘ │   │ └────┬────┘ │   │ └────┬────┘ │                       │
+│   │      ▼      │   │      ▼      │   │      ▼      │                       │
+│   │ ┌─────────┐ │   │ ┌─────────┐ │   │ ┌─────────┐ │                       │
+│   │ │SSTables │ │   │ │SSTables │ │   │ │SSTables │ │  ← Sorted on disk     │
+│   │ └─────────┘ │   │ └─────────┘ │   │ └─────────┘ │                       │
+│   └─────────────┘   └─────────────┘   └─────────────┘                       │
+│          │                 │                 │                              │
+│          └─────────────────┴─────────────────┘                              │
+│                            │                                                │
+│                            ▼                                                │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                 Gossip Protocol                     │                   │
+│   │  - Cluster membership                               │                   │
+│   │  - Failure detection                                │                   │
+│   │  - Partition map synchronization                    │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Consistent hashing with virtual nodes for partitioning',
+          'Configurable N/W/R for tunable consistency',
+          'Gossip protocol for failure detection',
+          'LSM tree storage (MemTable → WAL → SSTables)',
+          'Hinted handoff for availability during failures',
+          'Anti-entropy (Merkle trees) for repair'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'CAP Theorem Tradeoffs',
+          points: [
+            'CP: Strong consistency, but unavailable during partitions (HBase)',
+            'AP: Always available, eventual consistency (Cassandra, DynamoDB)',
+            'Most KV stores choose AP with tunable consistency',
+            'PACELC: Also consider latency vs consistency when no partition'
+          ]
+        },
+        {
+          topic: 'Storage Engine Choices',
+          points: [
+            'LSM Tree: Write-optimized (Cassandra, LevelDB)',
+            'B+ Tree: Read-optimized (MySQL, PostgreSQL)',
+            'In-memory only: Fastest but limited (Redis, Memcached)',
+            'Hybrid: Hot data in memory, cold on disk'
+          ]
+        },
+        {
+          topic: 'Operational Concerns',
+          points: [
+            'Rebalancing when adding/removing nodes',
+            'Compaction (merging SSTables) can cause latency spikes',
+            'Monitoring: track p99 latency, not just average',
+            'Backups: snapshot + WAL replay'
+          ]
+        }
+      ],
+
+      // Backward compatibility
       requirements: ['Put/Get/Delete operations', 'High availability', 'Horizontal scaling', 'Replication', 'Consistency options', 'TTL support'],
       components: ['Coordinator', 'Storage nodes', 'Replication manager', 'Failure detector', 'Consistent hashing ring'],
       keyDecisions: [
@@ -9162,17 +10664,6 @@ Bloom filter for fast "definitely not seen" checks before expensive hash lookups
         'Consistency: Tunable (strong vs eventual)',
         'Conflict resolution: Last-write-wins or vector clocks',
         'Failure detection: Gossip protocol'
-      ],
-      estimations: {
-        operations: '1M ops/sec',
-        latency: 'p99 < 10ms',
-        storage: '100TB across cluster',
-        nodes: '1000+ storage nodes'
-      },
-      apiDesign: [
-        'PUT /api/kv/{key} { value, ttl? }',
-        'GET /api/kv/{key} → { value, version }',
-        'DELETE /api/kv/{key}'
       ]
     },
     {
