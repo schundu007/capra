@@ -727,7 +727,7 @@ export default function OAuthLogin() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-white mb-4">FAQ</h2>
           </div>
-          <div className="max-w-3xl mx-auto space-y-4">
+          <div className="grid md:grid-cols-2 gap-6">
             {faqItems.map((faq, i) => (
               <div key={i} className="p-6 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                 <div className="flex items-start gap-4">
