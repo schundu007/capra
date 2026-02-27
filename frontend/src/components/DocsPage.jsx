@@ -27,18 +27,77 @@ export default function DocsPage() {
       color: '#ef4444',
       questions: 57,
       description: 'Foundation of most coding interviews. Master array manipulation and hash map usage.',
-      keyPatterns: ['Two-pass counting', 'Frequency maps', 'Index mapping', 'Prefix sums'],
+
+      introduction: `Arrays and Hash Maps are the foundation of nearly every coding interview. Understanding these data structures deeply will help you solve 40-50% of all LeetCode problems.
+
+**Why This Matters:**
+- Arrays provide O(1) random access and are the basis for most algorithms
+- Hash Maps (dictionaries) provide O(1) average lookup, insertion, and deletion
+- Together, they let you reduce O(n²) brute force solutions to O(n)
+
+**Key Insight:** When you see a problem requiring "find if X exists" or "count occurrences," your first thought should be hash maps.`,
+
+      whenToUse: [
+        'Need O(1) lookup for previously seen elements (Two Sum pattern)',
+        'Counting frequency of elements (anagram, character counting)',
+        'Finding duplicates or unique elements',
+        'Need to remember "what you\'ve seen so far" while iterating',
+        'Grouping elements by some property (Group Anagrams)',
+        'Need range sum queries (Prefix Sums)'
+      ],
+
+      keyPatterns: ['Two-pass counting', 'Frequency maps', 'Index mapping', 'Prefix sums', 'Value-to-index mapping', 'Grouping by key'],
       timeComplexity: 'O(n) average with hash maps',
       spaceComplexity: 'O(n) for hash map storage',
-      commonProblems: ['Two Sum', 'Contains Duplicate', 'Valid Anagram', 'Group Anagrams', 'Top K Frequent Elements'],
+
+      approach: [
+        'Identify what you need to track: indices, counts, or previous values',
+        'Choose the right key-value mapping: value→index, value→count, or transformed_value→list',
+        'Decide if you need one pass (build + query simultaneously) or two passes (build then query)',
+        'Handle edge cases: empty array, single element, all duplicates',
+        'Consider if sorting helps (often O(n log n) is acceptable)'
+      ],
+
+      commonProblems: [
+        { name: 'Two Sum', difficulty: 'Easy' },
+        { name: 'Contains Duplicate', difficulty: 'Easy' },
+        { name: 'Valid Anagram', difficulty: 'Easy' },
+        { name: 'Group Anagrams', difficulty: 'Medium' },
+        { name: 'Top K Frequent Elements', difficulty: 'Medium' },
+        { name: 'Product of Array Except Self', difficulty: 'Medium' },
+        { name: 'Longest Consecutive Sequence', difficulty: 'Medium' },
+        { name: 'Subarray Sum Equals K', difficulty: 'Medium' }
+      ],
+
+      commonMistakes: [
+        'Using nested loops when a hash map would give O(n) solution',
+        'Forgetting that hash map keys must be immutable (use tuple instead of list)',
+        'Not handling the case where the same element appears twice in Two Sum',
+        'Modifying a collection while iterating over it',
+        'Assuming hash map operations are always O(1) - they\'re O(n) worst case'
+      ],
+
       tips: [
         'Use hash maps for O(1) lookups instead of nested loops',
         'Consider sorting when order doesn\'t matter for O(n log n) solution',
         'Prefix sums enable O(1) range queries after O(n) preprocessing',
-        'For counting problems, defaultdict or Counter in Python simplifies code'
+        'For counting problems, defaultdict or Counter in Python simplifies code',
+        'When grouping, use sorted string or tuple as the hash key'
       ],
-      codeExample: `# Two Sum - Classic hash map pattern
-def two_sum(nums, target):
+
+      interviewTips: [
+        'Always clarify: Are there duplicates? Are elements sorted? What to return if no solution?',
+        'Start with brute force O(n²) then optimize to O(n) with hash map',
+        'Verbalize your thought process: "I need O(1) lookup, so I\'ll use a hash map"',
+        'For Two Sum variants, clarify if same element can be used twice',
+        'Mention space-time tradeoff: hash map uses extra space for faster lookup'
+      ],
+
+      codeExamples: [
+        {
+          title: 'Two Sum - Classic Hash Map Pattern',
+          description: 'Find two numbers that add up to target. O(n) time, O(n) space.',
+          code: `def two_sum(nums, target):
     seen = {}  # value -> index
     for i, num in enumerate(nums):
         complement = target - num
@@ -47,7 +106,40 @@ def two_sum(nums, target):
         seen[num] = i
     return []
 
-# Time: O(n), Space: O(n)`
+# Key insight: Store what you've seen, check for complement`
+        },
+        {
+          title: 'Group Anagrams - Sorted String as Key',
+          description: 'Group words that are anagrams. O(n * k log k) where k is max word length.',
+          code: `def group_anagrams(strs):
+    groups = defaultdict(list)
+    for s in strs:
+        # Sort characters to create canonical form
+        key = tuple(sorted(s))
+        groups[key].append(s)
+    return list(groups.values())
+
+# Alternative: Use character count tuple as key for O(n*k)`
+        },
+        {
+          title: 'Subarray Sum Equals K - Prefix Sum + Hash Map',
+          description: 'Count subarrays with sum equal to k. O(n) time, O(n) space.',
+          code: `def subarray_sum(nums, k):
+    count = 0
+    prefix_sum = 0
+    # Map: prefix_sum -> count of occurrences
+    seen = {0: 1}  # Empty prefix has sum 0
+
+    for num in nums:
+        prefix_sum += num
+        # If (prefix_sum - k) exists, we found subarrays
+        if prefix_sum - k in seen:
+            count += seen[prefix_sum - k]
+        seen[prefix_sum] = seen.get(prefix_sum, 0) + 1
+
+    return count`
+        }
+      ]
     },
     {
       id: 'binary-search',
@@ -56,28 +148,154 @@ def two_sum(nums, target):
       color: '#f59e0b',
       questions: 23,
       description: 'Divide and conquer on sorted data. Essential for O(log n) solutions.',
-      keyPatterns: ['Standard binary search', 'Left/right boundary', 'Rotated arrays', 'Search in 2D matrix'],
+
+      introduction: `Binary Search is a fundamental algorithm that reduces search time from O(n) to O(log n) by repeatedly dividing the search space in half. It's one of the most important patterns to master.
+
+**The Key Insight:**
+Binary search works on any **monotonic** property—not just sorted arrays. If you can define a predicate function that goes from False to True (or True to False) as you move through the search space, you can binary search.
+
+**Why It's Powerful:**
+- Reduces search from O(n) to O(log n)—for 1 billion elements, that's 30 operations vs 1 billion
+- Works on answer spaces ("What's the minimum X such that condition holds?")
+- Can find boundaries (leftmost/rightmost occurrence)`,
+
+      whenToUse: [
+        'Searching in a sorted array or matrix',
+        'Finding the boundary where a condition changes from False to True',
+        '"Minimum/Maximum value that satisfies condition" problems',
+        'Rotated sorted array problems',
+        'Problems asking for O(log n) time complexity',
+        'When you need to search an "answer space" rather than an array'
+      ],
+
+      keyPatterns: ['Standard binary search', 'Left/right boundary', 'Rotated arrays', 'Search in 2D matrix', 'Binary search on answer', 'Peak finding'],
       timeComplexity: 'O(log n)',
       spaceComplexity: 'O(1) iterative, O(log n) recursive',
-      commonProblems: ['Binary Search', 'Search in Rotated Array', 'Find Minimum in Rotated Array', 'Search a 2D Matrix', 'Koko Eating Bananas'],
+
+      approach: [
+        'Define your search space: [left, right] inclusive or [left, right) exclusive',
+        'Define the invariant: what property must hold throughout the search',
+        'Calculate mid: use left + (right - left) // 2 to avoid overflow',
+        'Determine which half to eliminate based on your condition',
+        'Handle the termination: when left meets right, you have your answer',
+        'Return appropriately: index, value, or "not found"'
+      ],
+
+      commonProblems: [
+        { name: 'Binary Search', difficulty: 'Easy' },
+        { name: 'First Bad Version', difficulty: 'Easy' },
+        { name: 'Search Insert Position', difficulty: 'Easy' },
+        { name: 'Search in Rotated Sorted Array', difficulty: 'Medium' },
+        { name: 'Find Minimum in Rotated Sorted Array', difficulty: 'Medium' },
+        { name: 'Search a 2D Matrix', difficulty: 'Medium' },
+        { name: 'Koko Eating Bananas', difficulty: 'Medium' },
+        { name: 'Median of Two Sorted Arrays', difficulty: 'Hard' }
+      ],
+
+      commonMistakes: [
+        'Off-by-one errors: confusing inclusive [left, right] vs exclusive [left, right) bounds',
+        'Infinite loops from wrong mid calculation or boundary updates',
+        'Using left + right instead of left + (right - left) // 2 (integer overflow)',
+        'Not handling empty arrays or single-element arrays',
+        'Forgetting that binary search requires monotonic property, not just "sorted"',
+        'Returning wrong value when element not found'
+      ],
+
       tips: [
         'Use left + (right - left) // 2 to avoid integer overflow',
         'Identify if you need leftmost or rightmost occurrence',
         'Binary search works on any monotonic function, not just arrays',
-        'For "minimum that satisfies condition" problems, search the answer space'
+        'For "minimum that satisfies condition" problems, search the answer space',
+        'Draw out the invariant: what must be true about left and right at each step?'
       ],
-      codeExample: `# Binary Search - Find leftmost position
-def binary_search_left(nums, target):
+
+      interviewTips: [
+        'Clarify: Is the array sorted? What to return if not found?',
+        'State your loop invariant explicitly: "left will always be ≤ answer, right will always be ≥ answer"',
+        'Test your code with: empty array, single element, element not present, duplicates',
+        'Know both templates: find exact match vs find boundary',
+        'For "binary search on answer" problems, identify the range of possible answers first'
+      ],
+
+      codeExamples: [
+        {
+          title: 'Template 1: Find Exact Match',
+          description: 'Standard binary search. Returns index or -1 if not found.',
+          code: `def binary_search(nums, target):
+    left, right = 0, len(nums) - 1
+
+    while left <= right:
+        mid = left + (right - left) // 2
+        if nums[mid] == target:
+            return mid
+        elif nums[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+
+    return -1  # Not found`
+        },
+        {
+          title: 'Template 2: Find Left Boundary',
+          description: 'Find leftmost position where target could be inserted.',
+          code: `def search_left(nums, target):
     left, right = 0, len(nums)
+
     while left < right:
         mid = left + (right - left) // 2
         if nums[mid] < target:
             left = mid + 1
         else:
             right = mid
-    return left
 
-# Time: O(log n), Space: O(1)`
+    return left  # First position >= target`
+        },
+        {
+          title: 'Binary Search on Answer: Koko Eating Bananas',
+          description: 'Search the answer space instead of an array.',
+          code: `def min_eating_speed(piles, h):
+    def can_finish(speed):
+        hours = sum((p + speed - 1) // speed for p in piles)
+        return hours <= h
+
+    left, right = 1, max(piles)
+
+    while left < right:
+        mid = left + (right - left) // 2
+        if can_finish(mid):
+            right = mid      # Try smaller speed
+        else:
+            left = mid + 1   # Need faster speed
+
+    return left`
+        },
+        {
+          title: 'Search in Rotated Sorted Array',
+          description: 'Binary search when array is rotated at an unknown pivot.',
+          code: `def search_rotated(nums, target):
+    left, right = 0, len(nums) - 1
+
+    while left <= right:
+        mid = left + (right - left) // 2
+        if nums[mid] == target:
+            return mid
+
+        # Left half is sorted
+        if nums[left] <= nums[mid]:
+            if nums[left] <= target < nums[mid]:
+                right = mid - 1
+            else:
+                left = mid + 1
+        # Right half is sorted
+        else:
+            if nums[mid] < target <= nums[right]:
+                left = mid + 1
+            else:
+                right = mid - 1
+
+    return -1`
+        }
+      ]
     },
     {
       id: 'two-pointers',
@@ -86,31 +304,162 @@ def binary_search_left(nums, target):
       color: '#3b82f6',
       questions: 18,
       description: 'Efficient technique for sorted arrays and linked lists. Reduces O(n²) to O(n).',
-      keyPatterns: ['Opposite ends', 'Same direction (fast/slow)', 'Sliding window variant', 'Three pointers'],
+
+      introduction: `Two Pointers is a technique that uses two index variables to traverse a data structure, typically reducing time complexity from O(n²) to O(n). It's essential for array and linked list problems.
+
+**Three Main Variants:**
+1. **Opposite Direction**: Start from both ends, move toward center (e.g., Two Sum on sorted array)
+2. **Same Direction**: Both pointers move in same direction at different speeds (e.g., slow/fast for cycle detection)
+3. **Sliding Window**: Special case where pointers define a window (covered separately)
+
+**The Key Insight:**
+Two pointers work when you can eliminate possibilities by moving one pointer—either the current pair is optimal, or moving a pointer will definitely not make it worse.`,
+
+      whenToUse: [
+        'Sorted array problems where you need pairs that meet a condition',
+        'Detecting cycles in linked lists (Floyd\'s algorithm)',
+        'Finding the middle of a linked list',
+        'Removing duplicates from sorted array in-place',
+        'Problems involving palindromes',
+        'Three Sum or K-Sum problems (fix one pointer, two-pointer on rest)'
+      ],
+
+      keyPatterns: ['Opposite ends', 'Same direction (fast/slow)', 'Sliding window variant', 'Three pointers', 'Partition', 'Merge two sorted'],
       timeComplexity: 'O(n)',
       spaceComplexity: 'O(1)',
-      commonProblems: ['Two Sum II (sorted)', 'Three Sum', 'Container With Most Water', 'Trapping Rain Water', 'Remove Duplicates'],
+
+      approach: [
+        'Identify if array is sorted or needs to be sorted first',
+        'Determine pointer strategy: opposite ends or same direction',
+        'Define the condition that moves each pointer',
+        'Ensure pointers eventually meet (termination)',
+        'Handle duplicates if the problem requires unique results',
+        'Consider edge cases: empty array, single element, all same elements'
+      ],
+
+      commonProblems: [
+        { name: 'Two Sum II (sorted)', difficulty: 'Medium' },
+        { name: 'Three Sum', difficulty: 'Medium' },
+        { name: 'Container With Most Water', difficulty: 'Medium' },
+        { name: 'Trapping Rain Water', difficulty: 'Hard' },
+        { name: 'Remove Duplicates from Sorted Array', difficulty: 'Easy' },
+        { name: 'Valid Palindrome', difficulty: 'Easy' },
+        { name: 'Linked List Cycle', difficulty: 'Easy' },
+        { name: 'Sort Colors (Dutch National Flag)', difficulty: 'Medium' }
+      ],
+
+      commonMistakes: [
+        'Forgetting to skip duplicates in Three Sum (leads to duplicate triplets)',
+        'Wrong pointer movement condition causing infinite loop',
+        'Not handling edge case when array is empty or has one element',
+        'Moving wrong pointer in container/water problems',
+        'Confusing when to use two pointers vs binary search'
+      ],
+
       tips: [
         'Works best on sorted arrays or when relative order matters',
         'Fast/slow pointers detect cycles in linked lists',
         'For three sum, fix one pointer and use two-pointer on remainder',
-        'Consider what condition moves each pointer'
+        'Consider what condition moves each pointer',
+        'For K-Sum: recursively reduce to Two Sum with fixed pointers'
       ],
-      codeExample: `# Container With Most Water
-def max_area(height):
+
+      interviewTips: [
+        'Ask: Is the array sorted? If not, is sorting acceptable?',
+        'For opposite-direction: explain why moving the pointer is correct',
+        'Verbalize: "I move left because we need a larger sum" or similar',
+        'For Three Sum: explicitly handle duplicates to avoid TLE or wrong answer',
+        'Draw the pointers on an example to show your approach'
+      ],
+
+      codeExamples: [
+        {
+          title: 'Two Sum II (Sorted Array) - Opposite Direction',
+          description: 'Find two numbers that sum to target in sorted array.',
+          code: `def two_sum_sorted(numbers, target):
+    left, right = 0, len(numbers) - 1
+
+    while left < right:
+        current_sum = numbers[left] + numbers[right]
+        if current_sum == target:
+            return [left + 1, right + 1]  # 1-indexed
+        elif current_sum < target:
+            left += 1   # Need larger sum
+        else:
+            right -= 1  # Need smaller sum
+
+    return []  # No solution`
+        },
+        {
+          title: 'Three Sum - Fix One, Two-Pointer on Rest',
+          description: 'Find all unique triplets that sum to zero.',
+          code: `def three_sum(nums):
+    nums.sort()
+    result = []
+
+    for i in range(len(nums) - 2):
+        # Skip duplicates for first element
+        if i > 0 and nums[i] == nums[i-1]:
+            continue
+
+        left, right = i + 1, len(nums) - 1
+        while left < right:
+            total = nums[i] + nums[left] + nums[right]
+            if total == 0:
+                result.append([nums[i], nums[left], nums[right]])
+                # Skip duplicates
+                while left < right and nums[left] == nums[left+1]:
+                    left += 1
+                while left < right and nums[right] == nums[right-1]:
+                    right -= 1
+                left += 1
+                right -= 1
+            elif total < 0:
+                left += 1
+            else:
+                right -= 1
+
+    return result`
+        },
+        {
+          title: 'Container With Most Water - Greedy Two Pointers',
+          description: 'Find max water between two lines. Move the shorter line.',
+          code: `def max_area(height):
     left, right = 0, len(height) - 1
     max_water = 0
+
     while left < right:
         width = right - left
         h = min(height[left], height[right])
         max_water = max(max_water, width * h)
+
+        # Move the shorter line (only way to potentially increase area)
         if height[left] < height[right]:
             left += 1
         else:
             right -= 1
-    return max_water
 
-# Time: O(n), Space: O(1)`
+    return max_water`
+        },
+        {
+          title: 'Fast/Slow Pointers - Linked List Cycle',
+          description: 'Detect if linked list has a cycle using Floyd\'s algorithm.',
+          code: `def has_cycle(head):
+    if not head or not head.next:
+        return False
+
+    slow = head
+    fast = head.next
+
+    while slow != fast:
+        if not fast or not fast.next:
+            return False
+        slow = slow.next       # Move 1 step
+        fast = fast.next.next  # Move 2 steps
+
+    return True  # They met, cycle exists`
+        }
+      ]
     },
     {
       id: 'sliding-window',
@@ -119,31 +468,172 @@ def max_area(height):
       color: '#8b5cf6',
       questions: 16,
       description: 'Process subarrays/substrings efficiently. Key for substring and subarray problems.',
-      keyPatterns: ['Fixed size window', 'Variable size window', 'Window with constraints', 'Character frequency'],
+
+      introduction: `Sliding Window is one of the most important patterns for string and subarray problems. It processes contiguous elements efficiently by maintaining a "window" that slides across the data.
+
+**Two Types:**
+1. **Fixed-Size Window**: Window size is constant (e.g., "max sum of k consecutive elements")
+2. **Variable-Size Window**: Window expands and shrinks based on conditions (e.g., "shortest substring containing all characters")
+
+**The Key Insight:**
+Instead of recomputing the entire window from scratch at each step, we incrementally update by adding the new element and removing the old one. This reduces O(n*k) to O(n).
+
+**Template for Variable Window:**
+Expand the right pointer to include more elements. When a condition is violated, shrink from the left until valid again. Track the optimal window throughout.`,
+
+      whenToUse: [
+        'Finding max/min sum of k consecutive elements (fixed window)',
+        'Longest/shortest substring with some property',
+        'Counting subarrays/substrings that satisfy a condition',
+        'Problems involving contiguous sequences',
+        'Character frequency constraints in substrings',
+        '"At most K distinct elements" type problems'
+      ],
+
+      keyPatterns: ['Fixed size window', 'Variable size window', 'Window with constraints', 'Character frequency', 'At most K distinct', 'Minimum window'],
       timeComplexity: 'O(n)',
       spaceComplexity: 'O(k) where k is window size or character set',
-      commonProblems: ['Best Time to Buy/Sell Stock', 'Longest Substring Without Repeating', 'Minimum Window Substring', 'Sliding Window Maximum'],
+
+      approach: [
+        'Identify if it\'s fixed or variable window',
+        'For fixed: initialize window, then slide by adding right and removing left',
+        'For variable: expand right pointer, shrink left when constraint violated',
+        'Use hash map to track counts or positions of elements in window',
+        'Update answer at each valid window state',
+        'Handle edge cases: empty string, window larger than input'
+      ],
+
+      commonProblems: [
+        { name: 'Best Time to Buy and Sell Stock', difficulty: 'Easy' },
+        { name: 'Longest Substring Without Repeating Characters', difficulty: 'Medium' },
+        { name: 'Longest Repeating Character Replacement', difficulty: 'Medium' },
+        { name: 'Permutation in String', difficulty: 'Medium' },
+        { name: 'Minimum Window Substring', difficulty: 'Hard' },
+        { name: 'Sliding Window Maximum', difficulty: 'Hard' },
+        { name: 'Fruit Into Baskets', difficulty: 'Medium' },
+        { name: 'Subarrays with K Different Integers', difficulty: 'Hard' }
+      ],
+
+      commonMistakes: [
+        'Not shrinking the window when it becomes invalid',
+        'Off-by-one errors when calculating window size (right - left + 1, not right - left)',
+        'Forgetting to update the hash map when shrinking the window',
+        'Not handling the case where no valid window exists',
+        'Confusing "exactly K" vs "at most K" (exactly K = atMost(K) - atMost(K-1))'
+      ],
+
       tips: [
         'Expand window to include elements, shrink to satisfy constraints',
         'Use hash map to track window contents efficiently',
         'For fixed-size windows, add right element and remove left in one step',
-        'Track window validity to avoid recomputing from scratch'
+        'Track window validity to avoid recomputing from scratch',
+        'For "exactly K" problems, use "at most K" minus "at most K-1"'
       ],
-      codeExample: `# Longest Substring Without Repeating Characters
-def length_of_longest_substring(s):
-    char_index = {}
+
+      interviewTips: [
+        'Identify the window type first: fixed or variable',
+        'For variable window, clearly state expand and shrink conditions',
+        'Explain what you\'re tracking in your hash map',
+        'Walk through an example showing the window expand/shrink',
+        'State time complexity: O(n) because each element is added and removed at most once'
+      ],
+
+      codeExamples: [
+        {
+          title: 'Fixed Window: Max Sum of K Elements',
+          description: 'Find maximum sum of any contiguous subarray of size k.',
+          code: `def max_sum_subarray(nums, k):
+    if len(nums) < k:
+        return 0
+
+    # Calculate initial window sum
+    window_sum = sum(nums[:k])
+    max_sum = window_sum
+
+    # Slide the window
+    for i in range(k, len(nums)):
+        window_sum += nums[i] - nums[i - k]  # Add right, remove left
+        max_sum = max(max_sum, window_sum)
+
+    return max_sum`
+        },
+        {
+          title: 'Variable Window: Longest Substring Without Repeating',
+          description: 'Find length of longest substring without repeating characters.',
+          code: `def length_of_longest_substring(s):
+    char_index = {}  # char -> last seen index
     max_len = 0
     left = 0
 
     for right, char in enumerate(s):
+        # If char in window, shrink window
         if char in char_index and char_index[char] >= left:
             left = char_index[char] + 1
+
         char_index[char] = right
         max_len = max(max_len, right - left + 1)
 
-    return max_len
+    return max_len`
+        },
+        {
+          title: 'Variable Window: Minimum Window Substring',
+          description: 'Find smallest substring containing all characters of t.',
+          code: `def min_window(s, t):
+    if not t or not s:
+        return ""
 
-# Time: O(n), Space: O(min(n, alphabet))`
+    from collections import Counter
+    need = Counter(t)
+    have = {}
+    have_count, need_count = 0, len(need)
+    result = ""
+    result_len = float('inf')
+    left = 0
+
+    for right, char in enumerate(s):
+        # Expand window
+        have[char] = have.get(char, 0) + 1
+        if char in need and have[char] == need[char]:
+            have_count += 1
+
+        # Shrink window while valid
+        while have_count == need_count:
+            # Update result
+            if right - left + 1 < result_len:
+                result = s[left:right + 1]
+                result_len = len(result)
+
+            # Shrink from left
+            have[s[left]] -= 1
+            if s[left] in need and have[s[left]] < need[s[left]]:
+                have_count -= 1
+            left += 1
+
+    return result`
+        },
+        {
+          title: 'At Most K Distinct: Fruit Into Baskets',
+          description: 'Maximum length subarray with at most 2 distinct elements.',
+          code: `def total_fruit(fruits):
+    count = {}  # fruit -> count in window
+    left = 0
+    max_fruits = 0
+
+    for right, fruit in enumerate(fruits):
+        count[fruit] = count.get(fruit, 0) + 1
+
+        # Shrink while more than 2 distinct fruits
+        while len(count) > 2:
+            count[fruits[left]] -= 1
+            if count[fruits[left]] == 0:
+                del count[fruits[left]]
+            left += 1
+
+        max_fruits = max(max_fruits, right - left + 1)
+
+    return max_fruits`
+        }
+      ]
     },
     {
       id: 'stacks',
@@ -18221,6 +18711,17 @@ The ambiguity became a clear, measurable project."`
         {/* DSA Topic Detail */}
         {activePage === 'coding' && topicDetails.keyPatterns && (
           <div className="space-y-8">
+            {/* Introduction - Comprehensive Overview */}
+            {topicDetails.introduction && (
+              <div className="p-6 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.02))', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <Icon name="book" size={20} style={{ color: topicDetails.color }} />
+                  Overview
+                </h3>
+                <p className="text-gray-300 leading-relaxed whitespace-pre-line">{topicDetails.introduction}</p>
+              </div>
+            )}
+
             {/* Complexity */}
             <div className="grid md:grid-cols-2 gap-4">
               <div className="p-4 rounded-xl" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
@@ -18232,6 +18733,24 @@ The ambiguity became a clear, measurable project."`
                 <div className="text-white font-mono">{topicDetails.spaceComplexity}</div>
               </div>
             </div>
+
+            {/* When to Use - Pattern Recognition */}
+            {topicDetails.whenToUse && (
+              <div className="p-6 rounded-xl" style={{ background: 'rgba(168, 85, 247, 0.08)', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+                <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                  <Icon name="target" size={18} className="text-purple-400" />
+                  When to Use This Pattern
+                </h3>
+                <ul className="space-y-3">
+                  {topicDetails.whenToUse.map((item, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span className="text-purple-400 mt-1">→</span>
+                      <span className="text-gray-300">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Key Patterns */}
             <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
@@ -18248,6 +18767,24 @@ The ambiguity became a clear, measurable project."`
               </div>
             </div>
 
+            {/* Approach - Step by Step */}
+            {topicDetails.approach && (
+              <div className="p-6 rounded-xl" style={{ background: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                  <Icon name="list" size={18} className="text-blue-400" />
+                  Step-by-Step Approach
+                </h3>
+                <ol className="space-y-3">
+                  {topicDetails.approach.map((step, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0" style={{ background: 'rgba(59, 130, 246, 0.3)', color: '#60a5fa' }}>{i + 1}</span>
+                      <span className="text-gray-300">{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
+
             {/* Common Problems */}
             <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
               <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
@@ -18258,11 +18795,36 @@ The ambiguity became a clear, measurable project."`
                 {topicDetails.commonProblems.map((problem, i) => (
                   <div key={i} className="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-white/5 transition-colors">
                     <span className="w-6 h-6 rounded flex items-center justify-center text-xs font-mono" style={{ background: 'rgba(255,255,255,0.1)' }}>{i + 1}</span>
-                    <span className="text-gray-300">{problem}</span>
+                    <span className="text-gray-300">{typeof problem === 'string' ? problem : problem.name}</span>
+                    {typeof problem === 'object' && problem.difficulty && (
+                      <span className={`px-2 py-0.5 rounded text-xs ${
+                        problem.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :
+                        problem.difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-400' :
+                        'bg-red-500/20 text-red-400'
+                      }`}>{problem.difficulty}</span>
+                    )}
                   </div>
                 ))}
               </div>
             </div>
+
+            {/* Common Mistakes */}
+            {topicDetails.commonMistakes && (
+              <div className="p-6 rounded-xl" style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                  <Icon name="alertTriangle" size={18} className="text-red-400" />
+                  Common Mistakes to Avoid
+                </h3>
+                <ul className="space-y-3">
+                  {topicDetails.commonMistakes.map((mistake, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span className="text-red-400 mt-1">✗</span>
+                      <span className="text-gray-300">{mistake}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Tips */}
             <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
@@ -18273,12 +18835,30 @@ The ambiguity became a clear, measurable project."`
               <ul className="space-y-3">
                 {topicDetails.tips.map((tip, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <span className="text-green-400 mt-1">•</span>
+                    <span className="text-green-400 mt-1">✓</span>
                     <span className="text-gray-300">{tip}</span>
                   </li>
                 ))}
               </ul>
             </div>
+
+            {/* Interview Tips */}
+            {topicDetails.interviewTips && (
+              <div className="p-6 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.02))', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                  <Icon name="briefcase" size={18} className="text-amber-400" />
+                  Interview Tips
+                </h3>
+                <ul className="space-y-3">
+                  {topicDetails.interviewTips.map((tip, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span className="text-amber-400 mt-1">★</span>
+                      <span className="text-gray-300">{tip}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Code Example */}
             {topicDetails.codeExample && (
@@ -18290,6 +18870,25 @@ The ambiguity became a clear, measurable project."`
                 <pre className="text-sm font-mono text-green-400 overflow-x-auto whitespace-pre-wrap">
                   {topicDetails.codeExample}
                 </pre>
+              </div>
+            )}
+
+            {/* Multiple Code Examples */}
+            {topicDetails.codeExamples && topicDetails.codeExamples.length > 0 && (
+              <div className="space-y-6">
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Icon name="code" size={20} className="text-green-400" />
+                  Code Examples
+                </h3>
+                {topicDetails.codeExamples.map((example, i) => (
+                  <div key={i} className="p-6 rounded-xl" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <h4 className="text-white font-semibold mb-3">{example.title}</h4>
+                    {example.description && <p className="text-gray-400 text-sm mb-4">{example.description}</p>}
+                    <pre className="text-sm font-mono text-green-400 overflow-x-auto whitespace-pre-wrap">
+                      {example.code}
+                    </pre>
+                  </div>
+                ))}
               </div>
             )}
           </div>
