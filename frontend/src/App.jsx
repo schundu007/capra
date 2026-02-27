@@ -321,8 +321,10 @@ export default function App() {
   const authRequired = !isElectron && auth.isWebApp;
 
   // URL-based routing for webapp
-  const isLoginPage = !isElectron && window.location.pathname === '/login';
-  const isDownloadPage = !isElectron && window.location.pathname === '/download';
+  const currentPath = !isElectron ? window.location.pathname : '';
+  const isLandingPage = !isElectron && (currentPath === '/' || currentPath === '/login');
+  const isDownloadPage = !isElectron && currentPath === '/download';
+  const isAppPage = !isElectron && currentPath === '/app';
 
   // Electron-specific state
   const [showSettings, setShowSettings] = useState(false);
@@ -398,14 +400,12 @@ export default function App() {
 
     const path = window.location.pathname;
 
-    // If authenticated and on /login, redirect to main app
-    if (isAuthenticated && path === '/login') {
-      window.history.replaceState({}, '', '/');
+    // If authenticated and on /login or root, redirect to main app at /app
+    if (isAuthenticated && (path === '/login' || path === '/')) {
+      window.history.replaceState({}, '', '/app');
     }
-    // If not authenticated and not on /login, redirect to login
-    else if (!isAuthenticated && path !== '/login') {
-      window.history.replaceState({}, '', '/login');
-    }
+    // Unauthenticated users can stay on / (landing) or /login
+    // No automatic redirect - let them see the landing page
   }, [isAuthenticated, authChecked]);
 
   // Listen for Electron events
@@ -1379,18 +1379,18 @@ EDGE CASES & RESILIENCE:
     );
   }
 
-  // Show OAuth login if auth required (webapp only) and on login page
+  // Show landing page for unauthenticated users at / or /login
   if (authRequired && !isAuthenticated) {
-    // Ensure we're on /login for the login page
-    if (window.location.pathname !== '/login') {
-      window.history.replaceState({}, '', '/login');
+    // Allow landing page at root /, redirect /login to /
+    if (window.location.pathname === '/login') {
+      window.history.replaceState({}, '', '/');
     }
     return <OAuthLogin />;
   }
 
-  // If authenticated but somehow on /login, redirect to main app
-  if (authRequired && isAuthenticated && window.location.pathname === '/login') {
-    window.history.replaceState({}, '', '/');
+  // If authenticated but on landing page, redirect to /app
+  if (authRequired && isAuthenticated && (window.location.pathname === '/login' || window.location.pathname === '/')) {
+    window.history.replaceState({}, '', '/app');
   }
 
   // Show download page if authenticated and on /download path
