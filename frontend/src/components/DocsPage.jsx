@@ -7718,6 +7718,368 @@ Optimization:
       color: '#1db954',
       difficulty: 'Hard',
       description: 'Design a music streaming service with playlists and recommendations.',
+
+      introduction: `Spotify is the world's largest music streaming service with 500M+ users and 100M+ tracks. Users stream music on-demand, create playlists, and discover new music through personalized recommendations.
+
+The key challenges are: low-latency audio streaming at scale (11K streams/second), building accurate recommendation systems, handling offline playback with DRM, and managing massive music catalog metadata.`,
+
+      functionalRequirements: [
+        'Stream audio tracks on demand',
+        'Create and manage playlists',
+        'Search tracks, artists, albums, playlists',
+        'Personalized recommendations (Discover Weekly, Daily Mix)',
+        'Offline download with DRM',
+        'Follow artists and friends',
+        'View artist pages and discography',
+        'Podcasts and audiobooks',
+        'Lyrics display',
+        'Cross-device playback (Spotify Connect)'
+      ],
+
+      nonFunctionalRequirements: [
+        'Audio playback starts in <200ms',
+        'Gapless playback between tracks',
+        'Handle 30B+ streams per month',
+        'Support 100M+ track catalog',
+        '99.99% streaming availability',
+        'Offline mode works without network',
+        'Adaptive bitrate based on network conditions'
+      ],
+
+      dataModel: {
+        description: 'Tracks, artists, albums, playlists, and user data',
+        schema: `tracks {
+  id: uuid PK
+  title: varchar(200)
+  artist_ids: uuid[] FK
+  album_id: uuid FK
+  duration_ms: int
+  audio_files: jsonb -- { "320": "s3://...", "160": "...", "96": "..." }
+  release_date: date
+  popularity: int -- 0-100
+  audio_features: jsonb -- { tempo, energy, danceability, ... }
+}
+
+artists {
+  id: uuid PK
+  name: varchar(200)
+  genres: varchar[]
+  followers: bigint
+  monthly_listeners: bigint
+  images: jsonb
+}
+
+playlists {
+  id: uuid PK
+  owner_id: uuid FK
+  name: varchar(200)
+  description: text
+  is_public: boolean
+  track_count: int
+  followers: bigint
+  image_url: varchar
+}
+
+playlist_tracks {
+  playlist_id: uuid FK
+  track_id: uuid FK
+  position: int
+  added_at: timestamp
+  added_by: uuid FK
+}
+
+user_library {
+  user_id: uuid FK
+  item_id: uuid
+  item_type: enum(TRACK, ALBUM, ARTIST, PLAYLIST)
+  added_at: timestamp
+}
+
+listening_history {
+  user_id: uuid FK
+  track_id: uuid FK
+  played_at: timestamp
+  context: varchar -- playlist_id, album_id, etc.
+  play_duration_ms: int
+}`
+      },
+
+      apiDesign: {
+        description: 'Streaming, search, and playlist management',
+        endpoints: [
+          { method: 'GET', path: '/api/tracks/:id/stream', params: 'quality', response: 'audio/ogg stream with range support' },
+          { method: 'GET', path: '/api/search', params: 'q, type, limit', response: '{ tracks[], artists[], albums[], playlists[] }' },
+          { method: 'GET', path: '/api/recommendations', params: 'seedTracks[], seedArtists[]', response: '{ tracks[] }' },
+          { method: 'POST', path: '/api/playlists', params: '{ name, description }', response: '{ playlist }' },
+          { method: 'POST', path: '/api/playlists/:id/tracks', params: '{ trackIds[], position }', response: '{ snapshot_id }' },
+          { method: 'GET', path: '/api/me/player', params: '-', response: '{ currentTrack, progress, device }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How does audio streaming work?',
+          answer: `**Adaptive Bitrate Streaming**:
+- Store each track in multiple qualities: 96, 160, 320 kbps (Ogg Vorbis)
+- Client starts with low quality, upgrades based on bandwidth
+- HTTP byte-range requests for seeking
+
+**Streaming Flow**:
+\`\`\`
+┌────────┐     ┌───────┐     ┌───────────┐     ┌──────────┐
+│ Client │────▶│  CDN  │────▶│  Origin   │────▶│    S3    │
+│        │     │ (Edge)│     │  (if miss)│     │ (Audio)  │
+└────────┘     └───────┘     └───────────┘     └──────────┘
+\`\`\`
+
+**Gapless Playback**:
+- Pre-buffer next track while current plays
+- Crossfade overlap: Download end of current + start of next
+- Start buffering next track at 70% of current
+
+**CDN Strategy**:
+- Popular tracks (top 1%) cached at edge: 99% hit rate
+- Long-tail tracks: Fetch from origin on demand
+- Regional CDN nodes for latency optimization`
+        },
+        {
+          question: 'How does the recommendation system work?',
+          answer: `**Recommendation Approaches**:
+
+**1. Collaborative Filtering**:
+- "Users who liked X also liked Y"
+- Matrix factorization on user-track interactions
+- Find similar users, recommend their tracks
+
+**2. Content-Based**:
+- Audio features: tempo, energy, danceability, key
+- Genre/style similarity
+- Artist similarity graph
+
+**3. Contextual**:
+- Time of day (workout music at 6am)
+- Day of week (party music on Saturday)
+- Recent listening (mood continuation)
+
+**Discover Weekly Pipeline**:
+\`\`\`
+User Listening History
+        ↓
+Collaborative Filtering → Candidate Tracks
+        ↓
+Content-Based Filtering → Refine by audio features
+        ↓
+Novelty Filter → Remove already-heard tracks
+        ↓
+Diversity Injection → Mix genres/artists
+        ↓
+30 tracks → Discover Weekly playlist
+\`\`\`
+
+**Daily Mix**:
+- Cluster user's listening into genres/moods
+- Create 6 mixes per cluster
+- Update daily with fresh tracks`
+        },
+        {
+          question: 'How do we handle offline playback?',
+          answer: `**Download Process**:
+1. User selects playlist/album for offline
+2. Client requests download tokens for each track
+3. Server validates subscription and generates time-limited tokens
+4. Client downloads encrypted audio files
+5. Store with DRM wrapper in local database
+
+**DRM (Digital Rights Management)**:
+\`\`\`
+Encrypted Audio File + License Key
+        ↓
+License Server validates:
+- User has active subscription
+- Track is in user's library
+- Download count within limits
+        ↓
+Returns decryption key (valid for 30 days)
+\`\`\`
+
+**Offline Sync**:
+- Background sync when on WiFi
+- Track sync status: PENDING, DOWNLOADING, READY, ERROR
+- Prioritize recently played/added tracks
+- Auto-remove after 30 days without going online
+
+**Storage Management**:
+- User sets max storage limit
+- Auto-cleanup: Remove least recently played when full
+- Quality setting affects storage size`
+        },
+        {
+          question: 'How does Spotify Connect work?',
+          answer: `**Multi-device Control**:
+- Any device can control playback on any other device
+- Real-time sync of play state across devices
+
+**Architecture**:
+\`\`\`
+┌──────────┐     ┌──────────────┐     ┌──────────┐
+│  Phone   │────▶│   Connect    │────▶│  Speaker │
+│(Control) │     │   Service    │     │ (Playback)│
+└──────────┘     └──────────────┘     └──────────┘
+                       │
+               ┌───────┴───────┐
+               │  Player State │
+               │ { track, pos, │
+               │   device_id } │
+               └───────────────┘
+\`\`\`
+
+**Protocol**:
+1. Devices register with Connect service via WebSocket
+2. Control device sends command (play, pause, skip)
+3. Service updates player state
+4. Playback device receives state change
+5. Playback device streams audio
+
+**Challenges**:
+- Network latency between devices
+- Handoff: Transfer playback to different device
+- State sync: All devices see same state`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Music Streaming',
+        description: 'Simple audio serving with basic playlists',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────┐
+│                    Basic Spotify System                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   ┌──────────┐        ┌──────────────┐       ┌──────────────┐   │
+│   │  Client  │───────▶│  API Server  │──────▶│  PostgreSQL  │   │
+│   │          │        │              │       │  (Metadata)  │   │
+│   └──────────┘        └──────────────┘       └──────────────┘   │
+│        │                     │                                   │
+│        │                     ▼                                   │
+│        │              ┌──────────────┐                          │
+│        └─────────────▶│     S3       │                          │
+│         (Audio)       │  (Audio Files)│                          │
+│                       └──────────────┘                          │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'No CDN = high latency for distant users',
+          'No adaptive bitrate',
+          'No recommendation engine',
+          'No offline support'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Spotify Architecture',
+        architecture: `
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                       Production Spotify Architecture                         │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────┐                                                             │
+│  │   Clients   │                                                             │
+│  └──────┬──────┘                                                             │
+│         │                                                                    │
+│  ┌──────┼───────────────────────────────────────────────────────────────┐   │
+│  │      │              CONTENT DELIVERY                                  │   │
+│  │      ▼                                                                │   │
+│  │  ┌─────────────────────────────────────────────────────────────┐     │   │
+│  │  │                   Global CDN Network                         │     │   │
+│  │  │  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐        │     │   │
+│  │  │  │  Edge   │  │  Edge   │  │  Edge   │  │  Edge   │        │     │   │
+│  │  │  │  US-W   │  │  US-E   │  │   EU    │  │  APAC   │        │     │   │
+│  │  │  └────┬────┘  └────┬────┘  └────┬────┘  └────┬────┘        │     │   │
+│  │  └───────┼────────────┼────────────┼────────────┼─────────────┘     │   │
+│  │          └────────────┴────────────┴────────────┘                   │   │
+│  │                              │ (cache miss)                          │   │
+│  │                              ▼                                       │   │
+│  │                   ┌──────────────────┐                              │   │
+│  │                   │   Audio Origin   │◀────┐                        │   │
+│  │                   │    (S3/GCS)      │     │                        │   │
+│  │                   └──────────────────┘     │ Transcode              │   │
+│  │                                            │                        │   │
+│  │                   ┌──────────────────┐     │                        │   │
+│  │                   │  Audio Pipeline  │─────┘                        │   │
+│  │                   │  (Ingestion)     │                              │   │
+│  │                   └──────────────────┘                              │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │                        SERVICE LAYER                                  │   │
+│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐     │   │
+│  │  │  Catalog   │  │  Playlist  │  │  Search    │  │  Connect   │     │   │
+│  │  │  Service   │  │  Service   │  │  Service   │  │  Service   │     │   │
+│  │  └─────┬──────┘  └─────┬──────┘  └─────┬──────┘  └─────┬──────┘     │   │
+│  │        │               │               │               │             │   │
+│  │  ┌─────┴───────────────┴───────────────┴───────────────┴─────┐      │   │
+│  │  │                    DATA LAYER                              │      │   │
+│  │  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌───────────┐ │      │   │
+│  │  │  │Cassandra │  │PostgreSQL│  │Elastic-  │  │   Redis   │ │      │   │
+│  │  │  │(Activity)│  │(Metadata)│  │  search  │  │  (Cache)  │ │      │   │
+│  │  │  └──────────┘  └──────────┘  └──────────┘  └───────────┘ │      │   │
+│  │  └────────────────────────────────────────────────────────────┘      │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │                     RECOMMENDATION ENGINE                             │   │
+│  │  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐            │   │
+│  │  │   Listening  │───▶│    Spark     │───▶│   Model      │            │   │
+│  │  │   History    │    │  (Training)  │    │   Serving    │            │   │
+│  │  │   (Kafka)    │    │              │    │              │            │   │
+│  │  └──────────────┘    └──────────────┘    └──────────────┘            │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Global CDN with edge caching for popular tracks',
+          'Adaptive bitrate streaming (96/160/320 kbps)',
+          'Cassandra for high-write listening history',
+          'Spark-based recommendation training pipeline',
+          'Real-time model serving for personalization',
+          'Spotify Connect for multi-device control'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Audio Quality vs Bandwidth',
+          points: [
+            'Free tier: Max 160 kbps',
+            'Premium: Up to 320 kbps',
+            'Adaptive: Start low, increase based on bandwidth',
+            'Ogg Vorbis format (better than MP3 at same bitrate)',
+            'Consider AAC for iOS (native support)'
+          ]
+        },
+        {
+          topic: 'Royalty and Licensing',
+          points: [
+            'Track every stream for royalty calculation',
+            'Minimum play time (30s) to count as stream',
+            'Different rates per country/label',
+            'Audit trail for disputes',
+            'Content licensing by region'
+          ]
+        },
+        {
+          topic: 'Cold Start Problem',
+          points: [
+            'New users: Ask for favorite genres/artists',
+            'Use demographics and device info',
+            'Gradually personalize with listening data',
+            'New tracks: Use audio features and artist similarity',
+            'A/B test recommendations for new content'
+          ]
+        }
+      ],
+
+      // Backward compatibility
       requirements: ['Stream music', 'Playlists', 'Search', 'Recommendations', 'Offline downloads', 'Social features', 'Artist pages'],
       components: ['Streaming service', 'Catalog service', 'Playlist service', 'Search', 'Recommendation engine', 'CDN', 'Analytics'],
       keyDecisions: [
@@ -7726,17 +8088,6 @@ Optimization:
         'Collaborative filtering + content-based recommendations',
         'Pre-load next tracks for gapless playback',
         'Offline: Encrypted local cache with license management'
-      ],
-      estimations: {
-        users: '500M users, 200M subscribers',
-        tracks: '100M tracks',
-        streams: '30B streams/month = 11K streams/sec',
-        playlists: '4B playlists'
-      },
-      apiDesign: [
-        'GET /api/track/{id}/stream → audio stream',
-        'GET /api/recommendations/daily-mix → { playlists[] }',
-        'POST /api/playlists { name, trackIds[] }'
       ]
     },
     {
