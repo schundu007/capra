@@ -874,6 +874,169 @@ def max_sliding_window(nums, k):
         'Token bucket allows burst while maintaining average rate',
         'Sliding window is most accurate but memory-intensive',
         'Use Redis for distributed rate limiting across servers'
+      ],
+
+      introduction: `A rate limiter controls the number of requests a user or system can perform within a specific time frame. Think of it as a bouncer managing entry flow to maintain system stability.
+
+Rate limiters are critical for: preventing API abuse, mitigating DDoS attacks, ensuring fair resource usage, and controlling costs in usage-based billing. Companies like Stripe, GitHub, and Twitter rely heavily on rate limiting.`,
+
+      functionalRequirements: [
+        'Limit requests per user/IP/API key',
+        'Support multiple tiers (free, pro, enterprise)',
+        'Configure limits per endpoint or globally',
+        'Return remaining quota and reset time',
+        'Allow burst traffic within limits',
+        'Dynamic rule updates without restart'
+      ],
+
+      nonFunctionalRequirements: [
+        'Sub-millisecond latency (<1ms cached)',
+        'Handle 1M+ rate limit checks per second',
+        'Distributed consistency across servers',
+        'Graceful degradation when Redis unavailable',
+        '99.99% availability'
+      ],
+
+      dataModel: {
+        description: 'Rate limit rules and token bucket state in Redis',
+        schema: `rate_limit_rules {
+  id: uuid PK
+  key_pattern: varchar -- user:{userId}, ip:{ip}
+  limit: int
+  window_seconds: int
+  algorithm: enum(TOKEN_BUCKET, SLIDING_WINDOW)
+}
+
+token_buckets (Redis) {
+  key: string -- "bucket:user:123"
+  tokens: float
+  last_refill: timestamp
+  ttl: seconds
+}`
+      },
+
+      apiDesign: {
+        description: 'Rate limiting check endpoints',
+        endpoints: [
+          { method: 'GET', path: '/api/ratelimit/check', params: 'key, cost=1', response: '{ allowed, remaining, resetAt }' },
+          { method: 'GET', path: '/api/ratelimit/status/:key', params: '-', response: '{ currentUsage, limit, resetAt }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'Which algorithm should we use?',
+          answer: `**Token Bucket** (Most common):
+- Tokens refill at steady rate into bucket
+- Allows bursts up to bucket capacity
+- Used by Stripe, AWS
+
+**Sliding Window Log**:
+- Track timestamp of each request
+- Most accurate but memory intensive
+
+**Fixed Window Counter**:
+- Simple but has boundary burst problem
+- User sends 100 req at 0:59 + 100 at 1:00
+
+**Leaky Bucket**:
+- Smooths traffic to constant rate
+- Good for streaming/consistent throughput`
+        },
+        {
+          question: 'How do we implement distributed rate limiting?',
+          answer: `**Centralized Redis** (Recommended):
+- All servers check Redis
+- Use Lua scripts for atomic check-and-decrement:
+\`\`\`lua
+local tokens = redis.call('GET', key) or bucket_size
+if tokens >= cost then
+  redis.call('DECRBY', key, cost)
+  return {1, tokens - cost}
+end
+return {0, tokens}
+\`\`\`
+
+**Local Cache + Sync**:
+- Each server has local counter
+- Periodically sync to Redis
+- Less accurate but faster`
+        },
+        {
+          question: 'What happens when Redis is down?',
+          answer: `**Fail Open**: Allow requests (risk overload)
+**Fail Closed**: Deny all (frustrate users)
+
+**Hybrid** (Recommended):
+- Fall back to local rate limiting
+- Each server has approximate limit
+- Degraded accuracy, maintained protection`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Rate Limiter',
+        description: 'Single Redis instance with Lua scripts',
+        architecture: `
+┌──────────┐     ┌──────────────┐     ┌──────────┐
+│  Client  │────▶│  API Server  │────▶│  Backend │
+└──────────┘     └──────┬───────┘     └──────────┘
+                       │
+                       ▼
+                ┌──────────────┐
+                │    Redis     │
+                │ Token Bucket │
+                └──────────────┘`,
+        problems: ['Single point of failure', 'No failover']
+      },
+
+      advancedImplementation: {
+        title: 'Production Architecture',
+        architecture: `
+┌─────────┐    ┌─────────────────────┐    ┌─────────────┐
+│ Clients │───▶│    CDN / Edge       │───▶│    Load     │
+└─────────┘    │ (First-line limit)  │    │  Balancer   │
+               └─────────────────────┘    └──────┬──────┘
+                                                 │
+                    ┌────────────────────────────┼────────────────────────────┐
+                    ▼                            ▼                            ▼
+             ┌─────────────┐             ┌─────────────┐             ┌─────────────┐
+             │  Gateway 1  │             │  Gateway 2  │             │  Gateway 3  │
+             │ Local Cache │             │ Local Cache │             │ Local Cache │
+             └──────┬──────┘             └──────┬──────┘             └──────┬──────┘
+                    └────────────────────────────┼────────────────────────────┘
+                                                 ▼
+                    ┌──────────────────────────────────────────────────────────┐
+                    │                   Redis Cluster (6 nodes)                 │
+                    │   Primary 1 ── Replica 1    Primary 2 ── Replica 2       │
+                    │                      Primary 3 ── Replica 3              │
+                    └──────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Edge rate limiting at CDN for DDoS protection',
+          'Redis Cluster with automatic failover',
+          'Local cache for hot keys (<1ms latency)',
+          'Lua scripts for atomic operations'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Algorithm Trade-offs',
+          points: [
+            'Token bucket: Best for APIs allowing bursts',
+            'Sliding window: Most accurate, higher memory',
+            'Fixed window: Simplest, boundary burst problem',
+            'Leaky bucket: Smooths traffic, adds latency'
+          ]
+        },
+        {
+          topic: 'Multi-tier Rate Limiting',
+          points: [
+            'Edge/CDN: Coarse limits for DDoS (10K/min per IP)',
+            'API Gateway: User-level limits (1000/min for Pro)',
+            'Service-level: Endpoint-specific limits'
+          ]
+        }
       ]
     },
     {
