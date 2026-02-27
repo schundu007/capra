@@ -4706,6 +4706,335 @@ Benefits:
       color: '#4285f4',
       difficulty: 'Hard',
       description: 'Design a web search engine with crawling, indexing, and ranking.',
+
+      introduction: `Google processes over 8.5 billion searches per day, making it the most used service on the internet. A web search engine must crawl billions of pages, build efficient indexes, and rank results by relevance in under 200ms.
+
+The key challenges are scale (100+ billion pages), freshness (crawl 20B pages/day), and quality (PageRank + ML ranking). The architecture requires distributed crawling, inverted indexes, and multi-stage ranking pipelines.`,
+
+      functionalRequirements: [
+        'Crawl and index billions of web pages',
+        'Return relevant results in <200ms',
+        'Spell correction and suggestions',
+        'Autocomplete as user types',
+        'Support multiple languages',
+        'Personalized results based on history',
+        'Image, video, and news search',
+        'Safe search filtering'
+      ],
+
+      nonFunctionalRequirements: [
+        'Handle 100K+ queries per second',
+        'Index freshness: hours for news, days for general',
+        'Sub-200ms query latency (p99)',
+        '99.99% availability',
+        'Support 100+ petabytes of index data',
+        'Crawl 20 billion pages per day'
+      ],
+
+      dataModel: {
+        description: 'Inverted index mapping terms to documents',
+        schema: `inverted_index {
+  term: varchar PK
+  posting_list: [
+    { doc_id, frequency, positions[], field_weights }
+  ]
+  idf: float -- inverse document frequency
+}
+
+documents {
+  doc_id: bigint PK
+  url: varchar
+  title: text
+  content_hash: varchar
+  pagerank: float
+  last_crawled: timestamp
+  language: varchar
+}
+
+url_frontier {
+  url: varchar PK
+  priority: float
+  last_crawled: timestamp
+  crawl_frequency: interval
+}`
+      },
+
+      apiDesign: {
+        description: 'Search and autocomplete endpoints',
+        endpoints: [
+          { method: 'GET', path: '/search', params: 'q, page, lang, safe', response: '{ results[], total, spelling?, suggestions[] }' },
+          { method: 'GET', path: '/autocomplete', params: 'prefix, lang', response: '{ suggestions[] }' },
+          { method: 'GET', path: '/images', params: 'q, size, color', response: '{ images[], total }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How does the inverted index work?',
+          answer: `**Inverted Index Structure**:
+- Forward index: doc_id → [words]
+- Inverted index: word → [doc_ids + positions]
+
+**Example**:
+"cat" → [(doc1, pos:[5,23]), (doc7, pos:[1]), (doc99, pos:[45,67,89])]
+
+**Query Processing**:
+1. Parse query: "black cat" → ["black", "cat"]
+2. Lookup posting lists for each term
+3. Intersect lists (docs containing both)
+4. Score by TF-IDF, proximity, PageRank
+5. Return top K results
+
+**Optimizations**:
+- Skip lists for fast intersection
+- Compression (variable-byte encoding)
+- Tiered index: hot (memory), warm (SSD), cold (disk)`
+        },
+        {
+          question: 'How does PageRank work?',
+          answer: `**Core Idea**: Pages linked by many important pages are important.
+
+**Algorithm**:
+PR(A) = (1-d)/N + d × Σ(PR(Ti)/C(Ti))
+- d = damping factor (0.85)
+- Ti = pages linking to A
+- C(Ti) = outbound links from Ti
+
+**Implementation**:
+1. Build web graph from crawled links
+2. Initialize all pages with equal rank (1/N)
+3. Iterate until convergence:
+   - Each page distributes rank to outbound links
+   - Add random jump factor (1-d)/N
+4. Typically converges in 50-100 iterations
+
+**Scale**: MapReduce over billions of pages
+- Map: Emit (target, partial_rank) for each link
+- Reduce: Sum partial ranks, apply formula`
+        },
+        {
+          question: 'How do we handle 100K queries/second?',
+          answer: `**Multi-tier Architecture**:
+1. **DNS load balancing**: Route to nearest datacenter
+2. **CDN caching**: Cache popular queries (20% of queries = 80% of traffic)
+3. **Index sharding**: Partition by document ID or term
+4. **Parallel query**: Query all shards simultaneously, merge results
+
+**Index Partitioning**:
+- **Document partitioning**: Each shard has full index for subset of docs
+- **Term partitioning**: Each shard has all docs for subset of terms
+- Google uses document partitioning (better load balance)
+
+**Caching Layers**:
+- Query cache: Exact match (60% hit rate)
+- Result cache: Top results for common queries
+- Posting list cache: Hot terms in memory`
+        },
+        {
+          question: 'How do we keep the index fresh?',
+          answer: `**Crawl Prioritization**:
+- News sites: Every few minutes
+- Popular sites: Daily
+- Long-tail: Weekly/monthly
+- Priority = PageRank × freshness_need × change_frequency
+
+**Incremental Updates**:
+1. Crawler detects changed pages (Last-Modified, ETag)
+2. Parser extracts new content
+3. Indexer updates posting lists
+4. Real-time serving picks up changes
+
+**Freshness vs Completeness**:
+- Dedicated "fresh index" for breaking news
+- Merge with main index periodically
+- Query both and blend results`
+        },
+        {
+          question: 'How does query understanding work?',
+          answer: `**Query Processing Pipeline**:
+1. **Tokenization**: Split query into terms
+2. **Spelling correction**: "pyhton" → "python"
+3. **Query expansion**: "car" → "car OR automobile"
+4. **Intent detection**: "weather" → show weather widget
+5. **Entity recognition**: "Apple stock" → finance results
+
+**Spelling Correction**:
+- Edit distance (Levenshtein)
+- N-gram overlap
+- Query logs: "Did you mean?" click-through data
+
+**Ranking Features**:
+- Query-document match (TF-IDF, BM25)
+- PageRank
+- Freshness
+- User engagement (click-through rate)
+- Personalization (search history, location)`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Search Architecture',
+        description: 'Single datacenter with document-partitioned index',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────┐
+│                     Basic Search Engine                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   ┌──────────┐                                                   │
+│   │   User   │                                                   │
+│   └────┬─────┘                                                   │
+│        │ "black cat"                                             │
+│        ▼                                                         │
+│   ┌─────────────────┐                                            │
+│   │  Query Server   │                                            │
+│   │  (Parse, Spell) │                                            │
+│   └────────┬────────┘                                            │
+│            │                                                     │
+│   ┌────────┴────────┬────────────────┬────────────────┐         │
+│   ▼                 ▼                ▼                ▼         │
+│ ┌───────┐      ┌───────┐       ┌───────┐       ┌───────┐       │
+│ │Shard 1│      │Shard 2│       │Shard 3│       │Shard N│       │
+│ │Docs   │      │Docs   │       │Docs   │       │Docs   │       │
+│ │1-10M  │      │10-20M │       │20-30M │       │...    │       │
+│ └───────┘      └───────┘       └───────┘       └───────┘       │
+│            │                                                     │
+│            ▼                                                     │
+│   ┌─────────────────┐                                            │
+│   │  Result Merger  │                                            │
+│   │  (Top K, Rank)  │                                            │
+│   └─────────────────┘                                            │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Single datacenter = high latency for distant users',
+          'No query caching',
+          'Limited crawl capacity',
+          'No real-time freshness'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Search Architecture',
+        architecture: `
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                    Google-Scale Search Architecture                           │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                        CRAWLING PIPELINE                             │    │
+│  │  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐      │    │
+│  │  │   URL    │───▶│  Crawl   │───▶│  Parser  │───▶│  Index   │      │    │
+│  │  │ Frontier │    │ Workers  │    │ (Extract)│    │ Builder  │      │    │
+│  │  └──────────┘    └──────────┘    └──────────┘    └──────────┘      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                         │                                    │
+│                                         ▼                                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                     DISTRIBUTED INDEX (100+ PB)                      │    │
+│  │  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐               │    │
+│  │  │   Hot Tier  │   │  Warm Tier  │   │  Cold Tier  │               │    │
+│  │  │  (Memory)   │   │   (SSD)     │   │   (Disk)    │               │    │
+│  │  │ Top 1% docs │   │ Next 10%   │   │  Long tail  │               │    │
+│  │  └─────────────┘   └─────────────┘   └─────────────┘               │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                        SERVING LAYER                                 │    │
+│  │                                                                      │    │
+│  │      ┌─────────────────────────────────────────────────────────┐    │    │
+│  │      │                    QUERY FRONTEND                        │    │    │
+│  │      │   ┌────────┐  ┌─────────┐  ┌────────┐  ┌────────────┐   │    │    │
+│  │      │   │ Parse  │─▶│ Spell   │─▶│ Expand │─▶│  Intent    │   │    │    │
+│  │      │   │ Query  │  │ Check   │  │ Query  │  │ Detection  │   │    │    │
+│  │      │   └────────┘  └─────────┘  └────────┘  └────────────┘   │    │    │
+│  │      └──────────────────────────────┬──────────────────────────┘    │    │
+│  │                                     │                               │    │
+│  │   Query Cache ◀─────────────────────┤                               │    │
+│  │   (60% hit)                         │                               │    │
+│  │                                     ▼                               │    │
+│  │      ┌─────────────────────────────────────────────────────────┐    │    │
+│  │      │              INDEX SERVERS (1000s)                       │    │    │
+│  │      │  ┌───────┐ ┌───────┐ ┌───────┐ ┌───────┐ ┌───────┐      │    │    │
+│  │      │  │Shard 1│ │Shard 2│ │Shard 3│ │  ...  │ │Shard N│      │    │    │
+│  │      │  └───┬───┘ └───┬───┘ └───┬───┘ └───┬───┘ └───┬───┘      │    │    │
+│  │      └──────┼─────────┼─────────┼─────────┼─────────┼──────────┘    │    │
+│  │             └─────────┴─────────┴─────────┴─────────┘               │    │
+│  │                                     │                               │    │
+│  │                                     ▼                               │    │
+│  │      ┌─────────────────────────────────────────────────────────┐    │    │
+│  │      │                   RANKING PIPELINE                       │    │    │
+│  │      │   ┌────────┐   ┌──────────┐   ┌──────────────────────┐  │    │    │
+│  │      │   │Stage 1 │──▶│ Stage 2  │──▶│     Stage 3          │  │    │    │
+│  │      │   │BM25+PR │   │ML Ranker │   │ Personalization+Ads  │  │    │    │
+│  │      │   │(10K)   │   │ (1K)     │   │      (100)           │  │    │    │
+│  │      │   └────────┘   └──────────┘   └──────────────────────┘  │    │    │
+│  │      └─────────────────────────────────────────────────────────┘    │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Tiered index: Hot (1% in memory), warm (10% on SSD), cold (disk)',
+          'Document-partitioned sharding across 1000s of servers',
+          'Query cache for 60% hit rate on popular queries',
+          'Multi-stage ranking: BM25 → ML → Personalization',
+          'Distributed crawling: 20B pages/day across global datacenters'
+        ]
+      },
+
+      queryFlow: {
+        title: 'Query Processing Flow',
+        steps: [
+          'User enters query → Frontend receives request',
+          'Check query cache → Return cached result if hit',
+          'Parse and tokenize query text',
+          'Spell check and suggest corrections',
+          'Expand query with synonyms and related terms',
+          'Detect intent (navigational, informational, transactional)',
+          'Broadcast query to all index shards in parallel',
+          'Each shard returns top K candidates with scores',
+          'Merge results from all shards',
+          'Apply ML ranking model (1000s of features)',
+          'Apply personalization (history, location)',
+          'Insert ads and special results (news, images)',
+          'Cache result and return to user (<200ms)'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Index Partitioning Strategy',
+          points: [
+            'Document partitioning: Each shard has complete index for doc subset',
+            'Term partitioning: Each shard has all docs for term subset',
+            'Document partitioning preferred (better load balance, simpler updates)',
+            'Need to query ALL shards for each query (fan-out)',
+            'Replication factor of 3+ for availability'
+          ]
+        },
+        {
+          topic: 'Ranking Quality vs Latency',
+          points: [
+            'More features = better ranking but slower',
+            'Multi-stage approach: cheap filters first, expensive ML last',
+            'Stage 1: BM25 + PageRank (10K candidates)',
+            'Stage 2: ML model with 100s of features (1K candidates)',
+            'Stage 3: Personalization + ads (final 10 results)',
+            'Each stage reduces candidates by 10x'
+          ]
+        },
+        {
+          topic: 'Handling Spam and SEO Manipulation',
+          points: [
+            'Link farms: Detect unnatural link patterns',
+            'Keyword stuffing: Penalize over-optimization',
+            'Cloaking: Show different content to crawler vs user',
+            'Manual actions: Human reviewers for high-value queries',
+            'Continuous ML models trained on spam signals'
+          ]
+        }
+      ],
+
+      // Backward compatibility
       requirements: ['Web crawling', 'Index billions of pages', 'Fast search (<200ms)', 'Spell correction', 'Autocomplete', 'Personalization'],
       components: ['Web crawler', 'Indexer', 'Ranker (PageRank)', 'Query processor', 'Spell checker', 'Cache'],
       keyDecisions: [
@@ -4714,16 +5043,6 @@ Benefits:
         'Sharding: Partition index by document or term',
         'Tiered index: Hot/warm/cold based on query frequency',
         'Query understanding: Parse intent, expand synonyms'
-      ],
-      estimations: {
-        pages: '100B+ web pages indexed',
-        queries: '8.5B searches/day = 100K queries/sec',
-        index: '100+ petabytes',
-        crawl: '20B pages crawled/day'
-      },
-      apiDesign: [
-        'GET /search?q=&page=&lang= → { results[], suggestions[], spelling? }',
-        'GET /autocomplete?prefix= → { suggestions[] }'
       ]
     },
     {
@@ -4734,6 +5053,358 @@ Benefits:
       color: '#f59e0b',
       difficulty: 'Medium',
       description: 'Design a scalable notification system supporting push, SMS, and email.',
+
+      introduction: `A notification system delivers messages to users across multiple channels: push notifications, SMS, email, and in-app messages. Companies like Facebook, Uber, and Amazon send billions of notifications daily.
+
+The key challenges are: handling different priority levels (OTP codes vs marketing), managing user preferences, ensuring reliable delivery with retries, and scaling to billions of notifications per day while maintaining low latency for urgent messages.`,
+
+      functionalRequirements: [
+        'Send push notifications (iOS, Android, Web)',
+        'Send email notifications',
+        'Send SMS messages',
+        'In-app notification center',
+        'User preference management (opt-out, channels)',
+        'Template-based messages with personalization',
+        'Scheduled and triggered notifications',
+        'Notification batching (digests)',
+        'Rate limiting per user'
+      ],
+
+      nonFunctionalRequirements: [
+        'Handle 10B+ notifications per day',
+        'Urgent notifications: <1 second delivery',
+        'Normal notifications: <5 seconds',
+        'Batch notifications: Within scheduled window',
+        '99.9% delivery rate (with retries)',
+        'Support quiet hours per timezone',
+        'Analytics: delivery, open, click rates'
+      ],
+
+      dataModel: {
+        description: 'Notifications, templates, and user preferences',
+        schema: `notifications {
+  id: uuid PK
+  user_id: uuid FK
+  template_id: varchar
+  channel: enum(PUSH, EMAIL, SMS, IN_APP)
+  priority: enum(URGENT, NORMAL, BATCH)
+  status: enum(PENDING, SENT, DELIVERED, FAILED)
+  data: jsonb -- template variables
+  scheduled_at: timestamp
+  sent_at: timestamp
+  created_at: timestamp
+}
+
+templates {
+  id: varchar PK
+  name: varchar
+  channel: enum
+  subject: text -- for email
+  body: text -- with {{placeholders}}
+  created_at: timestamp
+}
+
+user_preferences {
+  user_id: uuid PK
+  email_enabled: boolean
+  push_enabled: boolean
+  sms_enabled: boolean
+  quiet_hours_start: time
+  quiet_hours_end: time
+  timezone: varchar
+  unsubscribed_categories: varchar[]
+}
+
+device_tokens {
+  user_id: uuid FK
+  platform: enum(IOS, ANDROID, WEB)
+  token: varchar
+  created_at: timestamp
+}`
+      },
+
+      apiDesign: {
+        description: 'Notification sending and preference management',
+        endpoints: [
+          { method: 'POST', path: '/api/notify', params: '{ userId, templateId, channel, priority, data }', response: '{ notificationId }' },
+          { method: 'POST', path: '/api/notify/bulk', params: '{ userIds[], templateId, data }', response: '{ batchId }' },
+          { method: 'GET', path: '/api/notifications/:userId', params: 'page, unread', response: '{ notifications[], total }' },
+          { method: 'PUT', path: '/api/preferences/:userId', params: '{ channels, quietHours }', response: '{ success }' },
+          { method: 'POST', path: '/api/devices/register', params: '{ userId, platform, token }', response: '{ success }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How do we handle different priority levels?',
+          answer: `**Priority Queues**:
+- **URGENT** (OTP, security alerts): Dedicated high-priority queue, process immediately, bypass rate limits
+- **NORMAL** (order updates, messages): Standard queue, process within seconds
+- **BATCH** (marketing, digests): Low-priority queue, aggregate and send in batches
+
+**Implementation**:
+\`\`\`
+┌──────────────┐
+│  Incoming    │
+│  Requests    │
+└──────┬───────┘
+       │
+       ▼
+┌──────────────────────────────────────┐
+│         Priority Router               │
+└──────┬───────────┬───────────┬───────┘
+       │           │           │
+       ▼           ▼           ▼
+  ┌────────┐  ┌────────┐  ┌────────┐
+  │ URGENT │  │ NORMAL │  │ BATCH  │
+  │ Queue  │  │ Queue  │  │ Queue  │
+  │ (Kafka)│  │ (Kafka)│  │ (Kafka)│
+  └────────┘  └────────┘  └────────┘
+       │           │           │
+       ▼           ▼           ▼
+  Workers     Workers     Scheduled
+  (10x more)  (normal)    Job (hourly)
+\`\`\`
+
+**SLA by Priority**:
+- Urgent: p99 < 1 second
+- Normal: p99 < 5 seconds
+- Batch: Within scheduled window (hourly/daily)`
+        },
+        {
+          question: 'How do we ensure reliable delivery?',
+          answer: `**At-Least-Once Delivery**:
+1. Persist notification to database (PENDING)
+2. Enqueue to message queue (Kafka/SQS)
+3. Worker dequeues and sends to provider
+4. Update status to SENT
+5. Provider webhook confirms DELIVERED
+
+**Retry Strategy**:
+- Immediate retry for transient failures (3 attempts)
+- Exponential backoff: 1s, 5s, 30s, 5min, 30min
+- Dead letter queue after max retries
+- Alert on high failure rates
+
+**Delivery Tracking**:
+\`\`\`
+PENDING → QUEUED → SENT → DELIVERED
+                     ↓
+                   FAILED → RETRY → (DELIVERED | DLQ)
+\`\`\`
+
+**Provider Failover**:
+- Primary: SendGrid/Twilio/FCM
+- Secondary: Mailgun/Nexmo/APNS
+- Auto-switch on provider outage`
+        },
+        {
+          question: 'How do we handle user preferences and rate limiting?',
+          answer: `**Preference Checks** (before sending):
+1. Is channel enabled for this user?
+2. Is user in quiet hours? → Delay if not urgent
+3. Is category unsubscribed? → Skip
+4. Has user exceeded rate limit? → Queue for later
+
+**Rate Limiting**:
+- Per-user limits: Max 5 push/hour (non-urgent)
+- Per-category limits: Max 1 marketing email/day
+- Global limits: Prevent spam during incidents
+
+**Quiet Hours**:
+\`\`\`javascript
+function shouldDelay(user, notification) {
+  if (notification.priority === 'URGENT') return false;
+
+  const userTime = convertToTimezone(now(), user.timezone);
+  if (userTime >= user.quietHoursStart &&
+      userTime <= user.quietHoursEnd) {
+    return true; // Delay until quiet hours end
+  }
+  return false;
+}
+\`\`\`
+
+**Unsubscribe**:
+- One-click unsubscribe in emails (CAN-SPAM)
+- Category-level opt-out (marketing vs transactional)
+- Global opt-out option`
+        },
+        {
+          question: 'How do we scale to 10B notifications/day?',
+          answer: `**Scale Calculation**:
+- 10B/day = 115K notifications/second
+- Peak: 3x average = 350K/second
+
+**Architecture for Scale**:
+1. **Kafka partitions**: 100+ partitions per priority
+2. **Worker pools**: Auto-scale based on queue depth
+3. **Database sharding**: Partition by user_id
+4. **Connection pooling**: Reuse provider connections
+
+**Optimizations**:
+- Batch API calls to providers (FCM supports 500/request)
+- Pre-render templates at send time
+- Skip delivery for inactive users
+- Compress payloads for push notifications
+
+**Cost Optimization**:
+- SMS most expensive ($0.01/msg) - use sparingly
+- Push notifications essentially free
+- Email: $0.0001/msg with SendGrid
+- Batch similar notifications into digests`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Notification Architecture',
+        description: 'Single queue with multiple channel workers',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────┐
+│                  Basic Notification System                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   ┌──────────┐      ┌────────────────┐      ┌──────────────┐   │
+│   │   API    │─────▶│   Message      │─────▶│   Workers    │   │
+│   │  Server  │      │   Queue (SQS)  │      │              │   │
+│   └──────────┘      └────────────────┘      └──────┬───────┘   │
+│                                                     │           │
+│                            ┌────────────────────────┼───────┐   │
+│                            ▼            ▼           ▼       │   │
+│                       ┌────────┐  ┌────────┐  ┌────────┐   │   │
+│                       │  FCM   │  │SendGrid│  │ Twilio │   │   │
+│                       │ (Push) │  │(Email) │  │ (SMS)  │   │   │
+│                       └────────┘  └────────┘  └────────┘   │   │
+│                                                             │   │
+└─────────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Single queue = no priority handling',
+          'No user preference checking',
+          'No retry mechanism',
+          'Single provider per channel'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Notification Architecture',
+        architecture: `
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                    Production Notification System                             │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │                          INGESTION LAYER                               │  │
+│  │  ┌──────────┐    ┌────────────────┐    ┌────────────────────┐         │  │
+│  │  │   API    │───▶│  Validation &  │───▶│   Priority Router   │         │  │
+│  │  │ Gateway  │    │  Preference    │    │                    │         │  │
+│  │  └──────────┘    │    Check       │    └────────┬───────────┘         │  │
+│  │                  └────────────────┘             │                      │  │
+│  └─────────────────────────────────────────────────┼──────────────────────┘  │
+│                                                    │                         │
+│  ┌─────────────────────────────────────────────────┼──────────────────────┐  │
+│  │                      QUEUE LAYER (Kafka)        │                      │  │
+│  │  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐           │  │
+│  │  │  URGENT Queue  │  │  NORMAL Queue  │  │  BATCH Queue   │           │  │
+│  │  │  (P0 - OTP)    │  │ (P1 - Updates) │  │ (P2 - Marketing)│           │  │
+│  │  │  100 partitions│  │ 50 partitions  │  │ 20 partitions  │           │  │
+│  │  └───────┬────────┘  └───────┬────────┘  └───────┬────────┘           │  │
+│  └──────────┼───────────────────┼───────────────────┼────────────────────┘  │
+│             │                   │                   │                        │
+│  ┌──────────┼───────────────────┼───────────────────┼────────────────────┐  │
+│  │          ▼                   ▼                   ▼                    │  │
+│  │  ┌────────────────────────────────────────────────────────────────┐  │  │
+│  │  │                    WORKER POOLS (Auto-scaling)                  │  │  │
+│  │  │  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐           │  │  │
+│  │  │  │Push Workers │   │Email Workers│   │ SMS Workers │           │  │  │
+│  │  │  │   (100)     │   │    (50)     │   │    (20)     │           │  │  │
+│  │  │  └──────┬──────┘   └──────┬──────┘   └──────┬──────┘           │  │  │
+│  │  └─────────┼─────────────────┼─────────────────┼──────────────────┘  │  │
+│  │            │                 │                 │                     │  │
+│  │  ┌─────────┼─────────────────┼─────────────────┼──────────────────┐  │  │
+│  │  │         ▼                 ▼                 ▼                  │  │  │
+│  │  │  ┌─────────────────────────────────────────────────────────┐  │  │  │
+│  │  │  │              PROVIDER ABSTRACTION LAYER                  │  │  │  │
+│  │  │  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐        │  │  │  │
+│  │  │  │  │   FCM   │ │  APNS   │ │SendGrid │ │ Twilio  │        │  │  │  │
+│  │  │  │  │(Primary)│ │(Primary)│ │(Primary)│ │(Primary)│        │  │  │  │
+│  │  │  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘        │  │  │  │
+│  │  │  │  ┌─────────┐             ┌─────────┐ ┌─────────┐        │  │  │  │
+│  │  │  │  │  Expo   │             │ Mailgun │ │  Nexmo  │        │  │  │  │
+│  │  │  │  │(Backup) │             │ (Backup)│ │ (Backup)│        │  │  │  │
+│  │  │  │  └─────────┘             └─────────┘ └─────────┘        │  │  │  │
+│  │  │  └─────────────────────────────────────────────────────────┘  │  │  │
+│  │  └───────────────────────────────────────────────────────────────┘  │  │
+│  └─────────────────────────────────────────────────────────────────────┘  │
+│                                                                           │
+│  ┌───────────────────────────────────────────────────────────────────────┐│
+│  │                      SUPPORTING SERVICES                               ││
+│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐      ││
+│  │  │ Template   │  │ Preference │  │  Analytics │  │ Dead Letter│      ││
+│  │  │  Service   │  │  Service   │  │  Service   │  │   Queue    │      ││
+│  │  └────────────┘  └────────────┘  └────────────┘  └────────────┘      ││
+│  └───────────────────────────────────────────────────────────────────────┘│
+└──────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Priority queues with different worker pool sizes',
+          'Kafka partitions for horizontal scaling',
+          'Provider abstraction with automatic failover',
+          'Template service for consistent messaging',
+          'Dead letter queue for failed notifications',
+          'Analytics for delivery and engagement tracking'
+        ]
+      },
+
+      notificationFlow: {
+        title: 'Notification Delivery Flow',
+        steps: [
+          'API receives notification request with userId, template, channel',
+          'Validate request and check user preferences',
+          'Check rate limits and quiet hours',
+          'Render template with user data',
+          'Route to appropriate priority queue',
+          'Worker picks up from queue',
+          'Look up device tokens / email / phone',
+          'Call provider API (FCM/SendGrid/Twilio)',
+          'Handle response: success → mark DELIVERED',
+          'Handle failure: retry with backoff or move to DLQ',
+          'Record analytics: sent_at, delivered_at, opened_at'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Push Notification Providers',
+          points: [
+            'FCM (Firebase Cloud Messaging): Android + iOS + Web',
+            'APNS (Apple Push): iOS only, required for production',
+            'Web Push: Browser notifications via service workers',
+            'Each platform has different payload limits and formats',
+            'Token management: Handle expired/invalid tokens'
+          ]
+        },
+        {
+          topic: 'Email Deliverability',
+          points: [
+            'SPF, DKIM, DMARC records for authentication',
+            'Warm up IP addresses gradually for new senders',
+            'Monitor bounce rates and complaints',
+            'Segment lists: transactional vs marketing',
+            'Dedicated IPs for high-volume senders'
+          ]
+        },
+        {
+          topic: 'Notification Fatigue',
+          points: [
+            'Batch similar notifications into digests',
+            'Smart frequency capping per user',
+            'A/B test notification content and timing',
+            'Allow granular unsubscribe (category-level)',
+            'Track engagement and reduce for inactive users'
+          ]
+        }
+      ],
+
+      // Backward compatibility
       requirements: ['Push notifications', 'Email', 'SMS', 'In-app notifications', 'Batching', 'User preferences', 'Rate limiting'],
       components: ['Notification service', 'Template service', 'Priority queue', 'Delivery workers', 'Analytics'],
       keyDecisions: [
@@ -4742,15 +5413,6 @@ Benefits:
         'Delivery retry with exponential backoff',
         'User preference service for opt-outs',
         'Vendor abstraction: Switch between Twilio/SendGrid/FCM'
-      ],
-      estimations: {
-        notifications: '10B notifications/day',
-        channels: '60% push, 30% email, 10% SMS',
-        latency: 'Urgent: <1s, Normal: <5s, Batch: hourly'
-      },
-      apiDesign: [
-        'POST /api/notify { userId, template, channel, priority, data }',
-        'PUT /api/preferences/{userId} { channels, quiet_hours }'
       ]
     },
     {
@@ -5589,6 +6251,298 @@ queue_positions {
       color: '#22c55e',
       difficulty: 'Medium',
       description: 'Design a typeahead suggestion system for search boxes.',
+
+      introduction: `Typeahead (autocomplete) suggests search queries as users type, improving UX and helping users find what they want faster. Google, Amazon, and every major search application uses typeahead.
+
+The system must return suggestions in under 100ms (ideally <50ms) as users type each character. This requires efficient data structures (tries), aggressive caching, and pre-computed suggestions for common prefixes.`,
+
+      functionalRequirements: [
+        'Return suggestions as user types (per keystroke)',
+        'Support prefix matching',
+        'Rank suggestions by popularity/relevance',
+        'Show trending queries',
+        'Personalize based on user history',
+        'Spell correction for typos',
+        'Support multiple suggestion types (queries, products, categories)',
+        'Handle multiple languages'
+      ],
+
+      nonFunctionalRequirements: [
+        'p99 latency < 100ms (ideally < 50ms)',
+        'Handle 100K+ requests per second',
+        'Support 100M+ unique query prefixes',
+        'Update suggestions within minutes of trending',
+        'High availability (99.99%)',
+        'Graceful degradation under load'
+      ],
+
+      dataModel: {
+        description: 'Trie structure with pre-computed top suggestions',
+        schema: `trie_nodes {
+  prefix: varchar PK
+  suggestions: [ -- top 10 pre-computed
+    { text: varchar, score: float, type: enum }
+  ]
+  updated_at: timestamp
+}
+
+query_stats {
+  query: varchar PK
+  count: bigint
+  last_searched: timestamp
+  trending_score: float
+}
+
+user_history {
+  user_id: uuid
+  query: varchar
+  timestamp: timestamp
+  clicked_result: varchar
+}`
+      },
+
+      apiDesign: {
+        description: 'Autocomplete suggestion endpoint',
+        endpoints: [
+          { method: 'GET', path: '/api/suggest', params: 'prefix, limit=10, userId?', response: '{ suggestions: [{ text, type, score }] }' },
+          { method: 'POST', path: '/api/suggest/feedback', params: '{ prefix, selectedSuggestion }', response: '{ success }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'Which data structure should we use?',
+          answer: `**Trie (Prefix Tree)** - Recommended:
+- O(m) lookup where m = prefix length
+- Naturally supports prefix matching
+- Space efficient with compression (Patricia Trie)
+
+**Example Trie**:
+\`\`\`
+        root
+       /  |  \\
+      a   b   c
+     /|   |   |
+    p r   a   a
+   /  |   |   |
+  p  m   t   r
+ /   |       |
+l   o       s
+|   |
+e   r
+\`\`\`
+"apple", "armor", "bat", "cars"
+
+**Pre-computed Suggestions**:
+- Store top 10 suggestions at each trie node
+- Avoid real-time computation
+- Update in background from analytics
+
+**Alternative: Inverted Index**
+- Better for fuzzy matching
+- Higher latency than trie
+- Use for spell correction layer`
+        },
+        {
+          question: 'How do we rank suggestions?',
+          answer: `**Ranking Formula**:
+\`\`\`
+score = w1 × frequency +
+        w2 × recency +
+        w3 × trending +
+        w4 × personalization +
+        w5 × query_quality
+\`\`\`
+
+**Factors**:
+- **Frequency**: Historical search count (log scale)
+- **Recency**: Time decay for recent searches
+- **Trending**: Velocity of search growth
+- **Personalization**: User's past searches/clicks
+- **Query Quality**: Length, click-through rate
+
+**Trending Detection**:
+\`\`\`
+trending_score = current_rate / baseline_rate
+if trending_score > 3: boost significantly
+\`\`\`
+
+**Personalization** (when userId provided):
+- Boost queries user has searched before
+- Boost categories user engages with
+- Blend: 70% global + 30% personal`
+        },
+        {
+          question: 'How do we handle 100K requests/second?',
+          answer: `**Caching Strategy**:
+\`\`\`
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Browser   │────▶│   CDN Edge  │────▶│  Typeahead  │
+│    Cache    │     │    Cache    │     │   Service   │
+│  (1 min)    │     │  (5 min)    │     │             │
+└─────────────┘     └─────────────┘     └─────────────┘
+\`\`\`
+
+**Cache Hit Rates**:
+- Single character prefixes ("a", "b"): 99%+ CDN hit
+- 2-3 characters: 90%+ CDN hit
+- 4+ characters: 50-70% hit
+- Long tail: Pass through to service
+
+**Optimization**:
+- Pre-warm cache with top 1000 prefixes
+- Cache suggestions for 5-10 minutes
+- Use consistent hashing for service sharding
+- Local in-memory trie for hot prefixes`
+        },
+        {
+          question: 'How do we update suggestions in real-time?',
+          answer: `**Data Pipeline**:
+\`\`\`
+Search Logs → Kafka → Flink → Aggregator → Trie Updater
+                              (1 min windows)
+\`\`\`
+
+**Update Frequency**:
+- Trending queries: Every 1-5 minutes
+- Normal queries: Every hour
+- New products/content: On publish
+
+**Trie Update Strategy**:
+1. Build new trie version in background
+2. Atomic swap when ready
+3. Propagate to all nodes via message queue
+
+**Handling Breaking News**:
+- Separate "trending" index updated in real-time
+- Merge trending results with static suggestions
+- Higher boost for trending items`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Typeahead Architecture',
+        description: 'In-memory trie with pre-computed suggestions',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────┐
+│                    Basic Typeahead System                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   ┌──────────┐        ┌──────────────┐       ┌──────────────┐   │
+│   │   User   │───────▶│  API Server  │──────▶│  In-Memory   │   │
+│   │  Types   │        │              │       │    Trie      │   │
+│   └──────────┘        └──────────────┘       │              │   │
+│                                              │ Pre-computed │   │
+│                                              │ suggestions  │   │
+│                                              └──────────────┘   │
+│                                                     │           │
+│                                                     ▼           │
+│                                              ┌──────────────┐   │
+│                                              │   Analytics  │   │
+│                                              │   (Batch)    │   │
+│                                              └──────────────┘   │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Single server = limited scalability',
+          'No CDN caching',
+          'Batch updates only (not real-time)',
+          'No personalization'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Typeahead Architecture',
+        architecture: `
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                    Production Typeahead System                                │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────┐                                                             │
+│  │   Client    │                                                             │
+│  │  (Debounce) │                                                             │
+│  └──────┬──────┘                                                             │
+│         │                                                                    │
+│         ▼                                                                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    CDN Edge Cache (99% hit rate)                     │    │
+│  │              Cached: 1-3 char prefixes, common queries               │    │
+│  └────────────────────────────────┬────────────────────────────────────┘    │
+│                                   │ (Cache miss)                             │
+│                                   ▼                                          │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                        Load Balancer                                 │    │
+│  └────────────────────────────────┬────────────────────────────────────┘    │
+│                                   │                                          │
+│  ┌────────────────────────────────┼────────────────────────────────────┐    │
+│  │                  TYPEAHEAD SERVICE CLUSTER                           │    │
+│  │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐              │    │
+│  │  │  Server 1   │    │  Server 2   │    │  Server 3   │              │    │
+│  │  │             │    │             │    │             │              │    │
+│  │  │ ┌─────────┐ │    │ ┌─────────┐ │    │ ┌─────────┐ │              │    │
+│  │  │ │ Trie    │ │    │ │ Trie    │ │    │ │ Trie    │ │              │    │
+│  │  │ │(Shard A)│ │    │ │(Shard B)│ │    │ │(Shard C)│ │              │    │
+│  │  │ └─────────┘ │    │ └─────────┘ │    │ └─────────┘ │              │    │
+│  │  │ ┌─────────┐ │    │ ┌─────────┐ │    │ ┌─────────┐ │              │    │
+│  │  │ │ Redis   │ │    │ │ Redis   │ │    │ │ Redis   │ │              │    │
+│  │  │ │ Cache   │ │    │ │ Cache   │ │    │ │ Cache   │ │              │    │
+│  │  │ └─────────┘ │    │ └─────────┘ │    │ └─────────┘ │              │    │
+│  │  └─────────────┘    └─────────────┘    └─────────────┘              │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                   │                                          │
+│                                   ▼                                          │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                     DATA PIPELINE (Real-time)                        │    │
+│  │  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐      │    │
+│  │  │  Search  │───▶│  Kafka   │───▶│  Flink   │───▶│   Trie   │      │    │
+│  │  │   Logs   │    │          │    │ (1 min)  │    │ Updater  │      │    │
+│  │  └──────────┘    └──────────┘    └──────────┘    └──────────┘      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Client-side debouncing (wait 100ms after keystroke)',
+          'CDN caching for short prefixes (99% hit rate)',
+          'Sharded tries across service cluster',
+          'Real-time updates via Kafka → Flink pipeline',
+          'Redis cache for personalized suggestions'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Client-side Optimizations',
+          points: [
+            'Debounce requests (wait 100-200ms after keystroke)',
+            'Cancel in-flight requests on new keystroke',
+            'Cache recent suggestions locally',
+            'Show cached results while fetching new ones',
+            'Prefetch suggestions for common next characters'
+          ]
+        },
+        {
+          topic: 'Spell Correction Integration',
+          points: [
+            'Edit distance for fuzzy matching',
+            'Phonetic matching (Soundex, Metaphone)',
+            'Use search logs to learn common typos',
+            'Show "Did you mean?" for low-confidence matches',
+            'Separate spell-check service or inline in trie lookup'
+          ]
+        },
+        {
+          topic: 'Multi-entity Suggestions',
+          points: [
+            'Mix query suggestions with products, categories, brands',
+            'Type-specific ranking (products might have higher value)',
+            'Visual differentiation (icons, formatting)',
+            'Deep links to specific pages vs search results',
+            'Balance between helpful and overwhelming'
+          ]
+        }
+      ],
+
+      // Backward compatibility
       requirements: ['Real-time suggestions', '<100ms latency', 'Personalization', 'Trending queries', 'Spell correction'],
       components: ['Trie service', 'Ranking service', 'Analytics pipeline', 'Cache'],
       keyDecisions: [
@@ -5597,15 +6551,6 @@ queue_positions {
         'Rank by: frequency, recency, personalization',
         'Edge caching for common prefixes',
         'Update suggestions from search analytics pipeline'
-      ],
-      estimations: {
-        prefixes: '100M unique prefixes',
-        queries: '100K typeahead requests/sec',
-        latency: 'p99 < 50ms'
-      },
-      apiDesign: [
-        'GET /suggest?prefix=&limit=10 → { suggestions[] }',
-        'Each suggestion: { text, type, score }'
       ]
     },
     {
