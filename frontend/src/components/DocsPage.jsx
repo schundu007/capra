@@ -5125,6 +5125,400 @@ queue_positions {
       color: '#fe3c72',
       difficulty: 'Medium',
       description: 'Design a location-based dating app with swipe matching.',
+
+      introduction: `Tinder is a location-based dating app where users swipe right to like or left to pass on potential matches. When two users mutually like each other, they "match" and can start chatting.
+
+The key challenges include finding nearby users efficiently, generating personalized recommendations at scale, detecting matches in real-time, and supporting 2B+ swipes per day.`,
+
+      functionalRequirements: [
+        'Create profile with photos, bio, preferences',
+        'Browse nearby users matching preferences',
+        'Swipe right (like), left (pass), or super like',
+        'Match notification when mutual like occurs',
+        'Chat with matches',
+        'Location-based discovery',
+        'Filters: age, distance, gender',
+        'Premium features: unlimited likes, rewind, passport'
+      ],
+
+      nonFunctionalRequirements: [
+        'Sub-100ms swipe response time',
+        'Handle 2B+ swipes per day',
+        'Match detection in real-time (<1 second)',
+        'Recommendation generation <500ms',
+        'Support 75M+ monthly active users',
+        'Global availability with location awareness'
+      ],
+
+      dataModel: {
+        description: 'Users, swipes, matches, and messages',
+        schema: `users {
+  id: bigint PK
+  name: varchar(100)
+  bio: text
+  birthdate: date
+  gender: enum
+  interestedIn: enum[]
+  photos: varchar[]
+  location: point (lat/lng)
+  geohash: varchar(12)
+  ageRangeMin: int
+  ageRangeMax: int
+  maxDistance: int (km)
+  lastActive: timestamp
+  eloScore: int (for ranking)
+}
+
+swipes {
+  swiperId: bigint PK
+  targetId: bigint PK
+  action: enum(LIKE, PASS, SUPERLIKE)
+  timestamp: timestamp
+}
+
+matches {
+  id: bigint PK
+  user1Id: bigint FK
+  user2Id: bigint FK
+  matchedAt: timestamp
+  unmatched: boolean default false
+}
+
+messages {
+  id: uuid PK
+  matchId: bigint FK
+  senderId: bigint FK
+  content: text
+  sentAt: timestamp
+  readAt: timestamp nullable
+}
+
+recommendation_queue {
+  userId: bigint PK
+  recommendations: bigint[] -- pre-computed stack
+  generatedAt: timestamp
+}`
+      },
+
+      apiDesign: {
+        description: 'REST APIs for recommendations and swipes, WebSocket for chat',
+        endpoints: [
+          {
+            method: 'GET',
+            path: '/api/recommendations',
+            params: '?count=10',
+            response: '{ users: [{id, name, age, photos, distance, bio}] }'
+          },
+          {
+            method: 'POST',
+            path: '/api/swipe',
+            params: '{ targetId, action: LIKE|PASS|SUPERLIKE }',
+            response: '{ match: boolean, matchId?: bigint }'
+          },
+          {
+            method: 'GET',
+            path: '/api/matches',
+            params: '?cursor=',
+            response: '{ matches: [{id, user, lastMessage, matchedAt}] }'
+          },
+          {
+            method: 'WS',
+            path: '/ws/chat/{matchId}',
+            params: 'auth token',
+            response: 'Bidirectional messages'
+          },
+          {
+            method: 'PATCH',
+            path: '/api/profile',
+            params: '{ photos, bio, preferences }',
+            response: '{ updated: true }'
+          },
+          {
+            method: 'POST',
+            path: '/api/location',
+            params: '{ lat, lng }',
+            response: '{ geohash }'
+          }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How do we efficiently find nearby users?',
+          answer: `Geohashing approach:
+
+1. Convert location to geohash:
+   (37.7749, -122.4194) → "9q8yy"
+   - Precision determines cell size
+   - 6 chars ≈ 1.2km × 0.6km
+
+2. Query nearby cells:
+   - User in cell "9q8yy"
+   - Query "9q8yy" + 8 neighbors
+   - Covers ~3.6km × 1.8km
+
+3. Post-filter by distance:
+   - Calculate exact distance
+   - Filter by user's maxDistance setting
+
+4. Index structure:
+   - B-tree on (geohash, gender, lastActive)
+   - Fast range queries
+
+Alternative: QuadTree for dynamic precision`
+        },
+        {
+          question: 'How does match detection work?',
+          answer: `On swipe LIKE:
+
+1. Record swipe in database:
+   INSERT INTO swipes (swiperId, targetId, action)
+
+2. Check for mutual like:
+   SELECT * FROM swipes
+   WHERE swiperId = targetId
+   AND targetId = swiperId
+   AND action = 'LIKE'
+
+3. If found, create match:
+   INSERT INTO matches (user1Id, user2Id)
+
+4. Notify both users:
+   - Push notification
+   - Update match count
+   - Show "Its a Match!" screen
+
+Optimization:
+- Redis set for likes: SADD user:123:likes 456
+- Check match: SISMEMBER user:456:likes 123
+- O(1) lookup instead of DB query`
+        },
+        {
+          question: 'How do we generate recommendations?',
+          answer: `Two-stage recommendation:
+
+1. Candidate Generation:
+   - Same geohash region
+   - Matches preferences (age, gender, interested_in)
+   - Not already swiped on
+   - Active in last 7 days
+
+2. Ranking (Elo-like system):
+   - Users have attractiveness score
+   - Right-swipes increase score, left decreases
+   - Show users with similar scores
+   - Weighted by: distance, activity, profile completeness
+
+3. Pre-computation:
+   - Generate recommendation stack async
+   - Store in Redis sorted set
+   - Refresh when depleted or location changes
+
+4. Diversity:
+   - Mix high-score and varied profiles
+   - Avoid showing same "type" repeatedly`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Architecture',
+        description: 'Simple swipe and match without optimization',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────┐
+│                            TINDER BASIC                                 │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌──────────┐      ┌──────────────┐      ┌──────────────────┐          │
+│  │  Client  │─────▶│ Load Balancer│─────▶│   App Server     │          │
+│  └──────────┘      └──────────────┘      └────────┬─────────┘          │
+│                                                    │                    │
+│  GET RECOMMENDATIONS:                     ┌────────▼─────────┐          │
+│  SELECT * FROM users                      │    PostgreSQL    │          │
+│  WHERE location nearby                    │   - Users        │          │
+│  AND gender matches                       │   - Swipes       │          │
+│  AND age in range                         │   - Matches      │          │
+│  AND NOT IN (already swiped)              └──────────────────┘          │
+│                                                                         │
+│  PROBLEMS:                                                              │
+│  - Complex query on every request                                      │
+│  - No ranking/personalization                                          │
+│  - Slow match detection                                                │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Query users on every recommendation request',
+          'No geospatial indexing - slow location queries',
+          'Match detection requires DB lookup on every swipe',
+          'No recommendation ranking/personalization',
+          'Cannot scale with 2B swipes/day'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Architecture',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           TINDER PRODUCTION                                      │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  RECOMMENDATION ENGINE                                                          │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │                                                                      │        │
+│  │  ┌──────────────┐   ┌───────────────┐   ┌───────────────────────┐  │        │
+│  │  │ Candidate    │──▶│   Ranker      │──▶│  Recommendation       │  │        │
+│  │  │ Generator    │   │               │   │  Queue (Redis)        │  │        │
+│  │  │              │   │  - Elo score  │   │                       │  │        │
+│  │  │ - Geohash    │   │  - Distance   │   │  ZSET per user        │  │        │
+│  │  │ - Prefs      │   │  - Activity   │   │  user:123:recs        │  │        │
+│  │  │ - NOT swiped │   │  - Profile    │   │                       │  │        │
+│  │  └──────────────┘   └───────────────┘   └───────────────────────┘  │        │
+│  │        │                                         │                  │        │
+│  │        ▼                                         ▼                  │        │
+│  │  ┌──────────────────────────────────────────────────────────────┐  │        │
+│  │  │              USER REQUEST FOR RECOMMENDATIONS                 │  │        │
+│  │  │                                                               │  │        │
+│  │  │  1. Check Redis queue: ZRANGE user:123:recs 0 9              │  │        │
+│  │  │  2. If empty: Trigger async generation                       │  │        │
+│  │  │  3. Return cached recommendations                            │  │        │
+│  │  └──────────────────────────────────────────────────────────────┘  │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  SWIPE & MATCH                                                                  │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │                                                                      │        │
+│  │  SWIPE RIGHT (LIKE)                                                 │        │
+│  │  ┌──────────────┐   ┌───────────────┐   ┌───────────────────────┐  │        │
+│  │  │   Record     │──▶│ Check Match   │──▶│   Match Found?        │  │        │
+│  │  │   Swipe      │   │   (Redis)     │   │                       │  │        │
+│  │  │              │   │               │   │  ┌─────┐    ┌──────┐  │  │        │
+│  │  │  SADD        │   │ SISMEMBER     │   │  │ YES │    │  NO  │  │  │        │
+│  │  │  user:123:   │   │ user:456:     │   │  └──┬──┘    └──────┘  │  │        │
+│  │  │  likes 456   │   │ likes 123     │   │     │                 │  │        │
+│  │  └──────────────┘   └───────────────┘   │     ▼                 │  │        │
+│  │                                          │  Create Match        │  │        │
+│  │                                          │  Send Push           │  │        │
+│  │                                          │  notifications       │  │        │
+│  │                                          └───────────────────────┘  │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  GEOSPATIAL INDEX                                                               │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │                                                                      │        │
+│  │  Geohash grid:  9q8yy | 9q8yz | 9q8z0                               │        │
+│  │                 ------+-------+------                                │        │
+│  │                 9q8yw | 9q8yx | 9q8yy  ← User                       │        │
+│  │                 ------+-------+------                                │        │
+│  │                 9q8yt | 9q8yu | 9q8yv                               │        │
+│  │                                                                      │        │
+│  │  Query: Get users in 9 cells around user's location                 │        │
+│  │  Index: B-tree on (geohash, gender, age)                            │        │
+│  │                                                                      │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  CHAT SERVICE                                                                   │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │                                                                      │        │
+│  │  Match → Chat enabled → WebSocket connection                        │        │
+│  │                              │                                       │        │
+│  │                         ┌────▼────────┐                             │        │
+│  │                         │  Chat       │                             │        │
+│  │                         │  Gateway    │                             │        │
+│  │                         └────┬────────┘                             │        │
+│  │                              │                                       │        │
+│  │              ┌───────────────┼───────────────┐                      │        │
+│  │              ▼               ▼               ▼                      │        │
+│  │         ┌────────┐     ┌────────┐     ┌────────────┐               │        │
+│  │         │ Kafka  │     │ Redis  │     │ Cassandra  │               │        │
+│  │         │(events)│     │(online)│     │ (messages) │               │        │
+│  │         └────────┘     └────────┘     └────────────┘               │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Pre-computed recommendations: Redis sorted sets per user',
+          'O(1) match detection: Redis sets for likes',
+          'Geohash indexing: Efficient spatial queries',
+          'Elo-like ranking: Users see similar attractiveness level',
+          'Async generation: Recommendations computed in background',
+          'WebSocket chat: Real-time messaging after match'
+        ]
+      },
+
+      swipeFlow: {
+        title: 'Swipe Flow',
+        steps: [
+          'Client requests recommendations from Redis queue',
+          'If queue empty, trigger async generation',
+          'Return profile cards to client',
+          'User swipes right on profile',
+          'Record like in Redis: SADD user:123:likes 456',
+          'Check for match: SISMEMBER user:456:likes 123',
+          'If match found, create match record',
+          'Send push notification to both users',
+          'Show "Its a Match!" animation',
+          'Enable chat between matched users',
+          'Remove profile from recommendation queue'
+        ]
+      },
+
+      recommendationFlow: {
+        title: 'Recommendation Generation Flow',
+        steps: [
+          'Triggered when queue depleted or location changes',
+          'Calculate users geohash from location',
+          'Query users in same and neighboring cells',
+          'Filter by gender, age preferences',
+          'Exclude already-swiped users',
+          'Score candidates by Elo, distance, activity',
+          'Apply diversity rules',
+          'Store top N in Redis sorted set',
+          'TTL on recommendations: regenerate if stale'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Elo Rating System',
+          points: [
+            'Similar to chess Elo ratings',
+            'Right-swipes increase your score',
+            'Left-swipes (especially from high-rated) decrease',
+            'Show users profiles with similar Elo',
+            'Prevents showing "out of league" profiles constantly'
+          ]
+        },
+        {
+          topic: 'Recommendation Quality',
+          points: [
+            'Cold start: New users get broad exposure',
+            'Feedback loop: Learn from swipe patterns',
+            'Diversity: Avoid showing same type repeatedly',
+            'Freshness: Prioritize recently active users',
+            'Boost new profiles initially'
+          ]
+        },
+        {
+          topic: 'Premium Features Architecture',
+          points: [
+            'Unlimited likes: Remove rate limiting',
+            'See who liked you: Query reverse swipes',
+            'Rewind: Store swipe history, allow undo',
+            'Passport: Allow different location search',
+            'Boost: Temporarily increase visibility'
+          ]
+        },
+        {
+          topic: 'Safety Features',
+          points: [
+            'Photo verification with ML',
+            'Report and block functionality',
+            'Message filtering for harassment',
+            'Location privacy options',
+            'Background checks (partnership)'
+          ]
+        }
+      ],
+
       requirements: ['User profiles', 'Photo uploads', 'Nearby users', 'Swipe (like/pass)', 'Matching', 'Chat after match'],
       components: ['User service', 'Matching service', 'Geospatial service', 'Chat service', 'Recommendation engine', 'CDN'],
       keyDecisions: [
@@ -5133,17 +5527,6 @@ queue_positions {
         'Store swipe decisions for bidirectional match detection',
         'Elo-like scoring for recommendation ranking',
         'CDN with image resizing for photos'
-      ],
-      estimations: {
-        users: '75M MAU, 10M DAU',
-        swipes: '2B swipes/day',
-        matches: '30M matches/day',
-        messages: '500M messages/day'
-      },
-      apiDesign: [
-        'GET /api/recommendations → { users[] }',
-        'POST /api/swipe { targetUserId, action: like|pass|superlike }',
-        'Match detection happens async, triggers push notification'
       ]
     },
     {
@@ -5183,6 +5566,408 @@ queue_positions {
       color: '#ff5a5f',
       difficulty: 'Hard',
       description: 'Design a property rental marketplace with search, booking, and reviews.',
+
+      introduction: `Airbnb is a global property rental marketplace with 7+ million active listings and 150+ million users. The system enables hosts to list properties and guests to search, book, and review stays.
+
+Key challenges include complex search with geo-location, date availability, and amenities; preventing double-bookings; managing trust and safety; and handling payments across multiple currencies.`,
+
+      functionalRequirements: [
+        'List properties with photos, amenities, pricing',
+        'Search by location, dates, guests, price, amenities',
+        'View property details and calendar',
+        'Book with instant book or request',
+        'Host calendar management',
+        'Reviews (both guest and host)',
+        'Messaging between guests and hosts',
+        'Payment processing with escrow'
+      ],
+
+      nonFunctionalRequirements: [
+        'Search results in <500ms',
+        'Never allow double-booking',
+        'Handle 100M+ searches/day',
+        'Support 7M+ active listings',
+        '99.9% availability',
+        'Global reach with local currency support'
+      ],
+
+      dataModel: {
+        description: 'Listings, availability, bookings, and users',
+        schema: `listings {
+  id: bigint PK
+  hostId: bigint FK
+  title: varchar(200)
+  description: text
+  propertyType: enum(APARTMENT, HOUSE, ROOM, etc)
+  location: point (lat/lng)
+  address: jsonb
+  amenities: varchar[]
+  maxGuests: int
+  bedrooms: int
+  beds: int
+  bathrooms: decimal
+  pricePerNight: decimal
+  cleaningFee: decimal
+  photos: varchar[]
+  instantBook: boolean
+  status: enum(ACTIVE, INACTIVE, PENDING)
+}
+
+availability {
+  listingId: bigint PK
+  date: date PK
+  status: enum(AVAILABLE, BLOCKED, BOOKED)
+  price: decimal nullable (override)
+  minNights: int
+  bookingId: bigint FK nullable
+}
+
+bookings {
+  id: bigint PK
+  listingId: bigint FK
+  guestId: bigint FK
+  checkin: date
+  checkout: date
+  guests: int
+  totalPrice: decimal
+  status: enum(PENDING, CONFIRMED, CANCELLED, COMPLETED)
+  paymentId: varchar FK
+  createdAt: timestamp
+}
+
+reviews {
+  id: bigint PK
+  bookingId: bigint FK
+  reviewerId: bigint FK
+  revieweeId: bigint FK
+  type: enum(GUEST_TO_HOST, HOST_TO_GUEST)
+  rating: decimal(2,1)
+  content: text
+  createdAt: timestamp
+}`
+      },
+
+      apiDesign: {
+        description: 'REST APIs for search, booking, and calendar management',
+        endpoints: [
+          {
+            method: 'GET',
+            path: '/api/search',
+            params: '?location=&lat=&lng=&checkin=&checkout=&guests=&priceMin=&priceMax=&amenities=',
+            response: '{ listings[], pagination, facets }'
+          },
+          {
+            method: 'GET',
+            path: '/api/listings/{id}',
+            params: '',
+            response: '{ listing, host, reviews[], availability }'
+          },
+          {
+            method: 'GET',
+            path: '/api/listings/{id}/calendar',
+            params: '?month=',
+            response: '{ dates: [{date, status, price}] }'
+          },
+          {
+            method: 'POST',
+            path: '/api/bookings',
+            params: '{ listingId, checkin, checkout, guests, message }',
+            response: '{ bookingId, status, paymentIntent }'
+          },
+          {
+            method: 'PATCH',
+            path: '/api/host/listings/{id}/calendar',
+            params: '{ dates[], status, price }',
+            response: '{ updated: true }'
+          },
+          {
+            method: 'POST',
+            path: '/api/reviews',
+            params: '{ bookingId, rating, content }',
+            response: '{ reviewId }'
+          }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How do we handle complex search with availability?',
+          answer: `Two-stage search:
+
+1. Elasticsearch for initial filtering:
+   - Geo-distance from location
+   - Property type, amenities, price range
+   - Guest capacity
+   - Returns candidate listing IDs
+
+2. Availability check against database:
+   - Check calendar table for date range
+   - WHERE date BETWEEN checkin AND checkout-1
+   - AND status = 'AVAILABLE'
+   - GROUP BY listing, HAVING COUNT(*) = nights
+
+Optimization:
+- Cache popular date ranges
+- Pre-aggregate availability for next 30 days
+- Denormalize into Elasticsearch for simpler queries`
+        },
+        {
+          question: 'How do we prevent double-booking?',
+          answer: `Multiple layers:
+
+1. Database constraints:
+   - Unique index on (listingId, date, status=BOOKED)
+   - Transaction isolation level: SERIALIZABLE
+
+2. Optimistic locking:
+   UPDATE availability
+   SET status = 'BOOKED', bookingId = X
+   WHERE listingId = Y
+   AND date BETWEEN checkin AND checkout-1
+   AND status = 'AVAILABLE'
+
+   If affected rows != expected nights, rollback
+
+3. Instant Book flow:
+   - Hold dates for 10 minutes during payment
+   - status = 'PENDING' during hold
+   - Convert to BOOKED on payment success
+
+4. Request to Book flow:
+   - No hold, host manually approves
+   - Check availability again at approval time`
+        },
+        {
+          question: 'How do we handle payments across currencies?',
+          answer: `Escrow model:
+
+1. Guest pays in their currency
+   - Convert to USD at booking time
+   - Hold in escrow
+
+2. Host payout in their currency
+   - Convert from USD to host currency
+   - Pay 24 hours after check-in
+
+3. Fee structure:
+   - Guest service fee: 5-15% of subtotal
+   - Host service fee: 3% of subtotal
+   - Currency conversion spread: ~3%
+
+4. Refund handling:
+   - Full refund before cutoff date
+   - Partial refund based on policy
+   - Convert at current rate (guest takes FX risk)`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Architecture',
+        description: 'Simple search and booking without availability optimization',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────┐
+│                            AIRBNB BASIC                                 │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌──────────┐      ┌──────────────┐      ┌──────────────────┐          │
+│  │  Client  │─────▶│ Load Balancer│─────▶│   App Server     │          │
+│  └──────────┘      └──────────────┘      └────────┬─────────┘          │
+│                                                    │                    │
+│  SEARCH:                                  ┌────────▼─────────┐          │
+│  SELECT * FROM listings                   │    PostgreSQL    │          │
+│  WHERE location nearby                    │                  │          │
+│  AND dates available                      │  - Listings      │          │
+│  (complex JOIN)                           │  - Availability  │          │
+│                                           │  - Bookings      │          │
+│  PROBLEMS:                                │  - Reviews       │          │
+│  - Slow geo + date queries                └──────────────────┘          │
+│  - Full table scans                                                     │
+│  - Double-booking possible                                              │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Slow search: JOIN between listings and availability',
+          'No geo-indexing: Full table scan for location',
+          'Double-booking risk: Race conditions',
+          'Single database: Cannot scale search and booking independently'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Architecture',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           AIRBNB PRODUCTION                                      │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  SEARCH PIPELINE                                                                │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │                                                                      │        │
+│  │  Client Query ──▶ API Gateway ──▶ Search Service                    │        │
+│  │                                        │                             │        │
+│  │                         ┌──────────────┴───────────────┐            │        │
+│  │                         ▼                              ▼            │        │
+│  │               ┌──────────────────┐           ┌──────────────┐       │        │
+│  │               │   Elasticsearch  │           │ Availability │       │        │
+│  │               │                  │           │   Service    │       │        │
+│  │               │ - Geo filtering  │           │              │       │        │
+│  │               │ - Amenities      │           │ - Date check │       │        │
+│  │               │ - Property type  │           │ - Booking    │       │        │
+│  │               │ - Price range    │           │   conflicts  │       │        │
+│  │               │                  │           │              │       │        │
+│  │               │ Returns: IDs     │           │              │       │        │
+│  │               └────────┬─────────┘           └──────┬───────┘       │        │
+│  │                        │                            │                │        │
+│  │                        └──────────┬─────────────────┘                │        │
+│  │                                   ▼                                  │        │
+│  │                          ┌──────────────┐                           │        │
+│  │                          │ Merge & Rank │                           │        │
+│  │                          │   Results    │                           │        │
+│  │                          └──────────────┘                           │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  BOOKING & AVAILABILITY                                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │                                                                      │        │
+│  │  ┌──────────────┐    ┌──────────────┐    ┌──────────────────────┐  │        │
+│  │  │   Booking    │───▶│ Availability │───▶│     PostgreSQL       │  │        │
+│  │  │   Service    │    │   Service    │    │                      │  │        │
+│  │  └──────────────┘    └──────────────┘    │  availability table  │  │        │
+│  │                                           │  - Sharded by        │  │        │
+│  │                                           │    listingId         │  │        │
+│  │                                           │  - Row-level lock    │  │        │
+│  │                                           │    per date          │  │        │
+│  │                                           └──────────────────────┘  │        │
+│  │                                                                      │        │
+│  │  BOOKING FLOW:                                                      │        │
+│  │  1. Check availability (SELECT FOR UPDATE)                         │        │
+│  │  2. Create booking record                                          │        │
+│  │  3. Update availability to BOOKED                                  │        │
+│  │  4. Process payment                                                 │        │
+│  │  5. Commit transaction                                              │        │
+│  │                                                                      │        │
+│  │  If payment fails: Rollback, dates become available again          │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  CALENDAR MANAGEMENT                                                            │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │                                                                      │        │
+│  │  Host updates ──▶ Calendar Service ──▶ Update availability table   │        │
+│  │       │                                        │                     │        │
+│  │       │                                        ▼                     │        │
+│  │       │                               ┌──────────────┐              │        │
+│  │       │                               │ Invalidate   │              │        │
+│  │       │                               │ ES cache     │              │        │
+│  │       │                               └──────────────┘              │        │
+│  │       │                                                              │        │
+│  │       └── Price rules engine:                                       │        │
+│  │           - Weekend pricing                                         │        │
+│  │           - Seasonal pricing                                        │        │
+│  │           - Event-based pricing                                     │        │
+│  │           - Min stay requirements                                   │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+│  PAYMENT ESCROW                                                                 │
+│  ┌─────────────────────────────────────────────────────────────────────┐        │
+│  │                                                                      │        │
+│  │  Guest ──▶ Stripe ──▶ Escrow Account ──▶ Host (after check-in)     │        │
+│  │              │                                    │                  │        │
+│  │              │                                    │                  │        │
+│  │         Guest fee                            Host fee               │        │
+│  │          deducted                            deducted               │        │
+│  │                                                                      │        │
+│  │  Refund flow based on cancellation policy                          │        │
+│  └─────────────────────────────────────────────────────────────────────┘        │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Two-stage search: ES for filtering, DB for availability',
+          'Row-level locking: Prevent double-booking at DB level',
+          'Sharding by listingId: Keep all dates for a listing together',
+          'Payment escrow: Hold funds until check-in',
+          'Calendar service: Handle complex pricing rules',
+          'Search ranking: Factor in conversion rate, response rate'
+        ]
+      },
+
+      searchFlow: {
+        title: 'Search Flow',
+        steps: [
+          'User enters location, dates, guests',
+          'Geocode location to lat/lng',
+          'Query Elasticsearch with geo-distance filter',
+          'Apply property type, amenities, price filters',
+          'Get candidate listing IDs (top 1000)',
+          'Check availability service for date range',
+          'Filter out listings with blocked/booked dates',
+          'Rank by quality score, conversion rate, price',
+          'Fetch listing details from cache/DB',
+          'Return paginated results with map markers'
+        ]
+      },
+
+      bookingFlow: {
+        title: 'Booking Flow',
+        steps: [
+          'Guest clicks "Reserve" or "Request to Book"',
+          'For Instant Book: Start hold on dates',
+          'Collect payment information',
+          'Begin database transaction',
+          'SELECT FOR UPDATE on availability dates',
+          'Verify all dates still available',
+          'Create booking record with PENDING status',
+          'Update availability status to BOOKED',
+          'Process payment through Stripe',
+          'If payment succeeds: Commit, confirm booking',
+          'If payment fails: Rollback, release dates',
+          'Send confirmation to guest and host',
+          'Transfer to escrow account'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Search Ranking',
+          points: [
+            'Quality score: Photos, completeness, responsiveness',
+            'Conversion rate: Bookings / views',
+            'Price competitiveness vs similar listings',
+            'Guest preferences and past bookings',
+            'Freshness: Recently updated listings'
+          ]
+        },
+        {
+          topic: 'Trust & Safety',
+          points: [
+            'Identity verification for hosts and guests',
+            'Photo verification for listings',
+            'Reviews require completed stays',
+            'Messaging monitored for scams',
+            'Host guarantee and guest insurance'
+          ]
+        },
+        {
+          topic: 'Dynamic Pricing',
+          points: [
+            'Demand signals: Search volume, booking pace',
+            'Local events: Concerts, conferences',
+            'Seasonality patterns',
+            'Competitor pricing',
+            'Smart Pricing feature for automatic adjustment'
+          ]
+        },
+        {
+          topic: 'Calendar Optimization',
+          points: [
+            'Store ranges vs individual dates trade-off',
+            'Efficient queries for month views',
+            'iCal sync with other platforms',
+            'Minimum stay rules affecting availability',
+            'Gap night discounts'
+          ]
+        }
+      ],
+
       requirements: ['List properties', 'Search by location/dates', 'Booking', 'Calendar management', 'Reviews', 'Messaging', 'Payments'],
       components: ['Listing service', 'Search service', 'Booking service', 'Calendar service', 'Payment service', 'Messaging', 'Review service'],
       keyDecisions: [
@@ -5191,17 +5976,6 @@ queue_positions {
         'Double-booking prevention: Optimistic locking on booking',
         'Dynamic pricing based on demand, events, seasonality',
         'Trust & safety: Photo verification, reviews, identity verification'
-      ],
-      estimations: {
-        listings: '7M active listings',
-        searches: '100M searches/day',
-        bookings: '1M bookings/day',
-        users: '150M users'
-      },
-      apiDesign: [
-        'GET /api/search?location=&checkin=&checkout=&guests=',
-        'POST /api/bookings { listingId, dates, guests, payment }',
-        'GET /api/listings/{id}/calendar → { availability[] }'
       ]
     },
     {
