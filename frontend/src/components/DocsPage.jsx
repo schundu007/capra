@@ -642,31 +642,162 @@ Expand the right pointer to include more elements. When a condition is violated,
       color: '#22c55e',
       questions: 34,
       description: 'LIFO structure for parsing, backtracking, and monotonic stack patterns.',
-      keyPatterns: ['Valid parentheses', 'Monotonic stack', 'Expression evaluation', 'Backtracking state'],
+
+      introduction: `Stacks follow Last-In-First-Out (LIFO) principle. They're essential for problems involving nested structures, parsing, and finding relationships between elements.
+
+**Key Applications:**
+1. **Matching Brackets**: Validate nested structures (parentheses, HTML tags)
+2. **Monotonic Stack**: Find next greater/smaller element in O(n)
+3. **Expression Evaluation**: Parse and compute mathematical expressions
+4. **Undo Operations**: Track state changes for backtracking
+
+**The Monotonic Stack Pattern:**
+A monotonic stack maintains elements in increasing or decreasing order. When a new element breaks the monotonicity, we pop elements and process them. This lets us find "next greater" or "next smaller" elements in O(n) total time.`,
+
+      whenToUse: [
+        'Validating or matching nested structures (brackets, tags)',
+        'Finding next greater/smaller element for each position',
+        'Expression parsing and evaluation',
+        'Tracking previous state in iterative solutions',
+        'Converting recursive to iterative (DFS)',
+        'Histogram-type problems (largest rectangle, trapping rain water)'
+      ],
+
+      keyPatterns: ['Valid parentheses', 'Monotonic stack', 'Expression evaluation', 'Backtracking state', 'Next greater element', 'Calculator'],
       timeComplexity: 'O(n) for most operations',
       spaceComplexity: 'O(n)',
-      commonProblems: ['Valid Parentheses', 'Min Stack', 'Daily Temperatures', 'Largest Rectangle in Histogram', 'Evaluate RPN'],
+
+      approach: [
+        'Identify if you need LIFO order processing',
+        'For brackets: push opening, pop and match closing',
+        'For monotonic: decide increasing or decreasing based on finding "next greater" or "next smaller"',
+        'For expressions: use operator precedence and two-stack approach',
+        'Always check empty stack before popping',
+        'Consider what state to store: index, value, or both'
+      ],
+
+      commonProblems: [
+        { name: 'Valid Parentheses', difficulty: 'Easy' },
+        { name: 'Min Stack', difficulty: 'Medium' },
+        { name: 'Daily Temperatures', difficulty: 'Medium' },
+        { name: 'Next Greater Element', difficulty: 'Easy' },
+        { name: 'Largest Rectangle in Histogram', difficulty: 'Hard' },
+        { name: 'Basic Calculator', difficulty: 'Hard' },
+        { name: 'Evaluate Reverse Polish Notation', difficulty: 'Medium' },
+        { name: 'Decode String', difficulty: 'Medium' }
+      ],
+
+      commonMistakes: [
+        'Not checking if stack is empty before peek/pop',
+        'For brackets: only checking counts, not order',
+        'Monotonic stack: forgetting to handle remaining elements after iteration',
+        'Using wrong monotonicity (increasing vs decreasing)',
+        'Not storing both index and value when both are needed'
+      ],
+
       tips: [
         'Monotonic stack finds next greater/smaller element in O(n)',
         'Use stack to track state in DFS/backtracking',
         'For calculator problems, use two stacks: numbers and operators',
-        'Valid parentheses needs matching order, not just counts'
+        'Valid parentheses needs matching order, not just counts',
+        'Store indices on stack when you need both position and value'
       ],
-      codeExample: `# Daily Temperatures - Monotonic Stack
-def daily_temperatures(temps):
+
+      interviewTips: [
+        'Explain LIFO property and why it fits the problem',
+        'For monotonic stack: clarify if finding next greater or smaller',
+        'Walk through an example showing push/pop operations',
+        'Mention time complexity: O(n) because each element pushed/popped once',
+        'For calculator: clarify supported operators and edge cases'
+      ],
+
+      codeExamples: [
+        {
+          title: 'Valid Parentheses',
+          description: 'Check if brackets are balanced and properly nested.',
+          code: `def is_valid(s):
+    stack = []
+    matching = {')': '(', '}': '{', ']': '['}
+
+    for char in s:
+        if char in '({[':
+            stack.append(char)
+        elif char in ')}]':
+            if not stack or stack[-1] != matching[char]:
+                return False
+            stack.pop()
+
+    return len(stack) == 0`
+        },
+        {
+          title: 'Daily Temperatures - Monotonic Decreasing Stack',
+          description: 'For each day, find days until warmer temperature.',
+          code: `def daily_temperatures(temps):
     n = len(temps)
     result = [0] * n
-    stack = []  # indices of temps waiting for warmer day
+    stack = []  # Indices of temps waiting for warmer day
 
     for i, temp in enumerate(temps):
+        # Pop all temps smaller than current
         while stack and temps[stack[-1]] < temp:
             prev_idx = stack.pop()
             result[prev_idx] = i - prev_idx
         stack.append(i)
 
-    return result
+    return result  # Remaining stack elements stay 0`
+        },
+        {
+          title: 'Largest Rectangle in Histogram',
+          description: 'Find largest rectangle that can be formed in histogram.',
+          code: `def largest_rectangle(heights):
+    stack = []  # Indices of increasing heights
+    max_area = 0
+    heights.append(0)  # Sentinel to trigger final calculation
 
-# Time: O(n), Space: O(n)`
+    for i, h in enumerate(heights):
+        while stack and heights[stack[-1]] > h:
+            height = heights[stack.pop()]
+            width = i if not stack else i - stack[-1] - 1
+            max_area = max(max_area, height * width)
+        stack.append(i)
+
+    heights.pop()  # Remove sentinel
+    return max_area`
+        },
+        {
+          title: 'Basic Calculator (with +, -, parentheses)',
+          description: 'Evaluate expression with +, -, and nested parentheses.',
+          code: `def calculate(s):
+    stack = []
+    result = 0
+    number = 0
+    sign = 1
+
+    for char in s:
+        if char.isdigit():
+            number = number * 10 + int(char)
+        elif char == '+':
+            result += sign * number
+            number = 0
+            sign = 1
+        elif char == '-':
+            result += sign * number
+            number = 0
+            sign = -1
+        elif char == '(':
+            stack.append(result)
+            stack.append(sign)
+            result = 0
+            sign = 1
+        elif char == ')':
+            result += sign * number
+            number = 0
+            result *= stack.pop()  # Sign before parenthesis
+            result += stack.pop()  # Result before parenthesis
+
+    return result + sign * number`
+        }
+      ]
     },
     {
       id: 'linked-lists',
@@ -675,30 +806,159 @@ def daily_temperatures(temps):
       color: '#a855f7',
       questions: 31,
       description: 'Pointer manipulation fundamentals. Practice reversing, merging, and cycle detection.',
-      keyPatterns: ['Fast/slow pointers', 'Dummy head', 'Reversal', 'Merge two lists'],
+
+      introduction: `Linked Lists test your ability to manipulate pointers and think about data structures. Unlike arrays, linked lists don't have random access but allow O(1) insertion/deletion at known positions.
+
+**Key Concepts:**
+- **Singly Linked**: Each node points to next (forward traversal only)
+- **Doubly Linked**: Each node points to both next and previous
+- **Dummy Head**: A fake head node that simplifies edge cases
+
+**Critical Insight:**
+Most linked list problems become easier if you:
+1. Use a dummy head to avoid special-casing empty list or head changes
+2. Draw out the pointer changes before coding
+3. Consider fast/slow pointer technique for cycle detection and finding middle`,
+
+      whenToUse: [
+        'Problems requiring in-place modification without extra space',
+        'Detecting cycles in sequences (Floyd\'s algorithm)',
+        'Finding middle element efficiently',
+        'Merging sorted sequences',
+        'Reversing or reordering elements',
+        'LRU Cache implementation (doubly linked + hash map)'
+      ],
+
+      keyPatterns: ['Fast/slow pointers', 'Dummy head', 'Reversal', 'Merge two lists', 'Find middle', 'Detect cycle', 'Reverse K-group'],
       timeComplexity: 'O(n) traversal',
       spaceComplexity: 'O(1) for in-place operations',
-      commonProblems: ['Reverse Linked List', 'Merge Two Sorted Lists', 'Linked List Cycle', 'Remove Nth From End', 'Reorder List'],
+
+      approach: [
+        'Always consider using a dummy head node',
+        'Draw the pointer changes on paper first',
+        'For reversal: track prev, curr, and next_temp',
+        'For cycle detection: use fast/slow (Floyd\'s algorithm)',
+        'For finding middle: slow moves 1, fast moves 2',
+        'Handle edge cases: null head, single node, two nodes'
+      ],
+
+      commonProblems: [
+        { name: 'Reverse Linked List', difficulty: 'Easy' },
+        { name: 'Merge Two Sorted Lists', difficulty: 'Easy' },
+        { name: 'Linked List Cycle', difficulty: 'Easy' },
+        { name: 'Remove Nth Node From End', difficulty: 'Medium' },
+        { name: 'Reorder List', difficulty: 'Medium' },
+        { name: 'Add Two Numbers', difficulty: 'Medium' },
+        { name: 'Copy List with Random Pointer', difficulty: 'Medium' },
+        { name: 'Reverse Nodes in K-Group', difficulty: 'Hard' }
+      ],
+
+      commonMistakes: [
+        'Losing reference to nodes (save next before modifying pointers)',
+        'Not handling null/empty list edge cases',
+        'Forgetting to update the tail.next = None after reversal',
+        'Off-by-one in remove Nth from end',
+        'Infinite loop from not properly breaking cycle'
+      ],
+
       tips: [
         'Use dummy head to simplify edge cases (empty list, single node)',
         'Draw out pointer changes before coding',
         'Fast/slow pointers: fast moves 2x, finds middle and detects cycles',
-        'For reversal, track prev, curr, next pointers'
+        'For reversal, track prev, curr, next pointers',
+        'When in doubt, use two passes: first to count, second to operate'
       ],
-      codeExample: `# Reverse Linked List
-def reverse_list(head):
+
+      interviewTips: [
+        'Always ask: singly or doubly linked? Has cycle?',
+        'Mention dummy head technique and why it helps',
+        'Draw the pointer manipulation on whiteboard',
+        'Test with: empty list, single node, two nodes, even/odd length',
+        'For complex problems, break into subproblems (find middle, reverse, merge)'
+      ],
+
+      codeExamples: [
+        {
+          title: 'Reverse Linked List',
+          description: 'Iteratively reverse a singly linked list in O(1) space.',
+          code: `def reverse_list(head):
     prev = None
     curr = head
 
     while curr:
-        next_temp = curr.next  # Save next
+        next_temp = curr.next  # Save next node
         curr.next = prev       # Reverse pointer
         prev = curr            # Move prev forward
         curr = next_temp       # Move curr forward
 
-    return prev
+    return prev  # New head`
+        },
+        {
+          title: 'Detect Cycle - Floyd\'s Algorithm',
+          description: 'Detect if linked list has a cycle using fast/slow pointers.',
+          code: `def has_cycle(head):
+    slow = fast = head
 
-# Time: O(n), Space: O(1)`
+    while fast and fast.next:
+        slow = slow.next        # Move 1 step
+        fast = fast.next.next   # Move 2 steps
+        if slow == fast:
+            return True
+
+    return False  # Fast reached end, no cycle`
+        },
+        {
+          title: 'Find Middle Node',
+          description: 'Find middle node using slow/fast pointers.',
+          code: `def find_middle(head):
+    slow = fast = head
+
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+
+    return slow  # Middle (for even length, second middle)`
+        },
+        {
+          title: 'Merge Two Sorted Lists',
+          description: 'Merge two sorted lists into one sorted list.',
+          code: `def merge_two_lists(l1, l2):
+    dummy = ListNode(0)
+    current = dummy
+
+    while l1 and l2:
+        if l1.val <= l2.val:
+            current.next = l1
+            l1 = l1.next
+        else:
+            current.next = l2
+            l2 = l2.next
+        current = current.next
+
+    current.next = l1 or l2  # Append remaining
+    return dummy.next`
+        },
+        {
+          title: 'Remove Nth Node From End',
+          description: 'Remove the nth node from end in one pass.',
+          code: `def remove_nth_from_end(head, n):
+    dummy = ListNode(0, head)
+    slow = fast = dummy
+
+    # Advance fast by n+1 steps
+    for _ in range(n + 1):
+        fast = fast.next
+
+    # Move both until fast reaches end
+    while fast:
+        slow = slow.next
+        fast = fast.next
+
+    # Skip the nth node
+    slow.next = slow.next.next
+    return dummy.next`
+        }
+      ]
     },
     {
       id: 'trees',
@@ -707,31 +967,141 @@ def reverse_list(head):
       color: '#06b6d4',
       questions: 45,
       description: 'Binary trees and BSTs. Master DFS, BFS, and recursive thinking.',
-      keyPatterns: ['DFS (preorder/inorder/postorder)', 'BFS level-order', 'BST properties', 'Path problems'],
+
+      introduction: `Trees are hierarchical data structures essential for interviews. Most tree problems require recursive thinking—solving for the current node using solutions from subtrees.
+
+**Key Tree Types:**
+- **Binary Tree**: Each node has at most 2 children
+- **Binary Search Tree (BST)**: Left subtree < node < right subtree
+- **Balanced Trees**: AVL, Red-Black (rarely implemented in interviews)
+- **N-ary Trees**: Nodes can have any number of children
+
+**Traversal Orders:**
+- **Preorder**: Root → Left → Right (copying trees, prefix expressions)
+- **Inorder**: Left → Root → Right (BST gives sorted order!)
+- **Postorder**: Left → Right → Root (deleting trees, postfix expressions)
+- **Level-order (BFS)**: Level by level using queue`,
+
+      whenToUse: [
+        'Problems involving hierarchical relationships',
+        'When you need to visit all nodes (traversal)',
+        'BST for ordered data operations',
+        'Path problems (root to leaf, any to any)',
+        'Tree construction from traversals',
+        'Level-by-level processing'
+      ],
+
+      keyPatterns: ['DFS (preorder/inorder/postorder)', 'BFS level-order', 'BST properties', 'Path problems', 'LCA', 'Serialization', 'Tree construction'],
       timeComplexity: 'O(n) to visit all nodes',
       spaceComplexity: 'O(h) where h is height, O(n) worst case',
-      commonProblems: ['Maximum Depth', 'Invert Binary Tree', 'Validate BST', 'Lowest Common Ancestor', 'Binary Tree Level Order'],
+
+      approach: [
+        'Identify if it\'s a general tree or BST problem',
+        'Decide traversal order: preorder (top-down), postorder (bottom-up), or level-order',
+        'Define what each recursive call returns',
+        'Handle base case: null node returns appropriate value',
+        'For BST: leverage the ordering property',
+        'For path problems: track current path and result separately'
+      ],
+
+      commonProblems: [
+        { name: 'Maximum Depth of Binary Tree', difficulty: 'Easy' },
+        { name: 'Invert Binary Tree', difficulty: 'Easy' },
+        { name: 'Same Tree', difficulty: 'Easy' },
+        { name: 'Validate Binary Search Tree', difficulty: 'Medium' },
+        { name: 'Lowest Common Ancestor', difficulty: 'Medium' },
+        { name: 'Binary Tree Level Order Traversal', difficulty: 'Medium' },
+        { name: 'Construct Binary Tree from Preorder and Inorder', difficulty: 'Medium' },
+        { name: 'Binary Tree Maximum Path Sum', difficulty: 'Hard' }
+      ],
+
+      commonMistakes: [
+        'Confusing preorder vs inorder vs postorder',
+        'Not handling null nodes (base case) properly',
+        'For BST validation: using parent value instead of range',
+        'Modifying tree during traversal without intention',
+        'Not considering negative values in path sum problems'
+      ],
+
       tips: [
         'Most tree problems are solved with recursion or BFS',
         'For BST, inorder traversal gives sorted order',
         'Track return values carefully: height, validity, path sum',
-        'Level-order uses queue, DFS uses stack (implicit or explicit)'
+        'Level-order uses queue, DFS uses stack (implicit or explicit)',
+        'Think about what information flows up vs down the tree'
       ],
-      codeExample: `# Maximum Depth of Binary Tree
-def max_depth(root):
+
+      interviewTips: [
+        'Ask: Is it a BST or general binary tree?',
+        'Clarify what to return: boolean, count, path, or node',
+        'State your traversal order and why',
+        'Trace through a simple example showing recursive calls',
+        'Mention space complexity depends on tree balance'
+      ],
+
+      codeExamples: [
+        {
+          title: 'Maximum Depth (Postorder - Bottom Up)',
+          description: 'Height is 1 + max of children heights.',
+          code: `def max_depth(root):
     if not root:
         return 0
-    return 1 + max(max_depth(root.left),
-                   max_depth(root.right))
-
-# Validate BST
-def is_valid_bst(root, min_val=float('-inf'), max_val=float('inf')):
+    left_depth = max_depth(root.left)
+    right_depth = max_depth(root.right)
+    return 1 + max(left_depth, right_depth)`
+        },
+        {
+          title: 'Validate BST (Preorder with Range)',
+          description: 'Each node must be within valid range.',
+          code: `def is_valid_bst(root, min_val=float('-inf'), max_val=float('inf')):
     if not root:
         return True
     if root.val <= min_val or root.val >= max_val:
         return False
     return (is_valid_bst(root.left, min_val, root.val) and
             is_valid_bst(root.right, root.val, max_val))`
+        },
+        {
+          title: 'Level Order Traversal (BFS)',
+          description: 'Process tree level by level using queue.',
+          code: `from collections import deque
+
+def level_order(root):
+    if not root:
+        return []
+
+    result = []
+    queue = deque([root])
+
+    while queue:
+        level_size = len(queue)
+        level = []
+        for _ in range(level_size):
+            node = queue.popleft()
+            level.append(node.val)
+            if node.left:
+                queue.append(node.left)
+            if node.right:
+                queue.append(node.right)
+        result.append(level)
+
+    return result`
+        },
+        {
+          title: 'Lowest Common Ancestor',
+          description: 'Find LCA of two nodes in binary tree.',
+          code: `def lowest_common_ancestor(root, p, q):
+    if not root or root == p or root == q:
+        return root
+
+    left = lowest_common_ancestor(root.left, p, q)
+    right = lowest_common_ancestor(root.right, p, q)
+
+    if left and right:
+        return root  # p and q in different subtrees
+    return left or right  # Both in same subtree`
+        }
+      ]
     },
     {
       id: 'graphs',
@@ -740,18 +1110,83 @@ def is_valid_bst(root, min_val=float('-inf'), max_val=float('inf')):
       color: '#ec4899',
       questions: 54,
       description: 'DFS, BFS, and shortest path algorithms. Represent as adjacency list.',
-      keyPatterns: ['DFS traversal', 'BFS shortest path', 'Topological sort', 'Union-Find', 'Dijkstra'],
+
+      introduction: `Graphs model relationships between entities. Master graph traversal and you'll solve 15-20% of interview problems. Grids are graphs too—each cell connects to its neighbors.
+
+**Graph Representations:**
+- **Adjacency List**: {node: [neighbors]} - Best for sparse graphs, O(V+E) space
+- **Adjacency Matrix**: grid[i][j] = 1 if edge - Best for dense graphs, O(V²) space
+- **Edge List**: [(u, v, weight)] - Good for some algorithms like Kruskal's
+
+**Key Algorithms:**
+- **DFS**: Explore as deep as possible (recursion/stack)
+- **BFS**: Explore level by level (queue) - shortest path in unweighted graphs
+- **Topological Sort**: Order tasks with dependencies (DAG only)
+- **Union-Find**: Track connected components efficiently
+- **Dijkstra's**: Shortest path in weighted graphs`,
+
+      whenToUse: [
+        'Finding connected components (Number of Islands)',
+        'Shortest path in unweighted graph (BFS)',
+        'Detecting cycles in directed graph (Course Schedule)',
+        'Ordering with dependencies (Topological Sort)',
+        'Shortest path with positive weights (Dijkstra)',
+        'Tracking dynamic connectivity (Union-Find)'
+      ],
+
+      keyPatterns: ['DFS traversal', 'BFS shortest path', 'Topological sort', 'Union-Find', 'Dijkstra', 'Cycle detection', 'Grid as graph'],
       timeComplexity: 'O(V + E) for traversal',
       spaceComplexity: 'O(V) for visited set',
-      commonProblems: ['Number of Islands', 'Clone Graph', 'Course Schedule', 'Pacific Atlantic Water Flow', 'Network Delay Time'],
+
+      approach: [
+        'Build adjacency list from edge list if needed',
+        'Choose DFS (deep exploration) or BFS (shortest unweighted path)',
+        'Track visited nodes to avoid cycles',
+        'For grids: treat each cell as node, neighbors as edges',
+        'For topological sort: use DFS post-order or Kahn\'s (in-degree)',
+        'For weighted shortest path: use Dijkstra with min-heap'
+      ],
+
+      commonProblems: [
+        { name: 'Number of Islands', difficulty: 'Medium' },
+        { name: 'Clone Graph', difficulty: 'Medium' },
+        { name: 'Course Schedule', difficulty: 'Medium' },
+        { name: 'Course Schedule II', difficulty: 'Medium' },
+        { name: 'Pacific Atlantic Water Flow', difficulty: 'Medium' },
+        { name: 'Network Delay Time', difficulty: 'Medium' },
+        { name: 'Redundant Connection', difficulty: 'Medium' },
+        { name: 'Word Ladder', difficulty: 'Hard' }
+      ],
+
+      commonMistakes: [
+        'Forgetting to mark nodes as visited (infinite loops)',
+        'Using DFS when BFS is needed for shortest path',
+        'Not building adjacency list for undirected graphs (add both directions)',
+        'Off-by-one errors in grid boundaries',
+        'Using Dijkstra with negative weights (use Bellman-Ford instead)'
+      ],
+
       tips: [
         'Build adjacency list from edge list for easier traversal',
         'BFS finds shortest path in unweighted graphs',
         'Topological sort: DFS with post-order or Kahn\'s algorithm',
-        'Union-Find with path compression for connected components'
+        'Union-Find with path compression for connected components',
+        'For grids, DFS often simpler; BFS for shortest distance'
       ],
-      codeExample: `# Number of Islands - DFS
-def num_islands(grid):
+
+      interviewTips: [
+        'Ask: Directed or undirected? Weighted or unweighted? Can have cycles?',
+        'State representation: "I\'ll use adjacency list because..."',
+        'Explain why DFS vs BFS for the problem',
+        'Mention time complexity O(V+E) and why',
+        'For grids, clarify 4-directional vs 8-directional movement'
+      ],
+
+      codeExamples: [
+        {
+          title: 'Number of Islands - Grid DFS',
+          description: 'Count connected components in a grid using DFS.',
+          code: `def num_islands(grid):
     if not grid:
         return 0
 
@@ -759,19 +1194,103 @@ def num_islands(grid):
     count = 0
 
     def dfs(r, c):
-        if (r < 0 or r >= rows or c < 0 or
-            c >= cols or grid[r][c] == '0'):
+        if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] == '0':
             return
         grid[r][c] = '0'  # Mark visited
-        dfs(r+1, c); dfs(r-1, c)
-        dfs(r, c+1); dfs(r, c-1)
+        dfs(r+1, c); dfs(r-1, c); dfs(r, c+1); dfs(r, c-1)
 
     for r in range(rows):
         for c in range(cols):
             if grid[r][c] == '1':
                 count += 1
                 dfs(r, c)
+
     return count`
+        },
+        {
+          title: 'Course Schedule - Cycle Detection',
+          description: 'Detect cycle in directed graph using DFS.',
+          code: `def can_finish(num_courses, prerequisites):
+    # Build adjacency list
+    graph = {i: [] for i in range(num_courses)}
+    for course, prereq in prerequisites:
+        graph[prereq].append(course)
+
+    # 0: unvisited, 1: visiting, 2: visited
+    state = [0] * num_courses
+
+    def has_cycle(course):
+        if state[course] == 1:  # Currently visiting -> cycle
+            return True
+        if state[course] == 2:  # Already completed
+            return False
+
+        state[course] = 1  # Mark visiting
+        for next_course in graph[course]:
+            if has_cycle(next_course):
+                return True
+        state[course] = 2  # Mark completed
+        return False
+
+    return not any(has_cycle(i) for i in range(num_courses))`
+        },
+        {
+          title: 'Topological Sort - Kahn\'s Algorithm',
+          description: 'Order courses by prerequisites using BFS.',
+          code: `from collections import deque
+
+def find_order(num_courses, prerequisites):
+    graph = {i: [] for i in range(num_courses)}
+    in_degree = [0] * num_courses
+
+    for course, prereq in prerequisites:
+        graph[prereq].append(course)
+        in_degree[course] += 1
+
+    # Start with courses having no prerequisites
+    queue = deque([i for i in range(num_courses) if in_degree[i] == 0])
+    order = []
+
+    while queue:
+        course = queue.popleft()
+        order.append(course)
+        for next_course in graph[course]:
+            in_degree[next_course] -= 1
+            if in_degree[next_course] == 0:
+                queue.append(next_course)
+
+    return order if len(order) == num_courses else []`
+        },
+        {
+          title: 'Network Delay Time - Dijkstra',
+          description: 'Shortest path in weighted graph using min-heap.',
+          code: `import heapq
+
+def network_delay_time(times, n, k):
+    # Build adjacency list
+    graph = {i: [] for i in range(1, n + 1)}
+    for u, v, w in times:
+        graph[u].append((v, w))
+
+    # Dijkstra with min-heap
+    dist = {i: float('inf') for i in range(1, n + 1)}
+    dist[k] = 0
+    heap = [(0, k)]  # (distance, node)
+
+    while heap:
+        d, node = heapq.heappop(heap)
+        if d > dist[node]:
+            continue
+        for neighbor, weight in graph[node]:
+            new_dist = d + weight
+            if new_dist < dist[neighbor]:
+                dist[neighbor] = new_dist
+                heapq.heappush(heap, (new_dist, neighbor))
+
+    max_dist = max(dist.values())
+    return max_dist if max_dist < float('inf') else -1`
+        }
+      ]
     },
     {
       id: 'dynamic-programming',
