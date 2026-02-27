@@ -253,10 +253,39 @@ export default function OAuthLogin() {
                         <span className="text-blue-400 font-medium">{systemDesigns[designIndex].title}</span>
                       </div>
                       <div className="relative flex-1 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                        {/* Grid background */}
                         <svg className="absolute inset-0 w-full h-full opacity-5"><defs><pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="#3b82f6" strokeWidth="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#g)"/></svg>
+                        {/* Connection lines */}
+                        <svg className="absolute inset-0 w-full h-full" style={{ zIndex: 1 }}>
+                          <defs>
+                            <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                              <polygon points="0 0, 8 3, 0 6" fill="#4b5563" />
+                            </marker>
+                          </defs>
+                          {systemDesigns[designIndex].connections.map((conn, i) => {
+                            const fromNode = systemDesigns[designIndex].nodes.find(n => n.id === conn.from);
+                            const toNode = systemDesigns[designIndex].nodes.find(n => n.id === conn.to);
+                            if (!fromNode || !toNode) return null;
+                            return (
+                              <line
+                                key={i}
+                                x1={`${fromNode.x}%`}
+                                y1={`${fromNode.y}%`}
+                                x2={`${toNode.x}%`}
+                                y2={`${toNode.y}%`}
+                                stroke="#4b5563"
+                                strokeWidth="2"
+                                strokeDasharray="4,4"
+                                markerEnd="url(#arrowhead)"
+                                style={{ animation: `flowPulse 2s ease-in-out ${i * 0.3}s infinite` }}
+                              />
+                            );
+                          })}
+                        </svg>
+                        {/* Nodes */}
                         {systemDesigns[designIndex].nodes.map((node) => (
-                          <div key={node.id} className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center" style={{ left: `${node.x}%`, top: `${node.y}%` }}>
-                            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: `${node.color}20`, border: `1px solid ${node.color}` }}>
+                          <div key={node.id} className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center" style={{ left: `${node.x}%`, top: `${node.y}%`, zIndex: 2 }}>
+                            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: `${node.color}20`, border: `1px solid ${node.color}`, boxShadow: `0 0 10px ${node.color}40` }}>
                               <Icon name={node.icon} size={16} style={{ color: node.color }} />
                             </div>
                             <span className="text-[10px] text-gray-400 mt-1">{node.label}</span>
@@ -532,6 +561,10 @@ export default function OAuthLogin() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         @keyframes progress { 0% { width: 0; } 100% { width: 100%; } }
+        @keyframes flowPulse {
+          0%, 100% { stroke-opacity: 0.4; stroke-dashoffset: 0; }
+          50% { stroke-opacity: 1; stroke-dashoffset: 8; }
+        }
       `}</style>
     </div>
   );
