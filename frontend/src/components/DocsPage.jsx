@@ -11873,6 +11873,411 @@ Shard by leaderboard key:
       color: '#003580',
       difficulty: 'Medium',
       description: 'Design a hotel booking system with search, availability, and reservations.',
+
+      introduction: `Booking.com handles 2M+ properties with complex inventory: multiple room types, varying prices by date, and real-time availability. The core challenge is preventing double-bookings while maintaining fast search results.
+
+Unlike simple e-commerce, hotel inventory is date-specific - a room available on June 15 might be booked on June 16. This creates an explosion of inventory states (30M rooms × 365 days = 10B+ room-nights to track).`,
+
+      functionalRequirements: [
+        'Search hotels by location, dates, guests',
+        'Show real-time availability and pricing',
+        'Book rooms with instant confirmation',
+        'Handle cancellations with refund policies',
+        'Support multiple room types per hotel',
+        'Dynamic pricing based on demand',
+        'Reviews and ratings',
+        'Photos and hotel details'
+      ],
+
+      nonFunctionalRequirements: [
+        'Support 2M+ hotels worldwide',
+        'Handle 500M searches per day',
+        'Process 2M bookings per day',
+        'Search results < 500ms',
+        'Prevent double-bookings (strong consistency)',
+        '99.99% availability',
+        'Handle surge during peak seasons'
+      ],
+
+      dataModel: {
+        description: 'Hotels, rooms, inventory, and bookings',
+        schema: `hotels {
+  id: bigint PK
+  name: varchar(200)
+  location: geography(POINT)
+  city_id: bigint FK
+  star_rating: int
+  amenities: varchar[]
+  description: text
+  check_in_time: time
+  check_out_time: time
+  cancellation_policy: jsonb
+}
+
+room_types {
+  id: bigint PK
+  hotel_id: bigint FK
+  name: varchar(100) -- "Deluxe King", "Standard Double"
+  max_occupancy: int
+  bed_configuration: varchar(50)
+  amenities: varchar[]
+  total_rooms: int -- how many of this type
+}
+
+room_inventory {
+  room_type_id: bigint FK
+  date: date
+  available: int -- rooms available that night
+  price: decimal(10,2)
+  PK (room_type_id, date)
+}
+
+bookings {
+  id: bigint PK
+  user_id: bigint FK
+  hotel_id: bigint FK
+  room_type_id: bigint FK
+  check_in: date
+  check_out: date
+  guests: int
+  total_price: decimal(10,2)
+  status: enum(CONFIRMED, CANCELLED, COMPLETED)
+  created_at: timestamp
+}`
+      },
+
+      apiDesign: {
+        description: 'Search, availability, and booking flows',
+        endpoints: [
+          { method: 'GET', path: '/api/hotels/search', params: 'lat, lng, radius, checkin, checkout, guests, filters', response: '{ hotels[], totalCount }' },
+          { method: 'GET', path: '/api/hotels/:id', params: '-', response: '{ hotel, roomTypes[], photos[], reviews[] }' },
+          { method: 'GET', path: '/api/hotels/:id/availability', params: 'checkin, checkout, guests', response: '{ roomTypes[], prices[] }' },
+          { method: 'POST', path: '/api/bookings', params: '{ hotelId, roomTypeId, checkin, checkout, guests, payment }', response: '{ bookingId, confirmationCode }' },
+          { method: 'DELETE', path: '/api/bookings/:id', params: '-', response: '{ refundAmount, status }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How do we model and store inventory?',
+          answer: `**The Challenge**:
+\`\`\`
+Naive approach: Store each room individually
+  30M rooms × 365 days = 10.9 billion rows
+  Every search needs to join with this!
+
+Better: Store availability count per room TYPE per date
+  5 room types × 2M hotels × 365 days = 3.6B rows (still huge)
+\`\`\`
+
+**Inventory Model**:
+\`\`\`
+Instead of tracking individual rooms:
+  "Room 101 is booked June 15"
+  "Room 102 is available June 15"
+
+Track counts per room type:
+  "Deluxe King: 5 available June 15"
+  "Standard Double: 12 available June 15"
+
+room_inventory {
+  room_type_id: bigint
+  date: date
+  available: int  -- decremented on booking
+  price: decimal
+}
+\`\`\`
+
+**Sparse Storage**:
+\`\`\`
+Don't store dates with no changes:
+  - Only store dates with bookings or price changes
+  - Default to "all rooms available at base price"
+
+Query: SELECT available FROM room_inventory
+       WHERE room_type_id = ? AND date = ?
+       -- If no row: all rooms available
+\`\`\`
+
+**Pre-aggregated Search**:
+\`\`\`
+For search results, pre-compute:
+  hotel_availability_cache {
+    hotel_id
+    date
+    has_availability: boolean
+    min_price: decimal
+  }
+
+Search query filters hotels BEFORE checking exact availability
+\`\`\``
+        },
+        {
+          question: 'How do we prevent double-bookings?',
+          answer: `**The Problem**:
+\`\`\`
+User A and User B try to book last room simultaneously:
+  Both read: available = 1
+  Both write: available = 0, create booking
+  Result: 2 bookings for 1 room!
+\`\`\`
+
+**Solution 1: Pessimistic Locking**
+\`\`\`sql
+BEGIN TRANSACTION;
+
+-- Lock the inventory rows
+SELECT available FROM room_inventory
+WHERE room_type_id = 123
+  AND date BETWEEN '2024-06-15' AND '2024-06-17'
+FOR UPDATE;
+
+-- Check availability
+IF all_dates_have_availability:
+  -- Decrement counts
+  UPDATE room_inventory
+  SET available = available - 1
+  WHERE room_type_id = 123
+    AND date BETWEEN '2024-06-15' AND '2024-06-17';
+
+  -- Create booking
+  INSERT INTO bookings (...);
+
+COMMIT;
+\`\`\`
+
+**Solution 2: Optimistic Locking with Version**
+\`\`\`sql
+-- Read current state
+SELECT available, version FROM room_inventory WHERE ...
+
+-- Update with version check
+UPDATE room_inventory
+SET available = available - 1,
+    version = version + 1
+WHERE room_type_id = 123
+  AND date = '2024-06-15'
+  AND version = 42  -- Only if unchanged
+  AND available > 0;
+
+-- If rows_affected = 0, retry or fail
+\`\`\`
+
+**Solution 3: Reservation Hold**
+\`\`\`
+┌────────────────────────────────────────────────────────┐
+│              Reservation Hold Pattern                  │
+├────────────────────────────────────────────────────────┤
+│                                                        │
+│   1. User starts checkout → Create HOLD (10 min TTL)   │
+│   2. Inventory decremented for HOLD                    │
+│   3. User completes payment → HOLD → CONFIRMED         │
+│   4. User abandons → HOLD expires → inventory restored │
+│                                                        │
+│   Prevents: "Someone else booked while you paid"       │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+\`\`\``
+        },
+        {
+          question: 'How do we handle search at scale?',
+          answer: `**Search Requirements**:
+\`\`\`
+"Hotels in NYC, June 15-17, 2 guests, under $200/night"
+
+Need to:
+1. Filter by location (geo-query)
+2. Filter by date availability
+3. Filter by price
+4. Rank by relevance, reviews, price
+\`\`\`
+
+**Two-Phase Search**:
+\`\`\`
+┌────────────────────────────────────────────────────────┐
+│                 Search Architecture                    │
+├────────────────────────────────────────────────────────┤
+│                                                        │
+│   Phase 1: Elasticsearch (fast, approximate)           │
+│   ┌──────────────────────────────────────────────────┐ │
+│   │  Filter: geo_distance, star_rating, amenities    │ │
+│   │  Pre-computed: has_availability, min_price       │ │
+│   │  Result: 500 candidate hotels                    │ │
+│   └──────────────────────────────────────────────────┘ │
+│                        │                               │
+│                        ▼                               │
+│   Phase 2: Database (exact availability)               │
+│   ┌──────────────────────────────────────────────────┐ │
+│   │  For each candidate:                             │ │
+│   │    Check room_inventory for exact dates          │ │
+│   │    Get exact prices                              │ │
+│   │    Filter guests capacity                        │ │
+│   │  Result: 100 available hotels with prices        │ │
+│   └──────────────────────────────────────────────────┘ │
+│                        │                               │
+│                        ▼                               │
+│   Phase 3: Ranking                                     │
+│   ┌──────────────────────────────────────────────────┐ │
+│   │  Score = relevance × review_score × price_value  │ │
+│   │  + Personalization (user's past preferences)     │ │
+│   │  + Business rules (promoted properties)          │ │
+│   └──────────────────────────────────────────────────┘ │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+\`\`\`
+
+**Caching Strategy**:
+\`\`\`
+Hotel details: Cache aggressively (changes rarely)
+  CDN + Redis, TTL = 1 hour
+
+Availability: Cache briefly or compute live
+  Redis, TTL = 1 minute (stale OK for search)
+  Always fresh for booking page
+
+Search results: Cache by query hash
+  "NYC + June 15-17 + 2 guests" → cached 5 min
+\`\`\``
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Simple Booking System',
+        description: 'Single database with basic search',
+        architecture: `
+┌─────────────────────────────────────────────────────────────┐
+│                  Basic Hotel Booking                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   Client → API Server → PostgreSQL                          │
+│                              │                              │
+│                    ┌─────────┴─────────┐                    │
+│                    │                   │                    │
+│                    ▼                   ▼                    │
+│            ┌──────────────┐    ┌──────────────┐             │
+│            │   Hotels     │    │  Bookings    │             │
+│            │   Inventory  │    │              │             │
+│            └──────────────┘    └──────────────┘             │
+│                                                             │
+│   Search: SELECT * FROM hotels                              │
+│           WHERE ST_DWithin(location, point, radius)         │
+│           AND EXISTS (availability subquery)                │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Slow search (geo + availability join)',
+          'Database bottleneck under load',
+          'No caching strategy',
+          'Single point of failure'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Booking Platform',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      Hotel Booking Platform                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                    Search Flow                      │                   │
+│   │                                                     │                   │
+│   │   User → CDN → API Gateway → Search Service         │                   │
+│   │                                   │                 │                   │
+│   │              ┌────────────────────┴────────────┐    │                   │
+│   │              ▼                                 ▼    │                   │
+│   │   ┌──────────────────┐            ┌──────────────────┐                  │
+│   │   │  Elasticsearch   │            │  Redis Cache     │                  │
+│   │   │  (geo + filters) │            │  (query results) │                  │
+│   │   └────────┬─────────┘            └──────────────────┘                  │
+│   │            │                                        │                   │
+│   │            ▼                                        │                   │
+│   │   ┌──────────────────┐                              │                   │
+│   │   │ Availability DB  │ (sharded by hotel_id)        │                   │
+│   │   │ (exact check)    │                              │                   │
+│   │   └──────────────────┘                              │                   │
+│   │                                                     │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                    Booking Flow                     │                   │
+│   │                                                     │                   │
+│   │   User → API Gateway → Booking Service              │                   │
+│   │                             │                       │                   │
+│   │              ┌──────────────┴──────────────┐        │                   │
+│   │              ▼                             ▼        │                   │
+│   │   ┌──────────────────┐          ┌──────────────────┐│                   │
+│   │   │ Inventory Service│          │ Payment Service  ││                   │
+│   │   │ (pessimistic     │          │ (Stripe, etc.)   ││                   │
+│   │   │  locking)        │          │                  ││                   │
+│   │   └────────┬─────────┘          └────────┬─────────┘│                   │
+│   │            │                             │          │                   │
+│   │            └─────────────┬───────────────┘          │                   │
+│   │                          ▼                          │                   │
+│   │              ┌──────────────────┐                   │                   │
+│   │              │  Booking DB      │                   │                   │
+│   │              │  (confirmed)     │                   │                   │
+│   │              └──────────────────┘                   │                   │
+│   │                          │                          │                   │
+│   │                          ▼                          │                   │
+│   │              ┌──────────────────┐                   │                   │
+│   │              │  Kafka           │                   │                   │
+│   │              │  (notifications) │                   │                   │
+│   │              └──────────────────┘                   │                   │
+│   │                                                     │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                  Pricing Service                    │                   │
+│   │                                                     │                   │
+│   │   - Dynamic pricing based on demand                 │                   │
+│   │   - Competitor rate monitoring                      │                   │
+│   │   - Yield management algorithms                     │                   │
+│   │   - Special offers and promotions                   │                   │
+│   │                                                     │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Two-phase search: Elasticsearch candidates → DB availability',
+          'Pessimistic locking for booking to prevent double-booking',
+          'Reservation holds during checkout (10 min TTL)',
+          'Sharded inventory DB by hotel_id',
+          'Dynamic pricing service with yield management'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Overbooking Strategy',
+          points: [
+            'Airlines overbook 5-15% - hotels can too',
+            'Statistically some bookings will cancel',
+            'Risk: "walking" guests (compensate with upgrade)',
+            'Business decision, not just technical'
+          ]
+        },
+        {
+          topic: 'Multi-Channel Distribution',
+          points: [
+            'Same inventory on Booking.com, Expedia, direct',
+            'Channel manager syncs availability in real-time',
+            'Rate parity: same price across channels',
+            'Last-room availability: who gets the last room?'
+          ]
+        },
+        {
+          topic: 'Cancellation Handling',
+          points: [
+            'Different policies: free, partial refund, non-refundable',
+            'Free cancellation deadline handling',
+            'Releasing inventory back to pool',
+            'Waitlist for sold-out dates'
+          ]
+        }
+      ],
+
+      // Backward compatibility
       requirements: ['Search hotels', 'Room availability', 'Booking', 'Cancellation', 'Reviews', 'Dynamic pricing'],
       components: ['Hotel service', 'Inventory service', 'Search (Elasticsearch)', 'Booking service', 'Payment service', 'Pricing service'],
       keyDecisions: [
@@ -11881,17 +12286,6 @@ Shard by leaderboard key:
         'Overbooking prevention: Pessimistic locking during checkout',
         'Caching: Cache hotel details, compute availability on-demand',
         'Rate parity: Ensure consistent pricing across channels'
-      ],
-      estimations: {
-        hotels: '2M hotels, 30M rooms',
-        searches: '500M searches/day',
-        bookings: '2M bookings/day',
-        availability: '30M rooms × 365 days = 10B room-nights'
-      },
-      apiDesign: [
-        'GET /api/hotels?location=&checkin=&checkout=&guests=',
-        'GET /api/hotels/{id}/availability?dates= → { rooms[] }',
-        'POST /api/bookings { hotelId, roomId, dates, guest }'
       ]
     },
     {
@@ -11902,6 +12296,407 @@ Shard by leaderboard key:
       color: '#4285f4',
       difficulty: 'Hard',
       description: 'Design a mapping and navigation system with real-time traffic.',
+
+      introduction: `Google Maps combines multiple complex systems: map rendering at 20+ zoom levels, shortest-path routing on a graph with 1 billion road segments, real-time traffic from millions of phones, and place search across 200M+ businesses.
+
+The key insight is that maps are mostly static (roads don't change often), so we pre-compute and cache aggressively. But traffic is dynamic and requires real-time processing from anonymized phone location data.`,
+
+      functionalRequirements: [
+        'Render maps at multiple zoom levels',
+        'Search for places by name or category',
+        'Get directions (driving, walking, transit)',
+        'Show real-time traffic conditions',
+        'Calculate accurate ETAs',
+        'Street View imagery',
+        'Offline maps download'
+      ],
+
+      nonFunctionalRequirements: [
+        'Support 1B+ monthly active users',
+        'Handle 10B+ tile requests per day',
+        'Process 1B+ directions requests per day',
+        'Routing response < 500ms',
+        'Tile loading < 200ms (from CDN)',
+        'Real-time traffic updates every 1-2 minutes',
+        'Cover 1 billion road segments globally'
+      ],
+
+      dataModel: {
+        description: 'Road graph, tiles, places, and traffic',
+        schema: `road_segments {
+  id: bigint PK
+  start_node: bigint FK
+  end_node: bigint FK
+  geometry: linestring
+  road_type: enum(HIGHWAY, ARTERIAL, LOCAL, etc.)
+  speed_limit: int
+  one_way: boolean
+  length_meters: int
+}
+
+nodes {
+  id: bigint PK
+  location: point
+  -- Intersection points
+}
+
+places {
+  id: bigint PK
+  name: varchar(200)
+  location: point
+  category: varchar(100)
+  address: text
+  phone: varchar(20)
+  hours: jsonb
+  rating: decimal(2,1)
+}
+
+traffic_segments {
+  segment_id: bigint FK
+  timestamp: timestamp
+  speed_ratio: float -- 0.5 = 50% of normal speed
+  -- Time-series data, partitioned by time
+}
+
+tiles {
+  z: int -- zoom level
+  x: int -- tile x coordinate
+  y: int -- tile y coordinate
+  data: bytes -- pre-rendered PNG or vector
+  -- 22 zoom levels, billions of tiles
+}`
+      },
+
+      apiDesign: {
+        description: 'Map tiles, directions, and places',
+        endpoints: [
+          { method: 'GET', path: '/tiles/:z/:x/:y.png', params: 'style', response: 'PNG image (256x256 or 512x512)' },
+          { method: 'GET', path: '/api/directions', params: 'origin, destination, mode, avoid, departure_time', response: '{ routes: [{ distance, duration, steps[], polyline }] }' },
+          { method: 'GET', path: '/api/places/search', params: 'query, location, radius, type', response: '{ places[] }' },
+          { method: 'GET', path: '/api/places/:id', params: '-', response: '{ place details, reviews[], photos[] }' },
+          { method: 'GET', path: '/api/geocode', params: 'address OR latlng', response: '{ location, formatted_address }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How do map tiles work?',
+          answer: `**Tile Pyramid**:
+\`\`\`
+┌────────────────────────────────────────────────────────┐
+│                    Zoom Levels                         │
+├────────────────────────────────────────────────────────┤
+│                                                        │
+│   Zoom 0: 1 tile (entire world)                        │
+│   Zoom 1: 4 tiles (2×2)                                │
+│   Zoom 2: 16 tiles (4×4)                               │
+│   ...                                                  │
+│   Zoom 18: 68 billion tiles                            │
+│   Zoom 22: 17 trillion tiles (not all exist)           │
+│                                                        │
+│   Total tiles at zoom z = 4^z                          │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+\`\`\`
+
+**Tile Coordinates**:
+\`\`\`
+URL: /tiles/{z}/{x}/{y}.png
+
+z = zoom level (0-22)
+x = column (0 to 2^z - 1)
+y = row (0 to 2^z - 1)
+
+Example: /tiles/15/5241/12661.png
+  Zoom 15, specific tile in that grid
+\`\`\`
+
+**Rendering Strategy**:
+\`\`\`
+Option 1: Pre-render all tiles (static maps)
+  - Billions of tiles × 22 zoom levels
+  - Store in object storage (S3)
+  - Serve via CDN
+  - Problem: Takes petabytes, updates are slow
+
+Option 2: Render on-demand + cache
+  - Render when first requested
+  - Cache in CDN for hours/days
+  - Better for sparse areas
+  - Higher latency on first load
+
+Option 3: Vector tiles (modern approach)
+  - Send data, render in client
+  - Smaller transfer size
+  - Dynamic styling (dark mode!)
+  - Better for complex features
+\`\`\`
+
+**CDN Caching**:
+\`\`\`
+Cache-Control: public, max-age=86400
+
+Tiles rarely change (roads are stable)
+Invalidate specific tiles when map data updates
+\`\`\``
+        },
+        {
+          question: 'How does routing/directions work?',
+          answer: `**Road Graph**:
+\`\`\`
+Graph = (Nodes, Edges)
+  Nodes = Intersections (lat, lng)
+  Edges = Road segments with weight
+
+Edge weight factors:
+  - Distance (meters)
+  - Speed limit
+  - Road type (highway faster than local)
+  - Real-time traffic
+  - Restrictions (no left turn, one-way)
+\`\`\`
+
+**Shortest Path Algorithms**:
+\`\`\`
+Dijkstra's Algorithm: O(E + V log V)
+  - Correct, but slow for large graphs
+  - 1 billion segments = too slow
+
+A* Algorithm: O(E + V log V) but faster in practice
+  - Uses heuristic (straight-line distance to dest)
+  - Explores fewer nodes
+  - Still slow for very long routes
+\`\`\`
+
+**Contraction Hierarchies (used at scale)**:
+\`\`\`
+┌────────────────────────────────────────────────────────┐
+│              Contraction Hierarchies                   │
+├────────────────────────────────────────────────────────┤
+│                                                        │
+│   Preprocessing (hours, done offline):                 │
+│   1. Rank nodes by importance                          │
+│   2. Contract unimportant nodes, add shortcuts         │
+│   3. Create hierarchy of importance levels             │
+│                                                        │
+│   Query (milliseconds):                                │
+│   1. Bidirectional search (from origin AND dest)       │
+│   2. Only traverse "up" the hierarchy                  │
+│   3. Meet in the middle at high-importance node        │
+│                                                        │
+│   Result: ~100x faster than Dijkstra                   │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+
+Cross-country route: < 1ms query time!
+\`\`\`
+
+**Real-time Traffic Integration**:
+\`\`\`
+For each edge (road segment):
+  base_time = distance / speed_limit
+  traffic_factor = current_speed / normal_speed
+  current_time = base_time / traffic_factor
+
+Update edge weights every 1-2 minutes
+Routing uses current weights
+\`\`\``
+        },
+        {
+          question: 'How does real-time traffic work?',
+          answer: `**Data Collection**:
+\`\`\`
+Millions of phones with Google Maps open:
+  - Send anonymized location updates
+  - Location + timestamp + speed
+  - Aggregated, not individual tracking
+\`\`\`
+
+**Traffic Processing Pipeline**:
+\`\`\`
+┌────────────────────────────────────────────────────────┐
+│                  Traffic Pipeline                      │
+├────────────────────────────────────────────────────────┤
+│                                                        │
+│   Phone → Location Update → Kafka                      │
+│                               │                        │
+│                               ▼                        │
+│   ┌─────────────────────────────────────────────────┐  │
+│   │          Stream Processor (Flink)               │  │
+│   │                                                 │  │
+│   │  1. Map-match: Which road segment?              │  │
+│   │  2. Filter noise (GPS jitter, stops)            │  │
+│   │  3. Aggregate: Avg speed per segment            │  │
+│   │  4. Smooth: Moving average over 5 min           │  │
+│   │                                                 │  │
+│   └─────────────────────────────────────────────────┘  │
+│                               │                        │
+│                               ▼                        │
+│   Traffic DB: segment_id → current_speed_ratio         │
+│                               │                        │
+│                               ▼                        │
+│   ┌─────────────────────────────────────────────────┐  │
+│   │              Traffic Tile Service               │  │
+│   │                                                 │  │
+│   │  Generate color-coded traffic overlay tiles     │  │
+│   │  Green = flowing, Yellow = slow, Red = stopped  │  │
+│   │                                                 │  │
+│   └─────────────────────────────────────────────────┘  │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+\`\`\`
+
+**ETA Calculation**:
+\`\`\`
+ETA = sum of (segment_length / segment_speed)
+      for each segment in route
+
+Speed = real-time if available
+      OR historical pattern for this time/day
+      OR speed limit
+
+Confidence interval:
+  "45-55 minutes depending on traffic"
+\`\`\``
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Mapping System',
+        description: 'Static tiles with simple routing',
+        architecture: `
+┌─────────────────────────────────────────────────────────────┐
+│                  Basic Maps System                          │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   Client → CDN → Pre-rendered tiles (static)                │
+│                                                             │
+│   Client → API → Routing (Dijkstra on full graph)           │
+│                     │                                       │
+│                     ▼                                       │
+│             ┌──────────────┐                                │
+│             │ Road Graph   │                                │
+│             │ (in memory)  │                                │
+│             └──────────────┘                                │
+│                                                             │
+│   No real-time traffic                                      │
+│   No ETA prediction                                         │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'Slow routing (Dijkstra too slow at scale)',
+          'No real-time traffic',
+          'Static tiles only (no dynamic styling)',
+          'Petabytes of tile storage'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Maps Platform',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      Google Maps Architecture                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                   Map Tiles                         │                   │
+│   │                                                     │                   │
+│   │   Client → CDN → Tile Server → Object Storage       │                   │
+│   │              │                                      │                   │
+│   │              └─► Vector tiles (compact, styleable)  │                   │
+│   │                  Raster tiles (compatibility)       │                   │
+│   │                  Satellite imagery                  │                   │
+│   │                                                     │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                   Routing                           │                   │
+│   │                                                     │                   │
+│   │   Client → Load Balancer → Routing Service          │                   │
+│   │                                  │                  │                   │
+│   │              ┌───────────────────┴──────────────┐   │                   │
+│   │              ▼                                  ▼   │                   │
+│   │   ┌──────────────────┐         ┌──────────────────┐ │                   │
+│   │   │ Graph Server     │         │ Traffic Server   │ │                   │
+│   │   │ (Contraction     │         │ (real-time       │ │                   │
+│   │   │  Hierarchies)    │         │  edge weights)   │ │                   │
+│   │   └──────────────────┘         └──────────────────┘ │                   │
+│   │              │                          │           │                   │
+│   │              └────────────┬─────────────┘           │                   │
+│   │                           ▼                         │                   │
+│   │   Combine graph + traffic → optimal route           │                   │
+│   │                                                     │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                   Traffic                           │                   │
+│   │                                                     │                   │
+│   │   Phones → Location Service → Kafka → Flink         │                   │
+│   │                                          │          │                   │
+│   │              ┌───────────────────────────┴───┐      │                   │
+│   │              ▼                               ▼      │                   │
+│   │   ┌──────────────────┐         ┌──────────────────┐ │                   │
+│   │   │ Traffic Store    │         │ Traffic Tiles    │ │                   │
+│   │   │ (segment speeds) │         │ (color overlay)  │ │                   │
+│   │   └──────────────────┘         └──────────────────┘ │                   │
+│   │                                                     │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────┐                   │
+│   │                   Places                            │                   │
+│   │                                                     │                   │
+│   │   Client → Places API → Elasticsearch               │                   │
+│   │                              │                      │                   │
+│   │                    ┌─────────┴─────────┐            │                   │
+│   │                    ▼                   ▼            │                   │
+│   │            ┌─────────────┐     ┌─────────────┐      │                   │
+│   │            │ Geo-search  │     │ Text-search │      │                   │
+│   │            │ (nearby)    │     │ (by name)   │      │                   │
+│   │            └─────────────┘     └─────────────┘      │                   │
+│   │                                                     │                   │
+│   └─────────────────────────────────────────────────────┘                   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Vector tiles: Smaller, styleable, rendered client-side',
+          'Contraction Hierarchies: <1ms routing queries',
+          'Real-time traffic: Flink stream processing of phone locations',
+          'CDN for tile caching globally',
+          'Separate services for different concerns'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Offline Maps',
+          points: [
+            'Download region: tiles + road graph subset',
+            'Graph partitioning for efficient download',
+            'Compressed vector tiles (100MB for a city)',
+            'No real-time traffic offline - use historical'
+          ]
+        },
+        {
+          topic: 'ETA Accuracy',
+          points: [
+            'Combine real-time + historical patterns',
+            'ML models for prediction (time of day, events)',
+            'Adjust based on destination type (parking time)',
+            'Learn from actual trip data'
+          ]
+        },
+        {
+          topic: 'Map Data Updates',
+          points: [
+            'User reports (wrong turn, road closed)',
+            'Satellite imagery analysis for new roads',
+            'Partnership with municipalities',
+            'Differential updates to existing graph'
+          ]
+        }
+      ],
+
+      // Backward compatibility
       requirements: ['Map rendering', 'Search places', 'Directions', 'Real-time traffic', 'ETA', 'Street View', 'Offline maps'],
       components: ['Map tile service', 'Geocoding service', 'Routing engine', 'Traffic service', 'Place service', 'CDN'],
       keyDecisions: [
@@ -11910,17 +12705,6 @@ Shard by leaderboard key:
         'Traffic: Aggregate anonymized location data, update edge weights',
         'ETA: Historical patterns + real-time traffic',
         'Offline: Download bounded region tiles + graph'
-      ],
-      estimations: {
-        users: '1B MAU',
-        queries: '1B directions/day',
-        tiles: '10B tile requests/day',
-        roads: '1B road segments globally'
-      },
-      apiDesign: [
-        'GET /tiles/{z}/{x}/{y}.png → tile image',
-        'GET /api/directions?origin=&dest=&mode= → { routes[] }',
-        'GET /api/places/search?q=&location= → { places[] }'
       ]
     },
     {
