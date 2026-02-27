@@ -17628,10 +17628,10 @@ Now I encourage my team to challenge assumptions. Some of our best improvements 
         )}
 
         {/* System Design Topic Detail */}
-        {activePage === 'system-design' && (topicDetails.concepts || topicDetails.requirements) && (
+        {activePage === 'system-design' && (topicDetails.concepts || topicDetails.requirements || topicDetails.introduction) && (
           <div className="space-y-8">
-            {/* Core Concept Topics */}
-            {topicDetails.concepts && (
+            {/* Core Concept Topics - Key Concepts badges */}
+            {topicDetails.concepts && !topicDetails.introduction && (
               <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
                   <Icon name="puzzle" size={18} style={{ color: topicDetails.color }} />
@@ -17647,8 +17647,8 @@ Now I encourage my team to challenge assumptions. Some of our best improvements 
               </div>
             )}
 
-            {/* Comprehensive System Design Problems */}
-            {topicDetails.requirements && (
+            {/* Comprehensive System Design Content (Core Concepts and Common Designs) */}
+            {(topicDetails.requirements || topicDetails.introduction) && (
               <>
                 {/* Difficulty Badge */}
                 {topicDetails.difficulty && (
