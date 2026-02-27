@@ -528,41 +528,30 @@ export default function OAuthLogin() {
             <p className="text-gray-400 max-w-2xl mx-auto">From coding challenges to behavioral questions, we've got you covered.</p>
           </div>
 
-          {/* Features Grid - Compact 2 rows */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+          {/* Features Grid - Ultra compact 2 rows */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
             {features.map((feature, i) => (
-              <div key={i} className="group p-4 rounded-xl transition-all hover:scale-105 cursor-pointer" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
-                    <Icon name={feature.icon} size={18} className="text-green-400" />
-                  </div>
-                  <h3 className="text-sm font-semibold text-white group-hover:text-green-400 transition-colors">{feature.title}</h3>
+              <div key={i} className="group flex items-center gap-2.5 p-3 rounded-lg transition-all hover:bg-white/5 cursor-pointer" style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+                  <Icon name={feature.icon} size={16} className="text-green-400" />
                 </div>
-                <p className="text-gray-500 text-xs leading-relaxed">{feature.desc}</p>
+                <div className="min-w-0">
+                  <h3 className="text-xs font-semibold text-white truncate">{feature.title}</h3>
+                  <span className="text-green-400 text-[10px]">{feature.highlight}</span>
+                </div>
               </div>
             ))}
           </div>
 
-          {/* Benefits - Horizontal compact strip */}
-          <div className="p-6 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <span className="text-lg font-semibold text-white">Why</span>
-              <span className="text-lg font-semibold text-green-400">Ascend</span>
-              <span className="text-lg font-semibold text-white">?</span>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {benefits.map((benefit, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 rounded-lg" style={{ background: `${benefit.color}08` }}>
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${benefit.color}15` }}>
-                    <Icon name={benefit.icon} size={16} style={{ color: benefit.color }} />
-                  </div>
-                  <div>
-                    <div className="text-white text-sm font-medium">{benefit.title}</div>
-                    <div className="text-gray-500 text-xs">{benefit.desc.split(' ').slice(0, 4).join(' ')}...</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {/* Benefits - Inline compact strip */}
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <span className="text-sm text-gray-400">Why Ascend?</span>
+            {benefits.map((benefit, i) => (
+              <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ background: `${benefit.color}10`, border: `1px solid ${benefit.color}30` }}>
+                <Icon name={benefit.icon} size={14} style={{ color: benefit.color }} />
+                <span className="text-white text-xs font-medium">{benefit.title}</span>
+              </div>
+            ))}
           </div>
         </div>
 
