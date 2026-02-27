@@ -16979,17 +16979,103 @@ Privacy: Option to view anonymously (hides viewer)
       color: '#10b981',
       questions: 5,
       description: 'Your 60-90 second elevator pitch.',
+
+      introduction: `"Tell me about yourself" is often the first question in any interview. It sets the tone for the entire conversation and is your chance to make a strong first impression. A well-crafted response showcases your relevant experience, demonstrates your communication skills, and creates a narrative that guides the rest of the interview.`,
+
+      keyQuestions: [
+        {
+          question: 'How should I structure my response?',
+          answer: `**The Present-Past-Future Framework**:
+
+**Present** (30 seconds):
+"I'm currently a Senior Software Engineer at [Company], where I lead a team of 5 engineers building our payment processing platform."
+
+**Past** (30 seconds):
+"Before this, I spent 3 years at [Previous Company] where I grew from an individual contributor to a tech lead. I specialized in distributed systems and helped scale our infrastructure from 100K to 10M daily transactions."
+
+**Future** (30 seconds):
+"I'm excited about this role because [Company] is solving [specific problem] which aligns with my passion for [relevant area]. I'm particularly drawn to the opportunity to [specific aspect of the role]."
+
+**Key Elements**:
+- Keep total response to 60-90 seconds
+- Tailor content to the specific role
+- Highlight 2-3 most relevant achievements
+- End with enthusiasm for this opportunity`
+        },
+        {
+          question: 'What should I avoid saying?',
+          answer: `**Common Mistakes**:
+
+❌ **Too Personal**: "I was born in Chicago, I have two kids..."
+✅ **Professional Focus**: Start with current role and relevant experience
+
+❌ **Reading Your Resume**: "In 2015, I started at Company A, then in 2017..."
+✅ **Narrative Arc**: Tell a story of growth and progression
+
+❌ **Too Long/Rambling**: 5+ minute monologue
+✅ **Concise**: 60-90 seconds max, leave room for follow-up
+
+❌ **Negative Comments**: "I left because my boss was terrible..."
+✅ **Positive Framing**: "I was looking for new challenges..."
+
+❌ **Memorized Script**: Sounds robotic and rehearsed
+✅ **Natural Delivery**: Know your key points, speak conversationally
+
+❌ **Generic Ending**: "...and that's about it"
+✅ **Strong Close**: Connect to why you want THIS role`
+        },
+        {
+          question: 'How do I tailor my response to different roles?',
+          answer: `**Tailoring Strategy**:
+
+**For Technical Roles** (IC):
+- Lead with technical expertise and projects
+- Mention specific technologies
+- Highlight individual contributions
+
+**For Leadership Roles** (Manager/Lead):
+- Lead with team size and scope
+- Mention people development
+- Highlight cross-functional work
+
+**For Startup Roles**:
+- Emphasize versatility and wearing multiple hats
+- Mention fast-paced experience
+- Show entrepreneurial mindset
+
+**For Enterprise Roles**:
+- Highlight scale and complexity
+- Mention process and methodology
+- Show collaboration across teams
+
+**Research the Company**:
+1. Read the job description carefully
+2. Note their tech stack and challenges
+3. Understand their culture and values
+4. Mention specific reasons you're interested`
+        }
+      ],
+
       starExample: {
         situation: 'Currently a senior engineer at [Company] working on [domain]',
         task: 'Led development of [key project/feature]',
         action: 'Designed architecture, mentored team, delivered on time',
         result: 'Improved performance by X%, reduced costs by Y%'
       },
+
+      exampleResponse: `"I'm a Senior Software Engineer with 6 years of experience in distributed systems and backend development. Currently at Stripe, I lead a team building our real-time fraud detection platform that processes 500M transactions daily.
+
+Before Stripe, I was at a Series B startup where I was the third engineer. I built our core API from scratch, and as we grew to 50 engineers, I transitioned into a tech lead role managing our platform team.
+
+What excites me about [Your Company] is the scale of your technical challenges and the opportunity to work on [specific product/problem]. I've followed your engineering blog and was particularly impressed by your approach to [specific technology or initiative]. I'd love to bring my experience in building reliable systems at scale to help solve similar problems here."`,
+
       tips: [
         'Keep it to 60-90 seconds',
         'Focus on relevant experience for the role',
         'End with why you\'re excited about this opportunity',
-        'Practice but don\'t memorize word-for-word'
+        'Practice but don\'t memorize word-for-word',
+        'Use the Present-Past-Future framework',
+        'Quantify achievements where possible'
       ]
     },
     {
@@ -16999,15 +17085,121 @@ Privacy: Option to view anonymously (hides viewer)
       color: '#3b82f6',
       questions: 12,
       description: 'Demonstrate leading without authority, mentoring, and driving results.',
+
+      introduction: `Leadership questions assess your ability to influence, guide, and enable others—regardless of your title. Companies want to see that you can step up, take ownership, and drive results through collaboration. This is especially important for senior individual contributors and anyone aspiring to management.`,
+
+      keyQuestions: [
+        {
+          question: 'Tell me about a time you led a project or initiative',
+          answer: `**What They're Looking For**:
+- How you organized and planned
+- How you communicated and aligned stakeholders
+- How you handled obstacles
+- The outcome and your learnings
+
+**STAR Example**:
+
+**Situation**: "Our team was struggling with frequent production incidents—averaging 3 per week—which was burning out engineers and affecting customer trust."
+
+**Task**: "As a senior engineer, I took the initiative to address our reliability issues, even though this wasn't officially my responsibility."
+
+**Action**:
+- "I proposed a 'Production Excellence' initiative to my manager and got buy-in"
+- "Created a task force with 4 engineers from different teams"
+- "Established on-call runbooks, automated common fixes, and implemented better alerting"
+- "Ran weekly incident reviews to identify patterns and prevent recurrence"
+
+**Result**: "Within 3 months, we reduced incidents by 70% and MTTR from 45 minutes to 15 minutes. The initiative was adopted company-wide, and I was asked to present our approach at the all-hands."
+
+**Key Points**:
+- Show initiative without being asked
+- Demonstrate cross-functional collaboration
+- Quantify the impact`
+        },
+        {
+          question: 'How do you motivate team members?',
+          answer: `**Framework for Motivation**:
+
+**1. Understand Individual Motivations**:
+"I start by understanding what drives each person. Some are motivated by technical challenges, others by career growth, visibility, or work-life balance."
+
+**2. Provide Context and Purpose**:
+"I always explain the 'why' behind what we're doing. People are more engaged when they understand how their work impacts users or the business."
+
+**3. Create Ownership**:
+"I give people ownership of meaningful problems, not just tasks. I trust them to make decisions and support them when they need help."
+
+**4. Recognize and Celebrate**:
+"I make sure to recognize contributions publicly—in standups, Slack, and to leadership. Everyone wants to feel valued."
+
+**Example**:
+"I had a junior engineer who was disengaged. I learned he felt like he was just doing bug fixes. I worked with him to own a small but visible feature, paired with him on the architecture, and gave him credit when it launched successfully. His engagement completely turned around, and he's now one of our strongest contributors."`
+        },
+        {
+          question: 'Describe a time you had to make an unpopular decision',
+          answer: `**STAR Example**:
+
+**Situation**: "I was leading the migration to a new microservices architecture, and we discovered mid-project that our original timeline was unrealistic."
+
+**Task**: "I needed to decide between rushing to meet the deadline with significant technical debt, or extending the timeline and disappointing stakeholders."
+
+**Action**:
+- "I analyzed the risks of rushing: potential outages, future maintenance burden, team burnout"
+- "Prepared a clear presentation showing the trade-offs"
+- "Proposed a phased approach: deliver core functionality on time, defer secondary features"
+- "Communicated transparently with stakeholders about why this was the right call"
+
+**Result**: "Initially, there was pushback from product management. However, after seeing the risk analysis, leadership supported the decision. We delivered phase 1 on time, and the phased approach actually resulted in better adoption as users could adapt incrementally."
+
+**Key Insight**:
+"Unpopular decisions become easier to accept when you:
+1. Have data to support your position
+2. Communicate the trade-offs clearly
+3. Propose alternatives rather than just saying 'no'
+4. Take ownership of the decision"`
+        },
+        {
+          question: 'How do you handle underperforming team members?',
+          answer: `**Framework**:
+
+**1. Diagnose the Root Cause**:
+- Skills gap? → Training and mentoring
+- Motivation issue? → Understand what's affecting them
+- Role mismatch? → Consider reassignment
+- Personal issues? → Provide support and flexibility
+
+**2. Have Direct Conversations**:
+"I believe in addressing issues early and directly, but with empathy. I share specific observations, not judgments."
+
+**3. Create a Clear Improvement Plan**:
+- Define specific, measurable goals
+- Agree on support and resources needed
+- Set check-in cadence
+- Be clear about consequences
+
+**Example**:
+"I had a team member whose code quality was declining. Instead of assuming laziness, I had a 1:1. I learned they were dealing with a difficult personal situation. We worked together on a plan: reduced scope for 4 weeks, paired programming sessions, and weekly check-ins. Their performance recovered, and they later told me that conversation prevented them from quitting."
+
+**Key Point**: "Firing should be a last resort after genuine effort to help someone succeed."`
+        }
+      ],
+
       sampleQuestions: [
         'Tell me about a time you led a project',
         'How do you motivate team members?',
-        'Describe a time you had to make an unpopular decision'
+        'Describe a time you had to make an unpopular decision',
+        'How do you handle underperforming team members?',
+        'Tell me about a time you mentored someone',
+        'How do you build trust with your team?'
       ],
+
       tips: [
-        'Leadership isn\'t just for managers',
+        'Leadership isn\'t just for managers—show how you lead as an IC',
         'Focus on influence, not authority',
-        'Show how you enabled others\' success'
+        'Show how you enabled others\' success',
+        'Use specific examples with measurable outcomes',
+        'Demonstrate empathy and emotional intelligence',
+        'Show that you take initiative without being asked'
       ]
     },
     {
@@ -17017,16 +17209,97 @@ Privacy: Option to view anonymously (hides viewer)
       color: '#f59e0b',
       questions: 8,
       description: 'How you handle disagreements and difficult conversations.',
+
+      introduction: `Conflict is inevitable in any workplace. Interviewers ask these questions to assess your emotional intelligence, communication skills, and ability to maintain productive relationships even during disagreements. The best answers show that you can disagree professionally, find common ground, and turn conflicts into better outcomes.`,
+
+      keyQuestions: [
+        {
+          question: 'Tell me about a disagreement with a coworker',
+          answer: `**What They Want to See**:
+- You stay professional and respectful
+- You seek to understand the other perspective
+- You focus on the problem, not the person
+- You find a resolution (ideally win-win)
+
+**STAR Example**:
+
+**Situation**: "I disagreed with a senior engineer about our approach to database scaling. They wanted to add more read replicas, while I believed we should implement caching first."
+
+**Task**: "I needed to advocate for my approach without damaging our working relationship."
+
+**Action**:
+- "I asked to understand their reasoning first—they were concerned about implementation complexity of caching"
+- "I prepared a technical comparison showing trade-offs of both approaches"
+- "Proposed a small proof-of-concept to test caching on one high-traffic endpoint"
+- "Involved our tech lead to provide a neutral perspective"
+
+**Result**: "The POC showed caching reduced database load by 60% with minimal complexity. We implemented caching first, which actually delayed the need for read replicas. My colleague appreciated the data-driven approach, and we've collaborated effectively since."
+
+**Key Insight**: "Disagree with data, not opinions. Make it about finding the best solution, not about being right."`
+        },
+        {
+          question: 'How do you handle conflicting priorities from different stakeholders?',
+          answer: `**Framework for Prioritization Conflicts**:
+
+**1. Understand the Full Picture**:
+- What's the business impact of each request?
+- What are the dependencies and deadlines?
+- Why does each stakeholder believe their priority is highest?
+
+**2. Make Trade-offs Visible**:
+"I create a clear view of what we can and can't do, and the consequences of each choice. This prevents unrealistic expectations."
+
+**3. Escalate Thoughtfully**:
+"If stakeholders can't agree, I bring them together with data and facilitate a decision. If needed, I escalate to someone who can make the call."
+
+**Example**:
+"Product wanted a new feature, while ops needed urgent security patches. Instead of just picking one, I:
+1. Quantified the risk: security issue affected 10K users
+2. Showed feature deadline could slip 2 weeks without major impact
+3. Proposed: security first, then feature—with a clear timeline for both
+4. Got both stakeholders in a room to align
+
+Both agreed when they saw the full picture. The key was making the trade-off explicit rather than trying to do both poorly."`
+        },
+        {
+          question: 'Describe a time you had to push back on a decision',
+          answer: `**STAR Example**:
+
+**Situation**: "Leadership decided to launch a major feature on a specific date to align with a marketing campaign, but the code wasn't ready—we had known bugs and no time for proper testing."
+
+**Task**: "I needed to advocate for quality without being seen as obstructionist."
+
+**Action**:
+- "I documented the specific risks: 3 known bugs, 40% test coverage, no load testing"
+- "Proposed alternatives: soft launch to 5% of users, or delay marketing by one week"
+- "Prepared a rollback plan in case we had to launch anyway"
+- "Presented data on cost of fixing bugs post-launch vs. pre-launch"
+
+**Result**: "Leadership chose the soft launch option. We caught two critical issues in the 5% rollout that would have affected thousands of users. The full launch was successful, and I was recognized for 'protect the customer' thinking."
+
+**Key Points**:
+- Push back with data, not just concerns
+- Offer alternatives, don't just say no
+- Show you understand business constraints
+- Accept the decision gracefully if overruled`
+        }
+      ],
+
       sampleQuestions: [
         'Tell me about a disagreement with a coworker',
         'How do you handle conflicting priorities?',
-        'Describe a time you had to push back on a decision'
+        'Describe a time you had to push back on a decision',
+        'Tell me about a time you had a conflict with your manager',
+        'How do you handle receiving critical feedback?'
       ],
+
       tips: [
         'Show empathy and active listening',
         'Focus on the problem, not the person',
         'Demonstrate finding win-win solutions',
-        'Never badmouth previous colleagues'
+        'Never badmouth previous colleagues or companies',
+        'Use "I" statements, not "they" statements',
+        'Show how the relationship improved after the conflict'
       ]
     },
     {
@@ -17036,16 +17309,89 @@ Privacy: Option to view anonymously (hides viewer)
       color: '#f43f5e',
       questions: 7,
       description: 'Show self-awareness and ability to learn from setbacks.',
+
+      introduction: `Failure questions are among the most important in behavioral interviews. They reveal your self-awareness, accountability, resilience, and growth mindset. Companies want to know that you can acknowledge mistakes, learn from them, and become better as a result. A good failure story can be more impressive than a success story.`,
+
+      keyQuestions: [
+        {
+          question: 'Tell me about a time you failed',
+          answer: `**What They're Assessing**:
+- Self-awareness and honesty
+- Accountability (do you own it or blame others?)
+- Learning and growth mindset
+- How you've applied lessons learned
+
+**STAR Example**:
+
+**Situation**: "Early in my career as a tech lead, I was responsible for a system migration. I was so focused on the technical execution that I underestimated the change management needed."
+
+**Task**: "We needed to migrate 50 teams from the old system to the new one within 3 months."
+
+**Action**:
+- "I built a technically solid migration plan"
+- "BUT I didn't involve teams early enough or get their buy-in"
+- "When we launched, teams weren't prepared; many reverted to the old system"
+- "I had to restart, this time with early stakeholder involvement"
+
+**Result**: "The migration took 5 months instead of 3. However, I learned that technical excellence isn't enough—adoption requires communication and change management."
+
+**What I Learned**: "Now I involve stakeholders from day one. I budget time for communication, training, and feedback loops. In my next migration project, I spent 20% of the timeline on change management, and we had 95% adoption on launch day."
+
+**Key Point**: The learning matters more than the failure itself.`
+        },
+        {
+          question: 'What\'s your biggest professional regret?',
+          answer: `**How to Approach**:
+- Be authentic—interviewers can sense fake answers
+- Choose something meaningful but not disqualifying
+- Focus on what you learned and changed
+
+**Example Answer**:
+"My biggest regret is not speaking up earlier in my career when I saw problems. At my first company, I noticed our deployment process was risky—no staging environment, minimal testing. I assumed senior people knew better and didn't raise concerns.
+
+Eventually, we had a major production incident that I could have helped prevent. After that, I committed to always voicing concerns, even when I'm the most junior person in the room. I've learned that respectful pushback is valued, not punished.
+
+Now I encourage my team to challenge assumptions. Some of our best improvements came from junior engineers questioning 'the way we've always done it.'"`
+        },
+        {
+          question: 'Tell me about a time you made a mistake that affected others',
+          answer: `**STAR Example**:
+
+**Situation**: "I deployed a database migration that I thought was backward compatible. It wasn't—it broke the mobile app for 2 hours during peak traffic."
+
+**Task**: "I needed to fix the issue immediately and take responsibility."
+
+**Action**:
+- "Immediately rolled back the migration (even though it meant losing some data)"
+- "Communicated transparently in our incident channel"
+- "Wrote a detailed post-mortem within 24 hours"
+- "Implemented new safeguards: mandatory backward compatibility checks, staged rollouts"
+
+**Result**: "We lost about $10K in transactions, which I had to present to leadership. However, my transparent handling and the safeguards I implemented meant it never happened again. My manager later said my response to the failure was more impressive than if I'd never made the mistake."
+
+**Key Takeaways**:
+- Own mistakes immediately and publicly
+- Fix first, blame never
+- Implement systemic changes to prevent recurrence
+- A well-handled failure builds trust`
+        }
+      ],
+
       sampleQuestions: [
         'Tell me about a time you failed',
         'Describe a mistake and how you handled it',
-        'What\'s your biggest professional regret?'
+        'What\'s your biggest professional regret?',
+        'Tell me about a time you received negative feedback',
+        'Describe a project that didn\'t go as planned'
       ],
+
       tips: [
-        'Choose a real failure, not a humble brag',
-        'Take ownership, don\'t blame others',
-        'Focus heavily on what you learned',
-        'Show how you\'ve applied that lesson since'
+        'Choose a REAL failure, not a humble brag ("I work too hard")',
+        'Take full ownership—never blame others or circumstances',
+        'Spend 70% of your answer on what you learned and changed',
+        'Show how you\'ve applied that lesson since',
+        'Demonstrate growth mindset and resilience',
+        'It\'s okay if the failure was significant—that makes the learning more meaningful'
       ]
     },
     {
