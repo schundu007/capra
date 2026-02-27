@@ -8518,6 +8518,373 @@ Optimization:
       color: '#ff3008',
       difficulty: 'Hard',
       description: 'Design a food delivery platform connecting restaurants, customers, and drivers.',
+
+      introduction: `DoorDash and UberEats are food delivery platforms connecting restaurants, customers, and delivery drivers. DoorDash processes millions of orders daily with 100K+ concurrent deliveries at peak times.
+
+The key challenges are: optimizing driver dispatch (matching orders to drivers), accurate ETA prediction, real-time order and driver tracking, and handling peak demand (dinner rush, Super Bowl Sunday).`,
+
+      functionalRequirements: [
+        'Browse restaurants by location, cuisine, rating',
+        'View menus with prices and customizations',
+        'Place and pay for orders',
+        'Real-time order status tracking',
+        'Real-time driver location tracking',
+        'Driver matching and dispatch',
+        'Ratings and reviews',
+        'Scheduled orders',
+        'Group orders',
+        'Driver earnings and incentives'
+      ],
+
+      nonFunctionalRequirements: [
+        'Handle 2M+ orders per day',
+        'Support 100K concurrent deliveries',
+        'ETA accuracy within 5 minutes',
+        'Order placement < 2 seconds',
+        'Real-time tracking updates every 5 seconds',
+        '99.9% availability',
+        'Handle surge during peak hours (2-3x normal)'
+      ],
+
+      dataModel: {
+        description: 'Orders, restaurants, drivers, and tracking',
+        schema: `orders {
+  id: uuid PK
+  customer_id: uuid FK
+  restaurant_id: uuid FK
+  driver_id: uuid FK NULL
+  status: enum(PLACED, CONFIRMED, PREPARING, READY, PICKED_UP, DELIVERING, DELIVERED, CANCELLED)
+  items: jsonb
+  subtotal: decimal
+  delivery_fee: decimal
+  tip: decimal
+  delivery_address: jsonb
+  estimated_delivery: timestamp
+  actual_delivery: timestamp
+  created_at: timestamp
+}
+
+restaurants {
+  id: uuid PK
+  name: varchar(200)
+  location: geography(POINT)
+  cuisine_type: varchar[]
+  avg_prep_time: int -- minutes
+  rating: decimal(2,1)
+  is_open: boolean
+  operating_hours: jsonb
+}
+
+drivers {
+  id: uuid PK
+  name: varchar(100)
+  vehicle_type: enum(CAR, BIKE, SCOOTER)
+  current_location: geography(POINT)
+  status: enum(OFFLINE, AVAILABLE, ASSIGNED, DELIVERING)
+  current_order_ids: uuid[] -- can have multiple for batching
+  rating: decimal(2,1)
+}
+
+driver_locations {
+  driver_id: uuid FK
+  location: geography(POINT)
+  timestamp: timestamp
+  -- Time-series data, partition by time
+}`
+      },
+
+      apiDesign: {
+        description: 'Restaurant discovery, ordering, and tracking',
+        endpoints: [
+          { method: 'GET', path: '/api/restaurants', params: 'lat, lng, radius, cuisine, sortBy', response: '{ restaurants[], eta[] }' },
+          { method: 'GET', path: '/api/restaurants/:id/menu', params: '-', response: '{ categories[], items[] }' },
+          { method: 'POST', path: '/api/orders', params: '{ restaurantId, items[], address, tip }', response: '{ orderId, estimatedDelivery }' },
+          { method: 'GET', path: '/api/orders/:id', params: '-', response: '{ order, driverLocation, eta }' },
+          { method: 'WS', path: '/ws/track/:orderId', params: '-', response: 'LOCATION_UPDATE, STATUS_CHANGE events' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How does driver dispatch and matching work?',
+          answer: `**Dispatch Optimization Goals**:
+- Minimize delivery time for customer
+- Maximize driver utilization (earnings)
+- Balance load across available drivers
+- Consider batching (multiple orders per trip)
+
+**Matching Algorithm**:
+\`\`\`
+For each unassigned order:
+  1. Find available drivers within radius
+  2. Score each driver:
+     - Distance to restaurant (primary)
+     - Current direction of travel
+     - Driver rating and experience
+     - Vehicle suitability (hot food = car)
+  3. Consider batching:
+     - Can this order be added to existing route?
+     - Same restaurant or nearby?
+     - Delivery addresses on similar path?
+  4. Assign to highest-score driver
+\`\`\`
+
+**Batch Delivery**:
+- Driver picks up from 2-3 restaurants
+- Delivery order optimized for total distance
+- Each customer sees their own ETA
+- Max 2 additional stops typically
+
+**Real-time Reoptimization**:
+- Reassign if driver cancels
+- Rebalance during demand spikes`
+        },
+        {
+          question: 'How do we predict accurate ETAs?',
+          answer: `**ETA Components**:
+\`\`\`
+Total ETA = Driver to Restaurant +
+            Food Prep Time +
+            Restaurant to Customer
+
+Each component has uncertainty → confidence interval
+\`\`\`
+
+**ML Model Features**:
+- Restaurant historical prep times by item
+- Current order queue length
+- Time of day / day of week
+- Real-time traffic data
+- Weather conditions
+- Driver's current location and speed
+- Number of stops if batched
+
+**Model Output**:
+\`\`\`json
+{
+  "eta_minutes": 35,
+  "confidence": 0.85,
+  "range": { "min": 30, "max": 45 },
+  "breakdown": {
+    "pickup": 12,
+    "prep": 15,
+    "delivery": 8
+  }
+}
+\`\`\`
+
+**Continuous Learning**:
+- Compare predicted vs actual delivery times
+- A/B test model improvements
+- Per-restaurant prep time calibration`
+        },
+        {
+          question: 'How do we handle real-time tracking?',
+          answer: `**Driver Location Updates**:
+\`\`\`
+Driver App → API Gateway → Location Service → Kafka → Consumers
+                                                  ↓
+                                            TimescaleDB
+                                            (Location History)
+\`\`\`
+
+**Update Frequency**:
+- Driver app: GPS every 5 seconds
+- Customer app: Poll or WebSocket push every 5 seconds
+- Batch location writes (5-10 at a time)
+
+**Tracking Data Flow**:
+\`\`\`
+1. Driver app sends location
+2. Location service validates and publishes to Kafka
+3. ETA service recalculates delivery time
+4. Tracking service updates customer view
+5. Push notification if major ETA change
+\`\`\`
+
+**Optimizations**:
+- Client-side interpolation between updates
+- Snap to roads for cleaner visualization
+- Reduce frequency when driver stationary
+- WebSocket with fallback to polling`
+        },
+        {
+          question: 'How do we handle peak demand (surge)?',
+          answer: `**Demand Prediction**:
+- Historical patterns (dinner rush, weekends, events)
+- Weather (rain = more orders)
+- Special events (Super Bowl, holidays)
+- Proactive driver incentives to increase supply
+
+**Surge Management**:
+\`\`\`
+If demand > supply by X%:
+  1. Increase delivery fees (demand pricing)
+  2. Show longer ETAs (set expectations)
+  3. Boost driver pay (surge incentives)
+  4. Temporary pause new restaurant signups
+  5. Priority to loyal customers
+\`\`\`
+
+**Driver Supply**:
+- Push notifications to offline drivers
+- Bonus incentives for peak hours
+- Predictive scheduling (guaranteed hourly rate)
+- Heat maps showing high-demand areas
+
+**Graceful Degradation**:
+- Queue orders if dispatch overwhelmed
+- Limit orders per restaurant
+- Expand delivery radius to find more drivers`
+        }
+      ],
+
+      basicImplementation: {
+        title: 'Basic Food Delivery',
+        description: 'Simple order flow without optimization',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────┐
+│                   Basic Food Delivery System                     │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────┐     ┌──────────────┐     ┌──────────────┐        │
+│  │ Customer │────▶│  API Server  │────▶│  PostgreSQL  │        │
+│  │   App    │     │              │     │              │        │
+│  └──────────┘     └──────────────┘     └──────────────┘        │
+│                          │                                      │
+│                          │                                      │
+│  ┌──────────┐            │                                      │
+│  │  Driver  │◀───────────┘                                      │
+│  │   App    │                                                   │
+│  └──────────┘                                                   │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘`,
+        problems: [
+          'No dispatch optimization',
+          'Manual driver assignment',
+          'No real-time tracking',
+          'No ETA prediction'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Production Food Delivery Architecture',
+        architecture: `
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                    Production DoorDash Architecture                           │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐                      │
+│  │  Customer   │    │  Restaurant │    │   Driver    │                      │
+│  │    App      │    │    App      │    │    App      │                      │
+│  └──────┬──────┘    └──────┬──────┘    └──────┬──────┘                      │
+│         │                  │                  │                              │
+│         └──────────────────┼──────────────────┘                              │
+│                            ▼                                                 │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                      API Gateway                                     │    │
+│  └────────────────────────────┬────────────────────────────────────────┘    │
+│                               │                                              │
+│  ┌────────────────────────────┼────────────────────────────────────────┐    │
+│  │                      SERVICE LAYER                                   │    │
+│  │                                                                      │    │
+│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐    │    │
+│  │  │ Restaurant │  │   Order    │  │  Dispatch  │  │  Tracking  │    │    │
+│  │  │  Service   │  │  Service   │  │  Service   │  │  Service   │    │    │
+│  │  └─────┬──────┘  └─────┬──────┘  └─────┬──────┘  └─────┬──────┘    │    │
+│  │        │               │               │               │            │    │
+│  │  ┌─────┴───────────────┴───────────────┴───────────────┴─────┐     │    │
+│  │  │                    MESSAGE BUS (Kafka)                     │     │    │
+│  │  │  Topics: orders, driver_locations, dispatch_events         │     │    │
+│  │  └─────┬───────────────┬───────────────┬───────────────┬─────┘     │    │
+│  │        │               │               │               │            │    │
+│  │        ▼               ▼               ▼               ▼            │    │
+│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐   │    │
+│  │  │    ETA     │  │  Payment   │  │Notification│  │  Analytics │   │    │
+│  │  │  Service   │  │  Service   │  │  Service   │  │  Service   │   │    │
+│  │  └────────────┘  └────────────┘  └────────────┘  └────────────┘   │    │
+│  └──────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │                         DATA LAYER                                    │   │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │   │
+│  │  │  PostgreSQL  │  │ TimescaleDB  │  │    Redis     │               │   │
+│  │  │   (Orders,   │  │  (Location   │  │   (Driver    │               │   │
+│  │  │ Restaurants) │  │   History)   │  │   Status)    │               │   │
+│  │  └──────────────┘  └──────────────┘  └──────────────┘               │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │                      ML PLATFORM                                      │   │
+│  │  ┌────────────────┐    ┌────────────────┐    ┌────────────────┐     │   │
+│  │  │  ETA Model     │    │ Demand Forecast│    │ Dispatch       │     │   │
+│  │  │  (Prediction)  │    │    Model       │    │ Optimization   │     │   │
+│  │  └────────────────┘    └────────────────┘    └────────────────┘     │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘`,
+        keyPoints: [
+          'Kafka for real-time event streaming',
+          'TimescaleDB for location time-series data',
+          'Redis for real-time driver status and availability',
+          'ML-based dispatch optimization',
+          'ETA prediction with continuous learning',
+          'Microservices for independent scaling'
+        ]
+      },
+
+      orderFlow: {
+        title: 'Order Lifecycle',
+        steps: [
+          'Customer browses restaurants, selects items, places order',
+          'Order Service validates and creates order (status: PLACED)',
+          'Payment Service processes payment',
+          'Order sent to Restaurant App (status: CONFIRMED)',
+          'Restaurant confirms and starts preparing (status: PREPARING)',
+          'Dispatch Service finds optimal driver match',
+          'Driver accepts and heads to restaurant (status: ASSIGNED)',
+          'Restaurant marks ready (status: READY)',
+          'Driver picks up order (status: PICKED_UP)',
+          'Driver delivers to customer (status: DELIVERING)',
+          'Customer confirms receipt (status: DELIVERED)',
+          'Rating prompts sent to customer and driver'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Restaurant Integration',
+          points: [
+            'Tablet app for order management',
+            'POS integration for menu sync',
+            'Printer integration for kitchen tickets',
+            'Real-time menu availability updates',
+            'Prep time estimation per item'
+          ]
+        },
+        {
+          topic: 'Driver Experience',
+          points: [
+            'Clear navigation and instructions',
+            'Earnings transparency',
+            'Order batching communication',
+            'Support for issues (wrong address, closed restaurant)',
+            'Safety features (share location, emergency button)'
+          ]
+        },
+        {
+          topic: 'Fraud Prevention',
+          points: [
+            'Verify delivery with photo/PIN',
+            'Detect refund abuse patterns',
+            'Driver fraud (false delivery claims)',
+            'Restaurant fraud (inflated prep times)',
+            'Promo code abuse detection'
+          ]
+        }
+      ],
+
+      // Backward compatibility
       requirements: ['Browse restaurants', 'Menu/ordering', 'Real-time tracking', 'Driver matching', 'Payments', 'Ratings'],
       components: ['Restaurant service', 'Order service', 'Dispatch service', 'Tracking service', 'Payment service', 'Rating service'],
       keyDecisions: [
@@ -8526,17 +8893,6 @@ Optimization:
         'ETA prediction: ML model with traffic, order prep time, driver location',
         'Kitchen display system integration for order status',
         'Surge pricing during peak demand'
-      ],
-      estimations: {
-        orders: '2M orders/day',
-        restaurants: '500K restaurants',
-        drivers: '1M active dashers',
-        concurrent: '100K concurrent deliveries at peak'
-      },
-      apiDesign: [
-        'GET /api/restaurants?lat=&lng= → { restaurants[] }',
-        'POST /api/orders { restaurantId, items[], address }',
-        'GET /api/orders/{id}/track → { status, driverLocation, eta }'
       ]
     },
     {
