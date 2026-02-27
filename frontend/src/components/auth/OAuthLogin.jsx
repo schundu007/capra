@@ -488,15 +488,15 @@ export default function OAuthLogin() {
                 <span key={i} className="text-gray-400 font-medium text-sm">{company}</span>
               ))}
             </div>
-            <div ref={statsRef} className="flex items-center gap-6">
+            <div ref={statsRef} className="flex items-center gap-4">
               {[
                 { value: `${counters.success}%+`, label: 'Success', color: '#10b981' },
                 { value: `${counters.offers.toLocaleString()}+`, label: 'Offers', color: '#3b82f6' },
                 { value: `${counters.salary}%+`, label: 'Salary ↑', color: '#8b5cf6' },
               ].map((stat, i) => (
                 <div key={i} className="text-center">
-                  <div className="text-xl font-bold tabular-nums" style={{ color: stat.color }}>{stat.value}</div>
-                  <div className="text-gray-500 text-xs">{stat.label}</div>
+                  <div className="text-sm font-bold tabular-nums" style={{ color: stat.color }}>{stat.value}</div>
+                  <div className="text-gray-500 text-[10px]">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -589,93 +589,93 @@ export default function OAuthLogin() {
             <h2 className="text-2xl font-bold text-white">Choose Your <span className="text-green-400">Plan</span></h2>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Monthly */}
-            <div className="p-4 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-              <div className="flex items-center gap-2 mb-2">
-                <Icon name="cloud" size={16} className="text-gray-400" />
-                <h3 className="text-sm font-bold text-white">Monthly</h3>
+            <div className="p-6 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div className="flex items-center gap-2 mb-3">
+                <Icon name="cloud" size={20} className="text-gray-400" />
+                <h3 className="text-base font-bold text-white">Monthly</h3>
               </div>
-              <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-2xl font-bold text-white">$99</span>
-                <span className="text-gray-500 text-xs">/mo</span>
+              <div className="flex items-baseline gap-1 mb-4">
+                <span className="text-3xl font-bold text-white">$99</span>
+                <span className="text-gray-500 text-sm">/mo</span>
               </div>
-              <ul className="space-y-1 mb-3 text-xs">
+              <ul className="space-y-2 mb-4 text-sm">
                 {['5 credits', '25 coding problems'].map((item, j) => (
-                  <li key={j} className="flex items-center gap-1.5 text-gray-400">
-                    <Icon name="check" size={10} className="text-green-400" />{item}
+                  <li key={j} className="flex items-center gap-2 text-gray-400">
+                    <Icon name="check" size={14} className="text-green-400" />{item}
                   </li>
                 ))}
               </ul>
-              <button onClick={() => handlePricingClick('monthly')} className="w-full py-2 rounded-lg font-medium text-xs" style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#fff' }}>
+              <button onClick={() => handlePricingClick('monthly')} className="w-full py-2.5 rounded-lg font-medium text-sm" style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#fff' }}>
                 {loading === 'monthly' ? '...' : 'Get Started'}
               </button>
             </div>
 
             {/* Quarterly Pro */}
-            <div className="relative p-4 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05))', border: '2px solid #10b981' }}>
-              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: '#10b981', color: '#fff' }}>BEST</div>
-              <div className="flex items-center gap-2 mb-2">
-                <Icon name="rocket" size={16} className="text-green-400" />
-                <h3 className="text-sm font-bold text-white">Quarterly Pro</h3>
+            <div className="relative p-6 rounded-2xl" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05))', border: '2px solid #10b981' }}>
+              <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold" style={{ background: '#10b981', color: '#fff' }}>BEST</div>
+              <div className="flex items-center gap-2 mb-3">
+                <Icon name="rocket" size={20} className="text-green-400" />
+                <h3 className="text-base font-bold text-white">Quarterly Pro</h3>
               </div>
-              <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-2xl font-bold text-white">$300</span>
-                <span className="text-gray-500 text-xs">/qtr</span>
+              <div className="flex items-baseline gap-1 mb-4">
+                <span className="text-3xl font-bold text-white">$300</span>
+                <span className="text-gray-500 text-sm">/qtr</span>
               </div>
-              <ul className="space-y-1 mb-3 text-xs">
+              <ul className="space-y-2 mb-4 text-sm">
                 {['10 credits', 'Job Discovery'].map((item, j) => (
-                  <li key={j} className="flex items-center gap-1.5 text-gray-400">
-                    <Icon name="check" size={10} className="text-green-400" />{item}
+                  <li key={j} className="flex items-center gap-2 text-gray-400">
+                    <Icon name="check" size={14} className="text-green-400" />{item}
                   </li>
                 ))}
               </ul>
-              <button onClick={() => handlePricingClick('quarterly_pro')} className="w-full py-2 rounded-lg font-medium text-xs" style={{ background: '#10b981', color: '#fff' }}>
+              <button onClick={() => handlePricingClick('quarterly_pro')} className="w-full py-2.5 rounded-lg font-medium text-sm" style={{ background: '#10b981', color: '#fff' }}>
                 {loading === 'quarterly_pro' ? '...' : 'Get Pro'}
               </button>
             </div>
 
             {/* Desktop Lifetime */}
-            <div className="relative p-4 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05))', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
-              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: '#8b5cf6', color: '#fff' }}>LIFETIME</div>
-              <div className="flex items-center gap-2 mb-2">
-                <Icon name="terminal" size={16} className="text-purple-400" />
-                <h3 className="text-sm font-bold text-white">Desktop</h3>
+            <div className="relative p-6 rounded-2xl" style={{ background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05))', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
+              <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold" style={{ background: '#8b5cf6', color: '#fff' }}>LIFETIME</div>
+              <div className="flex items-center gap-2 mb-3">
+                <Icon name="terminal" size={20} className="text-purple-400" />
+                <h3 className="text-base font-bold text-white">Desktop</h3>
               </div>
-              <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-2xl font-bold text-white">$300</span>
-                <span className="text-gray-500 text-xs">once</span>
+              <div className="flex items-baseline gap-1 mb-4">
+                <span className="text-3xl font-bold text-white">$300</span>
+                <span className="text-gray-500 text-sm">once</span>
               </div>
-              <ul className="space-y-1 mb-3 text-xs">
+              <ul className="space-y-2 mb-4 text-sm">
                 {['Unlimited forever', 'Your API keys'].map((item, j) => (
-                  <li key={j} className="flex items-center gap-1.5 text-gray-400">
-                    <Icon name="check" size={10} className="text-purple-400" />{item}
+                  <li key={j} className="flex items-center gap-2 text-gray-400">
+                    <Icon name="check" size={14} className="text-purple-400" />{item}
                   </li>
                 ))}
               </ul>
-              <button onClick={() => handlePricingClick('desktop_lifetime')} className="w-full py-2 rounded-lg font-medium text-xs" style={{ background: '#8b5cf6', color: '#fff' }}>
+              <button onClick={() => handlePricingClick('desktop_lifetime')} className="w-full py-2.5 rounded-lg font-medium text-sm" style={{ background: '#8b5cf6', color: '#fff' }}>
                 {loading === 'desktop_lifetime' ? '...' : 'Buy'}
               </button>
             </div>
 
             {/* Credit Pack */}
-            <div className="p-4 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-              <div className="flex items-center gap-2 mb-2">
-                <Icon name="ticket" size={16} className="text-gray-400" />
-                <h3 className="text-sm font-bold text-white">Credits</h3>
+            <div className="p-6 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div className="flex items-center gap-2 mb-3">
+                <Icon name="ticket" size={20} className="text-gray-400" />
+                <h3 className="text-base font-bold text-white">Credits</h3>
               </div>
-              <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-2xl font-bold text-white">$30</span>
-                <span className="text-gray-500 text-xs">pack</span>
+              <div className="flex items-baseline gap-1 mb-4">
+                <span className="text-3xl font-bold text-white">$30</span>
+                <span className="text-gray-500 text-sm">pack</span>
               </div>
-              <ul className="space-y-1 mb-3 text-xs">
+              <ul className="space-y-2 mb-4 text-sm">
                 {['3 credits', 'No expiration'].map((item, j) => (
-                  <li key={j} className="flex items-center gap-1.5 text-gray-400">
-                    <Icon name="check" size={10} className="text-green-400" />{item}
+                  <li key={j} className="flex items-center gap-2 text-gray-400">
+                    <Icon name="check" size={14} className="text-green-400" />{item}
                   </li>
                 ))}
               </ul>
-              <button onClick={() => handlePricingClick('addon')} className="w-full py-2 rounded-lg font-medium text-xs" style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#fff' }}>
+              <button onClick={() => handlePricingClick('addon')} className="w-full py-2.5 rounded-lg font-medium text-sm" style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#fff' }}>
                 {loading === 'addon' ? '...' : 'Buy'}
               </button>
             </div>
