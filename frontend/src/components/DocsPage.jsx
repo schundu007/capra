@@ -930,26 +930,197 @@ def max_sliding_window(nums, k):
       color: '#10b981',
       difficulty: 'Easy',
       description: 'Design a service that creates short aliases for long URLs and redirects users to the original URL.',
-      requirements: ['Shorten long URLs', '301 redirect', 'Analytics', 'Custom aliases', 'Expiration support'],
-      components: ['API servers', 'Database (SQL/NoSQL)', 'Cache (Redis)', 'Load balancer'],
-      keyDecisions: [
-        'Hash function: MD5/SHA vs Base62 encoding of auto-increment ID',
-        'Storage: NoSQL (Cassandra/DynamoDB) for horizontal scaling',
-        'Cache hot URLs in Redis to reduce DB reads by 80%+',
-        'Use consistent hashing for cache distribution'
+
+      // Comprehensive Editorial Content
+      introduction: `Tiny URL (URL shortener) is one of the most popular system design questions. On the surface it appears simple, but it's possible to go deep on scalability issues which interviewers expect.
+
+This covers two solutions: a basic implementation with scalability issues, and an advanced implementation. Discussing the flaws and solutions shows depth of understanding most candidates lack.`,
+
+      functionalRequirements: [
+        'Given a long URL, create a short URL',
+        'Given a short URL, redirect to the long URL',
+        'Custom short URL aliases (optional)',
+        'URL expiration (optional)'
       ],
-      estimations: {
-        qps: '100M URLs/day = ~1200 writes/sec, 10x reads = 12K reads/sec',
-        storage: '100M × 500 bytes = 50GB/day, 18TB/year',
-        bandwidth: '12K × 500 bytes = 6MB/sec outgoing'
+
+      nonFunctionalRequirements: [
+        'Very low latency (< 100ms)',
+        'Very high availability (99.99%)',
+        'Short URLs should not be predictable',
+        'Scale to handle billions of URLs'
+      ],
+
+      dataModel: {
+        description: 'Simple table storing URL mappings',
+        schema: `urls {
+  id: bigint (primary key)
+  shortUrl: varchar(7) (indexed, unique)
+  longUrl: varchar(2048)
+  userId: bigint (optional)
+  createdAt: timestamp
+  expiresAt: timestamp (nullable)
+  clickCount: bigint (default 0)
+}`
       },
-      apiDesign: [
-        'POST /api/shorten { longUrl, customAlias?, expiry? } → { shortUrl }',
-        'GET /{shortCode} → 301 Redirect to original URL',
-        'GET /api/stats/{shortCode} → { clicks, created, lastAccessed }'
+
+      apiDesign: {
+        description: 'RESTful API - simple, stateless, supports caching',
+        endpoints: [
+          {
+            method: 'POST',
+            path: '/create-url',
+            params: 'longURL, customAlias? (optional)',
+            response: '201 Created, returns { shortUrl }',
+            notes: 'Creates a new short URL mapping'
+          },
+          {
+            method: 'GET',
+            path: '/{short-url}',
+            response: '301 Permanent Redirect',
+            notes: 'Redirects to the original long URL'
+          }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How long should the short URL be?',
+          answer: `Need to know scale to answer this:
+• Example: 1,000 URLs/second
+• 1,000 × 60 × 60 × 24 × 365 = 31.5 billion URLs/year
+• 10:1 read:write ratio = ~300 billion reads/year
+
+Using Base62 (a-z, A-Z, 0-9 = 62 characters):
+• 6 characters: 62⁶ = 56 billion unique URLs
+• 7 characters: 62⁷ = 3.5 trillion unique URLs
+
+7 characters is sufficient for many years of operation.`
+        },
+        {
+          question: 'What characters can we use?',
+          answer: `Alphanumeric Base62:
+• a-z: 26 characters
+• A-Z: 26 characters
+• 0-9: 10 characters
+• Total: 62 characters
+
+Avoid special characters (/, +, =) as they cause URL encoding issues.`
+        }
       ],
-      databaseSchema: 'urls: { id, shortCode (indexed), longUrl, userId, createdAt, expiresAt, clickCount }',
-      scalingStrategy: 'Shard by shortCode hash, replicate reads, cache aggressively'
+
+      basicImplementation: {
+        title: 'Basic Implementation',
+        description: `Client → Load Balancer → Web Server → Count Cache → Database
+
+The web server requests a base-10 number from the count cache, converts it to base-62, and uses it as the short URL. This is stored in the database and returned to the user.`,
+        architecture: `
+┌────────┐    ┌──────────────┐    ┌────────────┐    ┌─────────────┐
+│ Client │───▶│ Load Balancer│───▶│ Web Server │───▶│  Database   │
+└────────┘    └──────────────┘    └────────────┘    └─────────────┘
+                                        │
+                                        ▼
+                                 ┌─────────────┐
+                                 │ Count Cache │
+                                 │  (Redis)    │
+                                 └─────────────┘`,
+        problems: [
+          'Single point of failure in web server, cache, and database',
+          'When horizontally scaled, distributed caches can return same number → COLLISION',
+          'No coordination among caches causes duplicate short URLs',
+          'Collisions are unacceptable in this system'
+        ]
+      },
+
+      advancedImplementation: {
+        title: 'Advanced Implementation with ZooKeeper',
+        description: `Instead of distributed count caches, use ZooKeeper as a centralized coordination service. ZooKeeper maintains number ranges (1 million values per range). When a web server starts, it gets a range from ZooKeeper and uses those numbers for short URLs. This avoids collisions.`,
+        architecture: `
+┌────────┐    ┌──────────────┐    ┌────────────┐    ┌─────────────┐
+│ Client │───▶│ Load Balancer│───▶│ Web Servers│───▶│  Database   │
+└────────┘    └──────────────┘    └────────────┘    └─────────────┘
+                                        │                  │
+                                        ▼                  ▼
+                               ┌─────────────────┐   ┌─────────┐
+                               │   ZooKeeper     │   │  Cache  │
+                               │ Range Allocator │   │ (Redis) │
+                               │ 0 - 1M          │   └─────────┘
+                               │ 1M - 2M         │
+                               │ 2M - 3M         │
+                               │ ...             │
+                               └─────────────────┘`,
+        keyPoints: [
+          'ZooKeeper allocates ranges of 1 million IDs to each web server',
+          'Each server generates IDs independently within its range - no collisions',
+          'If a server dies, losing 1M IDs is acceptable given 3.5 trillion total',
+          'ZooKeeper only contacted when server needs new range (1M requests/contact)',
+          'Much less load than per-request coordination'
+        ],
+        databaseChoice: 'NoSQL (Cassandra) preferred for high read volume; SQL requires sharding',
+        caching: 'Redis/Memcached with LRU eviction for popular URLs'
+      },
+
+      createFlow: {
+        title: 'Create URL Flow',
+        steps: [
+          'Client makes POST request with long URL to load balancer',
+          'Load balancer distributes request to a web server',
+          'Web server generates short URL from its allocated range (converts to base62)',
+          'Web server saves long URL + short URL in database',
+          'Optionally cache the mapping with TTL',
+          'Web server responds with the newly created short URL'
+        ]
+      },
+
+      redirectFlow: {
+        title: 'Redirect URL Flow',
+        steps: [
+          'Client makes GET request with short URL',
+          'Load balancer routes to a web server',
+          'Web server checks if short URL exists in cache',
+          'If cache miss, retrieve long URL from database',
+          'Update cache with the mapping',
+          'Web server responds with 301 Permanent Redirect to long URL'
+        ]
+      },
+
+      discussionPoints: [
+        {
+          topic: 'Analytics',
+          points: [
+            'Track click counts per URL for caching decisions',
+            'Store IP addresses for geographic distribution insights',
+            'Determine optimal cache locations based on traffic patterns'
+          ]
+        },
+        {
+          topic: 'Rate Limiting',
+          points: [
+            'Prevent DDoS attacks by malicious users',
+            'Limit URL creation per user/IP',
+            'Use token bucket or sliding window algorithms'
+          ]
+        },
+        {
+          topic: 'Security Considerations',
+          points: [
+            'Add random suffix to prevent URL prediction/enumeration',
+            'Tradeoff: longer URLs vs security (worth discussing)',
+            'Scan long URLs for malware/phishing before creating short URL',
+            'Implement URL blacklisting'
+          ]
+        }
+      ],
+
+      // Keep backward compatibility
+      requirements: ['Shorten long URLs', '301 redirect', 'Analytics', 'Custom aliases', 'Expiration support'],
+      components: ['Load Balancer', 'Web Servers', 'ZooKeeper', 'Database (NoSQL)', 'Cache (Redis)'],
+      keyDecisions: [
+        'Use ZooKeeper for distributed ID range allocation to avoid collisions',
+        'Base62 encoding for 7-character short URLs (3.5 trillion unique)',
+        'NoSQL database (Cassandra) for horizontal scaling',
+        'Redis cache with LRU eviction for popular URLs',
+        '301 Permanent Redirect for SEO and caching benefits'
+      ]
     },
     {
       id: 'twitter',
@@ -2225,12 +2396,12 @@ def max_sliding_window(nums, k):
               </div>
             )}
 
-            {/* System Design Problems */}
+            {/* Comprehensive System Design Problems */}
             {topicDetails.requirements && (
               <>
                 {/* Difficulty Badge */}
                 {topicDetails.difficulty && (
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 mb-4">
                     <span className={`px-3 py-1 rounded-lg text-sm font-medium ${
                       topicDetails.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :
                       topicDetails.difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-400' :
@@ -2244,109 +2415,298 @@ def max_sliding_window(nums, k):
                   </div>
                 )}
 
-                {/* Requirements */}
-                <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                    <Icon name="check" size={18} className="text-green-400" />
-                    Functional Requirements
-                  </h3>
-                  <ul className="grid md:grid-cols-2 gap-2">
-                    {topicDetails.requirements.map((req, i) => (
-                      <li key={i} className="flex items-center gap-2 text-gray-300">
-                        <span className="text-green-400">✓</span>
-                        {req}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Back-of-Envelope Estimations */}
-                {topicDetails.estimations && (
-                  <div className="p-6 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.02))', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                    <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                      <Icon name="chartBar" size={18} className="text-blue-400" />
-                      Back-of-Envelope Estimations
-                    </h3>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {Object.entries(topicDetails.estimations).map(([key, value]) => (
-                        <div key={key} className="p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
-                          <div className="text-blue-400 text-xs font-semibold uppercase mb-1">{key}</div>
-                          <div className="text-gray-300 text-sm font-mono">{value}</div>
-                        </div>
-                      ))}
-                    </div>
+                {/* Introduction (Comprehensive) */}
+                {topicDetails.introduction && (
+                  <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <h2 className="text-xl font-bold text-white mb-4">Introduction</h2>
+                    <p className="text-gray-300 whitespace-pre-line leading-relaxed">{topicDetails.introduction}</p>
                   </div>
                 )}
 
-                {/* Components */}
-                <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                    <Icon name="layers" size={18} className="text-purple-400" />
-                    System Components
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {topicDetails.components.map((comp, i) => (
-                      <span key={i} className="px-3 py-1.5 rounded-lg text-sm bg-purple-500/15 text-purple-400">
-                        {comp}
-                      </span>
-                    ))}
+                {/* Requirements - Functional & Non-Functional */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Functional Requirements */}
+                  <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                      <Icon name="check" size={18} className="text-green-400" />
+                      Functional Requirements
+                    </h3>
+                    <ul className="space-y-2">
+                      {(topicDetails.functionalRequirements || topicDetails.requirements).map((req, i) => (
+                        <li key={i} className="flex items-start gap-2 text-gray-300">
+                          <span className="text-green-400 mt-1">✓</span>
+                          <span>{req}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
+
+                  {/* Non-Functional Requirements */}
+                  {topicDetails.nonFunctionalRequirements && (
+                    <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                        <Icon name="zap" size={18} className="text-blue-400" />
+                        Non-Functional Requirements
+                      </h3>
+                      <ul className="space-y-2">
+                        {topicDetails.nonFunctionalRequirements.map((req, i) => (
+                          <li key={i} className="flex items-start gap-2 text-gray-300">
+                            <span className="text-blue-400 mt-1">•</span>
+                            <span>{req}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
 
-                {/* API Design */}
-                {topicDetails.apiDesign && (
+                {/* Data Model */}
+                {topicDetails.dataModel && (
                   <div className="p-6 rounded-xl" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                      <Icon name="code" size={18} className="text-green-400" />
+                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                      <Icon name="database" size={20} className="text-yellow-400" />
+                      Data Model
+                    </h2>
+                    {topicDetails.dataModel.description && (
+                      <p className="text-gray-400 mb-4">{topicDetails.dataModel.description}</p>
+                    )}
+                    <pre className="font-mono text-sm text-yellow-400 bg-black/50 p-4 rounded-lg overflow-x-auto whitespace-pre">
+                      {topicDetails.dataModel.schema}
+                    </pre>
+                  </div>
+                )}
+
+                {/* API Design (Comprehensive) */}
+                {topicDetails.apiDesign && topicDetails.apiDesign.endpoints && (
+                  <div className="p-6 rounded-xl" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                      <Icon name="code" size={20} className="text-green-400" />
                       API Design
-                    </h3>
-                    <div className="space-y-2">
-                      {topicDetails.apiDesign.map((api, i) => (
-                        <div key={i} className="font-mono text-sm text-green-400 bg-black/30 p-2 rounded overflow-x-auto">
-                          {api}
+                    </h2>
+                    {topicDetails.apiDesign.description && (
+                      <p className="text-gray-400 mb-4">{topicDetails.apiDesign.description}</p>
+                    )}
+                    <div className="space-y-4">
+                      {topicDetails.apiDesign.endpoints.map((endpoint, i) => (
+                        <div key={i} className="p-4 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className={`px-2 py-1 rounded text-xs font-bold ${
+                              endpoint.method === 'GET' ? 'bg-blue-500/20 text-blue-400' :
+                              endpoint.method === 'POST' ? 'bg-green-500/20 text-green-400' :
+                              endpoint.method === 'PUT' ? 'bg-yellow-500/20 text-yellow-400' :
+                              'bg-red-500/20 text-red-400'
+                            }`}>
+                              {endpoint.method}
+                            </span>
+                            <code className="text-green-400 font-mono">{endpoint.path}</code>
+                          </div>
+                          {endpoint.params && (
+                            <p className="text-gray-400 text-sm mb-1">Params: {endpoint.params}</p>
+                          )}
+                          <p className="text-gray-400 text-sm mb-1">Response: {endpoint.response}</p>
+                          {endpoint.notes && (
+                            <p className="text-gray-500 text-sm italic">{endpoint.notes}</p>
+                          )}
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
 
-                {/* Database Schema */}
-                {topicDetails.databaseSchema && (
-                  <div className="p-6 rounded-xl" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                {/* Key Questions */}
+                {topicDetails.keyQuestions && (
+                  <div className="p-6 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+                    <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                      <Icon name="messageSquare" size={20} className="text-purple-400" />
+                      Key Questions to Consider
+                    </h2>
+                    <div className="space-y-6">
+                      {topicDetails.keyQuestions.map((q, i) => (
+                        <div key={i}>
+                          <h4 className="text-purple-400 font-semibold mb-2">{q.question}</h4>
+                          <pre className="text-gray-300 text-sm whitespace-pre-wrap bg-black/30 p-4 rounded-lg font-mono">
+                            {q.answer}
+                          </pre>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Basic Implementation */}
+                {topicDetails.basicImplementation && (
+                  <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                      <Icon name="layers" size={20} className="text-orange-400" />
+                      {topicDetails.basicImplementation.title}
+                    </h2>
+                    <p className="text-gray-300 mb-4">{topicDetails.basicImplementation.description}</p>
+                    {topicDetails.basicImplementation.architecture && (
+                      <pre className="font-mono text-xs text-green-400 bg-black/50 p-4 rounded-lg overflow-x-auto mb-4 whitespace-pre">
+                        {topicDetails.basicImplementation.architecture}
+                      </pre>
+                    )}
+                    {topicDetails.basicImplementation.problems && (
+                      <div className="mt-4">
+                        <h4 className="text-red-400 font-semibold mb-2 flex items-center gap-2">
+                          <Icon name="alertTriangle" size={16} />
+                          Problems with this approach:
+                        </h4>
+                        <ul className="space-y-2">
+                          {topicDetails.basicImplementation.problems.map((problem, i) => (
+                            <li key={i} className="flex items-start gap-2 text-gray-300">
+                              <span className="text-red-400 mt-1">✗</span>
+                              <span>{problem}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Advanced Implementation */}
+                {topicDetails.advancedImplementation && (
+                  <div className="p-6 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.02))', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                      <Icon name="zap" size={20} className="text-green-400" />
+                      {topicDetails.advancedImplementation.title}
+                    </h2>
+                    <p className="text-gray-300 mb-4">{topicDetails.advancedImplementation.description}</p>
+                    {topicDetails.advancedImplementation.architecture && (
+                      <pre className="font-mono text-xs text-green-400 bg-black/50 p-4 rounded-lg overflow-x-auto mb-4 whitespace-pre">
+                        {topicDetails.advancedImplementation.architecture}
+                      </pre>
+                    )}
+                    {topicDetails.advancedImplementation.keyPoints && (
+                      <div className="mt-4">
+                        <h4 className="text-green-400 font-semibold mb-2">Key Points:</h4>
+                        <ul className="space-y-2">
+                          {topicDetails.advancedImplementation.keyPoints.map((point, i) => (
+                            <li key={i} className="flex items-start gap-2 text-gray-300">
+                              <span className="text-green-400 mt-1">✓</span>
+                              <span>{point}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {(topicDetails.advancedImplementation.databaseChoice || topicDetails.advancedImplementation.caching) && (
+                      <div className="mt-4 grid md:grid-cols-2 gap-4">
+                        {topicDetails.advancedImplementation.databaseChoice && (
+                          <div className="p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                            <span className="text-yellow-400 text-sm font-semibold">Database: </span>
+                            <span className="text-gray-300 text-sm">{topicDetails.advancedImplementation.databaseChoice}</span>
+                          </div>
+                        )}
+                        {topicDetails.advancedImplementation.caching && (
+                          <div className="p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                            <span className="text-blue-400 text-sm font-semibold">Caching: </span>
+                            <span className="text-gray-300 text-sm">{topicDetails.advancedImplementation.caching}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Create Flow */}
+                {topicDetails.createFlow && (
+                  <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                      <Icon name="arrowRight" size={20} className="text-blue-400" />
+                      {topicDetails.createFlow.title}
+                    </h2>
+                    <ol className="space-y-3">
+                      {topicDetails.createFlow.steps.map((step, i) => (
+                        <li key={i} className="flex items-start gap-3">
+                          <span className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#60a5fa' }}>
+                            {i + 1}
+                          </span>
+                          <span className="text-gray-300 pt-1">{step}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+
+                {/* Redirect Flow */}
+                {topicDetails.redirectFlow && (
+                  <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                      <Icon name="arrowLeft" size={20} className="text-purple-400" />
+                      {topicDetails.redirectFlow.title}
+                    </h2>
+                    <ol className="space-y-3">
+                      {topicDetails.redirectFlow.steps.map((step, i) => (
+                        <li key={i} className="flex items-start gap-3">
+                          <span className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ background: 'rgba(168, 85, 247, 0.2)', color: '#c084fc' }}>
+                            {i + 1}
+                          </span>
+                          <span className="text-gray-300 pt-1">{step}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+
+                {/* Discussion Points */}
+                {topicDetails.discussionPoints && (
+                  <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                      <Icon name="messageCircle" size={20} className="text-cyan-400" />
+                      Additional Discussion Points
+                    </h2>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {topicDetails.discussionPoints.map((point, i) => (
+                        <div key={i} className="p-4 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                          <h4 className="text-cyan-400 font-semibold mb-2">{point.topic}</h4>
+                          <ul className="space-y-1">
+                            {point.points.map((p, j) => (
+                              <li key={j} className="flex items-start gap-2 text-gray-400 text-sm">
+                                <span className="text-cyan-400 mt-1">•</span>
+                                <span>{p}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Fallback: Simple Components Display */}
+                {!topicDetails.introduction && topicDetails.components && (
+                  <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
                     <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                      <Icon name="database" size={18} className="text-yellow-400" />
-                      Database Schema
+                      <Icon name="layers" size={18} className="text-purple-400" />
+                      System Components
                     </h3>
-                    <div className="font-mono text-sm text-yellow-400 bg-black/30 p-3 rounded overflow-x-auto">
-                      {topicDetails.databaseSchema}
+                    <div className="flex flex-wrap gap-2">
+                      {topicDetails.components.map((comp, i) => (
+                        <span key={i} className="px-3 py-1.5 rounded-lg text-sm bg-purple-500/15 text-purple-400">
+                          {comp}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 )}
 
                 {/* Key Design Decisions */}
-                <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                    <Icon name="lightbulb" size={18} className="text-amber-400" />
-                    Key Design Decisions
-                  </h3>
-                  <ul className="space-y-3">
-                    {topicDetails.keyDecisions.map((decision, i) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <span className="w-6 h-6 rounded flex items-center justify-center text-xs font-mono flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>{i + 1}</span>
-                        <span className="text-gray-300">{decision}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Scaling Strategy */}
-                {topicDetails.scalingStrategy && (
-                  <div className="p-6 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.02))', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                    <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                      <Icon name="zap" size={18} className="text-green-400" />
-                      Scaling Strategy
+                {topicDetails.keyDecisions && (
+                  <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                      <Icon name="lightbulb" size={18} className="text-amber-400" />
+                      Key Design Decisions
                     </h3>
-                    <p className="text-gray-300">{topicDetails.scalingStrategy}</p>
+                    <ul className="space-y-3">
+                      {topicDetails.keyDecisions.map((decision, i) => (
+                        <li key={i} className="flex items-start gap-3">
+                          <span className="w-6 h-6 rounded flex items-center justify-center text-xs font-mono flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>{i + 1}</span>
+                          <span className="text-gray-300">{decision}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </>
