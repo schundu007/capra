@@ -96,8 +96,16 @@ function renderMarkdown(text) {
 const API_URL = getApiUrl();
 
 function getAuthHeaders() {
+  const headers = {};
   const token = localStorage.getItem('chundu_token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  // Add Electron header for backend to skip webapp authentication
+  if (window.electronAPI?.isElectron) {
+    headers['X-Electron-App'] = 'true';
+  }
+  return headers;
 }
 
 export default function AscendAssistantPanel({ onClose, provider, model }) {

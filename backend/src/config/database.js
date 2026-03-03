@@ -1,16 +1,22 @@
-import pg from 'pg';
-const { Pool } = pg;
+// PostgreSQL connection pool - dynamically imported only when DATABASE_URL is set
+let pool = null;
 
-// PostgreSQL connection pool
-const pool = process.env.DATABASE_URL
-  ? new Pool({
+// Initialize pool only if DATABASE_URL is configured
+if (process.env.DATABASE_URL) {
+  try {
+    const pg = await import('pg');
+    const { Pool } = pg.default;
+    pool = new Pool({
       connectionString: process.env.DATABASE_URL,
       ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
       max: 20,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 2000,
-    })
-  : null;
+    });
+  } catch (err) {
+    console.warn('[Database] pg module not available, database features disabled');
+  }
+}
 
 /**
  * Check if database is configured

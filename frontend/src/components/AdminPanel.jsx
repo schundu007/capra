@@ -20,10 +20,17 @@ export default function AdminPanel({ token, onClose }) {
   const [success, setSuccess] = useState('');
   const [activeTab, setActiveTab] = useState('pending');
 
-  const getAuthHeaders = () => ({
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
-  });
+  const getAuthHeaders = () => {
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
+    // Add Electron header for backend to skip webapp authentication
+    if (window.electronAPI?.isElectron) {
+      headers['X-Electron-App'] = 'true';
+    }
+    return headers;
+  };
 
   const fetchUsers = async () => {
     try {

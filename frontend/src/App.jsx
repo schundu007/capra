@@ -92,10 +92,18 @@ function getToken() {
   return localStorage.getItem('chundu_token');
 }
 
-// Get auth headers
+// Get auth headers (includes Electron detection)
 function getAuthHeaders() {
+  const headers = {};
   const token = getToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  // Add Electron header for backend to skip webapp authentication
+  if (window.electronAPI?.isElectron) {
+    headers['X-Electron-App'] = 'true';
+  }
+  return headers;
 }
 
 // Clean up text - remove double spaces, extra empty lines
