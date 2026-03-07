@@ -215,16 +215,16 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
       <div className="flex items-center justify-between gap-2 mb-3 flex-shrink-0">
         {/* Tabs */}
         <div className="flex items-center gap-1">
-          <div className="flex gap-1 p-1 rounded-lg" style={{ background: '#f5f5f5' }}>
+          <div className="flex gap-1 p-1 rounded-xl" style={{ background: '#f3f4f6', border: '1px solid rgba(0, 0, 0, 0.04)' }}>
             {tabs.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => handleTabSwitch(tab.id)}
-                className="px-2.5 py-1 text-[10px] font-medium rounded-md transition-all"
+                className="px-3 py-1.5 text-[11px] font-medium rounded-lg transition-all"
                 style={{
                   background: activeTab === tab.id ? '#ffffff' : 'transparent',
-                  color: activeTab === tab.id ? '#000000' : '#000000',
-                  border: activeTab === tab.id ? '1px solid #e5e5e5' : '1px solid transparent',
+                  color: activeTab === tab.id ? '#111827' : '#6b7280',
+                  boxShadow: activeTab === tab.id ? '0 1px 3px rgba(0, 0, 0, 0.08)' : 'none',
                 }}
               >
                 {tab.label}
@@ -275,16 +275,25 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               value={problemText}
               onChange={(e) => setProblemText(e.target.value)}
               placeholder={ascendMode === 'system-design' ? 'Describe your system design problem...' : 'Paste coding problem...'}
-              className="w-full px-3 py-2 resize-none rounded-lg placeholder-gray-400 focus:outline-none focus:ring-1 scrollbar-thin"
+              className="w-full px-4 py-3 resize-none rounded-xl placeholder-gray-400 focus:outline-none scrollbar-thin"
               style={{
                 minHeight: '60px',
                 maxHeight: expanded !== false ? '600px' : '400px',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                fontSize: '13px',
+                fontSize: '14px',
                 lineHeight: '1.6',
                 background: '#ffffff',
-                border: '1px solid #e5e5e5',
-                color: '#333333',
+                border: '1px solid rgba(0, 0, 0, 0.08)',
+                color: '#1a1a1a',
+                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#10b981';
+                e.target.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
+                e.target.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.04)';
               }}
               spellCheck="false"
               autoCorrect="off"
@@ -298,10 +307,21 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               <button
                 type="submit"
                 disabled={isLoading || !problemText.trim()}
-                className="px-4 py-1.5 text-[11px] font-semibold rounded-lg transition-all disabled:opacity-50 hover:opacity-90"
+                className="px-5 py-2 text-[11px] font-semibold rounded-lg transition-all disabled:opacity-50"
                 style={{
-                  background: '#10b981',
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                   color: 'white',
+                  boxShadow: '0 2px 6px rgba(16, 185, 129, 0.25)',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isLoading && problemText.trim()) {
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.35)';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = '0 2px 6px rgba(16, 185, 129, 0.25)';
+                  e.currentTarget.style.transform = 'translateY(0)';
                 }}
               >
                 {isLoading ? '...' : 'Solve'}
@@ -317,18 +337,42 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://leetcode.com/problems/..."
-              className="w-full px-3 py-2 text-[12px] rounded-lg focus:outline-none focus:ring-1"
-              style={{ background: '#ffffff', border: '1px solid #e5e5e5', color: '#333333' }}
+              className="w-full px-4 py-3 text-[13px] rounded-xl focus:outline-none"
+              style={{
+                background: '#ffffff',
+                border: '1px solid rgba(0, 0, 0, 0.08)',
+                color: '#1a1a1a',
+                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#10b981';
+                e.target.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
+                e.target.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.04)';
+              }}
               disabled={isLoading}
             />
             <div className="flex justify-end">
               <button
                 type="submit"
                 disabled={isLoading || !url.trim()}
-                className="px-4 py-1.5 text-[11px] font-semibold rounded-lg transition-all disabled:opacity-50 hover:opacity-90"
+                className="px-5 py-2 text-[11px] font-semibold rounded-lg transition-all disabled:opacity-50"
                 style={{
-                  background: '#10b981',
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                   color: 'white',
+                  boxShadow: '0 2px 6px rgba(16, 185, 129, 0.25)',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isLoading && url.trim()) {
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.35)';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = '0 2px 6px rgba(16, 185, 129, 0.25)';
+                  e.currentTarget.style.transform = 'translateY(0)';
                 }}
               >
                 {isLoading ? '...' : 'Fetch & Solve'}

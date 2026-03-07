@@ -371,7 +371,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
   if (!code && !isStreaming) {
     return (
       <div className="h-full flex flex-col panel-container">
-        <div className="panel-header" style={{ height: '48px', minHeight: '48px' }}>
+        <div className="panel-header" style={{ height: '44px', minHeight: '44px' }}>
           <div className="panel-header-left">
             <div className="panel-indicator panel-indicator-idle" />
             <span className="panel-title">Code</span>
@@ -380,7 +380,8 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
             {onLanguageChange && (
               <button
                 onClick={() => setShowLanguageModal(true)}
-                className="flex items-center gap-1.5 px-2 py-1 text-[10px] rounded bg-white border border-gray-200 text-black ml-2 hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] rounded-lg bg-white text-gray-600 ml-2 hover:bg-gray-50 transition-colors"
+                style={{ border: '1px solid rgba(0, 0, 0, 0.08)' }}
               >
                 <span className="font-medium">
                   {codingLanguage === 'auto' ? 'Auto' : LANGUAGE_LABELS[codingLanguage] || codingLanguage}
@@ -393,14 +394,15 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
 
             {/* Detail level toggle */}
             {onDetailLevelChange && (
-              <div className="flex items-center rounded-full p-0.5 ml-2" style={{ background: '#f0f0f0', border: '1px solid #e0e0e0' }}>
+              <div className="flex items-center rounded-lg p-0.5 ml-2" style={{ background: '#f3f4f6', border: '1px solid rgba(0, 0, 0, 0.04)' }}>
                 <button
                   type="button"
                   onClick={() => onDetailLevelChange('basic')}
-                  className="px-2 py-0.5 text-[9px] font-semibold transition-all rounded-full"
+                  className="px-2.5 py-1 text-[9px] font-semibold transition-all rounded-md"
                   style={{
                     background: detailLevel === 'basic' ? '#10b981' : 'transparent',
-                    color: detailLevel === 'basic' ? '#ffffff' : '#666666',
+                    color: detailLevel === 'basic' ? '#ffffff' : '#6b7280',
+                    boxShadow: detailLevel === 'basic' ? '0 1px 2px rgba(0, 0, 0, 0.1)' : 'none',
                   }}
                 >
                   Basic
@@ -408,10 +410,11 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
                 <button
                   type="button"
                   onClick={() => onDetailLevelChange('detailed')}
-                  className="px-2 py-0.5 text-[9px] font-semibold transition-all rounded-full"
+                  className="px-2.5 py-1 text-[9px] font-semibold transition-all rounded-md"
                   style={{
                     background: detailLevel === 'detailed' ? '#10b981' : 'transparent',
-                    color: detailLevel === 'detailed' ? '#ffffff' : '#666666',
+                    color: detailLevel === 'detailed' ? '#ffffff' : '#6b7280',
+                    boxShadow: detailLevel === 'detailed' ? '0 1px 2px rgba(0, 0, 0, 0.1)' : 'none',
                   }}
                 >
                   Full
@@ -466,13 +469,29 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
   return (
     <div className="h-full flex flex-col panel-container">
       {/* Header - CoderPad style with Run button */}
-      <div className="panel-header" style={{ height: '48px', minHeight: '48px' }}>
+      <div className="panel-header" style={{ height: '44px', minHeight: '44px' }}>
         <div className="panel-header-left">
-          {/* Run Button - Premium gradient with glow */}
+          {/* Run Button - Modern gradient with glow */}
           <button
             onClick={handleRun}
             disabled={running || !canRun}
-            className={`btn-run flex items-center gap-1.5 px-4 py-1.5 text-[11px] font-semibold rounded-lg transition-all ${running ? 'running' : ''}`}
+            className={`flex items-center gap-1.5 px-4 py-1.5 text-[11px] font-semibold rounded-lg transition-all ${running ? 'running' : ''}`}
+            style={{
+              background: running ? '#d1d5db' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              color: 'white',
+              boxShadow: running ? 'none' : '0 2px 6px rgba(16, 185, 129, 0.25)',
+              cursor: running || !canRun ? 'not-allowed' : 'pointer',
+            }}
+            onMouseEnter={(e) => {
+              if (!running && canRun) {
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.35)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = running ? 'none' : '0 2px 6px rgba(16, 185, 129, 0.25)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
           >
             {running ? (
               <>
@@ -496,7 +515,8 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
           {onLanguageChange && (
             <button
               onClick={() => setShowLanguageModal(true)}
-              className="flex items-center gap-1.5 px-2 py-1 text-[10px] rounded bg-white border border-gray-200 text-black ml-2 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] rounded-lg bg-white text-gray-600 ml-2 hover:bg-gray-50 transition-colors"
+              style={{ border: '1px solid rgba(0, 0, 0, 0.08)' }}
             >
               <span className="font-medium">
                 {codingLanguage === 'auto' ? 'Auto' : LANGUAGE_LABELS[codingLanguage] || codingLanguage}
@@ -509,14 +529,15 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
 
           {/* Detail level toggle */}
           {onDetailLevelChange && (
-            <div className="flex items-center rounded-full p-0.5 ml-2" style={{ background: '#f0f0f0', border: '1px solid #e0e0e0' }}>
+            <div className="flex items-center rounded-lg p-0.5 ml-2" style={{ background: '#f3f4f6', border: '1px solid rgba(0, 0, 0, 0.04)' }}>
               <button
                 type="button"
                 onClick={() => onDetailLevelChange('basic')}
-                className="px-2 py-0.5 text-[9px] font-semibold transition-all rounded-full"
+                className="px-2.5 py-1 text-[9px] font-semibold transition-all rounded-md"
                 style={{
                   background: detailLevel === 'basic' ? '#10b981' : 'transparent',
-                  color: detailLevel === 'basic' ? '#ffffff' : '#666666',
+                  color: detailLevel === 'basic' ? '#ffffff' : '#6b7280',
+                  boxShadow: detailLevel === 'basic' ? '0 1px 2px rgba(0, 0, 0, 0.1)' : 'none',
                 }}
               >
                 Basic
@@ -524,10 +545,11 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
               <button
                 type="button"
                 onClick={() => onDetailLevelChange('detailed')}
-                className="px-2 py-0.5 text-[9px] font-semibold transition-all rounded-full"
+                className="px-2.5 py-1 text-[9px] font-semibold transition-all rounded-md"
                 style={{
                   background: detailLevel === 'detailed' ? '#10b981' : 'transparent',
-                  color: detailLevel === 'detailed' ? '#ffffff' : '#666666',
+                  color: detailLevel === 'detailed' ? '#ffffff' : '#6b7280',
+                  boxShadow: detailLevel === 'detailed' ? '0 1px 2px rgba(0, 0, 0, 0.1)' : 'none',
                 }}
               >
                 Full
@@ -537,7 +559,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
         </div>
 
         <div className="panel-header-right">
-          <span className="text-[10px] font-semibold px-2.5 py-1 rounded-md" style={{ background: 'linear-gradient(180deg, #f5f5f5 0%, #efefef 100%)', color: '#555555', border: '1px solid #e0e0e0' }}>
+          <span className="text-[10px] font-semibold px-2.5 py-1 rounded-md" style={{ background: '#f3f4f6', color: '#4b5563', border: '1px solid rgba(0, 0, 0, 0.04)' }}>
             {normalizedLanguage}
           </span>
           <button

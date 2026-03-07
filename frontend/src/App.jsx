@@ -1499,7 +1499,7 @@ EDGE CASES & RESILIENCE:
         style={{
           paddingLeft: (isMacElectron && !showSidebar) ? '80px' : '20px',
           WebkitAppRegion: 'drag',
-          height: '49px',
+          height: '52px',
         }}
       >
         {/* Left: Logo & Tabs */}
