@@ -375,52 +375,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
           <div className="panel-header-left">
             <div className="panel-indicator panel-indicator-idle" />
             <span className="panel-title">Code</span>
-
-            {/* Language selector button */}
-            {onLanguageChange && (
-              <button
-                onClick={() => setShowLanguageModal(true)}
-                className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] rounded-lg bg-white text-gray-600 ml-2 hover:bg-gray-50 transition-colors"
-                style={{ border: '1px solid rgba(0, 0, 0, 0.08)' }}
-              >
-                <span className="font-medium">
-                  {codingLanguage === 'auto' ? 'Auto' : LANGUAGE_LABELS[codingLanguage] || codingLanguage}
-                </span>
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-            )}
-
-            {/* Detail level toggle */}
-            {onDetailLevelChange && (
-              <div className="flex items-center rounded-lg p-0.5 ml-2" style={{ background: '#f3f4f6', border: '1px solid rgba(0, 0, 0, 0.04)' }}>
-                <button
-                  type="button"
-                  onClick={() => onDetailLevelChange('basic')}
-                  className="px-2.5 py-1 text-[9px] font-semibold transition-all rounded-md"
-                  style={{
-                    background: detailLevel === 'basic' ? '#10b981' : 'transparent',
-                    color: detailLevel === 'basic' ? '#ffffff' : '#6b7280',
-                    boxShadow: detailLevel === 'basic' ? '0 1px 2px rgba(0, 0, 0, 0.1)' : 'none',
-                  }}
-                >
-                  Basic
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onDetailLevelChange('detailed')}
-                  className="px-2.5 py-1 text-[9px] font-semibold transition-all rounded-md"
-                  style={{
-                    background: detailLevel === 'detailed' ? '#10b981' : 'transparent',
-                    color: detailLevel === 'detailed' ? '#ffffff' : '#6b7280',
-                    boxShadow: detailLevel === 'detailed' ? '0 1px 2px rgba(0, 0, 0, 0.1)' : 'none',
-                  }}
-                >
-                  Full
-                </button>
-              </div>
-            )}
+            {/* Language and detail controls moved to Problem panel header */}
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center panel-content-light">
@@ -431,14 +386,6 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
             <p className="text-sm">Submit a problem to see code</p>
           </div>
         </div>
-
-        {/* Language Selector Modal */}
-        <LanguageSelectorModal
-          isOpen={showLanguageModal}
-          onClose={() => setShowLanguageModal(false)}
-          selectedLanguage={codingLanguage || 'auto'}
-          onSelect={(lang) => onLanguageChange && onLanguageChange(lang)}
-        />
       </div>
     );
   }
@@ -511,55 +458,11 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
             )}
           </button>
 
-          {/* Language selector button */}
-          {onLanguageChange && (
-            <button
-              onClick={() => setShowLanguageModal(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] rounded-lg bg-white text-gray-600 ml-2 hover:bg-gray-50 transition-colors"
-              style={{ border: '1px solid rgba(0, 0, 0, 0.08)' }}
-            >
-              <span className="font-medium">
-                {codingLanguage === 'auto' ? 'Auto' : LANGUAGE_LABELS[codingLanguage] || codingLanguage}
-              </span>
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-          )}
-
-          {/* Detail level toggle */}
-          {onDetailLevelChange && (
-            <div className="flex items-center rounded-lg p-0.5 ml-2" style={{ background: '#f3f4f6', border: '1px solid rgba(0, 0, 0, 0.04)' }}>
-              <button
-                type="button"
-                onClick={() => onDetailLevelChange('basic')}
-                className="px-2.5 py-1 text-[9px] font-semibold transition-all rounded-md"
-                style={{
-                  background: detailLevel === 'basic' ? '#10b981' : 'transparent',
-                  color: detailLevel === 'basic' ? '#ffffff' : '#6b7280',
-                  boxShadow: detailLevel === 'basic' ? '0 1px 2px rgba(0, 0, 0, 0.1)' : 'none',
-                }}
-              >
-                Basic
-              </button>
-              <button
-                type="button"
-                onClick={() => onDetailLevelChange('detailed')}
-                className="px-2.5 py-1 text-[9px] font-semibold transition-all rounded-md"
-                style={{
-                  background: detailLevel === 'detailed' ? '#10b981' : 'transparent',
-                  color: detailLevel === 'detailed' ? '#ffffff' : '#6b7280',
-                  boxShadow: detailLevel === 'detailed' ? '0 1px 2px rgba(0, 0, 0, 0.1)' : 'none',
-                }}
-              >
-                Full
-              </button>
-            </div>
-          )}
+          {/* Language and detail controls moved to Problem panel header */}
         </div>
 
         <div className="panel-header-right">
-          <span className="text-[10px] font-semibold px-2.5 py-1 rounded-md" style={{ background: '#f3f4f6', color: '#4b5563', border: '1px solid rgba(0, 0, 0, 0.04)' }}>
+          <span className="text-xs font-semibold px-3 py-1.5 rounded-md" style={{ background: '#f3f4f6', color: '#4b5563', border: '1px solid rgba(0, 0, 0, 0.06)' }}>
             {normalizedLanguage}
           </span>
           <button

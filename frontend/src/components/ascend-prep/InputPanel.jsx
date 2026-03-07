@@ -263,7 +263,7 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
                     >
                       {ICONS.check}
                     </div>
-                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#1a1a1a' }}>{field.label}</span>
+                    <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--content-text)' }}>{field.label}</span>
                     <span style={{ fontSize: '11px', color: '#16a34a', marginTop: '2px' }}>{wordCount.toLocaleString()} words</span>
                     <button
                       className="mt-2 px-3 py-1 rounded text-xs transition-all hover:bg-white/50"
@@ -281,7 +281,7 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
                     >
                       {ICONS[field.icon]}
                     </div>
-                    <span style={{ fontSize: '13px', fontWeight: 500, color: '#1a1a1a' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--content-text)' }}>
                       {field.label}
                       {field.required && <span style={{ color: '#ef4444', marginLeft: '2px' }}>*</span>}
                     </span>
@@ -342,9 +342,9 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
                   <div
                     key={idx}
                     className="flex items-center gap-2 px-2 py-1 rounded"
-                    style={{ background: '#ffffff', border: '1px solid #e5e5e5' }}
+                    style={{ background: 'var(--content-bg)', border: '1px solid #e5e5e5' }}
                   >
-                    <span style={{ fontSize: '12px', color: '#1a1a1a' }}>{doc.name}</span>
+                    <span style={{ fontSize: '12px', color: 'var(--content-text)' }}>{doc.name}</span>
                     <button
                       onClick={() => {
                         const docs = inputs.documentation.filter((_, i) => i !== idx);
@@ -424,7 +424,7 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="px-4 py-3 border-b flex items-center justify-between">
-              <h3 className="font-semibold" style={{ color: '#1a1a1a' }}>
+              <h3 className="font-semibold" style={{ color: 'var(--content-text)' }}>
                 {INPUT_FIELDS.find(f => f.id === editingField)?.label}
               </h3>
               <div className="flex items-center gap-2">
@@ -454,7 +454,7 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
                   height: '300px',
                   border: '1px solid #e5e5e5',
                   background: '#fafafa',
-                  color: '#1a1a1a'
+                  color: 'var(--content-text)'
                 }}
               />
             </div>

@@ -222,8 +222,8 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                 onClick={() => handleTabSwitch(tab.id)}
                 className="px-3 py-1.5 text-[11px] font-medium rounded-lg transition-all"
                 style={{
-                  background: activeTab === tab.id ? '#ffffff' : 'transparent',
-                  color: activeTab === tab.id ? '#111827' : '#6b7280',
+                  background: activeTab === tab.id ? 'var(--content-bg)' : 'transparent',
+                  color: activeTab === tab.id ? 'var(--content-text)' : 'var(--content-text-muted)',
                   boxShadow: activeTab === tab.id ? '0 1px 3px rgba(0, 0, 0, 0.08)' : 'none',
                 }}
               >
@@ -282,9 +282,9 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                 fontSize: '14px',
                 lineHeight: '1.6',
-                background: '#ffffff',
-                border: '1px solid rgba(0, 0, 0, 0.08)',
-                color: '#1a1a1a',
+                background: 'var(--content-bg)',
+                border: '1px solid var(--content-border)',
+                color: 'var(--content-text)',
                 boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
               }}
               onFocus={(e) => {
@@ -339,9 +339,9 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               placeholder="https://leetcode.com/problems/..."
               className="w-full px-4 py-3 text-[13px] rounded-xl focus:outline-none"
               style={{
-                background: '#ffffff',
-                border: '1px solid rgba(0, 0, 0, 0.08)',
-                color: '#1a1a1a',
+                background: 'var(--content-bg)',
+                border: '1px solid var(--content-border)',
+                color: 'var(--content-text)',
                 boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
               }}
               onFocus={(e) => {
@@ -349,7 +349,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                 e.target.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
               }}
               onBlur={(e) => {
-                e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
+                e.target.style.borderColor = 'var(--content-border)';
                 e.target.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.04)';
               }}
               disabled={isLoading}

@@ -67,32 +67,23 @@ export default function Sidebar({
     }
   };
 
-  // Theme-based styles
+  // Theme-based styles - CSS variables now handle theming via data-theme attribute
   const isLight = theme === 'light';
 
   const containerStyle = {
     width: '260px',
     minWidth: '260px',
-    ...(isLight && {
-      background: 'linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%)',
-      color: '#1a1a1a',
-      borderRight: '1px solid #e5e7eb',
-      boxShadow: '2px 0 8px rgba(0, 0, 0, 0.05)',
-    }),
   };
 
   const headerStyle = {
     paddingLeft: isMacElectron ? '80px' : '16px',
     WebkitAppRegion: 'drag',
-    ...(isLight && {
-      background: 'transparent',
-      borderBottom: '1px solid #e5e7eb',
-    }),
   };
 
-  const itemStyle = isLight ? { color: 'rgba(0, 0, 0, 0.7)' } : {};
-  const sectionTitleStyle = isLight ? { color: 'rgba(0, 0, 0, 0.5)' } : {};
-  const badgeStyle = isLight ? { color: 'rgba(0, 0, 0, 0.6)', background: 'rgba(0, 0, 0, 0.06)' } : {};
+  // These are kept for any remaining inline style overrides but CSS variables handle most cases
+  const itemStyle = {};
+  const sectionTitleStyle = {};
+  const badgeStyle = {};
 
   return (
     <div
@@ -117,7 +108,7 @@ export default function Sidebar({
               className="h-4 w-auto object-contain filter brightness-0 invert"
             />
           </div>
-          <span className="sidebar-logo-text" style={isLight ? { color: '#1a1a1a' } : {}}>Ascend</span>
+          <span className="sidebar-logo-text">Ascend</span>
           {isLoading && (
             <div className="w-4 h-4 border-2 rounded-full animate-spin ml-2" style={{ borderColor: '#10b981', borderTopColor: 'transparent' }} />
           )}

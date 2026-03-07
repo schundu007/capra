@@ -378,6 +378,11 @@ export default function App() {
     });
   };
 
+  // Apply theme to document root for CSS variable switching
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', editorSettings.theme || 'dark');
+  }, [editorSettings.theme]);
+
   // System design storage hook
   const systemDesignStorage = useSystemDesignStorage();
 
@@ -1459,8 +1464,8 @@ EDGE CASES & RESILIENCE:
   const isMacElectron = isElectron && navigator.platform.toLowerCase().includes('mac');
 
   // Determine if sidebar should be shown (both Electron and webapp)
-  // Hide sidebar completely in Preparation mode and Behavioral mode for full-page experience
-  const showSidebar = !sidebarCollapsed && ascendMode !== 'ascend-prep' && ascendMode !== 'behavioral';
+  // Show sidebar on all modes for consistent navigation experience
+  const showSidebar = !sidebarCollapsed && ascendMode !== 'ascend-prep';
 
   return (
     <div className="h-screen flex overflow-hidden" style={{ background: 'var(--content-bg)', color: '#1a1a1a' }}>
@@ -1519,7 +1524,7 @@ EDGE CASES & RESILIENCE:
                   className="h-4 w-auto object-contain filter brightness-0 invert"
                 />
               </div>
-              <span className="sidebar-logo-text" style={{ fontSize: '16px' }}>Ascend</span>
+              <span className="sidebar-logo-text" style={{ fontSize: '16px', color: '#ffffff' }}>Ascend</span>
               {isLoading && (
                 <div className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: '#10b981', borderTopColor: 'transparent' }} />
               )}
@@ -1673,13 +1678,19 @@ EDGE CASES & RESILIENCE:
                     </div>
                     {/* Mode controls */}
                     <div className="panel-header-right">
-                      {/* System Design mode controls */}
+                      {/* Mode-specific controls (Coding: language + detail, System Design: detail + auto diagram) */}
                       <AscendModeSelector
                         ascendMode={ascendMode}
+                        // System Design props
                         designDetailLevel={designDetailLevel}
                         onDetailLevelChange={setDesignDetailLevel}
                         autoGenerateEraser={autoGenerateEraser}
                         onAutoGenerateEraserChange={setAutoGenerateEraser}
+                        // Coding props
+                        codingLanguage={codingLanguage}
+                        onLanguageChange={setCodingLanguage}
+                        codingDetailLevel={codingDetailLevel}
+                        onCodingDetailLevelChange={setCodingDetailLevel}
                       />
                     </div>
                   </div>

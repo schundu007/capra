@@ -14,7 +14,7 @@ function renderMarkdown(text) {
 
     // Code block (triple backticks)
     if (trimmed.startsWith('```')) {
-      const lang = trimmed.slice(3).trim();
+      const lang = trimmed.slice(3).trim() || 'code';
       const codeLines = [];
       i++;
       while (i < lines.length && !lines[i].trim().startsWith('```')) {
@@ -22,9 +22,14 @@ function renderMarkdown(text) {
         i++;
       }
       elements.push(
-        <pre key={`code-${elements.length}`} className="text-xs p-3 rounded overflow-x-auto my-2" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: 'Monaco, Consolas, monospace', lineHeight: '1.5' }}>
-          <code>{codeLines.join('\n')}</code>
-        </pre>
+        <div key={`code-${elements.length}`} className="prep-code-block my-3">
+          <div className="prep-code-header">
+            <span className="prep-code-lang">{lang}</span>
+          </div>
+          <pre className="prep-code-content">
+            <code>{codeLines.join('\n')}</code>
+          </pre>
+        </div>
       );
       i++; // Skip closing ```
       continue;
@@ -63,7 +68,7 @@ function renderMarkdown(text) {
       elements.push(
         <ul key={`ul-${elements.length}`} className="list-disc list-inside space-y-1 my-2 ml-2">
           {listItems.map((item, j) => (
-            <li key={j} className="text-sm" style={{ color: '#1a1a1a' }} dangerouslySetInnerHTML={{ __html: processInline(item) }} />
+            <li key={j} className="text-sm" style={{ color: 'var(--content-text)' }} dangerouslySetInnerHTML={{ __html: processInline(item) }} />
           ))}
         </ul>
       );
@@ -80,7 +85,7 @@ function renderMarkdown(text) {
       elements.push(
         <ol key={`ol-${elements.length}`} className="list-decimal list-inside space-y-1 my-2 ml-2">
           {listItems.map((item, j) => (
-            <li key={j} className="text-sm" style={{ color: '#1a1a1a' }} dangerouslySetInnerHTML={{ __html: processInline(item) }} />
+            <li key={j} className="text-sm" style={{ color: 'var(--content-text)' }} dangerouslySetInnerHTML={{ __html: processInline(item) }} />
           ))}
         </ol>
       );
@@ -89,7 +94,7 @@ function renderMarkdown(text) {
 
     // Regular paragraph
     elements.push(
-      <p key={`p-${i}`} className="text-sm mb-2" style={{ color: '#1a1a1a' }} dangerouslySetInnerHTML={{ __html: processInline(trimmed) }} />
+      <p key={`p-${i}`} className="text-sm mb-2" style={{ color: 'var(--content-text)' }} dangerouslySetInnerHTML={{ __html: processInline(trimmed) }} />
     );
     i++;
   }
@@ -166,10 +171,10 @@ const colors = {
   paper: 'var(--content-bg-secondary)',
   accent: 'var(--accent-green)',
   accentLight: 'var(--accent-green-bg)',
-  text: '#1a1a1a',  // Dark text for light backgrounds
-  textMuted: '#666666',  // Medium gray for secondary text
-  textLight: '#888888',  // Light gray for captions
-  border: 'var(--border-default)',
+  text: 'var(--content-text)',
+  textMuted: 'var(--content-text-secondary)',
+  textLight: 'var(--content-text-muted)',
+  border: 'var(--content-border)',
 };
 
 // Sections that should display the Job Description
@@ -787,36 +792,50 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                           </div>
                         )}
 
-                        {/* STAR Format - Full Display */}
+                        {/* STAR Format - Enterprise Display */}
                         {(q.situation || q.task || q.action || q.result) && (
-                          <div className="mt-3 space-y-2">
+                          <div className="prep-star-section mt-4">
                             {q.category && (
-                              <span className="inline-block text-xs px-2 py-0.5 rounded-full mb-2" style={{ background: '#E0E7FF', color: '#3730A3' }}>{q.category}</span>
+                              <span className="prep-content-card-badge info mb-3">{q.category}</span>
                             )}
-                            {q.situation && (
-                              <div className="p-2 rounded" style={{ background: '#f0fdf4', borderLeft: '3px solid #22c55e' }}>
-                                <p className="text-xs font-semibold mb-1" style={{ color: '#15803d' }}>SITUATION</p>
-                                <p className="text-sm" style={{ color: colors.text }}>{q.situation?.trim()}</p>
-                              </div>
-                            )}
-                            {q.task && (
-                              <div className="p-2 rounded" style={{ background: '#eff6ff', borderLeft: '3px solid #3b82f6' }}>
-                                <p className="text-xs font-semibold mb-1" style={{ color: '#1d4ed8' }}>TASK</p>
-                                <p className="text-sm" style={{ color: colors.text }}>{q.task?.trim()}</p>
-                              </div>
-                            )}
-                            {q.action && (
-                              <div className="p-2 rounded" style={{ background: '#fef3c7', borderLeft: '3px solid #f59e0b' }}>
-                                <p className="text-xs font-semibold mb-1" style={{ color: '#b45309' }}>ACTION</p>
-                                <p className="text-sm whitespace-pre-line" style={{ color: colors.text }}>{q.action?.trim()}</p>
-                              </div>
-                            )}
-                            {q.result && (
-                              <div className="p-2 rounded" style={{ background: '#fce7f3', borderLeft: '3px solid #ec4899' }}>
-                                <p className="text-xs font-semibold mb-1" style={{ color: '#be185d' }}>RESULT</p>
-                                <p className="text-sm" style={{ color: colors.text }}>{q.result?.trim()}</p>
-                              </div>
-                            )}
+                            <div className="space-y-3">
+                              {q.situation && (
+                                <div className="p-4 rounded-xl" style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', border: '1px solid rgba(34, 197, 94, 0.2)' }}>
+                                  <div className="prep-star-label situation">
+                                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
+                                    Situation
+                                  </div>
+                                  <p className="text-sm leading-relaxed" style={{ color: '#166534' }}>{q.situation?.trim()}</p>
+                                </div>
+                              )}
+                              {q.task && (
+                                <div className="p-4 rounded-xl" style={{ background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                                  <div className="prep-star-label task">
+                                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" /></svg>
+                                    Task
+                                  </div>
+                                  <p className="text-sm leading-relaxed" style={{ color: '#1e40af' }}>{q.task?.trim()}</p>
+                                </div>
+                              )}
+                              {q.action && (
+                                <div className="p-4 rounded-xl" style={{ background: 'linear-gradient(135deg, #fefce8 0%, #fef3c7 100%)', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                                  <div className="prep-star-label action">
+                                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" /></svg>
+                                    Action
+                                  </div>
+                                  <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: '#92400e' }}>{q.action?.trim()}</p>
+                                </div>
+                              )}
+                              {q.result && (
+                                <div className="p-4 rounded-xl" style={{ background: 'linear-gradient(135deg, #faf5ff 0%, #ede9fe 100%)', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
+                                  <div className="prep-star-label result">
+                                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                                    Result
+                                  </div>
+                                  <p className="text-sm leading-relaxed" style={{ color: '#6d28d9' }}>{q.result?.trim()}</p>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         )}
                         {q.tips && <p className="mt-2 p-2 rounded italic text-xs" style={{ background: '#f8fafc', color: colors.accent }}>💡 {q.tips?.trim()}</p>}
@@ -849,18 +868,26 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                 {safeArray(displayContent.technologies).length > 0 && (
                   <div className="space-y-6">
                     {safeArray(displayContent.technologies).filter(tech => tech && typeof tech === 'object').map((tech, i) => (
-                      <div key={i} className="p-4 rounded-lg" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                      <div key={i} className="prep-content-card">
                         {/* Header */}
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="font-bold text-base" style={{ color: '#1e40af' }}>{tech.name}</span>
-                          {tech.importance && (
-                            <span className="text-xs px-2 py-0.5 rounded-full" style={{
-                              background: tech.importance === 'high' ? '#FEE2E2' : tech.importance === 'medium' ? '#FEF3C7' : '#E0E7FF',
-                              color: tech.importance === 'high' ? '#B91C1C' : tech.importance === 'medium' ? '#92400E' : '#3730A3'
-                            }}>{tech.importance}</span>
-                          )}
+                        <div className="prep-content-card-header">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
+                              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                              </svg>
+                            </div>
+                            <div>
+                              <span className="font-bold text-lg" style={{ color: '#111827' }}>{tech.name}</span>
+                              {tech.importance && (
+                                <span className={`prep-difficulty-badge ml-2 ${tech.importance === 'high' ? 'hard' : tech.importance === 'medium' ? 'medium' : 'easy'}`}>
+                                  {tech.importance}
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        {tech.whyImportant && <p className="text-sm mb-3" style={{ color: colors.textMuted }}>{tech.whyImportant}</p>}
+                        {tech.whyImportant && <p className="text-sm mb-4 leading-relaxed" style={{ color: '#6b7280' }}>{tech.whyImportant}</p>}
 
                         {/* Concepts to Know */}
                         {safeArray(tech.conceptsToKnow).length > 0 && (
@@ -881,12 +908,16 @@ export default function OutputPanel({ section, content, streamingContent, isGene
 
                         {/* Questions */}
                         {safeArray(tech.questions).length > 0 && (
-                          <div className="mb-3">
-                            <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: '#DC2626' }}>Interview Questions</p>
+                          <div className="mb-4">
+                            <div className="prep-section-divider">Interview Questions</div>
                             {safeArray(tech.questions).filter(q => q && typeof q === 'object').map((q, j) => (
-                              <div key={j} className="mb-3 p-3 rounded" style={{ background: '#ffffff' }}>
-                                <p className="font-semibold text-sm mb-1">{q?.question || ''}</p>
-                                {q?.difficulty && <span className="text-xs px-1.5 py-0.5 rounded mr-2" style={{ background: '#E0E7FF', color: '#3730A3' }}>{q.difficulty}</span>}
+                              <div key={j} className="prep-question-item">
+                                <p className="prep-question-text">{q?.question || ''}</p>
+                                {q?.difficulty && (
+                                  <span className={`prep-difficulty-badge ${q.difficulty.toLowerCase() === 'hard' ? 'hard' : q.difficulty.toLowerCase() === 'medium' ? 'medium' : 'easy'}`}>
+                                    {q.difficulty}
+                                  </span>
+                                )}
                                 {q?.answer && (
                                   <div className="text-xs mt-2" style={{ color: colors.text }}>
                                     {renderMarkdown(String(q.answer).replace(/\\n/g, '\n'))}
