@@ -146,7 +146,9 @@ export default function ApiKeyInput({
         </div>
       ) : (
         <div className="flex items-center justify-between">
-          <code className="text-xs font-mono" style={{ color: '#666666' }}>{currentKey}</code>
+          <code className="text-xs font-mono" style={{ color: '#666666' }}>
+            {currentKey ? `${currentKey.slice(0, 7)}${'•'.repeat(20)}${currentKey.slice(-4)}` : '••••••••••••'}
+          </code>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsEditing(true)}
