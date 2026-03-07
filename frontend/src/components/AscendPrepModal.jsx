@@ -226,6 +226,164 @@ function saveCompanyData(companyData) {
   localStorage.setItem('interviewPrepCompanies', JSON.stringify(companyData));
 }
 
+// Check if user is authenticated for cloud sync
+function isAuthenticated() {
+  const token = localStorage.getItem('chundu_token');
+  return !!token && !window.electronAPI?.isElectron;
+}
+
+// Load company data from cloud API
+async function loadCloudData() {
+  const token = localStorage.getItem('chundu_token');
+  if (!token) return null;
+
+  try {
+    const response = await fetch(API_URL + '/api/company-preps', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      console.warn('[CloudSync] Failed to load cloud data:', response.status);
+      return null;
+    }
+
+    const { preps } = await response.json();
+    
+    // Convert API format to local format
+    const companies = preps.map(p => p.company_name);
+    const activeCompany = companies.length > 0 ? companies[0] : null;
+    const data = {};
+    
+    for (const prep of preps) {
+      data[prep.company_name] = {
+        cloudId: prep.id,
+        inputs: typeof prep.inputs === 'string' ? JSON.parse(prep.inputs) : prep.inputs || {},
+        generated: typeof prep.generated === 'string' ? JSON.parse(prep.generated) : prep.generated || {},
+        customSections: typeof prep.custom_sections === 'string' ? JSON.parse(prep.custom_sections) : prep.custom_sections || [],
+      };
+    }
+
+    console.log('[CloudSync] Loaded', preps.length, 'companies from cloud');
+    return { companies, activeCompany, data };
+  } catch (error) {
+    console.error('[CloudSync] Error loading cloud data:', error);
+    return null;
+  }
+}
+
+// Create company in cloud
+async function createCloudCompany(companyName) {
+  const token = localStorage.getItem('chundu_token');
+  if (!token) return null;
+
+  try {
+    const response = await fetch(API_URL + '/api/company-preps', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ company_name: companyName }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.warn('[CloudSync] Failed to create company:', error);
+      return { error };
+    }
+
+    const { prep } = await response.json();
+    console.log('[CloudSync] Created company in cloud:', companyName);
+    return { success: true, id: prep.id };
+  } catch (error) {
+    console.error('[CloudSync] Error creating company:', error);
+    return { error: error.message };
+  }
+}
+
+// Update company in cloud
+async function updateCloudCompany(cloudId, data) {
+  const token = localStorage.getItem('chundu_token');
+  if (!token || !cloudId) return false;
+
+  try {
+    const response = await fetch(API_URL + '/api/company-preps/' + cloudId, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        inputs: data.inputs,
+        generated: data.generated,
+        custom_sections: data.customSections,
+      }),
+    });
+
+    if (!response.ok) {
+      console.warn('[CloudSync] Failed to update company:', response.status);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('[CloudSync] Error updating company:', error);
+    return false;
+  }
+}
+
+// Delete company from cloud
+async function deleteCloudCompany(cloudId) {
+  const token = localStorage.getItem('chundu_token');
+  if (!token || !cloudId) return false;
+
+  try {
+    const response = await fetch(API_URL + '/api/company-preps/' + cloudId, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error('[CloudSync] Error deleting company:', error);
+    return false;
+  }
+}
+
+// Rename company in cloud
+async function renameCloudCompany(cloudId, newName) {
+  const token = localStorage.getItem('chundu_token');
+  if (!token || !cloudId) return false;
+
+  try {
+    const response = await fetch(API_URL + '/api/company-preps/' + cloudId, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ company_name: newName }),
+    });
+
+    if (!response.ok) {
+      console.warn('[CloudSync] Failed to rename company:', response.status);
+      return false;
+    }
+
+    console.log('[CloudSync] Renamed company to:', newName);
+    return true;
+  } catch (error) {
+    console.error('[CloudSync] Error renaming company:', error);
+    return false;
+  }
+}
+
 export default function AscendPrepModal({ isOpen, onClose, provider, model, isDedicatedWindow = false, embedded = false }) {
   const [activeTab, setActiveTab] = useState('input');
   const [companies, setCompanies] = useState([]);
@@ -252,30 +410,54 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
   // Get filtered sections based on active company (e.g., RRK only for Google)
   const sections = getFilteredSections(activeCompany);
 
-  // Load company data on mount
+  // Load company data on mount (cloud sync for authenticated webapp users)
   useEffect(() => {
     if (isOpen || embedded) {
       setIsLoadingCompany(true);
-      const data = loadCompanyData();
-      setCompanies(data.companies);
-      setActiveCompany(data.activeCompany);
 
-      if (data.activeCompany && data.data[data.activeCompany]) {
-        setInputs(data.data[data.activeCompany].inputs || { ...EMPTY_INPUTS });
-        setGenerated(data.data[data.activeCompany].generated || { ...EMPTY_GENERATED });
-        setCustomSections(data.data[data.activeCompany].customSections || []);
-        // Restore active tab for this company
-        if (data.data[data.activeCompany].activeTab) {
-          setActiveTab(data.data[data.activeCompany].activeTab);
+      const loadData = async () => {
+        let data;
+
+        // Try cloud sync for authenticated webapp users
+        if (isAuthenticated()) {
+          console.log('[CloudSync] Authenticated user, loading from cloud...');
+          const cloudData = await loadCloudData();
+          if (cloudData) {
+            data = cloudData;
+            // Also save to localStorage as backup
+            saveCompanyData(data);
+          } else {
+            // Fall back to localStorage if cloud fails
+            console.log('[CloudSync] Cloud load failed, falling back to localStorage');
+            data = loadCompanyData();
+          }
+        } else {
+          // Desktop app or unauthenticated - use localStorage only
+          data = loadCompanyData();
         }
-      } else {
-        setInputs({ ...EMPTY_INPUTS });
-        setGenerated({ ...EMPTY_GENERATED });
-        setCustomSections([]);
-      }
 
-      // Re-enable auto-save after initial load
-      setTimeout(() => setIsLoadingCompany(false), 100);
+        setCompanies(data.companies);
+        setActiveCompany(data.activeCompany);
+
+        if (data.activeCompany && data.data[data.activeCompany]) {
+          setInputs(data.data[data.activeCompany].inputs || { ...EMPTY_INPUTS });
+          setGenerated(data.data[data.activeCompany].generated || { ...EMPTY_GENERATED });
+          setCustomSections(data.data[data.activeCompany].customSections || []);
+          // Restore active tab for this company
+          if (data.data[data.activeCompany].activeTab) {
+            setActiveTab(data.data[data.activeCompany].activeTab);
+          }
+        } else {
+          setInputs({ ...EMPTY_INPUTS });
+          setGenerated({ ...EMPTY_GENERATED });
+          setCustomSections([]);
+        }
+
+        // Re-enable auto-save after initial load
+        setTimeout(() => setIsLoadingCompany(false), 100);
+      };
+
+      loadData();
     }
   }, [isOpen, embedded]);
 
@@ -363,10 +545,14 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
 
   // Save current company data whenever inputs, generated content, custom sections, or active tab change
   // Skip during company loading to prevent data bleeding
+  // Also sync to cloud for authenticated webapp users (debounced)
   useEffect(() => {
     if (activeCompany && !isLoadingCompany) {
       const data = loadCompanyData();
+      const existingCloudId = data.data[activeCompany]?.cloudId;
+
       data.data[activeCompany] = {
+        cloudId: existingCloudId, // Preserve cloudId if it exists
         inputs,
         generated,
         customSections,
@@ -374,6 +560,22 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
       };
       data.activeCompany = activeCompany;
       saveCompanyData(data);
+
+      // Sync to cloud for authenticated users (debounced to avoid too many API calls)
+      if (isAuthenticated() && existingCloudId) {
+        // Use a debounce key to prevent rapid-fire updates
+        const debounceKey = `cloudSync_${activeCompany}`;
+        if (window[debounceKey]) {
+          clearTimeout(window[debounceKey]);
+        }
+        window[debounceKey] = setTimeout(() => {
+          updateCloudCompany(existingCloudId, {
+            inputs,
+            generated,
+            customSections,
+          });
+        }, 2000); // 2 second debounce
+      }
     }
   }, [inputs, generated, customSections, activeCompany, activeTab, isLoadingCompany]);
 
@@ -382,8 +584,8 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
     setInputs(prev => ({ ...prev, [field]: value }));
   };
 
-  // Create a new company
-  const handleCreateCompany = (name) => {
+  // Create a new company (with cloud sync for authenticated users)
+  const handleCreateCompany = async (name) => {
     const trimmedName = name.trim();
     if (!trimmedName || companies.includes(trimmedName)) {
       return;
@@ -396,16 +598,28 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
 
     // Save current company's data first before switching
     if (activeCompany) {
+      const existingCloudId = data.data[activeCompany]?.cloudId;
       data.data[activeCompany] = {
+        cloudId: existingCloudId,
         inputs,
         generated,
         customSections,
       };
     }
 
+    // Create in cloud for authenticated users
+    let cloudId = null;
+    if (isAuthenticated()) {
+      const result = await createCloudCompany(trimmedName);
+      if (result?.success) {
+        cloudId = result.id;
+      }
+    }
+
     data.companies.push(trimmedName);
     data.activeCompany = trimmedName;
     data.data[trimmedName] = {
+      cloudId, // Store cloudId if created
       inputs: { ...EMPTY_INPUTS },
       generated: { ...EMPTY_GENERATED },
       customSections: [], // Include customSections
@@ -441,7 +655,9 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
     // CRITICAL: Save current company's data BEFORE switching
     // This prevents data bleeding between companies
     if (activeCompany && data.data[activeCompany] !== undefined) {
+      const existingCloudId = data.data[activeCompany]?.cloudId;
       data.data[activeCompany] = {
+        cloudId: existingCloudId, // Preserve cloudId
         inputs,
         generated,
         customSections,
@@ -470,7 +686,8 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
   };
 
   // Rename company
-  const handleRenameCompany = (newName) => {
+  // Rename company (with cloud sync for authenticated users)
+  const handleRenameCompany = async (newName) => {
     const trimmedName = newName.trim();
     if (!trimmedName || trimmedName === activeCompany) {
       setEditingCompanyName(false);
@@ -485,8 +702,16 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
     const data = loadCompanyData();
     const index = data.companies.indexOf(activeCompany);
     if (index !== -1) {
+      const existingCloudId = data.data[activeCompany]?.cloudId;
+
+      // Rename in cloud for authenticated users
+      if (isAuthenticated() && existingCloudId) {
+        await renameCloudCompany(existingCloudId, trimmedName);
+      }
+
       // Save current state before renaming (capture any unsaved changes)
       const currentCompanyData = {
+        cloudId: existingCloudId, // Preserve cloudId
         inputs,
         generated,
         customSections,
@@ -504,8 +729,8 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
     setEditingCompanyName(false);
   };
 
-  // Delete a company
-  const handleDeleteCompany = (companyName) => {
+  // Delete a company (with cloud sync for authenticated users)
+  const handleDeleteCompany = async (companyName) => {
     if (!confirm(`Delete "${companyName}" and all its interview prep data?`)) {
       return;
     }
@@ -515,9 +740,17 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
 
     const data = loadCompanyData();
 
+    // Delete from cloud for authenticated users
+    const cloudId = data.data[companyName]?.cloudId;
+    if (isAuthenticated() && cloudId) {
+      await deleteCloudCompany(cloudId);
+    }
+
     // Save current active company's data first (if not the one being deleted)
     if (activeCompany && activeCompany !== companyName) {
+      const existingCloudId = data.data[activeCompany]?.cloudId;
       data.data[activeCompany] = {
+        cloudId: existingCloudId,
         inputs,
         generated,
         customSections,
