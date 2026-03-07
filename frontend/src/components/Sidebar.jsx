@@ -248,10 +248,13 @@ export default function Sidebar({
       <div className="sidebar-footer">
         {/* Stealth Mode - Electron only */}
         {isElectron && (
-          <button
+          <div
             onClick={onToggleStealth}
             className={`sidebar-item ${stealthMode ? 'active' : ''}`}
             title={stealthMode ? 'Stealth ON - Click to disable' : 'Stealth OFF - Click to enable'}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === 'Enter' && onToggleStealth()}
           >
             <div className="sidebar-item-icon">
               <Icon name={stealthMode ? 'eyeOff' : 'eye'} size={18} />
@@ -263,7 +266,7 @@ export default function Sidebar({
             >
               <div className="sidebar-toggle-knob" />
             </button>
-          </button>
+          </div>
         )}
 
         {/* Settings */}
