@@ -20,6 +20,7 @@
     "https://*.coderpad.io/*",
     "https://*.codesignal.com/*",
     "https://*.codility.com/*",
+    "https://*.railway.app/*",
     "http://localhost:*/*"
   ],
   "background": {
