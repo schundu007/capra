@@ -1,12 +1,60 @@
 import { verifyToken, isAuthEnabled, hasRole, hasMinRole, ROLES } from '../services/users.js';
+import jwt from 'jsonwebtoken';
+import { initUser } from '../config/database.js';
+
+const JWT_SECRET = process.env.JWT_SECRET_KEY;
+const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'HS256';
+
+/**
+ * Try to verify JWT token (for webapp users with Cariara OAuth)
+ */
+async function tryJwtAuth(token) {
+  if (!JWT_SECRET) return null;
+
+  try {
+    const payload = jwt.verify(token, JWT_SECRET, {
+      algorithms: [JWT_ALGORITHM],
+    });
+
+    if (payload.type === 'access' && payload.sub) {
+      const userId = parseInt(payload.sub, 10);
+      if (userId) {
+        // Initialize user data
+        try {
+          await initUser(userId);
+        } catch (err) {
+          // Ignore init errors
+        }
+
+        return {
+          id: userId,
+          email: payload.email,
+          role: payload.role || 'user',
+        };
+      }
+    }
+  } catch (error) {
+    // JWT verification failed
+  }
+  return null;
+}
 
 /**
  * Authentication middleware
- * Checks for valid JWT token in Authorization header
+ * Supports multiple auth methods:
+ * 1. Electron apps (X-Electron-App header) - skip auth
+ * 2. JWT tokens (Cariara OAuth) - verify JWT
+ * 3. Local tokens - verify with local user service
  */
-export function authenticate(req, res, next) {
-  // If no users configured, skip authentication
-  if (!isAuthEnabled()) {
+export async function authenticate(req, res, next) {
+  // Allow Electron apps through (they provide their own API keys)
+  const isElectron = req.headers['x-electron-app'] === 'true';
+  if (isElectron) {
+    return next();
+  }
+
+  // If no users configured and no JWT secret, skip authentication
+  if (!isAuthEnabled() && !JWT_SECRET) {
     return next();
   }
 
@@ -29,18 +77,27 @@ export function authenticate(req, res, next) {
   }
 
   const token = parts[1];
-  const result = verifyToken(token);
 
-  if (!result.valid) {
-    return res.status(401).json({
-      error: 'Invalid or expired token',
-      code: 'INVALID_TOKEN',
-    });
+  // Try JWT auth first (for webapp users)
+  const jwtUser = await tryJwtAuth(token);
+  if (jwtUser) {
+    req.user = jwtUser;
+    return next();
   }
 
-  // Attach user to request
-  req.user = result.user;
-  next();
+  // Fall back to local token verification
+  if (isAuthEnabled()) {
+    const result = verifyToken(token);
+    if (result.valid) {
+      req.user = result.user;
+      return next();
+    }
+  }
+
+  return res.status(401).json({
+    error: 'Invalid or expired token',
+    code: 'INVALID_TOKEN',
+  });
 }
 
 /**

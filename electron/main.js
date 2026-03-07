@@ -10,6 +10,7 @@ import { startBackendServer } from './backend-server.js';
 import { setupApiKeyHandlers } from './ipc/api-keys.js';
 import { setupSettingsHandlers } from './ipc/settings.js';
 import { setupDeviceLicenseHandlers } from './ipc/device-license.js';
+import { setupAccountAuthHandlers } from './ipc/account-auth.js';
 import { configStore } from './store/config-store.js';
 import { secureStore } from './store/secure-store.js';
 import * as systemDesignsStore from './store/system-designs-store.js';
@@ -381,6 +382,9 @@ app.whenReady().then(async () => {
   // Create window and menu
   createAppMenu();
   await createWindow();
+
+  // Set up account auth handlers (needs mainWindow)
+  setupAccountAuthHandlers(mainWindow);
 
   // Send first-run event if needed
   if (firstRun) {

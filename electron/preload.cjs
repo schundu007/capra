@@ -131,6 +131,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   setAuthToken: (token) => ipcRenderer.invoke('set-auth-token', token),
   getUserId: () => ipcRenderer.invoke('get-user-id'),
 
+  // Account Auth (OAuth login for cloud sync)
+  accountLogin: (provider) => ipcRenderer.invoke('account-login', provider || 'google'),
+  accountStatus: () => ipcRenderer.invoke('account-status'),
+  accountLogout: () => ipcRenderer.invoke('account-logout'),
+
 });
 
 // Expose a flag to detect Electron environment
