@@ -44,6 +44,8 @@ const ALLOWED_ORIGINS = [
   // Production frontend
   'https://chundu.vercel.app',
   'https://ascend.vercel.app',
+  'https://capra.cariara.com',
+  'https://cariara.com',
   // Development
   'http://localhost:5173',
   'http://localhost:3000',
