@@ -17,7 +17,6 @@ export default function Sidebar({
   onCollapse,
   onViewAllDesigns,
   onViewAllHistory,
-  onOpenSettings,
   isLoading,
   showAscendAssistant,
   onToggleAscendAssistant,
@@ -262,18 +261,6 @@ export default function Sidebar({
 
       {/* Footer Section */}
       <div className="sidebar-footer" style={isLight ? { borderTop: '1px solid #e5e7eb', background: 'transparent' } : {}}>
-        {/* Settings */}
-        <button
-          onClick={onOpenSettings}
-          className="sidebar-item"
-          style={itemStyle}
-        >
-          <div className="sidebar-item-icon">
-            <Icon name="settings" size={18} />
-          </div>
-          <span className="sidebar-item-text">Settings</span>
-        </button>
-
         {/* User Section */}
         {authRequired && user && (
           <div className="sidebar-user mt-2">

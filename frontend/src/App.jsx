@@ -1481,7 +1481,6 @@ EDGE CASES & RESILIENCE:
           onCollapse={toggleSidebar}
           onViewAllDesigns={() => setShowSavedDesigns(true)}
           onViewAllHistory={() => {/* Could add a history modal later */}}
-          onOpenSettings={() => { setSidebarCollapsed(true); setShowSettings(true); }}
           isLoading={isLoading}
           showAscendAssistant={showAscendAssistant}
           onToggleAscendAssistant={() => setShowAscendAssistant(!showAscendAssistant)}
@@ -1609,8 +1608,19 @@ EDGE CASES & RESILIENCE:
           </div>
         )}
 
-        {/* Right: Credits */}
+        {/* Right: Settings & Credits */}
         <div className="flex items-center gap-3" style={{ WebkitAppRegion: 'no-drag' }}>
+          <button
+            onClick={() => setShowSettings(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all hover:bg-white/10"
+            style={{ 
+              color: 'rgba(255, 255, 255, 0.7)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            }}
+            title="Settings"
+          >
+            <span className="text-xs font-medium">Settings</span>
+          </button>
           <CreditBalance
             onUpgrade={() => setShowPricingPlans(true)}
             compact={true}
