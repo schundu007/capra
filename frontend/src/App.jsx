@@ -520,10 +520,9 @@ export default function App() {
               setAscendMode('coding');
             }
 
-            // Store URL for display
-            setExtractedText(`[Auto-detected from ${data.platform}]\n${data.url}`);
-
-            // Trigger URL fetch and solve (use default language and detail level)
+            // Clear any existing text and trigger URL fetch and solve
+            // handleFetchUrl will set extractedText to the actual problem content
+            setExtractedText('');
             handleFetchUrl(data.url, 'auto', 'detailed');
           }
         } catch (err) {
