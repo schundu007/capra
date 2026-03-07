@@ -3,7 +3,6 @@ import { Icon } from './Icons';
 
 // Check if running on macOS in Electron
 const isMacElectron = window.electronAPI?.isElectron && navigator.platform.toLowerCase().includes('mac');
-const isElectron = window.electronAPI?.isElectron || false;
 
 /**
  * Sidebar - Enterprise premium design
@@ -27,8 +26,6 @@ export default function Sidebar({
   authRequired,
   onLogout,
   onOpenAdminPanel,
-  stealthMode = false,
-  onToggleStealth,
   theme = 'dark',
 }) {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
@@ -265,31 +262,6 @@ export default function Sidebar({
 
       {/* Footer Section */}
       <div className="sidebar-footer" style={isLight ? { borderTop: '1px solid #e5e7eb', background: 'transparent' } : {}}>
-        {/* Stealth Mode - Electron only */}
-        {isElectron && (
-          <div
-            onClick={onToggleStealth}
-            className={`sidebar-item ${stealthMode ? 'active' : ''}`}
-            title={stealthMode ? 'Stealth ON - Click to disable' : 'Stealth OFF - Click to enable'}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => e.key === 'Enter' && onToggleStealth()}
-            style={!stealthMode ? itemStyle : {}}
-          >
-            <div className="sidebar-item-icon">
-              <Icon name={stealthMode ? 'eyeOff' : 'eye'} size={18} />
-            </div>
-            <span className="sidebar-item-text">Stealth Mode</span>
-            <button
-              className={`sidebar-toggle ${stealthMode ? 'active' : ''}`}
-              onClick={(e) => { e.stopPropagation(); onToggleStealth(); }}
-              style={isLight && !stealthMode ? { background: 'rgba(0, 0, 0, 0.1)' } : {}}
-            >
-              <div className="sidebar-toggle-knob" />
-            </button>
-          </div>
-        )}
-
         {/* Settings */}
         <button
           onClick={onOpenSettings}

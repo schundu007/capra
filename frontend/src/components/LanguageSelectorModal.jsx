@@ -68,14 +68,14 @@ const LANGUAGES = [
 ];
 
 const CATEGORIES = [
-  { id: 'all', label: 'All Languages', icon: '📚' },
-  { id: 'frontend', label: 'Frontend', icon: '🎨' },
-  { id: 'backend', label: 'Backend', icon: '⚙️' },
-  { id: 'mobile', label: 'Mobile', icon: '📱' },
-  { id: 'sql', label: 'SQL', icon: '🗃️' },
-  { id: 'devops', label: 'DevOps', icon: '🚀' },
-  { id: 'data', label: 'Data / ML', icon: '📊' },
-  { id: 'docs', label: 'Documentation', icon: '📝' },
+  { id: 'all', label: 'All', icon: '📚', color: '#10b981' },
+  { id: 'frontend', label: 'Frontend', icon: '🎨', color: '#3b82f6' },
+  { id: 'backend', label: 'Backend', icon: '⚙️', color: '#8b5cf6' },
+  { id: 'mobile', label: 'Mobile', icon: '📱', color: '#ec4899' },
+  { id: 'sql', label: 'SQL', icon: '🗃️', color: '#f59e0b' },
+  { id: 'devops', label: 'DevOps', icon: '🚀', color: '#06b6d4' },
+  { id: 'data', label: 'Data/ML', icon: '📊', color: '#84cc16' },
+  { id: 'docs', label: 'Docs', icon: '📝', color: '#64748b' },
 ];
 
 export default function LanguageSelectorModal({ isOpen, onClose, selectedLanguage, onSelect }) {
@@ -114,6 +114,7 @@ export default function LanguageSelectorModal({ isOpen, onClose, selectedLanguag
   };
 
   const filteredLanguages = getFilteredLanguages();
+  const activeCategoryData = CATEGORIES.find(c => c.id === activeCategory);
 
   const handleSelect = (value) => {
     onSelect(value);
@@ -122,26 +123,56 @@ export default function LanguageSelectorModal({ isOpen, onClose, selectedLanguag
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ background: 'rgba(0, 0, 0, 0.8)' }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      style={{ background: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(8px)' }}
       onClick={onClose}
     >
       <div
-        className="rounded-xl overflow-hidden shadow-2xl flex"
+        className="relative w-full rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200"
         style={{
-          background: '#1a1a1a',
-          width: '720px',
-          maxWidth: '90vw',
-          height: '500px',
-          maxHeight: '80vh'
+          background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(16, 185, 129, 0.1)',
+          maxWidth: '800px',
+          height: '560px',
+          maxHeight: '85vh',
         }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Left Sidebar - Categories */}
+        {/* Gradient Header Bar */}
         <div
-          className="w-44 flex-shrink-0 py-3 overflow-y-auto"
-          style={{ background: '#141414', borderRight: '1px solid #2a2a2a', position: 'relative', zIndex: 10 }}
-        >
+          className="h-1.5"
+          style={{ background: 'linear-gradient(90deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%)' }}
+        />
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(0, 0, 0, 0.06)' }}>
+          <div className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center shadow-md"
+              style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
+            >
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Select Language</h2>
+              <p className="text-xs text-gray-500">Choose your preferred programming language</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:bg-gray-100"
+            style={{ color: '#9ca3af' }}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Category Pills */}
+        <div className="px-5 py-3 flex flex-wrap gap-2" style={{ borderBottom: '1px solid rgba(0, 0, 0, 0.06)' }}>
           {CATEGORIES.map(cat => (
             <button
               key={cat.id}
@@ -150,121 +181,149 @@ export default function LanguageSelectorModal({ isOpen, onClose, selectedLanguag
                 e.stopPropagation();
                 setActiveCategory(cat.id);
               }}
-              className="w-full flex items-center gap-2 px-4 py-2.5 text-left text-sm transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all"
               style={{
-                background: activeCategory === cat.id ? '#8b5cf6' : 'transparent',
-                color: activeCategory === cat.id ? '#ffffff' : '#a1a1aa',
-                position: 'relative',
-                zIndex: 11,
+                background: activeCategory === cat.id ? cat.color : 'rgba(0, 0, 0, 0.04)',
+                color: activeCategory === cat.id ? '#ffffff' : '#64748b',
+                boxShadow: activeCategory === cat.id ? `0 2px 8px ${cat.color}40` : 'none',
               }}
             >
-              <span>{cat.icon}</span>
-              <span className="font-medium">{cat.label}</span>
+              <span className="text-sm">{cat.icon}</span>
+              <span>{cat.label}</span>
             </button>
           ))}
         </div>
 
-        {/* Right Content - Language Grid */}
-        <div className="flex-1 flex flex-col">
-          {/* Header with search */}
-          <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid #2a2a2a' }}>
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-semibold text-white">Select Language</span>
-              {selectedLanguage && selectedLanguage !== 'auto' && (
-                <span className="text-xs px-2 py-0.5 rounded" style={{ background: '#8b5cf6', color: '#ffffff' }}>
-                  {LANGUAGES.find(l => l.value === selectedLanguage)?.label || selectedLanguage}
-                </span>
-              )}
-            </div>
-            <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Search */}
-          <div className="px-4 py-2" style={{ borderBottom: '1px solid #2a2a2a' }}>
-            <div className="relative">
-              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search languages..."
-                className="w-full pl-9 pr-4 py-2 text-sm rounded-lg"
-                style={{ background: '#252525', color: '#ffffff', border: '1px solid #3a3a3a' }}
-                autoFocus
-              />
-            </div>
-          </div>
-
-          {/* Language Grid */}
-          <div className="flex-1 overflow-y-auto p-4">
-            {/* Auto option */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSelect('auto');
+        {/* Search */}
+        <div className="px-5 py-3" style={{ borderBottom: '1px solid rgba(0, 0, 0, 0.06)' }}>
+          <div className="relative">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search languages..."
+              className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-green-500/30"
+              style={{ 
+                background: '#f8fafc', 
+                color: '#1e293b', 
+                border: '1px solid rgba(0, 0, 0, 0.08)',
               }}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg mb-3 transition-all cursor-pointer"
-              style={{
-                background: selectedLanguage === 'auto' ? 'rgba(139, 92, 246, 0.2)' : '#252525',
-                border: selectedLanguage === 'auto' ? '1px solid #8b5cf6' : '1px solid transparent',
-              }}
-            >
-              <span className="w-8 h-8 flex items-center justify-center rounded-lg text-sm" style={{ background: '#3a3a3a' }}>
-                ✨
-              </span>
-              <div className="text-left">
-                <div className="text-sm font-medium text-white">Auto Detect</div>
-                <div className="text-xs text-gray-500">Let AI choose the best language</div>
-              </div>
-              {selectedLanguage === 'auto' && (
-                <svg className="ml-auto w-5 h-5 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              autoFocus
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
-              )}
-            </button>
-
-            {/* Language grid */}
-            <div className="grid grid-cols-3 gap-2">
-              {filteredLanguages.map(lang => (
-                <button
-                  key={lang.value}
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSelect(lang.value);
-                  }}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-all hover:bg-gray-700 cursor-pointer"
-                  style={{
-                    background: selectedLanguage === lang.value ? 'rgba(139, 92, 246, 0.2)' : '#252525',
-                    border: selectedLanguage === lang.value ? '1px solid #8b5cf6' : '1px solid transparent',
-                  }}
-                >
-                  <span className="w-6 h-6 flex items-center justify-center rounded text-xs font-bold" style={{ background: '#3a3a3a', color: '#ffffff' }}>
-                    {lang.icon}
-                  </span>
-                  <span className="text-sm text-white truncate">{lang.label}</span>
-                  {selectedLanguage === lang.value && (
-                    <svg className="ml-auto w-4 h-4 text-purple-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                </button>
-              ))}
-            </div>
-
-            {filteredLanguages.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                No languages found for "{searchQuery}"
-              </div>
+              </button>
             )}
           </div>
+        </div>
+
+        {/* Language Grid */}
+        <div className="flex-1 overflow-y-auto p-5" style={{ maxHeight: 'calc(100% - 220px)' }}>
+          {/* Auto option */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleSelect('auto');
+            }}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-4 transition-all hover:shadow-md"
+            style={{
+              background: selectedLanguage === 'auto' 
+                ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)' 
+                : '#f8fafc',
+              border: selectedLanguage === 'auto' ? '2px solid #10b981' : '1px solid rgba(0, 0, 0, 0.06)',
+            }}
+          >
+            <div 
+              className="w-10 h-10 flex items-center justify-center rounded-xl text-lg"
+              style={{ 
+                background: selectedLanguage === 'auto' 
+                  ? 'linear-gradient(135deg, #10b981 0%, #3b82f6 100%)' 
+                  : 'linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%)',
+              }}
+            >
+              ✨
+            </div>
+            <div className="text-left flex-1">
+              <div className="text-sm font-semibold text-gray-900">Auto Detect</div>
+              <div className="text-xs text-gray-500">Let AI choose the best language</div>
+            </div>
+            {selectedLanguage === 'auto' && (
+              <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: '#10b981' }}>
+                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+              </div>
+            )}
+          </button>
+
+          {/* Language grid */}
+          <div className="grid grid-cols-4 gap-2">
+            {filteredLanguages.map(lang => (
+              <button
+                key={lang.value}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSelect(lang.value);
+                }}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-all hover:shadow-md group"
+                style={{
+                  background: selectedLanguage === lang.value 
+                    ? `linear-gradient(135deg, ${activeCategoryData?.color || '#10b981'}15 0%, ${activeCategoryData?.color || '#10b981'}08 100%)`
+                    : '#f8fafc',
+                  border: selectedLanguage === lang.value 
+                    ? `2px solid ${activeCategoryData?.color || '#10b981'}` 
+                    : '1px solid rgba(0, 0, 0, 0.04)',
+                }}
+              >
+                <span 
+                  className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold transition-all group-hover:scale-105"
+                  style={{ 
+                    background: selectedLanguage === lang.value 
+                      ? activeCategoryData?.color || '#10b981'
+                      : '#e2e8f0', 
+                    color: selectedLanguage === lang.value ? '#ffffff' : '#475569',
+                  }}
+                >
+                  {lang.icon}
+                </span>
+                <span className="text-sm font-medium text-gray-700 truncate flex-1">{lang.label}</span>
+                {selectedLanguage === lang.value && (
+                  <svg className="w-4 h-4 flex-shrink-0" style={{ color: activeCategoryData?.color || '#10b981' }} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {filteredLanguages.length === 0 && (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: 'rgba(0, 0, 0, 0.04)' }}>
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p className="text-gray-500 font-medium">No languages found</p>
+              <p className="text-sm text-gray-400 mt-1">Try a different search term</p>
+            </div>
+          )}
+        </div>
+
+        {/* Footer hint */}
+        <div className="px-5 py-3 flex items-center justify-between text-xs text-gray-400" style={{ borderTop: '1px solid rgba(0, 0, 0, 0.06)', background: '#fafafa' }}>
+          <span>Press ESC to close</span>
+          <span>{filteredLanguages.length} languages available</span>
         </div>
       </div>
     </div>
