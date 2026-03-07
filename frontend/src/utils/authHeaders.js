@@ -101,6 +101,9 @@ export function getAuthHeaders() {
   const token = getToken();
   if (token) {
     headers.Authorization = `Bearer ${token}`;
+    console.log('[Auth] Token found, length:', token.length);
+  } else {
+    console.warn('[Auth] No token found! ascend_auth:', !!localStorage.getItem('ascend_auth'), 'chundu_token:', !!localStorage.getItem('chundu_token'));
   }
 
   // Add Electron headers
