@@ -390,4 +390,77 @@ router.delete('/all', (req, res) => {
   res.json({ success: true, cleared });
 });
 
+/**
+ * Grant admin subscription to a user (admin secret required)
+ * POST /api/auth/admin/grant-subscription
+ */
+router.post('/admin/grant-subscription', async (req, res) => {
+  const { email, adminSecret } = req.body;
+
+  // Require admin secret from environment
+  const expectedSecret = process.env.ADMIN_SECRET || 'capra-admin-2024';
+  if (adminSecret !== expectedSecret) {
+    return res.status(403).json({ error: 'Invalid admin secret' });
+  }
+
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+
+  try {
+    const { query } = await import('../config/database.js');
+
+    // Find user by email
+    const userResult = await query('SELECT id FROM users WHERE email = $1', [email]);
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: `User not found: ${email}` });
+    }
+
+    const userId = userResult.rows[0].id;
+
+    // Upsert subscription
+    await query(
+      `INSERT INTO ascend_subscriptions (user_id, plan_type, status, created_at, updated_at)
+       VALUES ($1, 'quarterly_pro', 'active', NOW(), NOW())
+       ON CONFLICT (user_id) DO UPDATE SET
+         plan_type = 'quarterly_pro', status = 'active', updated_at = NOW()`,
+      [userId]
+    );
+
+    // Reset free usage limits to max
+    await query(
+      `INSERT INTO ascend_free_usage (user_id, coding_used, coding_limit, design_used, design_limit, company_prep_used, company_prep_limit)
+       VALUES ($1, 0, 9999, 0, 9999, 0, 9999)
+       ON CONFLICT (user_id) DO UPDATE SET
+         coding_used = 0, coding_limit = 9999,
+         design_used = 0, design_limit = 9999,
+         company_prep_used = 0, company_prep_limit = 9999`,
+      [userId]
+    );
+
+    // Add 10000 credits
+    await query(
+      `INSERT INTO ascend_credits (user_id, balance, lifetime_earned)
+       VALUES ($1, 10000, 10000)
+       ON CONFLICT (user_id) DO UPDATE SET
+         balance = ascend_credits.balance + 10000,
+         lifetime_earned = ascend_credits.lifetime_earned + 10000`,
+      [userId]
+    );
+
+    logger.info({ email, userId }, 'Admin granted subscription');
+    res.json({
+      success: true,
+      message: `Subscription granted to ${email}`,
+      userId,
+      subscription: 'quarterly_pro',
+      freeLimit: 9999,
+      creditsAdded: 10000,
+    });
+  } catch (error) {
+    logger.error({ error: error.message, email }, 'Grant subscription failed');
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;
