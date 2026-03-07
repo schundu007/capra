@@ -68,14 +68,14 @@ const LANGUAGES = [
 ];
 
 const CATEGORIES = [
-  { id: 'all', label: 'All', icon: '📚', color: '#10b981' },
-  { id: 'frontend', label: 'Frontend', icon: '🎨', color: '#3b82f6' },
-  { id: 'backend', label: 'Backend', icon: '⚙️', color: '#8b5cf6' },
-  { id: 'mobile', label: 'Mobile', icon: '📱', color: '#ec4899' },
-  { id: 'sql', label: 'SQL', icon: '🗃️', color: '#f59e0b' },
-  { id: 'devops', label: 'DevOps', icon: '🚀', color: '#06b6d4' },
-  { id: 'data', label: 'Data/ML', icon: '📊', color: '#84cc16' },
-  { id: 'docs', label: 'Docs', icon: '📝', color: '#64748b' },
+  { id: 'all', label: 'All', color: '#10b981' },
+  { id: 'frontend', label: 'Frontend', color: '#3b82f6' },
+  { id: 'backend', label: 'Backend', color: '#8b5cf6' },
+  { id: 'mobile', label: 'Mobile', color: '#ec4899' },
+  { id: 'sql', label: 'SQL', color: '#f59e0b' },
+  { id: 'devops', label: 'DevOps', color: '#06b6d4' },
+  { id: 'data', label: 'Data/ML', color: '#84cc16' },
+  { id: 'docs', label: 'Docs', color: '#64748b' },
 ];
 
 export default function LanguageSelectorModal({ isOpen, onClose, selectedLanguage, onSelect }) {
@@ -169,15 +169,14 @@ export default function LanguageSelectorModal({ isOpen, onClose, selectedLanguag
                 e.stopPropagation();
                 setActiveCategory(cat.id);
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all"
+              className="px-4 py-1.5 rounded-full text-sm font-semibold transition-all"
               style={{
                 background: activeCategory === cat.id ? cat.color : 'rgba(0, 0, 0, 0.04)',
                 color: activeCategory === cat.id ? '#ffffff' : '#64748b',
                 boxShadow: activeCategory === cat.id ? `0 2px 8px ${cat.color}40` : 'none',
               }}
             >
-              <span className="text-sm">{cat.icon}</span>
-              <span>{cat.label}</span>
+              {cat.label}
             </button>
           ))}
         </div>
