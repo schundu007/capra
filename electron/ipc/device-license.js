@@ -99,6 +99,30 @@ export function setupDeviceLicenseHandlers() {
     console.log('[DeviceLicense] Cache cleared');
     return true;
   });
+
+  // Get stored auth token for cloud sync
+  ipcMain.handle('get-auth-token', async () => {
+    const credentials = deviceLicense.getStoredCredentials();
+    return credentials.accessToken || null;
+  });
+
+  // Set auth token for cloud sync
+  ipcMain.handle('set-auth-token', async (event, token) => {
+    if (token) {
+      deviceLicense.storeCredentials({ accessToken: token });
+      console.log('[CloudSync] Auth token stored for cloud sync');
+    } else {
+      deviceLicense.clearCredentials();
+      console.log('[CloudSync] Auth token cleared');
+    }
+    return true;
+  });
+
+  // Get user ID from stored credentials
+  ipcMain.handle('get-user-id', async () => {
+    const credentials = deviceLicense.getStoredCredentials();
+    return credentials.userId || null;
+  });
 }
 
 /**

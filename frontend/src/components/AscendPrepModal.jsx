@@ -226,15 +226,29 @@ function saveCompanyData(companyData) {
   localStorage.setItem('interviewPrepCompanies', JSON.stringify(companyData));
 }
 
-// Check if user is authenticated for cloud sync
-function isAuthenticated() {
-  const token = localStorage.getItem('chundu_token');
-  return !!token && !window.electronAPI?.isElectron;
+// Get auth token for cloud sync (works for both webapp and Electron)
+async function getAuthToken() {
+  if (window.electronAPI?.isElectron) {
+    // Electron: get token from secure storage
+    try {
+      return await window.electronAPI.getAuthToken();
+    } catch {
+      return null;
+    }
+  }
+  // Webapp: get token from localStorage
+  return localStorage.getItem('chundu_token');
+}
+
+// Check if user is authenticated for cloud sync (async version)
+async function checkAuthenticated() {
+  const token = await getAuthToken();
+  return !!token;
 }
 
 // Load company data from cloud API
 async function loadCloudData() {
-  const token = localStorage.getItem('chundu_token');
+  const token = await getAuthToken();
   if (!token) return null;
 
   try {
@@ -276,7 +290,7 @@ async function loadCloudData() {
 
 // Create company in cloud
 async function createCloudCompany(companyName) {
-  const token = localStorage.getItem('chundu_token');
+  const token = await getAuthToken();
   if (!token) return null;
 
   try {
@@ -306,7 +320,7 @@ async function createCloudCompany(companyName) {
 
 // Update company in cloud
 async function updateCloudCompany(cloudId, data) {
-  const token = localStorage.getItem('chundu_token');
+  const token = await getAuthToken();
   if (!token || !cloudId) return false;
 
   try {
@@ -337,7 +351,7 @@ async function updateCloudCompany(cloudId, data) {
 
 // Delete company from cloud
 async function deleteCloudCompany(cloudId) {
-  const token = localStorage.getItem('chundu_token');
+  const token = await getAuthToken();
   if (!token || !cloudId) return false;
 
   try {
@@ -358,7 +372,7 @@ async function deleteCloudCompany(cloudId) {
 
 // Rename company in cloud
 async function renameCloudCompany(cloudId, newName) {
-  const token = localStorage.getItem('chundu_token');
+  const token = await getAuthToken();
   if (!token || !cloudId) return false;
 
   try {
@@ -418,8 +432,9 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
       const loadData = async () => {
         let data;
 
-        // Try cloud sync for authenticated webapp users
-        if (isAuthenticated()) {
+        // Try cloud sync for authenticated users (webapp or Electron with token)
+        const isAuth = await checkAuthenticated();
+        if (isAuth) {
           console.log('[CloudSync] Authenticated user, loading from cloud...');
           const cloudData = await loadCloudData();
           if (cloudData) {
@@ -562,18 +577,21 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
       saveCompanyData(data);
 
       // Sync to cloud for authenticated users (debounced to avoid too many API calls)
-      if (isAuthenticated() && existingCloudId) {
+      if (existingCloudId) {
         // Use a debounce key to prevent rapid-fire updates
         const debounceKey = `cloudSync_${activeCompany}`;
         if (window[debounceKey]) {
           clearTimeout(window[debounceKey]);
         }
-        window[debounceKey] = setTimeout(() => {
-          updateCloudCompany(existingCloudId, {
-            inputs,
-            generated,
-            customSections,
-          });
+        window[debounceKey] = setTimeout(async () => {
+          const isAuth = await checkAuthenticated();
+          if (isAuth) {
+            updateCloudCompany(existingCloudId, {
+              inputs,
+              generated,
+              customSections,
+            });
+          }
         }, 2000); // 2 second debounce
       }
     }
@@ -609,7 +627,8 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
 
     // Create in cloud for authenticated users
     let cloudId = null;
-    if (isAuthenticated()) {
+    const isAuth = await checkAuthenticated();
+    if (isAuth) {
       const result = await createCloudCompany(trimmedName);
       if (result?.success) {
         cloudId = result.id;
@@ -705,7 +724,8 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
       const existingCloudId = data.data[activeCompany]?.cloudId;
 
       // Rename in cloud for authenticated users
-      if (isAuthenticated() && existingCloudId) {
+      const isAuthRename = await checkAuthenticated();
+      if (isAuthRename && existingCloudId) {
         await renameCloudCompany(existingCloudId, trimmedName);
       }
 
@@ -742,7 +762,8 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
 
     // Delete from cloud for authenticated users
     const cloudId = data.data[companyName]?.cloudId;
-    if (isAuthenticated() && cloudId) {
+    const isAuthDelete = await checkAuthenticated();
+    if (isAuthDelete && cloudId) {
       await deleteCloudCompany(cloudId);
     }
 
@@ -1699,7 +1720,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
           onClick={() => setShowJDPopup(false)}
         >
           <div
-            className="relative w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200"
+            className="relative w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200"
             style={{
               background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(59, 130, 246, 0.1)',

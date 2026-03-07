@@ -126,6 +126,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return () => ipcRenderer.removeListener('license-status-changed', callback);
   },
 
+  // Cloud Sync Auth Token (for syncing Interview Prep data)
+  getAuthToken: () => ipcRenderer.invoke('get-auth-token'),
+  setAuthToken: (token) => ipcRenderer.invoke('set-auth-token', token),
+  getUserId: () => ipcRenderer.invoke('get-user-id'),
+
 });
 
 // Expose a flag to detect Electron environment
