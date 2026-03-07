@@ -1591,6 +1591,24 @@ EDGE CASES & RESILIENCE:
           </div>
         )}
 
+        {/* Center: Download Desktop App - Webapp only */}
+        {!isElectron && (
+          <div className="flex items-center">
+            <button
+              onClick={() => setShowPricingPlans(true)}
+              className="flex items-center gap-2 px-4 py-1.5 rounded-lg transition-all hover:opacity-90"
+              style={{ 
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                color: '#ffffff',
+                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                border: 'none',
+              }}
+            >
+              <span className="text-sm font-semibold">Download Desktop App</span>
+            </button>
+          </div>
+        )}
+
         {/* Right: Credits */}
         <div className="flex items-center gap-3" style={{ WebkitAppRegion: 'no-drag' }}>
           <CreditBalance
