@@ -642,18 +642,23 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                         )}
 
                         {/* Architecture Diagram - Image or Description */}
-                        {(q.diagramUrl || q.architecture?.diagramDescription || q.architecture?.asciiDiagram) && (
+                        {(q.diagramBase64 || q.diagramUrl || q.architecture?.diagramDescription || q.architecture?.asciiDiagram) && (
                           <div className="mt-3">
                             <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: colors.accent }}>Architecture Diagram</p>
-                            {q.diagramUrl && !failedDiagrams[i] ? (
+                            {(q.diagramBase64 || q.diagramUrl) && !failedDiagrams[i] ? (
                               <div className="rounded-lg overflow-hidden border" style={{ borderColor: colors.border }}>
                                 <img
-                                  src={q.diagramUrl}
+                                  src={q.diagramBase64 || q.diagramUrl}
                                   alt={`Architecture diagram for ${q.title || 'system design'}`}
                                   className="w-full"
                                   style={{ background: '#ffffff' }}
-                                  onError={() => handleDiagramError(i)}
+                                  onError={() => !q.diagramBase64 && handleDiagramError(i)}
                                 />
+                                {q.diagramBase64 && (
+                                  <p className="text-xs p-2 flex items-center gap-1" style={{ background: '#f0fdf4', color: '#15803d' }}>
+                                    <span>✓</span> Cached locally
+                                  </p>
+                                )}
                                 {q.diagramDescription && (
                                   <p className="text-xs p-2" style={{ background: '#f8fafc', color: colors.textMuted }}>{q.diagramDescription}</p>
                                 )}

@@ -5,6 +5,40 @@ import { getApiUrl } from '../hooks/useElectron';
 
 const API_URL = getApiUrl();
 
+// Helper to cache diagram images as base64 to avoid expiration issues
+const cacheDiagramImages = async (content) => {
+  if (!content || typeof content !== 'object') return content;
+  
+  // Deep clone to avoid mutation
+  const cloned = JSON.parse(JSON.stringify(content));
+  
+  // Find questions array in content (system design has this structure)
+  const questions = cloned.questions || [];
+  
+  for (const q of questions) {
+    if (q.diagramUrl && !q.diagramBase64) {
+      try {
+        const response = await fetch(q.diagramUrl);
+        if (response.ok) {
+          const blob = await response.blob();
+          const reader = new FileReader();
+          const base64 = await new Promise((resolve, reject) => {
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+          q.diagramBase64 = base64;
+          console.log('[DiagramCache] Cached diagram for:', q.title);
+        }
+      } catch (err) {
+        console.warn('[DiagramCache] Failed to cache diagram:', err.message);
+      }
+    }
+  }
+  
+  return cloned;
+};
+
 // Section definitions with unique icons and colors
 const ALL_SECTIONS = [
   { id: 'pitch', name: 'Elevator Pitch', description: '2-3 minute interview pitch', icon: 'rocket', color: '#f59e0b' },
@@ -209,6 +243,9 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
   const [showNewCompanyInput, setShowNewCompanyInput] = useState(false);
   const [editingCompanyName, setEditingCompanyName] = useState(false);
   const [showJDPopup, setShowJDPopup] = useState(false);
+  const [jdPopupPos, setJdPopupPos] = useState({ x: 0, y: 0 });
+  const [isDraggingJD, setIsDraggingJD] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const dropdownRef = useRef(null);
   const newCompanyInputRef = useRef(null);
 
@@ -265,14 +302,64 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
 
   // Handle escape key to close JD popup
   useEffect(() => {
+    if (!showJDPopup) return;
+    
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && showJDPopup) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
         setShowJDPopup(false);
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown, true); // Use capture phase
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
   }, [showJDPopup]);
+
+  // Handle JD popup dragging
+  useEffect(() => {
+    if (!isDraggingJD) return;
+    
+    const handleMouseMove = (e) => {
+      setJdPopupPos({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y
+      });
+    };
+    
+    const handleMouseUp = () => {
+      setIsDraggingJD(false);
+    };
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDraggingJD, dragStart]);
+
+  // Reset JD popup position when closing
+  useEffect(() => {
+    if (!showJDPopup) {
+      setJdPopupPos({ x: 0, y: 0 });
+    }
+  }, [showJDPopup]);
+
+  // Cache any existing diagrams that don't have base64 yet (for backward compatibility)
+  useEffect(() => {
+    const systemDesign = generated['system-design'];
+    if (systemDesign && systemDesign.questions) {
+      const needsCaching = systemDesign.questions.some(q => q.diagramUrl && !q.diagramBase64);
+      if (needsCaching) {
+        console.log('[DiagramCache] Found uncached diagrams, caching...');
+        cacheDiagramImages(systemDesign).then(cachedResult => {
+          if (cachedResult !== systemDesign) {
+            setGenerated(prev => ({ ...prev, 'system-design': cachedResult }));
+          }
+        });
+      }
+    }
+  }, [generated['system-design']?.questions?.length]);
 
   // Save current company data whenever inputs, generated content, custom sections, or active tab change
   // Skip during company loading to prevent data bleeding
@@ -523,7 +610,14 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
 
               if (data.done && data.result) {
                 const cleanedResult = cleanupContent(data.result);
-                setGenerated(prev => ({ ...prev, [sectionId]: cleanedResult }));
+                // Cache diagram images for system-design to avoid expiration
+                if (sectionId === 'system-design') {
+                  cacheDiagramImages(cleanedResult).then(cachedResult => {
+                    setGenerated(prev => ({ ...prev, [sectionId]: cachedResult }));
+                  });
+                } else {
+                  setGenerated(prev => ({ ...prev, [sectionId]: cleanedResult }));
+                }
               }
             } catch (e) {
               // Ignore parse errors
@@ -588,6 +682,11 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
 
               if (data.done && data.result) {
                 const cleanedResult = cleanupContent(data.result);
+                // Cache diagram images for system-design to avoid expiration
+                if (sectionId === 'system-design') {
+                  const cachedResult = await cacheDiagramImages(cleanedResult);
+                  return { sectionId, result: cachedResult };
+                }
                 return { sectionId, result: cleanedResult };
               }
             } catch (e) {
@@ -733,7 +832,10 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
 
               if (data.done && data.result) {
                 const cleanedResult = cleanupContent(data.result);
-                setGenerated(prev => ({ ...prev, [sectionId]: cleanedResult }));
+                // Cache any diagram images to avoid expiration
+                cacheDiagramImages(cleanedResult).then(cachedResult => {
+                  setGenerated(prev => ({ ...prev, [sectionId]: cachedResult }));
+                });
               }
             } catch (e) {
               // Ignore parse errors
@@ -1367,18 +1469,33 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
             className="relative w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200"
             style={{
               background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(59, 130, 246, 0.1)'
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(59, 130, 246, 0.1)',
+              transform: `translate(${jdPopupPos.x}px, ${jdPopupPos.y}px)`,
+              transition: isDraggingJD ? 'none' : 'transform 0.1s ease-out'
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Gradient Header Bar */}
+            {/* Gradient Header Bar - Draggable */}
             <div
-              className="h-2"
+              className="h-2 cursor-move"
               style={{ background: 'linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%)' }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                setIsDraggingJD(true);
+                setDragStart({ x: e.clientX - jdPopupPos.x, y: e.clientY - jdPopupPos.y });
+              }}
             />
 
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5">
+            {/* Header - Also Draggable */}
+            <div 
+              className="flex items-center justify-between px-6 py-5 cursor-move select-none"
+              onMouseDown={(e) => {
+                if (e.target.closest('button')) return; // Don't drag when clicking buttons
+                e.preventDefault();
+                setIsDraggingJD(true);
+                setDragStart({ x: e.clientX - jdPopupPos.x, y: e.clientY - jdPopupPos.y });
+              }}
+            >
               <div className="flex items-center gap-4">
                 <div
                   className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg"
