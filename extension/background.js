@@ -164,9 +164,9 @@ async function syncAuthToBackend(platformKey, cookies) {
   let webappSuccess = false;
   let desktopSuccess = false;
 
-  // Sync to webapp backend
+  // Sync to webapp backend (use extension cookies endpoint for global storage)
   try {
-    const response = await fetch(`${apiUrl}/api/auth/platform`, {
+    const response = await fetch(`${apiUrl}/api/extension/cookies`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       mode: 'cors',
