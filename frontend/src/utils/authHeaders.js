@@ -28,14 +28,10 @@ export async function initDeviceId() {
           } catch (e) {
             // Ignore storage errors
           }
-          console.log('[Auth] Device ID initialized:', cachedDeviceId?.substring(0, 15) + '...');
         }
         return cachedDeviceId;
       })
-      .catch(err => {
-        console.error('[Auth] Failed to get device ID:', err);
-        return null;
-      });
+      .catch(() => null);
 
     return deviceIdPromise;
   }
@@ -101,9 +97,6 @@ export function getAuthHeaders() {
   const token = getToken();
   if (token) {
     headers.Authorization = `Bearer ${token}`;
-    console.log('[Auth] Token found, length:', token.length);
-  } else {
-    console.warn('[Auth] No token found! ascend_auth:', !!localStorage.getItem('ascend_auth'), 'chundu_token:', !!localStorage.getItem('chundu_token'));
   }
 
   // Add Electron headers
