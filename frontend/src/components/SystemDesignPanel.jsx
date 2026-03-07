@@ -83,7 +83,7 @@ function CloudArchitectureDiagram({
       <img
         src={imageUrl}
         alt="Cloud Architecture Diagram"
-        className={`h-auto object-contain ${expanded ? 'max-h-[80vh] max-w-full' : 'max-w-[45%]'}`}
+        className={`h-auto object-contain ${expanded ? 'max-h-[80vh] max-w-full' : 'max-w-[60%]'}`}
         onError={(e) => {
           console.error('[CloudDiagram] Image load error:', imageUrl, e);
           setImageError(true);

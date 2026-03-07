@@ -124,6 +124,7 @@ export default function AscendAssistantPanel({ onClose, provider, model }) {
   const [selectedMic, setSelectedMic] = useState('');
   const [selectedSpeaker, setSelectedSpeaker] = useState('');
   const [showDeviceSettings, setShowDeviceSettings] = useState(false);
+  const [audioSource, setAudioSource] = useState('system'); // 'mic' or 'system' - default to system for interviewer audio
 
   const speakerStreamRef = useRef(null);
 
@@ -158,6 +159,45 @@ export default function AscendAssistantPanel({ onClose, provider, model }) {
 
   // Store questions as array for separate lines
   const [questions, setQuestions] = useState([]);
+
+  // Conversation history - persisted to localStorage
+  const [conversationHistory, setConversationHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+
+  // Load conversation history from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('ascend_assistant_history');
+    if (saved) {
+      try {
+        setConversationHistory(JSON.parse(saved));
+      } catch (e) {
+        console.error('Failed to load conversation history:', e);
+      }
+    }
+  }, []);
+
+  // Save conversation history to localStorage
+  const saveToHistory = useCallback((question, answerText) => {
+    const entry = {
+      id: Date.now(),
+      question: question.trim(),
+      answer: answerText.trim(),
+      timestamp: new Date().toISOString()
+    };
+    setConversationHistory(prev => {
+      const updated = [...prev, entry];
+      localStorage.setItem('ascend_assistant_history', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
+  // Clear conversation history
+  const clearHistory = useCallback(() => {
+    if (confirm('Clear all conversation history?')) {
+      setConversationHistory([]);
+      localStorage.removeItem('ascend_assistant_history');
+    }
+  }, []);
 
   // Load available audio devices and persist selection
   useEffect(() => {
@@ -411,50 +451,87 @@ export default function AscendAssistantPanel({ onClose, provider, model }) {
       setError(null);
       setRecordingDuration(0);
 
-      // First, refresh device list to ensure we have current info
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const inputs = devices.filter(d => d.kind === 'audioinput');
-      setAudioDevices(prev => ({ ...prev, inputs }));
-
-      // Check if selected mic still exists
-      const selectedMicExists = inputs.find(d => d.deviceId === selectedMic);
-
-      const audioConstraints = {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true,
-      };
-
-      // Use selected microphone if it exists, otherwise use default
-      if (selectedMic && selectedMicExists) {
-        audioConstraints.deviceId = { exact: selectedMic };
-        console.log('[Recording] Using selected mic:', selectedMic);
-      } else if (inputs.length > 0) {
-        // Fall back to first available device
-        const fallbackDevice = inputs[0].deviceId;
-        audioConstraints.deviceId = { ideal: fallbackDevice };
-        setSelectedMic(fallbackDevice);
-        console.log('[Recording] Selected mic not found, using fallback:', fallbackDevice);
-      }
-
-      console.log('[Recording] Getting microphone stream...');
-
       let stream;
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          audio: audioConstraints,
-        });
-      } catch (firstErr) {
-        // If exact device fails, try without device constraint
-        console.log('[Recording] First attempt failed, trying default mic');
-        stream = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true,
-          },
-        });
+
+      if (audioSource === 'system') {
+        // Capture system audio (interviewer's voice from video call)
+        console.log('[Recording] Capturing system audio...');
+        try {
+          // Use getDisplayMedia to capture system/tab audio
+          stream = await navigator.mediaDevices.getDisplayMedia({
+            video: true, // Required but we'll ignore it
+            audio: {
+              echoCancellation: false,
+              noiseSuppression: false,
+              autoGainControl: false,
+            }
+          });
+
+          // Stop the video track - we only need audio
+          stream.getVideoTracks().forEach(track => track.stop());
+
+          // Check if we got audio
+          if (stream.getAudioTracks().length === 0) {
+            throw new Error('No audio track available. Make sure to select a tab/window with audio.');
+          }
+
+          console.log('[Recording] System audio captured successfully');
+        } catch (err) {
+          console.error('[Recording] System audio capture failed:', err);
+          if (err.name === 'NotAllowedError') {
+            setError('Screen share cancelled. Please select a tab/window to capture interviewer audio.');
+          } else {
+            setError('Failed to capture system audio: ' + err.message);
+          }
+          return;
+        }
+      } else {
+        // Capture microphone (original behavior)
+        // First, refresh device list to ensure we have current info
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const inputs = devices.filter(d => d.kind === 'audioinput');
+        setAudioDevices(prev => ({ ...prev, inputs }));
+
+        // Check if selected mic still exists
+        const selectedMicExists = inputs.find(d => d.deviceId === selectedMic);
+
+        const audioConstraints = {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        };
+
+        // Use selected microphone if it exists, otherwise use default
+        if (selectedMic && selectedMicExists) {
+          audioConstraints.deviceId = { exact: selectedMic };
+          console.log('[Recording] Using selected mic:', selectedMic);
+        } else if (inputs.length > 0) {
+          // Fall back to first available device
+          const fallbackDevice = inputs[0].deviceId;
+          audioConstraints.deviceId = { ideal: fallbackDevice };
+          setSelectedMic(fallbackDevice);
+          console.log('[Recording] Selected mic not found, using fallback:', fallbackDevice);
+        }
+
+        console.log('[Recording] Getting microphone stream...');
+
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: audioConstraints,
+          });
+        } catch (firstErr) {
+          // If exact device fails, try without device constraint
+          console.log('[Recording] First attempt failed, trying default mic');
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true,
+            },
+          });
+        }
       }
+
       streamRef.current = stream;
 
       console.log('[Recording] Started successfully');
@@ -672,9 +749,10 @@ export default function AscendAssistantPanel({ onClose, provider, model }) {
     setIsGenerating(true);
     setAnswer('');
     setError(null);
+    let fullAnswer = ''; // Track full answer for history
 
     try {
-      const response = await fetch(`${API_URL}/api/interview/answer`, {
+      const response = await fetch(`${API_URL}/api/ascend/answer`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -708,6 +786,7 @@ export default function AscendAssistantPanel({ onClose, provider, model }) {
             try {
               const data = JSON.parse(line.slice(6));
               if (data.chunk) {
+                fullAnswer += data.chunk;
                 setAnswer(prev => prev + data.chunk);
               }
               if (data.error) {
@@ -720,6 +799,11 @@ export default function AscendAssistantPanel({ onClose, provider, model }) {
             }
           }
         }
+      }
+
+      // Save to conversation history
+      if (fullAnswer.trim()) {
+        saveToHistory(text, fullAnswer);
       }
     } catch (err) {
       setError('Failed to generate answer: ' + err.message);
@@ -739,9 +823,11 @@ export default function AscendAssistantPanel({ onClose, provider, model }) {
     setIsGenerating(true);
     setAnswer('');
     setError(null);
+    let fullAnswer = ''; // Track full answer for history
+    const questionText = transcription; // Capture before it might change
 
     try {
-      const response = await fetch(`${API_URL}/api/interview/answer`, {
+      const response = await fetch(`${API_URL}/api/ascend/answer`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -775,6 +861,7 @@ export default function AscendAssistantPanel({ onClose, provider, model }) {
             try {
               const data = JSON.parse(line.slice(6));
               if (data.chunk) {
+                fullAnswer += data.chunk;
                 setAnswer(prev => prev + data.chunk);
               }
               if (data.error) {
@@ -787,6 +874,11 @@ export default function AscendAssistantPanel({ onClose, provider, model }) {
             }
           }
         }
+      }
+
+      // Save to conversation history
+      if (fullAnswer.trim()) {
+        saveToHistory(questionText, fullAnswer);
       }
     } catch (err) {
       setError('Failed to generate answer: ' + err.message);
@@ -823,19 +915,19 @@ export default function AscendAssistantPanel({ onClose, provider, model }) {
   };
 
   return (
-    <div className="h-full flex flex-col" style={{ borderLeft: '1px solid #e5e5e5', background: '#ffffff' }}>
-      {/* Header - Compact */}
-      <div className="flex items-center justify-between px-3 py-2" style={{ borderBottom: '1px solid #e5e5e5', background: '#1a1a1a' }}>
-        <div className="flex items-center gap-2">
+    <div className="h-full flex flex-col panel-container" style={{ borderLeft: '1px solid #e5e5e5' }}>
+      {/* Header - Matching other panels */}
+      <div className="panel-header">
+        <div className="panel-header-left">
           <div className="w-4 h-4 rounded-full flex items-center justify-center" style={{
-            background: isSpeaking ? '#10b981' : isRecording ? '#ef4444' : '#666666'
+            background: isSpeaking ? '#10b981' : isRecording ? '#ef4444' : '#10b981'
           }}>
             <svg className="w-2.5 h-2.5" style={{ color: '#ffffff' }} fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
               <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
             </svg>
           </div>
-          <h2 className="text-xs font-semibold" style={{ color: '#ffffff' }}>Interview</h2>
+          <span className="panel-title">Interview</span>
           {isRecording && (
             <>
               <span className="text-xs font-mono" style={{ color: '#ef4444' }}>{formatDuration(recordingDuration)}</span>
@@ -848,17 +940,78 @@ export default function AscendAssistantPanel({ onClose, provider, model }) {
             </div>
           )}
         </div>
-        <button
-          onClick={onClose}
-          className="p-1 rounded transition-colors"
-          style={{ color: '#ffffff' }}
-          title="Close"
-        >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        <div className="panel-header-right">
+          <button
+            onClick={() => setShowHistory(!showHistory)}
+            className="p-1 rounded transition-colors hover:bg-gray-100"
+            style={{ color: showHistory ? '#10b981' : '#666666' }}
+            title="Conversation History"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </button>
+          <button
+            onClick={onClose}
+            className="p-1 rounded transition-colors hover:bg-gray-100"
+            style={{ color: '#666666' }}
+            title="Close"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
       </div>
+
+      {/* Conversation History Panel */}
+      {showHistory && (
+        <div className="flex-1 overflow-y-auto p-3" style={{ background: '#f9fafb' }}>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-xs font-semibold" style={{ color: '#374151' }}>Conversation History</h3>
+            {conversationHistory.length > 0 && (
+              <button
+                onClick={clearHistory}
+                className="text-[10px] px-2 py-1 rounded"
+                style={{ color: '#ef4444', background: '#fef2f2' }}
+              >
+                Clear All
+              </button>
+            )}
+          </div>
+          {conversationHistory.length === 0 ? (
+            <p className="text-xs text-center py-8" style={{ color: '#9ca3af' }}>No conversation history yet</p>
+          ) : (
+            <div className="space-y-3">
+              {[...conversationHistory].reverse().map((entry) => (
+                <div key={entry.id} className="card-enterprise animate-fadeIn">
+                  <div className="card-enterprise-header flex items-center justify-between py-2 px-3">
+                    <span className="text-[10px] font-medium" style={{ color: '#6b7280' }}>
+                      {new Date(entry.timestamp).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="card-enterprise-body py-3 px-3">
+                    <div className="mb-3">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>Q</span>
+                        <span className="text-[10px] font-semibold uppercase" style={{ color: '#3b82f6' }}>Question</span>
+                      </div>
+                      <p className="text-xs pl-6" style={{ color: '#1f2937' }}>{entry.question}</p>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>A</span>
+                        <span className="text-[10px] font-semibold uppercase" style={{ color: '#10b981' }}>Answer</span>
+                      </div>
+                      <div className="text-xs pl-6" style={{ color: '#1f2937' }}>{renderMarkdown(entry.answer)}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Error */}
       {error && (
@@ -872,6 +1025,9 @@ export default function AscendAssistantPanel({ onClose, provider, model }) {
         </div>
       )}
 
+      {/* Main Content - hidden when showing history */}
+      {!showHistory && (
+        <>
       {/* Audio Setup Guide */}
       {showDeviceSettings && (
         <div className="px-3 py-2" style={{ borderBottom: '1px solid #e5e5e5', background: '#f5f5f5' }}>
@@ -897,8 +1053,8 @@ export default function AscendAssistantPanel({ onClose, provider, model }) {
                 <span style={{ color: '#333333' }}>Teams</span>
               </div>
               <div className="flex items-center gap-1 p-1 rounded" style={{ background: '#f5f5f5' }}>
-                <span className="font-bold" style={{ color: '#10b981' }}>M</span>
-                <span style={{ color: '#333333' }}>Meet</span>
+                <span className="font-bold" style={{ color: '#ea4335' }}>G</span>
+                <span style={{ color: '#333333' }}>Google Meet</span>
               </div>
               <div className="flex items-center gap-1 p-1 rounded" style={{ background: '#f5f5f5' }}>
                 <span className="font-bold" style={{ color: '#f97316' }}>W</span>
@@ -906,49 +1062,74 @@ export default function AscendAssistantPanel({ onClose, provider, model }) {
               </div>
             </div>
             <div className="text-[9px] leading-relaxed" style={{ color: '#666666' }}>
-              <strong style={{ color: '#333333' }}>To capture meeting audio:</strong> Install a virtual audio device
-              <br />• <strong>Mac:</strong> BlackHole or Loopback
-              <br />• <strong>Windows:</strong> VB-Cable or VoiceMeeter
-              <br />Then select it as your microphone above
+              <strong style={{ color: '#333333' }}>To capture interviewer audio:</strong>
+              <br />1. Select "🎧 Interviewer (System)" above
+              <br />2. Click Record → Select your meeting tab/window
+              <br />3. Audio from that tab will be captured
             </div>
           </div>
         </div>
       )}
 
-      {/* Microphone Selection - Always Visible */}
+      {/* Audio Source Selection */}
       <div className="px-3 py-2" style={{ borderBottom: '1px solid #e5e5e5', background: '#f5f5f5' }}>
-        <div className="flex items-center gap-2">
-          <svg className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#666666' }} fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-          </svg>
-          <select
-            value={selectedMic}
-            onChange={(e) => setSelectedMic(e.target.value)}
-            disabled={isRecording}
-            className="flex-1 px-2 py-1 rounded text-[10px] focus:outline-none disabled:opacity-50 truncate"
-            style={{ background: '#ffffff', border: '1px solid #e5e5e5', color: '#333333' }}
-          >
-            {audioDevices.inputs.map((device) => (
-              <option key={device.deviceId} value={device.deviceId}>
-                {device.label || `Microphone ${device.deviceId.slice(0, 6)}`}
-              </option>
-            ))}
-          </select>
-          <button
-            onClick={() => setShowDeviceSettings(!showDeviceSettings)}
-            className="p-1 rounded transition-colors"
-            style={{
-              background: showDeviceSettings ? '#10b981' : 'transparent',
-              color: showDeviceSettings ? '#ffffff' : '#666666'
-            }}
-            title="Audio setup guide"
-          >
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </button>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-[10px] font-medium" style={{ color: '#666666' }}>Audio Source:</span>
+          <div className="flex gap-1">
+            <button
+              onClick={() => setAudioSource('system')}
+              disabled={isRecording}
+              className="px-2 py-1 rounded text-[10px] font-medium transition-colors disabled:opacity-50"
+              style={{
+                background: audioSource === 'system' ? '#3b82f6' : '#e5e5e5',
+                color: audioSource === 'system' ? '#ffffff' : '#666666'
+              }}
+            >
+              🎧 Interviewer (System)
+            </button>
+            <button
+              onClick={() => setAudioSource('mic')}
+              disabled={isRecording}
+              className="px-2 py-1 rounded text-[10px] font-medium transition-colors disabled:opacity-50"
+              style={{
+                background: audioSource === 'mic' ? '#3b82f6' : '#e5e5e5',
+                color: audioSource === 'mic' ? '#ffffff' : '#666666'
+              }}
+            >
+              🎤 My Mic
+            </button>
+          </div>
         </div>
+
+        {/* Microphone Selection - Only show when mic source selected */}
+        {audioSource === 'mic' && (
+          <div className="flex items-center gap-2">
+            <svg className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#666666' }} fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+              <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+            </svg>
+            <select
+              value={selectedMic}
+              onChange={(e) => setSelectedMic(e.target.value)}
+              disabled={isRecording}
+              className="flex-1 px-2 py-1 rounded text-[10px] focus:outline-none disabled:opacity-50 truncate"
+              style={{ background: '#ffffff', border: '1px solid #e5e5e5', color: '#333333' }}
+            >
+              {audioDevices.inputs.map((device) => (
+                <option key={device.deviceId} value={device.deviceId}>
+                  {device.label || `Microphone ${device.deviceId.slice(0, 6)}`}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* System audio hint */}
+        {audioSource === 'system' && (
+          <div className="text-[9px] mt-1" style={{ color: '#666666' }}>
+            Click Record → Select the video call tab/window to capture interviewer audio
+          </div>
+        )}
       </div>
 
       {/* Controls - Compact */}
@@ -959,10 +1140,22 @@ export default function AscendAssistantPanel({ onClose, provider, model }) {
           {!isRecording ? (
             <button
               onClick={startRecording}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors"
-              style={{ background: '#ef4444', color: '#ffffff' }}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all"
+              style={{
+                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                color: '#ffffff',
+                boxShadow: '0 2px 4px rgba(239, 68, 68, 0.3), inset 0 1px 0 rgba(255,255,255,0.2)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 4px 8px rgba(239, 68, 68, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(239, 68, 68, 0.3), inset 0 1px 0 rgba(255,255,255,0.2)';
+              }}
             >
-              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
                 <circle cx="12" cy="12" r="6" />
               </svg>
               Record
@@ -1044,15 +1237,23 @@ export default function AscendAssistantPanel({ onClose, provider, model }) {
                 </span>
               )}
             </div>
-            <div className="flex-1 overflow-y-auto p-2" style={{ background: '#ffffff' }}>
+            <div className="flex-1 overflow-y-auto p-2 flex flex-col-reverse" style={{ background: '#ffffff' }}>
               {questions.length > 0 ? (
                 <div className="space-y-2">
-                  {questions.map((q, idx) => (
-                    <div key={idx} className="p-2 rounded" style={{ background: '#f5f5f5', borderLeft: '2px solid #3b82f6' }}>
-                      <div className="text-[9px] font-medium mb-0.5" style={{ color: '#3b82f6' }}>Q{idx + 1}</div>
-                      <p className="text-xs leading-relaxed" style={{ color: '#333333' }}>{q}</p>
-                    </div>
-                  ))}
+                  {[...questions].reverse().map((q, idx) => {
+                    const questionNum = questions.length - idx;
+                    return (
+                      <div key={questionNum} className="qa-card animate-fadeIn" style={{ borderLeft: '3px solid #3b82f6' }}>
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
+                            {questionNum}
+                          </span>
+                          <span className="text-[9px] font-semibold uppercase" style={{ color: '#3b82f6' }}>Question</span>
+                        </div>
+                        <p className="text-xs leading-relaxed pl-6" style={{ color: '#333333' }}>{q}</p>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="text-xs italic" style={{ color: '#999999' }}>
@@ -1095,6 +1296,8 @@ export default function AscendAssistantPanel({ onClose, provider, model }) {
           </div>
         </div>
       </div>
+        </>
+      )}
 
     </div>
   );

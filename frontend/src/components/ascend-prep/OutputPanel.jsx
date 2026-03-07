@@ -1,4 +1,164 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, Component } from 'react';
+
+// Markdown renderer that handles code blocks, headers, lists, and inline formatting
+function renderMarkdown(text) {
+  if (!text) return null;
+
+  const elements = [];
+  const lines = text.split('\n');
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    // Code block (triple backticks)
+    if (trimmed.startsWith('```')) {
+      const lang = trimmed.slice(3).trim();
+      const codeLines = [];
+      i++;
+      while (i < lines.length && !lines[i].trim().startsWith('```')) {
+        codeLines.push(lines[i]);
+        i++;
+      }
+      elements.push(
+        <pre key={`code-${elements.length}`} className="text-xs p-3 rounded overflow-x-auto my-2" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: 'Monaco, Consolas, monospace', lineHeight: '1.5' }}>
+          <code>{codeLines.join('\n')}</code>
+        </pre>
+      );
+      i++; // Skip closing ```
+      continue;
+    }
+
+    // Empty line
+    if (!trimmed) {
+      i++;
+      continue;
+    }
+
+    // Headers
+    if (trimmed.startsWith('### ')) {
+      elements.push(<h4 key={`h4-${i}`} className="font-semibold text-sm mt-3 mb-1" style={{ color: '#1e40af' }}>{trimmed.slice(4)}</h4>);
+      i++;
+      continue;
+    }
+    if (trimmed.startsWith('## ')) {
+      elements.push(<h3 key={`h3-${i}`} className="font-semibold text-base mt-3 mb-1" style={{ color: '#1e40af' }}>{trimmed.slice(3)}</h3>);
+      i++;
+      continue;
+    }
+    if (trimmed.startsWith('# ')) {
+      elements.push(<h2 key={`h2-${i}`} className="font-bold text-lg mt-3 mb-2" style={{ color: '#1e40af' }}>{trimmed.slice(2)}</h2>);
+      i++;
+      continue;
+    }
+
+    // Bullet list
+    if (trimmed.match(/^[-*•]\s+/)) {
+      const listItems = [];
+      while (i < lines.length && lines[i].trim().match(/^[-*•]\s+/)) {
+        listItems.push(lines[i].trim().replace(/^[-*•]\s+/, ''));
+        i++;
+      }
+      elements.push(
+        <ul key={`ul-${elements.length}`} className="list-disc list-inside space-y-1 my-2 ml-2">
+          {listItems.map((item, j) => (
+            <li key={j} className="text-sm" style={{ color: '#1a1a1a' }} dangerouslySetInnerHTML={{ __html: processInline(item) }} />
+          ))}
+        </ul>
+      );
+      continue;
+    }
+
+    // Numbered list
+    if (trimmed.match(/^\d+\.\s+/)) {
+      const listItems = [];
+      while (i < lines.length && lines[i].trim().match(/^\d+\.\s+/)) {
+        listItems.push(lines[i].trim().replace(/^\d+\.\s+/, ''));
+        i++;
+      }
+      elements.push(
+        <ol key={`ol-${elements.length}`} className="list-decimal list-inside space-y-1 my-2 ml-2">
+          {listItems.map((item, j) => (
+            <li key={j} className="text-sm" style={{ color: '#1a1a1a' }} dangerouslySetInnerHTML={{ __html: processInline(item) }} />
+          ))}
+        </ol>
+      );
+      continue;
+    }
+
+    // Regular paragraph
+    elements.push(
+      <p key={`p-${i}`} className="text-sm mb-2" style={{ color: '#1a1a1a' }} dangerouslySetInnerHTML={{ __html: processInline(trimmed) }} />
+    );
+    i++;
+  }
+
+  return elements;
+}
+
+// Process inline markdown (bold, italic, code, links)
+function processInline(str) {
+  if (!str) return '';
+  // Bold: **text** or __text__
+  str = str.replace(/\*\*(.+?)\*\*/g, '<strong style="color: #047857;">$1</strong>');
+  str = str.replace(/__(.+?)__/g, '<strong style="color: #047857;">$1</strong>');
+  // Italic: *text* or _text_
+  str = str.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
+  str = str.replace(/(?<!_)_([^_]+)_(?!_)/g, '<em>$1</em>');
+  // Inline code: `text`
+  str = str.replace(/`([^`]+)`/g, '<code style="padding: 2px 6px; background: #f1f5f9; border-radius: 4px; color: #0369a1; font-size: 12px; font-family: Monaco, Consolas, monospace;">$1</code>');
+  return str;
+}
+
+// Error boundary to catch rendering errors
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('OutputPanel Error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-4 text-center">
+          <p className="text-red-500 mb-2">Failed to render content</p>
+          <button
+            onClick={() => this.setState({ hasError: false, error: null })}
+            className="px-3 py-1 bg-blue-500 text-white rounded text-sm"
+          >
+            Try Again
+          </button>
+          <pre className="mt-2 text-xs text-left bg-gray-100 p-2 rounded overflow-auto max-h-40">
+            {this.state.error?.message}
+          </pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+// Safe array helper - ensures we always have an array with valid objects
+const safeArray = (arr) => Array.isArray(arr) ? arr.filter(item => item != null && typeof item !== 'undefined') : [];
+
+// Safe string helper
+const safeStr = (str) => (typeof str === 'string' ? str : '') || '';
+
+// Safe property access helper for potentially undefined objects
+const safeProp = (obj, prop, defaultVal = '') => {
+  if (!obj || typeof obj !== 'object') return defaultVal;
+  const val = obj[prop];
+  return val != null ? val : defaultVal;
+};
 
 // Color palette using explicit dark text for light backgrounds
 const colors = {
@@ -12,7 +172,10 @@ const colors = {
   border: 'var(--border-default)',
 };
 
-export default function OutputPanel({ section, content, streamingContent, isGenerating, onRegenerate, onGenerate, hasInputs }) {
+// Sections that should display the Job Description
+const JD_DISPLAY_SECTIONS = ['pitch', 'hr', 'hiring-manager'];
+
+export default function OutputPanel({ section, content, streamingContent, isGenerating, onRegenerate, onGenerate, hasInputs, jobDescription }) {
   const [copied, setCopied] = useState(false);
   const [failedDiagrams, setFailedDiagrams] = useState({});
 
@@ -38,7 +201,153 @@ export default function OutputPanel({ section, content, streamingContent, isGene
     }
   };
 
-  const displayContent = isGenerating ? streamingContent : content;
+  // Parse content if it's a JSON string or has rawContent that's JSON
+  const parsedContent = (() => {
+    if (!content) return content;
+
+    // Helper to try parsing a string as JSON - with repair for common LLM issues
+    const tryParseJSON = (str) => {
+      if (typeof str !== 'string') return null;
+      let trimmed = str.trim();
+
+      // Try direct parse first
+      try {
+        return JSON.parse(trimmed);
+      } catch (e) {
+        // Try to repair common JSON issues from LLM output
+        try {
+          // Extract JSON object
+          const jsonMatch = trimmed.match(/\{[\s\S]*\}/);
+          if (!jsonMatch) return null;
+
+          let jsonStr = jsonMatch[0];
+
+          // Fix common issues:
+          // 1. Remove trailing commas before ] or }
+          jsonStr = jsonStr.replace(/,(\s*[}\]])/g, '$1');
+
+          // 2. Find the last valid JSON structure by tracking depth
+          let depth = 0;
+          let lastValidEnd = 0;
+          let inString = false;
+          let escape = false;
+
+          for (let i = 0; i < jsonStr.length; i++) {
+            const char = jsonStr[i];
+            if (escape) { escape = false; continue; }
+            if (char === '\\') { escape = true; continue; }
+            if (char === '"') { inString = !inString; continue; }
+            if (inString) continue;
+
+            if (char === '{' || char === '[') depth++;
+            if (char === '}' || char === ']') {
+              depth--;
+              if (depth === 0) lastValidEnd = i + 1;
+            }
+          }
+
+          // If we found a complete JSON structure, use it
+          if (lastValidEnd > 0) {
+            jsonStr = jsonStr.substring(0, lastValidEnd);
+            try {
+              return JSON.parse(jsonStr);
+            } catch (e3) {
+              // Still failed, try more aggressive repair
+            }
+          }
+
+          // More aggressive repair: find array cutoff points and close them
+          // This handles cases where the array was cut off mid-element
+          let repairedJson = jsonStr;
+
+          // Close unclosed strings
+          const quoteCount = (repairedJson.match(/"/g) || []).length;
+          if (quoteCount % 2 !== 0) {
+            // Find the last quote and truncate after it, or add closing quote
+            const lastQuote = repairedJson.lastIndexOf('"');
+            if (lastQuote > 0) {
+              // Check if this is a value that needs closing
+              const afterQuote = repairedJson.substring(lastQuote + 1);
+              if (!afterQuote.match(/^\s*[,}\]]/)) {
+                repairedJson = repairedJson.substring(0, lastQuote + 1);
+              }
+            }
+          }
+
+          // Close unclosed brackets/braces
+          let openBraces = 0, openBrackets = 0;
+          inString = false;
+          escape = false;
+          for (let i = 0; i < repairedJson.length; i++) {
+            const char = repairedJson[i];
+            if (escape) { escape = false; continue; }
+            if (char === '\\') { escape = true; continue; }
+            if (char === '"') { inString = !inString; continue; }
+            if (inString) continue;
+            if (char === '{') openBraces++;
+            if (char === '}') openBraces--;
+            if (char === '[') openBrackets++;
+            if (char === ']') openBrackets--;
+          }
+
+          // Remove trailing incomplete elements (after last comma)
+          repairedJson = repairedJson.replace(/,\s*[^,}\]]*$/, '');
+
+          // Add closing brackets/braces
+          while (openBrackets > 0) { repairedJson += ']'; openBrackets--; }
+          while (openBraces > 0) { repairedJson += '}'; openBraces--; }
+
+          return JSON.parse(repairedJson);
+        } catch (e2) {
+          console.error('[OutputPanel] JSON repair failed:', e2.message);
+          return null;
+        }
+      }
+    };
+
+    // If content is an object with rawContent, try to parse it as JSON
+    if (typeof content === 'object' && content !== null) {
+      if (content.rawContent) {
+        console.log('[OutputPanel] rawContent type:', typeof content.rawContent);
+        console.log('[OutputPanel] rawContent first 100 chars:', String(content.rawContent).substring(0, 100));
+        console.log('[OutputPanel] rawContent starts with {:', String(content.rawContent).trim().startsWith('{'));
+
+        const parsed = tryParseJSON(content.rawContent);
+        if (parsed) {
+          console.log('[OutputPanel] Parsed rawContent as JSON, keys:', Object.keys(parsed));
+          return parsed;
+        }
+        // rawContent exists but isn't valid JSON - try extracting JSON manually
+        console.log('[OutputPanel] Direct parse failed, trying to extract JSON...');
+        const rawStr = String(content.rawContent);
+        const jsonMatch = rawStr.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            const extracted = JSON.parse(jsonMatch[0]);
+            console.log('[OutputPanel] Extracted JSON successfully, keys:', Object.keys(extracted));
+            return extracted;
+          } catch (e) {
+            console.error('[OutputPanel] Extract JSON failed:', e.message);
+          }
+        }
+        console.log('[OutputPanel] rawContent is not valid JSON');
+      }
+      return content;
+    }
+
+    // If content is a string, try to parse it
+    if (typeof content === 'string') {
+      const parsed = tryParseJSON(content);
+      if (parsed) {
+        console.log('[OutputPanel] Parsed string content as JSON');
+        return parsed;
+      }
+    }
+
+    return content;
+  })();
+
+  const displayContent = isGenerating ? streamingContent : parsedContent;
 
   return (
     <div className="h-full flex flex-col overflow-hidden" style={{ background: colors.bg, fontFamily: 'Inter, system-ui, sans-serif' }}>
@@ -65,8 +374,70 @@ export default function OutputPanel({ section, content, streamingContent, isGene
         )}
       </div>
 
+
+      {/* Job Description - for pitch, hr, hiring-manager sections */}
+      {JD_DISPLAY_SECTIONS.includes(section?.id) && jobDescription && (() => {
+        const lines = jobDescription.split('\n').map(l => l.trim()).filter(l => l);
+        const filtered = [];
+
+        for (const line of lines) {
+          const lower = line.toLowerCase();
+
+          // Skip marketing fluff (long paragraphs with buzzwords)
+          if (line.length > 150 && (lower.includes('mission') || lower.includes('leader in') || lower.includes('join us') || lower.includes('culture'))) continue;
+          // Skip Note: and office policy
+          if (lower.startsWith('*note') || lower.startsWith('note:') || lower.includes('days per week') || lower.includes('work from home')) continue;
+          // Skip "join us" type lines
+          if (lower.includes("if you'd like to") || lower.includes('join us')) continue;
+          // Skip equal opportunity
+          if (lower.includes('equal opportunity') || lower.includes('inclusive')) continue;
+          // Skip very short lines that are just headers
+          if (line.length < 25 && (lower === 'you' || lower === 'nice to have' || lower === 'requirements' || lower === 'qualifications')) continue;
+
+          // Identify section headings
+          const isHeading = (lower === 'what you\'ll do' || lower === 'you' || lower === 'nice to have' ||
+            lower === 'requirements' || lower === 'qualifications' || lower === 'responsibilities' ||
+            lower.startsWith('what you') || lower.startsWith('who you') || lower.startsWith('about ') ||
+            (line.length < 40 && lower.endsWith(':')));
+
+          if (isHeading) {
+            filtered.push({ type: 'heading', text: line.replace(/:$/, '') });
+          } else if (line.length > 30) {
+            filtered.push({ type: 'item', text: line });
+          }
+        }
+
+        // Only show first 10 items
+        const display = filtered.slice(0, 10);
+        let num = 0;
+
+        return (
+          <div className="px-4 pt-3 flex-shrink-0">
+            <div className="rounded-lg p-4 max-h-44 overflow-y-auto" style={{ background: colors.paper, border: `1px solid ${colors.border}` }}>
+              <div className="space-y-2">
+                {display.map((item, i) => {
+                  if (item.type === 'heading') {
+                    return (
+                      <p key={i} className="text-[10px] font-semibold uppercase tracking-wide pt-2 first:pt-0" style={{ color: '#6b7280' }}>{item.text}</p>
+                    );
+                  }
+                  num++;
+                  return (
+                    <div key={i} className="flex gap-3">
+                      <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', color: 'white', boxShadow: '0 2px 4px rgba(59,130,246,0.3)' }}>{num}</span>
+                      <p className="flex-1 text-[11px] leading-relaxed pt-0.5" style={{ color: colors.text }}>{item.text}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Content Area - Fit to Page */}
       <div className="flex-1 overflow-auto p-4">
+        <ErrorBoundary>
         {!displayContent && !isGenerating ? (
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
@@ -83,51 +454,59 @@ export default function OutputPanel({ section, content, streamingContent, isGene
         ) : (
           <div className="rounded-lg p-5" style={{ background: colors.paper, border: `1px solid ${colors.border}` }}>
             {typeof displayContent === 'string' ? (
-              <div className="whitespace-pre-wrap text-[13px] leading-relaxed" style={{ color: colors.text }}>
-                {displayContent}
-                {isGenerating && <span className="inline-block w-0.5 h-4 ml-0.5 animate-pulse" style={{ background: colors.accent }} />}
+              <div className="text-[13px] leading-relaxed" style={{ color: colors.text }}>
+                {/* Check if streaming content looks like JSON - show cleaner loading state */}
+                {isGenerating && displayContent.trim().startsWith('{') ? (
+                  <div className="flex items-center gap-3 py-8">
+                    <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: colors.accent, borderTopColor: 'transparent' }} />
+                    <span style={{ color: colors.textMuted }}>Generating detailed content...</span>
+                  </div>
+                ) : (
+                  <>
+                    {renderMarkdown(displayContent)}
+                    {isGenerating && <span className="inline-block w-0.5 h-4 ml-0.5 animate-pulse" style={{ background: colors.accent }} />}
+                  </>
+                )}
               </div>
             ) : displayContent && typeof displayContent === 'object' ? (
               <div className="space-y-4 text-[13px]" style={{ color: colors.text, lineHeight: '1.6' }}>
                 {/* Summary */}
                 {displayContent.summary?.trim() && (
-                  <p className="pb-3" style={{ borderBottom: `1px solid ${colors.border}` }}>{displayContent.summary.trim()}</p>
+                  <p className="pb-3" style={{ borderBottom: `1px solid ${colors.border}` }}>{displayContent.summary?.trim()}</p>
                 )}
 
-                {/* Pitch Sections with Bullet Points */}
-                {displayContent.pitchSections?.length > 0 && (
-                  <div className="space-y-4">
-                    {displayContent.pitchSections.map((section, i) => (
-                      <div key={i} className="p-3 rounded-lg" style={{ background: i % 2 === 0 ? '#f8fafc' : '#ffffff', border: `1px solid ${colors.border}` }}>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-semibold text-sm" style={{ color: '#1e40af' }}>{section.title}</span>
-                          {section.duration && (
-                            <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: colors.accentLight, color: colors.accent }}>{section.duration}</span>
+                {/* Pitch Sections - Modern Numbered Paragraphs */}
+                {safeArray(displayContent.pitchSections).length > 0 && (
+                  <div className="space-y-3">
+                    {safeArray(displayContent.pitchSections).filter(section => section && typeof section === 'object').map((section, i) => (
+                      <div key={i} className="flex gap-3">
+                        <span className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: 'white', boxShadow: '0 2px 4px rgba(16,185,129,0.3)' }}>{i + 1}</span>
+                        <div className="flex-1 pt-0.5">
+                          {safeArray(section?.bullets).length > 0 && (
+                            <p className="text-[13px] leading-relaxed" style={{ color: colors.text }}>
+                              {safeArray(section.bullets).filter(b => b != null).map((bullet, j) => (
+                                <span key={j}>
+                                  {j === 0 ? <strong style={{ color: '#1e40af' }}>{String(bullet).split(' ').slice(0, 3).join(' ')}</strong> : null}
+                                  {j === 0 ? ' ' + String(bullet).split(' ').slice(3).join(' ') : String(bullet)}
+                                  {j < section.bullets.length - 1 ? ' ' : ''}
+                                </span>
+                              ))}
+                            </p>
+                          )}
+                          {section?.duration && (
+                            <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded" style={{ background: '#f1f5f9', color: '#64748b' }}>{section.duration}</span>
                           )}
                         </div>
-                        {section.context && (
-                          <p className="text-xs mb-2 italic" style={{ color: colors.textMuted }}>{section.context}</p>
-                        )}
-                        {section.bullets?.length > 0 && (
-                          <ul className="space-y-1.5">
-                            {section.bullets.map((bullet, j) => (
-                              <li key={j} className="flex items-start gap-2 text-sm">
-                                <span style={{ color: colors.accent }}>•</span>
-                                <span style={{ color: colors.text }}>{bullet}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
                       </div>
                     ))}
                   </div>
                 )}
 
                 {/* Legacy: Pitch Paragraphs fallback */}
-                {displayContent.pitchParagraphs?.length > 0 && !displayContent.pitchSections && (
+                {safeArray(displayContent.pitchParagraphs).length > 0 && !displayContent.pitchSections && (
                   <div className="pl-3 space-y-3" style={{ borderLeft: `3px solid ${colors.accent}` }}>
-                    {displayContent.pitchParagraphs.filter(p => p?.trim()).map((p, i) => (
-                      <p key={i}>{p.trim()}</p>
+                    {safeArray(displayContent.pitchParagraphs).filter(p => p != null && (typeof p !== 'string' || p.trim?.())).map((p, i) => (
+                      <p key={i}>{typeof p === 'string' ? p.trim() : String(p)}</p>
                     ))}
                   </div>
                 )}
@@ -135,15 +514,15 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                 {/* Old pitch fallback */}
                 {displayContent.pitch && !displayContent.pitchParagraphs && !displayContent.pitchSections && (
                   <div className="pl-3" style={{ borderLeft: `3px solid ${colors.accent}` }}>
-                    <p>{displayContent.pitch.trim()}</p>
+                    <p>{displayContent.pitch?.trim()}</p>
                   </div>
                 )}
 
                 {/* Key Talking Points - inline */}
-                {displayContent.talkingPoints?.length > 0 && (
+                {safeArray(displayContent.talkingPoints).length > 0 && (
                   <p>
                     <span className="font-semibold" style={{ color: colors.accent }}>Key Points: </span>
-                    {displayContent.talkingPoints.filter(p => p?.trim()).join(' • ')}
+                    {safeArray(displayContent.talkingPoints).filter(p => p != null && (typeof p !== 'string' || p.trim?.())).map(p => String(p)).join(' • ')}
                   </p>
                 )}
 
@@ -151,12 +530,12 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                 {displayContent.tips?.trim() && (
                   <div className="px-3 py-2 rounded" style={{ background: colors.accentLight }}>
                     <span className="font-semibold" style={{ color: colors.accent }}>Tip: </span>
-                    {displayContent.tips.trim()}
+                    {displayContent.tips?.trim()}
                   </div>
                 )}
 
                 {/* Tech Stack - compact grid */}
-                {displayContent.techStack?.length > 0 && (
+                {safeArray(displayContent.techStack).length > 0 && (
                   <div>
                     <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: colors.textLight }}>Tech Stack (HR Report)</p>
                     <div className="grid grid-cols-4 gap-1 text-xs">
@@ -164,12 +543,12 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                       <span className="font-semibold" style={{ color: colors.textMuted }}>Category</span>
                       <span className="font-semibold" style={{ color: colors.textMuted }}>Exp</span>
                       <span className="font-semibold" style={{ color: colors.textMuted }}>Relevance</span>
-                      {displayContent.techStack.map((t, i) => (
+                      {safeArray(displayContent.techStack).filter(t => t && typeof t === 'object').map((t, i) => (
                         <div key={i} className="contents">
-                          <span className="font-medium" style={{ color: colors.accent }}>{t.technology}</span>
-                          <span>{t.category}</span>
-                          <span>{t.experience}</span>
-                          <span style={{ color: colors.textMuted }}>{t.relevance}</span>
+                          <span className="font-medium" style={{ color: colors.accent }}>{t?.technology || ''}</span>
+                          <span>{t?.category || ''}</span>
+                          <span>{t?.experience || ''}</span>
+                          <span style={{ color: colors.textMuted }}>{t?.relevance || ''}</span>
                         </div>
                       ))}
                     </div>
@@ -177,13 +556,13 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                 )}
 
                 {/* Questions - handles both simple and complex (coding/system-design) formats */}
-                {displayContent.questions?.length > 0 && (
+                {safeArray(displayContent.questions).length > 0 && (
                   <div className="space-y-6">
-                    {displayContent.questions.filter(q => q.question?.trim() || q.title?.trim()).map((q, i) => (
+                    {safeArray(displayContent.questions).filter(q => q && (q.question?.trim?.() || q.title?.trim?.())).map((q, i) => (
                       <div key={i} className="pb-4" style={{ borderBottom: i < displayContent.questions.length - 1 ? `1px solid ${colors.border}` : 'none' }}>
                         {/* Question/Title */}
                         <p className="font-semibold mb-1 text-base" style={{ color: '#1e40af' }}>
-                          {i + 1}. {(q.title || q.question).trim()}
+                          {i + 1}. {(q.title || q.question)?.trim()}
                         </p>
 
                         {/* Difficulty & Frequency */}
@@ -200,23 +579,23 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                         )}
 
                         {/* Examples */}
-                        {q.examples?.length > 0 && (
+                        {safeArray(q.examples).length > 0 && (
                           <div className="mb-3">
                             <p className="font-semibold text-xs uppercase tracking-wide mb-1" style={{ color: colors.textLight }}>Examples</p>
-                            {q.examples.map((ex, j) => (
+                            {safeArray(q.examples).filter(ex => ex && typeof ex === 'object').map((ex, j) => (
                               <div key={j} className="text-xs font-mono p-2 rounded mb-1" style={{ background: '#f1f5f9' }}>
-                                <span style={{ color: '#0369a1' }}>Input:</span> {ex.input}<br/>
-                                <span style={{ color: '#047857' }}>Output:</span> {ex.output}
-                                {ex.explanation && <><br/><span style={{ color: colors.textMuted }}>→ {ex.explanation}</span></>}
+                                <span style={{ color: '#0369a1' }}>Input:</span> {ex?.input || ''}<br/>
+                                <span style={{ color: '#047857' }}>Output:</span> {ex?.output || ''}
+                                {ex?.explanation && <><br/><span style={{ color: colors.textMuted }}>→ {ex.explanation}</span></>}
                               </div>
                             ))}
                           </div>
                         )}
 
                         {/* Approaches (for coding) */}
-                        {q.approaches?.length > 0 && (
+                        {safeArray(q.approaches).length > 0 && (
                           <div className="space-y-4">
-                            {q.approaches.map((approach, j) => (
+                            {safeArray(q.approaches).filter(approach => approach && typeof approach === 'object').map((approach, j) => (
                               <div key={j} className="pl-3" style={{ borderLeft: '3px solid #10b981' }}>
                                 <p className="font-semibold" style={{ color: '#047857' }}>{approach.name}</p>
                                 <p className="text-xs mb-2" style={{ color: colors.textMuted }}>
@@ -232,14 +611,14 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                                 )}
 
                                 {/* Line by Line */}
-                                {approach.lineByLine?.length > 0 && (
+                                {safeArray(approach.lineByLine).length > 0 && (
                                   <div className="mt-2">
                                     <p className="font-semibold text-xs uppercase tracking-wide mb-1" style={{ color: colors.accent }}>Line-by-Line Explanation</p>
                                     <div className="space-y-1">
-                                      {approach.lineByLine.map((line, k) => (
+                                      {safeArray(approach.lineByLine).filter(line => line && typeof line === 'object').map((line, k) => (
                                         <div key={k} className="text-xs">
-                                          <code className="font-mono px-1 rounded" style={{ background: '#e2e8f0', color: '#1e40af' }}>{line.line}</code>
-                                          <p className="ml-2 mt-0.5" style={{ color: colors.textMuted }}>→ {line.explanation}</p>
+                                          <code className="font-mono px-1 rounded" style={{ background: '#e2e8f0', color: '#1e40af' }}>{line?.line || ''}</code>
+                                          <p className="ml-2 mt-0.5" style={{ color: colors.textMuted }}>→ {line?.explanation || ''}</p>
                                         </div>
                                       ))}
                                     </div>
@@ -251,14 +630,14 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                         )}
 
                         {/* Edge Cases */}
-                        {q.edgeCases?.length > 0 && (
+                        {safeArray(q.edgeCases).length > 0 && (
                           <div className="mt-3 p-3 rounded" style={{ background: '#FEF2F2', border: '1px solid #FECACA' }}>
                             <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: '#B91C1C' }}>⚠ Edge Cases</p>
-                            {q.edgeCases.map((edge, j) => (
+                            {safeArray(q.edgeCases).filter(edge => edge && typeof edge === 'object').map((edge, j) => (
                               <div key={j} className="text-xs mb-2">
-                                <span className="font-semibold">{edge.case}:</span> {edge.explanation}
+                                <span className="font-semibold">{edge?.case || ''}:</span> {edge?.explanation || ''}
                                 <div className="font-mono mt-0.5 pl-2" style={{ color: '#6B7280' }}>
-                                  Input: {edge.input} → Output: {edge.expectedOutput}
+                                  Input: {edge?.input || ''} → Output: {edge?.expectedOutput || ''}
                                 </div>
                               </div>
                             ))}
@@ -266,41 +645,41 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                         )}
 
                         {/* Common Mistakes */}
-                        {q.commonMistakes?.length > 0 && (
+                        {safeArray(q.commonMistakes).length > 0 && (
                           <div className="mt-2">
                             <p className="font-semibold text-xs" style={{ color: '#DC2626' }}>Common Mistakes:</p>
-                            {q.commonMistakes.map((m, j) => (
-                              <p key={j} className="text-xs ml-2" style={{ color: colors.textMuted }}>• {m}</p>
+                            {safeArray(q.commonMistakes).filter(m => m != null).map((m, j) => (
+                              <p key={j} className="text-xs ml-2" style={{ color: colors.textMuted }}>• {String(m)}</p>
                             ))}
                           </div>
                         )}
 
                         {/* Follow-up Questions */}
-                        {q.followUpQuestions?.length > 0 && (
+                        {safeArray(q.followUpQuestions).length > 0 && (
                           <div className="mt-2">
                             <p className="font-semibold text-xs" style={{ color: colors.accent }}>Follow-ups:</p>
-                            {q.followUpQuestions.map((f, j) => (
-                              <p key={j} className="text-xs ml-2" style={{ color: colors.textMuted }}>• {f}</p>
+                            {safeArray(q.followUpQuestions).filter(f => f != null).map((f, j) => (
+                              <p key={j} className="text-xs ml-2" style={{ color: colors.textMuted }}>• {String(f)}</p>
                             ))}
                           </div>
                         )}
 
                         {/* Requirements (System Design) */}
-                        {q.requirements && (
+                        {q.requirements && typeof q.requirements === 'object' && (
                           <div className="mt-3 grid grid-cols-2 gap-4">
-                            {q.requirements.functional?.length > 0 && (
+                            {safeArray(q.requirements.functional).length > 0 && (
                               <div>
                                 <p className="font-semibold text-xs uppercase tracking-wide mb-1" style={{ color: '#047857' }}>Functional</p>
-                                {q.requirements.functional.map((r, j) => (
-                                  <p key={j} className="text-xs" style={{ color: colors.text }}>✓ {r}</p>
+                                {safeArray(q.requirements.functional).filter(r => r != null).map((r, j) => (
+                                  <p key={j} className="text-xs" style={{ color: colors.text }}>✓ {String(r)}</p>
                                 ))}
                               </div>
                             )}
-                            {q.requirements.nonFunctional?.length > 0 && (
+                            {safeArray(q.requirements.nonFunctional).length > 0 && (
                               <div>
                                 <p className="font-semibold text-xs uppercase tracking-wide mb-1" style={{ color: '#7C3AED' }}>Non-Functional</p>
-                                {q.requirements.nonFunctional.map((r, j) => (
-                                  <p key={j} className="text-xs" style={{ color: colors.text }}>✓ {r}</p>
+                                {safeArray(q.requirements.nonFunctional).filter(r => r != null).map((r, j) => (
+                                  <p key={j} className="text-xs" style={{ color: colors.text }}>✓ {String(r)}</p>
                                 ))}
                               </div>
                             )}
@@ -308,11 +687,11 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                         )}
 
                         {/* Capacity Estimation */}
-                        {q.capacityEstimation && (
+                        {q.capacityEstimation && typeof q.capacityEstimation === 'object' && (
                           <div className="mt-3 p-3 rounded" style={{ background: '#F0FDF4' }}>
                             <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: '#047857' }}>Capacity Estimation</p>
-                            {q.capacityEstimation.calculations?.map((calc, j) => (
-                              <p key={j} className="text-xs font-mono">{calc.metric}: {calc.result}</p>
+                            {safeArray(q.capacityEstimation.calculations).filter(calc => calc && typeof calc === 'object').map((calc, j) => (
+                              <p key={j} className="text-xs font-mono">{calc?.metric || ''}: {calc?.result || ''}</p>
                             ))}
                           </div>
                         )}
@@ -356,16 +735,16 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                         )}
 
                         {/* Components */}
-                        {q.architecture?.components?.length > 0 && (
+                        {safeArray(q.architecture?.components).length > 0 && (
                           <div className="mt-3">
                             <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: colors.accent }}>Components</p>
                             <div className="space-y-2">
-                              {q.architecture.components.map((comp, j) => (
+                              {safeArray(q.architecture.components).filter(comp => comp && typeof comp === 'object').map((comp, j) => (
                                 <div key={j} className="text-xs p-2 rounded" style={{ background: '#f8fafc' }}>
-                                  <span className="font-semibold" style={{ color: '#1e40af' }}>{comp.name}</span>
-                                  <span className="ml-2 px-1.5 py-0.5 rounded text-xs" style={{ background: '#E0E7FF', color: '#3730A3' }}>{comp.technology}</span>
-                                  <p className="mt-1" style={{ color: colors.textMuted }}>{comp.responsibility}</p>
-                                  {comp.whyThisChoice && <p className="mt-0.5 italic" style={{ color: colors.textLight }}>Why: {comp.whyThisChoice}</p>}
+                                  <span className="font-semibold" style={{ color: '#1e40af' }}>{comp?.name || ''}</span>
+                                  <span className="ml-2 px-1.5 py-0.5 rounded text-xs" style={{ background: '#E0E7FF', color: '#3730A3' }}>{comp?.technology || ''}</span>
+                                  <p className="mt-1" style={{ color: colors.textMuted }}>{comp?.responsibility || ''}</p>
+                                  {comp?.whyThisChoice && <p className="mt-0.5 italic" style={{ color: colors.textLight }}>Why: {comp.whyThisChoice}</p>}
                                 </div>
                               ))}
                             </div>
@@ -373,14 +752,14 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                         )}
 
                         {/* Trade-offs */}
-                        {q.tradeOffs?.length > 0 && (
+                        {safeArray(q.tradeOffs).length > 0 && (
                           <div className="mt-3">
                             <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: '#DC2626' }}>Trade-offs</p>
-                            {q.tradeOffs.map((t, j) => (
+                            {safeArray(q.tradeOffs).filter(t => t && typeof t === 'object').map((t, j) => (
                               <div key={j} className="text-xs mb-2 pl-2" style={{ borderLeft: '2px solid #FECACA' }}>
-                                <p><b>Decision:</b> {t.decision}</p>
-                                <p><b>Chose:</b> {t.chose} — {t.reason}</p>
-                                {t.alternative && <p style={{ color: colors.textMuted }}>Alt: {t.alternative}</p>}
+                                <p><b>Decision:</b> {t?.decision || ''}</p>
+                                <p><b>Chose:</b> {t?.chose || ''} — {t?.reason || ''}</p>
+                                {t?.alternative && <p style={{ color: colors.textMuted }}>Alt: {t.alternative}</p>}
                               </div>
                             ))}
                           </div>
@@ -388,43 +767,77 @@ export default function OutputPanel({ section, content, streamingContent, isGene
 
                         {/* Simple answer/approach for basic questions */}
                         {(q.answer || q.suggestedAnswer) && !q.approaches && (
-                          <p className="mt-1" style={{ color: colors.textMuted }}>{(q.answer || q.suggestedAnswer).trim()}</p>
+                          <div className="mt-2" style={{ color: colors.text }}>
+                            {renderMarkdown((q.answer || q.suggestedAnswer)?.trim())}
+                          </div>
                         )}
                         {q.approach && !q.approaches && (
-                          <p className="mt-1"><span className="font-semibold" style={{ color: colors.accent }}>Approach: </span>{q.approach.trim()}</p>
+                          <p className="mt-1"><span className="font-semibold" style={{ color: colors.accent }}>Approach: </span>{q.approach?.trim()}</p>
                         )}
                         {q.keyConsiderations?.length > 0 && (
                           <p className="mt-1"><span className="font-semibold" style={{ color: colors.accent }}>Consider: </span>{q.keyConsiderations.join(' | ')}</p>
                         )}
 
-                        {/* STAR inline */}
-                        {(q.situation || q.task || q.action || q.result) && (
-                          <div className="mt-2 pl-3 text-xs" style={{ borderLeft: `2px solid ${colors.border}` }}>
-                            {q.situation && <><b style={{ color: colors.accent }}>S:</b> {q.situation.trim()} </>}
-                            {q.task && <><b style={{ color: colors.accent }}>T:</b> {q.task.trim()} </>}
-                            {q.action && <><b style={{ color: colors.accent }}>A:</b> {q.action.trim()} </>}
-                            {q.result && <><b style={{ color: colors.accent }}>R:</b> {q.result.trim()}</>}
+                        {/* Behavioral Question Context */}
+                        {(q.whyThisCompanyAsks || q.companyValue || q.companyConnection) && (
+                          <div className="mt-2 mb-2 p-2 rounded text-xs" style={{ background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
+                            {q.companyValue && <p><span className="font-semibold" style={{ color: '#1D4ED8' }}>Tests:</span> {q.companyValue}</p>}
+                            {q.whyThisCompanyAsks && <p><span className="font-semibold" style={{ color: '#1D4ED8' }}>Why Asked:</span> {q.whyThisCompanyAsks}</p>}
+                            {q.companyConnection && <p className="mt-1 italic" style={{ color: '#047857' }}>Connect to: {q.companyConnection}</p>}
                           </div>
                         )}
-                        {q.tips && <p className="mt-1 italic text-xs" style={{ color: colors.accent }}>{q.tips.trim()}</p>}
+
+                        {/* STAR Format - Full Display */}
+                        {(q.situation || q.task || q.action || q.result) && (
+                          <div className="mt-3 space-y-2">
+                            {q.category && (
+                              <span className="inline-block text-xs px-2 py-0.5 rounded-full mb-2" style={{ background: '#E0E7FF', color: '#3730A3' }}>{q.category}</span>
+                            )}
+                            {q.situation && (
+                              <div className="p-2 rounded" style={{ background: '#f0fdf4', borderLeft: '3px solid #22c55e' }}>
+                                <p className="text-xs font-semibold mb-1" style={{ color: '#15803d' }}>SITUATION</p>
+                                <p className="text-sm" style={{ color: colors.text }}>{q.situation?.trim()}</p>
+                              </div>
+                            )}
+                            {q.task && (
+                              <div className="p-2 rounded" style={{ background: '#eff6ff', borderLeft: '3px solid #3b82f6' }}>
+                                <p className="text-xs font-semibold mb-1" style={{ color: '#1d4ed8' }}>TASK</p>
+                                <p className="text-sm" style={{ color: colors.text }}>{q.task?.trim()}</p>
+                              </div>
+                            )}
+                            {q.action && (
+                              <div className="p-2 rounded" style={{ background: '#fef3c7', borderLeft: '3px solid #f59e0b' }}>
+                                <p className="text-xs font-semibold mb-1" style={{ color: '#b45309' }}>ACTION</p>
+                                <p className="text-sm whitespace-pre-line" style={{ color: colors.text }}>{q.action?.trim()}</p>
+                              </div>
+                            )}
+                            {q.result && (
+                              <div className="p-2 rounded" style={{ background: '#fce7f3', borderLeft: '3px solid #ec4899' }}>
+                                <p className="text-xs font-semibold mb-1" style={{ color: '#be185d' }}>RESULT</p>
+                                <p className="text-sm" style={{ color: colors.text }}>{q.result?.trim()}</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        {q.tips && <p className="mt-2 p-2 rounded italic text-xs" style={{ background: '#f8fafc', color: colors.accent }}>💡 {q.tips?.trim()}</p>}
                       </div>
                     ))}
                   </div>
                 )}
 
                 {/* Key Topics - handles both string array and object array */}
-                {displayContent.keyTopics?.length > 0 && (
+                {safeArray(displayContent.keyTopics).length > 0 && (
                   <div className="mb-3">
                     <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: colors.textLight }}>Key Topics to Focus On</p>
-                    {typeof displayContent.keyTopics[0] === 'string' ? (
-                      <p>{displayContent.keyTopics.filter(t => t?.trim()).join(' • ')}</p>
+                    {typeof safeArray(displayContent.keyTopics)[0] === 'string' ? (
+                      <p>{safeArray(displayContent.keyTopics).filter(t => typeof t === 'string' && t.trim?.()).join(' • ')}</p>
                     ) : (
                       <div className="space-y-2">
-                        {displayContent.keyTopics.map((topic, i) => (
+                        {safeArray(displayContent.keyTopics).filter(topic => topic && typeof topic === 'object').map((topic, i) => (
                           <div key={i} className="flex items-start gap-2 text-sm">
-                            <span className="font-semibold" style={{ color: colors.accent }}>{topic.topic}</span>
-                            {topic.frequency && <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: topic.frequency === 'Very High' ? '#FEE2E2' : '#E0E7FF', color: topic.frequency === 'Very High' ? '#B91C1C' : '#3730A3' }}>{topic.frequency}</span>}
-                            {topic.whyImportant && <span className="text-xs" style={{ color: colors.textMuted }}>— {topic.whyImportant}</span>}
+                            <span className="font-semibold" style={{ color: colors.accent }}>{topic?.topic || ''}</span>
+                            {topic?.frequency && <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: topic.frequency === 'Very High' ? '#FEE2E2' : '#E0E7FF', color: topic.frequency === 'Very High' ? '#B91C1C' : '#3730A3' }}>{topic.frequency}</span>}
+                            {topic?.whyImportant && <span className="text-xs" style={{ color: colors.textMuted }}>— {topic.whyImportant}</span>}
                           </div>
                         ))}
                       </div>
@@ -433,9 +846,9 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                 )}
 
                 {/* Technologies (TechStack section) */}
-                {displayContent.technologies?.length > 0 && (
+                {safeArray(displayContent.technologies).length > 0 && (
                   <div className="space-y-6">
-                    {displayContent.technologies.map((tech, i) => (
+                    {safeArray(displayContent.technologies).filter(tech => tech && typeof tech === 'object').map((tech, i) => (
                       <div key={i} className="p-4 rounded-lg" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
                         {/* Header */}
                         <div className="flex items-center gap-2 mb-3">
@@ -450,42 +863,50 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                         {tech.whyImportant && <p className="text-sm mb-3" style={{ color: colors.textMuted }}>{tech.whyImportant}</p>}
 
                         {/* Concepts to Know */}
-                        {tech.conceptsToKnow?.length > 0 && (
+                        {safeArray(tech.conceptsToKnow).length > 0 && (
                           <div className="mb-3">
                             <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: colors.accent }}>Core Concepts</p>
-                            {tech.conceptsToKnow.map((c, j) => (
-                              <div key={j} className="mb-2 pl-2" style={{ borderLeft: '2px solid #10b981' }}>
-                                <p className="font-semibold text-sm">{c.concept}</p>
-                                <p className="text-xs" style={{ color: colors.textMuted }}>{c.explanation}</p>
+                            {safeArray(tech.conceptsToKnow).filter(c => c && typeof c === 'object').map((c, j) => (
+                              <div key={j} className="mb-3 pl-2" style={{ borderLeft: '2px solid #10b981' }}>
+                                <p className="font-semibold text-sm">{c?.concept || ''}</p>
+                                {c?.explanation && (
+                                  <div className="text-xs mt-1" style={{ color: colors.textMuted }}>
+                                    {renderMarkdown(String(c.explanation).replace(/\\n/g, '\n'))}
+                                  </div>
+                                )}
                               </div>
                             ))}
                           </div>
                         )}
 
                         {/* Questions */}
-                        {tech.questions?.length > 0 && (
+                        {safeArray(tech.questions).length > 0 && (
                           <div className="mb-3">
                             <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: '#DC2626' }}>Interview Questions</p>
-                            {tech.questions.map((q, j) => (
+                            {safeArray(tech.questions).filter(q => q && typeof q === 'object').map((q, j) => (
                               <div key={j} className="mb-3 p-3 rounded" style={{ background: '#ffffff' }}>
-                                <p className="font-semibold text-sm mb-1">{q.question}</p>
-                                {q.difficulty && <span className="text-xs px-1.5 py-0.5 rounded mr-2" style={{ background: '#E0E7FF', color: '#3730A3' }}>{q.difficulty}</span>}
-                                {q.answer && <p className="text-xs mt-2" style={{ color: colors.text }}>{q.answer}</p>}
-                                {q.codeExample && (
-                                  <pre className="text-xs p-2 rounded mt-2 overflow-x-auto" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: 'Monaco, monospace' }}>
-                                    {q.codeExample.replace(/\\n/g, '\n')}
-                                  </pre>
-                                )}
-                                {q.followUps?.length > 0 && (
-                                  <div className="mt-2">
-                                    <p className="text-xs font-semibold" style={{ color: colors.accent }}>Follow-ups:</p>
-                                    {q.followUps.map((f, k) => <p key={k} className="text-xs ml-2" style={{ color: colors.textMuted }}>• {f}</p>)}
+                                <p className="font-semibold text-sm mb-1">{q?.question || ''}</p>
+                                {q?.difficulty && <span className="text-xs px-1.5 py-0.5 rounded mr-2" style={{ background: '#E0E7FF', color: '#3730A3' }}>{q.difficulty}</span>}
+                                {q?.answer && (
+                                  <div className="text-xs mt-2" style={{ color: colors.text }}>
+                                    {renderMarkdown(String(q.answer).replace(/\\n/g, '\n'))}
                                   </div>
                                 )}
-                                {q.commonMistakes?.length > 0 && (
+                                {q?.codeExample && (
+                                  <pre className="text-xs p-2 rounded mt-2 overflow-x-auto" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: 'Monaco, monospace' }}>
+                                    {String(q.codeExample).replace(/\\n/g, '\n')}
+                                  </pre>
+                                )}
+                                {safeArray(q?.followUps).length > 0 && (
+                                  <div className="mt-2">
+                                    <p className="text-xs font-semibold" style={{ color: colors.accent }}>Follow-ups:</p>
+                                    {safeArray(q.followUps).filter(f => f != null).map((f, k) => <p key={k} className="text-xs ml-2" style={{ color: colors.textMuted }}>• {String(f)}</p>)}
+                                  </div>
+                                )}
+                                {safeArray(q?.commonMistakes).length > 0 && (
                                   <div className="mt-2">
                                     <p className="text-xs font-semibold" style={{ color: '#DC2626' }}>Avoid:</p>
-                                    {q.commonMistakes.map((m, k) => <p key={k} className="text-xs ml-2" style={{ color: colors.textMuted }}>• {m}</p>)}
+                                    {safeArray(q.commonMistakes).filter(m => m != null).map((m, k) => <p key={k} className="text-xs ml-2" style={{ color: colors.textMuted }}>• {String(m)}</p>)}
                                   </div>
                                 )}
                               </div>
@@ -494,16 +915,16 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                         )}
 
                         {/* Best Practices */}
-                        {tech.bestPractices?.length > 0 && (
+                        {safeArray(tech.bestPractices).length > 0 && (
                           <div className="mb-3">
                             <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: '#047857' }}>Best Practices</p>
-                            {tech.bestPractices.map((bp, j) => (
+                            {safeArray(tech.bestPractices).filter(bp => bp && typeof bp === 'object').map((bp, j) => (
                               <div key={j} className="text-xs mb-2">
-                                <span className="font-semibold">{bp.practice}</span>
-                                {bp.when && <span style={{ color: colors.textMuted }}> — {bp.when}</span>}
-                                {bp.codeExample && (
+                                <span className="font-semibold">{bp?.practice || ''}</span>
+                                {bp?.when && <span style={{ color: colors.textMuted }}> — {bp.when}</span>}
+                                {bp?.codeExample && (
                                   <pre className="text-xs p-2 rounded mt-1 overflow-x-auto" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: 'Monaco, monospace' }}>
-                                    {bp.codeExample.replace(/\\n/g, '\n')}
+                                    {String(bp.codeExample).replace(/\\n/g, '\n')}
                                   </pre>
                                 )}
                               </div>
@@ -512,23 +933,23 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                         )}
 
                         {/* Anti-patterns */}
-                        {tech.antiPatterns?.length > 0 && (
+                        {safeArray(tech.antiPatterns).length > 0 && (
                           <div className="p-2 rounded" style={{ background: '#FEF2F2' }}>
                             <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: '#B91C1C' }}>Anti-Patterns to Avoid</p>
-                            {tech.antiPatterns.map((ap, j) => (
+                            {safeArray(tech.antiPatterns).filter(ap => ap && typeof ap === 'object').map((ap, j) => (
                               <div key={j} className="text-xs mb-2">
-                                <span className="font-semibold">{ap.pattern}</span>
-                                <p style={{ color: colors.textMuted }}>Problem: {ap.problem}</p>
-                                <p style={{ color: '#047857' }}>Solution: {ap.solution}</p>
+                                <span className="font-semibold">{ap?.pattern || ''}</span>
+                                <p style={{ color: colors.textMuted }}>Problem: {ap?.problem || ''}</p>
+                                <p style={{ color: '#047857' }}>Solution: {ap?.solution || ''}</p>
                               </div>
                             ))}
                           </div>
                         )}
 
                         {/* Performance Topics */}
-                        {tech.performanceTopics?.length > 0 && (
+                        {safeArray(tech.performanceTopics).length > 0 && (
                           <div className="mt-2">
-                            <p className="text-xs"><span className="font-semibold" style={{ color: colors.textLight }}>Performance: </span>{tech.performanceTopics.join(' • ')}</p>
+                            <p className="text-xs"><span className="font-semibold" style={{ color: colors.textLight }}>Performance: </span>{safeArray(tech.performanceTopics).filter(t => t != null).map(t => String(t)).join(' • ')}</p>
                           </div>
                         )}
                       </div>
@@ -536,28 +957,58 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                   </div>
                 )}
 
-                {/* Company Context/Insights */}
-                {(displayContent.companyContext || displayContent.companyInsights) && (
+                {/* Company Context/Insights - handles both string and object formats */}
+                {(displayContent.companyContext || displayContent.companyInsights || displayContent.companyTechContext) && (
                   <div className="mb-3 p-3 rounded" style={{ background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
-                    <p className="font-semibold text-xs uppercase tracking-wide mb-1" style={{ color: '#1D4ED8' }}>Company Insights</p>
-                    <p className="text-sm">{displayContent.companyContext || displayContent.companyInsights}</p>
+                    <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: '#1D4ED8' }}>Company Insights</p>
+                    {(() => {
+                      const ctx = displayContent.companyContext || displayContent.companyInsights || displayContent.companyTechContext;
+                      if (typeof ctx === 'string') {
+                        return <p className="text-sm">{ctx}</p>;
+                      }
+                      if (typeof ctx === 'object' && ctx !== null) {
+                        return (
+                          <div className="space-y-2 text-sm">
+                            {ctx.interviewFormat && <p><span className="font-semibold">Interview Format:</span> {ctx.interviewFormat}</p>}
+                            {ctx.culture && <p><span className="font-semibold">Culture:</span> {ctx.culture}</p>}
+                            {ctx.culturalFit && <p><span className="font-semibold">Cultural Fit:</span> {ctx.culturalFit}</p>}
+                            {safeArray(ctx.whatTheyLookFor).length > 0 && (
+                              <p><span className="font-semibold">What They Look For:</span> {safeArray(ctx.whatTheyLookFor).join(', ')}</p>
+                            )}
+                            {safeArray(ctx.knownQuestions).length > 0 && (
+                              <div>
+                                <span className="font-semibold">Known Questions:</span>
+                                <ul className="list-disc list-inside ml-2 mt-1">
+                                  {safeArray(ctx.knownQuestions).map((q, i) => <li key={i}>{String(q)}</li>)}
+                                </ul>
+                              </div>
+                            )}
+                            {safeArray(ctx.values).length > 0 && (
+                              <p><span className="font-semibold">Company Values:</span> {safeArray(ctx.values).join(', ')}</p>
+                            )}
+                            {ctx.recentNews && <p><span className="font-semibold">Recent News:</span> {ctx.recentNews}</p>}
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
                 )}
 
                 {/* Architecture Topics - handles both string array and object array */}
-                {displayContent.architectureTopics?.length > 0 && (
+                {safeArray(displayContent.architectureTopics).length > 0 && (
                   <div className="mb-3">
                     <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: colors.textLight }}>Architecture Topics</p>
-                    {typeof displayContent.architectureTopics[0] === 'string' ? (
-                      <p>{displayContent.architectureTopics.filter(t => t?.trim()).join(' • ')}</p>
+                    {typeof safeArray(displayContent.architectureTopics)[0] === 'string' ? (
+                      <p>{safeArray(displayContent.architectureTopics).filter(t => typeof t === 'string' && t.trim?.()).join(' • ')}</p>
                     ) : (
                       <div className="space-y-2">
-                        {displayContent.architectureTopics.map((topic, i) => (
+                        {safeArray(displayContent.architectureTopics).filter(topic => topic && typeof topic === 'object').map((topic, i) => (
                           <div key={i} className="p-2 rounded" style={{ background: '#f8fafc' }}>
-                            <span className="font-semibold" style={{ color: colors.accent }}>{topic.topic}</span>
-                            {topic.relevance && <p className="text-xs" style={{ color: colors.textMuted }}>{topic.relevance}</p>}
-                            {topic.keyPoints?.length > 0 && (
-                              <p className="text-xs mt-1">{topic.keyPoints.join(' • ')}</p>
+                            <span className="font-semibold" style={{ color: colors.accent }}>{topic?.topic || ''}</span>
+                            {topic?.relevance && <p className="text-xs" style={{ color: colors.textMuted }}>{topic.relevance}</p>}
+                            {safeArray(topic?.keyPoints).length > 0 && (
+                              <p className="text-xs mt-1">{safeArray(topic.keyPoints).join(' • ')}</p>
                             )}
                           </div>
                         ))}
@@ -567,19 +1018,19 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                 )}
 
                 {/* System Integrations (TechStack section) */}
-                {displayContent.systemIntegrations?.length > 0 && (
+                {safeArray(displayContent.systemIntegrations).length > 0 && (
                   <div className="mb-3">
                     <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: colors.textLight }}>System Integrations</p>
                     <div className="space-y-2">
-                      {displayContent.systemIntegrations.map((int, i) => (
+                      {safeArray(displayContent.systemIntegrations).filter(int => int && typeof int === 'object').map((int, i) => (
                         <div key={i} className="p-2 rounded" style={{ background: '#f8fafc' }}>
-                          <span className="font-semibold" style={{ color: colors.accent }}>{int.integration}</span>
-                          {int.patterns?.length > 0 && (
-                            <p className="text-xs mt-1">{int.patterns.join(' • ')}</p>
+                          <span className="font-semibold" style={{ color: colors.accent }}>{int?.integration || ''}</span>
+                          {safeArray(int?.patterns).length > 0 && (
+                            <p className="text-xs mt-1">{safeArray(int.patterns).join(' • ')}</p>
                           )}
-                          {int.codeExample && (
+                          {int?.codeExample && (
                             <pre className="text-xs p-2 rounded mt-1 overflow-x-auto" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: 'Monaco, monospace' }}>
-                              {int.codeExample.replace(/\\n/g, '\n')}
+                              {String(int.codeExample).replace(/\\n/g, '\n')}
                             </pre>
                           )}
                         </div>
@@ -589,20 +1040,20 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                 )}
 
                 {/* Practice Recommendations - handles both string array and object array */}
-                {displayContent.practiceRecommendations?.length > 0 && (
+                {safeArray(displayContent.practiceRecommendations).length > 0 && (
                   <div className="mb-3">
                     <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: colors.textLight }}>Practice Recommendations</p>
-                    {typeof displayContent.practiceRecommendations[0] === 'string' ? (
-                      <p>{displayContent.practiceRecommendations.filter(r => r?.trim()).join(' • ')}</p>
+                    {typeof safeArray(displayContent.practiceRecommendations)[0] === 'string' ? (
+                      <p>{safeArray(displayContent.practiceRecommendations).filter(r => typeof r === 'string' && r.trim?.()).join(' • ')}</p>
                     ) : (
                       <div className="space-y-2">
-                        {displayContent.practiceRecommendations.map((rec, i) => (
+                        {safeArray(displayContent.practiceRecommendations).filter(rec => rec && typeof rec === 'object').map((rec, i) => (
                           <div key={i} className="p-2 rounded" style={{ background: '#F0FDF4' }}>
-                            <span className="font-semibold" style={{ color: '#047857' }}>{rec.platform}</span>
-                            {rec.problems?.length > 0 && (
-                              <p className="text-xs mt-1">{rec.problems.join(', ')}</p>
+                            <span className="font-semibold" style={{ color: '#047857' }}>{rec?.platform || ''}</span>
+                            {safeArray(rec?.problems).length > 0 && (
+                              <p className="text-xs mt-1">{safeArray(rec.problems).join(', ')}</p>
                             )}
-                            {rec.reason && <p className="text-xs italic" style={{ color: colors.textMuted }}>{rec.reason}</p>}
+                            {rec?.reason && <p className="text-xs italic" style={{ color: colors.textMuted }}>{rec.reason}</p>}
                           </div>
                         ))}
                       </div>
@@ -611,77 +1062,203 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                 )}
 
                 {/* Interview Tips */}
-                {displayContent.interviewTips?.length > 0 && (
+                {safeArray(displayContent.interviewTips).length > 0 && (
                   <div className="p-3 rounded" style={{ background: '#ECFDF5', border: '1px solid #A7F3D0' }}>
                     <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: '#047857' }}>Interview Tips</p>
-                    {displayContent.interviewTips.map((tip, i) => (
-                      <p key={i} className="text-sm">• {tip}</p>
+                    {safeArray(displayContent.interviewTips).filter(tip => tip != null).map((tip, i) => (
+                      <p key={i} className="text-sm">• {String(tip)}</p>
                     ))}
                   </div>
                 )}
 
                 {/* General Tips (system design) */}
-                {displayContent.generalTips?.length > 0 && (
+                {safeArray(displayContent.generalTips).length > 0 && (
                   <div className="p-3 rounded" style={{ background: '#ECFDF5', border: '1px solid #A7F3D0' }}>
                     <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: '#047857' }}>Tips</p>
-                    {displayContent.generalTips.map((tip, i) => (
-                      <p key={i} className="text-sm">• {tip}</p>
+                    {safeArray(displayContent.generalTips).filter(tip => tip != null).map((tip, i) => (
+                      <p key={i} className="text-sm">• {String(tip)}</p>
                     ))}
                   </div>
                 )}
 
                 {/* Questions to Ask */}
-                {displayContent.questionsToAsk?.length > 0 && (
-                  <p><span className="font-semibold" style={{ color: colors.textLight }}>Ask Them: </span>{displayContent.questionsToAsk.filter(q => q?.trim()).join(' • ')}</p>
+                {safeArray(displayContent.questionsToAsk).length > 0 && (
+                  <p><span className="font-semibold" style={{ color: colors.textLight }}>Ask Them: </span>{safeArray(displayContent.questionsToAsk).filter(q => q != null && (typeof q !== 'string' || q.trim?.())).map(q => String(q)).join(' • ')}</p>
                 )}
 
                 {/* Framework Tips */}
                 {displayContent.frameworkTips?.trim() && (
                   <div className="px-3 py-2 rounded" style={{ background: colors.bg }}>
                     <span className="font-semibold" style={{ color: colors.accent }}>Framework: </span>
-                    {displayContent.frameworkTips.trim()}
+                    {displayContent.frameworkTips?.trim()}
                   </div>
                 )}
 
                 {/* Key Themes */}
-                {displayContent.keyThemes?.length > 0 && (
-                  <p><span className="font-semibold" style={{ color: colors.textLight }}>Themes: </span>{displayContent.keyThemes.filter(t => t?.trim()).join(' • ')}</p>
+                {safeArray(displayContent.keyThemes).length > 0 && (
+                  <p><span className="font-semibold" style={{ color: colors.textLight }}>Themes: </span>{safeArray(displayContent.keyThemes).filter(t => t != null && (typeof t !== 'string' || t.trim?.())).map(t => String(t)).join(' • ')}</p>
                 )}
 
-                {/* Raw Content */}
-                {displayContent.rawContent?.trim() && (
-                  <p>{displayContent.rawContent.trim()}</p>
-                )}
+                {/* Raw Content - intelligently extract and render even if JSON parsing fails */}
+                {displayContent.rawContent?.trim() && (() => {
+                  const raw = displayContent.rawContent.trim();
+
+                  // Function to extract readable content from malformed JSON
+                  const extractReadableContent = (str) => {
+                    const sections = [];
+
+                    // Extract summary
+                    const summaryMatch = str.match(/"summary"\s*:\s*"([^"]+)"/);
+                    if (summaryMatch) sections.push({ type: 'summary', content: summaryMatch[1] });
+
+                    // Extract technologies array items
+                    const techMatches = str.matchAll(/"name"\s*:\s*"([^"]+)"[^}]*"whyImportant"\s*:\s*"([^"]+)"/g);
+                    for (const match of techMatches) {
+                      sections.push({ type: 'tech', name: match[1], description: match[2] });
+                    }
+
+                    // Extract questions
+                    const questionMatches = str.matchAll(/"question"\s*:\s*"([^"]+)"[^}]*?"answer"\s*:\s*"([^"]+)"/gs);
+                    for (const match of questionMatches) {
+                      sections.push({ type: 'question', question: match[1], answer: match[2] });
+                    }
+
+                    // Extract concepts
+                    const conceptMatches = str.matchAll(/"concept"\s*:\s*"([^"]+)"[^}]*"explanation"\s*:\s*"([^"]+)"/gs);
+                    for (const match of conceptMatches) {
+                      sections.push({ type: 'concept', concept: match[1], explanation: match[2] });
+                    }
+
+                    return sections;
+                  };
+
+                  // Try to extract content even from malformed JSON
+                  if (raw.startsWith('{')) {
+                    const extracted = extractReadableContent(raw);
+                    if (extracted.length > 0) {
+                      return (
+                        <div className="space-y-4">
+                          {extracted.map((item, i) => {
+                            if (item.type === 'summary') {
+                              return <p key={i} className="pb-3" style={{ borderBottom: `1px solid ${colors.border}` }}>{item.content}</p>;
+                            }
+                            if (item.type === 'tech') {
+                              return (
+                                <div key={i} className="p-3 rounded-lg" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                                  <span className="font-bold text-base" style={{ color: '#1e40af' }}>{item.name}</span>
+                                  <p className="text-sm mt-1" style={{ color: colors.textMuted }}>{item.description}</p>
+                                </div>
+                              );
+                            }
+                            if (item.type === 'question') {
+                              return (
+                                <div key={i} className="pb-4" style={{ borderBottom: `1px solid ${colors.border}` }}>
+                                  <p className="font-semibold mb-1 text-base" style={{ color: '#1e40af' }}>{item.question}</p>
+                                  <div className="text-sm">{renderMarkdown(item.answer.replace(/\\n/g, '\n'))}</div>
+                                </div>
+                              );
+                            }
+                            if (item.type === 'concept') {
+                              return (
+                                <div key={i} className="mb-3 pl-2" style={{ borderLeft: '2px solid #10b981' }}>
+                                  <p className="font-semibold text-sm">{item.concept}</p>
+                                  <div className="text-xs mt-1" style={{ color: colors.textMuted }}>{renderMarkdown(item.explanation.replace(/\\n/g, '\n'))}</div>
+                                </div>
+                              );
+                            }
+                            return null;
+                          })}
+                        </div>
+                      );
+                    }
+                  }
+
+                  // Final fallback: render as formatted text
+                  // Clean up JSON artifacts for readable display
+                  const cleanedContent = raw
+                    .replace(/^\{|\}$/g, '')  // Remove outer braces
+                    .replace(/"([^"]+)":/g, '\n**$1:**')  // Convert keys to bold headers
+                    .replace(/","/g, '", "')  // Add spaces after commas
+                    .replace(/\\n/g, '\n')  // Convert escaped newlines
+                    .replace(/[\[\]{}]/g, '')  // Remove remaining brackets
+                    .replace(/",?\s*$/gm, '')  // Remove trailing quotes
+                    .replace(/^"/gm, '')  // Remove leading quotes
+                    .trim();
+
+                  return <div className="text-sm whitespace-pre-wrap">{renderMarkdown(cleanedContent)}</div>;
+                })()}
 
                 {/* Abbreviations - compact 2 column */}
-                {displayContent.abbreviations?.length > 0 && (
+                {safeArray(displayContent.abbreviations).length > 0 && (
                   <div className="pt-3 mt-3 text-xs" style={{ borderTop: `1px solid ${colors.border}` }}>
                     <p className="font-semibold mb-2" style={{ color: colors.textLight }}>Terms</p>
                     <div className="grid grid-cols-2 gap-x-6 gap-y-1">
-                      {displayContent.abbreviations.map((item, i) => (
+                      {safeArray(displayContent.abbreviations).filter(item => item && typeof item === 'object').map((item, i) => (
                         <p key={i}>
-                          <span className="font-mono font-semibold" style={{ color: colors.accent }}>{item.abbr}</span>
-                          <span style={{ color: colors.textMuted }}> — {item.full}</span>
+                          <span className="font-mono font-semibold" style={{ color: colors.accent }}>{item?.abbr || ''}</span>
+                          <span style={{ color: colors.textMuted }}> — {item?.full || ''}</span>
                         </p>
                       ))}
                     </div>
                   </div>
                 )}
 
-                {/* Fallback */}
+                {/* Fallback - render any unhandled object structure in readable format */}
                 {!displayContent.summary && !displayContent.questions && !displayContent.talkingPoints &&
                  !displayContent.pitch && !displayContent.pitchParagraphs && !displayContent.pitchSections && !displayContent.rawContent &&
                  !displayContent.technologies && !displayContent.keyTopics && !displayContent.keyThemes &&
                  !displayContent.questionsToAsk && !displayContent.tips && !displayContent.abbreviations &&
                  !displayContent.techStack && !displayContent.companyTechContext && !displayContent.systemIntegrations && (
-                  <pre className="text-xs overflow-x-auto" style={{ color: colors.textMuted }}>
-                    {JSON.stringify(displayContent, null, 2)}
-                  </pre>
+                  <div className="space-y-4">
+                    {Object.entries(displayContent).map(([key, value]) => (
+                      <div key={key}>
+                        <p className="font-semibold text-sm capitalize mb-2" style={{ color: '#1e40af' }}>
+                          {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                        </p>
+                        {typeof value === 'string' ? (
+                          <div className="text-sm" style={{ color: colors.text }}>{renderMarkdown(value)}</div>
+                        ) : Array.isArray(value) ? (
+                          <div className="space-y-2">
+                            {value.map((item, idx) => (
+                              <div key={idx} className="p-3 rounded" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                                {typeof item === 'string' ? (
+                                  <p className="text-sm">{item}</p>
+                                ) : typeof item === 'object' && item ? (
+                                  <div className="space-y-1">
+                                    {Object.entries(item).map(([k, v]) => (
+                                      <p key={k} className="text-sm">
+                                        <span className="font-medium" style={{ color: colors.accent }}>{k}: </span>
+                                        {typeof v === 'string' ? v : JSON.stringify(v)}
+                                      </p>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <p className="text-sm">{JSON.stringify(item)}</p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        ) : typeof value === 'object' && value ? (
+                          <div className="p-3 rounded" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                            {Object.entries(value).map(([k, v]) => (
+                              <p key={k} className="text-sm mb-1">
+                                <span className="font-medium" style={{ color: colors.accent }}>{k}: </span>
+                                {typeof v === 'string' ? v : JSON.stringify(v)}
+                              </p>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm">{String(value)}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
             ) : null}
           </div>
         )}
+        </ErrorBoundary>
       </div>
     </div>
   );

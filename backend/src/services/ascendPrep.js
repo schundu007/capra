@@ -23,7 +23,7 @@ function getOpenAIClient() {
 
 const DEFAULT_CLAUDE_MODEL = 'claude-sonnet-4-20250514';
 const DEFAULT_OPENAI_MODEL = 'gpt-4o';
-const MAX_TOKENS_PER_SECTION = 16000; // Increased significantly for detailed explanations
+const MAX_TOKENS_PER_SECTION = 32000; // High token limit for detailed explanations
 const MAX_TOKENS_CUSTOM_SECTION = 64000; // Much higher for custom sections to extract ALL content from documents
 
 /**
@@ -130,17 +130,30 @@ function extractRoleName(jobDescription) {
 
 // Section-specific prompts
 const SECTION_PROMPTS = {
-  pitch: `Generate a compelling 2-3 minute elevator pitch for this candidate based on their resume and the job description.
+  pitch: `Generate a compelling 2-minute elevator pitch for this candidate based on their resume and the job description.
 
-The pitch MUST be structured as 5 SECTIONS with BULLET POINTS for easy verbal delivery:
+CRITICAL JD ALIGNMENT:
+- Carefully analyze the JOB DESCRIPTION to identify the TOP 3-4 required skills/experiences
+- From the RESUME, find specific achievements that DIRECTLY match those JD requirements
+- Every achievement mentioned MUST tie back to a JD requirement
+- Use keywords and terminology from the JD
+- If the JD mentions specific tech (AWS, Python, etc.), highlight matching experience
 
-1. OPENING HOOK (15-20 seconds) - Grab attention with your unique value
-2. KEY ACHIEVEMENT #1 (30-40 seconds) - Most impressive relevant accomplishment
-3. KEY ACHIEVEMENT #2 (30-40 seconds) - Another strong example demonstrating skills
-4. WHY THIS COMPANY (20-30 seconds) - Show genuine enthusiasm and research
-5. CLOSING (15-20 seconds) - Clear value statement and call to action
+CRITICAL: The pitch must be SPEAKABLE - write it as if the candidate will READ IT OUT LOUD to the interviewer.
+- Use conversational language, not bullet points of facts
+- Write complete sentences that flow naturally when spoken
+- Include natural transitions between sections
+- Make it personal and authentic, not robotic
 
-Each section should have 3-5 bullet points that can be spoken naturally.
+Structure as 5 SECTIONS (each section = what to SAY, not notes about what to say):
+
+1. OPENING HOOK (15-20 seconds) - A confident intro that mentions skills MATCHING the JD
+2. KEY ACHIEVEMENT #1 (30-40 seconds) - Tell a mini-story about an accomplishment that DIRECTLY matches a JD requirement
+3. KEY ACHIEVEMENT #2 (30-40 seconds) - Another example that matches a DIFFERENT JD requirement
+4. WHY THIS COMPANY (20-30 seconds) - Genuine enthusiasm for THIS specific company and role
+5. CLOSING (10-15 seconds) - Summarize how your skills match THEIR specific needs
+
+Each section should have 2-4 SPEAKABLE sentences (not bullet points).
 
 Return JSON:
 {
@@ -149,47 +162,48 @@ Return JSON:
       "title": "Opening Hook",
       "duration": "15-20 seconds",
       "bullets": [
-        "Start with: 'I'm [Name], a [title] with X years specializing in...'",
-        "Mention 1-2 headline achievements or unique differentiators",
-        "Connect your background to this specific role"
+        "Hi, I'm [Name]. I'm a [title] with [X] years of experience building [specific expertise].",
+        "What excites me most is [genuine passion related to role].",
+        "I've helped companies like [example] achieve [specific result]."
       ]
     },
     {
       "title": "Key Achievement #1",
       "duration": "30-40 seconds",
-      "context": "Brief context about the project/company",
+      "context": "[Company/Project context in 5 words]",
       "bullets": [
-        "What was the challenge or opportunity?",
-        "What specific actions did YOU take?",
-        "What were the measurable results? (numbers, percentages, impact)"
+        "At [Company], I led a project to [specific challenge].",
+        "I [specific action 1] and [specific action 2].",
+        "This resulted in [quantified outcome] - a [X%] improvement.",
+        "What I learned was [brief insight]."
       ]
     },
     {
       "title": "Key Achievement #2",
       "duration": "30-40 seconds",
-      "context": "Brief context about the project/company",
+      "context": "[Company/Project context in 5 words]",
       "bullets": [
-        "What was the challenge or opportunity?",
-        "What specific actions did YOU take?",
-        "What were the measurable results?"
+        "Another example that's relevant here is when I [challenge].",
+        "I took initiative to [specific action].",
+        "The impact was [measurable result]."
       ]
     },
     {
       "title": "Why This Company",
       "duration": "20-30 seconds",
       "bullets": [
-        "Specific reason you're excited about THIS company",
-        "How your skills align with their mission/products",
-        "What unique value you bring to their team"
+        "What draws me to [Company] specifically is [genuine reason - their product/mission/impact].",
+        "I've been following [specific thing about company] and I'm impressed by [detail].",
+        "I believe my experience in [X] would help with [their specific challenge/goal]."
       ]
     },
     {
       "title": "Closing",
-      "duration": "15-20 seconds",
+      "duration": "10-15 seconds",
       "bullets": [
-        "Summarize your key value proposition in one sentence",
-        "Express enthusiasm for the opportunity",
-        "End with a forward-looking statement or question"
+        "In short, I bring [key strength] combined with [second strength].",
+        "I'm excited about the opportunity to [what you'd contribute].",
+        "I'd love to discuss how I can help [Company] achieve [goal]."
       ]
     }
   ],
@@ -215,29 +229,51 @@ IMPORTANT:
 - This is critical for HR screening - they report technologies to hiring managers
 - Include abbreviations for all technical terms`,
 
-  hr: `Generate HR screening interview preparation based on the job description and candidate's background.
+  hr: `Generate HR screening interview preparation SPECIFICALLY for this company based on the job description and candidate's background.
 
-Cover these common HR questions:
-- Salary expectations and negotiation points
-- Availability and start date
-- Why this company/role
-- Career goals alignment
-- Work style and culture fit
+CRITICAL: Your response MUST be tailored to this SPECIFIC company. Do NOT generate generic HR questions.
+
+Research and include:
+- This company's specific HR screening process and format
+- Questions this company is known to ask in HR rounds (from Glassdoor, Blind, etc.)
+- This company's compensation structure, benefits, and negotiation culture
+- This company's values, mission, and what they look for in cultural fit
+- Company-specific talking points about why the candidate wants to work HERE
+
+Cover these areas with COMPANY-SPECIFIC questions:
+- Salary expectations tailored to this company's compensation bands
+- Why THIS company specifically (research their mission, products, recent news)
+- How candidate aligns with THIS company's values and culture
+- Availability considerations based on this company's typical hiring timeline
+- Remote/hybrid/office policies specific to this company
 
 Return JSON:
 {
-  "summary": "Brief overview of how to approach HR screening",
+  "summary": "Overview of THIS company's HR screening process and what they focus on",
+  "companyInsights": {
+    "interviewFormat": "What to expect in HR rounds at this company",
+    "culture": "Key cultural aspects to address",
+    "values": ["Company value 1", "Company value 2"],
+    "recentNews": "Recent company news to reference"
+  },
   "questions": [
     {
-      "question": "What are your salary expectations?",
-      "suggestedAnswer": "A thoughtful answer based on the role level",
-      "tips": "Negotiation tips"
+      "question": "Company-specific HR question",
+      "whyTheyAsk": "Why this company asks this question",
+      "suggestedAnswer": "A thoughtful answer tailored to this company's values",
+      "tips": "Company-specific tips for answering"
     }
   ],
+  "salaryNegotiation": {
+    "companyContext": "How this company typically handles compensation",
+    "rangeEstimate": "Expected range for this role level at this company",
+    "negotiationTips": "Tips specific to negotiating with this company"
+  },
+  "questionsToAsk": ["Smart questions to ask HR at this company"],
   "abbreviations": [{"abbr": "PTO", "full": "Paid Time Off"}]
 }
 
-IMPORTANT: Include an "abbreviations" array with ALL technical terms, acronyms, and abbreviations used in your response.`,
+IMPORTANT: Every answer must reference THIS specific company. Do NOT use generic responses.`,
 
   'hiring-manager': `Generate hiring manager interview preparation tailored to this specific role.
 
@@ -358,7 +394,13 @@ Return JSON:
 
 CRITICAL: Use the candidate's actual experience from their resume. Reference any documentation/study materials provided. Be specific to the role.`,
 
-  coding: `Generate COMPREHENSIVE coding interview preparation with FULLY SOLVED problems.
+  coding: `Generate COMPREHENSIVE coding interview preparation with FULLY SOLVED problems SPECIFIC to this company.
+
+CRITICAL: Your coding problems MUST be tailored to THIS SPECIFIC company:
+- Use problems THIS company is KNOWN to ask (from LeetCode discuss, Glassdoor, Blind)
+- Match THIS company's interview format (e.g., Google: 45min 2 problems, Meta: 2 rounds)
+- Focus on topics THIS company emphasizes (research their actual interview patterns)
+- Include company-specific context about their coding interview culture
 
 CRITICAL REQUIREMENTS:
 1. You MUST reference the ADDITIONAL PREP MATERIALS provided - they contain crucial study resources
@@ -366,17 +408,19 @@ CRITICAL REQUIREMENTS:
 3. Include LINE-BY-LINE explanations for every line of code
 4. Cover ALL edge cases with specific examples
 5. Include time and space complexity analysis
+6. Problems must be ones THIS COMPANY actually asks (not generic LeetCode)
 
 For each coding question, provide:
 - Complete problem statement
+- WHY this company asks this problem (what skills they test)
 - Multiple approaches (brute force → optimal)
 - Full working code in Python (primary) and the language mentioned in JD
 - Line-by-line explanation of what each line does and WHY
 - Edge cases with specific test inputs that could break naive solutions
 - Common mistakes candidates make
-- Follow-up questions interviewers might ask
+- Follow-up questions THIS company's interviewers typically ask
 
-Generate 5-7 REAL coding problems likely asked at this company for this role level.
+Generate 5-7 REAL coding problems that THIS SPECIFIC company asks for this role level.
 
 Return JSON:
 {
@@ -674,33 +718,63 @@ Return JSON:
 
 CRITICAL: Include diagramDescription for each design, actual calculations, and reference prep materials provided. Diagrams will be auto-generated from your description.`,
 
-  behavioral: `Generate behavioral interview preparation using the STAR method.
+  behavioral: `Generate behavioral interview preparation with ALL answers in STAR format, SPECIFICALLY tailored for this company.
 
-Based on the resume, identify experiences that demonstrate:
-- Leadership and initiative
-- Problem-solving and challenges overcome
-- Teamwork and collaboration
-- Conflict resolution
-- Growth mindset and learning
+CRITICAL: Your behavioral questions MUST be tailored to THIS SPECIFIC company's:
+- Interview culture and what they value (e.g., Amazon's Leadership Principles, Google's Googleyness)
+- Known behavioral questions they ask (from Glassdoor, Blind, interview prep sites)
+- Company values and how to demonstrate alignment
+- Specific traits this company looks for in candidates
+
+Based on the resume, identify 8-10 experiences that demonstrate skills THIS company cares about:
+- Leadership and initiative (aligned with company values)
+- Problem-solving and challenges overcome (relevant to company's domain)
+- Teamwork and collaboration (matching company culture)
+- Conflict resolution (using company's preferred approach)
+- Growth mindset and learning (company-relevant examples)
+- Technical decision making (relevant to company tech stack)
+- Handling failure or setbacks (company-appropriate framing)
+- Managing ambiguity (relevant to company's work style)
+
+CRITICAL: Every answer MUST be in complete STAR format with detailed content:
+- Situation: 2-3 sentences describing the context, company, team size, and circumstances
+- Task: What specific challenge or responsibility you faced, including stakes and constraints
+- Action: 3-5 specific actions YOU took (use "I" not "we"), including technical details
+- Result: Quantified outcomes with metrics (%, $, time saved, etc.) and business impact
 
 Return JSON:
 {
-  "summary": "Behavioral interview strategy",
+  "summary": "Behavioral interview strategy for THIS company specifically",
+  "companyContext": {
+    "interviewFormat": "How this company conducts behavioral interviews",
+    "whatTheyLookFor": ["Specific traits this company values"],
+    "knownQuestions": ["Questions this company is known to ask"],
+    "culturalFit": "What cultural fit means at this company"
+  },
   "questions": [
     {
-      "question": "Tell me about a time when...",
-      "suggestedAnswer": "STAR-formatted answer using their actual experience",
-      "situation": "Brief situation",
-      "task": "The task/challenge",
-      "action": "Actions taken",
-      "result": "Quantified results"
+      "question": "Company-specific behavioral question",
+      "whyThisCompanyAsks": "Why this company asks this specific question",
+      "companyValue": "Which company value/principle this tests",
+      "category": "Leadership|Problem-Solving|Teamwork|Conflict|Growth|Technical|Failure|Ambiguity",
+      "situation": "Detailed 2-3 sentence context...",
+      "task": "Detailed task...",
+      "action": "Detailed actions (3-5 bullet points)...",
+      "result": "Quantified results...",
+      "companyConnection": "How to connect this answer to THIS company's mission/values",
+      "tips": "Company-specific delivery tips"
     }
   ],
-  "keyThemes": ["Themes from their experience to emphasize"],
+  "keyThemes": ["Themes that resonate with THIS company's values"],
+  "generalTips": ["Tips for behavioral interviews at THIS company specifically"],
   "abbreviations": [{"abbr": "STAR", "full": "Situation, Task, Action, Result"}]
 }
 
-IMPORTANT: Include an "abbreviations" array with ALL technical terms, acronyms, and abbreviations used in your response.`,
+IMPORTANT:
+- Generate 8-10 questions that THIS company actually asks (research-based)
+- Frame every answer to align with THIS company's values
+- Use SPECIFIC examples from their resume with real metrics
+- Include company-specific context for each answer`,
 
   techstack: `Generate COMPREHENSIVE technology-specific interview preparation based on the job requirements.
 
@@ -911,13 +985,20 @@ function cleanupResult(obj) {
 function buildContext(inputs, section = null) {
   let context = '';
 
-  // Extract company and role for context
-  const companyName = inputs.jobDescription ? extractCompanyName(inputs.jobDescription) : null;
+  // Use explicit company name from frontend, fallback to extraction from JD
+  const companyName = inputs.companyName || (inputs.jobDescription ? extractCompanyName(inputs.jobDescription) : null);
   const roleName = inputs.jobDescription ? extractRoleName(inputs.jobDescription) : null;
 
   if (companyName || roleName) {
     context += `## TARGET COMPANY & ROLE\n`;
-    if (companyName) context += `Company: ${companyName}\n`;
+    if (companyName) {
+      context += `Company: ${companyName}\n`;
+      context += `\nCRITICAL INSTRUCTION: ALL content you generate MUST be specifically tailored for ${companyName}.\n`;
+      context += `- Use ${companyName}'s actual interview process, culture, and values\n`;
+      context += `- Reference ${companyName}'s real products, technologies, and business model\n`;
+      context += `- Generate questions that ${companyName} is known to ask based on public interview data\n`;
+      context += `- DO NOT generate generic content - everything must be ${companyName}-specific\n\n`;
+    }
     if (roleName) context += `Role: ${roleName}\n`;
     context += `\n`;
   }
@@ -982,21 +1063,24 @@ function buildContext(inputs, section = null) {
 
 // Perform web search for interview questions
 async function enrichWithWebSearch(inputs, section) {
-  if (!['coding', 'system-design', 'techstack'].includes(section)) {
+  if (!['coding', 'system-design', 'techstack', 'hr', 'behavioral', 'hiring-manager'].includes(section)) {
     return inputs;
   }
 
-  const companyName = extractCompanyName(inputs.jobDescription || '');
+  // Use explicit company name first, fallback to extraction
+  const companyName = inputs.companyName || extractCompanyName(inputs.jobDescription || '');
   const roleName = extractRoleName(inputs.jobDescription || '');
 
   if (!companyName) {
+    console.log('[AscendPrep] No company name available for web search');
     return inputs;
   }
 
   try {
-    console.log(`[AscendPrep] Searching for ${section} questions at ${companyName}`);
+    console.log(`[AscendPrep] Searching for ${companyName} ${section} interview questions`);
     const searchResults = await searchInterviewQuestions(companyName, roleName, section);
-    return { ...inputs, searchResults };
+    console.log(`[AscendPrep] Found ${searchResults.length} results for ${companyName}`);
+    return { ...inputs, searchResults, resolvedCompanyName: companyName };
   } catch (err) {
     console.log('[AscendPrep] Web search failed:', err.message);
     return inputs;
@@ -1014,16 +1098,29 @@ export async function* generateSectionClaude(section, inputs, model = DEFAULT_CL
     throw new Error(`Unknown section: ${section}`);
   }
 
+  // Get company name for prompts
+  const companyName = inputs.companyName || inputs.resolvedCompanyName || extractCompanyName(inputs.jobDescription || '');
+
   // Use extended system prompt for coding/system-design sections
   const isDetailedSection = ['coding', 'system-design', 'techstack', 'rrk'].includes(section);
+  const companyContext = companyName
+    ? `\n\nCRITICAL: You are preparing content SPECIFICALLY for ${companyName}.
+- Use ${companyName}'s actual interview format, known questions, and company culture
+- Reference ${companyName}'s real products, tech stack, and business challenges
+- Generate questions that ${companyName} is ACTUALLY known to ask (from Glassdoor, LeetCode, Blind)
+- DO NOT use generic questions - every question must be tailored to ${companyName}'s interview process
+- Include ${companyName}-specific context like their Leadership Principles, engineering culture, or values`
+    : '';
+
   const systemPrompt = isDetailedSection
-    ? `You are an expert interview coach with deep knowledge of technical interviews.
+    ? `You are an expert interview coach with deep knowledge of technical interviews at top tech companies.
 Your task is to provide COMPREHENSIVE, DETAILED preparation materials.
 For coding questions: Include COMPLETE working code with LINE-BY-LINE explanations and ALL edge cases.
 For system design: Include ASCII architecture diagrams, capacity calculations, and detailed component breakdowns.
-You MUST reference any prep materials provided by the candidate.
+You MUST reference any prep materials provided by the candidate.${companyContext}
 Return ONLY valid JSON - no markdown, no code blocks. Start with { and end with }.`
-    : `You are a concise interview coach. Give specific, actionable advice based on the resume and job description. Be direct and practical. Return ONLY valid JSON - no markdown, no code blocks, no explanations before or after. Start your response with { and end with }.`;
+    : `You are a concise interview coach specializing in company-specific interview preparation. Give specific, actionable advice based on the resume and job description. Be direct and practical.${companyContext}
+Return ONLY valid JSON - no markdown, no code blocks, no explanations before or after. Start your response with { and end with }.`;
 
   const userMessage = `${context}\n\n${sectionPrompt}\n\nCRITICAL: Return ONLY the JSON object. Do NOT wrap in \`\`\`json code blocks. Start directly with { and end with }.`;
 
@@ -1071,16 +1168,28 @@ export async function* generateSectionOpenAI(section, inputs, model = DEFAULT_OP
     throw new Error(`Unknown section: ${section}`);
   }
 
+  // Get company name for prompts
+  const companyNameOAI = inputs.companyName || inputs.resolvedCompanyName || extractCompanyName(inputs.jobDescription || '');
+
   // Use extended system prompt for coding/system-design sections
   const isDetailedSection = ['coding', 'system-design', 'techstack', 'rrk'].includes(section);
+  const companyContextOAI = companyNameOAI
+    ? `\n\nCRITICAL: You are preparing content SPECIFICALLY for ${companyNameOAI}.
+- Use ${companyNameOAI}'s actual interview format, known questions, and company culture
+- Reference ${companyNameOAI}'s real products, tech stack, and business challenges
+- Generate questions that ${companyNameOAI} is ACTUALLY known to ask
+- DO NOT use generic questions - every question must be tailored to ${companyNameOAI}'s interview process`
+    : '';
+
   const systemPrompt = isDetailedSection
     ? `You are an expert interview coach with deep knowledge of technical interviews.
 Your task is to provide COMPREHENSIVE, DETAILED preparation materials.
 For coding questions: Include COMPLETE working code with LINE-BY-LINE explanations and ALL edge cases.
 For system design: Include ASCII architecture diagrams, capacity calculations, and detailed component breakdowns.
-You MUST reference any prep materials provided by the candidate.
+You MUST reference any prep materials provided by the candidate.${companyContextOAI}
 Return valid JSON.`
-    : `You are a concise interview coach. Give specific, actionable advice based on the resume and job description. Be direct and practical. Return valid JSON.`;
+    : `You are a concise interview coach. Give specific, actionable advice based on the resume and job description. Be direct and practical.${companyContextOAI}
+Return valid JSON.`;
 
   const userMessage = `${context}\n\n${sectionPrompt}`;
 

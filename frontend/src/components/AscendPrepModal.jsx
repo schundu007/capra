@@ -6,16 +6,24 @@ import { getApiUrl } from '../hooks/useElectron';
 const API_URL = getApiUrl();
 
 // Section definitions
-const SECTIONS = [
+const ALL_SECTIONS = [
   { id: 'pitch', name: 'Elevator Pitch', description: '2-3 minute interview pitch' },
   { id: 'hr', name: 'HR Questions', description: 'Salary, culture, availability' },
   { id: 'hiring-manager', name: 'Hiring Manager', description: 'Role-specific questions' },
-  { id: 'rrk', name: 'RRK (Google)', description: 'Role Related Knowledge round' },
+  { id: 'rrk', name: 'RRK (Google)', description: 'Role Related Knowledge round', companyFilter: 'google' },
   { id: 'coding', name: 'Coding', description: 'Algorithm & coding challenges' },
   { id: 'system-design', name: 'System Design', description: 'Architecture questions' },
   { id: 'behavioral', name: 'Behavioral', description: 'STAR method questions' },
   { id: 'techstack', name: 'Tech Stack', description: 'Technology-specific questions' },
+  { id: 'study-docs', name: 'Study Docs', description: 'Reference documents', isDocViewer: true },
 ];
+
+// Filter sections based on company name (e.g., RRK only for Google)
+function getFilteredSections(companyName) {
+  if (!companyName) return ALL_SECTIONS.filter(s => !s.companyFilter);
+  const companyLower = companyName.toLowerCase();
+  return ALL_SECTIONS.filter(s => !s.companyFilter || companyLower.includes(s.companyFilter));
+}
 
 const EMPTY_INPUTS = {
   jobDescription: '',
@@ -39,6 +47,7 @@ const EMPTY_GENERATED = {
 // Empty custom sections (user-created from documents)
 const EMPTY_CUSTOM_SECTIONS = [];
 // Format: [{ id: 'custom-1', name: 'My Custom Section', documentName: 'doc.pdf', documentIndex: 0 }]
+
 
 // Get auth headers (includes Electron detection)
 function getAuthHeaders() {
@@ -145,6 +154,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
   const [inputs, setInputs] = useState({ ...EMPTY_INPUTS });
   const [generated, setGenerated] = useState({ ...EMPTY_GENERATED });
   const [customSections, setCustomSections] = useState([]); // User-created sections from documents
+  const [isLoadingCompany, setIsLoadingCompany] = useState(false); // Prevent auto-save during company switch
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatingSection, setGeneratingSection] = useState(null);
   const [generatingSections, setGeneratingSections] = useState(new Set()); // For parallel generation
@@ -156,12 +166,18 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
   const [showCreateSectionModal, setShowCreateSectionModal] = useState(false);
   const [newSectionName, setNewSectionName] = useState('');
   const [selectedDocIndex, setSelectedDocIndex] = useState(null);
+  const [availableDocuments, setAvailableDocuments] = useState([]);
+  const [selectedDocument, setSelectedDocument] = useState(null);
   const dropdownRef = useRef(null);
   const newCompanyInputRef = useRef(null);
+
+  // Get filtered sections based on active company (e.g., RRK only for Google)
+  const sections = getFilteredSections(activeCompany);
 
   // Load company data on mount
   useEffect(() => {
     if (isOpen || embedded) {
+      setIsLoadingCompany(true);
       const data = loadCompanyData();
       setCompanies(data.companies);
       setActiveCompany(data.activeCompany);
@@ -175,6 +191,9 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
         setGenerated({ ...EMPTY_GENERATED });
         setCustomSections([]);
       }
+
+      // Re-enable auto-save after initial load
+      setTimeout(() => setIsLoadingCompany(false), 100);
     }
   }, [isOpen, embedded]);
 
@@ -200,8 +219,9 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
   }, [showNewCompanyInput]);
 
   // Save current company data whenever inputs, generated content, or custom sections change
+  // Skip during company loading to prevent data bleeding
   useEffect(() => {
-    if (activeCompany) {
+    if (activeCompany && !isLoadingCompany) {
       const data = loadCompanyData();
       data.data[activeCompany] = {
         inputs,
@@ -211,7 +231,45 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
       data.activeCompany = activeCompany;
       saveCompanyData(data);
     }
-  }, [inputs, generated, customSections, activeCompany]);
+  }, [inputs, generated, customSections, activeCompany, isLoadingCompany]);
+
+  // Fetch available documents - filtered by company name
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/documents`);
+        if (response.ok) {
+          const data = await response.json();
+          const allDocs = data.documents || [];
+
+          // Filter documents to only show those matching the active company
+          let filteredDocs = allDocs;
+          if (activeCompany) {
+            const companyLower = activeCompany.toLowerCase();
+            filteredDocs = allDocs.filter(doc => {
+              const docName = doc.name.toLowerCase().replace('.html', '').replace(/_/g, ' ');
+              return docName.includes(companyLower) || companyLower.includes(docName);
+            });
+          }
+
+          setAvailableDocuments(filteredDocs);
+
+          // Auto-select first matching document
+          if (filteredDocs.length > 0) {
+            setSelectedDocument(filteredDocs[0]);
+          } else {
+            setSelectedDocument(null);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch documents:', err);
+      }
+    };
+
+    if (isOpen || embedded) {
+      fetchDocuments();
+    }
+  }, [isOpen, embedded, activeCompany]);
 
   const handleInputChange = (field, value) => {
     setInputs(prev => ({ ...prev, [field]: value }));
@@ -224,12 +282,26 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
       return;
     }
 
+    // Prevent auto-save during transition
+    setIsLoadingCompany(true);
+
     const data = loadCompanyData();
+
+    // Save current company's data first before switching
+    if (activeCompany) {
+      data.data[activeCompany] = {
+        inputs,
+        generated,
+        customSections,
+      };
+    }
+
     data.companies.push(trimmedName);
     data.activeCompany = trimmedName;
     data.data[trimmedName] = {
       inputs: { ...EMPTY_INPUTS },
       generated: { ...EMPTY_GENERATED },
+      customSections: [], // Include customSections
     };
     saveCompanyData(data);
 
@@ -237,10 +309,14 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
     setActiveCompany(trimmedName);
     setInputs({ ...EMPTY_INPUTS });
     setGenerated({ ...EMPTY_GENERATED });
+    setCustomSections([]); // Reset customSections state
     setShowNewCompanyInput(false);
     setNewCompanyName('');
     setShowCompanyDropdown(false);
     setActiveTab('input');
+
+    // Re-enable auto-save after state is set
+    setTimeout(() => setIsLoadingCompany(false), 100);
   };
 
   // Switch to a different company
@@ -250,10 +326,25 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
       return;
     }
 
+    // Prevent auto-save during transition
+    setIsLoadingCompany(true);
+
     const data = loadCompanyData();
+
+    // CRITICAL: Save current company's data BEFORE switching
+    // This prevents data bleeding between companies
+    if (activeCompany && data.data[activeCompany] !== undefined) {
+      data.data[activeCompany] = {
+        inputs,
+        generated,
+        customSections,
+      };
+    }
+
     data.activeCompany = companyName;
     saveCompanyData(data);
 
+    // Now load the new company's data
     setActiveCompany(companyName);
     if (data.data[companyName]) {
       setInputs(data.data[companyName].inputs || { ...EMPTY_INPUTS });
@@ -266,6 +357,9 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
     }
     setShowCompanyDropdown(false);
     setActiveTab('input');
+
+    // Re-enable auto-save after state is set
+    setTimeout(() => setIsLoadingCompany(false), 100);
   };
 
   // Rename company
@@ -284,8 +378,15 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
     const data = loadCompanyData();
     const index = data.companies.indexOf(activeCompany);
     if (index !== -1) {
+      // Save current state before renaming (capture any unsaved changes)
+      const currentCompanyData = {
+        inputs,
+        generated,
+        customSections,
+      };
+
       data.companies[index] = trimmedName;
-      data.data[trimmedName] = data.data[activeCompany];
+      data.data[trimmedName] = currentCompanyData;
       delete data.data[activeCompany];
       data.activeCompany = trimmedName;
       saveCompanyData(data);
@@ -302,7 +403,20 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
       return;
     }
 
+    // Prevent auto-save during transition
+    setIsLoadingCompany(true);
+
     const data = loadCompanyData();
+
+    // Save current active company's data first (if not the one being deleted)
+    if (activeCompany && activeCompany !== companyName) {
+      data.data[activeCompany] = {
+        inputs,
+        generated,
+        customSections,
+      };
+    }
+
     data.companies = data.companies.filter(c => c !== companyName);
     delete data.data[companyName];
 
@@ -314,6 +428,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
       setActiveCompany(data.companies[0]);
       setInputs(data.data[data.companies[0]]?.inputs || { ...EMPTY_INPUTS });
       setGenerated(data.data[data.companies[0]]?.generated || { ...EMPTY_GENERATED });
+      setCustomSections(data.data[data.companies[0]]?.customSections || []);
     } else {
       data.activeCompany = null;
       saveCompanyData(data);
@@ -321,9 +436,13 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
       setActiveCompany(null);
       setInputs({ ...EMPTY_INPUTS });
       setGenerated({ ...EMPTY_GENERATED });
+      setCustomSections([]);
     }
     setShowCompanyDropdown(false);
     setActiveTab('input');
+
+    // Re-enable auto-save after state is set
+    setTimeout(() => setIsLoadingCompany(false), 100);
   };
 
   // Generate a single section on-demand
@@ -348,6 +467,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
           prepMaterials: inputs.prepMaterials,
           documentation: inputs.documentation || [],
           section: sectionId,
+          companyName: activeCompany, // Include company name for company-specific content
           provider: provider || 'claude',
           model,
         }),
@@ -414,6 +534,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
           prepMaterials: inputs.prepMaterials,
           documentation: inputs.documentation || [],
           section: sectionId,
+          companyName: activeCompany, // Include company name for company-specific content
           provider: provider || 'claude',
           model,
         }),
@@ -471,7 +592,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
     }
 
     // Get sections that need to be generated
-    const sectionsToGenerate = SECTIONS.filter(s => !generated[s.id]).map(s => s.id);
+    const sectionsToGenerate = sections.filter(s => !generated[s.id] && !s.isDocViewer).map(s => s.id);
 
     if (sectionsToGenerate.length === 0) {
       alert('All sections are already generated. Use "Clear All" to regenerate.');
@@ -580,6 +701,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
           section: 'custom',
           customDocumentContent: doc.content,
           customDocumentName: doc.name,
+          companyName: activeCompany, // Include company name for company-specific content
           provider: provider || 'claude',
           model,
         }),
@@ -742,7 +864,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
   return (
     <div className={containerClass}>
       {/* Modal wrapper - constrains size when in modal mode */}
-      <div className={isModal ? "flex w-full max-w-5xl h-[85vh] rounded-xl overflow-hidden shadow-2xl" : "flex w-full h-full"}>
+      <div className={isModal ? "flex w-[90vw] h-[90vh] rounded-xl overflow-hidden shadow-2xl" : "flex w-full h-full"}>
       {/* Drag bar for dedicated window - spans entire top */}
       {isDedicatedWindow && !embedded && (
         <div
@@ -936,7 +1058,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
 
           {activeCompany && completedSections > 0 && (
             <div className="mt-2 text-xs" style={{ color: 'var(--text-muted)' }}>
-              {completedSections}/{SECTIONS.length} sections ready
+              {completedSections}/{sections.filter(s => !s.isDocViewer).length} sections ready
             </div>
           )}
         </div>
@@ -968,7 +1090,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
               <div className="my-2 mx-4" style={{ borderTop: '1px solid var(--border-default)' }} />
 
               {/* Section Tabs */}
-              {SECTIONS.map((section) => {
+              {sections.map((section) => {
                 const isActive = activeTab === section.id;
                 const isComplete = generated[section.id] !== null;
                 const isCurrentlyGenerating = generatingSection === section.id || generatingSections.has(section.id);
@@ -1087,7 +1209,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
               {/* Generate All Button - Always visible */}
               <button
                 onClick={handleGenerateAll}
-                disabled={isGenerating || !hasInputs || completedSections === SECTIONS.length}
+                disabled={isGenerating || !hasInputs || completedSections === sections.filter(s => !s.isDocViewer).length}
                 className="w-full py-2.5 px-4 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 style={{ background: 'var(--accent-green)', color: 'var(--content-bg-secondary)' }}
               >
@@ -1096,7 +1218,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     Generating {generatingSections.size} sections...
                   </>
-                ) : completedSections === SECTIONS.length ? (
+                ) : completedSections === sections.filter(s => !s.isDocViewer).length ? (
                   <>
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -1108,7 +1230,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
-                    Generate All ({SECTIONS.length - completedSections} sections)
+                    Generate All ({sections.filter(s => !s.isDocViewer).length - completedSections} sections)
                   </>
                 )}
               </button>
@@ -1129,6 +1251,8 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
               >
                 Clear Generated
               </button>
+
+{/* Reset button removed - too dangerous, use Delete Company instead */}
 
               {/* Export Buttons */}
               {completedSections > 0 && (
@@ -1192,12 +1316,65 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
             onChange={handleInputChange}
             hasInputs={hasInputs}
           />
+        ) : activeTab === 'study-docs' ? (
+          <div className="h-full w-full flex flex-col" style={{ background: 'var(--content-bg-secondary)' }}>
+            {availableDocuments.length === 0 ? (
+              <div className="h-full flex items-center justify-center">
+                <div className="text-center" style={{ color: 'var(--text-muted)' }}>
+                  <svg className="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <h3 className="text-lg font-medium" style={{ color: '#1a1a1a' }}>No Study Documents for {activeCompany}</h3>
+                  <p className="text-sm mt-1">Add HTML documents with "{activeCompany}" in the filename</p>
+                  <p className="text-xs mt-2 opacity-60">~/Library/Application Support/Ascend/documents/</p>
+                  <p className="text-xs mt-1 opacity-40">Example: {activeCompany?.toLowerCase().replace(/\s+/g, '_')}_guide.html</p>
+                </div>
+              </div>
+            ) : (
+              <>
+                {availableDocuments.length > 1 && (
+                  <div className="flex items-center gap-2 p-3 border-b" style={{ borderColor: 'var(--border-color)' }}>
+                    <label className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>Document:</label>
+                    <select
+                      value={selectedDocument?.url || ''}
+                      onChange={(e) => {
+                        const doc = availableDocuments.find(d => d.url === e.target.value);
+                        setSelectedDocument(doc);
+                      }}
+                      className="flex-1 px-3 py-1.5 rounded text-sm"
+                      style={{
+                        background: 'var(--input-bg)',
+                        color: 'var(--text-primary)',
+                        border: '1px solid var(--border-color)'
+                      }}
+                    >
+                      {availableDocuments.map(doc => (
+                        <option key={doc.url} value={doc.url}>
+                          {doc.name.replace('.html', '').replace(/_/g, ' ')}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                <div className="flex-1 bg-[#0c0f14]">
+                  {selectedDocument && (
+                    <webview
+                      src={`${API_URL}${selectedDocument.url}`}
+                      className="w-full h-full"
+                      style={{ background: '#0c0f14' }}
+                    />
+                  )}
+                </div>
+              </>
+            )}
+          </div>
         ) : (
           <OutputPanel
-            section={SECTIONS.find(s => s.id === activeTab)}
+            section={sections.find(s => s.id === activeTab)}
             content={generated[activeTab]}
             streamingContent={generatingSection === activeTab ? streamingContent : ''}
             isGenerating={generatingSection === activeTab}
+            jobDescription={inputs.jobDescription}
             onRegenerate={() => {
               const customSection = customSections.find(s => s.id === activeTab);
               if (customSection) {

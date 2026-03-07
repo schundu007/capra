@@ -351,6 +351,33 @@ export default function App() {
   const [codingDetailLevel, setCodingDetailLevel] = useState('basic');
   const [codingLanguage, setCodingLanguage] = useState('auto');
 
+  // Editor settings (persisted to localStorage)
+  const [editorSettings, setEditorSettings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('chundu_editor_settings');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return {
+      theme: 'dark',
+      keyBindings: 'standard',
+      fontSize: 12,
+      tabSpacing: 4,
+      intelliSense: true,
+      autoCloseBrackets: true,
+    };
+  });
+
+  // Persist editor settings
+  const updateEditorSettings = (updates) => {
+    setEditorSettings(prev => {
+      const newSettings = { ...prev, ...updates };
+      try {
+        localStorage.setItem('chundu_editor_settings', JSON.stringify(newSettings));
+      } catch {}
+      return newSettings;
+    });
+  };
+
   // System design storage hook
   const systemDesignStorage = useSystemDesignStorage();
 
@@ -1476,37 +1503,26 @@ EDGE CASES & RESILIENCE:
       >
         {/* Left: Logo & Tabs */}
         <div className="flex items-center gap-4" style={{ WebkitAppRegion: 'no-drag' }}>
-          {/* Sidebar Toggle - hidden in Preparation and Behavioral modes */}
-          {sidebarCollapsed && ascendMode !== 'ascend-prep' && ascendMode !== 'behavioral' && (
+          {/* Logo - clickable to expand sidebar when collapsed */}
+          {!showSidebar && (
             <button
               onClick={toggleSidebar}
-              className="slack-btn-icon"
-              title="Show sidebar"
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+              title="Expand sidebar"
+              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          )}
-
-          {/* Logo when sidebar hidden */}
-          {!showSidebar && (
-            <div className="flex items-center gap-2">
-              <div
-                className="w-8 h-8 rounded-md flex items-center justify-center"
-                style={{ background: 'var(--accent-green)' }}
-              >
+              <div className="sidebar-logo-mark" style={{ width: '32px', height: '32px' }}>
                 <img
                   src="/ascend-logo.png"
                   alt="Ascend"
                   className="h-4 w-auto object-contain filter brightness-0 invert"
                 />
               </div>
-              <span className="text-title">Ascend</span>
+              <span className="sidebar-logo-text" style={{ fontSize: '16px' }}>Ascend</span>
               {isLoading && (
-                <div className="slack-spinner" style={{ width: '16px', height: '16px' }} />
+                <div className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: '#10b981', borderTopColor: 'transparent' }} />
               )}
-            </div>
+            </button>
           )}
 
           {/* Mode Tabs - Slack style */}
@@ -1622,6 +1638,7 @@ EDGE CASES & RESILIENCE:
             />
           </div>
         ) : (
+        /* Coding & System Design Mode - Clean two-panel layout */
         <div className="h-full" style={{ background: '#f5f5f5' }}>
           <Allotment defaultSizes={showAscendAssistant ? [30, 40, 30] : [30, 70]}>
             {/* Left Pane - Problem + Explanation */}
@@ -1653,50 +1670,8 @@ EDGE CASES & RESILIENCE:
                         </button>
                       )}
                     </div>
-                    {/* Controls - different for each mode */}
+                    {/* Mode controls */}
                     <div className="panel-header-right">
-                      {/* Coding mode controls */}
-                      {ascendMode === 'coding' && (
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center rounded-full p-0.5" style={{ background: '#f0f0f0', border: '1px solid #e0e0e0' }}>
-                            <button
-                              type="button"
-                              onClick={() => setCodingDetailLevel('basic')}
-                              className="px-3 py-1 text-[10px] font-semibold transition-all rounded-full"
-                              style={{
-                                background: codingDetailLevel === 'basic' ? '#10b981' : 'transparent',
-                                color: codingDetailLevel === 'basic' ? '#ffffff' : '#000000',
-                              }}
-                            >
-                              Basic
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setCodingDetailLevel('detailed')}
-                              className="px-3 py-1 text-[10px] font-semibold transition-all rounded-full"
-                              style={{
-                                background: codingDetailLevel === 'detailed' ? '#10b981' : 'transparent',
-                                color: codingDetailLevel === 'detailed' ? '#ffffff' : '#000000',
-                              }}
-                            >
-                              Full
-                            </button>
-                          </div>
-                          <select
-                            value={codingLanguage}
-                            onChange={(e) => setCodingLanguage(e.target.value)}
-                            className="px-2 py-1 text-[10px] rounded-full bg-white border border-gray-200 text-black"
-                          >
-                            <option value="auto">Auto</option>
-                            <option value="python">Python</option>
-                            <option value="javascript">JS</option>
-                            <option value="typescript">TS</option>
-                            <option value="java">Java</option>
-                            <option value="cpp">C++</option>
-                            <option value="go">Go</option>
-                          </select>
-                        </div>
-                      )}
                       {/* System Design mode controls */}
                       <AscendModeSelector
                         ascendMode={ascendMode}
@@ -1763,6 +1738,11 @@ EDGE CASES & RESILIENCE:
                     setSolution(prev => prev ? { ...prev, explanations } : null);
                   }}
                   ascendMode={ascendMode}
+                  codingLanguage={codingLanguage}
+                  onLanguageChange={ascendMode === 'coding' ? setCodingLanguage : undefined}
+                  detailLevel={codingDetailLevel}
+                  onDetailLevelChange={ascendMode === 'coding' ? setCodingDetailLevel : undefined}
+                  editorSettings={editorSettings}
                   systemDesign={solution?.systemDesign || streamingContent.systemDesign}
                   eraserDiagram={eraserDiagram}
                   autoGenerateEraser={autoGenerateEraser}
@@ -1961,6 +1941,8 @@ EDGE CASES & RESILIENCE:
               console.error('Failed to save auto-switch setting:', e);
             }
           }}
+          editorSettings={editorSettings}
+          onEditorSettingsChange={updateEditorSettings}
         />
       )}
 

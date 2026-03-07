@@ -72,6 +72,8 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
   const docFileInputRef = useRef(null);
   const [extracting, setExtracting] = useState(null);
   const [extractingDoc, setExtractingDoc] = useState(false);
+  const [editingField, setEditingField] = useState(null);
+  const [editText, setEditText] = useState('');
 
   const extractTextFromFile = async (file, fieldId) => {
     const filename = file.name.toLowerCase();
@@ -121,7 +123,12 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
 
   const handleFileSelect = async (e, fieldId) => {
     const file = e.target.files?.[0];
-    if (file) await extractTextFromFile(file, fieldId);
+    if (file) {
+      await extractTextFromFile(file, fieldId);
+      // Close the modal after successful file upload
+      setEditingField(null);
+      setEditText('');
+    }
     e.target.value = '';
   };
 
@@ -233,7 +240,12 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
                 onDragOver={(e) => { e.preventDefault(); setDragOver(field.id); }}
                 onDragLeave={() => setDragOver(null)}
                 onDrop={(e) => handleDrop(e, field.id)}
-                onClick={() => !hasContent && fileInputRefs.current[field.id]?.click()}
+                onClick={() => {
+                  if (!hasContent) {
+                    setEditingField(field.id);
+                    setEditText('');
+                  }
+                }}
               >
                 {isLoading ? (
                   <>
@@ -381,6 +393,7 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
               }}
             />
           </div>
+
         </div>
       </div>
 
@@ -397,6 +410,80 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
           )}
         </div>
       </div>
+
+      {/* Text Input Modal */}
+      {editingField && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-50"
+          style={{ background: 'rgba(0,0,0,0.5)' }}
+          onClick={() => setEditingField(null)}
+        >
+          <div
+            className="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4"
+            style={{ maxHeight: '80vh' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-4 py-3 border-b flex items-center justify-between">
+              <h3 className="font-semibold" style={{ color: '#1a1a1a' }}>
+                {INPUT_FIELDS.find(f => f.id === editingField)?.label}
+              </h3>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => fileInputRefs.current[editingField]?.click()}
+                  className="px-3 py-1.5 rounded text-sm"
+                  style={{ background: '#f5f5f5', color: '#666' }}
+                >
+                  Upload File
+                </button>
+                <button
+                  onClick={() => setEditingField(null)}
+                  className="p-1 rounded hover:bg-gray-100"
+                >
+                  {ICONS.x}
+                </button>
+              </div>
+            </div>
+            <div className="p-4">
+              <textarea
+                autoFocus
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                placeholder={`Paste your ${INPUT_FIELDS.find(f => f.id === editingField)?.label.toLowerCase()} here...`}
+                className="w-full rounded-lg p-3 text-sm resize-none"
+                style={{
+                  height: '300px',
+                  border: '1px solid #e5e5e5',
+                  background: '#fafafa',
+                  color: '#1a1a1a'
+                }}
+              />
+            </div>
+            <div className="px-4 py-3 border-t flex justify-end gap-2">
+              <button
+                onClick={() => setEditingField(null)}
+                className="px-4 py-2 rounded text-sm"
+                style={{ background: '#f5f5f5', color: '#666' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (editText.trim()) {
+                    onChange(editingField, editText.trim());
+                  }
+                  setEditingField(null);
+                  setEditText('');
+                }}
+                className="px-4 py-2 rounded text-sm text-white"
+                style={{ background: '#10b981' }}
+                disabled={!editText.trim()}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

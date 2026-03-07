@@ -3,6 +3,8 @@ import './epipe-handler.js';
 
 import { app, BrowserWindow, ipcMain, Menu, shell, safeStorage, nativeTheme, session, desktopCapturer, screen, globalShortcut } from 'electron';
 import path from 'path';
+import fs from 'fs';
+import os from 'os';
 import { fileURLToPath } from 'url';
 import { startBackendServer } from './backend-server.js';
 import { setupApiKeyHandlers } from './ipc/api-keys.js';
@@ -75,12 +77,12 @@ async function createWindow() {
         ...details.responseHeaders,
         'Content-Security-Policy': [
           "default-src 'self';" +
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://donorbox.org;" +
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://donorbox.org https://cdnjs.cloudflare.com;" +
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;" +
-          `connect-src 'self' http://localhost:${BACKEND_PORT} http://127.0.0.1:${BACKEND_PORT} ws://localhost:${BACKEND_PORT} ws://127.0.0.1:${BACKEND_PORT} https://*.lockedinai.com https://donorbox.org https://*.donorbox.org;` +
+          `connect-src 'self' http://localhost:${BACKEND_PORT} http://127.0.0.1:${BACKEND_PORT} ws://localhost:${BACKEND_PORT} ws://127.0.0.1:${BACKEND_PORT} https://*.lockedinai.com https://donorbox.org https://*.donorbox.org https://cdnjs.cloudflare.com;` +
           `img-src 'self' data: blob: http://localhost:${BACKEND_PORT} http://127.0.0.1:${BACKEND_PORT} https://*.lockedinai.com https://storage.googleapis.com https://*.appspot.com https://*.googleusercontent.com https://donorbox.org https://*.donorbox.org;` +
           "font-src 'self' data: https://fonts.gstatic.com;" +
-          "frame-src 'self' https://*.lockedinai.com https://app.lockedinai.com https://donorbox.org https://*.donorbox.org;"
+          `frame-src 'self' http://localhost:${BACKEND_PORT} https://*.lockedinai.com https://app.lockedinai.com https://donorbox.org https://*.donorbox.org;`
         ]
       }
     });
@@ -112,29 +114,52 @@ async function createWindow() {
   });
 
   // Load the app
+  // Log any renderer errors
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    safeError('[Electron] Failed to load:', errorCode, errorDescription);
+  });
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    safeLog('[Electron] Frontend loaded successfully');
+  });
+
+  mainWindow.webContents.on('console-message', (event, level, message) => {
+    safeLog('[Renderer]', message);
+  });
+
+  // Load the app - use port 5173 to maintain localStorage origin consistency
+  const FRONTEND_PORT = 5173;
   if (isDev) {
     // In development, load from Vite dev server
-    await mainWindow.loadURL('http://localhost:5173');
+    safeLog('[Electron] Loading frontend from Vite dev server (http://localhost:' + FRONTEND_PORT + ')');
+    await mainWindow.loadURL(`http://localhost:${FRONTEND_PORT}`);
     // mainWindow.webContents.openDevTools();
   } else {
-    // In production, load the built frontend
-    const indexPath = path.join(__dirname, '../frontend/dist/index.html');
-    safeLog('[Electron] Loading frontend from:', indexPath);
+    // In production, start a static file server on the same port as dev
+    // This ensures localStorage origin (localhost:5173) stays consistent
+    const frontendDistPath = path.join(__dirname, '../frontend/dist');
+    safeLog('[Electron] Starting frontend server from:', frontendDistPath);
 
-    // Log any renderer errors
-    mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-      safeError('[Electron] Failed to load:', errorCode, errorDescription);
+    const express = (await import('express')).default;
+    const frontendApp = express();
+
+    // Serve static files
+    frontendApp.use(express.static(frontendDistPath));
+
+    // SPA fallback
+    frontendApp.get('*', (req, res) => {
+      res.sendFile(path.join(frontendDistPath, 'index.html'));
     });
 
-    mainWindow.webContents.on('did-finish-load', () => {
-      safeLog('[Electron] Frontend loaded successfully');
+    // Start server
+    const frontendServer = frontendApp.listen(FRONTEND_PORT, '127.0.0.1', () => {
+      safeLog('[Electron] Frontend server running on http://localhost:' + FRONTEND_PORT);
     });
 
-    mainWindow.webContents.on('console-message', (event, level, message) => {
-      safeLog('[Renderer]', message);
-    });
+    // Store reference for cleanup
+    mainWindow.frontendServer = frontendServer;
 
-    await mainWindow.loadFile(indexPath);
+    await mainWindow.loadURL(`http://localhost:${FRONTEND_PORT}`);
   }
 
   // Open external links in browser
@@ -147,6 +172,10 @@ async function createWindow() {
 
   // Handle window close
   mainWindow.on('closed', () => {
+    // Close the frontend server if it exists (production mode)
+    if (mainWindow && mainWindow.frontendServer) {
+      mainWindow.frontendServer.close();
+    }
     mainWindow = null;
   });
 
@@ -499,11 +528,11 @@ ipcMain.handle('open-ascend-prep', async () => {
   const primaryDisplay = screen.getPrimaryDisplay();
   const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
 
-  // Calculate window dimensions: 100% width, 50% height, positioned at bottom
-  const windowWidth = screenWidth;
-  const windowHeight = Math.floor(screenHeight * 0.5);
-  const windowX = 0;
-  const windowY = screenHeight - windowHeight;
+  // Calculate window dimensions: 90% width, 90% height, centered
+  const windowWidth = Math.floor(screenWidth * 0.9);
+  const windowHeight = Math.floor(screenHeight * 0.9);
+  const windowX = Math.floor((screenWidth - windowWidth) / 2);
+  const windowY = Math.floor((screenHeight - windowHeight) / 2);
 
   // Create new window for Ascend Prep
   interviewPrepWindow = new BrowserWindow({
@@ -579,6 +608,8 @@ ipcMain.handle('set-stealth-mode', (event, enabled) => {
   if (mainWindow) {
     mainWindow.setContentProtection(enabled);
     safeLog('[Stealth] Content protection set to:', enabled);
+    // Notify renderer of the change
+    mainWindow.webContents.send('stealth-mode-changed', stealthModeEnabled);
   }
   return stealthModeEnabled;
 });
@@ -619,6 +650,34 @@ ipcMain.handle('delete-system-design', (event, sessionId) => {
 
 ipcMain.handle('clear-all-system-designs', () => {
   return systemDesignsStore.clearAllSessions();
+});
+
+// Open HTML document viewer - loads document directly in Electron window
+ipcMain.handle('open-document-viewer', async (event, documents) => {
+  safeLog('[DocViewer] Opening with documents:', documents?.length || 0);
+
+  if (documents && documents.length > 0) {
+    const docsDir = path.join(app.getPath('userData'), 'documents');
+    const filePath = path.join(docsDir, documents[0].name);
+
+    if (fs.existsSync(filePath)) {
+      const docWindow = new BrowserWindow({
+        width: 1200,
+        height: 900,
+        title: 'GCP Interview Guide',
+        backgroundColor: '#0c0f14',
+        webPreferences: {
+          nodeIntegration: false,
+          contextIsolation: true,
+        },
+      });
+
+      safeLog('[DocViewer] Loading file:', filePath);
+      await docWindow.loadFile(filePath);
+    }
+  }
+
+  return true;
 });
 
 // LockedIn AI is now embedded via webview in the frontend - no separate window needed

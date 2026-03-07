@@ -1,21 +1,128 @@
 import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { getApiUrl } from '../hooks/useElectron';
 import SystemDesignPanel from './SystemDesignPanel';
+import LanguageSelectorModal from './LanguageSelectorModal';
 
 const LANGUAGE_MAP = {
   python: 'python',
+  python2: 'python',
+  python3: 'python',
   bash: 'bash',
   terraform: 'hcl',
   jenkins: 'groovy',
   yaml: 'yaml',
   sql: 'sql',
+  mysql: 'sql',
+  postgresql: 'sql',
   javascript: 'javascript',
   typescript: 'typescript',
+  java: 'java',
+  c: 'c',
+  cpp: 'cpp',
+  csharp: 'csharp',
+  go: 'go',
+  rust: 'rust',
+  ruby: 'ruby',
+  php: 'php',
+  swift: 'swift',
+  kotlin: 'kotlin',
+  scala: 'scala',
+  r: 'r',
+  perl: 'perl',
+  lua: 'lua',
+  haskell: 'haskell',
+  clojure: 'clojure',
+  elixir: 'elixir',
+  erlang: 'erlang',
+  fsharp: 'fsharp',
+  ocaml: 'ocaml',
+  dart: 'dart',
+  julia: 'julia',
+  objectivec: 'objectivec',
+  coffeescript: 'coffeescript',
+  solidity: 'solidity',
+  verilog: 'verilog',
+  vb: 'vbnet',
+  tcl: 'tcl',
+  html: 'html',
+  markdown: 'markdown',
+  react: 'jsx',
+  vue: 'javascript',
+  angular: 'typescript',
+  svelte: 'javascript',
+  nextjs: 'javascript',
+  nodejs: 'javascript',
+  django: 'python',
+  rails: 'ruby',
+  spring: 'java',
+  pyspark: 'python',
+  pytorch: 'python',
+  tensorflow: 'python',
+  scipy: 'python',
 };
 
-const RUNNABLE = ['python', 'bash', 'javascript', 'typescript', 'sql', 'c', 'cpp', 'java', 'go', 'rust'];
+const RUNNABLE = ['python', 'python2', 'python3', 'bash', 'javascript', 'typescript', 'sql', 'mysql', 'postgresql', 'c', 'cpp', 'java', 'go', 'rust', 'ruby', 'php', 'swift', 'kotlin', 'scala', 'r', 'perl', 'lua', 'haskell', 'clojure', 'elixir', 'erlang', 'fsharp', 'ocaml', 'dart', 'julia', 'csharp'];
+
+// All available languages for the selector
+// Language labels for display in button
+const LANGUAGE_LABELS = {
+  auto: 'Auto',
+  python3: 'Python 3',
+  python2: 'Python 2',
+  javascript: 'JavaScript',
+  typescript: 'TypeScript',
+  java: 'Java',
+  c: 'C',
+  cpp: 'C++',
+  csharp: 'C#',
+  go: 'Go',
+  rust: 'Rust',
+  ruby: 'Ruby',
+  php: 'PHP',
+  swift: 'Swift 5',
+  kotlin: 'Kotlin',
+  scala: 'Scala',
+  bash: 'Bash',
+  perl: 'Perl',
+  lua: 'Lua',
+  r: 'R',
+  tcl: 'Tcl',
+  haskell: 'Haskell',
+  clojure: 'Clojure',
+  elixir: 'Elixir',
+  erlang: 'Erlang',
+  fsharp: 'F#',
+  ocaml: 'OCaml',
+  dart: 'Dart',
+  julia: 'Julia',
+  objectivec: 'Objective-C',
+  coffeescript: 'CoffeeScript',
+  vb: 'Visual Basic',
+  sql: 'SQL',
+  mysql: 'MySQL',
+  postgresql: 'PostgreSQL',
+  react: 'React',
+  vue: 'Vue',
+  angular: 'Angular',
+  svelte: 'Svelte',
+  nextjs: 'Next.js',
+  html: 'HTML',
+  nodejs: 'NodeJS',
+  django: 'Django',
+  rails: 'Rails',
+  spring: 'Spring',
+  terraform: 'Terraform',
+  kubernetes: 'Kubernetes',
+  pyspark: 'PySpark',
+  pytorch: 'PyTorch',
+  tensorflow: 'TensorFlow',
+  scipy: 'SciPy',
+  solidity: 'Solidity',
+  verilog: 'Verilog',
+  markdown: 'Markdown',
+};
 
 const API_URL = getApiUrl();
 
@@ -32,8 +139,8 @@ function getAuthHeaders() {
   return headers;
 }
 
-// AI-inspired dark theme
-const hackerRankTheme = {
+// Dark theme (default)
+const darkTheme = {
   ...vscDarkPlus,
   'pre[class*="language-"]': {
     ...vscDarkPlus['pre[class*="language-"]'],
@@ -48,7 +155,23 @@ const hackerRankTheme = {
   },
 };
 
-const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, language, onLineHover, examples, onCodeUpdate, onExplanationsUpdate, isStreaming, autoRunOutput, ascendMode, systemDesign, eraserDiagram, autoGenerateEraser, onGenerateEraserDiagram, question, cloudProvider }, ref) {
+// Light theme
+const lightTheme = {
+  ...vs,
+  'pre[class*="language-"]': {
+    ...vs['pre[class*="language-"]'],
+    background: '#ffffff',
+    margin: 0,
+    padding: '12px',
+  },
+  'code[class*="language-"]': {
+    ...vs['code[class*="language-"]'],
+    color: '#1a1a1a',
+    background: 'transparent',
+  },
+};
+
+const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, language, onLineHover, examples, onCodeUpdate, onExplanationsUpdate, isStreaming, autoRunOutput, ascendMode, systemDesign, eraserDiagram, autoGenerateEraser, onGenerateEraserDiagram, question, cloudProvider, codingLanguage, onLanguageChange, detailLevel, onDetailLevelChange, editorSettings }, ref) {
   const normalizedLanguage = language?.toLowerCase() || 'python';
   const [code, setCode] = useState(initialCode);
   const [copied, setCopied] = useState(false);
@@ -61,6 +184,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
   const [showTestInput, setShowTestInput] = useState(false);
   const [outputHeight, setOutputHeight] = useState(120);
   const [isResizing, setIsResizing] = useState(false);
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [outputExpanded, setOutputExpanded] = useState(false);
 
   // Handle Escape key to close expanded output modal
@@ -247,17 +371,71 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
   if (!code && !isStreaming) {
     return (
       <div className="h-full flex flex-col panel-container">
-        <div className="panel-header">
+        <div className="panel-header" style={{ height: '48px', minHeight: '48px' }}>
           <div className="panel-header-left">
             <div className="panel-indicator panel-indicator-idle" />
             <span className="panel-title">Code</span>
+
+            {/* Language selector button */}
+            {onLanguageChange && (
+              <button
+                onClick={() => setShowLanguageModal(true)}
+                className="flex items-center gap-1.5 px-2 py-1 text-[10px] rounded bg-white border border-gray-200 text-black ml-2 hover:bg-gray-50 transition-colors"
+              >
+                <span className="font-medium">
+                  {codingLanguage === 'auto' ? 'Auto' : LANGUAGE_LABELS[codingLanguage] || codingLanguage}
+                </span>
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            )}
+
+            {/* Detail level toggle */}
+            {onDetailLevelChange && (
+              <div className="flex items-center rounded-full p-0.5 ml-2" style={{ background: '#f0f0f0', border: '1px solid #e0e0e0' }}>
+                <button
+                  type="button"
+                  onClick={() => onDetailLevelChange('basic')}
+                  className="px-2 py-0.5 text-[9px] font-semibold transition-all rounded-full"
+                  style={{
+                    background: detailLevel === 'basic' ? '#10b981' : 'transparent',
+                    color: detailLevel === 'basic' ? '#ffffff' : '#666666',
+                  }}
+                >
+                  Basic
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onDetailLevelChange('detailed')}
+                  className="px-2 py-0.5 text-[9px] font-semibold transition-all rounded-full"
+                  style={{
+                    background: detailLevel === 'detailed' ? '#10b981' : 'transparent',
+                    color: detailLevel === 'detailed' ? '#ffffff' : '#666666',
+                  }}
+                >
+                  Full
+                </button>
+              </div>
+            )}
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center panel-content-light">
-          <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-          </svg>
+          <div className="text-center text-gray-400">
+            <svg className="w-10 h-10 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+            <p className="text-sm">Submit a problem to see code</p>
+          </div>
         </div>
+
+        {/* Language Selector Modal */}
+        <LanguageSelectorModal
+          isOpen={showLanguageModal}
+          onClose={() => setShowLanguageModal(false)}
+          selectedLanguage={codingLanguage || 'auto'}
+          onSelect={(lang) => onLanguageChange && onLanguageChange(lang)}
+        />
       </div>
     );
   }
@@ -287,33 +465,106 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
   // CODING MODE: Full code display with all features
   return (
     <div className="h-full flex flex-col panel-container">
-      {/* Header - Coding mode */}
-      <div className="panel-header">
+      {/* Header - CoderPad style with Run button */}
+      <div className="panel-header" style={{ height: '48px', minHeight: '48px' }}>
         <div className="panel-header-left">
-          <div className="panel-indicator" />
-          <span className="panel-title">Code</span>
-          <span className="panel-badge" style={{ background: '#f0f0f0', color: '#000000' }}>
+          {/* Run Button - Premium gradient with glow */}
+          <button
+            onClick={handleRun}
+            disabled={running || !canRun}
+            className={`btn-run flex items-center gap-1.5 px-4 py-1.5 text-[11px] font-semibold rounded-lg transition-all ${running ? 'running' : ''}`}
+          >
+            {running ? (
+              <>
+                <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Running...
+              </>
+            ) : (
+              <>
+                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+                Run
+              </>
+            )}
+          </button>
+
+          {/* Language selector button */}
+          {onLanguageChange && (
+            <button
+              onClick={() => setShowLanguageModal(true)}
+              className="flex items-center gap-1.5 px-2 py-1 text-[10px] rounded bg-white border border-gray-200 text-black ml-2 hover:bg-gray-50 transition-colors"
+            >
+              <span className="font-medium">
+                {codingLanguage === 'auto' ? 'Auto' : LANGUAGE_LABELS[codingLanguage] || codingLanguage}
+              </span>
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+          )}
+
+          {/* Detail level toggle */}
+          {onDetailLevelChange && (
+            <div className="flex items-center rounded-full p-0.5 ml-2" style={{ background: '#f0f0f0', border: '1px solid #e0e0e0' }}>
+              <button
+                type="button"
+                onClick={() => onDetailLevelChange('basic')}
+                className="px-2 py-0.5 text-[9px] font-semibold transition-all rounded-full"
+                style={{
+                  background: detailLevel === 'basic' ? '#10b981' : 'transparent',
+                  color: detailLevel === 'basic' ? '#ffffff' : '#666666',
+                }}
+              >
+                Basic
+              </button>
+              <button
+                type="button"
+                onClick={() => onDetailLevelChange('detailed')}
+                className="px-2 py-0.5 text-[9px] font-semibold transition-all rounded-full"
+                style={{
+                  background: detailLevel === 'detailed' ? '#10b981' : 'transparent',
+                  color: detailLevel === 'detailed' ? '#ffffff' : '#666666',
+                }}
+              >
+                Full
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="panel-header-right">
+          <span className="text-[10px] font-semibold px-2.5 py-1 rounded-md" style={{ background: 'linear-gradient(180deg, #f5f5f5 0%, #efefef 100%)', color: '#555555', border: '1px solid #e0e0e0' }}>
             {normalizedLanguage}
           </span>
-        </div>
-        <div className="panel-header-right">
           <button
             onClick={handleCopy}
-            className="px-2 py-1 text-[10px] font-medium rounded transition-colors"
-            style={{ color: '#000000', background: '#f5f5f5' }}
-            onMouseEnter={(e) => { e.target.style.background = '#e8e8e8'; e.target.style.color = '#333333'; }}
-            onMouseLeave={(e) => { e.target.style.background = '#f5f5f5'; e.target.style.color = '#666666'; }}
+            className="btn-premium-ghost px-3 py-1 text-[10px] font-medium rounded-md transition-all"
+            style={{
+              color: copied ? '#10b981' : '#666666',
+              background: copied ? 'rgba(16, 185, 129, 0.1)' : 'transparent'
+            }}
           >
-            {copied ? 'Copied!' : 'Copy'}
+            {copied ? (
+              <span className="flex items-center gap-1">
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                Copied!
+              </span>
+            ) : 'Copy'}
           </button>
         </div>
       </div>
 
       {/* Code Editor */}
-      <div className="flex-1 overflow-auto scrollbar-dark">
+      <div className={`flex-1 overflow-auto ${editorSettings?.theme === 'light' ? 'scrollbar-light' : 'scrollbar-dark'}`}>
         <SyntaxHighlighter
           language={syntaxLanguage}
-          style={hackerRankTheme}
+          style={editorSettings?.theme === 'light' ? lightTheme : darkTheme}
           showLineNumbers
           wrapLines
           lineProps={(lineNumber) => ({
@@ -324,28 +575,29 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
           customStyle={{
             margin: 0,
             padding: '8px',
-            background: '#0a0a0b',
-            fontSize: '11px',
-            lineHeight: '1.5',
+            background: editorSettings?.theme === 'light' ? '#ffffff' : '#0a0a0b',
+            fontSize: `${editorSettings?.fontSize || 12}px`,
+            lineHeight: '1.6',
             minHeight: '100%',
           }}
           lineNumberStyle={{
             minWidth: '3em',
             paddingRight: '1em',
-            color: '#52525b',
+            color: editorSettings?.theme === 'light' ? '#999999' : '#52525b',
             userSelect: 'none',
+            fontSize: `${editorSettings?.fontSize || 12}px`,
           }}
         >
           {code}
         </SyntaxHighlighter>
       </div>
 
-      {/* Footer - Run/Submit buttons (only for code tab) */}
+      {/* Footer - Test input & Fix buttons (only for code tab) */}
       { code && (
-      <div className="px-3 py-2 flex items-center justify-between" style={{ background: '#fafafa', borderTop: '1px solid #e8e8e8' }}>
+      <div className="px-3 py-1.5 flex items-center justify-between" style={{ background: '#fafafa', borderTop: '1px solid #e8e8e8' }}>
         <div className="flex items-center gap-2">
           {/* Test input toggle */}
-          <label className="flex items-center gap-1.5 text-[10px] cursor-pointer" style={{ color: '#000000' }}>
+          <label className="flex items-center gap-1.5 text-[10px] cursor-pointer" style={{ color: '#666666' }}>
             <input
               type="checkbox"
               checked={showTestInput}
@@ -353,7 +605,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
               className="rounded w-3 h-3"
               style={{ borderColor: '#d1d5db' }}
             />
-            Test custom input
+            Custom input
           </label>
         </div>
 
@@ -363,29 +615,42 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
             <button
               onClick={handleFix}
               disabled={fixing}
-              className="px-2 py-1 text-[10px] font-medium rounded transition-colors"
+              className="px-3 py-1 text-[10px] font-semibold rounded-md transition-all"
               style={{
-                background: '#ffffff',
+                background: fixing ? 'rgba(16, 185, 129, 0.1)' : '#ffffff',
                 border: '1px solid #10b981',
-                color: '#10b981'
+                color: '#10b981',
+                boxShadow: '0 1px 2px rgba(16, 185, 129, 0.1)'
+              }}
+              onMouseEnter={(e) => {
+                if (!fixing) {
+                  e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!fixing) {
+                  e.currentTarget.style.background = '#ffffff';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }
               }}
             >
-              {fixing ? 'Fixing...' : 'Auto Fix'}
+              {fixing ? (
+                <span className="flex items-center gap-1.5">
+                  <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Fixing...
+                </span>
+              ) : 'Auto Fix'}
             </button>
           )}
 
-          {/* Run Code (green) */}
-          <button
-            onClick={handleRun}
-            disabled={running || !canRun}
-            className="px-2.5 py-1 text-[10px] font-semibold rounded transition-colors disabled:opacity-50 hover:opacity-90"
-            style={{
-              background: '#10b981',
-              color: 'white',
-            }}
-          >
-            {running ? 'Running...' : 'Run Code'}
-          </button>
+          {/* Keyboard shortcuts hint */}
+          <span className="text-[9px] text-gray-400">
+            ^1 solve · ^2 run · ^3 copy
+          </span>
         </div>
       </div>
       )}
@@ -504,23 +769,23 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
       {/* Expanded Output Modal */}
       {output && outputExpanded && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.8)' }}
+          className="modal-backdrop"
           onClick={() => setOutputExpanded(false)}
         >
           <div
-            className="w-full max-w-4xl max-h-[80vh] rounded-lg overflow-hidden flex flex-col"
-            style={{ background: '#18181b', border: '1px solid rgba(255,255,255,0.1)' }}
+            className="modal-container w-full max-w-4xl max-h-[80vh] animate-modalSlideIn"
+            style={{ background: '#18181b' }}
             onClick={e => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+            <div className="modal-header px-4 py-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className={`w-2 h-2 rounded-full ${output.success ? 'bg-green-500' : 'bg-red-500'}`} />
-                <span className="text-sm font-medium text-white">
+                <div className={`w-2.5 h-2.5 rounded-full ${output.success ? 'bg-green-500 animate-glowPulse' : 'bg-red-500'}`}
+                     style={{ boxShadow: output.success ? '0 0 8px rgba(34, 197, 94, 0.5)' : '0 0 8px rgba(239, 68, 68, 0.5)' }} />
+                <span className="modal-title">
                   {output.success ? 'Program Output' : 'Error Output'}
                 </span>
-                <span className="text-xs px-2 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.1)', color: '#a1a1aa' }}>
+                <span className="text-xs px-2.5 py-1 rounded-md font-medium" style={{ background: 'rgba(255,255,255,0.1)', color: '#a1a1aa' }}>
                   {(output.success ? output.output : output.error)?.split('\n').length || 0} lines
                 </span>
               </div>
@@ -529,7 +794,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
                   onClick={() => {
                     navigator.clipboard.writeText(output.success ? output.output : output.error);
                   }}
-                  className="text-xs px-3 py-1.5 rounded hover:bg-white/10 transition-colors flex items-center gap-1.5"
+                  className="btn-premium-ghost text-xs px-3 py-1.5 rounded-md flex items-center gap-1.5"
                   style={{ color: '#a1a1aa' }}
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -539,8 +804,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
                 </button>
                 <button
                   onClick={() => setOutputExpanded(false)}
-                  className="text-xs px-3 py-1.5 rounded hover:bg-white/10 transition-colors"
-                  style={{ color: '#a1a1aa' }}
+                  className="modal-close"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -576,6 +840,14 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
           </div>
         </div>
       )}
+
+      {/* Language Selector Modal */}
+      <LanguageSelectorModal
+        isOpen={showLanguageModal}
+        onClose={() => setShowLanguageModal(false)}
+        selectedLanguage={codingLanguage || 'auto'}
+        onSelect={(lang) => onLanguageChange && onLanguageChange(lang)}
+      />
     </div>
   );
 });

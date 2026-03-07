@@ -2,6 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { createServer } from 'http';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { app as electronApp } from 'electron';
+import fs from 'fs';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Import services to set API keys
 import * as claudeService from '../backend/src/services/claude.js';
@@ -124,6 +131,26 @@ function createApp() {
       }
     }
   }));
+
+  // Serve HTML documents from app data directory
+  const DOCS_DIR = path.join(electronApp.getPath('userData'), 'documents');
+  app.use('/static/documents', express.static(DOCS_DIR, {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.html')) {
+        res.setHeader('Content-Type', 'text/html');
+      }
+    }
+  }));
+
+  // List available documents
+  app.get('/api/documents', (req, res) => {
+    try {
+      const files = fs.readdirSync(DOCS_DIR).filter(f => f.endsWith('.html'));
+      res.json({ documents: files.map(f => ({ name: f, url: `/static/documents/${f}` })) });
+    } catch (err) {
+      res.json({ documents: [] });
+    }
+  });
 
   // Health check
   app.get('/api/health', (req, res) => {

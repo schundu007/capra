@@ -24,6 +24,7 @@
     "concurrently": "^8.2.2",
     "electron": "^33.0.0",
     "electron-builder": "^25.0.0",
+    "http-proxy-middleware": "^3.0.5",
     "wait-on": "^7.2.0"
   },
   "dependencies": {
@@ -62,17 +63,23 @@
       {
         "from": "electron",
         "to": "electron",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       },
       {
         "from": "frontend/dist",
         "to": "frontend/dist",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       },
       {
         "from": "backend/src",
         "to": "backend/src",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       },
       "backend/package.json",
       "node_modules/**/*",
@@ -86,11 +93,17 @@
       "target": [
         {
           "target": "dmg",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         },
         {
           "target": "zip",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         }
       ],
       "hardenedRuntime": true,
@@ -117,7 +130,9 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ]
     },
@@ -133,11 +148,15 @@
       "target": [
         {
           "target": "AppImage",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "deb",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ]
     },

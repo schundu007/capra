@@ -57,6 +57,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Open Interview Prep in dedicated window
   openInterviewPrep: () => ipcRenderer.invoke('open-interview-prep'),
 
+  // Open document viewer with HTML documents
+  openDocumentViewer: (documents) => ipcRenderer.invoke('open-document-viewer', documents),
+
   // Stealth mode
   getStealthMode: () => ipcRenderer.invoke('get-stealth-mode'),
   setStealthMode: (enabled) => ipcRenderer.invoke('set-stealth-mode', enabled),

@@ -6,7 +6,7 @@ const isMacElectron = window.electronAPI?.isElectron && navigator.platform.toLow
 const isElectron = window.electronAPI?.isElectron || false;
 
 /**
- * Sidebar - Slack-inspired design
+ * Sidebar - Enterprise premium design
  */
 export default function Sidebar({
   savedDesigns = [],
@@ -68,59 +68,63 @@ export default function Sidebar({
 
   return (
     <div
-      className="slack-sidebar"
+      className="sidebar-enterprise"
       style={{ width: '260px', minWidth: '260px' }}
     >
-      {/* Workspace Header */}
+      {/* Header with Logo */}
       <div
-        className="slack-workspace-header"
+        className="sidebar-header"
         style={{ paddingLeft: isMacElectron ? '80px' : '16px', WebkitAppRegion: 'drag' }}
       >
-        <div className="slack-workspace-name" style={{ WebkitAppRegion: 'no-drag' }}>
-          <span>Ascend</span>
-          <Icon name="chevronDown" size={16} />
-          {isLoading && <div className="slack-spinner" style={{ width: '14px', height: '14px', marginLeft: '8px' }} />}
-        </div>
         <button
           onClick={onCollapse}
-          className="slack-compose-btn"
+          className="sidebar-logo"
           title="Collapse sidebar"
-          style={{ WebkitAppRegion: 'no-drag', width: '28px', height: '28px' }}
+          style={{ WebkitAppRegion: 'no-drag', background: 'none', border: 'none', cursor: 'pointer' }}
         >
-          <Icon name="chevronsLeft" size={14} />
+          <div className="sidebar-logo-mark">
+            <img
+              src="/ascend-logo.png"
+              alt="Ascend"
+              className="h-4 w-auto object-contain filter brightness-0 invert"
+            />
+          </div>
+          <span className="sidebar-logo-text">Ascend</span>
+          {isLoading && (
+            <div className="w-4 h-4 border-2 rounded-full animate-spin ml-2" style={{ borderColor: '#10b981', borderTopColor: 'transparent' }} />
+          )}
         </button>
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto scrollbar-slack">
+      <div className="flex-1 overflow-y-auto scrollbar-slack py-2">
         {/* Voice Assistant */}
-        <div className="slack-section">
+        <div className="sidebar-section" style={{ padding: '8px 0' }}>
           <button
             onClick={onToggleAscendAssistant}
-            className={`slack-item ${showAscendAssistant ? 'active' : ''}`}
-            style={{ height: '32px', paddingLeft: '16px' }}
+            className={`sidebar-item ${showAscendAssistant ? 'active' : ''}`}
           >
-            <div className="slack-item-icon">
+            <div className="sidebar-item-icon">
               <Icon name="microphone" size={18} />
             </div>
-            <span className="slack-item-text">Voice Assistant</span>
-            {showAscendAssistant && <div className="slack-status-dot" style={{ marginLeft: 'auto' }} />}
+            <span className="sidebar-item-text">Voice Assistant</span>
+            {showAscendAssistant && <div className="sidebar-status-dot" />}
           </button>
         </div>
 
-        <div className="slack-divider" style={{ margin: '8px 16px' }} />
+        <div className="sidebar-divider" />
 
         {/* Saved Designs Section */}
-        <div className="slack-section">
+        <div className="sidebar-section">
           <div
-            className="slack-section-header"
+            className="sidebar-section-header"
             onClick={() => setDesignsCollapsed(!designsCollapsed)}
           >
-            <span className={`slack-section-title ${designsCollapsed ? 'collapsed' : ''}`}>
-              <Icon name="chevronDown" size={14} />
+            <span className={`sidebar-section-title ${designsCollapsed ? 'collapsed' : ''}`}>
+              <Icon name="chevronDown" size={12} />
               Saved Designs
             </span>
-            <span className="slack-badge" style={{ fontSize: '11px', padding: '0 6px' }}>
+            <span className="sidebar-section-badge">
               {savedDesigns.length}
             </span>
           </div>
@@ -128,43 +132,44 @@ export default function Sidebar({
           {!designsCollapsed && (
             <div className="mt-1">
               {savedDesigns.length === 0 ? (
-                <div className="slack-item" style={{ color: 'var(--sidebar-section-header)', cursor: 'default' }}>
-                  <span className="slack-item-text" style={{ fontStyle: 'italic' }}>No saved designs</span>
+                <div className="sidebar-item" style={{ cursor: 'default', opacity: 0.5 }}>
+                  <span className="sidebar-item-text" style={{ fontStyle: 'italic' }}>No saved designs</span>
                 </div>
               ) : (
                 <>
                   {savedDesigns.slice(0, 5).map((design) => (
-                    <div
+                    <button
                       key={design.id}
-                      className="slack-item group"
+                      className="sidebar-item group"
                       onClick={() => onLoadDesign(design.id)}
                     >
-                      <div className="slack-item-icon">
+                      <div className="sidebar-item-icon">
                         <Icon name="document" size={16} />
                       </div>
-                      <span className="slack-item-text">{design.title || 'Untitled'}</span>
+                      <span className="sidebar-item-text">{design.title || 'Untitled'}</span>
                       {onDeleteDesign && (
-                        <button
+                        <span
                           onClick={(e) => handleDelete('design', design.id, e)}
-                          className="opacity-0 group-hover:opacity-100 ml-auto"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
                           style={{
-                            color: deleteConfirmId === `design-${design.id}` ? 'var(--accent-red)' : 'var(--sidebar-text)',
+                            color: deleteConfirmId === `design-${design.id}` ? '#ef4444' : 'rgba(255,255,255,0.5)',
                             fontSize: '14px',
                             padding: '2px 6px',
+                            cursor: 'pointer',
                           }}
                         >
                           {deleteConfirmId === `design-${design.id}` ? '?' : '×'}
-                        </button>
+                        </span>
                       )}
-                    </div>
+                    </button>
                   ))}
                   {savedDesigns.length > 5 && (
                     <button
                       onClick={onViewAllDesigns}
-                      className="slack-item"
-                      style={{ color: 'var(--text-link)' }}
+                      className="sidebar-item"
+                      style={{ color: '#3b82f6' }}
                     >
-                      <span className="slack-item-text">Show all ({savedDesigns.length})</span>
+                      <span className="sidebar-item-text">Show all ({savedDesigns.length})</span>
                     </button>
                   )}
                 </>
@@ -174,16 +179,16 @@ export default function Sidebar({
         </div>
 
         {/* Recent History Section */}
-        <div className="slack-section">
+        <div className="sidebar-section">
           <div
-            className="slack-section-header"
+            className="sidebar-section-header"
             onClick={() => setHistoryCollapsed(!historyCollapsed)}
           >
-            <span className={`slack-section-title ${historyCollapsed ? 'collapsed' : ''}`}>
-              <Icon name="chevronDown" size={14} />
+            <span className={`sidebar-section-title ${historyCollapsed ? 'collapsed' : ''}`}>
+              <Icon name="chevronDown" size={12} />
               Recent History
             </span>
-            <span className="slack-badge" style={{ fontSize: '11px', padding: '0 6px' }}>
+            <span className="sidebar-section-badge">
               {codingHistory.length}
             </span>
           </div>
@@ -191,43 +196,44 @@ export default function Sidebar({
           {!historyCollapsed && (
             <div className="mt-1">
               {codingHistory.length === 0 ? (
-                <div className="slack-item" style={{ color: 'var(--sidebar-section-header)', cursor: 'default' }}>
-                  <span className="slack-item-text" style={{ fontStyle: 'italic' }}>No history yet</span>
+                <div className="sidebar-item" style={{ cursor: 'default', opacity: 0.5 }}>
+                  <span className="sidebar-item-text" style={{ fontStyle: 'italic' }}>No history yet</span>
                 </div>
               ) : (
                 <>
                   {codingHistory.slice(0, 8).map((entry) => (
-                    <div
+                    <button
                       key={entry.id}
-                      className="slack-item group"
+                      className="sidebar-item group"
                       onClick={() => onLoadHistory(entry.id)}
                     >
-                      <div className="slack-item-icon">
+                      <div className="sidebar-item-icon">
                         <Icon name="clock" size={16} />
                       </div>
-                      <span className="slack-item-text">{entry.title || 'Untitled'}</span>
+                      <span className="sidebar-item-text">{entry.title || 'Untitled'}</span>
                       {onDeleteHistory && (
-                        <button
+                        <span
                           onClick={(e) => handleDelete('history', entry.id, e)}
-                          className="opacity-0 group-hover:opacity-100 ml-auto"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
                           style={{
-                            color: deleteConfirmId === `history-${entry.id}` ? 'var(--accent-red)' : 'var(--sidebar-text)',
+                            color: deleteConfirmId === `history-${entry.id}` ? '#ef4444' : 'rgba(255,255,255,0.5)',
                             fontSize: '14px',
                             padding: '2px 6px',
+                            cursor: 'pointer',
                           }}
                         >
                           {deleteConfirmId === `history-${entry.id}` ? '?' : '×'}
-                        </button>
+                        </span>
                       )}
-                    </div>
+                    </button>
                   ))}
                   {codingHistory.length > 8 && onViewAllHistory && (
                     <button
                       onClick={onViewAllHistory}
-                      className="slack-item"
-                      style={{ color: 'var(--text-link)' }}
+                      className="sidebar-item"
+                      style={{ color: '#3b82f6' }}
                     >
-                      <span className="slack-item-text">Show all ({codingHistory.length})</span>
+                      <span className="sidebar-item-text">Show all ({codingHistory.length})</span>
                     </button>
                   )}
                 </>
@@ -237,61 +243,54 @@ export default function Sidebar({
         </div>
       </div>
 
-      {/* Bottom Section */}
-      <div style={{ borderTop: '1px solid var(--sidebar-border)' }}>
+      {/* Footer Section */}
+      <div className="sidebar-footer">
         {/* Stealth Mode - Electron only */}
         {isElectron && (
           <button
             onClick={onToggleStealth}
-            className={`slack-item ${stealthMode ? 'active' : ''}`}
-            style={{ height: '36px', paddingLeft: '16px' }}
-            title={stealthMode ? 'Stealth ON' : 'Stealth OFF'}
+            className={`sidebar-item ${stealthMode ? 'active' : ''}`}
+            title={stealthMode ? 'Stealth ON - Click to disable' : 'Stealth OFF - Click to enable'}
           >
-            <div className="slack-item-icon">
+            <div className="sidebar-item-icon">
               <Icon name={stealthMode ? 'eyeOff' : 'eye'} size={18} />
             </div>
-            <span className="slack-item-text">Stealth Mode</span>
-            <span
-              className="slack-badge"
-              style={{
-                marginLeft: 'auto',
-                background: stealthMode ? 'var(--accent-green)' : 'transparent',
-                color: stealthMode ? 'white' : 'var(--sidebar-text)',
-              }}
+            <span className="sidebar-item-text">Stealth Mode</span>
+            <button
+              className={`sidebar-toggle ${stealthMode ? 'active' : ''}`}
+              onClick={(e) => { e.stopPropagation(); onToggleStealth(); }}
             >
-              {stealthMode ? 'ON' : 'OFF'}
-            </span>
+              <div className="sidebar-toggle-knob" />
+            </button>
           </button>
         )}
 
         {/* Settings */}
         <button
           onClick={onOpenSettings}
-          className="slack-item"
-          style={{ height: '36px', paddingLeft: '16px' }}
+          className="sidebar-item"
         >
-          <div className="slack-item-icon">
+          <div className="sidebar-item-icon">
             <Icon name="settings" size={18} />
           </div>
-          <span className="slack-item-text">Settings</span>
+          <span className="sidebar-item-text">Settings</span>
         </button>
 
         {/* User Section */}
         {authRequired && user && (
-          <div className="slack-user-section">
-            <div className="slack-avatar">
+          <div className="sidebar-user mt-2">
+            <div className="sidebar-avatar">
               {(user.name || user.username || 'U')[0].toUpperCase()}
-              <div className="slack-avatar-status" />
+              <div className="sidebar-avatar-status" />
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="slack-user-name truncate">{user.name || user.username || 'User'}</div>
+            <div className="sidebar-user-info">
+              <div className="sidebar-user-name">{user.name || user.username || 'User'}</div>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="sidebar-user-actions">
               {isAdmin && onOpenAdminPanel && (
                 <button
                   onClick={onOpenAdminPanel}
-                  className="slack-btn-icon"
-                  style={{ width: '28px', height: '28px', color: 'var(--sidebar-text)' }}
+                  className="sidebar-action-btn"
                   title="Admin"
                 >
                   <Icon name="users" size={14} />
@@ -299,8 +298,7 @@ export default function Sidebar({
               )}
               <button
                 onClick={onLogout}
-                className="slack-btn-icon"
-                style={{ width: '28px', height: '28px', color: 'var(--sidebar-text)' }}
+                className="sidebar-action-btn"
                 title="Sign out"
               >
                 <Icon name="logout" size={14} />

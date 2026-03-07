@@ -481,10 +481,17 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
       <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin p-2 space-y-2 panel-content-light">
         {/* Solution Pitch - Structured format for easy verbal delivery */}
         {pitch && (
-          <div className="p-3 rounded-lg" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderLeft: '3px solid #10b981' }}>
-            <span className="text-[11px] font-semibold uppercase tracking-wide mb-3 block" style={{ color: '#10b981' }}>
-              How to Explain
-            </span>
+          <div className="card-accent p-4 animate-fadeIn">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+                <svg className="w-3.5 h-3.5" style={{ color: '#10b981' }} fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <span className="text-[11px] font-bold uppercase tracking-wide" style={{ color: '#10b981' }}>
+                How to Explain
+              </span>
+            </div>
 
             {/* Handle structured pitch object */}
             {typeof pitch === 'object' && pitch.opener ? (
@@ -596,13 +603,15 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
 
         {/* Interviewer Q&A Section */}
         {hasSolution && onFollowUpQuestion && (
-          <div className="p-3 rounded-lg" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+          <div className="section-card animate-fadeIn">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <svg className="w-4 h-4" style={{ color: '#3b82f6' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                </svg>
-                <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: '#333333' }}>
+                <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: 'rgba(59, 130, 246, 0.1)' }}>
+                  <svg className="w-3.5 h-3.5" style={{ color: '#3b82f6' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                  </svg>
+                </div>
+                <span className="text-[11px] font-bold uppercase tracking-wide" style={{ color: '#333333' }}>
                   Interviewer Q&A
                 </span>
               </div>
@@ -637,16 +646,29 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                 <button
                   onClick={toggleAutoListen}
                   disabled={isProcessingFollowUp}
-                  className="px-4 py-2 text-sm font-bold rounded-full transition-all flex items-center gap-2 hover:opacity-90"
+                  className="px-4 py-2 text-sm font-bold rounded-lg transition-all flex items-center gap-2"
                   style={{
-                    background: autoListenEnabled ? '#10b981' : '#333333',
+                    background: autoListenEnabled ? 'var(--gradient-primary)' : 'linear-gradient(135deg, #374151 0%, #1f2937 100%)',
                     color: 'white',
+                    boxShadow: autoListenEnabled ? 'var(--shadow-button), 0 0 12px rgba(16, 185, 129, 0.3)' : 'var(--shadow-sm)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.boxShadow = autoListenEnabled
+                      ? 'var(--shadow-button-hover), 0 0 16px rgba(16, 185, 129, 0.4)'
+                      : 'var(--shadow-md)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = autoListenEnabled
+                      ? 'var(--shadow-button), 0 0 12px rgba(16, 185, 129, 0.3)'
+                      : 'var(--shadow-sm)';
                   }}
                 >
                   {autoListenEnabled && (
-                    <span className="relative flex h-2 w-2">
+                    <span className="relative flex h-2.5 w-2.5">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
                     </span>
                   )}
                   {autoListenEnabled ? 'Stop' : 'Auto-Listen'}
@@ -723,17 +745,26 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
             {qaHistory.length > 0 && (
               <div className="space-y-3">
                 {[...qaHistory].reverse().map((qa, i) => (
-                  <div key={i} className="p-3 rounded-lg bg-white border border-gray-200">
+                  <div key={i} className="qa-card animate-fadeIn">
                     <div className="mb-2">
-                      <span className="text-xs font-bold text-blue-600 uppercase">Q:</span>
-                      <p className="text-sm text-gray-800 font-medium">{qa.question}</p>
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>Q</span>
+                        <span className="text-[10px] font-semibold uppercase text-blue-600">Question</span>
+                      </div>
+                      <p className="text-sm text-gray-800 font-medium pl-6">{qa.question}</p>
                     </div>
                     <div>
-                      <span className="text-xs font-bold text-emerald-600 uppercase">A:</span>
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>A</span>
+                        <span className="text-[10px] font-semibold uppercase text-emerald-600">Answer</span>
+                      </div>
                       {qa.pending ? (
-                        <p className="text-sm text-gray-400 italic animate-pulse">Generating answer...</p>
+                        <div className="pl-6 flex items-center gap-2">
+                          <div className="w-3 h-3 border-2 rounded-full animate-spin" style={{ borderColor: '#10b981', borderTopColor: 'transparent' }} />
+                          <p className="text-sm text-gray-400 italic">Generating answer...</p>
+                        </div>
                       ) : (
-                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{qa.answer}</p>
+                        <p className="text-sm text-gray-700 whitespace-pre-wrap pl-6">{qa.answer}</p>
                       )}
                     </div>
                   </div>
@@ -745,9 +776,14 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
 
         {/* Line-by-line Explanations */}
         {explanations && explanations.length > 0 && (
-          <div className="p-3 rounded-lg" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
-            <div className="mb-2">
-              <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: '#64748b' }}>
+          <div className="section-card animate-fadeIn">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: 'rgba(100, 116, 139, 0.1)' }}>
+                <svg className="w-3.5 h-3.5" style={{ color: '#64748b' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+                </svg>
+              </div>
+              <span className="text-[11px] font-bold uppercase tracking-wide" style={{ color: '#64748b' }}>
                 Line Breakdown
               </span>
             </div>
