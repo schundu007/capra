@@ -482,14 +482,22 @@ export default function App() {
   }, []);
 
   // Listen for problems from Chrome extension (SSE)
+  // Works for both Electron (localhost) and Webapp (Railway backend)
   useEffect(() => {
-    if (!isElectron) return;
+    // Skip if not authenticated in webapp mode
+    if (!isElectron && !isAuthenticated) return;
 
     let eventSource = null;
     let reconnectTimeout = null;
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 5;
 
     function connect() {
-      eventSource = new EventSource(`${API_URL}/api/extension/events`);
+      // Use appropriate URL based on environment
+      const sseUrl = `${API_URL}/api/extension/events`;
+      console.log('[Extension] Connecting to SSE:', sseUrl);
+
+      eventSource = new EventSource(sseUrl);
 
       eventSource.onmessage = (event) => {
         try {
@@ -524,13 +532,21 @@ export default function App() {
       };
 
       eventSource.onerror = () => {
-        console.log('[Extension] SSE connection error, reconnecting...');
+        reconnectAttempts++;
+        console.log(`[Extension] SSE connection error, attempt ${reconnectAttempts}/${maxReconnectAttempts}`);
         eventSource?.close();
-        reconnectTimeout = setTimeout(connect, 3000);
+
+        // Limit reconnection attempts to avoid spamming
+        if (reconnectAttempts < maxReconnectAttempts) {
+          reconnectTimeout = setTimeout(connect, 3000);
+        } else {
+          console.log('[Extension] Max reconnection attempts reached, stopping');
+        }
       };
 
       eventSource.onopen = () => {
         console.log('[Extension] SSE connected - listening for problems');
+        reconnectAttempts = 0; // Reset on successful connection
       };
     }
 
@@ -540,7 +556,7 @@ export default function App() {
       eventSource?.close();
       clearTimeout(reconnectTimeout);
     };
-  }, []);
+  }, [isAuthenticated]);
 
   // Load platform status
   useEffect(() => {
