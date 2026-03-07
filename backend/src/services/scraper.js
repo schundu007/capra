@@ -164,6 +164,202 @@ function extractExamples($) {
   return examples.slice(0, 3);
 }
 
+/**
+ * Extract code template/stub from the page
+ * This is the starter code that needs to be completed
+ */
+function extractCodeTemplate($, platform, html) {
+  // Platform-specific template extraction
+  if (platform === 'hackerrank') {
+    return extractHackerRankTemplate($, html);
+  } else if (platform === 'leetcode') {
+    return extractLeetCodeTemplate($, html);
+  } else if (platform === 'codility') {
+    return extractCodilityTemplate($, html);
+  }
+
+  // Generic template extraction
+  return extractGenericTemplate($);
+}
+
+/**
+ * Extract HackerRank code template
+ */
+function extractHackerRankTemplate($, html) {
+  // Try to find template in JSON data embedded in script tags
+  const scriptTags = $('script').toArray();
+  for (const script of scriptTags) {
+    const content = $(script).html() || '';
+
+    // Look for code in various JSON structures HackerRank uses
+    const patterns = [
+      /"code"\s*:\s*"([^"]+)"/,
+      /"initial_code"\s*:\s*"([^"]+)"/,
+      /"template"\s*:\s*"([^"]+)"/,
+      /"stub"\s*:\s*"([^"]+)"/,
+      /"boilerplate"\s*:\s*"([^"]+)"/,
+    ];
+
+    for (const pattern of patterns) {
+      const match = content.match(pattern);
+      if (match && match[1]) {
+        try {
+          // Unescape the JSON string
+          const code = JSON.parse(`"${match[1]}"`);
+          if (code && code.length > 20 && looksLikeCode(code)) {
+            return { code, language: detectLanguageFromCode(code) };
+          }
+        } catch (e) {
+          // Continue trying other patterns
+        }
+      }
+    }
+  }
+
+  // Try textarea elements (some editors use these)
+  const textareas = $('textarea').toArray();
+  for (const ta of textareas) {
+    const code = $(ta).text() || $(ta).val();
+    if (code && code.length > 20 && looksLikeCode(code)) {
+      return { code, language: detectLanguageFromCode(code) };
+    }
+  }
+
+  // Try code/pre elements that look like templates
+  const codeElements = $('pre code, .code-editor, [class*="editor"] pre, [class*="CodeMirror"]').toArray();
+  for (const el of codeElements) {
+    const code = $(el).text();
+    if (code && code.length > 20 && looksLikeCode(code) && hasIncompleteMarkers(code)) {
+      return { code, language: detectLanguageFromCode(code) };
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Extract LeetCode code template
+ */
+function extractLeetCodeTemplate($, html) {
+  // LeetCode embeds code in JSON
+  const patterns = [
+    /"codeSnippets"\s*:\s*\[([^\]]+)\]/,
+    /"code"\s*:\s*"([^"]+)"/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = html.match(pattern);
+    if (match && match[1]) {
+      try {
+        // Try to parse as JSON array
+        if (pattern.source.includes('codeSnippets')) {
+          const snippets = JSON.parse(`[${match[1]}]`);
+          // Find Python snippet preferentially
+          const pythonSnippet = snippets.find(s => s.langSlug === 'python3' || s.langSlug === 'python');
+          if (pythonSnippet && pythonSnippet.code) {
+            return { code: pythonSnippet.code, language: 'python' };
+          }
+          // Fall back to first snippet
+          if (snippets[0] && snippets[0].code) {
+            return { code: snippets[0].code, language: snippets[0].langSlug };
+          }
+        } else {
+          const code = JSON.parse(`"${match[1]}"`);
+          if (code && code.length > 20 && looksLikeCode(code)) {
+            return { code, language: detectLanguageFromCode(code) };
+          }
+        }
+      } catch (e) {
+        // Continue
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Extract Codility code template
+ */
+function extractCodilityTemplate($, html) {
+  // Codility uses similar patterns
+  const codeBlocks = $('[class*="solution"] pre, [class*="editor"] pre, textarea.code').toArray();
+  for (const el of codeBlocks) {
+    const code = $(el).text();
+    if (code && code.length > 20 && looksLikeCode(code)) {
+      return { code, language: detectLanguageFromCode(code) };
+    }
+  }
+  return null;
+}
+
+/**
+ * Generic template extraction
+ */
+function extractGenericTemplate($) {
+  // Look for code blocks that have incomplete function markers
+  const codeBlocks = $('pre code, .code-block, [class*="code"]').toArray();
+  for (const el of codeBlocks) {
+    const code = $(el).text();
+    if (code && code.length > 20 && looksLikeCode(code) && hasIncompleteMarkers(code)) {
+      return { code, language: detectLanguageFromCode(code) };
+    }
+  }
+  return null;
+}
+
+/**
+ * Check if text looks like code
+ */
+function looksLikeCode(text) {
+  const codeIndicators = [
+    /def\s+\w+\s*\(/,           // Python function
+    /function\s+\w+\s*\(/,       // JavaScript function
+    /class\s+\w+/,               // Class definition
+    /import\s+/,                 // Import statement
+    /return\s+/,                 // Return statement
+    /public\s+(static\s+)?void/, // Java method
+    /int\s+\w+\s*\(/,            // C/C++ function
+    /#include/,                  // C/C++ include
+    /\bfor\s*\(/,                // For loop
+    /\bif\s*\(/,                 // If statement
+    /^\s*@\w+/m,                 // Decorator
+  ];
+
+  return codeIndicators.some(pattern => pattern.test(text));
+}
+
+/**
+ * Check if code has markers indicating it needs to be completed
+ */
+function hasIncompleteMarkers(text) {
+  const incompleteMarkers = [
+    /# ?(TODO|FIXME|complete|implement|your code|write your)/i,
+    /\/\/ ?(TODO|FIXME|complete|implement|your code|write your)/i,
+    /pass\s*$/m,                 // Python pass statement
+    /raise NotImplementedError/,
+    /throw new Error/,
+    /# complete the function/i,
+    /# write your code/i,
+  ];
+
+  return incompleteMarkers.some(pattern => pattern.test(text));
+}
+
+/**
+ * Detect programming language from code
+ */
+function detectLanguageFromCode(code) {
+  if (/^def\s+\w+|^import\s+\w+|^from\s+\w+\s+import/m.test(code)) return 'python';
+  if (/^function\s+\w+|^const\s+\w+\s*=|^let\s+\w+\s*=|^var\s+\w+/m.test(code)) return 'javascript';
+  if (/^public\s+class|^import\s+java\./m.test(code)) return 'java';
+  if (/^#include|^using\s+namespace/m.test(code)) return 'cpp';
+  if (/^package\s+main|^func\s+\w+/m.test(code)) return 'go';
+  if (/^use\s+strict|^sub\s+\w+/m.test(code)) return 'perl';
+  if (/^require\s+'|^def\s+\w+.*end$/m.test(code)) return 'ruby';
+  return 'auto';
+}
+
 export async function fetchProblemFromUrl(url, electronCookies = null, req = null) {
   try {
     const platform = detectPlatform(url);
@@ -224,6 +420,9 @@ export async function fetchProblemFromUrl(url, electronCookies = null, req = nul
     const html = await response.text();
     const $ = cheerio.load(html);
 
+    // Extract code template BEFORE removing script tags
+    const templateResult = extractCodeTemplate($, platform, html);
+
     // Remove non-content elements
     $('script, style, nav, header, footer, aside, .ads, [class*="sidebar"], [class*="comment"]').remove();
 
@@ -256,6 +455,13 @@ export async function fetchProblemFromUrl(url, electronCookies = null, req = nul
     // Limit size
     problemText = problemText.substring(0, 8000);
 
+    // If we found a code template, append it to the problem text
+    // so the AI knows to complete it rather than write from scratch
+    if (templateResult && templateResult.code) {
+      const templateSection = `\n\n---\nSTARTER CODE TEMPLATE (Complete this code, do not rewrite from scratch):\n\`\`\`${templateResult.language || ''}\n${templateResult.code}\n\`\`\``;
+      problemText = problemText + templateSection;
+    }
+
     return {
       success: true,
       problemText,
@@ -263,6 +469,7 @@ export async function fetchProblemFromUrl(url, electronCookies = null, req = nul
       platform,
       authenticated: !!cookies,
       examples: examples.length > 0 ? examples : undefined,
+      codeTemplate: templateResult || undefined,
     };
   } catch (error) {
     return {

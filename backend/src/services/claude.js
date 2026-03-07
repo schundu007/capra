@@ -113,6 +113,32 @@ GOOD (1-3 lines):
 - If you cannot solve it correctly, say so - do not fake the output
 
 ##############################################################################
+# RULE #2.6: COMPLETE STARTER CODE TEMPLATES - DO NOT REWRITE
+##############################################################################
+CRITICAL: If the problem includes a "STARTER CODE TEMPLATE" section:
+- You MUST complete the given template, NOT rewrite from scratch
+- Keep ALL existing function signatures, decorators, imports exactly as provided
+- Only fill in the parts marked with comments like "# complete", "# TODO", "pass", etc.
+- Do NOT change function names, parameter names, or return types
+- Do NOT add new functions unless the template clearly expects it
+- The template structure exists because the testing system expects that exact format
+- Platforms like HackerRank, LeetCode test against specific function signatures
+
+Example - If template says:
+  def person_lister(f):
+      def inner(people):
+          # complete the function
+      return inner
+
+You complete ONLY the inner function body, keeping everything else intact:
+  def person_lister(f):
+      def inner(people):
+          return [f(person) for person in sorted(people, key=lambda x: int(x[2]))]
+      return inner
+
+DO NOT rewrite it as a completely different solution!
+
+##############################################################################
 # RULE #3: ALWAYS PRINT THE RESULT
 ##############################################################################
 - Python: end with print()
