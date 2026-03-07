@@ -177,8 +177,7 @@ const colors = {
   border: 'var(--content-border)',
 };
 
-// Sections that should display the Job Description
-const JD_DISPLAY_SECTIONS = ['pitch', 'hr', 'hiring-manager'];
+// JD is now displayed in a dedicated popup - removed from section pages
 
 export default function OutputPanel({ section, content, streamingContent, isGenerating, onRegenerate, onGenerate, hasInputs, jobDescription }) {
   const [copied, setCopied] = useState(false);
@@ -380,65 +379,6 @@ export default function OutputPanel({ section, content, streamingContent, isGene
       </div>
 
 
-      {/* Job Description - for pitch, hr, hiring-manager sections */}
-      {JD_DISPLAY_SECTIONS.includes(section?.id) && jobDescription && (() => {
-        const lines = jobDescription.split('\n').map(l => l.trim()).filter(l => l);
-        const filtered = [];
-
-        for (const line of lines) {
-          const lower = line.toLowerCase();
-
-          // Skip marketing fluff (long paragraphs with buzzwords)
-          if (line.length > 150 && (lower.includes('mission') || lower.includes('leader in') || lower.includes('join us') || lower.includes('culture'))) continue;
-          // Skip Note: and office policy
-          if (lower.startsWith('*note') || lower.startsWith('note:') || lower.includes('days per week') || lower.includes('work from home')) continue;
-          // Skip "join us" type lines
-          if (lower.includes("if you'd like to") || lower.includes('join us')) continue;
-          // Skip equal opportunity
-          if (lower.includes('equal opportunity') || lower.includes('inclusive')) continue;
-          // Skip very short lines that are just headers
-          if (line.length < 25 && (lower === 'you' || lower === 'nice to have' || lower === 'requirements' || lower === 'qualifications')) continue;
-
-          // Identify section headings
-          const isHeading = (lower === 'what you\'ll do' || lower === 'you' || lower === 'nice to have' ||
-            lower === 'requirements' || lower === 'qualifications' || lower === 'responsibilities' ||
-            lower.startsWith('what you') || lower.startsWith('who you') || lower.startsWith('about ') ||
-            (line.length < 40 && lower.endsWith(':')));
-
-          if (isHeading) {
-            filtered.push({ type: 'heading', text: line.replace(/:$/, '') });
-          } else if (line.length > 30) {
-            filtered.push({ type: 'item', text: line });
-          }
-        }
-
-        // Only show first 10 items
-        const display = filtered.slice(0, 10);
-        let num = 0;
-
-        return (
-          <div className="px-4 pt-3 flex-shrink-0">
-            <div className="rounded-lg p-4 max-h-44 overflow-y-auto" style={{ background: colors.paper, border: `1px solid ${colors.border}` }}>
-              <div className="space-y-2">
-                {display.map((item, i) => {
-                  if (item.type === 'heading') {
-                    return (
-                      <p key={i} className="text-[10px] font-semibold uppercase tracking-wide pt-2 first:pt-0" style={{ color: '#6b7280' }}>{item.text}</p>
-                    );
-                  }
-                  num++;
-                  return (
-                    <div key={i} className="flex gap-3">
-                      <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', color: 'white', boxShadow: '0 2px 4px rgba(59,130,246,0.3)' }}>{num}</span>
-                      <p className="flex-1 text-[11px] leading-relaxed pt-0.5" style={{ color: colors.text }}>{item.text}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        );
-      })()}
 
       {/* Content Area - Fit to Page */}
       <div className="flex-1 overflow-auto p-4">

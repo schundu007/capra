@@ -263,6 +263,17 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
     }
   }, [showNewCompanyInput]);
 
+  // Handle escape key to close JD popup
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && showJDPopup) {
+        setShowJDPopup(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showJDPopup]);
+
   // Save current company data whenever inputs, generated content, custom sections, or active tab change
   // Skip during company loading to prevent data bleeding
   useEffect(() => {
@@ -1348,41 +1359,53 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
       {/* JD Popup Modal */}
       {showJDPopup && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center"
-          style={{ background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)' }}
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+          style={{ background: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(8px)' }}
           onClick={() => setShowJDPopup(false)}
-          onKeyDown={(e) => e.key === 'Escape' && setShowJDPopup(false)}
         >
           <div
-            className="relative w-full max-w-3xl max-h-[85vh] rounded-2xl shadow-2xl overflow-hidden"
-            style={{ background: 'var(--content-bg)' }}
+            className="relative w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200"
+            style={{
+              background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(59, 130, 246, 0.1)'
+            }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
+            {/* Gradient Header Bar */}
             <div
-              className="flex items-center justify-between px-6 py-4"
-              style={{ borderBottom: '1px solid var(--content-border)', background: 'var(--content-bg-secondary)' }}
-            >
-              <div className="flex items-center gap-3">
+              className="h-2"
+              style={{ background: 'linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%)' }}
+            />
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-5">
+              <div className="flex items-center gap-4">
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' }}
+                  className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg"
+                  style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' }}
                 >
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold" style={{ color: 'var(--content-text)' }}>Job Description</h2>
-                  <p className="text-xs" style={{ color: 'var(--content-text-muted)' }}>
-                    {activeCompany || 'No company selected'}
-                  </p>
+                  <h2 className="text-xl font-bold text-gray-900">Job Description</h2>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
+                      {activeCompany || 'No company'}
+                    </span>
+                    {inputs.jobDescription?.trim() && (
+                      <span className="text-xs text-gray-400">
+                        {inputs.jobDescription.length.toLocaleString()} chars
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
               <button
                 onClick={() => setShowJDPopup(false)}
-                className="p-2 rounded-lg transition-colors hover:bg-gray-100"
-                style={{ color: 'var(--content-text-muted)' }}
+                className="w-10 h-10 rounded-xl flex items-center justify-center transition-all hover:bg-gray-100"
+                style={{ color: '#9ca3af' }}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1391,58 +1414,52 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
             </div>
 
             {/* Content */}
-            <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(85vh - 140px)' }}>
-              {inputs.jobDescription?.trim() ? (
-                <div
-                  className="prose prose-sm max-w-none whitespace-pre-wrap text-sm leading-relaxed"
-                  style={{ color: 'var(--content-text)' }}
-                >
-                  {inputs.jobDescription}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <div
-                    className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-                    style={{ background: 'rgba(59, 130, 246, 0.1)' }}
-                  >
-                    <svg className="w-8 h-8" style={{ color: '#3b82f6' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
+            <div className="px-6 pb-6">
+              <div
+                className="rounded-2xl overflow-hidden"
+                style={{
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  maxHeight: '60vh'
+                }}
+              >
+                {inputs.jobDescription?.trim() ? (
+                  <div className="p-5 overflow-y-auto" style={{ maxHeight: '60vh' }}>
+                    <div className="prose prose-sm max-w-none text-sm leading-relaxed text-gray-700 whitespace-pre-wrap">
+                      {inputs.jobDescription}
+                    </div>
                   </div>
-                  <h3 className="text-base font-semibold mb-1" style={{ color: 'var(--content-text)' }}>
-                    No Job Description
-                  </h3>
-                  <p className="text-sm" style={{ color: 'var(--content-text-muted)' }}>
-                    Add a job description in Input Materials to view it here
-                  </p>
-                </div>
-              )}
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-16 text-center">
+                    <div
+                      className="w-20 h-20 rounded-3xl flex items-center justify-center mb-5"
+                      style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)' }}
+                    >
+                      <svg className="w-10 h-10" style={{ color: '#3b82f6' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No Job Description Yet</h3>
+                    <p className="text-sm text-gray-500 mb-4">
+                      Paste a job description in Input Materials
+                    </p>
+                    <button
+                      onClick={() => { setShowJDPopup(false); setActiveTab('input'); }}
+                      className="px-4 py-2 rounded-xl text-sm font-medium text-white transition-all hover:opacity-90"
+                      style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' }}
+                    >
+                      Add Job Description
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Footer */}
-            <div
-              className="flex items-center justify-between px-6 py-4"
-              style={{ borderTop: '1px solid var(--content-border)', background: 'var(--content-bg-secondary)' }}
-            >
-              <div className="text-xs" style={{ color: 'var(--content-text-muted)' }}>
-                {inputs.jobDescription?.trim() ? `${inputs.jobDescription.length.toLocaleString()} characters` : 'Empty'}
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => { setShowJDPopup(false); setActiveTab('input'); }}
-                  className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
-                  style={{ background: 'var(--content-bg-hover)', color: 'var(--content-text)', border: '1px solid var(--content-border)' }}
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => setShowJDPopup(false)}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all"
-                  style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' }}
-                >
-                  Close
-                </button>
-              </div>
+            {/* Keyboard hint */}
+            <div className="px-6 pb-4 flex justify-center">
+              <span className="text-xs text-gray-400">
+                Press <kbd className="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 font-mono text-[10px]">ESC</kbd> to close
+              </span>
             </div>
           </div>
         </div>
