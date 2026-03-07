@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import InputPanel from './ascend-prep/InputPanel';
 import OutputPanel from './ascend-prep/OutputPanel';
 import { getApiUrl } from '../hooks/useElectron';
+import { getAuthHeaders } from '../utils/authHeaders.js';
 
 const API_URL = getApiUrl();
 
@@ -128,19 +129,7 @@ const EMPTY_CUSTOM_SECTIONS = [];
 // Format: [{ id: 'custom-1', name: 'My Custom Section', documentName: 'doc.pdf', documentIndex: 0 }]
 
 
-// Get auth headers (includes Electron detection)
-function getAuthHeaders() {
-  const headers = {};
-  const token = localStorage.getItem('chundu_token');
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-  // Add Electron header for backend to skip webapp authentication
-  if (window.electronAPI?.isElectron) {
-    headers['X-Electron-App'] = 'true';
-  }
-  return headers;
-}
+// getAuthHeaders is now imported from utils/authHeaders.js
 
 // Clean up generated content - remove double spaces, extra spaces, empty lines
 function cleanupContent(content) {

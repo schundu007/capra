@@ -2,6 +2,7 @@ import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { getApiUrl } from '../hooks/useElectron';
+import { getAuthHeaders } from '../utils/authHeaders.js';
 import SystemDesignPanel from './SystemDesignPanel';
 import LanguageSelectorModal from './LanguageSelectorModal';
 
@@ -126,18 +127,7 @@ const LANGUAGE_LABELS = {
 
 const API_URL = getApiUrl();
 
-function getAuthHeaders() {
-  const headers = {};
-  const token = localStorage.getItem('chundu_token');
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-  // Add Electron header for backend to skip webapp authentication
-  if (window.electronAPI?.isElectron) {
-    headers['X-Electron-App'] = 'true';
-  }
-  return headers;
-}
+// getAuthHeaders is now imported from utils/authHeaders.js
 
 // Dark theme (default)
 const darkTheme = {

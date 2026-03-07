@@ -164,7 +164,7 @@ function extractExamples($) {
   return examples.slice(0, 3);
 }
 
-export async function fetchProblemFromUrl(url, electronCookies = null) {
+export async function fetchProblemFromUrl(url, electronCookies = null, req = null) {
   try {
     const platform = detectPlatform(url);
 
@@ -187,7 +187,7 @@ export async function fetchProblemFromUrl(url, electronCookies = null) {
     };
 
     // Add auth cookies if available for this platform
-    // Priority: 1) Electron cookies, 2) Extension-synced cookies, 3) Auth route cookies
+    // Priority: 1) Electron cookies, 2) Extension-synced cookies, 3) Auth route cookies (user-scoped)
     let cookies = null;
     if (electronCookies && electronCookies[platform]) {
       cookies = electronCookies[platform];
@@ -197,7 +197,8 @@ export async function fetchProblemFromUrl(url, electronCookies = null) {
       if (cookies) {
         console.log(`[Scraper] Using extension-synced cookies for ${platform}`);
       } else {
-        cookies = getPlatformCookies(platform);
+        // Pass request context for user/device-scoped cookie lookup
+        cookies = getPlatformCookies(platform, req);
         if (cookies) {
           console.log(`[Scraper] Using auth route cookies for ${platform}`);
         }

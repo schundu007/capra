@@ -7,6 +7,7 @@ import config from './config/index.js';
 import requestId from './middleware/requestId.js';
 import { requestLogger, logger } from './middleware/requestLogger.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { aiLimiter, apiLimiter, paymentLimiter } from './middleware/rateLimiter.js';
 import { setupGracefulShutdown, trackConnection } from './utils/shutdown.js';
 import solveRouter from './routes/solve.js';
 import analyzeRouter from './routes/analyze.js';
@@ -37,27 +38,51 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
 
-// CORS - allow all origins including chrome extensions
+// CORS - whitelist allowed origins
+// SECURITY: Only allow known origins, reject unknown
+const ALLOWED_ORIGINS = [
+  // Production frontend
+  'https://chundu.vercel.app',
+  'https://ascend.vercel.app',
+  // Development
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:3000',
+  // Allow custom domain if configured
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, etc.)
-    // Allow chrome extensions
-    // Allow localhost and deployed frontend
-    if (!origin ||
-        origin.startsWith('chrome-extension://') ||
-        origin.startsWith('moz-extension://') ||
-        origin.includes('localhost') ||
-        origin.includes('127.0.0.1') ||
-        origin.includes('railway.app') ||
-        origin.includes('vercel.app')) {
-      callback(null, true);
-    } else {
-      callback(null, true); // Allow all for now
+    // Allow requests with no origin (Electron, mobile apps, curl)
+    if (!origin) {
+      return callback(null, true);
     }
+    // Allow chrome/firefox extensions
+    if (origin.startsWith('chrome-extension://') || origin.startsWith('moz-extension://')) {
+      return callback(null, true);
+    }
+    // Check against whitelist
+    if (ALLOWED_ORIGINS.some(allowed => origin.includes(allowed.replace(/^https?:\/\//, '')))) {
+      return callback(null, true);
+    }
+    // Allow Railway and Vercel preview deployments
+    if (origin.includes('railway.app') || origin.includes('vercel.app')) {
+      return callback(null, true);
+    }
+    // Reject unknown origins in production
+    if (process.env.NODE_ENV === 'production') {
+      console.warn(`CORS blocked origin: ${origin}`);
+      return callback(new Error('Not allowed by CORS'));
+    }
+    // Allow in development
+    callback(null, true);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id', 'X-Electron-App', 'X-Device-Id'],
 }));
 
 // Handle preflight requests explicitly
@@ -224,23 +249,25 @@ app.get('/api/diagram/test', async (req, res) => {
 });
 
 // Protected routes (require authentication)
-app.use('/api/solve', authenticate, solveRouter);
-app.use('/api/analyze', authenticate, analyzeRouter);
-app.use('/api/fetch', authenticate, fetchRouter);
-app.use('/api/run', authenticate, runRouter);
-app.use('/api/fix', authenticate, fixRouter);
-app.use('/api/transcribe', authenticate, transcribeRouter);
-app.use('/api/ascend/prep', authenticate, ascendPrepRouter);
-app.use('/api/ascend', authenticate, ascendRouter);
-app.use('/api/diagram', authenticate, diagramRouter);
-app.use('/api/extract', authenticate, extractRouter);
+// AI-intensive routes get stricter rate limiting
+app.use('/api/solve', authenticate, aiLimiter, solveRouter);
+app.use('/api/analyze', authenticate, aiLimiter, analyzeRouter);
+app.use('/api/fetch', authenticate, apiLimiter, fetchRouter);
+app.use('/api/run', authenticate, apiLimiter, runRouter);
+app.use('/api/fix', authenticate, aiLimiter, fixRouter);
+app.use('/api/transcribe', authenticate, aiLimiter, transcribeRouter);
+app.use('/api/ascend/prep', authenticate, apiLimiter, ascendPrepRouter);
+app.use('/api/ascend', authenticate, aiLimiter, ascendRouter);
+app.use('/api/diagram', authenticate, aiLimiter, diagramRouter);
+app.use('/api/extract', authenticate, aiLimiter, extractRouter);
 
 // Billing & Credits routes (JWT auth - uses cariara OAuth tokens)
-app.use('/api/billing', billingRouter);
-app.use('/api/credits', creditsRouter);
-app.use('/api/company-preps', companyPrepsRouter);
-app.use('/api/usage', usageRouter);
-app.use('/api/device', deviceRouter);
+// Payment routes get strict rate limiting to prevent abuse
+app.use('/api/billing', paymentLimiter, billingRouter);
+app.use('/api/credits', apiLimiter, creditsRouter);
+app.use('/api/company-preps', apiLimiter, companyPrepsRouter);
+app.use('/api/usage', apiLimiter, usageRouter);
+app.use('/api/device', apiLimiter, deviceRouter);
 
 // Enhanced health check
 app.get('/api/health', (req, res) => {

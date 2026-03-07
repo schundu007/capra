@@ -92,19 +92,11 @@ function getToken() {
   return localStorage.getItem('chundu_token');
 }
 
-// Get auth headers (includes Electron detection)
-function getAuthHeaders() {
-  const headers = {};
-  const token = getToken();
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-  // Add Electron header for backend to skip webapp authentication
-  if (window.electronAPI?.isElectron) {
-    headers['X-Electron-App'] = 'true';
-  }
-  return headers;
-}
+// Import shared auth headers utility
+import { getAuthHeaders, initDeviceId } from './utils/authHeaders.js';
+
+// Re-export for backward compatibility with any code expecting getAuthHeaders from App.jsx
+export { getAuthHeaders };
 
 // Clean up text - remove double spaces, extra empty lines
 function cleanupText(text) {
@@ -419,6 +411,8 @@ export default function App() {
     // In Electron mode, auth is always ready
     if (isElectron) {
       setAuthChecked(true);
+      // Initialize device ID for secure API requests
+      initDeviceId();
       return;
     }
 

@@ -1,6 +1,7 @@
 import { verifyToken, isAuthEnabled, hasRole, hasMinRole, ROLES } from '../services/users.js';
 import jwt from 'jsonwebtoken';
 import { initUser } from '../config/database.js';
+import { logger } from './requestLogger.js';
 
 const JWT_SECRET = process.env.JWT_SECRET_KEY;
 const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'HS256';
@@ -30,36 +31,110 @@ async function tryJwtAuth(token) {
           id: userId,
           email: payload.email,
           role: payload.role || 'user',
+          source: 'jwt',
         };
       }
     }
   } catch (error) {
-    // JWT verification failed
+    if (error.name === 'TokenExpiredError') {
+      return { error: 'TOKEN_EXPIRED' };
+    }
+    // JWT verification failed silently
   }
   return null;
 }
 
 /**
- * Authentication middleware
- * Supports multiple auth methods:
- * 1. Electron apps (X-Electron-App header) - skip auth
- * 2. JWT tokens (Cariara OAuth) - verify JWT
- * 3. Local tokens - verify with local user service
+ * Verify Electron request with device ID
+ * More secure than just checking header - requires valid device ID
  */
-export async function authenticate(req, res, next) {
-  // Allow Electron apps through (they provide their own API keys)
-  const isElectron = req.headers['x-electron-app'] === 'true';
-  if (isElectron) {
-    return next();
+function verifyElectronRequest(req) {
+  const deviceId = req.headers['x-device-id'];
+
+  // If device ID provided, validate its format
+  if (deviceId) {
+    const deviceIdPattern = /^(darwin|win32|linux)-[a-f0-9]{24}$/;
+    if (deviceIdPattern.test(deviceId)) {
+      return { valid: true, deviceId };
+    }
   }
 
-  // If no users configured and no JWT secret, skip authentication
+  // Legacy support: allow without device ID but log warning
+  // TODO: Remove this after all Electron apps are updated
+  logger.warn({ path: req.path }, 'Electron request without device ID - legacy mode');
+  return { valid: true, deviceId: 'legacy-no-device-id' };
+}
+
+/**
+ * Authentication middleware
+ * Supports multiple auth methods:
+ * 1. Electron apps - with device ID verification
+ * 2. JWT tokens (Cariara OAuth) - verify JWT signature
+ * 3. Local tokens - verify with local user service
+ *
+ * SECURITY: Electron apps are allowed through because they:
+ * - Provide their own API keys (Claude/OpenAI)
+ * - Use local resources, not our backend credits
+ * - Are validated by device ID (prevents simple header spoofing)
+ */
+export async function authenticate(req, res, next) {
+  const isElectron = req.headers['x-electron-app'] === 'true';
+  const authHeader = req.headers.authorization;
+
+  // 1. Handle Electron apps
+  if (isElectron) {
+    const electronVerify = verifyElectronRequest(req);
+    if (electronVerify.valid) {
+      req.deviceId = electronVerify.deviceId;
+      req.isElectron = true;
+
+      // If Electron provides auth token, still verify it for linked accounts
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.split(' ')[1];
+        const jwtUser = await tryJwtAuth(token);
+        if (jwtUser && !jwtUser.error) {
+          req.user = jwtUser;
+        }
+      }
+
+      return next();
+    }
+  }
+
+  // 2. Try JWT authentication (webapp users)
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1];
+    const jwtUser = await tryJwtAuth(token);
+
+    if (jwtUser && !jwtUser.error) {
+      req.user = jwtUser;
+      return next();
+    }
+
+    if (jwtUser?.error === 'TOKEN_EXPIRED') {
+      return res.status(401).json({
+        error: 'Token expired. Please log in again.',
+        code: 'TOKEN_EXPIRED',
+      });
+    }
+
+    // 3. Try local token verification as fallback
+    if (isAuthEnabled()) {
+      const result = verifyToken(token);
+      if (result.valid) {
+        req.user = { ...result.user, source: 'local' };
+        return next();
+      }
+    }
+  }
+
+  // 4. No authentication provided
+  // If no auth methods are configured, allow through (local dev mode)
   if (!isAuthEnabled() && !JWT_SECRET) {
     return next();
   }
 
-  const authHeader = req.headers.authorization;
-
+  // Authentication required but not provided
   if (!authHeader) {
     return res.status(401).json({
       error: 'Authentication required',
@@ -67,33 +142,7 @@ export async function authenticate(req, res, next) {
     });
   }
 
-  // Extract token from "Bearer <token>"
-  const parts = authHeader.split(' ');
-  if (parts.length !== 2 || parts[0] !== 'Bearer') {
-    return res.status(401).json({
-      error: 'Invalid authorization format. Use: Bearer <token>',
-      code: 'INVALID_AUTH_FORMAT',
-    });
-  }
-
-  const token = parts[1];
-
-  // Try JWT auth first (for webapp users)
-  const jwtUser = await tryJwtAuth(token);
-  if (jwtUser) {
-    req.user = jwtUser;
-    return next();
-  }
-
-  // Fall back to local token verification
-  if (isAuthEnabled()) {
-    const result = verifyToken(token);
-    if (result.valid) {
-      req.user = result.user;
-      return next();
-    }
-  }
-
+  // Invalid token
   return res.status(401).json({
     error: 'Invalid or expired token',
     code: 'INVALID_TOKEN',

@@ -1,21 +1,9 @@
 import { useEffect, useState } from 'react';
 import { getApiUrl } from '../hooks/useElectron';
 import useElectron from '../hooks/useElectron';
+import { getAuthHeaders } from '../utils/authHeaders.js';
 
 const API_URL = getApiUrl();
-
-function getAuthHeaders() {
-  const headers = {};
-  const token = localStorage.getItem('chundu_token');
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-  // Add Electron header for backend to skip webapp authentication
-  if (window.electronAPI?.isElectron) {
-    headers['X-Electron-App'] = 'true';
-  }
-  return headers;
-}
 
 /**
  * Cloud Architecture Diagram Component

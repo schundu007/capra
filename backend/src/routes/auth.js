@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { logger } from '../middleware/requestLogger.js';
+import { authLimiter } from '../middleware/rateLimiter.js';
 import {
   authenticateUser,
   verifyToken,
@@ -20,7 +21,7 @@ const router = Router();
  * Register new user
  * POST /api/auth/register
  */
-router.post('/register', async (req, res) => {
+router.post('/register', authLimiter, async (req, res) => {
   try {
     const { username, password, name } = req.body;
 
@@ -55,7 +56,7 @@ router.post('/register', async (req, res) => {
  * Login
  * POST /api/auth/login
  */
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
   try {
     const { username, password } = req.body;
 
@@ -213,11 +214,31 @@ router.delete('/admin/users/:username', authenticate, requireAdmin, (req, res) =
 // =====================================================
 
 // In-memory storage for platform auth tokens
-// In production, consider using Redis or encrypted file storage
+// SECURITY: Keyed by device ID to prevent cross-user cookie leakage
+// Format: Map<deviceId:platform, {cookies, timestamp, expiresAt}>
 const platformAuth = new Map();
 
 // Token expiry time (4 hours)
 const TOKEN_EXPIRY = 4 * 60 * 60 * 1000;
+
+/**
+ * Get storage key for platform auth (includes device isolation)
+ */
+function getPlatformAuthKey(req, platform) {
+  // For Electron apps, use device ID for isolation
+  const deviceId = req.headers['x-device-id'] || req.deviceId;
+  if (deviceId) {
+    return `${deviceId}:${platform}`;
+  }
+  // For webapp users, use user ID for isolation
+  if (req.user?.id) {
+    return `user-${req.user.id}:${platform}`;
+  }
+  // Fallback for extension sync - use client IP as weak identifier
+  // SECURITY: This is less secure but allows extension cookies to work
+  const clientIP = req.headers['x-forwarded-for']?.split(',')[0] || req.ip || 'anonymous';
+  return `ip-${clientIP}:${platform}`;
+}
 
 /**
  * Store platform authentication
@@ -240,18 +261,27 @@ router.post('/platform', (req, res) => {
       });
     }
 
-    platformAuth.set(platform, {
+    // Get device/user-specific storage key
+    const storageKey = getPlatformAuthKey(req, platform);
+    if (!storageKey) {
+      return res.status(401).json({
+        error: 'Device or user identification required to store platform auth',
+        code: 'AUTH_REQUIRED',
+      });
+    }
+
+    platformAuth.set(storageKey, {
       cookies,
       timestamp: timestamp || Date.now(),
       expiresAt: Date.now() + TOKEN_EXPIRY,
     });
 
-    logger.info({ platform }, 'Platform auth stored');
+    logger.info({ platform, storageKey: storageKey.split(':')[0] }, 'Platform auth stored');
 
     res.json({
       success: true,
       platform,
-      expiresAt: platformAuth.get(platform).expiresAt,
+      expiresAt: platformAuth.get(storageKey).expiresAt,
     });
   } catch (error) {
     logger.error({ error: error.message }, 'Failed to store platform auth');
@@ -268,14 +298,22 @@ router.post('/platform', (req, res) => {
 router.get('/status', (req, res) => {
   const status = {};
   const now = Date.now();
+  const validPlatforms = ['glider', 'lark', 'hackerrank', 'leetcode', 'codesignal', 'codility', 'coderpad'];
 
-  for (const [platform, auth] of platformAuth) {
-    const isExpired = auth.expiresAt < now;
-    status[platform] = {
-      authenticated: !isExpired,
-      expiresAt: auth.expiresAt,
-      expired: isExpired,
-    };
+  // Check status for each valid platform for this device/user
+  for (const platform of validPlatforms) {
+    const storageKey = getPlatformAuthKey(req, platform);
+    if (!storageKey) continue;
+
+    const auth = platformAuth.get(storageKey);
+    if (auth) {
+      const isExpired = auth.expiresAt < now;
+      status[platform] = {
+        authenticated: !isExpired,
+        expiresAt: auth.expiresAt,
+        expired: isExpired,
+      };
+    }
   }
 
   res.json(status);
@@ -283,9 +321,20 @@ router.get('/status', (req, res) => {
 
 /**
  * Get cookies for a specific platform (internal use)
+ * SECURITY: Now requires request context to get device/user-scoped cookies
  */
-export function getPlatformCookies(platform) {
-  const auth = platformAuth.get(platform);
+export function getPlatformCookies(platform, req = null) {
+  // If no request context, return null (can't determine which user's cookies)
+  if (!req) {
+    return null;
+  }
+
+  const storageKey = getPlatformAuthKey(req, platform);
+  if (!storageKey) {
+    return null;
+  }
+
+  const auth = platformAuth.get(storageKey);
 
   if (!auth) {
     return null;
@@ -293,7 +342,7 @@ export function getPlatformCookies(platform) {
 
   // Check if expired
   if (auth.expiresAt < Date.now()) {
-    platformAuth.delete(platform);
+    platformAuth.delete(storageKey);
     return null;
   }
 
@@ -306,9 +355,14 @@ export function getPlatformCookies(platform) {
  */
 router.delete('/platform/:platform', (req, res) => {
   const { platform } = req.params;
+  const storageKey = getPlatformAuthKey(req, platform);
 
-  if (platformAuth.has(platform)) {
-    platformAuth.delete(platform);
+  if (!storageKey) {
+    return res.status(401).json({ error: 'Device or user identification required' });
+  }
+
+  if (platformAuth.has(storageKey)) {
+    platformAuth.delete(storageKey);
     logger.info({ platform }, 'Platform auth cleared');
     res.json({ success: true });
   } else {
@@ -317,13 +371,23 @@ router.delete('/platform/:platform', (req, res) => {
 });
 
 /**
- * Clear all authentication
+ * Clear all authentication for this device/user
  * DELETE /api/auth/all
  */
 router.delete('/all', (req, res) => {
-  platformAuth.clear();
-  logger.info('All platform auth cleared');
-  res.json({ success: true });
+  const validPlatforms = ['glider', 'lark', 'hackerrank', 'leetcode', 'codesignal', 'codility', 'coderpad'];
+  let cleared = 0;
+
+  for (const platform of validPlatforms) {
+    const storageKey = getPlatformAuthKey(req, platform);
+    if (storageKey && platformAuth.has(storageKey)) {
+      platformAuth.delete(storageKey);
+      cleared++;
+    }
+  }
+
+  logger.info({ cleared }, 'Platform auth cleared for device/user');
+  res.json({ success: true, cleared });
 });
 
 export default router;

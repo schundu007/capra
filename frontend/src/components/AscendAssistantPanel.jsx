@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { getApiUrl } from '../hooks/useElectron';
+import { getAuthHeaders } from '../utils/authHeaders.js';
 
 const isElectron = window.electronAPI?.isElectron || false;
 
@@ -95,18 +96,7 @@ function renderMarkdown(text) {
 
 const API_URL = getApiUrl();
 
-function getAuthHeaders() {
-  const headers = {};
-  const token = localStorage.getItem('chundu_token');
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-  // Add Electron header for backend to skip webapp authentication
-  if (window.electronAPI?.isElectron) {
-    headers['X-Electron-App'] = 'true';
-  }
-  return headers;
-}
+// getAuthHeaders is now imported from utils/authHeaders.js
 
 export default function AscendAssistantPanel({ onClose, provider, model }) {
   const [isRecording, setIsRecording] = useState(false);

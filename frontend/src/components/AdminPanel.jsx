@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getApiUrl } from '../hooks/useElectron';
+import { getAuthHeaders as getBaseAuthHeaders, getDeviceId } from '../utils/authHeaders.js';
 
 const API_URL = getApiUrl();
 
@@ -25,9 +26,13 @@ export default function AdminPanel({ token, onClose }) {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     };
-    // Add Electron header for backend to skip webapp authentication
+    // Add Electron headers
     if (window.electronAPI?.isElectron) {
       headers['X-Electron-App'] = 'true';
+      const deviceId = getDeviceId();
+      if (deviceId) {
+        headers['X-Device-Id'] = deviceId;
+      }
     }
     return headers;
   };

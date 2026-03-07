@@ -8,8 +8,9 @@ import { logger } from '../middleware/requestLogger.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// JWT secret - must be set in environment
-const JWT_SECRET = process.env.JWT_SECRET || 'chundu-secret-change-in-production';
+// JWT secret - MUST be set in environment for security
+// SECURITY: No fallback - local auth is disabled if JWT_SECRET is not set
+const JWT_SECRET = process.env.JWT_SECRET || null;
 const JWT_EXPIRY = '24h';
 
 // User data file path
@@ -219,6 +220,11 @@ export async function registerUser(username, password, name) {
  * Authenticate user and return JWT token
  */
 export async function authenticateUser(username, password) {
+  // Check if local auth is configured
+  if (!JWT_SECRET) {
+    return { success: false, error: 'Local authentication not configured' };
+  }
+
   if (!username || !password) {
     return { success: false, error: 'Username and password required' };
   }
@@ -269,8 +275,14 @@ export async function authenticateUser(username, password) {
 
 /**
  * Verify JWT token
+ * Returns invalid if JWT_SECRET not configured (local auth disabled)
  */
 export function verifyToken(token) {
+  // If JWT_SECRET not set, local auth is disabled
+  if (!JWT_SECRET) {
+    return { valid: false, error: 'Local auth not configured' };
+  }
+
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     return { valid: true, user: decoded };
@@ -394,9 +406,11 @@ export function deleteUser(username) {
 }
 
 /**
- * Check if authentication is enabled
+ * Check if LOCAL authentication is enabled
+ * Requires both JWT_SECRET and at least one user with roles
  */
 export function isAuthEnabled() {
+  if (!JWT_SECRET) return false;
   return users.some(u => u.roles && u.roles.length > 0);
 }
 
