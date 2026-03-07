@@ -1369,7 +1369,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                       }}
                       placeholder="Company name..."
                       className="w-full px-3 py-2 text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-green-500"
-                      style={{ background: 'var(--content-bg-hover)', color: 'var(--text-primary)', border: '1px solid var(--border-default)' }}
+                      style={{ background: '#f9fafb', color: '#111827', border: '1px solid #e5e7eb' }}
                     />
                     <div className="flex gap-2 mt-2">
                       <button
@@ -1386,7 +1386,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                           setNewCompanyName('');
                         }}
                         className="flex-1 py-1.5 text-xs font-medium rounded-lg"
-                        style={{ background: 'var(--content-bg-hover)', color: 'var(--text-muted)', border: '1px solid var(--border-default)' }}
+                        style={{ background: '#f3f4f6', color: '#6b7280', border: '1px solid #e5e7eb' }}
                       >
                         Cancel
                       </button>
