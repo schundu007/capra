@@ -208,6 +208,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
   const [newCompanyName, setNewCompanyName] = useState('');
   const [showNewCompanyInput, setShowNewCompanyInput] = useState(false);
   const [editingCompanyName, setEditingCompanyName] = useState(false);
+  const [showJDPopup, setShowJDPopup] = useState(false);
   const dropdownRef = useRef(null);
   const newCompanyInputRef = useRef(null);
 
@@ -1077,6 +1078,38 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                 </div>
               </button>
 
+              {/* JD Tab - Opens popup */}
+              <button
+                onClick={() => setShowJDPopup(true)}
+                className="prep-nav-item"
+                style={{
+                  background: inputs.jobDescription?.trim() ? 'rgba(59, 130, 246, 0.08)' : undefined,
+                  borderColor: inputs.jobDescription?.trim() ? 'rgba(59, 130, 246, 0.2)' : undefined,
+                }}
+              >
+                <div
+                  className="prep-nav-icon"
+                  style={{
+                    background: 'rgba(59, 130, 246, 0.12)',
+                    color: inputs.jobDescription?.trim() ? '#3b82f6' : undefined,
+                  }}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-sm" style={{ color: inputs.jobDescription?.trim() ? '#3b82f6' : undefined }}>
+                    Job Description
+                  </div>
+                </div>
+                {inputs.jobDescription?.trim() && (
+                  <svg className="w-4 h-4" style={{ color: '#3b82f6' }} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </button>
+
               {/* Divider */}
               <div className="my-2 mx-4" style={{ borderTop: '1px solid var(--nav-border)' }} />
 
@@ -1312,6 +1345,108 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
       </div>
       </div>{/* End modal wrapper */}
 
+      {/* JD Popup Modal */}
+      {showJDPopup && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center"
+          style={{ background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setShowJDPopup(false)}
+          onKeyDown={(e) => e.key === 'Escape' && setShowJDPopup(false)}
+        >
+          <div
+            className="relative w-full max-w-3xl max-h-[85vh] rounded-2xl shadow-2xl overflow-hidden"
+            style={{ background: 'var(--content-bg)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div
+              className="flex items-center justify-between px-6 py-4"
+              style={{ borderBottom: '1px solid var(--content-border)', background: 'var(--content-bg-secondary)' }}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' }}
+                >
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold" style={{ color: 'var(--content-text)' }}>Job Description</h2>
+                  <p className="text-xs" style={{ color: 'var(--content-text-muted)' }}>
+                    {activeCompany || 'No company selected'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowJDPopup(false)}
+                className="p-2 rounded-lg transition-colors hover:bg-gray-100"
+                style={{ color: 'var(--content-text-muted)' }}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(85vh - 140px)' }}>
+              {inputs.jobDescription?.trim() ? (
+                <div
+                  className="prose prose-sm max-w-none whitespace-pre-wrap text-sm leading-relaxed"
+                  style={{ color: 'var(--content-text)' }}
+                >
+                  {inputs.jobDescription}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div
+                    className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
+                    style={{ background: 'rgba(59, 130, 246, 0.1)' }}
+                  >
+                    <svg className="w-8 h-8" style={{ color: '#3b82f6' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-base font-semibold mb-1" style={{ color: 'var(--content-text)' }}>
+                    No Job Description
+                  </h3>
+                  <p className="text-sm" style={{ color: 'var(--content-text-muted)' }}>
+                    Add a job description in Input Materials to view it here
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div
+              className="flex items-center justify-between px-6 py-4"
+              style={{ borderTop: '1px solid var(--content-border)', background: 'var(--content-bg-secondary)' }}
+            >
+              <div className="text-xs" style={{ color: 'var(--content-text-muted)' }}>
+                {inputs.jobDescription?.trim() ? `${inputs.jobDescription.length.toLocaleString()} characters` : 'Empty'}
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setShowJDPopup(false); setActiveTab('input'); }}
+                  className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                  style={{ background: 'var(--content-bg-hover)', color: 'var(--content-text)', border: '1px solid var(--content-border)' }}
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => setShowJDPopup(false)}
+                  className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all"
+                  style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' }}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
