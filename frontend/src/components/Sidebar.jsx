@@ -67,15 +67,42 @@ export default function Sidebar({
     }
   };
 
+  // Theme-based styles
+  const isLight = theme === 'light';
+
+  const containerStyle = {
+    width: '260px',
+    minWidth: '260px',
+    ...(isLight && {
+      background: 'linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%)',
+      color: '#1a1a1a',
+      borderRight: '1px solid #e5e7eb',
+      boxShadow: '2px 0 8px rgba(0, 0, 0, 0.05)',
+    }),
+  };
+
+  const headerStyle = {
+    paddingLeft: isMacElectron ? '80px' : '16px',
+    WebkitAppRegion: 'drag',
+    ...(isLight && {
+      background: 'transparent',
+      borderBottom: '1px solid #e5e7eb',
+    }),
+  };
+
+  const itemStyle = isLight ? { color: 'rgba(0, 0, 0, 0.7)' } : {};
+  const sectionTitleStyle = isLight ? { color: 'rgba(0, 0, 0, 0.5)' } : {};
+  const badgeStyle = isLight ? { color: 'rgba(0, 0, 0, 0.6)', background: 'rgba(0, 0, 0, 0.06)' } : {};
+
   return (
     <div
-      className={`sidebar-enterprise ${theme === 'light' ? 'sidebar-light' : ''}`}
-      style={{ width: '260px', minWidth: '260px' }}
+      className={`sidebar-enterprise ${isLight ? 'sidebar-light' : ''}`}
+      style={containerStyle}
     >
       {/* Header with Logo */}
       <div
         className="sidebar-header"
-        style={{ paddingLeft: isMacElectron ? '80px' : '16px', WebkitAppRegion: 'drag' }}
+        style={headerStyle}
       >
         <button
           onClick={onCollapse}
@@ -90,7 +117,7 @@ export default function Sidebar({
               className="h-4 w-auto object-contain filter brightness-0 invert"
             />
           </div>
-          <span className="sidebar-logo-text">Ascend</span>
+          <span className="sidebar-logo-text" style={isLight ? { color: '#1a1a1a' } : {}}>Ascend</span>
           {isLoading && (
             <div className="w-4 h-4 border-2 rounded-full animate-spin ml-2" style={{ borderColor: '#10b981', borderTopColor: 'transparent' }} />
           )}
@@ -104,6 +131,7 @@ export default function Sidebar({
           <button
             onClick={onToggleAscendAssistant}
             className={`sidebar-item ${showAscendAssistant ? 'active' : ''}`}
+            style={!showAscendAssistant ? itemStyle : {}}
           >
             <div className="sidebar-item-icon">
               <Icon name="microphone" size={18} />
@@ -113,7 +141,7 @@ export default function Sidebar({
           </button>
         </div>
 
-        <div className="sidebar-divider" />
+        <div className="sidebar-divider" style={isLight ? { background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.08) 50%, transparent 100%)' } : {}} />
 
         {/* Saved Designs Section */}
         <div className="sidebar-section">
@@ -121,11 +149,11 @@ export default function Sidebar({
             className="sidebar-section-header"
             onClick={() => setDesignsCollapsed(!designsCollapsed)}
           >
-            <span className={`sidebar-section-title ${designsCollapsed ? 'collapsed' : ''}`}>
+            <span className={`sidebar-section-title ${designsCollapsed ? 'collapsed' : ''}`} style={sectionTitleStyle}>
               <Icon name="chevronDown" size={12} />
               Saved Designs
             </span>
-            <span className="sidebar-section-badge">
+            <span className="sidebar-section-badge" style={badgeStyle}>
               {savedDesigns.length}
             </span>
           </div>
@@ -185,11 +213,11 @@ export default function Sidebar({
             className="sidebar-section-header"
             onClick={() => setHistoryCollapsed(!historyCollapsed)}
           >
-            <span className={`sidebar-section-title ${historyCollapsed ? 'collapsed' : ''}`}>
+            <span className={`sidebar-section-title ${historyCollapsed ? 'collapsed' : ''}`} style={sectionTitleStyle}>
               <Icon name="chevronDown" size={12} />
               Recent History
             </span>
-            <span className="sidebar-section-badge">
+            <span className="sidebar-section-badge" style={badgeStyle}>
               {codingHistory.length}
             </span>
           </div>
@@ -245,7 +273,7 @@ export default function Sidebar({
       </div>
 
       {/* Footer Section */}
-      <div className="sidebar-footer">
+      <div className="sidebar-footer" style={isLight ? { borderTop: '1px solid #e5e7eb', background: 'transparent' } : {}}>
         {/* Stealth Mode - Electron only */}
         {isElectron && (
           <div
@@ -255,6 +283,7 @@ export default function Sidebar({
             role="button"
             tabIndex={0}
             onKeyDown={(e) => e.key === 'Enter' && onToggleStealth()}
+            style={!stealthMode ? itemStyle : {}}
           >
             <div className="sidebar-item-icon">
               <Icon name={stealthMode ? 'eyeOff' : 'eye'} size={18} />
@@ -263,6 +292,7 @@ export default function Sidebar({
             <button
               className={`sidebar-toggle ${stealthMode ? 'active' : ''}`}
               onClick={(e) => { e.stopPropagation(); onToggleStealth(); }}
+              style={isLight && !stealthMode ? { background: 'rgba(0, 0, 0, 0.1)' } : {}}
             >
               <div className="sidebar-toggle-knob" />
             </button>
@@ -273,6 +303,7 @@ export default function Sidebar({
         <button
           onClick={onOpenSettings}
           className="sidebar-item"
+          style={itemStyle}
         >
           <div className="sidebar-item-icon">
             <Icon name="settings" size={18} />
