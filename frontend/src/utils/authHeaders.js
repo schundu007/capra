@@ -64,6 +64,7 @@ export function getDeviceId() {
 
 /**
  * Get auth token from storage
+ * Supports both old format (chundu_token) and new OAuth format (ascend_auth)
  */
 export function getToken() {
   // For Electron, try to get auth token from Electron API
@@ -71,6 +72,21 @@ export function getToken() {
     // Note: This is async, prefer using the cached token
     return localStorage.getItem('chundu_token');
   }
+
+  // Try new OAuth format first (ascend_auth)
+  try {
+    const authData = localStorage.getItem('ascend_auth');
+    if (authData) {
+      const parsed = JSON.parse(authData);
+      if (parsed.accessToken) {
+        return parsed.accessToken;
+      }
+    }
+  } catch (e) {
+    // Ignore parse errors
+  }
+
+  // Fall back to old format
   return localStorage.getItem('chundu_token');
 }
 
