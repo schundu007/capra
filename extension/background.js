@@ -51,29 +51,43 @@ async function getApiUrl() {
 // Desktop app URL (always localhost for Electron)
 const DESKTOP_APP_URL = 'http://localhost:3001';
 
-// Send problem URL to desktop app
+// Send problem URL to both desktop app AND webapp (Railway backend)
 async function sendProblemToDesktopApp(url, platform, problemType) {
-  try {
-    const response = await fetch(`${DESKTOP_APP_URL}/api/extension/problem`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        url,
-        platform,
-        problemType,
-        timestamp: Date.now(),
-      }),
-    });
+  const payload = JSON.stringify({
+    url,
+    platform,
+    problemType,
+    timestamp: Date.now(),
+  });
 
-    if (response.ok) {
-      return { success: true };
-    } else {
-      return { success: false, error: 'Request rejected' };
-    }
-  } catch (err) {
-    return { success: false, error: 'Not connected' };
+  const headers = { 'Content-Type': 'application/json' };
+
+  // Send to both desktop (localhost) and webapp (Railway) in parallel
+  const results = await Promise.allSettled([
+    // Desktop app (localhost)
+    fetch(`${DESKTOP_APP_URL}/api/extension/problem`, {
+      method: 'POST',
+      headers,
+      body: payload,
+    }).then(r => ({ target: 'desktop', ok: r.ok })),
+
+    // Webapp (Railway backend)
+    getApiUrl().then(apiUrl =>
+      fetch(`${apiUrl}/api/extension/problem`, {
+        method: 'POST',
+        headers,
+        body: payload,
+      }).then(r => ({ target: 'webapp', ok: r.ok }))
+    ),
+  ]);
+
+  // Check if at least one succeeded
+  const successes = results.filter(r => r.status === 'fulfilled' && r.value?.ok);
+
+  if (successes.length > 0) {
+    return { success: true, targets: successes.map(s => s.value.target) };
+  } else {
+    return { success: false, error: 'Not connected to desktop or webapp' };
   }
 }
 
