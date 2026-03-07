@@ -1481,7 +1481,7 @@ EDGE CASES & RESILIENCE:
           onCollapse={toggleSidebar}
           onViewAllDesigns={() => setShowSavedDesigns(true)}
           onViewAllHistory={() => {/* Could add a history modal later */}}
-          onOpenSettings={() => setShowSettings(true)}
+          onOpenSettings={() => { setSidebarCollapsed(true); setShowSettings(true); }}
           isLoading={isLoading}
           showAscendAssistant={showAscendAssistant}
           onToggleAscendAssistant={() => setShowAscendAssistant(!showAscendAssistant)}

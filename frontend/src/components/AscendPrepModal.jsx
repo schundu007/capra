@@ -5,18 +5,63 @@ import { getApiUrl } from '../hooks/useElectron';
 
 const API_URL = getApiUrl();
 
-// Section definitions
+// Section definitions with unique icons and colors
 const ALL_SECTIONS = [
-  { id: 'pitch', name: 'Elevator Pitch', description: '2-3 minute interview pitch' },
-  { id: 'hr', name: 'HR Questions', description: 'Salary, culture, availability' },
-  { id: 'hiring-manager', name: 'Hiring Manager', description: 'Role-specific questions' },
-  { id: 'rrk', name: 'RRK (Google)', description: 'Role Related Knowledge round', companyFilter: 'google' },
-  { id: 'coding', name: 'Coding', description: 'Algorithm & coding challenges' },
-  { id: 'system-design', name: 'System Design', description: 'Architecture questions' },
-  { id: 'behavioral', name: 'Behavioral', description: 'STAR method questions' },
-  { id: 'techstack', name: 'Tech Stack', description: 'Technology-specific questions' },
-  { id: 'study-docs', name: 'Study Docs', description: 'Reference documents', isDocViewer: true },
+  { id: 'pitch', name: 'Elevator Pitch', description: '2-3 minute interview pitch', icon: 'rocket', color: '#f59e0b' },
+  { id: 'hr', name: 'HR Questions', description: 'Salary, culture, availability', icon: 'users', color: '#ec4899' },
+  { id: 'hiring-manager', name: 'Hiring Manager', description: 'Role-specific questions', icon: 'briefcase', color: '#8b5cf6' },
+  { id: 'rrk', name: 'RRK (Google)', description: 'Role Related Knowledge round', companyFilter: 'google', icon: 'academic', color: '#4285f4' },
+  { id: 'coding', name: 'Coding', description: 'Algorithm & coding challenges', icon: 'code', color: '#10b981' },
+  { id: 'system-design', name: 'System Design', description: 'Architecture questions', icon: 'cube', color: '#3b82f6' },
+  { id: 'behavioral', name: 'Behavioral', description: 'STAR method questions', icon: 'chat', color: '#f97316' },
+  { id: 'techstack', name: 'Tech Stack', description: 'Technology-specific questions', icon: 'stack', color: '#06b6d4' },
 ];
+
+// Section icon components
+const SectionIcons = {
+  rocket: () => (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+    </svg>
+  ),
+  users: () => (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+    </svg>
+  ),
+  briefcase: () => (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+    </svg>
+  ),
+  academic: () => (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path d="M12 14l9-5-9-5-9 5 9 5z" />
+      <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+    </svg>
+  ),
+  code: () => (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+    </svg>
+  ),
+  cube: () => (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+    </svg>
+  ),
+  chat: () => (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+    </svg>
+  ),
+  stack: () => (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+    </svg>
+  ),
+};
 
 // Filter sections based on company name (e.g., RRK only for Google)
 function getFilteredSections(companyName) {
@@ -163,8 +208,6 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
   const [newCompanyName, setNewCompanyName] = useState('');
   const [showNewCompanyInput, setShowNewCompanyInput] = useState(false);
   const [editingCompanyName, setEditingCompanyName] = useState(false);
-  const [availableDocuments, setAvailableDocuments] = useState([]);
-  const [selectedDocument, setSelectedDocument] = useState(null);
   const dropdownRef = useRef(null);
   const newCompanyInputRef = useRef(null);
 
@@ -235,43 +278,6 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
     }
   }, [inputs, generated, customSections, activeCompany, activeTab, isLoadingCompany]);
 
-  // Fetch available documents - filtered by company name
-  useEffect(() => {
-    const fetchDocuments = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/documents`);
-        if (response.ok) {
-          const data = await response.json();
-          const allDocs = data.documents || [];
-
-          // Filter documents to only show those matching the active company
-          let filteredDocs = allDocs;
-          if (activeCompany) {
-            const companyLower = activeCompany.toLowerCase();
-            filteredDocs = allDocs.filter(doc => {
-              const docName = doc.name.toLowerCase().replace('.html', '').replace(/_/g, ' ');
-              return docName.includes(companyLower) || companyLower.includes(docName);
-            });
-          }
-
-          setAvailableDocuments(filteredDocs);
-
-          // Auto-select first matching document
-          if (filteredDocs.length > 0) {
-            setSelectedDocument(filteredDocs[0]);
-          } else {
-            setSelectedDocument(null);
-          }
-        }
-      } catch (err) {
-        console.error('Failed to fetch documents:', err);
-      }
-    };
-
-    if (isOpen || embedded) {
-      fetchDocuments();
-    }
-  }, [isOpen, embedded, activeCompany]);
 
   const handleInputChange = (field, value) => {
     setInputs(prev => ({ ...prev, [field]: value }));
@@ -1040,13 +1046,13 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                 <div
                   className="h-full rounded-full transition-all duration-300"
                   style={{
-                    width: `${(completedSections / sections.filter(s => !s.isDocViewer).length) * 100}%`,
+                    width: `${(completedSections / sections.length) * 100}%`,
                     background: 'linear-gradient(90deg, #10b981 0%, #059669 100%)'
                   }}
                 />
               </div>
               <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
-                {completedSections}/{sections.filter(s => !s.isDocViewer).length}
+                {completedSections}/{sections.length}
               </span>
             </div>
           )}
@@ -1090,21 +1096,29 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                       opacity: isGenerating && !isCurrentlyGenerating ? 0.5 : 1,
                     }}
                   >
-                    <div className="prep-nav-icon">
+                    <div
+                      className="prep-nav-icon"
+                      style={{
+                        background: `${section.color}18`,
+                        color: isComplete ? section.color : undefined,
+                      }}
+                    >
                       {isCurrentlyGenerating ? (
-                        <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#10b981', borderTopColor: 'transparent' }} />
+                        <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: section.color, borderTopColor: 'transparent' }} />
                       ) : isComplete ? (
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                       ) : (
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
+                        SectionIcons[section.icon] ? SectionIcons[section.icon]() : (
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        )
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm truncate">{section.name}</div>
+                      <div className="font-semibold text-sm truncate" style={{ color: isComplete ? section.color : undefined }}>{section.name}</div>
                     </div>
                   </button>
                 );
@@ -1170,10 +1184,10 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
               <div className="flex gap-2">
                 <button
                   onClick={handleGenerateAll}
-                  disabled={isGenerating || !hasInputs || completedSections === sections.filter(s => !s.isDocViewer).length}
-                  className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all disabled:opacity-50 flex items-center justify-center gap-2 ${completedSections === sections.filter(s => !s.isDocViewer).length ? 'completed' : ''}`}
+                  disabled={isGenerating || !hasInputs || completedSections === sections.length}
+                  className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all disabled:opacity-50 flex items-center justify-center gap-2 ${completedSections === sections.length ? 'completed' : ''}`}
                   style={{
-                    background: completedSections === sections.filter(s => !s.isDocViewer).length ? '#10b981' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    background: completedSections === sections.length ? '#10b981' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                     color: '#ffffff',
                     boxShadow: '0 2px 6px rgba(16, 185, 129, 0.25)',
                   }}
@@ -1183,10 +1197,10 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       <span>Generating...</span>
                     </>
-                  ) : completedSections === sections.filter(s => !s.isDocViewer).length ? (
+                  ) : completedSections === sections.length ? (
                     <span>Ready</span>
                   ) : (
-                    <span>Generate ({sections.filter(s => !s.isDocViewer).length - completedSections})</span>
+                    <span>Generate ({sections.length - completedSections})</span>
                   )}
                 </button>
                 <button
@@ -1269,58 +1283,6 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
             onChange={handleInputChange}
             hasInputs={hasInputs}
           />
-        ) : activeTab === 'study-docs' ? (
-          <div className="h-full w-full flex flex-col" style={{ background: 'var(--content-bg-secondary)' }}>
-            {availableDocuments.length === 0 ? (
-              <div className="h-full flex items-center justify-center">
-                <div className="text-center" style={{ color: 'var(--text-muted)' }}>
-                  <svg className="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  <h3 className="text-lg font-medium" style={{ color: 'var(--content-text)' }}>No Study Documents for {activeCompany}</h3>
-                  <p className="text-sm mt-1">Add HTML documents with "{activeCompany}" in the filename</p>
-                  <p className="text-xs mt-2 opacity-60">~/Library/Application Support/Ascend/documents/</p>
-                  <p className="text-xs mt-1 opacity-40">Example: {activeCompany?.toLowerCase().replace(/\s+/g, '_')}_guide.html</p>
-                </div>
-              </div>
-            ) : (
-              <>
-                {availableDocuments.length > 1 && (
-                  <div className="flex items-center gap-2 p-3 border-b" style={{ borderColor: 'var(--border-color)' }}>
-                    <label className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>Document:</label>
-                    <select
-                      value={selectedDocument?.url || ''}
-                      onChange={(e) => {
-                        const doc = availableDocuments.find(d => d.url === e.target.value);
-                        setSelectedDocument(doc);
-                      }}
-                      className="flex-1 px-3 py-1.5 rounded text-sm"
-                      style={{
-                        background: 'var(--input-bg)',
-                        color: 'var(--text-primary)',
-                        border: '1px solid var(--border-color)'
-                      }}
-                    >
-                      {availableDocuments.map(doc => (
-                        <option key={doc.url} value={doc.url}>
-                          {doc.name.replace('.html', '').replace(/_/g, ' ')}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-                <div className="flex-1 bg-[#0c0f14]">
-                  {selectedDocument && (
-                    <webview
-                      src={`${API_URL}${selectedDocument.url}`}
-                      className="w-full h-full"
-                      style={{ background: '#0c0f14' }}
-                    />
-                  )}
-                </div>
-              </>
-            )}
-          </div>
         ) : (
           <OutputPanel
             section={sections.find(s => s.id === activeTab)}
