@@ -29,6 +29,7 @@ export default function Sidebar({
   onOpenAdminPanel,
   stealthMode = false,
   onToggleStealth,
+  theme = 'dark',
 }) {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [designsCollapsed, setDesignsCollapsed] = useState(false);
@@ -68,7 +69,7 @@ export default function Sidebar({
 
   return (
     <div
-      className="sidebar-enterprise"
+      className={`sidebar-enterprise ${theme === 'light' ? 'sidebar-light' : ''}`}
       style={{ width: '260px', minWidth: '260px' }}
     >
       {/* Header with Logo */}

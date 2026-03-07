@@ -1592,6 +1592,99 @@ code, pre, kbd {
 }
 
 /* ============================================
+   SIDEBAR LIGHT THEME
+   Light mode overrides for enterprise sidebar
+   ============================================ */
+
+.sidebar-enterprise.sidebar-light {
+  background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+  color: #1a1a1a;
+  border-right: 1px solid #e5e7eb;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-light .sidebar-header {
+  background: linear-gradient(180deg, rgba(0,0,0,0.01) 0%, transparent 100%);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.sidebar-light .sidebar-logo-text {
+  color: #1a1a1a;
+}
+
+.sidebar-light .sidebar-section-header:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.sidebar-light .sidebar-section-title {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.sidebar-light .sidebar-section-badge {
+  color: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.sidebar-light .sidebar-item {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.sidebar-light .sidebar-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: #1a1a1a;
+}
+
+.sidebar-light .sidebar-item.active {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0.06) 100%);
+  color: #059669;
+  box-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.25);
+}
+
+.sidebar-light .sidebar-divider {
+  background: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.08) 50%, transparent 100%);
+}
+
+.sidebar-light .sidebar-footer {
+  border-top: 1px solid #e5e7eb;
+  background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.02) 100%);
+}
+
+.sidebar-light .sidebar-user {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.sidebar-light .sidebar-user-name {
+  color: #1a1a1a;
+}
+
+.sidebar-light .sidebar-avatar-status {
+  border-color: #ffffff;
+}
+
+.sidebar-light .sidebar-action-btn {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.sidebar-light .sidebar-action-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #1a1a1a;
+}
+
+.sidebar-light .sidebar-collapse-btn {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.sidebar-light .sidebar-collapse-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #1a1a1a;
+}
+
+.sidebar-light .sidebar-toggle {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
    LEGACY SLACK-INSPIRED SIDEBAR STYLES
    Kept for backwards compatibility
    ============================================ */

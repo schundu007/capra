@@ -1487,6 +1487,7 @@ EDGE CASES & RESILIENCE:
           onOpenAdminPanel={() => setShowAdminPanel(true)}
           stealthMode={stealthMode}
           onToggleStealth={() => window.electronAPI?.setStealthMode?.(!stealthMode)}
+          theme={editorSettings.theme}
         />
       )}
 
