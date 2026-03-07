@@ -42,8 +42,22 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
   useEffect(() => {
     async function loadSettings() {
       if (window.electronAPI) {
+        // Electron: load from secure keychain
         const keys = await window.electronAPI.getApiKeys();
         setApiKeys(keys);
+      } else {
+        // Webapp: load from localStorage
+        const anthropic = localStorage.getItem('anthropic_api_key') || '';
+        const openai = localStorage.getItem('openai_api_key') || '';
+        const eraser = localStorage.getItem('eraser_api_key') || '';
+        setApiKeys({
+          anthropic,
+          openai,
+          eraser,
+          hasAnthropic: !!anthropic,
+          hasOpenai: !!openai,
+          hasEraser: !!eraser,
+        });
       }
       setLoading(false);
     }
@@ -51,15 +65,35 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
   }, []);
 
   const handleSaveKey = async (providerName, key) => {
-    if (!window.electronAPI) return;
-    const updated = await window.electronAPI.setApiKeys({ [providerName]: key });
-    setApiKeys(updated);
+    if (window.electronAPI) {
+      // Electron: save to secure keychain
+      const updated = await window.electronAPI.setApiKeys({ [providerName]: key });
+      setApiKeys(updated);
+    } else {
+      // Webapp: save to localStorage
+      localStorage.setItem(`${providerName}_api_key`, key);
+      setApiKeys(prev => ({
+        ...prev,
+        [providerName]: key,
+        [`has${providerName.charAt(0).toUpperCase() + providerName.slice(1)}`]: true,
+      }));
+    }
   };
 
   const handleDeleteKey = async (providerName) => {
-    if (!window.electronAPI) return;
-    const updated = await window.electronAPI.setApiKeys({ [providerName]: null });
-    setApiKeys(updated);
+    if (window.electronAPI) {
+      // Electron: delete from secure keychain
+      const updated = await window.electronAPI.setApiKeys({ [providerName]: null });
+      setApiKeys(updated);
+    } else {
+      // Webapp: delete from localStorage
+      localStorage.removeItem(`${providerName}_api_key`);
+      setApiKeys(prev => ({
+        ...prev,
+        [providerName]: '',
+        [`has${providerName.charAt(0).toUpperCase() + providerName.slice(1)}`]: false,
+      }));
+    }
   };
 
   const handleProviderSwitch = (newProvider) => {
@@ -130,7 +164,7 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
 
         {/* Tab Navigation */}
         <div className="flex px-3 py-2 gap-2" style={{ background: '#f5f5f5', borderBottom: '1px solid #e5e5e5' }}>
-          {TABS.filter(t => t.id !== 'keys' || isElectron).map(tab => (
+          {TABS.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -367,7 +401,7 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
           )}
 
           {/* Keys Tab */}
-          {activeTab === 'keys' && isElectron && (
+          {activeTab === 'keys' && (
             <div className="space-y-3">
               <ApiKeyInput
                 provider="anthropic"
