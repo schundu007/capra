@@ -45,97 +45,106 @@ let autoHideEnabled = true; // Auto-hide when screen sharing detected
 let wasAutoHidden = false; // Track if we auto-hid (vs manual hide)
 let savedBoundsGlobal = null; // Store bounds globally for auto-hide restore
 
-// Detect if video conferencing apps are in active meeting/sharing
+// Detect if video conferencing apps are running (fast process check)
 function checkScreenSharing(callback) {
   if (process.platform !== 'darwin') {
     callback(false);
     return;
   }
 
-  // Check for active video call windows using AppleScript
-  const script = `
-    tell application "System Events"
-      set activeApps to {}
+  // Fast check using pgrep - detects if any video call app is running
+  // Checks for: Zoom, Microsoft Teams, Google Meet (via Chrome), Webex, Slack Huddle
+  const checkCmd = `pgrep -i "zoom|teams|webex|slack" || true`;
 
-      -- Check Zoom
-      if exists (process "zoom.us") then
-        tell process "zoom.us"
-          repeat with w in windows
-            set winName to name of w
-            -- Zoom meeting window typically has "Zoom Meeting" or participant count
-            if winName contains "Zoom Meeting" or winName contains "meeting" or winName contains "Zoom" then
-              set end of activeApps to "zoom"
-            end if
-          end repeat
-        end tell
-      end if
-
-      -- Check Microsoft Teams
-      if exists (process "Microsoft Teams") then
-        set end of activeApps to "teams"
-      end if
-
-      -- Check Google Meet (Chrome window)
-      if exists (process "Google Chrome") then
-        tell process "Google Chrome"
-          repeat with w in windows
-            if name of w contains "Meet" then
-              set end of activeApps to "meet"
-            end if
-          end repeat
-        end tell
-      end if
-
-      -- Check Webex
-      if exists (process "Webex") then
-        set end of activeApps to "webex"
-      end if
-
-      return activeApps
-    end tell
-  `;
-
-  exec(`osascript -e '${script.replace(/'/g, "'\\''")}'`, (error, stdout) => {
+  exec(checkCmd, { timeout: 2000 }, (error, stdout) => {
     if (error) {
       callback(false);
       return;
     }
-    // If any video app is active, return true
-    const hasActiveCall = stdout.trim().length > 0 && stdout.trim() !== '{}';
-    callback(hasActiveCall);
+    // If any process ID returned, video app is running
+    const hasVideoApp = stdout.trim().length > 0;
+    callback(hasVideoApp);
   });
 }
 
 // Start monitoring for screen sharing
 let screenShareMonitorInterval = null;
+let windowDestroyed = false; // Track if we destroyed the window
+
 function startScreenShareMonitor() {
+  // This now runs globally, not tied to mainWindow lifecycle
   if (screenShareMonitorInterval) return;
 
   screenShareMonitorInterval = setInterval(() => {
-    if (!mainWindow || !autoHideEnabled) return;
+    if (!autoHideEnabled) return;
 
     checkScreenSharing((isSharing) => {
-      if (isSharing && windowVisible) {
-        // Auto-hide when sharing detected
+      if (isSharing && mainWindow && !windowDestroyed) {
+        // DESTROY window completely when video call detected
         savedBoundsGlobal = mainWindow.getBounds();
-        mainWindow.setBounds({ x: -10000, y: -10000, width: 100, height: 100 });
-        mainWindow.hide();
+        mainWindow.destroy();
+        mainWindow = null;
         windowVisible = false;
+        windowDestroyed = true;
         wasAutoHidden = true;
-        safeLog('[Stealth] Auto-hidden: video call detected');
-      } else if (!isSharing && !windowVisible && wasAutoHidden) {
-        // Auto-show when sharing ends (only if we auto-hid it)
-        mainWindow.show();
-        if (savedBoundsGlobal) {
-          mainWindow.setBounds(savedBoundsGlobal);
-        }
-        mainWindow.focus();
-        windowVisible = true;
-        wasAutoHidden = false;
-        safeLog('[Stealth] Auto-restored: video call ended');
+        safeLog('[Stealth] Window DESTROYED: video call detected - press Cmd+Shift+W to restore');
+      } else if (!isSharing && windowDestroyed && wasAutoHidden) {
+        // Auto-recreate when video call ends
+        safeLog('[Stealth] Video call ended - recreating window...');
+        createWindowOnly().then(() => {
+          windowDestroyed = false;
+          wasAutoHidden = false;
+          safeLog('[Stealth] Window restored after video call');
+        });
       }
     });
   }, 2000); // Check every 2 seconds
+}
+
+// Create window only (without starting backend - for recreation)
+async function createWindowOnly() {
+  const { BrowserWindow } = await import('electron');
+
+  mainWindow = new BrowserWindow({
+    width: savedBoundsGlobal?.width || 1400,
+    height: savedBoundsGlobal?.height || 900,
+    x: savedBoundsGlobal?.x,
+    y: savedBoundsGlobal?.y,
+    minWidth: 900,
+    minHeight: 600,
+    title: 'Chundu',
+    type: process.platform === 'darwin' ? 'panel' : undefined,
+    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
+    trafficLightPosition: { x: 16, y: 16 },
+    backgroundColor: '#0a1a10',
+    skipTaskbar: true,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.cjs'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+      webviewTag: true,
+    },
+  });
+
+  // Re-apply stealth settings
+  if (stealthModeEnabled) {
+    mainWindow.setContentProtection(true);
+  }
+  if (process.platform === 'darwin') {
+    mainWindow.setHiddenInMissionControl(true);
+  }
+
+  // Load the app
+  const FRONTEND_PORT = 5173;
+  if (isDev) {
+    await mainWindow.loadURL(`http://localhost:${FRONTEND_PORT}`);
+  } else {
+    await mainWindow.loadURL(`http://localhost:${FRONTEND_PORT}`);
+  }
+
+  windowVisible = true;
+  mainWindow.focus();
 }
 
 // Get backend port
@@ -150,15 +159,18 @@ async function createWindow() {
   });
 
   // Create the browser window
+  // Use 'panel' type on macOS to avoid appearing in window picker/screen share lists
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
     minWidth: 900,
     minHeight: 600,
     title: 'Chundu',
+    type: process.platform === 'darwin' ? 'panel' : undefined, // Panel doesn't show in window picker
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     trafficLightPosition: { x: 16, y: 16 },
     backgroundColor: '#0a1a10', // dark green
+    skipTaskbar: true, // Don't show in taskbar/dock window list
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
@@ -219,9 +231,6 @@ async function createWindow() {
 
   mainWindow.webContents.on('did-finish-load', () => {
     safeLog('[Electron] Frontend loaded successfully');
-    // Start monitoring for screen sharing to auto-hide
-    startScreenShareMonitor();
-    safeLog('[Stealth] Screen share monitor started - will auto-hide during video calls');
   });
 
   mainWindow.webContents.on('console-message', (event, level, message) => {
@@ -496,6 +505,10 @@ app.whenReady().then(async () => {
   createAppMenu();
   await createWindow();
 
+  // Start screen share monitor globally (runs even when window is destroyed)
+  startScreenShareMonitor();
+  safeLog('[Stealth] Screen share monitor started globally');
+
   // Set up account auth handlers (needs mainWindow)
   setupAccountAuthHandlers(mainWindow);
 
@@ -550,35 +563,38 @@ app.whenReady().then(async () => {
 
   // Register Cmd+Shift+W for "work mode" - disable auto-hide for 60 seconds
   let workModeTimeout = null;
-  globalShortcut.register('CommandOrControl+Shift+W', () => {
-    if (mainWindow) {
-      // Disable auto-hide
-      autoHideEnabled = false;
-      wasAutoHidden = false;
+  globalShortcut.register('CommandOrControl+Shift+W', async () => {
+    // Disable auto-hide
+    autoHideEnabled = false;
+    wasAutoHidden = false;
 
-      // Show window if hidden
-      if (!windowVisible) {
-        mainWindow.show();
-        if (savedBoundsGlobal) {
-          mainWindow.setBounds(savedBoundsGlobal);
-        }
-        mainWindow.focus();
-        windowVisible = true;
+    // If window was destroyed, recreate it
+    if (!mainWindow || windowDestroyed) {
+      safeLog('[Stealth] WORK MODE: Recreating destroyed window...');
+      await createWindowOnly();
+      windowDestroyed = false;
+    } else if (!windowVisible) {
+      // Show window if just hidden
+      mainWindow.show();
+      if (savedBoundsGlobal) {
+        mainWindow.setBounds(savedBoundsGlobal);
       }
-
-      safeLog('[Stealth] WORK MODE: Auto-hide disabled for 60 seconds');
-
-      // Clear any existing timeout
-      if (workModeTimeout) {
-        clearTimeout(workModeTimeout);
-      }
-
-      // Re-enable auto-hide after 60 seconds
-      workModeTimeout = setTimeout(() => {
-        autoHideEnabled = true;
-        safeLog('[Stealth] Work mode ended - auto-hide re-enabled');
-      }, 60000);
+      mainWindow.focus();
+      windowVisible = true;
     }
+
+    safeLog('[Stealth] WORK MODE: Auto-hide disabled for 60 seconds');
+
+    // Clear any existing timeout
+    if (workModeTimeout) {
+      clearTimeout(workModeTimeout);
+    }
+
+    // Re-enable auto-hide after 60 seconds
+    workModeTimeout = setTimeout(() => {
+      autoHideEnabled = true;
+      safeLog('[Stealth] Work mode ended - auto-hide re-enabled');
+    }, 60000);
   });
 
   // macOS: Re-create window when dock icon is clicked, or show existing window
