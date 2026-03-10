@@ -1,7 +1,8 @@
 // IMPORTANT: Import EPIPE handler first before any other imports
 import './epipe-handler.js';
 
-import { app, BrowserWindow, ipcMain, Menu, shell, safeStorage, nativeTheme, session, desktopCapturer, screen, globalShortcut } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu, shell, safeStorage, nativeTheme, session, desktopCapturer, screen, globalShortcut, systemPreferences } from 'electron';
+import { exec } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import os from 'os';
@@ -38,8 +39,104 @@ let backendServer = null;
 const isDev = !app.isPackaged;
 
 // Stealth mode state
-let stealthModeEnabled = false; // Default OFF to allow screenshots (toggle with Cmd+Shift+S)
+let stealthModeEnabled = true; // Default ON for interview safety (toggle with Cmd+Shift+S)
 let windowVisible = true;
+let autoHideEnabled = true; // Auto-hide when screen sharing detected
+let wasAutoHidden = false; // Track if we auto-hid (vs manual hide)
+let savedBoundsGlobal = null; // Store bounds globally for auto-hide restore
+
+// Detect if video conferencing apps are in active meeting/sharing
+function checkScreenSharing(callback) {
+  if (process.platform !== 'darwin') {
+    callback(false);
+    return;
+  }
+
+  // Check for active video call windows using AppleScript
+  const script = `
+    tell application "System Events"
+      set activeApps to {}
+
+      -- Check Zoom
+      if exists (process "zoom.us") then
+        tell process "zoom.us"
+          repeat with w in windows
+            set winName to name of w
+            -- Zoom meeting window typically has "Zoom Meeting" or participant count
+            if winName contains "Zoom Meeting" or winName contains "meeting" or winName contains "Zoom" then
+              set end of activeApps to "zoom"
+            end if
+          end repeat
+        end tell
+      end if
+
+      -- Check Microsoft Teams
+      if exists (process "Microsoft Teams") then
+        set end of activeApps to "teams"
+      end if
+
+      -- Check Google Meet (Chrome window)
+      if exists (process "Google Chrome") then
+        tell process "Google Chrome"
+          repeat with w in windows
+            if name of w contains "Meet" then
+              set end of activeApps to "meet"
+            end if
+          end repeat
+        end tell
+      end if
+
+      -- Check Webex
+      if exists (process "Webex") then
+        set end of activeApps to "webex"
+      end if
+
+      return activeApps
+    end tell
+  `;
+
+  exec(`osascript -e '${script.replace(/'/g, "'\\''")}'`, (error, stdout) => {
+    if (error) {
+      callback(false);
+      return;
+    }
+    // If any video app is active, return true
+    const hasActiveCall = stdout.trim().length > 0 && stdout.trim() !== '{}';
+    callback(hasActiveCall);
+  });
+}
+
+// Start monitoring for screen sharing
+let screenShareMonitorInterval = null;
+function startScreenShareMonitor() {
+  if (screenShareMonitorInterval) return;
+
+  screenShareMonitorInterval = setInterval(() => {
+    if (!mainWindow || !autoHideEnabled) return;
+
+    checkScreenSharing((isSharing) => {
+      if (isSharing && windowVisible) {
+        // Auto-hide when sharing detected
+        savedBoundsGlobal = mainWindow.getBounds();
+        mainWindow.setBounds({ x: -10000, y: -10000, width: 100, height: 100 });
+        mainWindow.hide();
+        windowVisible = false;
+        wasAutoHidden = true;
+        safeLog('[Stealth] Auto-hidden: video call detected');
+      } else if (!isSharing && !windowVisible && wasAutoHidden) {
+        // Auto-show when sharing ends (only if we auto-hid it)
+        mainWindow.show();
+        if (savedBoundsGlobal) {
+          mainWindow.setBounds(savedBoundsGlobal);
+        }
+        mainWindow.focus();
+        windowVisible = true;
+        wasAutoHidden = false;
+        safeLog('[Stealth] Auto-restored: video call ended');
+      }
+    });
+  }, 2000); // Check every 2 seconds
+}
 
 // Get backend port
 const BACKEND_PORT = 3001;
@@ -122,6 +219,9 @@ async function createWindow() {
 
   mainWindow.webContents.on('did-finish-load', () => {
     safeLog('[Electron] Frontend loaded successfully');
+    // Start monitoring for screen sharing to auto-hide
+    startScreenShareMonitor();
+    safeLog('[Stealth] Screen share monitor started - will auto-hide during video calls');
   });
 
   mainWindow.webContents.on('console-message', (event, level, message) => {
@@ -187,6 +287,12 @@ async function createWindow() {
     safeLog('[Stealth] Content protection enabled - window hidden from screen capture');
   }
 
+  // Additional stealth: Hide from Mission Control and App Exposé on macOS
+  if (process.platform === 'darwin') {
+    mainWindow.setHiddenInMissionControl(true);
+    safeLog('[Stealth] Hidden from Mission Control');
+  }
+
   // Enable right-click context menu with copy/paste
   mainWindow.webContents.on('context-menu', (event, params) => {
     const { editFlags, isEditable, selectionText } = params;
@@ -208,14 +314,21 @@ async function createWindow() {
     } else if (selectionText) {
       // Text is selected but not in an editable field
       menuTemplate.push(
-        { role: 'copy', enabled: editFlags.canCopy }
+        { role: 'copy', enabled: editFlags.canCopy },
+        { type: 'separator' },
+        { role: 'selectAll' }
+      );
+    } else {
+      // No selection, no editable - still show basic menu
+      menuTemplate.push(
+        { role: 'selectAll' },
+        { type: 'separator' },
+        { role: 'paste', enabled: editFlags.canPaste }
       );
     }
 
-    if (menuTemplate.length > 0) {
-      const contextMenu = Menu.buildFromTemplate(menuTemplate);
-      contextMenu.popup({ window: mainWindow });
-    }
+    const contextMenu = Menu.buildFromTemplate(menuTemplate);
+    contextMenu.popup({ window: mainWindow });
   });
 
   // Set up header modification for LockedIn AI webview to bypass X-Frame-Options
@@ -399,17 +512,27 @@ app.whenReady().then(async () => {
   }
 
   // STEALTH MODE: Global hotkey to toggle window visibility (Cmd+Shift+H)
+  // Stores window bounds before hiding for restoration
+  let savedBounds = null;
   globalShortcut.register('CommandOrControl+Shift+H', () => {
     if (mainWindow) {
       if (windowVisible) {
+        // Save current position/size before hiding
+        savedBounds = mainWindow.getBounds();
+        // Move off-screen AND hide (belt and suspenders)
+        mainWindow.setBounds({ x: -10000, y: -10000, width: 100, height: 100 });
         mainWindow.hide();
         windowVisible = false;
-        safeLog('[Stealth] Window hidden via hotkey');
+        safeLog('[Stealth] Window hidden and moved off-screen');
       } else {
         mainWindow.show();
+        // Restore original position/size
+        if (savedBounds) {
+          mainWindow.setBounds(savedBounds);
+        }
         mainWindow.focus();
         windowVisible = true;
-        safeLog('[Stealth] Window shown via hotkey');
+        safeLog('[Stealth] Window restored');
       }
     }
   });
@@ -422,6 +545,39 @@ app.whenReady().then(async () => {
       safeLog('[Stealth] Content protection:', stealthModeEnabled ? 'ON' : 'OFF');
       // Notify renderer
       mainWindow.webContents.send('stealth-mode-changed', stealthModeEnabled);
+    }
+  });
+
+  // Register Cmd+Shift+W for "work mode" - disable auto-hide for 60 seconds
+  let workModeTimeout = null;
+  globalShortcut.register('CommandOrControl+Shift+W', () => {
+    if (mainWindow) {
+      // Disable auto-hide
+      autoHideEnabled = false;
+      wasAutoHidden = false;
+
+      // Show window if hidden
+      if (!windowVisible) {
+        mainWindow.show();
+        if (savedBoundsGlobal) {
+          mainWindow.setBounds(savedBoundsGlobal);
+        }
+        mainWindow.focus();
+        windowVisible = true;
+      }
+
+      safeLog('[Stealth] WORK MODE: Auto-hide disabled for 60 seconds');
+
+      // Clear any existing timeout
+      if (workModeTimeout) {
+        clearTimeout(workModeTimeout);
+      }
+
+      // Re-enable auto-hide after 60 seconds
+      workModeTimeout = setTimeout(() => {
+        autoHideEnabled = true;
+        safeLog('[Stealth] Work mode ended - auto-hide re-enabled');
+      }, 60000);
     }
   });
 
@@ -585,14 +741,21 @@ ipcMain.handle('open-ascend-prep', async () => {
       );
     } else if (selectionText) {
       menuTemplate.push(
-        { role: 'copy', enabled: editFlags.canCopy }
+        { role: 'copy', enabled: editFlags.canCopy },
+        { type: 'separator' },
+        { role: 'selectAll' }
+      );
+    } else {
+      // No selection, no editable - still show basic menu
+      menuTemplate.push(
+        { role: 'selectAll' },
+        { type: 'separator' },
+        { role: 'paste', enabled: editFlags.canPaste }
       );
     }
 
-    if (menuTemplate.length > 0) {
-      const contextMenu = Menu.buildFromTemplate(menuTemplate);
-      contextMenu.popup({ window: interviewPrepWindow });
-    }
+    const contextMenu = Menu.buildFromTemplate(menuTemplate);
+    contextMenu.popup({ window: interviewPrepWindow });
   });
 
   interviewPrepWindow.on('closed', () => {
