@@ -250,9 +250,9 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
   const lastTranscribedChunkIndexRef = useRef(0); // Track which chunk index we've transcribed up to
   const headerChunksRef = useRef([]); // Store the first few chunks that contain file headers
   const VAD_THRESHOLD = 0.03; // Lower threshold - more sensitive to speech
-  const SILENCE_DURATION = 1200; // 1.2s silence to end segment (was 1.8s)
-  const MIN_SPEECH_DURATION = 500; // 0.5s minimum speech (was 0.8s)
-  const TRANSCRIPTION_COOLDOWN = 1500; // 1.5s between transcriptions (was 2s)
+  const SILENCE_DURATION = 1500; // 1.5s silence to end segment
+  const MIN_SPEECH_DURATION = 800; // 0.8s minimum speech
+  const TRANSCRIPTION_COOLDOWN = 4000; // 4s between transcriptions to avoid rate limits
   const periodicTranscribeRef = useRef(null); // Periodic transcription timer
   const lastTranscriptionTimeRef = useRef(0); // Track when we last transcribed
   const askedQuestionsRef = useRef(new Set()); // Track all asked questions to prevent duplicates
@@ -263,7 +263,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
   // Live transcript - shows everything being captured
   const [liveTranscript, setLiveTranscript] = useState('');
   const fullTranscriptRef = useRef(''); // Accumulate full transcript
-  const PERIODIC_TRANSCRIBE_INTERVAL = 4000; // Transcribe every 4 seconds
+  const PERIODIC_TRANSCRIBE_INTERVAL = 6000; // Transcribe every 6 seconds to avoid rate limits
 
   // Conversation history - persisted to localStorage
   const [conversationHistory, setConversationHistory] = useState([]);
@@ -881,8 +881,8 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
       // Request data frequently for responsive VAD
       mediaRecorder.start(200);
 
-      // PERIODIC TRANSCRIPTION - transcribe every 4 seconds regardless of VAD
-      // This ensures we don't miss anything
+      // PERIODIC TRANSCRIPTION - transcribe every 6 seconds regardless of VAD
+      // This ensures we don't miss anything while avoiding rate limits
       periodicTranscribeRef.current = setInterval(() => {
         if (!isRecordingRef.current || isPausedRef.current) return;
 
@@ -1056,7 +1056,6 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
     let fullAnswer = ''; // Track full answer for history
 
     try {
-      console.log('[Answer] Starting fetch to:', `${API_URL}/api/ascend/answer`);
       const response = await fetch(`${API_URL}/api/ascend/answer`, {
         method: 'POST',
         headers: {
@@ -1073,14 +1072,11 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
         }),
       });
 
-      console.log('[Answer] Response received:', response.status, response.ok);
-
       if (!response.ok) {
         throw new Error('Failed to generate answer');
       }
 
       const reader = response.body.getReader();
-      console.log('[Answer] Got reader, starting to read stream');
       const decoder = new TextDecoder();
       let buffer = '';
 
@@ -1117,21 +1113,18 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
         saveToHistory(text, fullAnswer);
       }
     } catch (err) {
-      console.error('[Answer] Error:', err.message, err);
       setError('Failed to generate answer: ' + err.message);
     } finally {
-      console.log('[Answer] Finally block - cleaning up');
       // Check if there are pending questions to process (FIFO)
       if (pendingQuestionsRef.current.length > 0) {
         const pendingText = pendingQuestionsRef.current.shift(); // Get first in queue
         console.log('[AutoAnswer] Processing queued question:', pendingText.substring(0, 30) + '...', `(${pendingQuestionsRef.current.length} remaining)`);
         // CRITICAL: Reset isGeneratingRef BEFORE calling generateAnswerForText
-        // Otherwise it will think it's still generating and re-queue the question
         setTimeout(() => {
-          isGeneratingRef.current = false; // Reset so the next call can proceed
+          isGeneratingRef.current = false;
           lastAnsweredTextRef.current = pendingText;
           generateAnswerForText(pendingText);
-        }, 100); // Small delay to let UI update
+        }, 100);
       } else {
         // Queue is empty, fully reset
         isGeneratingRef.current = false;
@@ -1228,8 +1221,6 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
     askedQuestionsRef.current = new Set();
     allChunksRef.current = [];
     headerChunksRef.current = [];
-    pendingQuestionsRef.current = []; // Clear question queue
-    isGeneratingRef.current = false; // Reset generating state
     if (autoAnswerTimeoutRef.current) {
       clearTimeout(autoAnswerTimeoutRef.current);
     }
@@ -1381,299 +1372,309 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
       <input type="file" ref={prepFileRef} className="hidden" accept=".pdf,.doc,.docx,.txt"
         onChange={(e) => { if (e.target.files?.[0]) { handleFileUpload(e.target.files[0], setPrepMaterial, 'prep'); e.target.value = ''; }}} />
 
-      {/* Compact Controls Bar */}
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-neutral-700/50 bg-neutral-800">
-        {/* Docs Pills */}
-        <div className="flex gap-1">
-          <button
-            onClick={() => setExpandedContext(expandedContext === 'jd' ? null : 'jd')}
-            className={`px-2.5 py-1 rounded text-[10px] font-medium transition-all flex items-center gap-1 ${
-              expandedContext === 'jd' ? 'bg-info-500 text-white' : jobDescription ? 'bg-info-500/20 text-info-400' : 'bg-neutral-700 text-neutral-400 hover:bg-neutral-600'
-            }`}
-          >
-            JD {jobDescription && <span className="w-1 h-1 rounded-full bg-current" />}
-          </button>
-          <button
-            onClick={() => setExpandedContext(expandedContext === 'resume' ? null : 'resume')}
-            className={`px-2.5 py-1 rounded text-[10px] font-medium transition-all flex items-center gap-1 ${
-              expandedContext === 'resume' ? 'bg-info-500 text-white' : resume ? 'bg-info-500/20 text-info-400' : 'bg-neutral-700 text-neutral-400 hover:bg-neutral-600'
-            }`}
-          >
-            CV {resume && <span className="w-1 h-1 rounded-full bg-current" />}
-          </button>
-          <button
-            onClick={() => setExpandedContext(expandedContext === 'prep' ? null : 'prep')}
-            className={`px-2.5 py-1 rounded text-[10px] font-medium transition-all flex items-center gap-1 ${
-              expandedContext === 'prep' ? 'bg-info-500 text-white' : prepMaterial ? 'bg-info-500/20 text-info-400' : 'bg-neutral-700 text-neutral-400 hover:bg-neutral-600'
-            }`}
-          >
-            Prep {prepMaterial && <span className="w-1 h-1 rounded-full bg-current" />}
-          </button>
-        </div>
-
-        <div className="w-px h-4 bg-neutral-700" />
-
-        {/* Audio Source Toggle */}
-        <div className="flex gap-1">
-          <button
-            onClick={() => setAudioSource('system')}
-            disabled={isRecording}
-            className={`px-2.5 py-1 rounded text-[10px] font-medium transition-all disabled:opacity-50 ${
-              audioSource === 'system' ? 'bg-brand-400 text-neutral-900' : 'bg-neutral-700 text-neutral-400 hover:bg-neutral-600'
-            }`}
-          >
-            Interviewer
-          </button>
-          <button
-            onClick={() => setAudioSource('mic')}
-            disabled={isRecording}
-            className={`px-2.5 py-1 rounded text-[10px] font-medium transition-all disabled:opacity-50 ${
-              audioSource === 'mic' ? 'bg-brand-400 text-neutral-900' : 'bg-neutral-700 text-neutral-400 hover:bg-neutral-600'
-            }`}
-          >
-            Mic
-          </button>
-        </div>
-
-        {/* Spacer */}
-        <div className="flex-1" />
-
-        {/* Device selector */}
-        {audioSource === 'mic' && audioDevices.inputs.length > 1 && (
-          <select
-            value={selectedMic}
-            onChange={(e) => setSelectedMic(e.target.value)}
-            disabled={isRecording}
-            className="px-2 py-1 rounded text-[10px] bg-neutral-700 border border-neutral-600 text-neutral-300 focus:outline-none disabled:opacity-50 max-w-[150px] truncate"
-          >
-            {audioDevices.inputs.map((device) => (
-              <option key={device.deviceId} value={device.deviceId}>
-                {device.label || `Mic ${device.deviceId.slice(0, 6)}`}
-              </option>
-            ))}
-          </select>
-        )}
-        {audioSource === 'system' && audioDevices.outputs.length > 0 && (
-          <select
-            value={selectedSpeaker}
-            onChange={(e) => setSelectedSpeaker(e.target.value)}
-            disabled={isRecording}
-            className="px-2 py-1 rounded text-[10px] bg-neutral-700 border border-neutral-600 text-neutral-300 focus:outline-none disabled:opacity-50 max-w-[150px] truncate"
-          >
-            {audioDevices.outputs.map((device) => (
-              <option key={device.deviceId} value={device.deviceId}>
-                {device.label || `Speaker ${device.deviceId.slice(0, 6)}`}
-              </option>
-            ))}
-          </select>
-        )}
-
-        {/* Recording Controls */}
-        {!isRecording ? (
-          <button
-            onClick={startRecording}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]"
-            style={{
-              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-              color: '#ffffff',
-              boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)',
-            }}
-          >
-            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="5" />
-            </svg>
-            Start
-          </button>
-        ) : (
-          <div className="flex items-center gap-2">
-            {/* Audio level bar */}
-            <div className="w-16 h-1.5 bg-neutral-700 rounded-full overflow-hidden">
-              <div
-                className="h-full transition-all duration-75 rounded-full"
-                style={{
-                  width: `${Math.min(audioLevel * 100 * 3, 100)}%`,
-                  background: isSpeaking ? '#2dd4bf' : '#64748b'
-                }}
-              />
-            </div>
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-error-500/10 border border-error-500/30">
-              <div className="w-1.5 h-1.5 rounded-full bg-error-500 animate-pulse" />
-              <span className="text-[10px] font-mono text-error-400">{formatDuration(recordingDuration)}</span>
-              {isSpeaking && <span className="text-[10px] text-brand-400">●</span>}
-            </div>
+      {/* Top Strip: Two Cards Side by Side */}
+      <div className="flex border-b border-neutral-700/50">
+        {/* DOCS SECTION (LEFT) */}
+        <div className="flex-1 p-2 bg-neutral-800 border-r border-neutral-700/50">
+          <div className="flex gap-1">
             <button
-              onClick={togglePause}
-              className={`p-1.5 rounded transition-colors ${isPaused ? 'bg-brand-400 text-neutral-900' : 'bg-warning-500 text-white'}`}
-              title={isPaused ? 'Resume' : 'Pause'}
+              onClick={() => setExpandedContext(expandedContext === 'jd' ? null : 'jd')}
+              className={`flex-1 py-2 rounded-lg text-[10px] font-medium transition-all flex items-center justify-center gap-1 ${
+                expandedContext === 'jd' ? 'bg-info-500 text-white' : jobDescription ? 'bg-info-500/20 text-info-400 border border-info-500/50' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+              }`}
             >
-              {isPaused ? (
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-              ) : (
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-              )}
+              JD {jobDescription && <span className="w-1.5 h-1.5 rounded-full bg-current" />}
             </button>
             <button
-              onClick={stopRecording}
-              className="p-1.5 rounded bg-neutral-600 text-white hover:bg-neutral-500 transition-colors"
-              title="Stop"
+              onClick={() => setExpandedContext(expandedContext === 'resume' ? null : 'resume')}
+              className={`flex-1 py-2 rounded-lg text-[10px] font-medium transition-all flex items-center justify-center gap-1 ${
+                expandedContext === 'resume' ? 'bg-info-500 text-white' : resume ? 'bg-info-500/20 text-info-400 border border-info-500/50' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+              }`}
             >
-              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
+              CV {resume && <span className="w-1.5 h-1.5 rounded-full bg-current" />}
             </button>
             <button
-              onClick={clearAll}
-              className="p-1.5 rounded text-neutral-500 hover:text-neutral-300 hover:bg-neutral-700 transition-colors"
-              title="Clear all"
+              onClick={() => setExpandedContext(expandedContext === 'prep' ? null : 'prep')}
+              className={`flex-1 py-2 rounded-lg text-[10px] font-medium transition-all flex items-center justify-center gap-1 ${
+                expandedContext === 'prep' ? 'bg-info-500 text-white' : prepMaterial ? 'bg-info-500/20 text-info-400 border border-info-500/50' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+              }`}
             >
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
+              Prep {prepMaterial && <span className="w-1.5 h-1.5 rounded-full bg-current" />}
             </button>
           </div>
-        )}
+          {/* Expanded doc input */}
+          {expandedContext && (
+            <div className="mt-2 flex gap-2 items-start">
+              <textarea
+                value={expandedContext === 'jd' ? jobDescription : expandedContext === 'resume' ? resume : prepMaterial}
+                onChange={(e) => {
+                  if (expandedContext === 'jd') setJobDescription(e.target.value);
+                  else if (expandedContext === 'resume') setResume(e.target.value);
+                  else setPrepMaterial(e.target.value);
+                }}
+                placeholder={expandedContext === 'jd' ? 'Paste JD...' : expandedContext === 'resume' ? 'Paste resume...' : 'Prep notes...'}
+                className="flex-1 h-20 px-2 py-1.5 text-[10px] bg-neutral-700 border border-neutral-600 rounded text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-info-500 resize-none"
+              />
+              <div className="flex flex-col gap-1">
+                <button
+                  onClick={() => {
+                    if (expandedContext === 'jd') jdFileRef.current?.click();
+                    else if (expandedContext === 'resume') resumeFileRef.current?.click();
+                    else prepFileRef.current?.click();
+                  }}
+                  className="p-2 rounded-lg bg-neutral-700 hover:bg-info-500/20 text-neutral-400 hover:text-info-400 border border-neutral-600"
+                  title="Upload PDF/DOCX"
+                >
+                  {uploadingFile === expandedContext ? (
+                    <div className="w-4 h-4 border-2 border-info-400 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                  )}
+                </button>
+                <button
+                  onClick={() => {
+                    if (expandedContext === 'jd') setJobDescription('');
+                    else if (expandedContext === 'resume') setResume('');
+                    else setPrepMaterial('');
+                  }}
+                  className="p-2 rounded-lg bg-neutral-700 hover:bg-error-500/20 text-neutral-400 hover:text-error-400 border border-neutral-600"
+                  title="Clear"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* VOICE SECTION (RIGHT) */}
+        <div className="flex-1 p-2 bg-neutral-800">
+          <div className="flex gap-1">
+            <button
+              onClick={() => setAudioSource('system')}
+              disabled={isRecording}
+              className={`flex-1 py-2 rounded-lg text-[10px] font-medium transition-all disabled:opacity-50 ${
+                audioSource === 'system'
+                  ? 'bg-brand-400 text-neutral-900'
+                  : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+              }`}
+            >
+              Interviewer
+            </button>
+            <button
+              onClick={() => setAudioSource('mic')}
+              disabled={isRecording}
+              className={`flex-1 py-2 rounded-lg text-[10px] font-medium transition-all disabled:opacity-50 ${
+                audioSource === 'mic'
+                  ? 'bg-brand-400 text-neutral-900'
+                  : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+              }`}
+            >
+              Speaker
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Expanded doc input (shows below controls when active) */}
-      {expandedContext && (
-        <div className="px-3 py-2 border-b border-neutral-700/50 bg-neutral-800/50">
-          <div className="flex gap-2 items-start">
-            <textarea
-              value={expandedContext === 'jd' ? jobDescription : expandedContext === 'resume' ? resume : prepMaterial}
-              onChange={(e) => {
-                if (expandedContext === 'jd') setJobDescription(e.target.value);
-                else if (expandedContext === 'resume') setResume(e.target.value);
-                else setPrepMaterial(e.target.value);
+      {/* Voice Controls Container */}
+      <div className="border-b border-neutral-700/50 bg-neutral-800 flex justify-center">
+        <div className="w-full max-w-md px-4 py-3 space-y-3">
+          {/* Mic Selection */}
+          {audioSource === 'mic' && audioDevices.inputs.length > 1 && (
+            <select
+              value={selectedMic}
+              onChange={(e) => setSelectedMic(e.target.value)}
+              disabled={isRecording}
+              className="w-full px-2 py-1.5 rounded text-xs focus:outline-none disabled:opacity-50 truncate bg-neutral-700 border border-neutral-600/50 text-neutral-200"
+            >
+              {audioDevices.inputs.map((device) => (
+                <option key={device.deviceId} value={device.deviceId}>
+                  {device.label || `Mic ${device.deviceId.slice(0, 6)}`}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {/* Record Button */}
+          {!isRecording ? (
+            <button
+              onClick={startRecording}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+              style={{
+                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                color: '#ffffff',
+                boxShadow: '0 4px 12px rgba(239, 68, 68, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
               }}
-              placeholder={expandedContext === 'jd' ? 'Paste job description...' : expandedContext === 'resume' ? 'Paste resume/CV...' : 'Prep notes...'}
-              className="flex-1 h-16 px-2 py-1.5 text-xs bg-neutral-700 border border-neutral-600 rounded text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-info-500 resize-none"
-            />
-            <div className="flex flex-col gap-1">
-              <button
-                onClick={() => {
-                  if (expandedContext === 'jd') jdFileRef.current?.click();
-                  else if (expandedContext === 'resume') resumeFileRef.current?.click();
-                  else prepFileRef.current?.click();
-                }}
-                className="p-1.5 rounded bg-neutral-700 hover:bg-info-500/20 text-neutral-400 hover:text-info-400 border border-neutral-600"
-                title="Upload PDF/DOCX"
-              >
-                {uploadingFile === expandedContext ? (
-                  <div className="w-3.5 h-3.5 border-2 border-info-400 border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                  </svg>
-                )}
-              </button>
-              <button
-                onClick={() => {
-                  if (expandedContext === 'jd') setJobDescription('');
-                  else if (expandedContext === 'resume') setResume('');
-                  else setPrepMaterial('');
-                }}
-                className="p-1.5 rounded bg-neutral-700 hover:bg-error-500/20 text-neutral-400 hover:text-error-400 border border-neutral-600"
-                title="Clear"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="6" />
+              </svg>
+              Start
+            </button>
+          ) : (
+            <div className="w-full">
+              {/* Recording Status */}
+              <div className="flex items-center justify-between mb-2 px-2 py-1.5 rounded-lg bg-error-500/10 border border-error-500/30">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-error-500 animate-pulse" />
+                  <span className="text-xs font-medium text-error-400">Recording {audioSource === 'system' ? 'Interviewer' : 'Mic'}...</span>
+                  <span className="text-xs font-mono text-error-300">{formatDuration(recordingDuration)}</span>
+                </div>
+                {isSpeaking && <span className="text-[10px] text-brand-400 bg-brand-400/10 px-2 py-0.5 rounded">Speaking</span>}
+              </div>
 
-      {/* Content - Side by Side Layout */}
-      <div className="flex-1 overflow-hidden flex">
-        {/* Left Panel: Questions */}
-        <div className="w-[280px] min-w-[280px] flex flex-col border-r border-neutral-700/50 bg-neutral-800/50">
-          <div className="px-3 py-2 flex items-center justify-between border-b border-neutral-700/50 bg-neutral-800">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
-              Questions
-            </span>
-            {questions.length > 0 && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-info-500/20 text-info-400 font-medium">
-                {questions.length}
-              </span>
-            )}
-          </div>
-          <div className="flex-1 overflow-y-auto p-2">
-            {questions.length > 0 ? (
-              <div className="space-y-2">
-                {questions.map((q, idx) => (
+              {/* Audio Level Indicator */}
+              <div className="flex items-center gap-1 mb-2">
+                <span className="text-[9px] text-neutral-500">Level:</span>
+                <div className="flex-1 h-2 bg-neutral-700 rounded-full overflow-hidden">
                   <div
-                    key={idx}
-                    className={`px-3 py-2 rounded-lg border-l-2 animate-fadeIn transition-all ${
-                      idx === questions.length - 1
-                        ? 'bg-info-500/10 border-info-400'
-                        : 'bg-neutral-700/30 border-neutral-600'
-                    }`}
-                  >
-                    <p className="text-xs leading-relaxed text-neutral-200">
-                      <span className={`font-semibold mr-1.5 ${idx === questions.length - 1 ? 'text-info-400' : 'text-neutral-500'}`}>
-                        Q{idx + 1}.
-                      </span>
-                      {q}
-                    </p>
-                  </div>
-                ))}
+                    className="h-full transition-all duration-75 rounded-full"
+                    style={{
+                      width: `${Math.min(audioLevel * 100 * 3, 100)}%`,
+                      background: isSpeaking ? 'linear-gradient(90deg, #2dd4bf, #14b8a6)' : '#64748b'
+                    }}
+                  />
+                </div>
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full text-center">
-                <svg className="w-8 h-8 text-neutral-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p className="text-[11px] text-neutral-500">
-                  {isRecording
-                    ? (isSpeaking ? 'Listening to speech...' : 'Waiting for speech...')
-                    : 'Click Start to begin'}
-                </p>
+
+              {/* Stop/Pause Controls */}
+              <div className="flex gap-2">
+                <button
+                  onClick={togglePause}
+                  className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                    isPaused ? 'bg-brand-400 text-neutral-900' : 'bg-warning-500 text-white'
+                  }`}
+                >
+                  {isPaused ? (
+                    <>
+                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                      Resume
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                        <rect x="6" y="4" width="4" height="16" rx="1"/>
+                        <rect x="14" y="4" width="4" height="16" rx="1"/>
+                      </svg>
+                      Pause
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={stopRecording}
+                  className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors bg-neutral-600 text-white hover:bg-neutral-500"
+                >
+                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                    <rect x="6" y="6" width="12" height="12" rx="1"/>
+                  </svg>
+                  Stop
+                </button>
+                <button
+                  onClick={clearAll}
+                  className="px-3 py-2 rounded-lg transition-colors text-neutral-400 hover:text-neutral-200 hover:bg-neutral-700"
+                  title="Clear"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
               </div>
-            )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Content - Compact */}
+      <div className="flex-1 overflow-hidden flex flex-col">
+        {/* Questions Section - Compact, max 25% height */}
+        <div className="shrink-0 max-h-[25%] border-b border-neutral-700/50">
+          <div className="h-full flex flex-col">
+            <div className="px-3 py-1 flex items-center justify-between border-b border-neutral-700/50 bg-neutral-800">
+              <span className="text-[10px] font-medium uppercase tracking-wider text-neutral-400">
+                Questions
+              </span>
+              {questions.length > 0 && (
+                <span className="text-[10px] text-neutral-500">
+                  {questions.length}
+                </span>
+              )}
+            </div>
+            <div className="flex-1 overflow-y-auto p-1.5 bg-neutral-750">
+              {questions.length > 0 ? (
+                <div className="space-y-1">
+                  {/* Only show last 3 questions to avoid clutter */}
+                  {questions.slice(-3).map((q, idx) => {
+                    const questionNum = questions.length - 2 + idx; // Adjust numbering for slice
+                    const actualNum = Math.max(1, questionNum);
+                    return (
+                      <div key={actualNum} className="px-2 py-1 rounded bg-neutral-700/30 border-l-2 border-info-400 animate-fadeIn">
+                        <p className="text-[11px] leading-snug text-neutral-200">
+                          <span className="text-info-400 font-medium mr-1">Q{actualNum}.</span>
+                          {q}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-[10px] italic text-neutral-500">
+                  {isRecording ? (isSpeaking ? 'Listening...' : 'Waiting...') : 'Click Record'}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Right Panel: Answer (Main Focus) */}
-        <div className="flex-1 min-w-0 flex flex-col bg-neutral-800/30">
-          <div className="px-4 py-2 flex items-center justify-between border-b border-neutral-700/50 bg-gradient-to-r from-brand-500/10 to-transparent">
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded bg-brand-400/20 flex items-center justify-center">
-                <svg className="w-3 h-3 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
-              </div>
-              <span className="text-xs font-semibold text-neutral-200">Answer</span>
-            </div>
-            {isGenerating && (
-              <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-brand-400/10">
-                <div className="w-2 h-2 border-2 border-brand-400 border-t-transparent rounded-full animate-spin" />
-                <span className="text-[10px] text-brand-400">Generating...</span>
-              </div>
-            )}
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            {answer ? (
-              <div className="p-4">
-                <div className="prose prose-sm prose-invert max-w-none answer-content">
-                  {renderMarkdown(answer)}
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full text-center px-8">
-                <div className="w-14 h-14 rounded-full bg-neutral-700/50 flex items-center justify-center mb-4">
-                  <svg className="w-7 h-7 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        {/* Answer Section - Takes remaining space */}
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <div className="h-full flex flex-col">
+            <div className="px-3 py-2 flex items-center justify-between border-b border-neutral-700/50 bg-gradient-to-r from-brand-500/10 to-transparent">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded bg-brand-400/20 flex items-center justify-center">
+                  <svg className="w-3 h-3 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
                 </div>
-                <p className="text-sm text-neutral-400 mb-1">
-                  {questions.length > 0 ? 'Generating answer...' : 'Ready for your interview'}
-                </p>
-                <p className="text-xs text-neutral-500 max-w-xs">
-                  {questions.length > 0
-                    ? 'Expert answer coming soon...'
-                    : 'Start recording and answers will appear here automatically'}
-                </p>
+                <span className="text-xs font-semibold text-neutral-200">
+                  Answer
+                </span>
               </div>
-            )}
+              {isGenerating && (
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-brand-400/10">
+                  <div className="w-2 h-2 border-2 border-brand-400 border-t-transparent rounded-full animate-spin" />
+                  <span className="text-[10px] text-brand-400">Thinking...</span>
+                </div>
+              )}
+            </div>
+            <div className="flex-1 overflow-y-auto bg-neutral-800/30">
+              {answer ? (
+                <div className="p-4">
+                  <div className="prose prose-sm prose-invert max-w-none answer-content">
+                    {renderMarkdown(answer)}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-center px-6">
+                  <div className="w-12 h-12 rounded-full bg-neutral-700/50 flex items-center justify-center mb-3">
+                    <svg className="w-6 h-6 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                  </div>
+                  <p className="text-xs text-neutral-400 mb-1">
+                    {questions.length > 0 ? 'Processing...' : 'Ready to help'}
+                  </p>
+                  <p className="text-[10px] text-neutral-500">
+                    {questions.length > 0 ? 'Generating expert answer...' : 'Click Record and ask a question'}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

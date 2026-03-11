@@ -6,32 +6,6 @@ import { getApiKey as getClaudeKey } from '../services/claude.js';
 import { getApiKey as getOpenAIKey } from '../services/openai.js';
 
 const router = Router();
-
-// Safe logging wrapper to prevent EPIPE crashes when Electron pipes close
-const safeLog = (...args) => {
-  try {
-    console.log(...args);
-  } catch (e) {
-    // Ignore EPIPE errors during shutdown
-  }
-};
-
-const safeError = (...args) => {
-  try {
-    console.error(...args);
-  } catch (e) {
-    // Ignore EPIPE errors during shutdown
-  }
-};
-
-// Network timeout wrapper for API calls
-const withTimeout = (promise, ms = 60000) => {
-  let timeoutId;
-  const timeoutPromise = new Promise((_, reject) => {
-    timeoutId = setTimeout(() => reject(new Error('Request timeout')), ms);
-  });
-  return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timeoutId));
-};
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB limit
 
 const INTERVIEW_SYSTEM_PROMPT = `You are a Staff Engineer interview coach. ULTRA-COMPACT answers only.
@@ -111,10 +85,10 @@ One sentence to speak. Max 20 words.
 router.post('/answer', async (req, res) => {
   const { question, context = '', provider = 'claude', model, jobDescription, resume, prepMaterial } = req.body;
 
-  safeLog('[Ascend] Answer request received:', { questionLength: question?.length, provider, model, hasJD: !!jobDescription, hasResume: !!resume, hasPrep: !!prepMaterial });
+  console.log('[Ascend] Answer request received:', { questionLength: question?.length, provider, model, hasJD: !!jobDescription, hasResume: !!resume, hasPrep: !!prepMaterial });
 
   if (!question) {
-    safeLog('[Ascend] No question provided');
+    console.log('[Ascend] No question provided');
     return res.status(400).json({ error: 'Question is required' });
   }
 
@@ -123,31 +97,6 @@ router.post('/answer', async (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
   res.setHeader('X-Accel-Buffering', 'no');
-  res.flushHeaders(); // Send headers immediately
-
-  // Send initial connection confirmation immediately
-  res.write(`data: ${JSON.stringify({ connected: true })}\n\n`);
-
-  // Track client disconnect to abort streaming
-  let clientDisconnected = false;
-  req.on('close', () => {
-    clientDisconnected = true;
-    safeLog('[Ascend] Client disconnected');
-  });
-
-  // Keep-alive heartbeat every 15 seconds to prevent connection timeout
-  const heartbeat = setInterval(() => {
-    if (!clientDisconnected) {
-      try {
-        res.write(': heartbeat\n\n'); // SSE comment for keep-alive
-      } catch (e) {
-        // Connection already closed
-        clearInterval(heartbeat);
-      }
-    } else {
-      clearInterval(heartbeat);
-    }
-  }, 15000);
 
   try {
     // Build context from provided documents
@@ -176,7 +125,6 @@ Give a STAFF ENGINEER level answer tailored to the candidate's background and th
     if (provider === 'openai') {
       const apiKey = getOpenAIKey();
       if (!apiKey) {
-        clearInterval(heartbeat);
         res.write(`data: ${JSON.stringify({ error: 'OpenAI API key not configured' })}\n\n`);
         res.end();
         return;
@@ -184,7 +132,6 @@ Give a STAFF ENGINEER level answer tailored to the candidate's background and th
 
       const openai = new OpenAI({ apiKey });
       const selectedModel = model || 'gpt-4o';
-      safeLog('[Ascend] Starting OpenAI stream with model:', selectedModel);
 
       const stream = await openai.chat.completions.create({
         model: selectedModel,
@@ -196,29 +143,17 @@ Give a STAFF ENGINEER level answer tailored to the candidate's background and th
         stream: true,
       });
 
-      safeLog('[Ascend] OpenAI stream created, waiting for events...');
-      let chunkCount = 0;
-
       for await (const chunk of stream) {
-        if (clientDisconnected) {
-          safeLog('[Ascend] Aborting stream - client disconnected');
-          break;
-        }
         const content = chunk.choices[0]?.delta?.content;
         if (content) {
-          chunkCount++;
-          if (chunkCount === 1) safeLog('[Ascend] First chunk received');
           res.write(`data: ${JSON.stringify({ chunk: content })}\n\n`);
         }
       }
-      safeLog('[Ascend] OpenAI stream complete, total chunks:', chunkCount);
     } else {
       // Claude (default)
       const apiKey = getClaudeKey();
-      safeLog('[Ascend] Got API key:', apiKey ? 'yes (length: ' + apiKey.length + ')' : 'NO');
+      console.log('[Ascend] Got Claude API key:', apiKey ? 'yes' : 'NO');
       if (!apiKey) {
-        safeLog('[Ascend] ERROR: No API key configured');
-        clearInterval(heartbeat);
         res.write(`data: ${JSON.stringify({ error: 'Anthropic API key not configured' })}\n\n`);
         res.end();
         return;
@@ -226,9 +161,9 @@ Give a STAFF ENGINEER level answer tailored to the candidate's background and th
 
       const anthropic = new Anthropic({ apiKey });
       const selectedModel = model || 'claude-sonnet-4-20250514';
-      safeLog('[Ascend] Starting Claude stream with model:', selectedModel);
+      console.log('[Ascend] Creating Claude stream with model:', selectedModel);
 
-      const stream = anthropic.messages.stream({
+      const stream = await anthropic.messages.stream({
         model: selectedModel,
         max_tokens: 4096,
         system: INTERVIEW_SYSTEM_PROMPT,
@@ -237,39 +172,24 @@ Give a STAFF ENGINEER level answer tailored to the candidate's background and th
         ],
       });
 
-      safeLog('[Ascend] Stream created, waiting for events...');
+      console.log('[Ascend] Stream created, iterating events...');
       let chunkCount = 0;
-
       for await (const event of stream) {
-        if (clientDisconnected) {
-          safeLog('[Ascend] Aborting stream - client disconnected');
-          break;
-        }
         if (event.type === 'content_block_delta' && event.delta?.text) {
           chunkCount++;
-          if (chunkCount === 1) safeLog('[Ascend] First chunk received');
+          if (chunkCount === 1) console.log('[Ascend] First chunk received');
           res.write(`data: ${JSON.stringify({ chunk: event.delta.text })}\n\n`);
         }
       }
-      safeLog('[Ascend] Stream complete, total chunks:', chunkCount);
+      console.log('[Ascend] Stream complete, chunks:', chunkCount);
     }
 
-    clearInterval(heartbeat);
-    if (!clientDisconnected) {
-      res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
-      res.end();
-    }
+    res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+    res.end();
   } catch (error) {
-    clearInterval(heartbeat);
-    safeError('[Ascend] Error:', error.message);
-    if (!clientDisconnected) {
-      try {
-        res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
-        res.end();
-      } catch (writeErr) {
-        // Client already disconnected, ignore
-      }
-    }
+    console.error('[Ascend] Error:', error.message);
+    res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+    res.end();
   }
 });
 
@@ -284,7 +204,7 @@ router.post('/extract-text', upload.single('file'), async (req, res) => {
     const buffer = req.file.buffer;
     let text = '';
 
-    safeLog('[Extract] Processing file:', fileName, 'Size:', buffer.length);
+    console.log('[Extract] Processing file:', fileName, 'Size:', buffer.length);
 
     if (fileName.endsWith('.txt')) {
       text = buffer.toString('utf-8');
@@ -360,10 +280,10 @@ router.post('/extract-text', upload.single('file'), async (req, res) => {
       text = buffer.toString('utf-8');
     }
 
-    safeLog('[Extract] Extracted text length:', text.length);
+    console.log('[Extract] Extracted text length:', text.length);
     res.json({ text, fileName: req.file.originalname });
   } catch (error) {
-    safeError('[Extract] Error:', error.message);
+    console.error('[Extract] Error:', error.message);
     res.status(500).json({ error: error.message });
   }
 });
