@@ -87,26 +87,22 @@ export default function AppHeader({
 
         {/* Action buttons */}
         <div className="flex items-center gap-2">
-          {isElectron && (
-            <>
-              <button
-                onClick={onPrepTabClick}
-                className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-200 transition-colors"
-                title="Interview Prep"
-              >
-                Prep
-              </button>
+          <button
+            onClick={onPrepTabClick}
+            className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-200 transition-colors"
+            title="Interview Prep"
+          >
+            Prep
+          </button>
 
-              {ascendMode === 'system-design' && (
-                <button
-                  onClick={onSavedDesignsClick}
-                  className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-200 transition-colors"
-                  title="Saved Designs"
-                >
-                  Saved
-                </button>
-              )}
-            </>
+          {ascendMode === 'system-design' && (
+            <button
+              onClick={onSavedDesignsClick}
+              className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-200 transition-colors"
+              title="Saved Designs"
+            >
+              Saved
+            </button>
           )}
 
           {isAdmin && (
