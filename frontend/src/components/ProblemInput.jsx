@@ -39,9 +39,9 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
     if (!text) return '';
     return text
       .split('\n')
-      .map(line => line.trimEnd()) // Remove trailing whitespace from each line
+      .map(line => line.trimEnd())
       .join('\n')
-      .replace(/\n{3,}/g, '\n\n') // Replace 3+ newlines with 2
+      .replace(/\n{3,}/g, '\n\n')
       .trim();
   }, []);
 
@@ -50,28 +50,22 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
     const textarea = textareaRef.current;
     if (!textarea) return;
 
-    const lineHeight = 22; // line height for 14px font
-    const minHeight = lineHeight * 2 + 16; // 2 rows minimum + padding
-    // When expanded, allow much larger height to show full content
+    const lineHeight = 22;
+    const minHeight = lineHeight * 2 + 16;
     const maxHeight = expanded !== false ? 600 : 400;
 
-    // Reset height to auto to measure content
     textarea.style.height = 'auto';
     const scrollHeight = textarea.scrollHeight;
-
-    // Set height to fit content, clamped between min and max
     const newHeight = Math.min(Math.max(scrollHeight, minHeight), maxHeight);
     textarea.style.height = `${newHeight}px`;
   }, [expanded]);
 
-  // Resize textarea when problem text or expanded state changes
   useEffect(() => {
     adjustTextareaHeight();
   }, [problemText, expanded, adjustTextareaHeight]);
 
   useEffect(() => {
     if (extractedText) {
-      // Clean up extracted text and set it
       const cleaned = cleanupText(extractedText);
       setProblemText(cleaned);
       setUrl('');
@@ -80,7 +74,6 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
     }
   }, [extractedText, onExtractedTextClear, cleanupText]);
 
-  // Handle loaded problem from history (separate from extractedText)
   useEffect(() => {
     if (loadedProblem) {
       const cleaned = cleanupText(loadedProblem);
@@ -99,12 +92,10 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
     }
   }, [shouldClear]);
 
-  // Detect file picker cancel (window gets focus back without file selection)
   useEffect(() => {
     if (!isSelectingFile) return;
 
     const handleFocus = () => {
-      // Small delay to let file change event fire first if file was selected
       setTimeout(() => {
         if (!fileInputRef.current?.files?.length) {
           setIsSelectingFile(false);
@@ -160,7 +151,6 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
 
   const handleTabSwitch = (tabId) => {
     if (tabId === activeTab) {
-      // If already on Image tab, clicking again opens file picker
       if (tabId === 'screenshot' && !preview) {
         setIsSelectingFile(true);
         fileInputRef.current?.click();
@@ -174,7 +164,6 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
     setActiveTab(tabId);
     onClear?.();
 
-    // Auto-open file picker when switching to Image tab
     if (tabId === 'screenshot') {
       setIsSelectingFile(true);
       setTimeout(() => fileInputRef.current?.click(), 50);
@@ -182,25 +171,23 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
   };
 
   const tabs = [
-    { id: 'text', label: 'Text' },
-    { id: 'url', label: 'URL' },
-    { id: 'screenshot', label: 'Image' },
+    { id: 'text', label: 'Text', icon: TextIcon },
+    { id: 'url', label: 'URL', icon: LinkIcon },
+    { id: 'screenshot', label: 'Image', icon: ImageIcon },
   ];
 
-  // Collapsed view - minimal display with expand button
+  // Collapsed view
   if (expanded === false && problemText) {
     return (
-      <div className="flex items-center gap-2 py-2 px-3 rounded-lg" style={{ background: '#f5f5f5', border: '1px solid #e5e5e5' }}>
+      <div className="flex items-center gap-3 py-2.5 px-4 rounded-xl bg-neutral-700/30 border border-neutral-600/50">
         <div className="flex-1 min-w-0">
-          <p className="text-[11px] truncate" style={{ color: '#000000' }}>{getPreviewText()}</p>
+          <p className="text-sm text-neutral-300 truncate">{getPreviewText()}</p>
         </div>
         <button
           onClick={onToggleExpand}
-          className="flex-shrink-0 px-3 py-1.5 text-[10px] font-medium rounded-lg transition-all flex items-center gap-1.5"
-          style={{ background: 'transparent', color: '#10b981', border: '1px dashed #10b981' }}
-          title="Expand problem"
+          className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-brand-400 hover:bg-brand-400/10 rounded-lg border border-dashed border-brand-400/50 transition-colors"
         >
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
           Expand
@@ -211,39 +198,46 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
 
   return (
     <div className="h-full flex flex-col">
-      {/* Compact Header Row */}
-      <div className="flex items-center justify-between gap-2 mb-3 flex-shrink-0">
+      {/* Header Row */}
+      <div className="flex items-center justify-between gap-3 mb-3 flex-shrink-0">
         {/* Tabs */}
-        <div className="flex items-center gap-1">
-          <div className="flex gap-1 p-1 rounded-xl" style={{ background: '#f3f4f6', border: '1px solid rgba(0, 0, 0, 0.04)' }}>
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => handleTabSwitch(tab.id)}
-                className="px-3 py-1.5 text-[11px] font-medium rounded-lg transition-all"
-                style={{
-                  background: activeTab === tab.id ? 'var(--content-bg)' : 'transparent',
-                  color: activeTab === tab.id ? 'var(--content-text)' : 'var(--content-text-muted)',
-                  boxShadow: activeTab === tab.id ? '0 1px 3px rgba(0, 0, 0, 0.08)' : 'none',
-                }}
-              >
-                {tab.label}
-              </button>
-            ))}
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1 p-1 rounded-xl bg-neutral-700/50 border border-neutral-600/50">
+            {tabs.map(tab => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabSwitch(tab.id)}
+                  className={`
+                    flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200
+                    ${activeTab === tab.id
+                      ? 'bg-neutral-600 text-white shadow-sm'
+                      : 'text-neutral-400 hover:text-neutral-200'
+                    }
+                  `}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
-          {/* Collapse button - only show when there's content */}
+
+          {/* Collapse button */}
           {problemText && onToggleExpand && (
             <button
               onClick={onToggleExpand}
-              className="ml-1 p-1.5 rounded-lg transition-all text-black hover:bg-gray-100 hover:text-black"
-              title="Collapse problem"
+              className="p-2 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-700/50 transition-colors"
+              title="Collapse"
             >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
               </svg>
             </button>
           )}
-          {/* Clear button - show when there's any content */}
+
+          {/* Clear button */}
           {(problemText || url || preview) && (
             <button
               onClick={() => {
@@ -253,17 +247,15 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                 if (fileInputRef.current) fileInputRef.current.value = '';
                 onClear?.();
               }}
-              className="ml-1 p-1.5 rounded-lg transition-all text-black hover:bg-red-50 hover:text-red-500"
-              title="Clear problem"
+              className="p-2 rounded-lg text-neutral-400 hover:text-error-400 hover:bg-error-900/20 transition-colors"
+              title="Clear"
             >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </button>
           )}
         </div>
-
-        {/* Controls moved to PROBLEM header in App.jsx */}
       </div>
 
       {/* Content */}
@@ -275,107 +267,57 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               value={problemText}
               onChange={(e) => setProblemText(e.target.value)}
               placeholder={ascendMode === 'system-design' ? 'Describe your system design problem...' : 'Paste coding problem...'}
-              className="w-full px-4 py-3 resize-none rounded-xl placeholder-gray-400 focus:outline-none scrollbar-thin"
+              className="w-full px-4 py-3 resize-none rounded-xl text-sm bg-neutral-700/30 border border-neutral-600/50 text-neutral-100 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400/50 transition-all"
               style={{
                 minHeight: '60px',
                 maxHeight: expanded !== false ? '600px' : '400px',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                fontSize: '14px',
                 lineHeight: '1.6',
-                background: 'var(--content-bg)',
-                border: '1px solid var(--content-border)',
-                color: 'var(--content-text)',
-                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#10b981';
-                e.target.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
-                e.target.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.04)';
               }}
               spellCheck="false"
               autoCorrect="off"
               autoCapitalize="off"
               disabled={isLoading}
             />
-            <div className="flex items-center justify-between mt-2 flex-shrink-0">
-              <span className="text-[10px] text-black">
+            <div className="flex items-center justify-between mt-3 flex-shrink-0">
+              <span className="text-xs text-neutral-500">
                 {problemText.length > 0 && `${problemText.length} chars`}
               </span>
               <button
                 type="submit"
                 disabled={isLoading || !problemText.trim()}
-                className="px-5 py-2 text-[11px] font-semibold rounded-lg transition-all disabled:opacity-50"
-                style={{
-                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                  color: 'white',
-                  boxShadow: '0 2px 6px rgba(16, 185, 129, 0.25)',
-                }}
-                onMouseEnter={(e) => {
-                  if (!isLoading && problemText.trim()) {
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.35)';
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = '0 2px 6px rgba(16, 185, 129, 0.25)';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
+                className="px-5 py-2.5 text-sm font-semibold text-white rounded-xl bg-gradient-to-r from-brand-400 to-brand-500 hover:from-brand-500 hover:to-brand-600 shadow-lg shadow-brand-400/25 hover:shadow-brand-400/40 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-brand-400/25 transition-all duration-200 hover:-translate-y-0.5 disabled:hover:translate-y-0"
               >
-                {isLoading ? '...' : 'Solve'}
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    {ascendMode === 'system-design' ? 'Designing...' : 'Coding...'}
+                  </span>
+                ) : ascendMode === 'system-design' ? 'Design' : 'Code'}
               </button>
             </div>
           </form>
         )}
 
         {activeTab === 'url' && (
-          <form onSubmit={handleUrlSubmit} className="flex flex-col gap-2">
+          <form onSubmit={handleUrlSubmit} className="flex flex-col gap-3">
             <input
               type="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://leetcode.com/problems/..."
-              className="w-full px-4 py-3 text-[13px] rounded-xl focus:outline-none"
-              style={{
-                background: 'var(--content-bg)',
-                border: '1px solid var(--content-border)',
-                color: 'var(--content-text)',
-                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#10b981';
-                e.target.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = 'var(--content-border)';
-                e.target.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.04)';
-              }}
+              className="w-full px-4 py-3 text-sm rounded-xl bg-neutral-700/30 border border-neutral-600/50 text-neutral-100 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400/50 transition-all"
               disabled={isLoading}
             />
             <div className="flex justify-end">
               <button
                 type="submit"
                 disabled={isLoading || !url.trim()}
-                className="px-5 py-2 text-[11px] font-semibold rounded-lg transition-all disabled:opacity-50"
-                style={{
-                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                  color: 'white',
-                  boxShadow: '0 2px 6px rgba(16, 185, 129, 0.25)',
-                }}
-                onMouseEnter={(e) => {
-                  if (!isLoading && url.trim()) {
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.35)';
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = '0 2px 6px rgba(16, 185, 129, 0.25)';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
+                className="px-5 py-2.5 text-sm font-semibold text-white rounded-xl bg-gradient-to-r from-brand-400 to-brand-500 hover:from-brand-500 hover:to-brand-600 shadow-lg shadow-brand-400/25 hover:shadow-brand-400/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:-translate-y-0.5 disabled:hover:translate-y-0"
               >
-                {isLoading ? '...' : 'Fetch & Solve'}
+                {isLoading ? 'Fetching...' : ascendMode === 'system-design' ? 'Fetch & Design' : 'Fetch & Code'}
               </button>
             </div>
           </form>
@@ -384,7 +326,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
         {activeTab === 'screenshot' && (
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
             {preview ? (
-              <div className="relative rounded-xl overflow-hidden bg-gray-100 border border-gray-200" style={{ maxHeight: '300px' }}>
+              <div className="relative rounded-xl overflow-hidden bg-neutral-700/30 border border-neutral-600/50" style={{ maxHeight: '300px' }}>
                 <img
                   src={preview}
                   alt="Preview"
@@ -394,7 +336,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                 <button
                   onClick={clearPreview}
                   disabled={isLoading}
-                  className="absolute top-2 right-2 p-1.5 rounded-full transition-colors bg-black/60 text-white hover:bg-black/80"
+                  className="absolute top-3 right-3 p-2 rounded-lg bg-black/60 hover:bg-black/80 text-white transition-colors backdrop-blur-sm"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -402,8 +344,13 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                 </button>
               </div>
             ) : isSelectingFile ? (
-              <div className="flex-1 flex items-center justify-center py-8 text-sm" style={{ color: '#000000' }}>
-                Select an image...
+              <div className="flex-1 flex items-center justify-center py-8 text-sm text-neutral-500 dark:text-neutral-400">
+                <span className="flex items-center gap-2">
+                  <svg className="w-5 h-5 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Select an image...
+                </span>
               </div>
             ) : (
               <div
@@ -411,16 +358,25 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 onClick={() => { setIsSelectingFile(true); fileInputRef.current?.click(); }}
-                className="flex-1 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all py-8"
-                style={{
-                  border: isDragging ? '2px dashed #10b981' : '2px dashed #d1d5db',
-                  background: isDragging ? 'rgba(16, 185, 129, 0.05)' : '#f9fafb',
-                }}
+                className={`
+                  flex-1 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all py-10
+                  border-2 border-dashed
+                  ${isDragging
+                    ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20'
+                    : 'border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-800/50 hover:border-brand-400 hover:bg-brand-50/50 dark:hover:bg-brand-900/10'
+                  }
+                `}
               >
-                <svg className="w-8 h-8 mb-2 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span className="text-[11px] text-black">Drop image or click to upload</span>
+                <div className={`
+                  w-14 h-14 rounded-2xl flex items-center justify-center mb-3 transition-colors
+                  ${isDragging ? 'bg-brand-100 dark:bg-brand-900/30' : 'bg-neutral-100 dark:bg-neutral-700'}
+                `}>
+                  <svg className={`w-7 h-7 ${isDragging ? 'text-brand-600 dark:text-brand-400' : 'text-neutral-500 dark:text-neutral-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <span className="text-sm font-medium text-neutral-600 dark:text-neutral-300">Drop image or click to upload</span>
+                <span className="text-xs text-neutral-400 dark:text-neutral-500 mt-1">PNG, JPG up to 10MB</span>
               </div>
             )}
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
@@ -428,5 +384,30 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
         )}
       </div>
     </div>
+  );
+}
+
+// Icons
+function TextIcon({ className }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+  );
+}
+
+function LinkIcon({ className }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+    </svg>
+  );
+}
+
+function ImageIcon({ className }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    </svg>
   );
 }

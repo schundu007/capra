@@ -52,11 +52,12 @@ async function getApiUrl() {
 const DESKTOP_APP_URL = 'http://localhost:3001';
 
 // Send problem URL to both desktop app AND webapp (Railway backend)
-async function sendProblemToDesktopApp(url, platform, problemType) {
+async function sendProblemToDesktopApp(url, platform, problemType, problemText = null) {
   const payload = JSON.stringify({
     url,
     platform,
     problemType,
+    problemText,  // Include extracted problem text if available
     timestamp: Date.now(),
   });
 
@@ -221,7 +222,7 @@ async function getAllPlatformStatus() {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   // Handle problem detection from content script
   if (request.action === 'problemDetected') {
-    sendProblemToDesktopApp(request.url, request.platform, request.problemType)
+    sendProblemToDesktopApp(request.url, request.platform, request.problemType, request.problemText)
       .then(sendResponse);
     return true; // Keep channel open for async response
   }

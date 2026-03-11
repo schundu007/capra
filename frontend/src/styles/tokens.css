@@ -1,0 +1,409 @@
+/**
+ * ============================================
+ * ASCEND DESIGN SYSTEM - TOKENS
+ * ============================================
+ *
+ * Enterprise-grade design tokens for consistent,
+ * scalable UI development.
+ *
+ * Organization:
+ * 1. Brand Colors
+ * 2. Semantic Colors (Light Mode)
+ * 3. Semantic Colors (Dark Mode)
+ * 4. Typography
+ * 5. Spacing
+ * 6. Shadows
+ * 7. Border Radius
+ * 8. Transitions
+ * 9. Z-Index
+ */
+
+:root {
+  /* ========================================
+     1. BRAND IDENTITY
+     ======================================== */
+  --brand-50: #ecfdf5;
+  --brand-100: #d1fae5;
+  --brand-200: #a7f3d0;
+  --brand-300: #6ee7b7;
+  --brand-400: #34d399;
+  --brand-500: #10b981;
+  --brand-600: #059669;
+  --brand-700: #047857;
+  --brand-800: #065f46;
+  --brand-900: #064e3b;
+  --brand-950: #022c22;
+
+  /* Brand Gradients */
+  --gradient-brand: linear-gradient(135deg, #10b981 0%, #0891b2 100%);
+  --gradient-brand-vibrant: linear-gradient(135deg, #34d399 0%, #06b6d4 50%, #8b5cf6 100%);
+  --gradient-brand-subtle: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(8, 145, 178, 0.1) 100%);
+  --gradient-brand-radial: radial-gradient(circle at 30% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 50%);
+
+  /* ========================================
+     2. SEMANTIC COLORS - LIGHT MODE
+     ======================================== */
+
+  /* Backgrounds */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --bg-elevated: #ffffff;
+  --bg-sunken: #f1f5f9;
+  --bg-overlay: rgba(15, 23, 42, 0.5);
+  --bg-glass: rgba(255, 255, 255, 0.8);
+  --bg-glass-heavy: rgba(255, 255, 255, 0.95);
+
+  /* Surfaces (Interactive elements) */
+  --surface-primary: #ffffff;
+  --surface-secondary: #f8fafc;
+  --surface-hover: #f1f5f9;
+  --surface-active: #e2e8f0;
+  --surface-selected: rgba(16, 185, 129, 0.08);
+  --surface-selected-hover: rgba(16, 185, 129, 0.12);
+
+  /* Text */
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-tertiary: #64748b;
+  --text-muted: #94a3b8;
+  --text-disabled: #cbd5e1;
+  --text-inverse: #ffffff;
+  --text-brand: #059669;
+  --text-link: #0284c7;
+  --text-link-hover: #0369a1;
+
+  /* Borders */
+  --border-primary: #e2e8f0;
+  --border-secondary: #f1f5f9;
+  --border-strong: #cbd5e1;
+  --border-focus: #10b981;
+  --border-focus-ring: rgba(16, 185, 129, 0.4);
+
+  /* Status - Success */
+  --status-success: #10b981;
+  --status-success-bg: #ecfdf5;
+  --status-success-border: #a7f3d0;
+  --status-success-text: #065f46;
+
+  /* Status - Warning */
+  --status-warning: #f59e0b;
+  --status-warning-bg: #fffbeb;
+  --status-warning-border: #fde68a;
+  --status-warning-text: #92400e;
+
+  /* Status - Error */
+  --status-error: #ef4444;
+  --status-error-bg: #fef2f2;
+  --status-error-border: #fecaca;
+  --status-error-text: #991b1b;
+
+  /* Status - Info */
+  --status-info: #3b82f6;
+  --status-info-bg: #eff6ff;
+  --status-info-border: #bfdbfe;
+  --status-info-text: #1e40af;
+
+  /* Code Editor */
+  --code-bg: #1e293b;
+  --code-bg-line: #334155;
+  --code-text: #e2e8f0;
+  --code-comment: #64748b;
+  --code-keyword: #f472b6;
+  --code-string: #a5f3fc;
+  --code-number: #fcd34d;
+  --code-function: #a78bfa;
+  --code-operator: #94a3b8;
+  --code-variable: #67e8f9;
+  --code-class: #fbbf24;
+
+  /* ========================================
+     3. TYPOGRAPHY
+     ======================================== */
+
+  /* Font Families */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, Monaco, Consolas, monospace;
+  --font-display: 'Inter', -apple-system, sans-serif;
+
+  /* Font Sizes (with line heights) */
+  --text-2xs: 0.625rem;   /* 10px */
+  --text-xs: 0.6875rem;   /* 11px */
+  --text-sm: 0.75rem;     /* 12px */
+  --text-base: 0.8125rem; /* 13px */
+  --text-md: 0.875rem;    /* 14px */
+  --text-lg: 1rem;        /* 16px */
+  --text-xl: 1.125rem;    /* 18px */
+  --text-2xl: 1.25rem;    /* 20px */
+  --text-3xl: 1.5rem;     /* 24px */
+  --text-4xl: 1.875rem;   /* 30px */
+  --text-5xl: 2.25rem;    /* 36px */
+  --text-6xl: 3rem;       /* 48px */
+
+  /* Font Weights */
+  --font-light: 300;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-extrabold: 800;
+
+  /* Line Heights */
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+
+  /* Letter Spacing */
+  --tracking-tighter: -0.05em;
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.025em;
+  --tracking-wider: 0.05em;
+  --tracking-widest: 0.1em;
+
+  /* ========================================
+     4. SPACING SCALE (4px base)
+     ======================================== */
+  --space-0: 0;
+  --space-px: 1px;
+  --space-0_5: 0.125rem;  /* 2px */
+  --space-1: 0.25rem;     /* 4px */
+  --space-1_5: 0.375rem;  /* 6px */
+  --space-2: 0.5rem;      /* 8px */
+  --space-2_5: 0.625rem;  /* 10px */
+  --space-3: 0.75rem;     /* 12px */
+  --space-3_5: 0.875rem;  /* 14px */
+  --space-4: 1rem;        /* 16px */
+  --space-5: 1.25rem;     /* 20px */
+  --space-6: 1.5rem;      /* 24px */
+  --space-7: 1.75rem;     /* 28px */
+  --space-8: 2rem;        /* 32px */
+  --space-9: 2.25rem;     /* 36px */
+  --space-10: 2.5rem;     /* 40px */
+  --space-11: 2.75rem;    /* 44px */
+  --space-12: 3rem;       /* 48px */
+  --space-14: 3.5rem;     /* 56px */
+  --space-16: 4rem;       /* 64px */
+  --space-20: 5rem;       /* 80px */
+  --space-24: 6rem;       /* 96px */
+  --space-28: 7rem;       /* 112px */
+  --space-32: 8rem;       /* 128px */
+
+  /* ========================================
+     5. SHADOWS
+     ======================================== */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+
+  /* Glow Shadows */
+  --shadow-glow-sm: 0 0 10px rgba(16, 185, 129, 0.2);
+  --shadow-glow: 0 0 20px rgba(16, 185, 129, 0.3);
+  --shadow-glow-lg: 0 0 40px rgba(16, 185, 129, 0.4);
+  --shadow-glow-brand: 0 4px 20px rgba(16, 185, 129, 0.35);
+
+  /* Colored Shadows */
+  --shadow-brand: 0 4px 14px rgba(16, 185, 129, 0.25);
+  --shadow-error: 0 4px 14px rgba(239, 68, 68, 0.25);
+  --shadow-warning: 0 4px 14px rgba(245, 158, 11, 0.25);
+  --shadow-info: 0 4px 14px rgba(59, 130, 246, 0.25);
+
+  /* ========================================
+     6. BORDER RADIUS
+     ======================================== */
+  --radius-none: 0;
+  --radius-sm: 0.25rem;   /* 4px */
+  --radius-md: 0.375rem;  /* 6px */
+  --radius-lg: 0.5rem;    /* 8px */
+  --radius-xl: 0.75rem;   /* 12px */
+  --radius-2xl: 1rem;     /* 16px */
+  --radius-3xl: 1.5rem;   /* 24px */
+  --radius-full: 9999px;
+
+  /* ========================================
+     7. TRANSITIONS
+     ======================================== */
+  --duration-instant: 0ms;
+  --duration-fast: 100ms;
+  --duration-normal: 150ms;
+  --duration-moderate: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 400ms;
+  --duration-slowest: 500ms;
+
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  /* Preset Transitions */
+  --transition-fast: 100ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-moderate: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ========================================
+     8. Z-INDEX SCALE
+     ======================================== */
+  --z-behind: -1;
+  --z-base: 0;
+  --z-docked: 10;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-banner: 300;
+  --z-overlay: 400;
+  --z-modal: 500;
+  --z-popover: 600;
+  --z-toast: 700;
+  --z-tooltip: 800;
+  --z-max: 9999;
+
+  /* ========================================
+     9. COMPONENT-SPECIFIC TOKENS
+     ======================================== */
+
+  /* Header */
+  --header-height: 56px;
+  --header-bg: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+
+  /* Sidebar */
+  --sidebar-width: 280px;
+  --sidebar-width-collapsed: 60px;
+  --sidebar-bg: #0f172a;
+
+  /* Panel */
+  --panel-header-height: 48px;
+  --panel-border: var(--border-primary);
+
+  /* Input */
+  --input-height-sm: 32px;
+  --input-height-md: 36px;
+  --input-height-lg: 44px;
+
+  /* Button */
+  --button-height-xs: 28px;
+  --button-height-sm: 32px;
+  --button-height-md: 36px;
+  --button-height-lg: 44px;
+  --button-height-xl: 52px;
+}
+
+/* ========================================
+   DARK MODE OVERRIDES
+   ======================================== */
+[data-theme="dark"],
+.dark {
+  /* Backgrounds */
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --bg-elevated: #1e293b;
+  --bg-sunken: #0f172a;
+  --bg-overlay: rgba(0, 0, 0, 0.7);
+  --bg-glass: rgba(15, 23, 42, 0.85);
+  --bg-glass-heavy: rgba(15, 23, 42, 0.95);
+
+  /* Surfaces */
+  --surface-primary: #1e293b;
+  --surface-secondary: #334155;
+  --surface-hover: #334155;
+  --surface-active: #475569;
+  --surface-selected: rgba(16, 185, 129, 0.15);
+  --surface-selected-hover: rgba(16, 185, 129, 0.2);
+
+  /* Text */
+  --text-primary: #f8fafc;
+  --text-secondary: #e2e8f0;
+  --text-tertiary: #94a3b8;
+  --text-muted: #64748b;
+  --text-disabled: #475569;
+  --text-brand: #34d399;
+  --text-link: #38bdf8;
+  --text-link-hover: #7dd3fc;
+
+  /* Borders */
+  --border-primary: #334155;
+  --border-secondary: #1e293b;
+  --border-strong: #475569;
+
+  /* Status Colors - Adjusted for dark mode */
+  --status-success-bg: rgba(16, 185, 129, 0.15);
+  --status-success-border: rgba(16, 185, 129, 0.3);
+  --status-success-text: #34d399;
+
+  --status-warning-bg: rgba(245, 158, 11, 0.15);
+  --status-warning-border: rgba(245, 158, 11, 0.3);
+  --status-warning-text: #fbbf24;
+
+  --status-error-bg: rgba(239, 68, 68, 0.15);
+  --status-error-border: rgba(239, 68, 68, 0.3);
+  --status-error-text: #f87171;
+
+  --status-info-bg: rgba(59, 130, 246, 0.15);
+  --status-info-border: rgba(59, 130, 246, 0.3);
+  --status-info-text: #60a5fa;
+
+  /* Code Editor - Dark already, minimal changes */
+  --code-bg: #0f172a;
+  --code-bg-line: #1e293b;
+
+  /* Shadows - Deeper for dark mode */
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.25), 0 1px 2px -1px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -4px rgba(0, 0, 0, 0.35);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+
+  /* Glow is more prominent in dark mode */
+  --shadow-glow-sm: 0 0 15px rgba(16, 185, 129, 0.3);
+  --shadow-glow: 0 0 30px rgba(16, 185, 129, 0.4);
+  --shadow-glow-lg: 0 0 50px rgba(16, 185, 129, 0.5);
+}
+
+/* ========================================
+   REDUCED MOTION
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-moderate: 0ms;
+    --duration-slow: 0ms;
+    --duration-slower: 0ms;
+    --duration-slowest: 0ms;
+    --transition-fast: 0ms;
+    --transition-normal: 0ms;
+    --transition-moderate: 0ms;
+    --transition-slow: 0ms;
+    --transition-spring: 0ms;
+  }
+}
+
+/* ========================================
+   HIGH CONTRAST MODE
+   ======================================== */
+@media (prefers-contrast: high) {
+  :root {
+    --border-primary: #000000;
+    --border-secondary: #000000;
+    --text-primary: #000000;
+    --text-secondary: #000000;
+  }
+
+  [data-theme="dark"],
+  .dark {
+    --border-primary: #ffffff;
+    --border-secondary: #ffffff;
+    --text-primary: #ffffff;
+    --text-secondary: #ffffff;
+  }
+}

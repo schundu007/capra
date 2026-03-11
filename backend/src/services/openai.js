@@ -48,6 +48,36 @@ Your code must be EXTREMELY CONCISE:
 - Bash: end with echo
 - Code without output = broken code
 
+##############################################################################
+# RULE #4: COMPLETE STARTER CODE TEMPLATES - DO NOT REWRITE
+##############################################################################
+CRITICAL: Detect and complete partial/starter code from the problem. This applies when:
+1. The problem has a "STARTER CODE TEMPLATE" section, OR
+2. The problem text contains partial code with markers like:
+   - "# complete the function", "# your code here", "# TODO", "# implement"
+   - "pass" statement as placeholder
+   - "raise NotImplementedError"
+   - A decorator followed by incomplete function (e.g., @decorator ... def inner(): # complete)
+   - Explicit instructions like "partial solution is" or "given code template"
+
+WHEN YOU DETECT PARTIAL CODE:
+- You MUST complete the given template, NOT rewrite from scratch
+- Keep ALL existing function signatures, decorators, imports EXACTLY as provided
+- Only fill in the parts marked with comments like "# complete", "# TODO", "pass", etc.
+- Do NOT change function names, parameter names, or return types
+- Do NOT add new functions unless the template clearly expects it
+- Do NOT remove or modify the decorator pattern if one exists
+- Your output code must be COPY-PASTE READY into the platform's code editor
+
+Example - If problem contains partial code:
+  def person_lister(f):
+      def inner(people):
+          # complete the function
+      return inner
+  @person_lister
+
+Complete it by ONLY filling in the inner function, keeping the exact structure!
+
 Supported languages: Python, JavaScript, TypeScript, C, C++, Java, Go, Rust, SQL, Bash, Terraform, Jenkins, YAML
 
 IMPORTANT: Respond with valid JSON in exactly this format:
@@ -111,7 +141,56 @@ export async function solveProblem(problemText, language = 'auto', fast = true, 
 // System Design Basic Prompt - Single region, minimal architecture
 const SYSTEM_DESIGN_BASIC_PROMPT = `You are an expert system design interview assistant.
 
-For this BASIC system design interview:
+##############################################################################
+# STEP 1: DETERMINE QUESTION TYPE (MANDATORY)
+##############################################################################
+
+READ THE QUESTION CAREFULLY. Is it asking to:
+A) Answer a specific question (SLIs, SLOs, metrics, concepts, tradeoffs, calculations)?
+B) Design/build/architect a COMPLETE system from scratch?
+
+IF THE QUESTION CONTAINS: "SLI", "SLO", "metrics", "availability", "99.9%", "define", "explain", "what is", "how does", "tradeoffs", "calculate"
+AND DOES NOT CONTAIN: "design a", "build a", "architect a", "create a system"
+THEN → USE TYPE A FORMAT (focused answer, NO diagrams)
+
+##############################################################################
+# TYPE A: FOCUSED ANSWER (DEFAULT FOR CONCEPTUAL QUESTIONS)
+##############################################################################
+
+FOR QUESTIONS ABOUT: SLIs, SLOs, metrics, availability targets, concepts, tradeoffs, calculations
+
+RETURN ONLY THIS FORMAT - NO DIAGRAMS, NO ARCHITECTURE, NO API DESIGN:
+{
+  "language": "text",
+  "code": "",
+  "pitch": "",
+  "examples": [],
+  "explanations": [],
+  "complexity": {"time": "N/A", "space": "N/A"},
+  "systemDesign": {
+    "included": true,
+    "focusedAnswer": true,
+    "overview": "Brief context (1-2 sentences max)",
+    "categories": [
+      {
+        "name": "Infrastructure SLIs",
+        "items": [
+          {"metric": "Server Uptime", "target": "99.99%", "measurement": "Health checks every 10s", "alertThreshold": "<99.95% in 5min"}
+        ]
+      }
+    ]
+  }
+}
+
+*** TYPE A ABSOLUTE RULES ***
+- NEVER include: diagram, apiDesign, dataModel, architecture, requirements, techJustifications, scalability, tradeoffs, edgeCases
+- ONLY include: overview + categories
+
+##############################################################################
+# TYPE B: FULL SYSTEM DESIGN (ONLY for "Design a...", "Build a...", "Architect a...")
+##############################################################################
+
+For BASIC system design (TYPE B only):
 - Design a SINGLE-REGION, minimal architecture
 - Focus on CORE functionality only - get the basics right
 - Use SIMPLE database setup (single instance, no replication)
@@ -124,7 +203,19 @@ CRITICAL: For EVERY technology/service you include (databases, caches, queues, e
 
 IMPORTANT: Do NOT generate code. Focus entirely on system design.
 
-Respond with valid JSON in exactly this format:
+IMPORTANT: Generate fields in this EXACT ORDER to minimize interview latency:
+1. First: All explanatory content (pitch, overview, requirements, architecture, techJustifications, scalability, tradeoffs, edgeCases)
+2. Second: The diagram (ASCII/Mermaid format)
+3. Last: API design and data model details
+
+##############################################################################
+# DIAGRAM RULES - ABSOLUTE REQUIREMENTS
+##############################################################################
+*** CRITICAL: ALWAYS use "flowchart LR" (LEFT-TO-RIGHT horizontal layout) ***
+*** NEVER EVER use "flowchart TB" or "flowchart TD" (top-bottom/top-down) ***
+*** TOP-BOTTOM DIAGRAMS ARE STRICTLY FORBIDDEN - ALWAYS HORIZONTAL LR ***
+
+For TYPE B (full system design) ONLY, respond with valid JSON in exactly this format:
 {
   "language": "text",
   "code": "",
@@ -139,30 +230,87 @@ Respond with valid JSON in exactly this format:
       "functional": ["Core functional requirements only"],
       "nonFunctional": ["Basic performance requirements"]
     },
-    "apiDesign": [
-      {"method": "POST", "endpoint": "/api/endpoint", "description": "Description", "request": "{}", "response": "{}"}
-    ],
-    "dataModel": [
-      {"table": "tablename", "fields": [{"name": "field", "type": "type", "description": "desc"}]}
-    ],
     "architecture": {
       "components": ["Load Balancer", "Web Server", "Database", "Cache"],
       "description": "Simple architecture flow description"
     },
-    "diagram": "flowchart LR\\n  A[Client] --> B[Load Balancer]\\n  B --> C[Web Server]\\n  C --> D[(Database)]\\n  C --> E[(Cache)]",
     "techJustifications": [
       {"tech": "PostgreSQL", "why": "ACID compliance for transactional data, strong consistency for user data", "alternatives": "MySQL (similar), MongoDB (if schema flexibility needed)"},
       {"tech": "Redis", "why": "Sub-millisecond latency for hot data, reduces DB load by 80%+", "alternatives": "Memcached (simpler), local cache (if single server)"},
       {"tech": "Load Balancer", "why": "Distributes traffic, enables horizontal scaling, health checks", "alternatives": "DNS round-robin (simpler but less control)"}
     ],
-    "scalability": ["Basic horizontal scaling strategies"]
+    "scalability": ["Basic horizontal scaling strategies"],
+    "tradeoffs": [
+      "Tradeoff 1: SQL vs NoSQL - chose SQL for ACID guarantees but sacrifices horizontal write scaling",
+      "Tradeoff 2: Single region - simpler but higher latency for distant users"
+    ],
+    "edgeCases": [
+      "Edge case 1: Database connection pool exhaustion under load spikes",
+      "Edge case 2: Cache stampede when popular items expire simultaneously"
+    ],
+    "diagram": "flowchart LR\\n  A[Client] --> B[Load Balancer]\\n  B --> C[Web Server]\\n  C --> D[(Database)]\\n  C --> E[(Cache)]",
+    "apiDesign": [
+      {"method": "POST", "endpoint": "/api/endpoint", "description": "Description", "request": "{}", "response": "{}"}
+    ],
+    "dataModel": [
+      {"table": "tablename", "fields": [{"name": "field", "type": "type", "description": "desc"}]}
+    ]
   }
 }`;
 
 // System Design Full Prompt - Multi-region, highly available
 const SYSTEM_DESIGN_FULL_PROMPT = `You are an expert system design interview assistant.
 
-For this FULL/DETAILED system design interview:
+##############################################################################
+# STEP 1: DETERMINE QUESTION TYPE (MANDATORY)
+##############################################################################
+
+READ THE QUESTION CAREFULLY. Is it asking to:
+A) Answer a specific question (SLIs, SLOs, metrics, concepts, tradeoffs, calculations)?
+B) Design/build/architect a COMPLETE system from scratch?
+
+IF THE QUESTION CONTAINS: "SLI", "SLO", "metrics", "availability", "99.9%", "define", "explain", "what is", "how does", "tradeoffs", "calculate"
+AND DOES NOT CONTAIN: "design a", "build a", "architect a", "create a system"
+THEN → USE TYPE A FORMAT (focused answer, NO diagrams)
+
+##############################################################################
+# TYPE A: FOCUSED ANSWER (DEFAULT FOR CONCEPTUAL QUESTIONS)
+##############################################################################
+
+FOR QUESTIONS ABOUT: SLIs, SLOs, metrics, availability targets, concepts, tradeoffs, calculations
+
+RETURN ONLY THIS FORMAT - NO DIAGRAMS, NO ARCHITECTURE, NO API DESIGN:
+{
+  "language": "text",
+  "code": "",
+  "pitch": "",
+  "examples": [],
+  "explanations": [],
+  "complexity": {"time": "N/A", "space": "N/A"},
+  "systemDesign": {
+    "included": true,
+    "focusedAnswer": true,
+    "overview": "Brief context (1-2 sentences max)",
+    "categories": [
+      {
+        "name": "Infrastructure SLIs",
+        "items": [
+          {"metric": "Server Uptime", "target": "99.99%", "measurement": "Health checks every 10s", "alertThreshold": "<99.95% in 5min"}
+        ]
+      }
+    ]
+  }
+}
+
+*** TYPE A ABSOLUTE RULES ***
+- NEVER include: diagram, apiDesign, dataModel, architecture, requirements, techJustifications, scalability, tradeoffs, edgeCases
+- ONLY include: overview + categories
+
+##############################################################################
+# TYPE B: FULL SYSTEM DESIGN (ONLY for "Design a...", "Build a...", "Architect a...")
+##############################################################################
+
+For FULL/DETAILED system design (TYPE B only):
 - Design a MULTI-REGION, highly available architecture
 - Include database REPLICATION and SHARDING strategies
 - Add CDN, edge caching, global load balancing
@@ -180,7 +328,19 @@ CRITICAL: For EVERY technology/service you include, you MUST explain:
 
 IMPORTANT: Do NOT generate code. Focus entirely on system design.
 
-Respond with valid JSON in exactly this format:
+IMPORTANT: Generate fields in this EXACT ORDER to minimize interview latency:
+1. First: All explanatory content (pitch, overview, requirements, architecture, techJustifications, scalability, tradeoffs, edgeCases)
+2. Second: The diagram (ASCII/Mermaid format)
+3. Last: API design and data model details
+
+##############################################################################
+# DIAGRAM RULES - ABSOLUTE REQUIREMENTS
+##############################################################################
+*** CRITICAL: ALWAYS use "flowchart LR" (LEFT-TO-RIGHT horizontal layout) ***
+*** NEVER EVER use "flowchart TB" or "flowchart TD" (top-bottom/top-down) ***
+*** TOP-BOTTOM DIAGRAMS ARE STRICTLY FORBIDDEN - ALWAYS HORIZONTAL LR ***
+
+For TYPE B (full system design) ONLY, respond with valid JSON in exactly this format:
 {
   "language": "text",
   "code": "",
@@ -195,17 +355,10 @@ Respond with valid JSON in exactly this format:
       "functional": ["Detailed functional requirements"],
       "nonFunctional": ["Latency targets", "Availability (99.9%+)", "Scalability goals", "Data consistency requirements"]
     },
-    "apiDesign": [
-      {"method": "POST", "endpoint": "/api/endpoint", "description": "Full description with rate limits", "request": "{detailed request}", "response": "{detailed response}"}
-    ],
-    "dataModel": [
-      {"table": "tablename", "fields": [{"name": "field", "type": "type", "description": "desc with indexing strategy"}]}
-    ],
     "architecture": {
       "components": ["CDN", "Global Load Balancer", "Regional LBs", "Web Servers", "Cache Cluster", "Primary DB", "Read Replicas", "Message Queue", "Workers", "Object Storage"],
       "description": "Detailed multi-region architecture with failover"
     },
-    "diagram": "flowchart LR\\n  CDN[CDN] --> LB1[LB Region1]\\n  CDN --> LB2[LB Region2]\\n  subgraph Region1[Region 1]\\n    LB1 --> WS1[Web Servers]\\n    WS1 --> Cache1[(Redis)]\\n    WS1 --> DB1[(Primary DB)]\\n  end\\n  subgraph Region2[Region 2]\\n    LB2 --> WS2[Web Servers]\\n    WS2 --> Cache2[(Redis)]\\n    WS2 --> DB2[(Replica)]\\n  end\\n  DB1 -.-> DB2",
     "techJustifications": [
       {"tech": "Kafka", "category": "Message Queue", "why": "High-throughput event streaming (millions/sec), durability with replication, replay capability for data recovery", "without": "Direct DB writes would bottleneck at 10K writes/sec, losing async processing capability", "alternatives": "RabbitMQ (lower throughput), SQS (simpler but AWS-only), Redis Streams (lighter but less durable)"},
       {"tech": "Redis Cluster", "category": "Cache", "why": "Sub-millisecond reads (<1ms), reduces DB load by 90%, supports distributed locking and rate limiting", "without": "DB would handle 10x more reads, p99 latency jumps from 5ms to 50ms+", "alternatives": "Memcached (no persistence), Hazelcast (more features, more complex)"},
@@ -215,7 +368,24 @@ Respond with valid JSON in exactly this format:
       {"tech": "CDN", "category": "Edge Cache", "why": "Serves static content from 200+ edge locations, reduces origin load by 95%, improves global latency from 200ms to 20ms", "without": "All requests hit origin, 10x higher infrastructure cost, poor global UX", "alternatives": "CloudFront, Fastly, Akamai - all similar capabilities"},
       {"tech": "Load Balancer", "category": "Traffic Management", "why": "Distributes load across servers, health checks with automatic failover, SSL termination, rate limiting", "without": "Single server = single point of failure, no horizontal scaling", "alternatives": "HAProxy (OSS), Nginx (OSS), cloud LBs (managed)"}
     ],
-    "scalability": ["Horizontal scaling with auto-scaling groups", "Database sharding by user_id/hash", "Cache cluster with consistent hashing", "CDN for static content", "Async processing via message queues", "Read replicas for read-heavy workloads"]
+    "scalability": ["Horizontal scaling with auto-scaling groups", "Database sharding by user_id/hash", "Cache cluster with consistent hashing", "CDN for static content", "Async processing via message queues", "Read replicas for read-heavy workloads"],
+    "tradeoffs": [
+      "Tradeoff 1: Strong vs eventual consistency - chose eventual for availability but requires conflict resolution",
+      "Tradeoff 2: Multi-region complexity vs latency - higher ops cost but sub-100ms global latency",
+      "Tradeoff 3: Kafka vs simpler queue - more complex but enables replay and stream processing"
+    ],
+    "edgeCases": [
+      "Edge case 1: Network partition between regions - need conflict resolution strategy",
+      "Edge case 2: Hot partition in sharded DB - celebrity/viral content problem",
+      "Edge case 3: Cache stampede during cold start or mass expiration"
+    ],
+    "diagram": "flowchart LR\\n  CDN[CDN] --> LB1[LB Region1]\\n  CDN --> LB2[LB Region2]\\n  subgraph Region1[Region 1]\\n    LB1 --> WS1[Web Servers]\\n    WS1 --> Cache1[(Redis)]\\n    WS1 --> DB1[(Primary DB)]\\n  end\\n  subgraph Region2[Region 2]\\n    LB2 --> WS2[Web Servers]\\n    WS2 --> Cache2[(Redis)]\\n    WS2 --> DB2[(Replica)]\\n  end\\n  DB1 -.-> DB2",
+    "apiDesign": [
+      {"method": "POST", "endpoint": "/api/endpoint", "description": "Full description with rate limits", "request": "{detailed request}", "response": "{detailed response}"}
+    ],
+    "dataModel": [
+      {"table": "tablename", "fields": [{"name": "field", "type": "type", "description": "desc with indexing strategy"}]}
+    ]
   }
 }`;
 

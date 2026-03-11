@@ -1,5 +1,8 @@
-/* Import Inter Tight from Google Fonts - premium variable font */
+/* Import Google Fonts and Design System modules */
 @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@100..900&display=swap');
+@import './styles/tokens.css';
+@import './styles/animations.css';
+@import './styles/components.css';
 
 @tailwind base;
 @tailwind components;

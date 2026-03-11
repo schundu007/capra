@@ -35,13 +35,14 @@ function safeError(...args) {
 
 let mainWindow = null;
 let interviewPrepWindow = null;
+let voiceAssistantWindow = null;
 let backendServer = null;
 const isDev = !app.isPackaged;
 
 // Stealth mode state
-let stealthModeEnabled = true; // Default ON for interview safety (toggle with Cmd+Shift+S)
+let stealthModeEnabled = false; // Default OFF (toggle with Cmd+Shift+S)
 let windowVisible = true;
-let autoHideEnabled = true; // Auto-hide when screen sharing detected
+let autoHideEnabled = false; // Auto-destroy disabled - use second monitor for stealth
 let wasAutoHidden = false; // Track if we auto-hid (vs manual hide)
 let savedBoundsGlobal = null; // Store bounds globally for auto-hide restore
 
@@ -79,6 +80,9 @@ function startScreenShareMonitor() {
     if (!autoHideEnabled) return;
 
     checkScreenSharing((isSharing) => {
+      // Re-check autoHideEnabled in callback (might have changed during async check)
+      if (!autoHideEnabled) return;
+
       if (isSharing && mainWindow && !windowDestroyed) {
         // DESTROY window completely when video call detected
         savedBoundsGlobal = mainWindow.getBounds();
@@ -105,19 +109,22 @@ function startScreenShareMonitor() {
 async function createWindowOnly() {
   const { BrowserWindow } = await import('electron');
 
+  // Use saved bounds or default to secondary display
+  const defaultBounds = getSecondaryDisplayBounds(1400, 900);
+  const bounds = savedBoundsGlobal || defaultBounds;
+
   mainWindow = new BrowserWindow({
-    width: savedBoundsGlobal?.width || 1400,
-    height: savedBoundsGlobal?.height || 900,
-    x: savedBoundsGlobal?.x,
-    y: savedBoundsGlobal?.y,
+    width: bounds.width,
+    height: bounds.height,
+    x: bounds.x,
+    y: bounds.y,
     minWidth: 900,
     minHeight: 600,
-    title: 'Chundu',
-    type: process.platform === 'darwin' ? 'panel' : undefined,
+    title: 'Ascend',
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     trafficLightPosition: { x: 16, y: 16 },
     backgroundColor: '#0a1a10',
-    skipTaskbar: true,
+    skipTaskbar: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
@@ -147,6 +154,30 @@ async function createWindowOnly() {
   mainWindow.focus();
 }
 
+// Get the secondary (non-primary) display for stealth positioning
+function getSecondaryDisplay() {
+  const displays = screen.getAllDisplays();
+  const primaryDisplay = screen.getPrimaryDisplay();
+
+  // Find a display that's not the primary
+  const secondaryDisplay = displays.find(d => d.id !== primaryDisplay.id);
+
+  return secondaryDisplay || primaryDisplay; // Fallback to primary if only one monitor
+}
+
+// Calculate window position centered on secondary display
+function getSecondaryDisplayBounds(width, height) {
+  const display = getSecondaryDisplay();
+  const { x, y, width: displayWidth, height: displayHeight } = display.workArea;
+
+  return {
+    x: x + Math.floor((displayWidth - width) / 2),
+    y: y + Math.floor((displayHeight - height) / 2),
+    width,
+    height
+  };
+}
+
 // Get backend port
 const BACKEND_PORT = 3001;
 
@@ -158,19 +189,23 @@ async function createWindow() {
     apiKeys,
   });
 
-  // Create the browser window
-  // Use 'panel' type on macOS to avoid appearing in window picker/screen share lists
+  // Create the browser window on SECONDARY monitor (for stealth during screen share)
+  // User shares primary monitor, Ascend stays on secondary
+  const windowBounds = getSecondaryDisplayBounds(1400, 900);
+  safeLog('[Stealth] Opening on secondary display at:', windowBounds.x, windowBounds.y);
+
   mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 900,
+    width: windowBounds.width,
+    height: windowBounds.height,
+    x: windowBounds.x,
+    y: windowBounds.y,
     minWidth: 900,
     minHeight: 600,
-    title: 'Chundu',
-    type: process.platform === 'darwin' ? 'panel' : undefined, // Panel doesn't show in window picker
+    title: 'Ascend',
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     trafficLightPosition: { x: 16, y: 16 },
-    backgroundColor: '#0a1a10', // dark green
-    skipTaskbar: true, // Don't show in taskbar/dock window list
+    backgroundColor: '#0a1a10',
+    skipTaskbar: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
@@ -210,17 +245,26 @@ async function createWindow() {
     }
   });
 
-  // Handle media access for desktopCapturer
-  mainWindow.webContents.session.setDisplayMediaRequestHandler((request, callback) => {
-    safeLog('[Electron] Display media request');
-    // Allow all display media requests (for system audio capture)
-    desktopCapturer.getSources({ types: ['screen', 'window'] }).then((sources) => {
-      if (sources.length > 0) {
-        callback({ video: sources[0] });
-      } else {
-        callback({});
-      }
+  // Handle display media requests - show screen picker
+  mainWindow.webContents.session.setDisplayMediaRequestHandler(async (request, callback) => {
+    safeLog('[Electron] Display media request received');
+
+    // Get available sources
+    const sources = await desktopCapturer.getSources({
+      types: ['screen', 'window']
     });
+
+    safeLog('[Electron] Found sources:', sources.length);
+
+    // For now, auto-select the entire screen (first source)
+    // This captures everything including system audio on supported platforms
+    if (sources.length > 0) {
+      safeLog('[Electron] Selecting source:', sources[0].name);
+      callback({ video: sources[0] });
+    } else {
+      safeLog('[Electron] No sources found');
+      callback({});
+    }
   });
 
   // Load the app
@@ -600,7 +644,15 @@ app.whenReady().then(async () => {
   // macOS: Re-create window when dock icon is clicked, or show existing window
   app.on('activate', async () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      await createWindow();
+      // If backend server is already running (window was closed but app still running),
+      // just create the window without restarting backend
+      if (backendServer) {
+        safeLog('[Electron] Recreating window (backend already running)');
+        await createWindowOnly();
+      } else {
+        safeLog('[Electron] Creating new window and backend');
+        await createWindow();
+      }
     } else if (mainWindow) {
       // Show and focus the existing window
       if (mainWindow.isMinimized()) {
@@ -776,6 +828,128 @@ ipcMain.handle('open-ascend-prep', async () => {
 
   interviewPrepWindow.on('closed', () => {
     interviewPrepWindow = null;
+  });
+
+  return { success: true };
+});
+
+// Open Voice Assistant in dedicated window
+ipcMain.handle('open-voice-assistant', async () => {
+  // If window already exists, focus it
+  if (voiceAssistantWindow && !voiceAssistantWindow.isDestroyed()) {
+    voiceAssistantWindow.focus();
+    return { success: true };
+  }
+
+  // Position next to main window on the SAME monitor
+  const mainBounds = mainWindow ? mainWindow.getBounds() : { x: 100, y: 100, width: 1200, height: 800 };
+
+  // Voice assistant window: 450px wide, same height as main window
+  const windowWidth = 450;
+  const windowHeight = mainBounds.height;
+  const windowX = mainBounds.x + mainBounds.width + 10; // 10px gap to the right of main window
+  const windowY = mainBounds.y;
+
+  // Create new window for Voice Assistant
+  voiceAssistantWindow = new BrowserWindow({
+    width: windowWidth,
+    height: windowHeight,
+    x: windowX,
+    y: windowY,
+    minWidth: 400,
+    minHeight: 500,
+    title: 'Voice Assistant - Ascend',
+    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
+    trafficLightPosition: { x: 16, y: 16 },
+    backgroundColor: '#0a1a10',
+    alwaysOnTop: false, // Allow normal window management
+    skipTaskbar: false, // Show in taskbar so both windows can be managed
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.cjs'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+    },
+  });
+
+  // Grant media permissions for voice assistant window
+  voiceAssistantWindow.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
+    const allowedPermissions = ['media', 'audioCapture', 'desktopCapture', 'mediaKeySystem'];
+    if (allowedPermissions.includes(permission)) {
+      safeLog('[VoiceAssistant] Granting permission:', permission);
+      callback(true);
+    } else {
+      callback(false);
+    }
+  });
+
+  // Handle display media requests for voice assistant window
+  voiceAssistantWindow.webContents.session.setDisplayMediaRequestHandler(async (request, callback) => {
+    safeLog('[VoiceAssistant] Display media request received');
+
+    const sources = await desktopCapturer.getSources({
+      types: ['screen', 'window']
+    });
+
+    if (sources.length > 0) {
+      safeLog('[VoiceAssistant] Selecting source:', sources[0].name);
+      callback({ video: sources[0] });
+    } else {
+      callback({});
+    }
+  });
+
+  // Apply stealth mode to voice assistant window too
+  if (stealthModeEnabled) {
+    voiceAssistantWindow.setContentProtection(true);
+  }
+  if (process.platform === 'darwin') {
+    voiceAssistantWindow.setHiddenInMissionControl(true);
+  }
+
+  // Load the app with voice-assistant hash
+  if (isDev) {
+    await voiceAssistantWindow.loadURL('http://localhost:5173/#voice-assistant');
+  } else {
+    await voiceAssistantWindow.loadURL('http://localhost:5173/#voice-assistant');
+  }
+
+  // Enable right-click context menu
+  voiceAssistantWindow.webContents.on('context-menu', (event, params) => {
+    const { editFlags, isEditable, selectionText } = params;
+    const menuTemplate = [];
+
+    if (isEditable) {
+      menuTemplate.push(
+        { role: 'undo', enabled: editFlags.canUndo },
+        { role: 'redo', enabled: editFlags.canRedo },
+        { type: 'separator' },
+        { role: 'cut', enabled: editFlags.canCut },
+        { role: 'copy', enabled: editFlags.canCopy },
+        { role: 'paste', enabled: editFlags.canPaste },
+        { type: 'separator' },
+        { role: 'selectAll', enabled: editFlags.canSelectAll }
+      );
+    } else if (selectionText) {
+      menuTemplate.push(
+        { role: 'copy', enabled: editFlags.canCopy },
+        { type: 'separator' },
+        { role: 'selectAll' }
+      );
+    } else {
+      menuTemplate.push(
+        { role: 'selectAll' },
+        { type: 'separator' },
+        { role: 'paste', enabled: editFlags.canPaste }
+      );
+    }
+
+    const contextMenu = Menu.buildFromTemplate(menuTemplate);
+    contextMenu.popup({ window: voiceAssistantWindow });
+  });
+
+  voiceAssistantWindow.on('closed', () => {
+    voiceAssistantWindow = null;
   });
 
   return { success: true };

@@ -121,15 +121,58 @@
     return null;
   }
 
+  // Extract problem text from the page (for platforms that need JS execution)
+  function extractProblemText(platform) {
+    const selectors = {
+      coderpad: [
+        '.question-prompt',
+        '.question-description',
+        '.problem-statement',
+        '.instructions',
+        '[class*="question-content"]',
+        '[class*="problem-description"]',
+        '.markdown-body',
+        '.challenge-description',
+        '[data-testid="question-prompt"]',
+        '.ql-editor',
+      ],
+      codesignal: [
+        '.task-description',
+        '.markdown-body',
+        '[class*="task-content"]',
+      ],
+      glider: [
+        '.question-text',
+        '.problem-description',
+        '[class*="question-content"]',
+      ],
+    };
+
+    const platformSelectors = selectors[platform] || [];
+    for (const selector of platformSelectors) {
+      const el = document.querySelector(selector);
+      if (el && el.innerText && el.innerText.trim().length > 50) {
+        return el.innerText.trim();
+      }
+    }
+    return null;
+  }
+
   // Send via background script with randomized delay
   async function notify(url, platform, type) {
     // Random delay 2-5 seconds to avoid timing fingerprinting
     const delay = 2000 + Math.random() * 3000;
     await new Promise(r => setTimeout(r, delay));
 
+    // For platforms that need JS execution, extract problem text directly
+    const problemText = ['coderpad', 'codesignal', 'glider'].includes(platform)
+      ? extractProblemText(platform)
+      : null;
+
     chrome.runtime.sendMessage({
       action: 'problemDetected',
       url, platform, problemType: type,
+      problemText,  // Include extracted text for JS-heavy platforms
       timestamp: Date.now()
     }, () => {});
   }

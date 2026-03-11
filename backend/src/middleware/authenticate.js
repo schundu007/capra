@@ -46,23 +46,34 @@ async function tryJwtAuth(token) {
 
 /**
  * Verify Electron request with device ID
- * More secure than just checking header - requires valid device ID
+ * SECURITY: Requires valid device ID with strict format validation
  */
 function verifyElectronRequest(req) {
   const deviceId = req.headers['x-device-id'];
 
-  // If device ID provided, validate its format
-  if (deviceId) {
-    const deviceIdPattern = /^(darwin|win32|linux)-[a-f0-9]{24}$/;
-    if (deviceIdPattern.test(deviceId)) {
-      return { valid: true, deviceId };
-    }
+  // Device ID is now required (legacy support removed)
+  if (!deviceId) {
+    logger.warn({ path: req.path, ip: req.ip }, 'Electron request rejected: missing device ID');
+    return { valid: false, error: 'Device ID required' };
   }
 
-  // Legacy support: allow without device ID but log warning
-  // TODO: Remove this after all Electron apps are updated
-  logger.warn({ path: req.path }, 'Electron request without device ID - legacy mode');
-  return { valid: true, deviceId: 'legacy-no-device-id' };
+  // Strict device ID format validation
+  // Format: {platform}-{24 hex chars}
+  const deviceIdPattern = /^(darwin|win32|linux)-[a-f0-9]{24}$/;
+  if (!deviceIdPattern.test(deviceId)) {
+    logger.warn({ path: req.path, deviceId: deviceId.substring(0, 10) + '...' }, 'Electron request rejected: invalid device ID format');
+    return { valid: false, error: 'Invalid device ID format' };
+  }
+
+  // Additional validation: check platform matches common patterns
+  const platform = deviceId.split('-')[0];
+  const validPlatforms = ['darwin', 'win32', 'linux'];
+  if (!validPlatforms.includes(platform)) {
+    logger.warn({ path: req.path, platform }, 'Electron request rejected: invalid platform');
+    return { valid: false, error: 'Invalid platform' };
+  }
+
+  return { valid: true, deviceId };
 }
 
 /**
@@ -84,21 +95,26 @@ export async function authenticate(req, res, next) {
   // 1. Handle Electron apps
   if (isElectron) {
     const electronVerify = verifyElectronRequest(req);
-    if (electronVerify.valid) {
-      req.deviceId = electronVerify.deviceId;
-      req.isElectron = true;
-
-      // If Electron provides auth token, still verify it for linked accounts
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.split(' ')[1];
-        const jwtUser = await tryJwtAuth(token);
-        if (jwtUser && !jwtUser.error) {
-          req.user = jwtUser;
-        }
-      }
-
-      return next();
+    if (!electronVerify.valid) {
+      return res.status(401).json({
+        error: electronVerify.error || 'Invalid Electron request',
+        code: 'INVALID_ELECTRON_REQUEST',
+      });
     }
+
+    req.deviceId = electronVerify.deviceId;
+    req.isElectron = true;
+
+    // If Electron provides auth token, still verify it for linked accounts
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      const jwtUser = await tryJwtAuth(token);
+      if (jwtUser && !jwtUser.error) {
+        req.user = jwtUser;
+      }
+    }
+
+    return next();
   }
 
   // 2. Try JWT authentication (webapp users)

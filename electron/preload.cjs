@@ -60,6 +60,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Open document viewer with HTML documents
   openDocumentViewer: (documents) => ipcRenderer.invoke('open-document-viewer', documents),
 
+  // Open Voice Assistant in dedicated window
+  openVoiceAssistant: () => ipcRenderer.invoke('open-voice-assistant'),
+
   // Stealth mode
   getStealthMode: () => ipcRenderer.invoke('get-stealth-mode'),
   setStealthMode: (enabled) => ipcRenderer.invoke('set-stealth-mode', enabled),

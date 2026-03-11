@@ -1,21 +1,18 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Allotment } from 'allotment';
 import 'allotment/dist/style.css';
+
+// Components
 import ProblemInput from './components/ProblemInput';
 import CodeDisplay from './components/CodeDisplay';
 import ExplanationPanel from './components/ExplanationPanel';
-import ProviderToggle from './components/ProviderToggle';
-import ErrorDisplay from './components/ErrorDisplay';
-import PlatformStatus from './components/PlatformStatus';
 import OAuthLogin from './components/auth/OAuthLogin';
 import PricingPlans from './components/billing/PricingPlans';
 import CreditBalance from './components/billing/CreditBalance';
 import DownloadPage from './components/billing/DownloadPage';
 import DocsPage from './components/DocsPage';
-import OnboardingModal, { hasCompletedOnboarding, markOnboardingComplete } from './components/onboarding/OnboardingModal';
-import { useAuth } from './contexts/AuthContext';
+import OnboardingModal, { hasCompletedOnboarding } from './components/onboarding/OnboardingModal';
 import AdminPanel from './components/AdminPanel';
-import ChunduLogo from './components/ChunduLogo';
 import SettingsPanel from './components/settings/SettingsPanel';
 import SetupWizard from './components/settings/SetupWizard';
 import PlatformAuth from './components/PlatformAuth';
@@ -24,30 +21,32 @@ import AscendModeSelector from './components/AscendModeSelector';
 import PrepTab from './components/PrepTab';
 import AscendPrepModal from './components/AscendPrepModal';
 import SavedSystemDesignsModal from './components/SavedSystemDesignsModal';
+import Sidebar from './components/Sidebar';
+
+// Hooks
 import { getApiUrl } from './hooks/useElectron';
 import useKeyboardShortcuts from './hooks/useKeyboardShortcuts';
 import { useSystemDesignStorage } from './hooks/useSystemDesignStorage';
 import { useCodingHistory } from './hooks/useCodingHistory';
-import Sidebar from './components/Sidebar';
+import { useSolve, useAutoTestFix } from './hooks/useSolve';
+import { parseStreamingContent } from './hooks/useStreamingParser';
 
-// Detect Electron environment
-const isElectron = window.electronAPI?.isElectron || false;
+// Context & Utils
+import { useAuth } from './contexts/AuthContext';
+import { getAuthHeaders, initDeviceId } from './utils/authHeaders.js';
 
-// Check if this is the dedicated Interview Prep window
-const isAscendPrepWindow = window.location.hash === '#ascend-prep';
+// Constants
+import { isElectron, isAscendPrepWindow, isVoiceAssistantWindow, STORAGE_KEYS } from './constants';
 
-// Get API URL - uses dynamic resolution for Electron
+// Re-export for backward compatibility
+export { getAuthHeaders };
+
+// Get API URL
 const API_URL = getApiUrl();
 
-// Coding Platforms
-const PLATFORMS = {
-  hackerrank: { name: 'HackerRank', icon: 'H', color: '#1ba94c' },
-  coderpad: { name: 'CoderPad', icon: 'C', color: '#6366f1' },
-  leetcode: { name: 'LeetCode', icon: 'L', color: '#f97316' },
-  codesignal: { name: 'CodeSignal', icon: 'S', color: '#3b82f6' },
-};
-
-// Migrate old storage keys from ascend_* to chundu_*
+// ============================================================================
+// Storage Migration (runs once on load)
+// ============================================================================
 function migrateStorageKeys() {
   const migrations = [
     ['ascend_token', 'chundu_token'],
@@ -57,495 +56,264 @@ function migrateStorageKeys() {
     ['ascend_sidebar_collapsed', 'chundu_sidebar_collapsed'],
   ];
 
-  let migrated = false;
   for (const [oldKey, newKey] of migrations) {
     const oldValue = localStorage.getItem(oldKey);
     if (oldValue && !localStorage.getItem(newKey)) {
       localStorage.setItem(newKey, oldValue);
-      console.log(`[Migration] Migrated ${oldKey} -> ${newKey}`);
-      migrated = true;
     }
   }
-  if (migrated) {
-    console.log('[Migration] Storage keys migrated successfully');
-  }
 }
-
-// Run migration on load
 migrateStorageKeys();
 
-// Get auth token from localStorage (supports both old and new auth formats)
+// ============================================================================
+// Auth Helpers
+// ============================================================================
 function getToken() {
-  // Try new OAuth format first (ascend_auth)
   try {
     const authData = localStorage.getItem('ascend_auth');
     if (authData) {
       const parsed = JSON.parse(authData);
-      if (parsed.accessToken) {
-        return parsed.accessToken;
-      }
+      if (parsed.accessToken) return parsed.accessToken;
     }
-  } catch (e) {
-    // Ignore parse errors
-  }
-  // Fall back to old format
+  } catch {}
   return localStorage.getItem('chundu_token');
 }
 
-// Import shared auth headers utility
-import { getAuthHeaders, initDeviceId } from './utils/authHeaders.js';
-
-// Re-export for backward compatibility with any code expecting getAuthHeaders from App.jsx
-export { getAuthHeaders };
-
-// Clean up text - remove double spaces, extra empty lines
-function cleanupText(text) {
-  if (!text) return text;
-  // Only process strings, return objects/arrays as-is
-  if (typeof text !== 'string') return text;
-  return text
-    .replace(/[ \t]+/g, ' ')           // Replace multiple spaces/tabs with single space
-    .replace(/\n\s*\n\s*\n/g, '\n\n')  // Replace 3+ newlines with 2
-    .replace(/^\s+$/gm, '')            // Remove whitespace-only lines
-    .replace(/\n{3,}/g, '\n\n')        // Ensure max 2 consecutive newlines
-    .trim();
-}
-
-// Parse partial JSON to extract fields as they stream in
-function parseStreamingContent(text) {
-  const result = {
-    code: null,
-    language: null,
-    pitch: null,
-    explanations: null,
-    complexity: null,
-    systemDesign: null,
-  };
-
-  if (!text) return result;
-
-  // Try to extract top-level code field (not the "code" inside explanations array)
-  // Look for "code" that comes after "language" or at the start of the JSON object
-  // First, try to find "language" followed by "code" pattern
-  let codeMatch = text.match(/"language"\s*:\s*"[^"]*"\s*,\s*"code"\s*:\s*"((?:[^"\\]|\\.)*)"/s);
-
-  // If that doesn't work, look for "code" that is NOT inside an explanations object
-  // (explanations objects have {"line": before "code")
-  if (!codeMatch) {
-    // Find all "code": "..." matches and filter out ones inside explanations
-    const allCodeMatches = [...text.matchAll(/"code"\s*:\s*"((?:[^"\\]|\\.)*)"/gs)];
-    for (const match of allCodeMatches) {
-      // Check if this "code" is preceded by {"line": (which means it's in explanations)
-      const beforeMatch = text.substring(0, match.index);
-      const lastBrace = beforeMatch.lastIndexOf('{');
-      const contextBefore = beforeMatch.substring(lastBrace);
-      // If the context before doesn't contain "line", this is likely the top-level code
-      if (!contextBefore.match(/"line"\s*:/)) {
-        codeMatch = match;
-        break;
-      }
-    }
-  }
-
-  if (codeMatch) {
-    const codeValue = codeMatch[1] || codeMatch[1];
-    result.code = codeValue
-      .replace(/\\n/g, '\n')
-      .replace(/\\t/g, '\t')
-      .replace(/\\"/g, '"')
-      .replace(/\\\\/g, '\\');
-  }
-
-  // Extract language
-  const langMatch = text.match(/"language"\s*:\s*"([^"]+)"/);
-  if (langMatch) {
-    result.language = langMatch[1];
-  }
-
-  // Extract pitch - can be either a string or an object
-  // First try to match pitch as an object (new format)
-  const pitchObjectMatch = text.match(/"pitch"\s*:\s*(\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})/s);
-  if (pitchObjectMatch) {
-    try {
-      result.pitch = JSON.parse(pitchObjectMatch[1]);
-    } catch {
-      // If parsing fails, try as string
-    }
-  }
-  // Fallback: try to match pitch as a string (old format)
-  if (!result.pitch) {
-    const pitchStringMatch = text.match(/"pitch"\s*:\s*"((?:[^"\\]|\\.)*)"/s);
-    if (pitchStringMatch) {
-      result.pitch = cleanupText(pitchStringMatch[1]
-        .replace(/\\n/g, '\n')
-        .replace(/\\"/g, '"')
-        .replace(/\\\\/g, '\\'));
-    }
-  }
-
-  // Try to extract complexity
-  const complexityMatch = text.match(/"complexity"\s*:\s*\{[^}]*"time"\s*:\s*"([^"]+)"[^}]*"space"\s*:\s*"([^"]+)"[^}]*\}/s);
-  if (complexityMatch) {
-    result.complexity = { time: complexityMatch[1], space: complexityMatch[2] };
-  }
-
-  // Try to extract systemDesign
-  const systemDesignMatch = text.match(/"systemDesign"\s*:\s*(\{[\s\S]*?\})\s*(?:,|\})/);
-  if (systemDesignMatch) {
-    try {
-      // Try to parse the systemDesign object
-      const sdText = systemDesignMatch[1];
-      // Check if it's a complete object (has "included")
-      const includedMatch = sdText.match(/"included"\s*:\s*(true|false)/);
-      if (includedMatch) {
-        result.systemDesign = { included: includedMatch[1] === 'true' };
-        // Try to parse full systemDesign if it seems complete
-        if (includedMatch[1] === 'true') {
-          try {
-            // Look for the full systemDesign block
-            const fullMatch = text.match(/"systemDesign"\s*:\s*(\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})/s);
-            if (fullMatch) {
-              result.systemDesign = JSON.parse(fullMatch[1]);
-            }
-          } catch {
-            // Keep partial result
-          }
-        }
-      }
-    } catch {
-      // Ignore parse errors during streaming
-    }
-  }
-
-  return result;
-}
-
-// Stream solve request using SSE
-async function solveWithStream(problem, provider, language, detailLevel, model, onChunk, ascendMode = 'coding', designDetailLevel = 'basic', signal = null, autoSwitch = false, onSwitch = null) {
-  const response = await fetch(API_URL + '/api/solve/stream', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-    body: JSON.stringify({ problem, provider, language, detailLevel, model, ascendMode, designDetailLevel, autoSwitch }),
-    signal,
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to solve problem');
-  }
-
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = '';
-  let result = null;
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\n');
-    buffer = lines.pop() || '';
-
-    for (const line of lines) {
-      if (line.startsWith('data: ')) {
-        try {
-          const data = JSON.parse(line.slice(6));
-          if (data.switching) {
-            console.log(`[Solve Stream] Provider switching from ${data.from} to ${data.to}: ${data.reason}`);
-            if (onSwitch) {
-              onSwitch(data.from, data.to, data.reason);
-            }
-          }
-          if (data.chunk) {
-            onChunk(data.chunk);
-          }
-          if (data.done && data.result) {
-            result = data.result;
-            // Clean up text fields in the result (only if pitch is a string)
-            if (result.pitch && typeof result.pitch === 'string') {
-              result.pitch = cleanupText(result.pitch);
-            }
-            if (result.systemDesign?.overview) {
-              result.systemDesign.overview = cleanupText(result.systemDesign.overview);
-            }
-            if (result.systemDesign?.architecture?.description) {
-              result.systemDesign.architecture.description = cleanupText(result.systemDesign.architecture.description);
-            }
-          }
-          if (data.error) {
-            const error = new Error(data.error);
-            if (data.needCredits) {
-              error.needCredits = true;
-            }
-            throw error;
-          }
-        } catch (e) {
-          if (e.message !== 'Unexpected end of JSON input') {
-            console.error('SSE parse error:', e);
-            if (e.needCredits) throw e;
-          }
-        }
-      }
-    }
-  }
-
-  return result;
-}
-
+// ============================================================================
+// Main App Component
+// ============================================================================
 export default function App() {
-  const [provider, setProvider] = useState('claude');
-  const [model, setModel] = useState('claude-sonnet-4-20250514');
-  const [autoSwitch, setAutoSwitch] = useState(() => {
-    try {
-      return localStorage.getItem('chundu_auto_switch') === 'true';
-    } catch {
-      return false;
-    }
-  });
-  const [isLoading, setIsLoading] = useState(false);
-
-  // AbortController ref for cancelling ongoing operations
-  const abortControllerRef = useRef(null);
-
-  // Auth from context (webapp)
+  // ---------------------------------------------------------------------------
+  // Auth (webapp uses context, Electron skips auth)
+  // ---------------------------------------------------------------------------
   const auth = useAuth();
-
-  // Auth state for Electron (local) mode
-  const [authChecked, setAuthChecked] = useState(false);
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
-  const [showPricingPlans, setShowPricingPlans] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
-
-  // Unified auth state - webapp uses context, Electron skips auth
   const isAuthenticated = isElectron ? true : auth.isAuthenticated;
   const user = isElectron ? null : auth.user;
   const authRequired = !isElectron && auth.isWebApp;
+  const isAdmin = user?.role === 'admin' || user?.roles?.includes?.('admin');
 
+  // ---------------------------------------------------------------------------
   // URL-based routing for webapp
+  // ---------------------------------------------------------------------------
   const currentPath = !isElectron ? window.location.pathname : '';
   const isLandingPage = !isElectron && (currentPath === '/' || currentPath === '/login');
   const isDownloadPage = !isElectron && currentPath === '/download';
   const isDocsPage = !isElectron && currentPath.startsWith('/docs');
-  const isAppPage = !isElectron && currentPath === '/app';
 
-  // Electron-specific state
-  const [showSettings, setShowSettings] = useState(false);
-  const [showSetupWizard, setShowSetupWizard] = useState(false);
-  const [showPlatformAuth, setShowPlatformAuth] = useState(false);
-  const [showAscendAssistant, setShowAscendAssistant] = useState(false);
-  const [showPlatformDropdown, setShowPlatformDropdown] = useState(false);
-  const [platformStatus, setPlatformStatus] = useState({});
-  const [showPrepTab, setShowPrepTab] = useState(false);
-  const [showSavedDesigns, setShowSavedDesigns] = useState(false);
-  const [stealthMode, setStealthMode] = useState(false);
+  // ---------------------------------------------------------------------------
+  // Provider State
+  // ---------------------------------------------------------------------------
+  const [provider, setProvider] = useLocalStorage('chundu_provider', 'claude');
+  const [model, setModel] = useLocalStorage('chundu_model', 'claude-sonnet-4-20250514');
+  const [autoSwitch, setAutoSwitch] = useLocalStorage('chundu_auto_switch', false);
 
-  // Coding mode controls (lifted from ProblemInput)
-  const [codingDetailLevel, setCodingDetailLevel] = useState('basic');
-  const [codingLanguage, setCodingLanguage] = useState('auto');
+  // ---------------------------------------------------------------------------
+  // Mode State
+  // ---------------------------------------------------------------------------
+  const [ascendMode, setAscendMode] = useLocalState('coding');
+  const [designDetailLevel, setDesignDetailLevel] = useLocalState('basic');
+  const [codingDetailLevel, setCodingDetailLevel] = useLocalState('basic');
+  const [codingLanguage, setCodingLanguage] = useLocalState('auto');
+  const [autoGenerateEraser, setAutoGenerateEraser] = useLocalState(false);
 
-  // Editor settings (persisted to localStorage)
-  const [editorSettings, setEditorSettings] = useState(() => {
-    try {
-      const saved = localStorage.getItem('chundu_editor_settings');
-      if (saved) return JSON.parse(saved);
-    } catch {}
-    return {
-      theme: 'dark',
-      keyBindings: 'standard',
-      fontSize: 12,
-      tabSpacing: 4,
-      intelliSense: true,
-      autoCloseBrackets: true,
-    };
+  // ---------------------------------------------------------------------------
+  // Problem State
+  // ---------------------------------------------------------------------------
+  const [extractedText, setExtractedText] = useLocalState('');
+  const [currentProblem, setCurrentProblem] = useLocalState('');
+  const [loadedProblem, setLoadedProblem] = useLocalState('');
+  const [currentLanguage, setCurrentLanguage] = useLocalState('auto');
+  const [problemExpanded, setProblemExpanded] = useLocalState(true);
+  const [clearScreenshot, setClearScreenshot] = useLocalState(0);
+
+  // ---------------------------------------------------------------------------
+  // Solution State
+  // ---------------------------------------------------------------------------
+  const [solution, setSolution] = useLocalState(null);
+  const [autoRunOutput, setAutoRunOutput] = useLocalState(null);
+  const [eraserDiagram, setEraserDiagram] = useLocalState(null);
+  const [highlightedLine, setHighlightedLine] = useLocalState(null);
+
+  // ---------------------------------------------------------------------------
+  // UI State
+  // ---------------------------------------------------------------------------
+  const [authChecked, setAuthChecked] = useLocalState(false);
+  const [error, setError] = useLocalState(null);
+  const [errorType, setErrorType] = useLocalState('default');
+  const [switchNotification, setSwitchNotification] = useLocalState(null);
+  const [copyToast, setCopyToast] = useLocalState(false);
+  const [isProcessingFollowUp, setIsProcessingFollowUp] = useLocalState(false);
+  const [platformStatus, setPlatformStatus] = useLocalState({});
+  const [stealthMode, setStealthMode] = useLocalState(false);
+  const [showPlatformDropdown, setShowPlatformDropdown] = useLocalState(false);
+
+  // ---------------------------------------------------------------------------
+  // Modal State
+  // ---------------------------------------------------------------------------
+  const [showSettings, setShowSettings] = useLocalState(false);
+  const [showSetupWizard, setShowSetupWizard] = useLocalState(false);
+  const [showPlatformAuth, setShowPlatformAuth] = useLocalState(false);
+  const [showAscendAssistant, setShowAscendAssistant] = useLocalState(false);
+  const [showPrepTab, setShowPrepTab] = useLocalState(false);
+  const [showSavedDesigns, setShowSavedDesigns] = useLocalState(false);
+  const [showAdminPanel, setShowAdminPanel] = useLocalState(false);
+  const [showPricingPlans, setShowPricingPlans] = useLocalState(false);
+  const [showOnboarding, setShowOnboarding] = useLocalState(false);
+
+  // ---------------------------------------------------------------------------
+  // Sidebar State
+  // ---------------------------------------------------------------------------
+  const [sidebarCollapsed, setSidebarCollapsed] = useLocalStorage(
+    STORAGE_KEYS.sidebarCollapsed,
+    !isElectron
+  );
+
+  // ---------------------------------------------------------------------------
+  // Editor Settings
+  // ---------------------------------------------------------------------------
+  const [editorSettings, setEditorSettings] = useLocalStorage(STORAGE_KEYS.editorSettings, {
+    theme: 'dark',
+    keyBindings: 'standard',
+    fontSize: 12,
+    tabSpacing: 4,
+    intelliSense: true,
+    autoCloseBrackets: true,
   });
 
-  // Persist editor settings
-  const updateEditorSettings = (updates) => {
-    setEditorSettings(prev => {
-      const newSettings = { ...prev, ...updates };
-      try {
-        localStorage.setItem('chundu_editor_settings', JSON.stringify(newSettings));
-      } catch {}
-      return newSettings;
-    });
-  };
+  const updateEditorSettings = useCallback((updates) => {
+    setEditorSettings(prev => ({ ...prev, ...updates }));
+  }, [setEditorSettings]);
 
-  // Apply theme to document root for CSS variable switching
+  // ---------------------------------------------------------------------------
+  // Storage Hooks
+  // ---------------------------------------------------------------------------
+  const systemDesignStorage = useSystemDesignStorage();
+  const codingHistory = useCodingHistory();
+
+  // ---------------------------------------------------------------------------
+  // Solve Hook
+  // ---------------------------------------------------------------------------
+  const {
+    isLoading,
+    loadingType,
+    streamingContent,
+    solve,
+    reset: resetSolve,
+    abort: abortSolve,
+    setLoadingType,
+  } = useSolve({ provider, model, autoSwitch, ascendMode, designDetailLevel });
+
+  const { autoTestAndFix } = useAutoTestFix({ provider, model });
+
+  // ---------------------------------------------------------------------------
+  // Refs
+  // ---------------------------------------------------------------------------
+  const codeDisplayRef = useRef(null);
+  const abortControllerRef = useRef(null);
+
+  // ---------------------------------------------------------------------------
+  // Apply theme to document
+  // ---------------------------------------------------------------------------
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', editorSettings.theme || 'dark');
   }, [editorSettings.theme]);
 
-  // System design storage hook
-  const systemDesignStorage = useSystemDesignStorage();
-
-  // Coding history hook
-  const codingHistory = useCodingHistory();
-
-  // Sidebar state (persisted)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    if (!isElectron) return true;
-    try {
-      return localStorage.getItem('chundu_sidebar_collapsed') === 'true';
-    } catch {
-      return false;
-    }
-  });
-
-  // Toggle sidebar and persist state
-  const toggleSidebar = () => {
-    const newState = !sidebarCollapsed;
-    setSidebarCollapsed(newState);
-    try {
-      localStorage.setItem('chundu_sidebar_collapsed', String(newState));
-    } catch {
-      // Ignore storage errors
-    }
-  };
-
-  // Check if user is admin
-  // Check if user is admin (supports both old roles array and new role string)
-  const isAdmin = user?.role === 'admin' || user?.roles?.includes?.('admin');
-
-  // Check auth status on mount
+  // ---------------------------------------------------------------------------
+  // Auth check on mount
+  // ---------------------------------------------------------------------------
   useEffect(() => {
-    // In Electron mode, auth is always ready
     if (isElectron) {
       setAuthChecked(true);
-      // Initialize device ID for secure API requests
       initDeviceId();
       return;
     }
-
-    // For webapp, auth status comes from context
-    // Wait for auth context to finish loading
     if (!auth.loading) {
       setAuthChecked(true);
     }
   }, [auth.loading]);
 
+  // ---------------------------------------------------------------------------
   // Show onboarding for new webapp users
+  // ---------------------------------------------------------------------------
   useEffect(() => {
     if (!isElectron && isAuthenticated && authChecked && !hasCompletedOnboarding()) {
       setShowOnboarding(true);
     }
   }, [isAuthenticated, authChecked]);
 
+  // ---------------------------------------------------------------------------
   // URL-based routing for webapp
+  // ---------------------------------------------------------------------------
   useEffect(() => {
     if (isElectron || !authChecked) return;
-
     const path = window.location.pathname;
-
-    // If authenticated and on /login or root, redirect to main app at /app
     if (isAuthenticated && (path === '/login' || path === '/')) {
       window.history.replaceState({}, '', '/app');
     }
-    // Unauthenticated users can stay on / (landing) or /login
-    // No automatic redirect - let them see the landing page
   }, [isAuthenticated, authChecked]);
 
-  // Listen for Electron events
+  // ---------------------------------------------------------------------------
+  // Electron Event Listeners
+  // ---------------------------------------------------------------------------
   useEffect(() => {
     if (!isElectron || !window.electronAPI) return;
 
-    // Get initial stealth mode state
-    window.electronAPI.getStealthMode?.().then(enabled => {
-      setStealthMode(enabled);
-    });
+    window.electronAPI.getStealthMode?.().then(setStealthMode);
 
-    // Listen for stealth mode changes
-    const removeStealthListener = window.electronAPI.onStealthModeChanged?.((enabled) => {
-      setStealthMode(enabled);
-    });
+    const listeners = [
+      window.electronAPI.onStealthModeChanged?.(setStealthMode),
+      window.electronAPI.onFirstRun(() => setShowSetupWizard(true)),
+      window.electronAPI.onOpenSettings(() => setShowSettings(true)),
+      window.electronAPI.onNewProblem(handleClearAll),
+    ];
 
-    // Listen for first-run event
-    const removeFirstRun = window.electronAPI.onFirstRun(() => {
-      setShowSetupWizard(true);
-    });
-
-    // Listen for open-settings event (from menu)
-    const removeOpenSettings = window.electronAPI.onOpenSettings(() => {
-      setShowSettings(true);
-    });
-
-    // Listen for new-problem event (from menu)
-    const removeNewProblem = window.electronAPI.onNewProblem(() => {
-      handleClearAll();
-    });
-
-    return () => {
-      removeStealthListener?.();
-      removeFirstRun?.();
-      removeOpenSettings?.();
-      removeNewProblem?.();
-    };
+    return () => listeners.forEach(remove => remove?.());
   }, []);
 
-  // Listen for problems from Chrome extension (SSE)
-  // Works for both Electron (localhost) and Webapp (Railway backend)
+  // ---------------------------------------------------------------------------
+  // Extension SSE Listener
+  // ---------------------------------------------------------------------------
   useEffect(() => {
-    // Skip if not authenticated in webapp mode
     if (!isElectron && !isAuthenticated) return;
 
     let eventSource = null;
     let reconnectTimeout = null;
     let reconnectAttempts = 0;
-    const maxReconnectAttempts = 5;
 
     function connect() {
-      // Use appropriate URL based on environment
-      const sseUrl = `${API_URL}/api/extension/events`;
-      console.log('[Extension] Connecting to SSE:', sseUrl);
-
-      eventSource = new EventSource(sseUrl);
+      eventSource = new EventSource(`${API_URL}/api/extension/events`);
 
       eventSource.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          console.log('[Extension] Received event:', data);
-
           if (data.type === 'problem' && data.url) {
-            // Auto-solve the problem
-            console.log('[Extension] Auto-solving problem:', data.url, 'type:', data.problemType);
-
-            // Show notification
             setError(null);
             setSwitchNotification({ from: 'Extension', to: data.platform, reason: 'Problem detected' });
             setTimeout(() => setSwitchNotification(null), 3000);
 
-            // Set the interview mode based on problem type
-            if (data.problemType === 'system_design') {
-              setAscendMode('system-design');
-            } else {
-              setAscendMode('coding');
-            }
+            setAscendMode(data.problemType === 'system_design' ? 'system-design' : 'coding');
 
-            // Clear any existing text and trigger URL fetch and solve
-            // handleFetchUrl will set extractedText to the actual problem content
-            setExtractedText('');
-            handleFetchUrl(data.url, 'auto', 'detailed');
+            if (data.problemText && data.problemText.length > 50) {
+              setExtractedText(data.problemText);
+              handleSolve(data.problemText, 'auto', 'detailed');
+            } else {
+              setExtractedText('');
+              handleFetchUrl(data.url, 'auto', 'detailed');
+            }
           }
-        } catch (err) {
-          console.error('[Extension] Failed to parse event:', err);
-        }
+        } catch {}
       };
 
       eventSource.onerror = () => {
         reconnectAttempts++;
-        console.log(`[Extension] SSE connection error, attempt ${reconnectAttempts}/${maxReconnectAttempts}`);
         eventSource?.close();
-
-        // Limit reconnection attempts to avoid spamming
-        if (reconnectAttempts < maxReconnectAttempts) {
+        if (reconnectAttempts < 5) {
           reconnectTimeout = setTimeout(connect, 3000);
-        } else {
-          console.log('[Extension] Max reconnection attempts reached, stopping');
         }
       };
 
       eventSource.onopen = () => {
-        console.log('[Extension] SSE connected - listening for problems');
-        reconnectAttempts = 0; // Reset on successful connection
+        reconnectAttempts = 0;
       };
     }
 
@@ -557,403 +325,79 @@ export default function App() {
     };
   }, [isAuthenticated]);
 
-  // Load platform status
+  // ---------------------------------------------------------------------------
+  // Load Platform Status
+  // ---------------------------------------------------------------------------
   useEffect(() => {
-    async function loadPlatformStatus() {
-      if (!isElectron || !window.electronAPI?.getPlatformStatus) return;
-      try {
-        const status = await window.electronAPI.getPlatformStatus();
-        setPlatformStatus(status || {});
-      } catch (err) {
-        console.error('Failed to load platform status:', err);
-      }
-    }
-    loadPlatformStatus();
+    if (!isElectron || !window.electronAPI?.getPlatformStatus) return;
+    window.electronAPI.getPlatformStatus().then(status => setPlatformStatus(status || {})).catch(() => {});
   }, []);
 
-  const handleLogout = () => {
-    if (!isElectron) {
-      auth.signOut();
-    }
-  };
-
-  const [loadingType, setLoadingType] = useState(null);
-  const [error, setError] = useState(null);
-  const [errorType, setErrorType] = useState('default');
-  const [switchNotification, setSwitchNotification] = useState(null);
-  const [solution, setSolution] = useState(null);
-  const [highlightedLine, setHighlightedLine] = useState(null);
-  const [extractedText, setExtractedText] = useState('');
-  const [clearScreenshot, setClearScreenshot] = useState(0);
-  const [problemExpanded, setProblemExpanded] = useState(true); // Controls problem area expand/collapse
-  const [copyToast, setCopyToast] = useState(false); // Toast notification for copy
-
-  const resetState = () => {
+  // ---------------------------------------------------------------------------
+  // Reset Functions
+  // ---------------------------------------------------------------------------
+  const resetState = useCallback(() => {
     setSolution(null);
     setError(null);
     setErrorType('default');
     setAutoRunOutput(null);
-  };
+  }, []);
 
-  const handleClearAll = () => {
+  const handleClearAll = useCallback(() => {
+    abortSolve();
+    resetSolve();
     setSolution(null);
     setError(null);
     setErrorType('default');
     setExtractedText('');
-    setLoadedProblem(''); // Clear loaded problem from history
-    setStreamingText('');
+    setLoadedProblem('');
     setAutoRunOutput(null);
     setProblemExpanded(true);
     setClearScreenshot(c => c + 1);
-  };
+    setEraserDiagram(null);
+  }, [abortSolve, resetSolve]);
 
-  const [streamingText, setStreamingText] = useState('');
-  const [streamingContent, setStreamingContent] = useState({
-    code: null,
-    language: null,
-    pitch: null,
-    explanations: null,
-    complexity: null,
-    systemDesign: null,
-  });
-
-  const [currentProblem, setCurrentProblem] = useState('');
-  const [currentLanguage, setCurrentLanguage] = useState('auto');
-  const [loadedProblem, setLoadedProblem] = useState(''); // Problem loaded from history
-  const [autoFixAttempts, setAutoFixAttempts] = useState(0);
-  const [autoRunOutput, setAutoRunOutput] = useState(null); // Store auto-run output
-  const MAX_AUTO_FIX_ATTEMPTS = 1; // Only 1 attempt to keep it fast
-
-  // Interview mode state
-  const [ascendMode, setAscendMode] = useState('coding'); // 'coding' | 'system-design'
-  const [designDetailLevel, setDesignDetailLevel] = useState('basic'); // 'basic' | 'full'
-  const [eraserDiagram, setEraserDiagram] = useState(null); // { imageUrl, editUrl }
-  const [autoGenerateEraser, setAutoGenerateEraser] = useState(false); // Auto-generate pro diagram
-  const [isProcessingFollowUp, setIsProcessingFollowUp] = useState(false); // Follow-up question state
-
-  // Ref for CodeDisplay run function
-  const codeDisplayRef = useRef(null);
-
-  // Handle mode change with state reset
-  const handleModeChange = (newMode) => {
+  // ---------------------------------------------------------------------------
+  // Mode Change Handler
+  // ---------------------------------------------------------------------------
+  const handleModeChange = useCallback((newMode) => {
     if (newMode !== ascendMode) {
-      // Abort any ongoing operations
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-        abortControllerRef.current = null;
-      }
-
-      // Reset loading states immediately
-      setIsLoading(false);
-      setLoadingType(null);
-
-      // Reset all state when switching modes
-      setSolution(null);
-      setError(null);
-      setErrorType('default');
-      setStreamingText('');
-      setStreamingContent({
-        code: null,
-        language: null,
-        pitch: null,
-        explanations: null,
-        complexity: null,
-        systemDesign: null,
-      });
-      setAutoRunOutput(null);
-      setEraserDiagram(null);
-      setExtractedText('');
-      setCurrentProblem('');
-      setProblemExpanded(true);
-      setClearScreenshot(c => c + 1);
+      abortSolve();
+      handleClearAll();
       setAscendMode(newMode);
     }
-  };
+  }, [ascendMode, abortSolve, handleClearAll]);
 
-  // Load a saved system design session
-  const handleLoadSavedSession = (sessionId) => {
-    const session = systemDesignStorage.loadSession(sessionId);
-    if (session) {
-      // Switch to system design mode if not already
-      if (ascendMode !== 'system-design') {
-        setAscendMode('system-design');
-      }
-
-      // Set the detail level
-      setDesignDetailLevel(session.detailLevel || 'full');
-
-      // Load the problem and solution
-      setCurrentProblem(session.problem || '');
-      setExtractedText(session.problem || '');
-      setProblemExpanded(true);
-
-      // Set the solution with system design
-      setSolution({
-        systemDesign: session.systemDesign,
-        code: null,
-        language: null,
-        pitch: null,
-        explanations: null,
-        complexity: null
-      });
-
-      // Load Eraser diagram if saved
-      if (session.eraserDiagram) {
-        setEraserDiagram(session.eraserDiagram);
-      }
-
-      // Clear any errors
-      setError(null);
-      setErrorType('default');
-    }
-  };
-
-  // Load a coding history entry
-  const handleLoadHistoryEntry = (entryId) => {
-    const entry = codingHistory.getEntry(entryId);
-    if (entry) {
-      // Switch to coding mode if not already
-      if (ascendMode !== 'coding') {
-        setAscendMode('coding');
-      }
-
-      // Load the problem and solution
-      setCurrentProblem(entry.problem || '');
-      setLoadedProblem(entry.problem || ''); // Use dedicated prop for loaded problems
-      setProblemExpanded(true);
-      setCurrentLanguage(entry.language || 'auto');
-
-      // Set the solution (including pitch and explanations from history)
-      setSolution({
-        code: entry.code,
-        language: entry.language,
-        complexity: entry.complexity,
-        pitch: entry.pitch || null,
-        explanations: entry.explanations || null,
-        systemDesign: null
-      });
-
-      // Clear any errors
-      setError(null);
-      setErrorType('default');
-    }
-  };
-
-  // Keyboard shortcut callbacks
-  const handleKeyboardSolve = () => {
-    console.log('[App] handleKeyboardSolve called, problem:', !!(currentProblem || extractedText));
-    if (currentProblem || extractedText) {
-      handleSolve(currentProblem || extractedText, currentLanguage, 'detailed');
-    }
-  };
-
-  const handleKeyboardRun = () => {
-    console.log('[App] handleKeyboardRun called');
-    if (codeDisplayRef.current?.runCode) {
-      codeDisplayRef.current.runCode();
-    }
-  };
-
-  const handleKeyboardCopy = async () => {
-    const code = solution?.code || streamingContent.code;
-    if (!code) return;
-
-    let success = false;
-    try {
-      // Try Electron clipboard first (most reliable in Electron)
-      if (window.electronAPI?.copyToClipboard) {
-        success = await window.electronAPI.copyToClipboard(code);
-      } else {
-        // Fallback to web clipboard API
-        await navigator.clipboard.writeText(code);
-        success = true;
-      }
-    } catch (err) {
-      // Final fallback using execCommand
-      try {
-        const textarea = document.createElement('textarea');
-        textarea.value = code;
-        textarea.style.cssText = 'position:fixed;left:-9999px;top:0;';
-        document.body.appendChild(textarea);
-        textarea.focus();
-        textarea.select();
-        success = document.execCommand('copy');
-        document.body.removeChild(textarea);
-      } catch (e) {
-        success = false;
-      }
-    }
-
-    // Show toast feedback
-    if (success) {
-      setCopyToast(true);
-      setTimeout(() => setCopyToast(false), 1500);
-    }
-  };
-
-  // Check if any modal is open (disable shortcuts when modals are open)
-  const isModalOpen = showSettings || showSetupWizard || showPlatformAuth ||
-                      showPrepTab || showAdminPanel || showSavedDesigns;
-
-  // Global keyboard shortcuts
-  useKeyboardShortcuts({
-    onSolve: handleKeyboardSolve,
-    onRun: handleKeyboardRun,
-    onClear: handleClearAll,
-    onCopyCode: handleKeyboardCopy,
-    onToggleProblem: () => setProblemExpanded(prev => !prev),
-    onToggleAscend: () => setShowAscendAssistant(prev => !prev),
-    isLoading,
-    hasProblem: !!(currentProblem || extractedText),
-    hasCode: !!(solution?.code || streamingContent.code),
-    disabled: isModalOpen,
-  });
-
-  // Auto-test, fix, and run code - returns code and final output
-  const autoTestAndFix = async (code, language, examples, problem, currentModel) => {
-    const RUNNABLE = ['python', 'bash', 'javascript', 'typescript', 'sql'];
-    const normalizedLang = language?.toLowerCase() || 'python';
-
-    // Skip auto-fix if language not runnable or no examples
-    if (!RUNNABLE.includes(normalizedLang) || !examples || examples.length === 0) {
-      return { code, fixed: false, attempts: 0, output: null };
-    }
-
-    // Skip auto-run for code with network calls (sandbox doesn't support)
-    if (/requests\.|fetch\(|http\.|urllib|axios|aiohttp/.test(code)) {
-      return {
-        code,
-        fixed: false,
-        attempts: 0,
-        output: { success: true, output: '⚠️ Code makes API calls - run locally to test', input: '' }
-      };
-    }
-
-    let currentCode = code;
-    let attempts = 0;
-    let finalOutput = null;
-
-    // Only try once to keep it fast
-    const testInput = examples[0]?.input || '';
-
-    setLoadingType('testing');
-
-    try {
-      const runResponse = await fetch(API_URL + '/api/run', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-        body: JSON.stringify({ code: currentCode, language: normalizedLang, input: testInput }),
-      });
-      const runResult = await runResponse.json();
-
-      // If successful, store the output
-      if (runResult.success) {
-        finalOutput = { success: true, output: runResult.output, input: testInput };
-        return { code: currentCode, fixed: false, attempts: 0, output: finalOutput };
-      }
-
-      // Runtime error - try one fix
-      const errorMsg = runResult.error || 'Unknown error';
-      attempts = 1;
-      setAutoFixAttempts(attempts);
-      setLoadingType('fixing');
-
-      const fixResponse = await fetch(API_URL + '/api/fix', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-        body: JSON.stringify({
-          code: currentCode,
-          error: errorMsg,
-          language: normalizedLang,
-          problem: problem,
-          provider: provider,
-          model: currentModel
-        }),
-      });
-      const fixResult = await fixResponse.json();
-
-      if (fixResult.code) {
-        currentCode = fixResult.code;
-
-        // Run the fixed code to get output
-        setLoadingType('running');
-        const finalRunResponse = await fetch(API_URL + '/api/run', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-          body: JSON.stringify({ code: currentCode, language: normalizedLang, input: testInput }),
-        });
-        const finalRunResult = await finalRunResponse.json();
-        finalOutput = {
-          success: finalRunResult.success,
-          output: finalRunResult.success ? finalRunResult.output : finalRunResult.error,
-          input: testInput
-        };
-
-        return { code: currentCode, fixed: true, attempts: 1, output: finalOutput };
-      }
-    } catch (err) {
-      console.error('Auto-fix error:', err);
-    }
-
-    return { code: currentCode, fixed: attempts > 0, attempts, output: finalOutput };
-  };
-
-  const handleSolve = async (problem, language, detailLevel = 'detailed') => {
-    // Abort any previous operation
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
+  // ---------------------------------------------------------------------------
+  // Main Solve Handler
+  // ---------------------------------------------------------------------------
+  const handleSolve = useCallback(async (problem, language, detailLevel = 'detailed') => {
+    abortControllerRef.current?.abort();
     abortControllerRef.current = new AbortController();
-    const signal = abortControllerRef.current.signal;
 
     resetState();
+    setProblemExpanded(false); // Collapse text area when solve starts
     setCurrentProblem(problem);
     setCurrentLanguage(language);
-    setStreamingText('');
-    setAutoFixAttempts(0);
     setEraserDiagram(null);
-    setStreamingContent({ code: null, language: null, pitch: null, explanations: null, complexity: null, systemDesign: null });
-    setIsLoading(true);
-    setLoadingType('solve');
+
     try {
-      let fullText = '';
-      console.log('[App] Starting solveWithStream with provider:', provider, 'model:', model);
-      const result = await solveWithStream(problem, provider, language, detailLevel, model, (chunk) => {
-        fullText += chunk;
-        setStreamingText(fullText);
-        // Parse and extract content progressively
-        const parsed = parseStreamingContent(fullText);
-        setStreamingContent(parsed);
-        console.log('[App] Received chunk, parsed code length:', parsed.code?.length || 0);
-      }, ascendMode, designDetailLevel, signal, autoSwitch, (from, to, reason) => {
-        setSwitchNotification({ from, to, reason });
-        setTimeout(() => setSwitchNotification(null), 5000);
-      });
-      console.log('[App] solveWithStream completed, result:', result ? 'has result' : 'no result');
+      const result = await solve(problem, language, detailLevel);
 
       if (result) {
-        // Auto-test, fix, and run the code (skip for system design mode)
+        // Auto-test and fix for coding mode
         if (ascendMode !== 'system-design' && result.code) {
           const { code: fixedCode, fixed, attempts, output } = await autoTestAndFix(
             result.code,
             result.language,
             result.examples,
             problem,
-            model
+            setLoadingType
           );
 
-          // Store auto-run output for CodeDisplay
           setAutoRunOutput(output);
+          setSolution({ ...result, code: fixedCode, autoFixed: fixed, fixAttempts: attempts });
 
-          // Update solution with fixed code
-          setSolution({
-            ...result,
-            code: fixedCode,
-            autoFixed: fixed,
-            fixAttempts: attempts
-          });
-
-          // Save to coding history (only for coding mode)
           if (ascendMode === 'coding' && fixedCode) {
             codingHistory.addEntry({
               problem,
@@ -962,164 +406,116 @@ export default function App() {
               complexity: result.complexity,
               source: 'text',
               pitch: result.pitch,
-              explanations: result.explanations
+              explanations: result.explanations,
             });
           }
         } else {
           setSolution(result);
 
-          // Auto-save system design session
-          console.log('[App] Checking save condition:', { ascendMode, hasSystemDesign: !!result?.systemDesign, included: result?.systemDesign?.included });
           if (ascendMode === 'system-design' && result?.systemDesign?.included) {
-            console.log('[App] Saving system design session');
             systemDesignStorage.saveSession({
               problem,
               source: 'text',
               systemDesign: result.systemDesign,
-              detailLevel: designDetailLevel
+              detailLevel: designDetailLevel,
             });
-          }
 
-          // Auto-generate Eraser diagram if enabled and in system design mode
-          if (autoGenerateEraser && ascendMode === 'system-design' && result?.systemDesign?.included) {
-            const sd = result.systemDesign;
-            // Build comprehensive description for detailed diagram
-            const techStack = sd.techJustifications?.map(t => `${t.tech}: ${t.why}`).join('\n') || '';
-            const scalability = sd.scalability?.join(', ') || '';
-            const funcReqs = sd.requirements?.functional?.join(', ') || '';
-            const nonFuncReqs = sd.requirements?.nonFunctional?.join(', ') || '';
-            const description = `DETAILED CLOUD ARCHITECTURE DIAGRAM for interview deep-dive:
-
-SYSTEM: ${sd.overview || ''}
-
-COMPONENTS (show ALL with connections): ${sd.architecture?.components?.join(', ') || ''}
-
-ARCHITECTURE: ${sd.architecture?.description || ''}
-
-TECHNOLOGY STACK (include each as labeled component):
-${techStack}
-
-SCALABILITY REQUIREMENTS: ${scalability}
-
-FUNCTIONAL REQUIREMENTS: ${funcReqs}
-NON-FUNCTIONAL REQUIREMENTS: ${nonFuncReqs}
-
-MUST INCLUDE IN DIAGRAM:
-- VPC/VNet with public and private subnets
-- DNS (Route53/Cloud DNS) at the entry point
-- Internet Gateway, NAT Gateway for traffic flow
-- WAF, Firewalls, Security Groups for security
-- Load Balancers (external and internal), CDN, API Gateway at ingress
-- Application servers/containers with auto-scaling groups
-- Caches (Redis/Memcached) with cache-aside pattern
-- Primary database with read replicas in different AZs
-- SNS topics for fan-out pub/sub (labeled with event types: OrderCreated, UserSignedUp, etc.)
-- SQS queues for async processing with Dead Letter Queues (DLQ) for failures
-- EventBridge/CloudWatch Events for event routing
-- Kafka/Kinesis for high-throughput streaming
-- Show pattern: Producer → SNS → SQS → Consumer/Worker
-- Worker services for background jobs
-- Object storage for files/media
-- Search service (Elasticsearch) if relevant
-- Monitoring and logging stack (CloudWatch/Prometheus/Grafana)
-- Show ALL data flow paths with labeled arrows (HTTPS, gRPC, TCP, Events)
-- Show network boundaries and security zones
-
-SECURITY (CRITICAL):
-- IAM roles/policies for service-to-service authentication
-- KMS for encryption (data at rest and in transit)
-- Secrets Manager/Parameter Store for credentials
-- Certificate Manager for TLS certificates
-- WAF rules, Shield for DDoS protection
-- VPC endpoints/PrivateLink for private connectivity
-- Security boundaries between tiers (DMZ, trusted zones)
-- Label auth flows: IAM Role, JWT, mTLS, API Key
-
-MONITORING & OBSERVABILITY:
-- CloudWatch/Prometheus/Stackdriver for metrics
-- X-Ray/Jaeger for distributed tracing
-- Centralized logging (CloudWatch Logs, ELK, Splunk)
-- Alerting integration (PagerDuty, OpsGenie, SNS)
-- Dashboards (Grafana, CloudWatch Dashboards)
-- Health checks and synthetic monitoring
-
-MULTI-CLOUD & ON-PREM CONNECTIVITY:
-- VPN tunnels between clouds (AWS-GCP, AWS-Azure)
-- Direct Connect/ExpressRoute/Cloud Interconnect
-- Transit Gateway for multi-VPC routing
-- On-premises data center with hybrid connectivity
-- Cross-cloud service integration patterns
-
-EDGE CASES & RESILIENCE:
-- Circuit breakers for fault tolerance
-- Retry queues with exponential backoff
-- Disaster Recovery (DR) region with replication
-- Failover paths (active-passive or active-active)
-- Rate limiting and throttling at API Gateway
-- Graceful degradation paths`;
-            fetch(API_URL + '/api/diagram/eraser', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-              body: JSON.stringify({ description }),
-            })
-              .then(res => res.ok ? res.json() : null)
-              .then(data => {
-                if (data) {
-                  setEraserDiagram(data);
-                  // Auto-save Eraser diagram to current session
-                  if (systemDesignStorage.currentSessionId) {
-                    systemDesignStorage.updateEraserDiagram(systemDesignStorage.currentSessionId, data);
-                  }
-                }
-              })
-              .catch(err => console.error('Auto Eraser diagram failed:', err));
+            if (autoGenerateEraser) {
+              generateEraserDiagram(result.systemDesign);
+            }
           }
         }
       }
     } catch (err) {
-      // Ignore abort errors (user switched modes or cancelled)
-      if (err.name === 'AbortError') {
-        return;
-      }
-      // Handle needCredits error - show pricing modal
+      if (err.name === 'AbortError') return;
       if (err.needCredits) {
         setShowPricingPlans(true);
-        setError('You need more credits to continue. Please purchase a plan or add-on.');
+        setError('You need more credits to continue.');
         setErrorType('credits');
       } else {
         setError(err.message);
         setErrorType('solve');
       }
-    } finally {
-      setIsLoading(false);
-      setLoadingType(null);
-      setAutoFixAttempts(0);
-      setStreamingText('');
-      setStreamingContent({ code: null, language: null, pitch: null, explanations: null, complexity: null, systemDesign: null });
     }
-  };
+  }, [solve, ascendMode, designDetailLevel, autoGenerateEraser, autoTestAndFix, codingHistory, systemDesignStorage]);
 
-  const handleExpandSystemDesign = async () => {
-    if (!currentProblem) return;
-    handleSolve(currentProblem + '\n\nProvide a DETAILED system design with all components, data models, API design, scalability considerations, and architecture diagram.', currentLanguage, 'detailed');
-  };
+  // ---------------------------------------------------------------------------
+  // URL Fetch Handler
+  // ---------------------------------------------------------------------------
+  const handleFetchUrl = useCallback(async (url, language, detailLevel = 'detailed') => {
+    resetState();
+    setLoadingType('fetch');
 
-  // Handle follow-up questions for any interview problem
-  const handleFollowUpQuestion = async (question) => {
-    console.log('[App Q&A] handleFollowUpQuestion called with:', question);
+    try {
+      const fetchResponse = await fetch(API_URL + '/api/fetch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify({ url }),
+      });
 
-    // Get current context - works for both coding and system design
+      if (!fetchResponse.ok) throw new Error('Failed to fetch problem');
+
+      const fetchData = await fetchResponse.json();
+      setCurrentProblem(fetchData.problemText);
+      setExtractedText(fetchData.problemText);
+      setProblemExpanded(true);
+
+      await handleSolve(fetchData.problemText, language, detailLevel);
+    } catch (err) {
+      setError(err.message);
+      setErrorType('fetch');
+    }
+  }, [handleSolve]);
+
+  // ---------------------------------------------------------------------------
+  // Screenshot Handler
+  // ---------------------------------------------------------------------------
+  const handleScreenshot = useCallback(async (file, language = 'auto', detailLevel = 'basic') => {
+    resetState();
+    setLoadingType('screenshot');
+
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('provider', provider);
+      formData.append('mode', 'extract');
+      formData.append('model', model);
+
+      const response = await fetch(API_URL + '/api/analyze', {
+        method: 'POST',
+        headers: { ...getAuthHeaders() },
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error('Failed to extract text');
+
+      const data = await response.json();
+      const extractedProblem = data.text || '';
+      setExtractedText(extractedProblem);
+      setProblemExpanded(true);
+
+      if (extractedProblem.trim()) {
+        await handleSolve(extractedProblem, language, detailLevel);
+      }
+    } catch (err) {
+      setError(err.message);
+      setErrorType('screenshot');
+    }
+  }, [provider, model, handleSolve]);
+
+  // ---------------------------------------------------------------------------
+  // Follow-up Question Handler
+  // ---------------------------------------------------------------------------
+  const handleFollowUpQuestion = useCallback(async (question) => {
     const currentCode = solution?.code || streamingContent.code;
     const currentPitch = solution?.pitch || streamingContent.pitch;
     const currentDesign = solution?.systemDesign || streamingContent.systemDesign;
 
     if (!currentCode && !currentPitch && !currentDesign?.included) {
-      console.log('[App Q&A] No solution context, returning null');
-      return { answer: 'Please solve a problem first before asking follow-up questions.' };
+      return { answer: 'Please solve a problem first.' };
     }
 
     setIsProcessingFollowUp(true);
-    console.log('[App Q&A] Making API call to /api/solve/followup');
 
     try {
       const response = await fetch(API_URL + '/api/solve/followup', {
@@ -1132,13 +528,11 @@ EDGE CASES & RESILIENCE:
           pitch: currentPitch,
           currentDesign: currentDesign?.included ? currentDesign : null,
           provider,
-          model
+          model,
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to process follow-up question');
-      }
+      if (!response.ok) throw new Error('Failed to process follow-up');
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
@@ -1157,265 +551,162 @@ EDGE CASES & RESILIENCE:
           if (line.startsWith('data: ')) {
             try {
               const data = JSON.parse(line.slice(6));
-              if (data.done && data.result) {
-                result = data.result;
-              }
-              if (data.error) {
-                throw new Error(data.error);
-              }
-            } catch (e) {
-              if (e.message !== 'Unexpected end of JSON input') {
-                console.error('SSE parse error:', e);
-              }
-            }
+              if (data.done && data.result) result = data.result;
+              if (data.error) throw new Error(data.error);
+            } catch {}
           }
         }
       }
 
-      // Update the system design with the new data
       if (result?.updatedDesign) {
-        setSolution(prev => ({
-          ...prev,
-          systemDesign: result.updatedDesign
-        }));
-      }
-
-      // Auto-save Q&A to current session (for system design mode)
-      if (ascendMode === 'system-design' && systemDesignStorage.currentSessionId && result?.answer) {
-        systemDesignStorage.addQAToSession(
-          systemDesignStorage.currentSessionId,
-          question,
-          result.answer
-        );
-
-        // Also update system design if it was modified
-        if (result?.updatedDesign) {
-          systemDesignStorage.updateSession(systemDesignStorage.currentSessionId, {
-            systemDesign: result.updatedDesign
-          });
-        }
+        setSolution(prev => ({ ...prev, systemDesign: result.updatedDesign }));
       }
 
       return result;
     } catch (err) {
-      console.error('Follow-up question error:', err);
+      console.error('Follow-up error:', err);
       return null;
     } finally {
       setIsProcessingFollowUp(false);
     }
-  };
+  }, [solution, streamingContent, currentProblem, provider, model]);
 
-  const handleFetchUrl = async (url, language, detailLevel = 'detailed') => {
-    resetState();
-    setStreamingText('');
-    setAutoFixAttempts(0);
-    setStreamingContent({ code: null, language: null, pitch: null, explanations: null, complexity: null, systemDesign: null });
-    setIsLoading(true);
-    setLoadingType('fetch');
+  // ---------------------------------------------------------------------------
+  // Eraser Diagram Generation
+  // ---------------------------------------------------------------------------
+  const generateEraserDiagram = useCallback(async (sd) => {
+    if (!sd?.included) return;
+
+    const description = buildEraserDescription(sd);
+
     try {
-      const fetchResponse = await fetch(API_URL + '/api/fetch', {
+      const response = await fetch(API_URL + '/api/diagram/eraser', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ description }),
       });
 
-      if (!fetchResponse.ok) {
-        throw new Error('Failed to fetch problem from URL');
-      }
-
-      const fetchData = await fetchResponse.json();
-      setCurrentProblem(fetchData.problemText);
-      setExtractedText(fetchData.problemText); // Show fetched problem in input
-      setProblemExpanded(true); // Auto-expand to show full problem
-      setCurrentLanguage(language);
-      setLoadingType('solve');
-
-      let fullText = '';
-      const result = await solveWithStream(fetchData.problemText, provider, language, detailLevel, model, (chunk) => {
-        fullText += chunk;
-        setStreamingText(fullText);
-        const parsed = parseStreamingContent(fullText);
-        setStreamingContent(parsed);
-      }, ascendMode, designDetailLevel, null, autoSwitch, (from, to, reason) => {
-        setSwitchNotification({ from, to, reason });
-        setTimeout(() => setSwitchNotification(null), 5000);
-      });
-      if (result) {
-        // Auto-test, fix, and run the code (skip for system design mode)
-        if (ascendMode !== 'system-design' && result.code) {
-          const { code: fixedCode, fixed, attempts, output } = await autoTestAndFix(
-            result.code,
-            result.language,
-            result.examples,
-            fetchData.problemText,
-            model
-          );
-
-          // Store auto-run output for CodeDisplay
-          setAutoRunOutput(output);
-
-          setSolution({
-            ...result,
-            code: fixedCode,
-            autoFixed: fixed,
-            fixAttempts: attempts
-          });
-
-          // Save to coding history for URL-fetched problems
-          if (ascendMode === 'coding' && fixedCode) {
-            codingHistory.addEntry({
-              problem: fetchData.problemText,
-              language: result.language || language,
-              code: fixedCode,
-              complexity: result.complexity,
-              source: 'url',
-              pitch: result.pitch,
-              explanations: result.explanations
-            });
-          }
-        } else {
-          setSolution(result);
-
-          // Auto-save system design session for URL-fetched problems
-          if (ascendMode === 'system-design' && result?.systemDesign?.included) {
-            systemDesignStorage.saveSession({
-              problem: fetchData.problemText,
-              source: 'url',
-              systemDesign: result.systemDesign,
-              detailLevel: designDetailLevel
-            });
-          }
+      if (response.ok) {
+        const data = await response.json();
+        setEraserDiagram(data);
+        if (systemDesignStorage.currentSessionId) {
+          systemDesignStorage.updateEraserDiagram(systemDesignStorage.currentSessionId, data);
         }
       }
     } catch (err) {
-      setError(err.message);
-      setErrorType('fetch');
-    } finally {
-      setIsLoading(false);
-      setLoadingType(null);
-      setAutoFixAttempts(0);
-      setStreamingText('');
-      setStreamingContent({ code: null, language: null, pitch: null, explanations: null, complexity: null, systemDesign: null });
+      console.error('Eraser diagram failed:', err);
     }
-  };
+  }, [systemDesignStorage]);
 
-  const handleScreenshot = async (file, language = 'auto', detailLevel = 'basic') => {
-    setSolution(null);
+  // ---------------------------------------------------------------------------
+  // Load Saved Session Handlers
+  // ---------------------------------------------------------------------------
+  const handleLoadSavedSession = useCallback((sessionId) => {
+    const session = systemDesignStorage.loadSession(sessionId);
+    if (!session) return;
+
+    if (ascendMode !== 'system-design') setAscendMode('system-design');
+    setDesignDetailLevel(session.detailLevel || 'full');
+    setCurrentProblem(session.problem || '');
+    setExtractedText(session.problem || '');
+    setProblemExpanded(true);
+    setSolution({
+      systemDesign: session.systemDesign,
+      code: null,
+      language: null,
+      pitch: null,
+      explanations: null,
+      complexity: null,
+    });
+    if (session.eraserDiagram) setEraserDiagram(session.eraserDiagram);
     setError(null);
-    setErrorType('default');
-    setStreamingText('');
-    setAutoFixAttempts(0);
-    setStreamingContent({ code: null, language: null, pitch: null, explanations: null, complexity: null, systemDesign: null });
-    setIsLoading(true);
-    setLoadingType('screenshot');
-    try {
-      const formData = new FormData();
-      formData.append('image', file);
-      formData.append('provider', provider);
-      formData.append('mode', 'extract');
-      formData.append('model', model);
+  }, [ascendMode, systemDesignStorage]);
 
-      const response = await fetch(API_URL + '/api/analyze', {
-        method: 'POST',
-        headers: { ...getAuthHeaders() },
-        body: formData,
-      });
+  const handleLoadHistoryEntry = useCallback((entryId) => {
+    const entry = codingHistory.getEntry(entryId);
+    if (!entry) return;
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.details || errorData.error || 'Failed to extract text');
-      }
+    if (ascendMode !== 'coding') setAscendMode('coding');
+    setCurrentProblem(entry.problem || '');
+    setLoadedProblem(entry.problem || '');
+    setProblemExpanded(true);
+    setCurrentLanguage(entry.language || 'auto');
+    setSolution({
+      code: entry.code,
+      language: entry.language,
+      complexity: entry.complexity,
+      pitch: entry.pitch || null,
+      explanations: entry.explanations || null,
+      systemDesign: null,
+    });
+    setError(null);
+  }, [ascendMode, codingHistory]);
 
-      const data = await response.json();
-      const extractedProblem = data.text || '';
-      setExtractedText(extractedProblem);
-      setProblemExpanded(true); // Auto-expand to show full problem
-
-      if (extractedProblem.trim()) {
-        setCurrentProblem(extractedProblem);
-        setCurrentLanguage(language);
-        setLoadingType('solve');
-        let fullText = '';
-        const result = await solveWithStream(extractedProblem, provider, language, detailLevel, model, (chunk) => {
-          fullText += chunk;
-          setStreamingText(fullText);
-          const parsed = parseStreamingContent(fullText);
-          setStreamingContent(parsed);
-        }, ascendMode, designDetailLevel, null, autoSwitch, (from, to, reason) => {
-          setSwitchNotification({ from, to, reason });
-          setTimeout(() => setSwitchNotification(null), 5000);
-        });
-        if (result) {
-          // Auto-test, fix, and run the code (skip for system design mode)
-          if (ascendMode !== 'system-design' && result.code) {
-            const { code: fixedCode, fixed, attempts, output } = await autoTestAndFix(
-              result.code,
-              result.language,
-              result.examples,
-              extractedProblem,
-              model
-            );
-
-            // Store auto-run output for CodeDisplay
-            setAutoRunOutput(output);
-
-            setSolution({
-              ...result,
-              code: fixedCode,
-              autoFixed: fixed,
-              fixAttempts: attempts
-            });
-
-            // Save to coding history for screenshot problems
-            if (ascendMode === 'coding' && fixedCode) {
-              codingHistory.addEntry({
-                problem: extractedProblem,
-                language: result.language || language,
-                code: fixedCode,
-                complexity: result.complexity,
-                source: 'image',
-                pitch: result.pitch,
-                explanations: result.explanations
-              });
-            }
-          } else {
-            setSolution(result);
-
-            // Auto-save system design session for screenshot problems
-            if (ascendMode === 'system-design' && result?.systemDesign?.included) {
-              systemDesignStorage.saveSession({
-                problem: extractedProblem,
-                source: 'image',
-                systemDesign: result.systemDesign,
-                detailLevel: designDetailLevel
-              });
-            }
-          }
-        }
-      }
-    } catch (err) {
-      setError(err.message);
-      setErrorType('screenshot');
-    } finally {
-      setIsLoading(false);
-      setLoadingType(null);
-      setAutoFixAttempts(0);
-      setStreamingText('');
-      setStreamingContent({ code: null, language: null, pitch: null, explanations: null, complexity: null, systemDesign: null });
+  // ---------------------------------------------------------------------------
+  // Keyboard Shortcuts
+  // ---------------------------------------------------------------------------
+  const handleKeyboardSolve = useCallback(() => {
+    if (currentProblem || extractedText) {
+      handleSolve(currentProblem || extractedText, currentLanguage, 'detailed');
     }
-  };
+  }, [currentProblem, extractedText, currentLanguage, handleSolve]);
 
-  // Loading state while checking auth
+  const handleKeyboardRun = useCallback(() => {
+    codeDisplayRef.current?.runCode?.();
+  }, []);
+
+  const handleKeyboardCopy = useCallback(async () => {
+    const code = solution?.code || streamingContent.code;
+    if (!code) return;
+
+    try {
+      if (window.electronAPI?.copyToClipboard) {
+        await window.electronAPI.copyToClipboard(code);
+      } else {
+        await navigator.clipboard.writeText(code);
+      }
+      setCopyToast(true);
+      setTimeout(() => setCopyToast(false), 1500);
+    } catch {}
+  }, [solution, streamingContent]);
+
+  const isModalOpen = showSettings || showSetupWizard || showPlatformAuth ||
+                      showPrepTab || showAdminPanel || showSavedDesigns;
+
+  useKeyboardShortcuts({
+    onSolve: handleKeyboardSolve,
+    onRun: handleKeyboardRun,
+    onClear: handleClearAll,
+    onCopyCode: handleKeyboardCopy,
+    onToggleProblem: () => setProblemExpanded(prev => !prev),
+    onToggleAscend: () => setShowAscendAssistant(prev => !prev),
+    isLoading,
+    hasProblem: !!(currentProblem || extractedText),
+    hasCode: !!(solution?.code || streamingContent.code),
+    disabled: isModalOpen,
+  });
+
+  // ---------------------------------------------------------------------------
+  // Utility Handlers
+  // ---------------------------------------------------------------------------
+  const handleLogout = useCallback(() => {
+    if (!isElectron) auth.signOut();
+  }, [auth]);
+
+  const toggleSidebar = useCallback(() => {
+    setSidebarCollapsed(prev => !prev);
+  }, []);
+
+  // ---------------------------------------------------------------------------
+  // Render: Loading State
+  // ---------------------------------------------------------------------------
   if (!authChecked) {
     return (
       <div className="h-screen flex items-center justify-center bg-white">
         <div className="flex flex-col items-center gap-4">
           <div
             className="w-12 h-12 rounded-xl flex items-center justify-center"
-            style={{
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-              boxShadow: '0 0 40px rgba(16, 185, 129, 0.2)'
-            }}
+            style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
           >
             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
@@ -1430,36 +721,49 @@ EDGE CASES & RESILIENCE:
     );
   }
 
-  // Show docs page (publicly accessible, check before auth)
-  if (isDocsPage) {
-    return <DocsPage />;
-  }
+  // ---------------------------------------------------------------------------
+  // Render: Docs Page
+  // ---------------------------------------------------------------------------
+  if (isDocsPage) return <DocsPage />;
 
-  // Show landing page for unauthenticated users at / or /login
+  // ---------------------------------------------------------------------------
+  // Render: Auth Required (Landing/Login)
+  // ---------------------------------------------------------------------------
   if (authRequired && !isAuthenticated) {
-    // Allow landing page at root /, redirect /login to /
     if (window.location.pathname === '/login') {
       window.history.replaceState({}, '', '/');
     }
     return <OAuthLogin />;
   }
 
-  // If authenticated but on landing page, redirect to /app
+  // Redirect authenticated users to /app
   if (authRequired && isAuthenticated && (window.location.pathname === '/login' || window.location.pathname === '/')) {
     window.history.replaceState({}, '', '/app');
   }
 
-  // Show download page if authenticated and on /download path
-  if (isDownloadPage && isAuthenticated) {
-    return <DownloadPage />;
-  }
+  // ---------------------------------------------------------------------------
+  // Render: Download Page
+  // ---------------------------------------------------------------------------
+  if (isDownloadPage && isAuthenticated) return <DownloadPage />;
 
-  // If this is the dedicated Interview Prep window, render only that
+  // ---------------------------------------------------------------------------
+  // Render: Ascend Prep Window
+  // ---------------------------------------------------------------------------
   if (isAscendPrepWindow) {
     return (
       <div className="h-screen flex flex-col overflow-hidden bg-white">
-        <AscendPrepModal
-          isOpen={true}
+        <AscendPrepModal isOpen={true} onClose={() => window.close()} provider={provider} model={model} isDedicatedWindow={true} />
+      </div>
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Render: Voice Assistant Window (Dedicated)
+  // ---------------------------------------------------------------------------
+  if (isVoiceAssistantWindow) {
+    return (
+      <div className="h-screen flex flex-col overflow-hidden" style={{ background: '#0a1a10' }}>
+        <AscendAssistantPanel
           onClose={() => window.close()}
           provider={provider}
           model={model}
@@ -1469,11 +773,10 @@ EDGE CASES & RESILIENCE:
     );
   }
 
-  // Check if running on macOS in Electron (needs extra padding for traffic lights)
+  // ---------------------------------------------------------------------------
+  // Main App Render
+  // ---------------------------------------------------------------------------
   const isMacElectron = isElectron && navigator.platform.toLowerCase().includes('mac');
-
-  // Determine if sidebar should be shown (both Electron and webapp)
-  // Show sidebar on all modes for consistent navigation experience
   const showSidebar = !sidebarCollapsed && ascendMode !== 'ascend-prep';
 
   return (
@@ -1489,7 +792,7 @@ EDGE CASES & RESILIENCE:
           onDeleteHistory={codingHistory.deleteEntry}
           onCollapse={toggleSidebar}
           onViewAllDesigns={() => setShowSavedDesigns(true)}
-          onViewAllHistory={() => {/* Could add a history modal later */}}
+          onViewAllHistory={() => {}}
           isLoading={isLoading}
           showAscendAssistant={showAscendAssistant}
           onToggleAscendAssistant={() => setShowAscendAssistant(!showAscendAssistant)}
@@ -1504,504 +807,103 @@ EDGE CASES & RESILIENCE:
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Header - Slack Style */}
-      <header
-        className="slack-channel-header"
-        style={{
-          paddingLeft: (isMacElectron && !showSidebar) ? '80px' : '20px',
-          WebkitAppRegion: 'drag',
-          height: '52px',
-        }}
-      >
-        {/* Left: Logo & Tabs */}
-        <div className="flex items-center gap-4" style={{ WebkitAppRegion: 'no-drag' }}>
-          {/* Logo - clickable to expand sidebar when collapsed */}
-          {!showSidebar && (
-            <button
-              onClick={toggleSidebar}
-              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
-              title="Expand sidebar"
-              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-            >
-              <div className="sidebar-logo-mark" style={{ width: '32px', height: '32px' }}>
-                <img
-                  src="/ascend-logo.png"
-                  alt="Ascend"
-                  className="h-4 w-auto object-contain filter brightness-0 invert"
-                />
-              </div>
-              <span className="sidebar-logo-text" style={{ fontSize: '16px', color: '#ffffff' }}>Ascend</span>
-              {isLoading && (
-                <div className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: '#10b981', borderTopColor: 'transparent' }} />
-              )}
-            </button>
-          )}
+        {/* Header */}
+        <Header
+          ascendMode={ascendMode}
+          onModeChange={handleModeChange}
+          stealthMode={stealthMode}
+          onStealthModeToggle={() => window.electronAPI?.setStealthMode?.(!stealthMode)}
+          showSidebar={showSidebar}
+          onToggleSidebar={toggleSidebar}
+          isLoading={isLoading}
+          isMacElectron={isMacElectron}
+          onSettingsClick={() => setShowSettings(true)}
+          onPricingClick={() => setShowPricingPlans(true)}
+          onVoiceAssistantClick={() => setShowAscendAssistant(!showAscendAssistant)}
+          showAscendAssistant={showAscendAssistant}
+        />
 
-          {/* Mode Tabs - Slack style */}
-          <div className="slack-tabs">
-            {[
-              { id: 'coding', label: 'Coding', icon: (
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                </svg>
-              )},
-              { id: 'system-design', label: 'Design', icon: (
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-              )},
-              { id: 'behavioral', label: 'Prep', icon: (
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-              )},
-            ].map((mode) => (
-              <button
-                key={mode.id}
-                onClick={() => handleModeChange(mode.id)}
-                className={`slack-tab ${ascendMode === mode.id ? 'active' : ''}`}
-              >
-                {mode.icon}
-                {mode.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* Error Banner */}
+        {error && <ErrorBanner error={error} onDismiss={() => setError(null)} />}
 
-        {/* Center: Stealth Mode - Electron only */}
-        {isElectron && (
-          <div className="flex items-center" style={{ WebkitAppRegion: 'no-drag' }}>
-            <button
-              onClick={() => window.electronAPI?.setStealthMode?.(!stealthMode)}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${stealthMode ? 'bg-green-500/20' : 'hover:bg-white/10'}`}
-              title={stealthMode ? 'Stealth ON - Click to disable' : 'Stealth OFF - Click to enable'}
-              style={{ 
-                border: stealthMode ? '1px solid rgba(16, 185, 129, 0.5)' : '1px solid rgba(255, 255, 255, 0.1)',
-                color: stealthMode ? '#10b981' : 'rgba(255, 255, 255, 0.7)'
-              }}
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                {stealthMode ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                )}
-              </svg>
-              <span className="text-xs font-medium">Stealth</span>
-              <div 
-                className={`w-8 h-4 rounded-full relative transition-all ${stealthMode ? 'bg-green-500' : 'bg-white/20'}`}
-              >
-                <div 
-                  className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-all ${stealthMode ? 'left-4' : 'left-0.5'}`}
-                />
-              </div>
-            </button>
-          </div>
+        {/* Switch Notification */}
+        {switchNotification && (
+          <SwitchNotificationBanner notification={switchNotification} onDismiss={() => setSwitchNotification(null)} />
         )}
 
-        {/* Center: Download Desktop App - Webapp only */}
-        {!isElectron && (
-          <div className="flex items-center">
-            <button
-              onClick={() => setShowPricingPlans(true)}
-              className="flex items-center gap-2 px-4 py-1.5 rounded-lg transition-all hover:opacity-90"
-              style={{ 
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                color: '#ffffff',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-                border: 'none',
-              }}
-            >
-              <span className="text-sm font-semibold">Download Desktop App</span>
-            </button>
-          </div>
-        )}
+        {/* Loading Progress */}
+        {isLoading && <LoadingProgress />}
 
-        {/* Right: Settings & Credits */}
-        <div className="flex items-center gap-3" style={{ WebkitAppRegion: 'no-drag' }}>
-          <button
-            onClick={() => setShowSettings(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all hover:bg-white/10"
-            style={{ 
-              color: 'rgba(255, 255, 255, 0.7)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-            }}
-            title="Settings"
-          >
-            <span className="text-xs font-medium">Settings</span>
-          </button>
-          <CreditBalance
-            onUpgrade={() => setShowPricingPlans(true)}
-            compact={true}
-          />
-        </div>
-      </header>
-
-      {/* Error Banner - Slack style */}
-      {error && (
-        <div
-          className="mx-5 mt-3 p-3 rounded-lg animate-slide-up slack-card"
-          style={{ background: 'rgba(224, 30, 90, 0.1)', borderColor: 'var(--accent-red)' }}
-        >
-          <div className="flex items-center gap-3">
-            <svg className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--accent-red)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span className="text-body" style={{ color: 'var(--accent-red)' }}>{error}</span>
-            <button onClick={() => setError(null)} className="slack-btn-icon ml-auto">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Provider Switch Notification */}
-      {switchNotification && (
-        <div
-          className="mx-5 mt-3 p-3 rounded-lg animate-slide-up slack-card"
-          style={{ background: 'rgba(236, 178, 46, 0.1)', borderColor: 'var(--accent-yellow)' }}
-        >
-          <div className="flex items-center gap-3">
-            <svg className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--accent-yellow)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            <span className="text-body" style={{ color: 'var(--accent-yellow)' }}>
-              Switched from <strong>{switchNotification.from}</strong> to <strong>{switchNotification.to}</strong>
-              {switchNotification.reason && <span className="text-muted ml-1">({switchNotification.reason})</span>}
-            </span>
-            <button onClick={() => setSwitchNotification(null)} className="slack-btn-icon ml-auto">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Loading Progress */}
-      {isLoading && (
-        <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
-          <div className="h-0.5 overflow-hidden" style={{ background: 'var(--border-default)' }}>
-            <div
-              className="h-full"
-              style={{
-                width: '30%',
-                background: 'var(--accent-blue)',
-                animation: 'slack-shimmer 1s ease-in-out infinite',
-              }}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Main Layout */}
-      <main className="flex-1 overflow-hidden relative z-10">
-        {/* Behavioral Mode - Show embedded Interview Prep */}
-        {ascendMode === 'behavioral' ? (
-          <div className="h-full" style={{ background: 'var(--content-bg)' }}>
-            <AscendPrepModal
-              isOpen={true}
-              onClose={() => {}}
+        {/* Main Layout */}
+        <main className="flex-1 overflow-hidden relative z-10">
+          {ascendMode === 'behavioral' ? (
+            <div className="h-full" style={{ background: 'var(--content-bg)' }}>
+              <AscendPrepModal isOpen={true} onClose={() => {}} provider={provider} model={model} embedded={true} />
+            </div>
+          ) : (
+            <CodingLayout
+              // Problem props
+              extractedText={extractedText}
+              onExtractedTextClear={() => setExtractedText('')}
+              clearScreenshot={clearScreenshot}
+              problemExpanded={problemExpanded}
+              onToggleExpand={() => setProblemExpanded(prev => !prev)}
+              loadedProblem={loadedProblem}
+              // Mode props
+              ascendMode={ascendMode}
+              designDetailLevel={designDetailLevel}
+              onDetailLevelChange={setDesignDetailLevel}
+              codingDetailLevel={codingDetailLevel}
+              onCodingDetailLevelChange={setCodingDetailLevel}
+              codingLanguage={codingLanguage}
+              onLanguageChange={setCodingLanguage}
+              autoGenerateEraser={autoGenerateEraser}
+              onAutoGenerateEraserChange={setAutoGenerateEraser}
+              // Solution props
+              solution={solution}
+              streamingContent={streamingContent}
+              highlightedLine={highlightedLine}
+              onLineHover={setHighlightedLine}
+              autoRunOutput={autoRunOutput}
+              eraserDiagram={eraserDiagram}
+              // Loading props
+              isLoading={isLoading}
+              loadingType={loadingType}
+              hasSolution={!!solution}
+              // System design props
+              savedDesignsCount={systemDesignStorage.getAllSessions().length}
+              onSavedDesignsClick={() => setShowSavedDesigns(true)}
+              currentProblem={currentProblem}
+              // Handlers
+              onSolve={handleSolve}
+              onFetchUrl={handleFetchUrl}
+              onScreenshot={handleScreenshot}
+              onClear={handleClearAll}
+              onFollowUpQuestion={handleFollowUpQuestion}
+              isProcessingFollowUp={isProcessingFollowUp}
+              onExpandSystemDesign={() => handleSolve(currentProblem + '\n\nProvide a DETAILED system design.', currentLanguage, 'detailed')}
+              onGenerateEraserDiagram={() => generateEraserDiagram(solution?.systemDesign || streamingContent.systemDesign)}
+              onExplanationsUpdate={(explanations) => setSolution(prev => prev ? { ...prev, explanations } : null)}
+              // Refs
+              codeDisplayRef={codeDisplayRef}
+              editorSettings={editorSettings}
+              // Assistant
+              showAscendAssistant={showAscendAssistant}
+              onCloseAscendAssistant={() => setShowAscendAssistant(false)}
               provider={provider}
               model={model}
-              embedded={true}
             />
-          </div>
-        ) : (
-        /* Coding & System Design Mode - Clean two-panel layout */
-        <div className="h-full" style={{ background: '#f5f5f5' }}>
-          <Allotment defaultSizes={showAscendAssistant ? [30, 40, 30] : [30, 70]}>
-            {/* Left Pane - Problem + Explanation */}
-            <Allotment.Pane minSize={300}>
-              <div className="h-full flex flex-col overflow-hidden" style={{ background: '#ffffff', borderRight: '1px solid #e8e8e8' }}>
-                {/* Problem Section Header */}
-                <div className="flex-shrink-0">
-                  <div className="panel-header">
-                    <div className="panel-header-left">
-                      <div className="panel-indicator" />
-                      <span className="panel-title">Problem</span>
-                      {/* Saved System Designs Button - only show in system-design mode */}
-                      {ascendMode === 'system-design' && (
-                        <button
-                          onClick={() => setShowSavedDesigns(true)}
-                          className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium rounded-md transition-colors"
-                          style={{
-                            background: systemDesignStorage.getAllSessions().length > 0 ? '#f3f4f6' : 'transparent',
-                            color: '#6b7280',
-                          }}
-                          onMouseEnter={(e) => { e.target.style.background = '#e5e7eb'; e.target.style.color = '#374151'; }}
-                          onMouseLeave={(e) => { e.target.style.background = systemDesignStorage.getAllSessions().length > 0 ? '#f3f4f6' : 'transparent'; e.target.style.color = '#6b7280'; }}
-                          title="View saved system designs"
-                        >
-                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                          </svg>
-                          Saved ({systemDesignStorage.getAllSessions().length})
-                        </button>
-                      )}
-                    </div>
-                    {/* Mode controls */}
-                    <div className="panel-header-right">
-                      {/* Mode-specific controls (Coding: language + detail, System Design: detail + auto diagram) */}
-                      <AscendModeSelector
-                        ascendMode={ascendMode}
-                        // System Design props
-                        designDetailLevel={designDetailLevel}
-                        onDetailLevelChange={setDesignDetailLevel}
-                        autoGenerateEraser={autoGenerateEraser}
-                        onAutoGenerateEraserChange={setAutoGenerateEraser}
-                        // Coding props
-                        codingLanguage={codingLanguage}
-                        onLanguageChange={setCodingLanguage}
-                        codingDetailLevel={codingDetailLevel}
-                        onCodingDetailLevelChange={setCodingDetailLevel}
-                      />
-                    </div>
-                  </div>
+          )}
+        </main>
 
-                  {/* Problem Input Content - compact, no flex grow */}
-                  <div className="p-2">
-                    <ProblemInput
-                      onSubmit={handleSolve}
-                      onFetchUrl={handleFetchUrl}
-                      onScreenshot={handleScreenshot}
-                      onClear={handleClearAll}
-                      isLoading={isLoading}
-                      extractedText={extractedText}
-                      onExtractedTextClear={() => setExtractedText('')}
-                      shouldClear={clearScreenshot}
-                      hasSolution={!!solution}
-                      expanded={problemExpanded}
-                      onToggleExpand={() => setProblemExpanded(prev => !prev)}
-                      ascendMode={ascendMode}
-                      loadedProblem={loadedProblem}
-                      detailLevel={codingDetailLevel}
-                      language={codingLanguage}
-                    />
-                  </div>
-                </div>
+        {/* Footer */}
+        <Footer isLoading={isLoading} ascendMode={ascendMode} />
+      </div>
 
-                {/* Bottom: Explanations - takes remaining space */}
-                <div className="flex-1 min-h-0 overflow-hidden">
-                  <ExplanationPanel
-                    explanations={solution?.explanations}
-                    highlightedLine={highlightedLine}
-                    pitch={solution?.pitch || streamingContent.pitch}
-                    systemDesign={solution?.systemDesign || streamingContent.systemDesign}
-                    isStreaming={isLoading && loadingType === 'solve' && !solution}
-                    onExpandSystemDesign={handleExpandSystemDesign}
-                    canExpandSystemDesign={!!currentProblem && !isLoading}
-                    onFollowUpQuestion={handleFollowUpQuestion}
-                    isProcessingFollowUp={isProcessingFollowUp}
-                  />
-                </div>
-              </div>
-            </Allotment.Pane>
-
-            {/* Center Pane - Code Editor (full height) */}
-            <Allotment.Pane minSize={400}>
-              <div className="h-full border-l border-gray-200">
-                <CodeDisplay
-                  ref={codeDisplayRef}
-                  code={solution?.code || streamingContent.code}
-                  language={solution?.language || streamingContent.language}
-                  complexity={solution?.complexity || streamingContent.complexity}
-                  onLineHover={setHighlightedLine}
-                  examples={solution?.examples}
-                  isStreaming={isLoading && loadingType === 'solve' && !solution}
-                  autoRunOutput={autoRunOutput}
-                  onExplanationsUpdate={(explanations) => {
-                    setSolution(prev => prev ? { ...prev, explanations } : null);
-                  }}
-                  ascendMode={ascendMode}
-                  codingLanguage={codingLanguage}
-                  onLanguageChange={ascendMode === 'coding' ? setCodingLanguage : undefined}
-                  detailLevel={codingDetailLevel}
-                  onDetailLevelChange={ascendMode === 'coding' ? setCodingDetailLevel : undefined}
-                  editorSettings={editorSettings}
-                  systemDesign={solution?.systemDesign || streamingContent.systemDesign}
-                  eraserDiagram={eraserDiagram}
-                  autoGenerateEraser={autoGenerateEraser}
-                  question={currentProblem || loadedProblem}
-                  cloudProvider="auto"
-                  onGenerateEraserDiagram={async () => {
-                    const sd = solution?.systemDesign || streamingContent.systemDesign;
-                    if (!sd?.included) return;
-                    try {
-                      // Build comprehensive description for detailed diagram
-                      const techStack = sd.techJustifications?.map(t => `${t.tech}: ${t.why}`).join('\n') || '';
-                      const scalability = sd.scalability?.join(', ') || '';
-                      const funcReqs = sd.requirements?.functional?.join(', ') || '';
-                      const nonFuncReqs = sd.requirements?.nonFunctional?.join(', ') || '';
-                      const description = `DETAILED CLOUD ARCHITECTURE DIAGRAM for interview deep-dive:
-
-SYSTEM: ${sd.overview || ''}
-
-COMPONENTS (show ALL with connections): ${sd.architecture?.components?.join(', ') || ''}
-
-ARCHITECTURE: ${sd.architecture?.description || ''}
-
-TECHNOLOGY STACK (include each as labeled component):
-${techStack}
-
-SCALABILITY REQUIREMENTS: ${scalability}
-
-FUNCTIONAL REQUIREMENTS: ${funcReqs}
-NON-FUNCTIONAL REQUIREMENTS: ${nonFuncReqs}
-
-MUST INCLUDE IN DIAGRAM:
-- VPC/VNet with public and private subnets
-- DNS (Route53/Cloud DNS) at the entry point
-- Internet Gateway, NAT Gateway for traffic flow
-- WAF, Firewalls, Security Groups for security
-- Load Balancers (external and internal), CDN, API Gateway at ingress
-- Application servers/containers with auto-scaling groups
-- Caches (Redis/Memcached) with cache-aside pattern
-- Primary database with read replicas in different AZs
-- SNS topics for fan-out pub/sub (labeled with event types: OrderCreated, UserSignedUp, etc.)
-- SQS queues for async processing with Dead Letter Queues (DLQ) for failures
-- EventBridge/CloudWatch Events for event routing
-- Kafka/Kinesis for high-throughput streaming
-- Show pattern: Producer → SNS → SQS → Consumer/Worker
-- Worker services for background jobs
-- Object storage for files/media
-- Search service (Elasticsearch) if relevant
-- Monitoring and logging stack (CloudWatch/Prometheus/Grafana)
-- Show ALL data flow paths with labeled arrows (HTTPS, gRPC, TCP, Events)
-- Show network boundaries and security zones
-
-SECURITY (CRITICAL):
-- IAM roles/policies for service-to-service authentication
-- KMS for encryption (data at rest and in transit)
-- Secrets Manager/Parameter Store for credentials
-- Certificate Manager for TLS certificates
-- WAF rules, Shield for DDoS protection
-- VPC endpoints/PrivateLink for private connectivity
-- Security boundaries between tiers (DMZ, trusted zones)
-- Label auth flows: IAM Role, JWT, mTLS, API Key
-
-MONITORING & OBSERVABILITY:
-- CloudWatch/Prometheus/Stackdriver for metrics
-- X-Ray/Jaeger for distributed tracing
-- Centralized logging (CloudWatch Logs, ELK, Splunk)
-- Alerting integration (PagerDuty, OpsGenie, SNS)
-- Dashboards (Grafana, CloudWatch Dashboards)
-- Health checks and synthetic monitoring
-
-MULTI-CLOUD & ON-PREM CONNECTIVITY:
-- VPN tunnels between clouds (AWS-GCP, AWS-Azure)
-- Direct Connect/ExpressRoute/Cloud Interconnect
-- Transit Gateway for multi-VPC routing
-- On-premises data center with hybrid connectivity
-- Cross-cloud service integration patterns
-
-EDGE CASES & RESILIENCE:
-- Circuit breakers for fault tolerance
-- Retry queues with exponential backoff
-- Disaster Recovery (DR) region with replication
-- Failover paths (active-passive or active-active)
-- Rate limiting and throttling at API Gateway
-- Graceful degradation paths`;
-                      const response = await fetch(API_URL + '/api/diagram/eraser', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-                        body: JSON.stringify({ description }),
-                      });
-                      if (response.ok) {
-                        const data = await response.json();
-                        setEraserDiagram(data);
-
-                        // Auto-save Eraser diagram to current session
-                        if (systemDesignStorage.currentSessionId) {
-                          systemDesignStorage.updateEraserDiagram(systemDesignStorage.currentSessionId, data);
-                        }
-                      }
-                    } catch (err) {
-                      console.error('Failed to generate Eraser diagram:', err);
-                    }
-                  }}
-                />
-              </div>
-            </Allotment.Pane>
-
-            {/* Right Pane - Interview Assistant (conditional) */}
-            {showAscendAssistant && (
-              <Allotment.Pane minSize={400}>
-                <AscendAssistantPanel
-                  onClose={() => setShowAscendAssistant(false)}
-                  provider={provider}
-                  model={model}
-                />
-              </Allotment.Pane>
-            )}
-          </Allotment>
-        </div>
-        )}
-      </main>
-
-      {/* Footer */}
-      <footer
-        className="relative z-10 px-5 py-2.5 flex items-center justify-between text-xs border-t"
-        style={{ borderColor: 'var(--border-subtle)', background: 'var(--bg-surface)', color: 'var(--text-muted)' }}
-      >
-        <div className="flex items-center gap-4">
-          <span className="flex items-center gap-2">
-            <span
-              className={`w-2 h-2 rounded-full ${isLoading ? 'animate-pulse' : ''}`}
-              style={{
-                background: isLoading ? 'var(--accent-success)' : 'var(--accent-success)',
-                boxShadow: isLoading ? '0 0 8px var(--accent-success)' : 'none'
-              }}
-            />
-            <span style={{ color: isLoading ? 'var(--accent-success-light)' : 'var(--text-muted)' }}>
-              {isLoading ? 'Processing' : 'Ready'}
-            </span>
-          </span>
-        </div>
-        <div className="flex items-center gap-4 font-mono text-[11px]" style={{ color: 'var(--text-subtle)' }}>
-          <span className="flex items-center gap-1.5" title="Solve problem">
-            <kbd className="px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}>^1</kbd>
-            solve
-          </span>
-          <span className="flex items-center gap-1.5" title="Run code">
-            <kbd className="px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}>^2</kbd>
-            run
-          </span>
-          <span className="flex items-center gap-1.5" title="Copy code">
-            <kbd className="px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}>^3</kbd>
-            copy
-          </span>
-          <span className="flex items-center gap-1.5" title="Clear all">
-            <kbd className="px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}>Esc</kbd>
-            clear
-          </span>
-        </div>
-      </footer>
-
-      {/* Admin Panel Modal */}
-      {showAdminPanel && (
-        <AdminPanel
-          token={getToken()}
-          onClose={() => setShowAdminPanel(false)}
-        />
-      )}
-
-      {/* Pricing Plans Modal */}
-      <PricingPlans
-        isOpen={showPricingPlans}
-        onClose={() => setShowPricingPlans(false)}
-      />
-
-      {/* Onboarding Modal */}
-      <OnboardingModal
-        isOpen={showOnboarding}
-        onComplete={() => setShowOnboarding(false)}
-        onOpenPricing={() => setShowPricingPlans(true)}
-      />
-
-      {/* Settings Panel */}
+      {/* Modals */}
+      {showAdminPanel && <AdminPanel token={getToken()} onClose={() => setShowAdminPanel(false)} />}
+      <PricingPlans isOpen={showPricingPlans} onClose={() => setShowPricingPlans(false)} />
+      <OnboardingModal isOpen={showOnboarding} onComplete={() => setShowOnboarding(false)} onOpenPricing={() => setShowPricingPlans(true)} />
       {showSettings && (
         <SettingsPanel
           onClose={() => setShowSettings(false)}
@@ -2011,35 +913,14 @@ EDGE CASES & RESILIENCE:
           onModelChange={setModel}
           onOpenPlatforms={() => setShowPrepTab(true)}
           autoSwitch={autoSwitch}
-          onAutoSwitchChange={(value) => {
-            setAutoSwitch(value);
-            try {
-              localStorage.setItem('chundu_auto_switch', value.toString());
-            } catch (e) {
-              console.error('Failed to save auto-switch setting:', e);
-            }
-          }}
+          onAutoSwitchChange={setAutoSwitch}
           editorSettings={editorSettings}
           onEditorSettingsChange={updateEditorSettings}
         />
       )}
-
-      {/* Setup Wizard (Electron first-run) */}
-      {showSetupWizard && (
-        <SetupWizard onComplete={() => setShowSetupWizard(false)} />
-      )}
-
-      {/* Platform Auth (Electron) */}
-      {showPlatformAuth && (
-        <PlatformAuth onClose={() => setShowPlatformAuth(false)} />
-      )}
-
-      {/* Platform Prep Hub (Electron) */}
-      {showPrepTab && (
-        <PrepTab isOpen={showPrepTab} onClose={() => setShowPrepTab(false)} />
-      )}
-
-      {/* Saved System Designs Modal */}
+      {showSetupWizard && <SetupWizard onComplete={() => setShowSetupWizard(false)} />}
+      {showPlatformAuth && <PlatformAuth onClose={() => setShowPlatformAuth(false)} />}
+      {showPrepTab && <PrepTab isOpen={showPrepTab} onClose={() => setShowPrepTab(false)} />}
       <SavedSystemDesignsModal
         isOpen={showSavedDesigns}
         onClose={() => setShowSavedDesigns(false)}
@@ -2049,29 +930,482 @@ EDGE CASES & RESILIENCE:
         onClearAll={systemDesignStorage.clearAllSessions}
       />
 
-      {/* Copy Toast Notification */}
-      {copyToast && (
-        <div
-          className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 animate-scale-in"
-        >
-          <div
-            className="flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg"
-            style={{
-              background: 'var(--brand-gradient)',
-              boxShadow: 'var(--shadow-glow-purple)'
-            }}
-          >
-            <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.2)' }}>
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <span className="text-sm font-semibold text-white">Code copied!</span>
-          </div>
-        </div>
-      )}
-      </div>{/* End Main Content wrapper */}
-
+      {/* Copy Toast */}
+      {copyToast && <CopyToast />}
     </div>
   );
+}
+
+// ============================================================================
+// Helper Hooks
+// ============================================================================
+
+function useLocalState(initialValue) {
+  const [state, setState] = useState(initialValue);
+  return [state, setState];
+}
+
+function useLocalStorage(key, initialValue) {
+  const [state, setState] = useState(() => {
+    try {
+      const stored = localStorage.getItem(key);
+      if (stored !== null) {
+        return JSON.parse(stored);
+      }
+    } catch {}
+    return initialValue;
+  });
+
+  const setStateAndStorage = useCallback((value) => {
+    setState(prev => {
+      const newValue = typeof value === 'function' ? value(prev) : value;
+      try {
+        localStorage.setItem(key, JSON.stringify(newValue));
+      } catch {}
+      return newValue;
+    });
+  }, [key]);
+
+  return [state, setStateAndStorage];
+}
+
+// ============================================================================
+// Sub-Components
+// ============================================================================
+
+function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, showSidebar, onToggleSidebar, isLoading, isMacElectron, onSettingsClick, onPricingClick, onVoiceAssistantClick, showAscendAssistant }) {
+  return (
+    <header
+      className="flex items-center justify-between gap-4 px-5 border-b backdrop-blur-md bg-neutral-800/95 border-neutral-700/50"
+      style={{
+        paddingLeft: (isMacElectron && !showSidebar) ? '80px' : '20px',
+        WebkitAppRegion: 'drag',
+        height: '56px',
+      }}
+    >
+      {/* Left: Logo & Tabs */}
+      <div className="flex items-center gap-6" style={{ WebkitAppRegion: 'no-drag' }}>
+        {!showSidebar && (
+          <button onClick={onToggleSidebar} className="flex items-center gap-3 group transition-all duration-200">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-400 to-brand-500 flex items-center justify-center shadow-glow-brand group-hover:scale-105 transition-transform">
+              <img src="/ascend-logo.png" alt="Ascend" className="h-5 w-auto object-contain filter brightness-0 invert" />
+            </div>
+            <span className="text-base font-semibold text-brand-400 tracking-tight">Ascend</span>
+            {isLoading && (
+              <div className="w-4 h-4 border-2 border-brand-400 border-t-transparent rounded-full animate-spin" />
+            )}
+          </button>
+        )}
+
+        {/* Mode Tabs - Modern pill design */}
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-neutral-700/50 border border-neutral-600/50">
+          {[
+            { id: 'coding', label: 'Coding', icon: <CodeIcon /> },
+            { id: 'system-design', label: 'Design', icon: <DesignIcon /> },
+            { id: 'behavioral', label: 'Prep', icon: <PrepIcon /> },
+          ].map((mode) => (
+            <button
+              key={mode.id}
+              onClick={() => onModeChange(mode.id)}
+              className={`
+                flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                ${ascendMode === mode.id
+                  ? 'bg-brand-400 text-white shadow-md shadow-brand-400/30'
+                  : 'text-neutral-400 hover:text-white hover:bg-neutral-600/50'
+                }
+              `}
+            >
+              <span className="w-4 h-4">{mode.icon}</span>
+              {mode.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Center: Stealth Mode (Electron) or Download Button (Webapp) */}
+      {isElectron ? (
+        <div className="flex items-center" style={{ WebkitAppRegion: 'no-drag' }}>
+          <button
+            onClick={onStealthModeToggle}
+            className={`
+              flex items-center gap-2.5 px-4 py-2 rounded-xl transition-all duration-200
+              ${stealthMode
+                ? 'bg-brand-400/15 border-brand-400/40 text-brand-400'
+                : 'bg-neutral-700/50 border-neutral-600/50 text-neutral-400 hover:text-white hover:bg-neutral-600/50'
+              }
+              border
+            `}
+          >
+            <StealthIcon stealthMode={stealthMode} />
+            <span className="text-sm font-medium">Stealth</span>
+            <div className={`
+              w-9 h-5 rounded-full relative transition-all duration-300
+              ${stealthMode ? 'bg-brand-400' : 'bg-neutral-600'}
+            `}>
+              <div className={`
+                absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-md transition-all duration-300
+                ${stealthMode ? 'left-[18px]' : 'left-0.5'}
+              `} />
+            </div>
+          </button>
+        </div>
+      ) : (
+        <div className="flex items-center" style={{ WebkitAppRegion: 'no-drag' }}>
+          <button
+            onClick={onPricingClick}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-brand-400 to-brand-500 hover:from-brand-500 hover:to-brand-600 shadow-lg shadow-brand-400/30 hover:shadow-brand-400/40 transition-all duration-200 hover:scale-[1.02]"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Download Desktop App
+          </button>
+        </div>
+      )}
+
+      {/* Right: Voice Assistant, Settings & Credits */}
+      <div className="flex items-center gap-3" style={{ WebkitAppRegion: 'no-drag' }}>
+        {/* Voice Assistant Button */}
+        <button
+          onClick={onVoiceAssistantClick}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 border ${
+            showAscendAssistant
+              ? 'text-brand-400 bg-brand-400/10 border-brand-400/50'
+              : 'text-neutral-400 hover:text-white bg-neutral-700/50 hover:bg-neutral-600/50 border-neutral-600/50'
+          }`}
+        >
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+          </svg>
+          Voice
+        </button>
+        <button
+          onClick={onSettingsClick}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-neutral-400 hover:text-white bg-neutral-700/50 hover:bg-neutral-600/50 border border-neutral-600/50 transition-all duration-200"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Settings
+        </button>
+        <CreditBalance onUpgrade={onPricingClick} compact={true} />
+      </div>
+    </header>
+  );
+}
+
+function ErrorBanner({ error, onDismiss }) {
+  return (
+    <div className="mx-5 mt-3 p-4 rounded-xl animate-fade-in-down bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800">
+      <div className="flex items-center gap-3">
+        <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-error-100 dark:bg-error-900/30 flex items-center justify-center">
+          <svg className="w-5 h-5 text-error-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <span className="text-sm font-medium text-error-700 dark:text-error-300 flex-1">{error}</span>
+        <button
+          onClick={onDismiss}
+          className="flex-shrink-0 w-8 h-8 rounded-lg hover:bg-error-100 dark:hover:bg-error-900/30 flex items-center justify-center transition-colors"
+        >
+          <svg className="w-4 h-4 text-error-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function SwitchNotificationBanner({ notification, onDismiss }) {
+  return (
+    <div className="mx-5 mt-3 p-4 rounded-xl animate-fade-in-down bg-warning-50 dark:bg-warning-900/20 border border-warning-200 dark:border-warning-800">
+      <div className="flex items-center gap-3">
+        <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-warning-100 dark:bg-warning-900/30 flex items-center justify-center">
+          <svg className="w-5 h-5 text-warning-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <span className="text-sm font-medium text-warning-700 dark:text-warning-300 flex-1">
+          Switched from <strong className="font-semibold">{notification.from}</strong> to <strong className="font-semibold">{notification.to}</strong>
+          {notification.reason && <span className="text-warning-500 ml-1.5">({notification.reason})</span>}
+        </span>
+        <button
+          onClick={onDismiss}
+          className="flex-shrink-0 w-8 h-8 rounded-lg hover:bg-warning-100 dark:hover:bg-warning-900/30 flex items-center justify-center transition-colors"
+        >
+          <svg className="w-4 h-4 text-warning-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function LoadingProgress() {
+  return (
+    <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
+      <div className="h-1 overflow-hidden bg-neutral-200 dark:bg-neutral-800">
+        <div
+          className="h-full w-1/3 bg-gradient-to-r from-brand-400 via-brand-500 to-brand-400 rounded-full"
+          style={{
+            animation: 'progress-indeterminate 1.5s ease-in-out infinite',
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function Footer({ isLoading, ascendMode }) {
+  return (
+    <footer className="relative z-10 px-5 py-3 flex items-center justify-between text-xs border-t border-neutral-700/50 bg-neutral-800">
+      <div className="flex items-center gap-4">
+        <span className="flex items-center gap-2">
+          <span className={`w-2 h-2 rounded-full ${isLoading ? 'animate-pulse bg-brand-400' : 'bg-brand-400'}`} />
+          <span className={`text-sm font-medium ${isLoading ? 'text-brand-400' : 'text-neutral-400'}`}>
+            {isLoading ? 'Processing...' : 'Ready'}
+          </span>
+        </span>
+      </div>
+      <div className="flex items-center gap-5 font-mono text-[11px] text-neutral-500">
+        {[
+          { key: '^1', label: ascendMode === 'system-design' ? 'design' : 'code' },
+          { key: '^2', label: 'run' },
+          { key: '^3', label: 'copy' },
+          { key: 'Esc', label: 'clear' },
+        ].map(({ key, label }) => (
+          <span key={key} className="flex items-center gap-1.5">
+            <kbd className="px-2 py-1 rounded-md text-[10px] font-semibold bg-neutral-700 border border-neutral-600 text-neutral-300">
+              {key}
+            </kbd>
+            <span className="text-neutral-400">{label}</span>
+          </span>
+        ))}
+      </div>
+    </footer>
+  );
+}
+
+function CopyToast() {
+  return (
+    <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 animate-scale-in">
+      <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-gradient-to-r from-brand-500 to-brand-600 shadow-xl shadow-brand-500/30">
+        <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm">
+          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <span className="text-sm font-semibold text-white">Code copied to clipboard!</span>
+      </div>
+    </div>
+  );
+}
+
+function CodingLayout({
+  extractedText, onExtractedTextClear, clearScreenshot, problemExpanded, onToggleExpand, loadedProblem,
+  ascendMode, designDetailLevel, onDetailLevelChange, codingDetailLevel, onCodingDetailLevelChange,
+  codingLanguage, onLanguageChange, autoGenerateEraser, onAutoGenerateEraserChange,
+  solution, streamingContent, highlightedLine, onLineHover, autoRunOutput, eraserDiagram,
+  isLoading, loadingType, hasSolution, savedDesignsCount, onSavedDesignsClick, currentProblem,
+  onSolve, onFetchUrl, onScreenshot, onClear, onFollowUpQuestion, isProcessingFollowUp,
+  onExpandSystemDesign, onGenerateEraserDiagram, onExplanationsUpdate,
+  codeDisplayRef, editorSettings, showAscendAssistant, onCloseAscendAssistant, provider, model,
+}) {
+  return (
+    <div className="h-full bg-neutral-800">
+      <Allotment defaultSizes={showAscendAssistant ? [30, 40, 30] : [30, 70]}>
+        {/* Left Pane - Problem + Explanation */}
+        <Allotment.Pane minSize={300}>
+          <div className="h-full flex flex-col overflow-hidden bg-neutral-750 border-r border-neutral-700/50">
+            <div className="flex-shrink-0">
+              {/* Panel Header */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700/50 bg-neutral-800/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-5 rounded-full bg-gradient-to-b from-brand-400 to-brand-500" />
+                  <h2 className="text-sm font-semibold text-white">Problem</h2>
+                  {ascendMode === 'system-design' && (
+                    <button
+                      onClick={onSavedDesignsClick}
+                      className={`
+                        flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg transition-all duration-200
+                        ${savedDesignsCount > 0
+                          ? 'bg-brand-400/10 text-brand-400 border border-brand-400/30'
+                          : 'bg-neutral-700 text-neutral-400 hover:text-neutral-300'
+                        }
+                      `}
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                      </svg>
+                      Saved ({savedDesignsCount})
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center">
+                  <AscendModeSelector
+                    ascendMode={ascendMode}
+                    designDetailLevel={designDetailLevel}
+                    onDetailLevelChange={onDetailLevelChange}
+                    autoGenerateEraser={autoGenerateEraser}
+                    onAutoGenerateEraserChange={onAutoGenerateEraserChange}
+                    codingLanguage={codingLanguage}
+                    onLanguageChange={onLanguageChange}
+                    codingDetailLevel={codingDetailLevel}
+                    onCodingDetailLevelChange={onCodingDetailLevelChange}
+                  />
+                </div>
+              </div>
+
+              <div className="p-3">
+                <ProblemInput
+                  onSubmit={onSolve}
+                  onFetchUrl={onFetchUrl}
+                  onScreenshot={onScreenshot}
+                  onClear={onClear}
+                  isLoading={isLoading}
+                  extractedText={extractedText}
+                  onExtractedTextClear={onExtractedTextClear}
+                  shouldClear={clearScreenshot}
+                  hasSolution={hasSolution}
+                  expanded={problemExpanded}
+                  onToggleExpand={onToggleExpand}
+                  ascendMode={ascendMode}
+                  loadedProblem={loadedProblem}
+                  detailLevel={codingDetailLevel}
+                  language={codingLanguage}
+                />
+              </div>
+            </div>
+
+            <div className="flex-1 min-h-0 overflow-hidden">
+              <ExplanationPanel
+                explanations={solution?.explanations}
+                highlightedLine={highlightedLine}
+                pitch={solution?.pitch || streamingContent.pitch}
+                systemDesign={solution?.systemDesign || streamingContent.systemDesign}
+                isStreaming={isLoading && loadingType === 'solve' && !solution}
+                onExpandSystemDesign={onExpandSystemDesign}
+                canExpandSystemDesign={!!currentProblem && !isLoading}
+                onFollowUpQuestion={onFollowUpQuestion}
+                isProcessingFollowUp={isProcessingFollowUp}
+              />
+            </div>
+          </div>
+        </Allotment.Pane>
+
+        {/* Center Pane - Code Editor */}
+        <Allotment.Pane minSize={400}>
+          <div className="h-full bg-neutral-800 border-l border-neutral-700/50">
+            <CodeDisplay
+              ref={codeDisplayRef}
+              code={solution?.code || streamingContent.code}
+              language={solution?.language || streamingContent.language}
+              complexity={solution?.complexity || streamingContent.complexity}
+              onLineHover={onLineHover}
+              examples={solution?.examples}
+              isStreaming={isLoading && loadingType === 'solve' && !solution}
+              autoRunOutput={autoRunOutput}
+              onExplanationsUpdate={onExplanationsUpdate}
+              ascendMode={ascendMode}
+              codingLanguage={codingLanguage}
+              onLanguageChange={ascendMode === 'coding' ? onLanguageChange : undefined}
+              detailLevel={codingDetailLevel}
+              onDetailLevelChange={ascendMode === 'coding' ? onCodingDetailLevelChange : undefined}
+              editorSettings={editorSettings}
+              systemDesign={solution?.systemDesign || streamingContent.systemDesign}
+              eraserDiagram={eraserDiagram}
+              autoGenerateEraser={autoGenerateEraser}
+              question={currentProblem || loadedProblem}
+              cloudProvider="auto"
+              onGenerateEraserDiagram={onGenerateEraserDiagram}
+            />
+          </div>
+        </Allotment.Pane>
+
+        {/* Right Pane - Interview Assistant */}
+        {showAscendAssistant && (
+          <Allotment.Pane minSize={400}>
+            <AscendAssistantPanel onClose={onCloseAscendAssistant} provider={provider} model={model} />
+          </Allotment.Pane>
+        )}
+      </Allotment>
+    </div>
+  );
+}
+
+// ============================================================================
+// Icons
+// ============================================================================
+
+function CodeIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+    </svg>
+  );
+}
+
+function DesignIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+    </svg>
+  );
+}
+
+function PrepIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+    </svg>
+  );
+}
+
+function StealthIcon({ stealthMode }) {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      {stealthMode ? (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+      ) : (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+      )}
+    </svg>
+  );
+}
+
+// ============================================================================
+// Helpers
+// ============================================================================
+
+function buildEraserDescription(sd) {
+  const techStack = sd.techJustifications?.map(t => `${t.tech}: ${t.why}`).join('\n') || '';
+  const scalability = sd.scalability?.join(', ') || '';
+  const funcReqs = sd.requirements?.functional?.join(', ') || '';
+  const nonFuncReqs = sd.requirements?.nonFunctional?.join(', ') || '';
+
+  return `DETAILED CLOUD ARCHITECTURE DIAGRAM:
+
+SYSTEM: ${sd.overview || ''}
+
+COMPONENTS: ${sd.architecture?.components?.join(', ') || ''}
+
+ARCHITECTURE: ${sd.architecture?.description || ''}
+
+TECHNOLOGY STACK:
+${techStack}
+
+SCALABILITY: ${scalability}
+
+FUNCTIONAL REQUIREMENTS: ${funcReqs}
+NON-FUNCTIONAL REQUIREMENTS: ${nonFuncReqs}
+
+INCLUDE: VPC, DNS, Load Balancers, CDN, API Gateway, Application servers, Caches, Database with replicas, Message queues, Worker services, Object storage, Monitoring stack.
+
+SECURITY: IAM, KMS, Secrets Manager, WAF, Security Groups, VPC endpoints.
+
+MONITORING: CloudWatch, X-Ray, Centralized logging, Alerting.`;
 }

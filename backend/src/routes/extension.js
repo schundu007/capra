@@ -29,13 +29,13 @@ router.get('/events', (req, res) => {
 
 // Endpoint to receive problems from Chrome extension
 router.post('/problem', (req, res) => {
-  const { url, platform, problemType, timestamp } = req.body;
+  const { url, platform, problemType, problemText, timestamp } = req.body;
 
   if (!url) {
     return res.status(400).json({ error: 'URL is required' });
   }
 
-  console.log(`[Extension] Problem received from ${platform}:`, url, 'type:', problemType);
+  console.log(`[Extension] Problem received from ${platform}:`, url, 'type:', problemType, 'hasText:', !!problemText);
 
   // Broadcast to all connected SSE clients
   const message = JSON.stringify({
@@ -43,6 +43,7 @@ router.post('/problem', (req, res) => {
     url,
     platform,
     problemType: problemType || 'coding',
+    problemText: problemText || null,  // Include extracted text if available
     timestamp: timestamp || Date.now(),
   });
 

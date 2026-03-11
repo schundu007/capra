@@ -7,6 +7,7 @@ import * as usageService from '../services/usageService.js';
 import { verifyJWT } from '../middleware/jwtAuth.js';
 import { query } from '../config/database.js';
 import * as freeUsageService from '../services/freeUsageService.js';
+import { logger } from '../middleware/requestLogger.js';
 
 const router = Router();
 
@@ -30,12 +31,9 @@ router.post('/', validate('solve'), async (req, res, next) => {
 // Streaming endpoint for faster perceived response
 router.post('/stream', validate('solve'), async (req, res, next) => {
   try {
-    // Log the ENTIRE validated request body
-    console.log('[Solve Stream] FULL req.body after validation:', JSON.stringify(req.body, null, 2));
-
     const { problem, provider = 'claude', language = 'auto', detailLevel = 'detailed', model, ascendMode = 'coding', designDetailLevel = 'basic', autoSwitch = false } = req.body;
 
-    console.log('[Solve Stream] EXTRACTED VALUES - ascendMode:', ascendMode, 'designDetailLevel:', designDetailLevel, 'provider:', provider, 'autoSwitch:', autoSwitch);
+    logger.debug({ ascendMode, designDetailLevel, provider, autoSwitch, language, detailLevel }, 'Solve stream request params');
 
     // Check for webapp user (JWT auth) and verify subscription + usage allowance
     let webappUserId = null;
@@ -48,15 +46,15 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
         const decoded = await verifyJWT(token);
         if (decoded && decoded.id) {
           webappUserId = decoded.id;
-          console.log('[Solve Stream] Webapp user detected:', webappUserId);
+          logger.debug({ userId: webappUserId }, 'Webapp user detected');
 
           // Check subscription OR free usage (freemium model)
           const featureType = ascendMode === 'system_design' ? 'design' : 'coding';
           const canUseResult = await freeUsageService.canUseFeature(webappUserId, featureType);
-          console.log('[Solve Stream] Feature access check:', canUseResult);
+          logger.debug({ userId: webappUserId, featureType, result: canUseResult }, 'Feature access check');
 
           if (!canUseResult.allowed) {
-            console.log('[Solve Stream] Feature access denied:', canUseResult);
+            logger.info({ userId: webappUserId, reason: canUseResult.reason }, 'Feature access denied');
             res.setHeader('Content-Type', 'text/event-stream');
             res.write(`data: ${JSON.stringify({
               error: canUseResult.reason || 'Free trial exhausted. Please subscribe to continue.',
@@ -69,15 +67,16 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
             res.end();
             return;
           }
-          console.log('[Solve Stream] Feature access granted:', {
+          logger.debug({
+            userId: webappUserId,
             hasSubscription: canUseResult.hasSubscription,
             freeRemaining: canUseResult.freeRemaining,
             planType: canUseResult.planType
-          });
+          }, 'Feature access granted');
         }
       } catch (jwtError) {
         // JWT verification failed - might be Electron user, continue
-        console.log('[Solve Stream] JWT verification skipped (likely Electron):', jwtError.message);
+        logger.debug({ error: jwtError.message }, 'JWT verification skipped (likely Electron)');
       }
     }
 
@@ -103,11 +102,11 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
 
     // Check if API key is available
     const apiKey = service.getApiKey ? service.getApiKey() : null;
-    console.log(`[Solve Stream] Provider: ${currentProvider}, API key available: ${!!apiKey}`);
+    logger.debug({ provider: currentProvider, hasApiKey: !!apiKey }, 'Provider API key check');
 
     if (!apiKey) {
       const errorMsg = `No API key configured for ${currentProvider}. Please add your API key in Settings.`;
-      console.error(`[Solve Stream] ${errorMsg}`);
+      logger.warn({ provider: currentProvider }, errorMsg);
       res.write(`data: ${JSON.stringify({ error: errorMsg })}\n\n`);
       res.end();
       return;
@@ -116,21 +115,21 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
     try {
       fullText = await streamFromProvider(service, currentProvider);
     } catch (primaryError) {
-      console.error(`[Solve Stream] Primary provider (${currentProvider}) failed:`, primaryError.message);
+      logger.warn({ provider: currentProvider, error: primaryError.message }, 'Primary provider failed');
 
       // If auto-switch is enabled, try the fallback provider
       if (autoSwitch) {
         const fallbackProvider = currentProvider === 'claude' ? 'openai' : 'claude';
         const fallbackService = fallbackProvider === 'openai' ? openai : claude;
 
-        console.log(`[Solve Stream] Auto-switching to ${fallbackProvider}...`);
+        logger.info({ from: currentProvider, to: fallbackProvider }, 'Auto-switching provider');
         res.write(`data: ${JSON.stringify({ switching: true, from: currentProvider, to: fallbackProvider, reason: primaryError.message })}\n\n`);
 
         try {
           fullText = await streamFromProvider(fallbackService, fallbackProvider);
           currentProvider = fallbackProvider;
         } catch (fallbackError) {
-          console.error(`[Solve Stream] Fallback provider (${fallbackProvider}) also failed:`, fallbackError.message);
+          logger.error({ provider: fallbackProvider, error: fallbackError.message }, 'Fallback provider also failed');
           throw new Error(`Both providers failed. ${currentProvider}: ${primaryError.message}. ${fallbackProvider}: ${fallbackError.message}`);
         }
       } else {
@@ -139,8 +138,7 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
     }
 
     // Parse and send final result
-    console.log('[Solve Stream] Parsing fullText, length:', fullText.length);
-    console.log('[Solve Stream] First 500 chars:', fullText.substring(0, 500));
+    logger.debug({ responseLength: fullText.length }, 'Parsing AI response');
 
     try {
       // Try multiple ways to extract JSON from the response
@@ -179,18 +177,21 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
         parseMethod = 'full-text';
       }
 
-      console.log('[Solve Stream] Parse method:', parseMethod);
+      logger.debug({ parseMethod }, 'JSON parse method used');
 
       const result = JSON.parse(jsonStr);
 
       // Validate result has expected structure
       if (result && typeof result === 'object') {
-        console.log('[Solve Stream] Parsed result keys:', Object.keys(result));
-        console.log('[Solve Stream] result.code type:', typeof result.code, 'length:', result.code?.length);
+        logger.debug({
+          resultKeys: Object.keys(result),
+          codeType: typeof result.code,
+          codeLength: result.code?.length
+        }, 'Parsed result structure');
 
         // Ensure code is a string, not an object
         if (result.code && typeof result.code !== 'string') {
-          console.warn('[Solve Stream] result.code is not a string, converting');
+          logger.warn('result.code is not a string, converting');
           result.code = JSON.stringify(result.code);
         }
       }
@@ -206,25 +207,25 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
             // Subscribed user - deduct from subscription allowance
             if (ascendMode === 'system_design') {
               await usageService.useSystemDesign(webappUserId);
-              console.log('[Solve Stream] Deducted subscription design usage for user:', webappUserId);
+              logger.debug({ userId: webappUserId, type: 'design' }, 'Deducted subscription usage');
             } else {
               await usageService.useCoding(webappUserId);
-              console.log('[Solve Stream] Deducted subscription coding usage for user:', webappUserId);
+              logger.debug({ userId: webappUserId, type: 'coding' }, 'Deducted subscription usage');
             }
           } else {
             // Free trial user - deduct from free allowance
             const usedFree = await freeUsageService.useFreeAllowance(webappUserId, featureType);
-            console.log('[Solve Stream] Deducted free allowance for user:', webappUserId, 'feature:', featureType, 'success:', usedFree);
+            logger.debug({ userId: webappUserId, featureType, success: usedFree }, 'Deducted free allowance');
           }
         } catch (usageError) {
-          console.error('[Solve Stream] Failed to deduct usage:', usageError.message);
+          logger.error({ userId: webappUserId, error: usageError.message }, 'Failed to deduct usage');
           // Don't fail the request, just log the error
         }
       }
 
       res.write(`data: ${JSON.stringify({ done: true, result })}\n\n`);
     } catch (parseErr) {
-      console.error('[Solve Stream] Parse error:', parseErr.message);
+      logger.warn({ error: parseErr.message }, 'JSON parse failed, attempting regex extraction');
 
       // Last resort: try to extract just the code field using regex
       try {
@@ -238,14 +239,14 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
             .replace(/\\"/g, '"')
             .replace(/\\\\/g, '\\');
 
-          console.log('[Solve Stream] Extracted code via regex, length:', extractedCode.length);
+          logger.debug({ codeLength: extractedCode.length }, 'Extracted code via regex');
           res.write(`data: ${JSON.stringify({ done: true, result: { code: extractedCode, language: langMatch?.[1] || 'python' } })}\n\n`);
         } else {
-          console.error('[Solve Stream] Could not extract code from response');
+          logger.error('Could not extract code from response');
           res.write(`data: ${JSON.stringify({ error: 'Failed to parse AI response. Please try again.' })}\n\n`);
         }
       } catch (regexErr) {
-        console.error('[Solve Stream] Regex extraction failed:', regexErr.message);
+        logger.error({ error: regexErr.message }, 'Regex extraction failed');
         res.write(`data: ${JSON.stringify({ error: 'Failed to parse AI response. Please try again.' })}\n\n`);
       }
     }
@@ -261,7 +262,7 @@ router.post('/followup', validate('followup'), async (req, res, next) => {
   try {
     const { question, problem, code, pitch, currentDesign, provider = 'claude', model } = req.body;
 
-    console.log('[Followup] Received request:', { question, hasCode: !!code, hasPitch: !!pitch, hasDesign: !!currentDesign, provider, model });
+    logger.debug({ question, hasCode: !!code, hasPitch: !!pitch, hasDesign: !!currentDesign, provider, model }, 'Follow-up request received');
 
     if (!question) {
       return res.status(400).json({ error: 'Question is required' });
@@ -289,21 +290,19 @@ router.post('/followup', validate('followup'), async (req, res, next) => {
       systemDesign: currentDesign
     };
 
-    console.log('[Followup] Starting stream...');
+    logger.debug('Starting follow-up stream');
     for await (const chunk of service.answerFollowUpQuestion(question, context, model)) {
       fullText += chunk;
       res.write(`data: ${JSON.stringify({ chunk, partial: true })}\n\n`);
     }
 
-    console.log('[Followup] Stream complete, sending final result, length:', fullText.length);
+    logger.debug({ responseLength: fullText.length }, 'Follow-up stream complete');
     // Send the answer directly (no JSON parsing needed for simple answers)
     const finalMsg = `data: ${JSON.stringify({ done: true, result: { answer: fullText.trim() } })}\n\n`;
-    console.log('[Followup] Final message:', finalMsg.substring(0, 200));
     res.write(finalMsg);
     res.end();
-    console.log('[Followup] Response ended');
   } catch (error) {
-    console.error('[Followup] Error:', error);
+    logger.error({ error: error.message }, 'Follow-up error');
     res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
     res.end();
   }
