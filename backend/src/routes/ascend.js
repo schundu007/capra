@@ -1,35 +1,91 @@
 import { Router } from 'express';
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
+import multer from 'multer';
 import { getApiKey as getClaudeKey } from '../services/claude.js';
 import { getApiKey as getOpenAIKey } from '../services/openai.js';
 
 const router = Router();
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB limit
 
-const INTERVIEW_SYSTEM_PROMPT = `You are an expert interview assistant helping a candidate in a live technical interview.
+const INTERVIEW_SYSTEM_PROMPT = `You are a Staff Engineer interview coach. ULTRA-COMPACT answers only.
 
-RULES:
-1. Provide CONCISE, DIRECT answers - the candidate needs to respond quickly
-2. Focus on the key points that matter most
-3. If it's a coding question, provide a brief approach first, then code if needed
-4. If it's a behavioral question, use the STAR method briefly
-5. If it's a system design question, hit the main components quickly
-6. Keep answers to 2-3 key points maximum
-7. Use bullet points for clarity
-8. Be conversational - this should sound natural when spoken
+## ABSOLUTE RULES - CRITICAL
+1. MAX 100 words total - NO exceptions
+2. NEVER use bullet lists - ONLY tables
+3. ONE :::card[Say This] then ONLY tables
+4. All content in table cells, not paragraphs
+5. Answer must fit on ONE screen (no scrolling)
 
-FORMAT YOUR RESPONSE AS:
-- Start with the most important point
-- Add 1-2 supporting points if needed
-- End with a brief conclusion or next step
+## FORMAT
 
-Remember: The candidate will read this aloud, so keep it natural and speakable.`;
+### Opening (required):
+:::card[Say This]
+One sentence to speak. Max 20 words.
+:::
+
+### Everything else = TABLES ONLY:
+| Column | Column | Column |
+|--------|--------|--------|
+| data | data | data |
+
+## TEMPLATES
+
+### System Design:
+:::card[Say This]
+"For [system], I'd use [pattern] at [scale] with [key tech]."
+:::
+
+| Ask | Stack | Numbers |
+|-----|-------|---------|
+| Scale? | PostgreSQL | 10K QPS |
+| R/W ratio? | Redis cache | 100K QPS |
+| Latency? | Kafka queue | 99.9% up |
+
+| Trade-off | Choice | Why |
+|-----------|--------|-----|
+| DB | PostgreSQL | ACID |
+| Cache | Redis | <1ms |
+
+### Behavioral (STAR):
+:::card[Say This]
+"At [Company], I [action] resulting in [metric]."
+:::
+
+| S | T | A | R |
+|---|---|---|---|
+| Problem | My role | What I did | 50% improvement |
+
+### Concept:
+:::card[Say This]
+"[Term] means [definition]. Key: [insight]."
+:::
+
+| What | When | Trade-off |
+|------|------|-----------|
+| Definition | Use case | Pro vs con |
+
+### Coding:
+:::card[Say This]
+"Use [pattern] for O([time]) with [structure]."
+:::
+
+| Pattern | Time | Space | Edge |
+|---------|------|-------|------|
+| Name | O(n) | O(1) | Empty/null |
+
+## BANNED
+- Bullet points (use table rows)
+- Long paragraphs (use table cells)
+- Multiple cards (only one :::card[Say This])
+- More than 100 words`;
+
 
 // POST /api/ascend/answer - Generate answer for interview question (streaming)
 router.post('/answer', async (req, res) => {
-  const { question, context = '', provider = 'claude', model } = req.body;
+  const { question, context = '', provider = 'claude', model, jobDescription, resume, prepMaterial } = req.body;
 
-  console.log('[Ascend] Answer request received:', { questionLength: question?.length, provider, model });
+  console.log('[Ascend] Answer request received:', { questionLength: question?.length, provider, model, hasJD: !!jobDescription, hasResume: !!resume, hasPrep: !!prepMaterial });
 
   if (!question) {
     console.log('[Ascend] No question provided');
@@ -43,11 +99,28 @@ router.post('/answer', async (req, res) => {
   res.setHeader('X-Accel-Buffering', 'no');
 
   try {
-    const contextPrompt = context
-      ? `\n\nPREVIOUS CONTEXT:\n${context}\n\n`
+    // Build context from provided documents
+    let contextParts = [];
+    if (jobDescription?.trim()) {
+      contextParts.push(`JOB DESCRIPTION:\n${jobDescription.trim()}`);
+    }
+    if (resume?.trim()) {
+      contextParts.push(`CANDIDATE RESUME:\n${resume.trim()}`);
+    }
+    if (prepMaterial?.trim()) {
+      contextParts.push(`PREPARATION NOTES:\n${prepMaterial.trim()}`);
+    }
+    if (context?.trim()) {
+      contextParts.push(`PREVIOUS CONTEXT:\n${context.trim()}`);
+    }
+
+    const contextPrompt = contextParts.length > 0
+      ? `\n\n${contextParts.join('\n\n---\n\n')}\n\n`
       : '';
 
-    const userMessage = `${contextPrompt}INTERVIEWER QUESTION: "${question}"\n\nProvide a concise, natural-sounding answer that the candidate can speak aloud.`;
+    const userMessage = `${contextPrompt}QUESTION: "${question}"
+
+Give a STAFF ENGINEER level answer tailored to the candidate's background and the job requirements if provided. Include real numbers, real technologies, real trade-offs. Tables for comparisons. No paragraphs.`;
 
     if (provider === 'openai') {
       const apiKey = getOpenAIKey();
@@ -66,7 +139,7 @@ router.post('/answer', async (req, res) => {
           { role: 'system', content: INTERVIEW_SYSTEM_PROMPT },
           { role: 'user', content: userMessage },
         ],
-        max_tokens: 1024,
+        max_tokens: 4096,
         stream: true,
       });
 
@@ -90,7 +163,7 @@ router.post('/answer', async (req, res) => {
 
       const stream = await anthropic.messages.stream({
         model: selectedModel,
-        max_tokens: 1024,
+        max_tokens: 4096,
         system: INTERVIEW_SYSTEM_PROMPT,
         messages: [
           { role: 'user', content: userMessage },
@@ -110,6 +183,101 @@ router.post('/answer', async (req, res) => {
     console.error('[Ascend] Error:', error.message);
     res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
     res.end();
+  }
+});
+
+// POST /api/extract-text - Extract text from uploaded documents (PDF, DOCX)
+router.post('/extract-text', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const fileName = req.file.originalname.toLowerCase();
+    const buffer = req.file.buffer;
+    let text = '';
+
+    console.log('[Extract] Processing file:', fileName, 'Size:', buffer.length);
+
+    if (fileName.endsWith('.txt')) {
+      text = buffer.toString('utf-8');
+    } else if (fileName.endsWith('.pdf')) {
+      // Use Claude to extract text from PDF
+      const apiKey = getClaudeKey();
+      if (!apiKey) {
+        return res.status(500).json({ error: 'API key not configured' });
+      }
+
+      const anthropic = new Anthropic({ apiKey });
+      const base64 = buffer.toString('base64');
+
+      const response = await anthropic.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 8000,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'document',
+              source: {
+                type: 'base64',
+                media_type: 'application/pdf',
+                data: base64,
+              },
+            },
+            {
+              type: 'text',
+              text: 'Extract ALL text content from this document. Return ONLY the extracted text, no commentary or formatting. Preserve paragraphs and structure.',
+            },
+          ],
+        }],
+      });
+
+      text = response.content[0]?.text || '';
+    } else if (fileName.endsWith('.docx') || fileName.endsWith('.doc')) {
+      // For DOCX, try to extract using simple parsing or Claude
+      const apiKey = getClaudeKey();
+      if (!apiKey) {
+        return res.status(500).json({ error: 'API key not configured' });
+      }
+
+      // DOCX files can be read by Claude as documents
+      const anthropic = new Anthropic({ apiKey });
+      const base64 = buffer.toString('base64');
+
+      const response = await anthropic.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 8000,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'document',
+              source: {
+                type: 'base64',
+                media_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                data: base64,
+              },
+            },
+            {
+              type: 'text',
+              text: 'Extract ALL text content from this document. Return ONLY the extracted text, no commentary or formatting. Preserve paragraphs and structure.',
+            },
+          ],
+        }],
+      });
+
+      text = response.content[0]?.text || '';
+    } else {
+      // Try to read as text
+      text = buffer.toString('utf-8');
+    }
+
+    console.log('[Extract] Extracted text length:', text.length);
+    res.json({ text, fileName: req.file.originalname });
+  } catch (error) {
+    console.error('[Extract] Error:', error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 
