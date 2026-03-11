@@ -66,6 +66,7 @@ export const secureStore = {
       anthropic: decrypt(encrypted.anthropic),
       openai: decrypt(encrypted.openai),
       eraser: decrypt(encrypted.eraser),
+      deepgram: decrypt(encrypted.deepgram),
     };
   },
 
@@ -82,6 +83,9 @@ export const secureStore = {
     }
     if (keys.eraser !== undefined) {
       encrypted.eraser = encrypt(keys.eraser);
+    }
+    if (keys.deepgram !== undefined) {
+      encrypted.deepgram = encrypt(keys.deepgram);
     }
 
     // Merge with existing keys

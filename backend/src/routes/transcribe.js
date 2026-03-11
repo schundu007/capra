@@ -2,6 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import OpenAI from 'openai';
 import { getApiKey as getOpenAIKey } from '../services/openai.js';
+import { getApiKey as getDeepgramKey } from '../services/deepgram.js';
 import { AppError, ErrorCode } from '../middleware/errorHandler.js';
 import fs from 'fs';
 import path from 'path';
@@ -73,41 +74,50 @@ function getFileExtension(mimetype, originalFilename) {
   return 'webm'; // default - widely supported
 }
 
-// POST /api/transcribe - Transcribe audio using Whisper API
-router.post('/', upload.single('audio'), async (req, res, next) => {
-  let tempFilePath = null;
+// Transcribe using Deepgram REST API
+async function transcribeWithDeepgram(buffer, mimetype) {
+  const apiKey = getDeepgramKey();
+  if (!apiKey) {
+    throw new AppError('Deepgram API key not configured', ErrorCode.UNAUTHORIZED);
+  }
+
+  const url = 'https://api.deepgram.com/v1/listen?model=nova-2&smart_format=true&language=en&punctuate=true';
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Token ${apiKey}`,
+      'Content-Type': mimetype || 'audio/webm',
+    },
+    body: buffer,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new AppError(`Deepgram error: ${response.status} ${errorText}`, ErrorCode.INTERNAL_ERROR);
+  }
+
+  const result = await response.json();
+  const transcript = result?.results?.channels?.[0]?.alternatives?.[0]?.transcript || '';
+  return transcript;
+}
+
+// Transcribe using OpenAI Whisper
+async function transcribeWithWhisper(buffer, mimetype, originalname) {
+  const apiKey = getOpenAIKey();
+  if (!apiKey) {
+    throw new AppError('OpenAI API key not configured', ErrorCode.UNAUTHORIZED);
+  }
+
+  const extension = getFileExtension(mimetype, originalname);
+  const filename = `audio_${Date.now()}.${extension}`;
+  const tempFilePath = path.join(os.tmpdir(), filename);
 
   try {
-    if (!req.file) {
-      throw new AppError('No audio file provided', ErrorCode.VALIDATION_ERROR);
-    }
-
-    console.log('[Transcribe] Received file:', {
-      originalname: req.file.originalname,
-      mimetype: req.file.mimetype,
-      size: req.file.size,
-    });
-
-    const apiKey = getOpenAIKey();
-    if (!apiKey) {
-      throw new AppError('OpenAI API key not configured', ErrorCode.UNAUTHORIZED);
-    }
-
-    // Get proper file extension based on mimetype and original filename
-    const extension = getFileExtension(req.file.mimetype, req.file.originalname);
-    const filename = `audio_${Date.now()}.${extension}`;
-
-    console.log('[Transcribe] Detected extension:', extension, 'from mimetype:', req.file.mimetype, 'originalname:', req.file.originalname);
-
-    // Write to a temp file - this is the most reliable approach for Whisper
-    tempFilePath = path.join(os.tmpdir(), filename);
-    fs.writeFileSync(tempFilePath, req.file.buffer);
-
-    console.log('[Transcribe] Wrote temp file:', tempFilePath, 'size:', req.file.buffer.length);
+    fs.writeFileSync(tempFilePath, buffer);
+    console.log('[Transcribe] Wrote temp file:', tempFilePath, 'size:', buffer.length);
 
     const openai = new OpenAI({ apiKey });
-
-    // Use fs.createReadStream which OpenAI SDK handles well
     const transcription = await openai.audio.transcriptions.create({
       file: fs.createReadStream(tempFilePath),
       model: 'whisper-1',
@@ -115,11 +125,51 @@ router.post('/', upload.single('audio'), async (req, res, next) => {
       response_format: 'text',
     });
 
+    return transcription;
+  } finally {
+    try {
+      fs.unlinkSync(tempFilePath);
+    } catch (e) {
+      // Ignore cleanup errors
+    }
+  }
+}
+
+// POST /api/transcribe - Transcribe audio using Whisper or Deepgram
+// Query param: provider=openai (default) or provider=deepgram
+router.post('/', upload.single('audio'), async (req, res, next) => {
+  try {
+    if (!req.file) {
+      throw new AppError('No audio file provided', ErrorCode.VALIDATION_ERROR);
+    }
+
+    const provider = req.query.provider || req.body.provider || 'openai';
+
+    console.log('[Transcribe] Received file:', {
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      provider,
+    });
+
+    let transcription;
+
+    if (provider === 'deepgram') {
+      console.log('[Transcribe] Using Deepgram Nova-2');
+      transcription = await transcribeWithDeepgram(req.file.buffer, req.file.mimetype);
+    } else {
+      console.log('[Transcribe] Using OpenAI Whisper');
+      const extension = getFileExtension(req.file.mimetype, req.file.originalname);
+      console.log('[Transcribe] Detected extension:', extension, 'from mimetype:', req.file.mimetype, 'originalname:', req.file.originalname);
+      transcription = await transcribeWithWhisper(req.file.buffer, req.file.mimetype, req.file.originalname);
+    }
+
     console.log('[Transcribe] Success, text length:', transcription?.length);
 
     res.json({
       success: true,
       text: transcription,
+      provider,
     });
   } catch (error) {
     console.error('[Transcribe] Error:', error.message, error.status, error.code);
@@ -128,15 +178,6 @@ router.post('/', upload.single('audio'), async (req, res, next) => {
       ErrorCode.INTERNAL_ERROR,
       error.message
     ));
-  } finally {
-    // Clean up temp file
-    if (tempFilePath) {
-      try {
-        fs.unlinkSync(tempFilePath);
-      } catch (e) {
-        // Ignore cleanup errors
-      }
-    }
   }
 });
 

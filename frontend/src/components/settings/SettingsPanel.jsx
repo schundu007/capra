@@ -30,9 +30,11 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
     anthropic: null,
     openai: null,
     eraser: null,
+    deepgram: null,
     hasAnthropic: false,
     hasOpenai: false,
     hasEraser: false,
+    hasDeepgram: false,
   });
   const [loading, setLoading] = useState(true);
 
@@ -48,13 +50,16 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
         const anthropic = localStorage.getItem('anthropic_api_key') || '';
         const openai = localStorage.getItem('openai_api_key') || '';
         const eraser = localStorage.getItem('eraser_api_key') || '';
+        const deepgram = localStorage.getItem('deepgram_api_key') || '';
         setApiKeys({
           anthropic,
           openai,
           eraser,
+          deepgram,
           hasAnthropic: !!anthropic,
           hasOpenai: !!openai,
           hasEraser: !!eraser,
+          hasDeepgram: !!deepgram,
         });
       }
       setLoading(false);
@@ -408,6 +413,13 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
                 hasKey={apiKeys.hasEraser}
                 onSave={(key) => handleSaveKey('eraser', key)}
                 onDelete={() => handleDeleteKey('eraser')}
+              />
+              <ApiKeyInput
+                provider="deepgram"
+                currentKey={apiKeys.deepgram}
+                hasKey={apiKeys.hasDeepgram}
+                onSave={(key) => handleSaveKey('deepgram', key)}
+                onDelete={() => handleDeleteKey('deepgram')}
               />
             </div>
           )}

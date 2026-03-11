@@ -249,7 +249,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
   const lastTranscribedSizeRef = useRef(0); // Track how much audio we've transcribed
   const lastTranscribedChunkIndexRef = useRef(0); // Track which chunk index we've transcribed up to
   const headerChunksRef = useRef([]); // Store the first few chunks that contain file headers
-  const VAD_THRESHOLD = 0.03; // Lower threshold - more sensitive to speech
+  const VAD_THRESHOLD = 0.12; // Higher threshold - only captures close-up speech (~3 feet radius)
   const SILENCE_DURATION = 1500; // 1.5s silence to end segment
   const MIN_SPEECH_DURATION = 800; // 0.8s minimum speech
   const TRANSCRIPTION_COOLDOWN = 4000; // 4s between transcriptions to avoid rate limits
@@ -276,15 +276,23 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
   const [prepMaterial, setPrepMaterial] = useState(() => localStorage.getItem('voice_prep') || '');
   const [uploadingFile, setUploadingFile] = useState(null);
 
+  // Transcription provider: 'openai' (Whisper) or 'deepgram' (Nova-2)
+  const [transcriptionProvider, setTranscriptionProvider] = useState(() =>
+    localStorage.getItem('voice_transcription_provider') || 'openai'
+  );
+
   // File refs for upload
   const jdFileRef = useRef(null);
   const resumeFileRef = useRef(null);
   const prepFileRef = useRef(null);
 
-  // Save context to localStorage
+  // Save context and settings to localStorage
   useEffect(() => {
     localStorage.setItem('voice_jd', jobDescription);
   }, [jobDescription]);
+  useEffect(() => {
+    localStorage.setItem('voice_transcription_provider', transcriptionProvider);
+  }, [transcriptionProvider]);
   useEffect(() => {
     localStorage.setItem('voice_resume', resume);
   }, [resume]);
@@ -597,7 +605,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
       const formData = new FormData();
       formData.append('audio', audioBlob, filename);
 
-      const response = await fetch(`${API_URL}/api/transcribe`, {
+      const response = await fetch(`${API_URL}/api/transcribe?provider=${transcriptionProvider}`, {
         method: 'POST',
         headers: { ...getAuthHeaders() },
         body: formData,
@@ -935,6 +943,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
   const stopRecording = () => {
     console.log('[Recording] Stopping...');
 
+
     // Clear periodic transcription
     if (periodicTranscribeRef.current) {
       clearInterval(periodicTranscribeRef.current);
@@ -942,7 +951,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
     }
 
     if (durationIntervalRef.current) {
-      clearInterval(durationIntervalRef.current.duration);
+      clearInterval(durationIntervalRef.current);
       durationIntervalRef.current = null;
     }
 
@@ -1499,6 +1508,37 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
             </select>
           )}
 
+          {/* Transcription Provider Toggle */}
+          <div className="flex items-center gap-2">
+            <span className="text-[9px] text-neutral-500 shrink-0">STT:</span>
+            <div className="flex rounded-lg overflow-hidden border border-neutral-600/50 flex-1">
+              <button
+                onClick={() => setTranscriptionProvider('openai')}
+                disabled={isRecording}
+                title="OpenAI Whisper API"
+                className={`flex-1 py-1 text-[9px] font-medium transition-colors disabled:opacity-50 ${
+                  transcriptionProvider === 'openai'
+                    ? 'bg-brand-400 text-neutral-900'
+                    : 'bg-neutral-700 text-neutral-400 hover:bg-neutral-600'
+                }`}
+              >
+                Whisper
+              </button>
+              <button
+                onClick={() => setTranscriptionProvider('deepgram')}
+                disabled={isRecording}
+                title="Deepgram Nova-2 API"
+                className={`flex-1 py-1 text-[9px] font-medium transition-colors disabled:opacity-50 ${
+                  transcriptionProvider === 'deepgram'
+                    ? 'bg-brand-400 text-neutral-900'
+                    : 'bg-neutral-700 text-neutral-400 hover:bg-neutral-600'
+                }`}
+              >
+                Deepgram
+              </button>
+            </div>
+          </div>
+
           {/* Record Button */}
           {!isRecording ? (
             <button
@@ -1590,10 +1630,10 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
         </div>
       </div>
 
-      {/* Content - Compact */}
-      <div className="flex-1 overflow-hidden flex flex-col">
-        {/* Questions Section - Compact, max 25% height */}
-        <div className="shrink-0 max-h-[25%] border-b border-neutral-700/50">
+      {/* Content - Side by Side Layout */}
+      <div className="flex-1 overflow-hidden flex flex-row">
+        {/* Questions Section - Left side, 40% width */}
+        <div className="w-[40%] shrink-0 border-r border-neutral-700/50">
           <div className="h-full flex flex-col">
             <div className="px-3 py-1 flex items-center justify-between border-b border-neutral-700/50 bg-neutral-800">
               <span className="text-[10px] font-medium uppercase tracking-wider text-neutral-400">
@@ -1607,11 +1647,10 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
             </div>
             <div className="flex-1 overflow-y-auto p-1.5 bg-neutral-750">
               {questions.length > 0 ? (
-                <div className="space-y-1">
-                  {/* Only show last 3 questions to avoid clutter */}
-                  {questions.slice(-3).map((q, idx) => {
-                    const questionNum = questions.length - 2 + idx; // Adjust numbering for slice
-                    const actualNum = Math.max(1, questionNum);
+                <div className="space-y-1.5">
+                  {/* Show all questions in side panel - scroll if needed */}
+                  {questions.map((q, idx) => {
+                    const actualNum = idx + 1;
                     return (
                       <div key={actualNum} className="px-2 py-1 rounded bg-neutral-700/30 border-l-2 border-info-400 animate-fadeIn">
                         <p className="text-[11px] leading-snug text-neutral-200">
@@ -1631,8 +1670,8 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
           </div>
         </div>
 
-        {/* Answer Section - Takes remaining space */}
-        <div className="flex-1 min-h-0 overflow-hidden">
+        {/* Answer Section - Right side, takes remaining 60% width */}
+        <div className="flex-1 min-w-0 overflow-hidden">
           <div className="h-full flex flex-col">
             <div className="px-3 py-2 flex items-center justify-between border-b border-neutral-700/50 bg-gradient-to-r from-brand-500/10 to-transparent">
               <div className="flex items-center gap-2">

@@ -58,6 +58,15 @@ async function validateEraserKey(key) {
   return { valid: true };
 }
 
+async function validateDeepgramKey(key) {
+  // Validate Deepgram key by checking format
+  if (!key || key.length < 10) {
+    return { valid: false, error: 'Invalid API key format' };
+  }
+  // For now, accept any key that looks valid - actual validation happens on use
+  return { valid: true };
+}
+
 /**
  * Set up IPC handlers for API key management
  */
@@ -69,9 +78,11 @@ export function setupApiKeyHandlers() {
       anthropic: keys.anthropic ? maskKey(keys.anthropic) : null,
       openai: keys.openai ? maskKey(keys.openai) : null,
       eraser: keys.eraser ? maskKey(keys.eraser) : null,
+      deepgram: keys.deepgram ? maskKey(keys.deepgram) : null,
       hasAnthropic: !!keys.anthropic,
       hasOpenai: !!keys.openai,
       hasEraser: !!keys.eraser,
+      hasDeepgram: !!keys.deepgram,
     };
   });
 
@@ -88,6 +99,9 @@ export function setupApiKeyHandlers() {
     if (keys.eraser !== undefined) {
       toStore.eraser = keys.eraser;
     }
+    if (keys.deepgram !== undefined) {
+      toStore.deepgram = keys.deepgram;
+    }
 
     await secureStore.setApiKeys(toStore);
 
@@ -100,9 +114,11 @@ export function setupApiKeyHandlers() {
       anthropic: stored.anthropic ? maskKey(stored.anthropic) : null,
       openai: stored.openai ? maskKey(stored.openai) : null,
       eraser: stored.eraser ? maskKey(stored.eraser) : null,
+      deepgram: stored.deepgram ? maskKey(stored.deepgram) : null,
       hasAnthropic: !!stored.anthropic,
       hasOpenai: !!stored.openai,
       hasEraser: !!stored.eraser,
+      hasDeepgram: !!stored.deepgram,
     };
   });
 
@@ -116,6 +132,9 @@ export function setupApiKeyHandlers() {
     }
     if (provider === 'eraser') {
       return validateEraserKey(key);
+    }
+    if (provider === 'deepgram') {
+      return validateDeepgramKey(key);
     }
     return { valid: false, error: 'Unknown provider' };
   });

@@ -14,6 +14,7 @@ const __dirname = path.dirname(__filename);
 import * as claudeService from '../backend/src/services/claude.js';
 import * as openaiService from '../backend/src/services/openai.js';
 import * as eraserService from '../backend/src/services/eraser.js';
+import * as deepgramService from '../backend/src/services/deepgram.js';
 import * as pythonDiagramsService from '../backend/src/services/pythonDiagrams.js';
 
 // Safe logging that ignores EPIPE errors (happens when pipe closes during shutdown)
@@ -41,6 +42,7 @@ export function updateRuntimeApiKeys(keys) {
     hasAnthropic: !!keys.anthropic,
     hasOpenai: !!keys.openai,
     hasEraser: !!keys.eraser,
+    hasDeepgram: !!keys.deepgram,
   });
   if (keys.anthropic !== undefined) {
     claudeService.setApiKey(keys.anthropic);
@@ -54,6 +56,10 @@ export function updateRuntimeApiKeys(keys) {
   if (keys.eraser !== undefined) {
     eraserService.setApiKey(keys.eraser);
     safeLog('[Electron] Eraser key set, current:', !!eraserService.getApiKey());
+  }
+  if (keys.deepgram !== undefined) {
+    deepgramService.setApiKey(keys.deepgram);
+    safeLog('[Electron] Deepgram key set, current:', !!deepgramService.getApiKey());
   }
 }
 
@@ -69,6 +75,9 @@ export function getApiKey(provider) {
   }
   if (provider === 'eraser') {
     return eraserService.getApiKey();
+  }
+  if (provider === 'deepgram') {
+    return deepgramService.getApiKey();
   }
   return null;
 }
@@ -236,6 +245,9 @@ export async function startBackendServer(options = {}) {
   }
   if (apiKeys.eraser) {
     eraserService.setApiKey(apiKeys.eraser);
+  }
+  if (apiKeys.deepgram) {
+    deepgramService.setApiKey(apiKeys.deepgram);
   }
 
   const app = createApp();

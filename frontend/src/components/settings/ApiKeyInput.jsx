@@ -16,6 +16,11 @@ const providerConfig = {
     placeholder: 'eraser_...',
     helpUrl: 'https://app.eraser.io/settings/api',
   },
+  deepgram: {
+    name: 'Deepgram',
+    placeholder: 'dg_...',
+    helpUrl: 'https://console.deepgram.com/settings/api-keys',
+  },
 };
 
 export default function ApiKeyInput({
