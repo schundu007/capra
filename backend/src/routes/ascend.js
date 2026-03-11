@@ -125,12 +125,29 @@ router.post('/answer', async (req, res) => {
   res.setHeader('X-Accel-Buffering', 'no');
   res.flushHeaders(); // Send headers immediately
 
+  // Send initial connection confirmation immediately
+  res.write(`data: ${JSON.stringify({ connected: true })}\n\n`);
+
   // Track client disconnect to abort streaming
   let clientDisconnected = false;
   req.on('close', () => {
     clientDisconnected = true;
     safeLog('[Ascend] Client disconnected');
   });
+
+  // Keep-alive heartbeat every 15 seconds to prevent connection timeout
+  const heartbeat = setInterval(() => {
+    if (!clientDisconnected) {
+      try {
+        res.write(': heartbeat\n\n'); // SSE comment for keep-alive
+      } catch (e) {
+        // Connection already closed
+        clearInterval(heartbeat);
+      }
+    } else {
+      clearInterval(heartbeat);
+    }
+  }, 15000);
 
   try {
     // Build context from provided documents
@@ -159,6 +176,7 @@ Give a STAFF ENGINEER level answer tailored to the candidate's background and th
     if (provider === 'openai') {
       const apiKey = getOpenAIKey();
       if (!apiKey) {
+        clearInterval(heartbeat);
         res.write(`data: ${JSON.stringify({ error: 'OpenAI API key not configured' })}\n\n`);
         res.end();
         return;
@@ -166,6 +184,7 @@ Give a STAFF ENGINEER level answer tailored to the candidate's background and th
 
       const openai = new OpenAI({ apiKey });
       const selectedModel = model || 'gpt-4o';
+      safeLog('[Ascend] Starting OpenAI stream with model:', selectedModel);
 
       const stream = await openai.chat.completions.create({
         model: selectedModel,
@@ -177,6 +196,9 @@ Give a STAFF ENGINEER level answer tailored to the candidate's background and th
         stream: true,
       });
 
+      safeLog('[Ascend] OpenAI stream created, waiting for events...');
+      let chunkCount = 0;
+
       for await (const chunk of stream) {
         if (clientDisconnected) {
           safeLog('[Ascend] Aborting stream - client disconnected');
@@ -184,15 +206,19 @@ Give a STAFF ENGINEER level answer tailored to the candidate's background and th
         }
         const content = chunk.choices[0]?.delta?.content;
         if (content) {
+          chunkCount++;
+          if (chunkCount === 1) safeLog('[Ascend] First chunk received');
           res.write(`data: ${JSON.stringify({ chunk: content })}\n\n`);
         }
       }
+      safeLog('[Ascend] OpenAI stream complete, total chunks:', chunkCount);
     } else {
       // Claude (default)
       const apiKey = getClaudeKey();
       safeLog('[Ascend] Got API key:', apiKey ? 'yes (length: ' + apiKey.length + ')' : 'NO');
       if (!apiKey) {
         safeLog('[Ascend] ERROR: No API key configured');
+        clearInterval(heartbeat);
         res.write(`data: ${JSON.stringify({ error: 'Anthropic API key not configured' })}\n\n`);
         res.end();
         return;
@@ -200,6 +226,7 @@ Give a STAFF ENGINEER level answer tailored to the candidate's background and th
 
       const anthropic = new Anthropic({ apiKey });
       const selectedModel = model || 'claude-sonnet-4-20250514';
+      safeLog('[Ascend] Starting Claude stream with model:', selectedModel);
 
       const stream = anthropic.messages.stream({
         model: selectedModel,
@@ -210,22 +237,30 @@ Give a STAFF ENGINEER level answer tailored to the candidate's background and th
         ],
       });
 
+      safeLog('[Ascend] Stream created, waiting for events...');
+      let chunkCount = 0;
+
       for await (const event of stream) {
         if (clientDisconnected) {
           safeLog('[Ascend] Aborting stream - client disconnected');
           break;
         }
         if (event.type === 'content_block_delta' && event.delta?.text) {
+          chunkCount++;
+          if (chunkCount === 1) safeLog('[Ascend] First chunk received');
           res.write(`data: ${JSON.stringify({ chunk: event.delta.text })}\n\n`);
         }
       }
+      safeLog('[Ascend] Stream complete, total chunks:', chunkCount);
     }
 
+    clearInterval(heartbeat);
     if (!clientDisconnected) {
       res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
       res.end();
     }
   } catch (error) {
+    clearInterval(heartbeat);
     safeError('[Ascend] Error:', error.message);
     if (!clientDisconnected) {
       try {

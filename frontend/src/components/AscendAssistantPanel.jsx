@@ -1125,14 +1125,15 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
       if (pendingQuestionsRef.current.length > 0) {
         const pendingText = pendingQuestionsRef.current.shift(); // Get first in queue
         console.log('[AutoAnswer] Processing queued question:', pendingText.substring(0, 30) + '...', `(${pendingQuestionsRef.current.length} remaining)`);
-        // Keep isGeneratingRef true while processing queue, just update React state for UI
-        setIsGenerating(false);
+        // CRITICAL: Reset isGeneratingRef BEFORE calling generateAnswerForText
+        // Otherwise it will think it's still generating and re-queue the question
         setTimeout(() => {
+          isGeneratingRef.current = false; // Reset so the next call can proceed
           lastAnsweredTextRef.current = pendingText;
           generateAnswerForText(pendingText);
-        }, 50);
+        }, 100); // Small delay to let UI update
       } else {
-        // Only set ref to false when queue is truly empty
+        // Queue is empty, fully reset
         isGeneratingRef.current = false;
         setIsGenerating(false);
       }
