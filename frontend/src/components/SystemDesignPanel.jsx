@@ -26,15 +26,15 @@ function CloudArchitectureDiagram({
 
   if (loading) {
     return (
-      <div className={`p-6 rounded-lg bg-neutral-800 border border-neutral-700/50 text-center ${expanded ? 'min-h-[400px]' : ''}`}>
-        <div className="flex flex-col items-center justify-center gap-3">
-          <svg className="w-8 h-8 animate-spin text-brand-400" fill="none" viewBox="0 0 24 24">
+      <div className={`p-3 rounded bg-neutral-800 border border-neutral-700/50 text-center ${expanded ? 'min-h-[400px]' : ''}`}>
+        <div className="flex flex-col items-center justify-center gap-2">
+          <svg className="w-5 h-5 animate-spin text-brand-400" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
           </svg>
           <div>
-            <p className="text-sm text-neutral-300 font-medium">Generating architecture diagram...</p>
-            <p className="text-xs text-neutral-500 mt-1">Using {cloudProvider.toUpperCase()} cloud icons</p>
+            <p className="text-[10px] text-neutral-300 font-medium">Generating diagram...</p>
+            <p className="text-[9px] text-neutral-500">{cloudProvider.toUpperCase()}</p>
           </div>
         </div>
       </div>
@@ -43,31 +43,31 @@ function CloudArchitectureDiagram({
 
   if (error) {
     return (
-      <div className="p-4 rounded-lg bg-error-500/10 border border-error-500/30">
-        <p className="text-sm text-error-400">{error}</p>
+      <div className="p-2 rounded bg-error-500/10 border border-error-500/30">
+        <p className="text-[10px] text-error-400">{error}</p>
       </div>
     );
   }
 
   if (!imageUrl || imageError) {
     return (
-      <div className="text-center py-6 text-neutral-500">
-        <svg className="w-12 h-12 mx-auto mb-3 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="text-center py-4 text-neutral-500">
+        <svg className="w-8 h-8 mx-auto mb-2 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
         </svg>
-        <p className="text-xs">Click Generate for cloud architecture diagram</p>
-        <p className="text-[10px] text-neutral-600 mt-1">Real AWS/GCP/Azure icons</p>
-        {imageError && <p className="text-[10px] text-error-400 mt-1">Image failed to load</p>}
+        <p className="text-[9px]">Click Generate for cloud architecture</p>
+        <p className="text-[8px] text-neutral-600">AWS/GCP/Azure icons</p>
+        {imageError && <p className="text-[8px] text-error-400 mt-0.5">Image failed to load</p>}
       </div>
     );
   }
 
   return (
-    <div className={`rounded-lg overflow-hidden border border-neutral-700/50 bg-neutral-800 flex justify-center ${expanded ? 'p-4' : 'p-3'}`}>
+    <div className={`rounded overflow-hidden border border-neutral-700/50 bg-neutral-800 flex justify-center ${expanded ? 'p-4' : 'p-2'}`}>
       <img
         src={imageUrl}
         alt="Cloud Architecture Diagram"
-        className={`h-auto object-contain ${expanded ? 'max-h-[80vh] max-w-full' : 'max-w-[60%]'}`}
+        className={`h-auto object-contain ${expanded ? 'max-h-[80vh] max-w-full' : 'max-h-[180px] max-w-full'}`}
         onError={(e) => {
           console.error('[CloudDiagram] Image load error:', imageUrl, e);
           setImageError(true);
@@ -342,7 +342,7 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
   const asciiDiagram = buildASCII();
 
   return (
-    <div className="font-mono text-xs leading-snug bg-neutral-900 text-brand-400 p-4 rounded-lg overflow-x-auto whitespace-pre border border-neutral-700/50">
+    <div className="font-mono text-[10px] leading-tight bg-neutral-900 text-brand-400 p-2 rounded overflow-x-auto whitespace-pre border border-neutral-700/50 max-h-[200px] overflow-y-auto">
       {asciiDiagram}
     </div>
   );
@@ -361,6 +361,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
   const [diagramError, setDiagramError] = useState(null);
   const [diagramDetailLevel, setDiagramDetailLevel] = useState('overview');
   const [showASCII, setShowASCII] = useState(true);
+  const [activeDiagramTab, setActiveDiagramTab] = useState('ascii'); // 'ascii' | 'cloud' | 'pro'
 
   const diagramData = diagramDetailLevel === 'detailed' ? detailedDiagram : overviewDiagram;
   const hasComparison = systemDesign?.comparison || systemDesign?.comparisonDiagram;
@@ -462,51 +463,60 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
     return null;
   }
 
+  // Calculate section counts for dynamic layout
+  const hasRequirements = systemDesign.requirements && (systemDesign.requirements.functional?.length > 0 || systemDesign.requirements.nonFunctional?.length > 0);
+  const hasArchitecture = systemDesign.architecture;
+  const hasScalability = systemDesign.scalability?.length > 0;
+  const hasTradeoffs = systemDesign.tradeoffs?.length > 0;
+  const hasEdgeCases = systemDesign.edgeCases?.length > 0;
+  const hasTechJustifications = systemDesign.techJustifications?.length > 0;
+  const showProDiagram = autoGenerateEraser || eraserDiagram;
+
   return (
-    <div className="p-3 rounded-xl animate-fade-in bg-neutral-750 border border-neutral-700/50">
-      {/* Header */}
-      <div className="mb-3 pb-2 flex items-center justify-between border-b border-neutral-700/50">
+    <div className="p-2 rounded-xl animate-fade-in bg-neutral-750 border border-neutral-700/50 h-full flex flex-col overflow-hidden">
+      {/* Compact Header */}
+      <div className="flex-shrink-0 mb-2 pb-1.5 flex items-center justify-between border-b border-neutral-700/50">
         <div className="flex items-center gap-2">
           <div className="w-1.5 h-1.5 rounded-full bg-brand-400" />
-          <span className="text-xs font-semibold uppercase tracking-wide text-neutral-200">System Design</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-neutral-200">System Design</span>
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
         {/* Focused Answer Mode - For SLI/SLO/concept questions */}
         {systemDesign.focusedAnswer && systemDesign.categories && (
-          <>
+          <div className="space-y-2">
             {/* Overview for focused answer */}
             {systemDesign.overview && (
-              <div className="rounded-lg p-3 bg-neutral-700/30 border border-neutral-600/50">
-                <p className="text-sm text-neutral-300 leading-relaxed">{systemDesign.overview}</p>
+              <div className="rounded p-2 bg-neutral-700/30 border border-neutral-600/50">
+                <p className="text-xs text-neutral-300 leading-snug">{systemDesign.overview}</p>
               </div>
             )}
 
-            {/* Categories as Cards/Tables */}
-            <div className="space-y-4">
+            {/* Categories as Compact Tables */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
               {systemDesign.categories.map((category, catIdx) => (
-                <div key={catIdx} className="rounded-lg overflow-hidden border border-neutral-600/50">
-                  <div className="bg-brand-400/10 px-4 py-2 border-b border-neutral-600/50">
-                    <h4 className="text-sm font-semibold text-brand-400">{category.name}</h4>
+                <div key={catIdx} className="rounded overflow-hidden border border-neutral-600/50">
+                  <div className="bg-brand-400/10 px-2 py-1 border-b border-neutral-600/50">
+                    <h4 className="text-[10px] font-semibold text-brand-400">{category.name}</h4>
                   </div>
-                  <div className="bg-neutral-800/50">
-                    <table className="w-full text-xs">
+                  <div className="bg-neutral-800/50 overflow-x-auto">
+                    <table className="w-full text-[10px]">
                       <thead>
                         <tr className="border-b border-neutral-700/50">
-                          <th className="text-left px-3 py-2 text-neutral-400 font-semibold">Metric</th>
-                          <th className="text-left px-3 py-2 text-neutral-400 font-semibold">Target</th>
-                          <th className="text-left px-3 py-2 text-neutral-400 font-semibold">Measurement</th>
-                          <th className="text-left px-3 py-2 text-neutral-400 font-semibold">Alert Threshold</th>
+                          <th className="text-left px-2 py-1 text-neutral-400 font-semibold whitespace-nowrap">Metric</th>
+                          <th className="text-left px-2 py-1 text-neutral-400 font-semibold whitespace-nowrap">Target</th>
+                          <th className="text-left px-2 py-1 text-neutral-400 font-semibold whitespace-nowrap">Measurement</th>
+                          <th className="text-left px-2 py-1 text-neutral-400 font-semibold whitespace-nowrap">Alert</th>
                         </tr>
                       </thead>
                       <tbody>
                         {category.items?.map((item, itemIdx) => (
                           <tr key={itemIdx} className="border-b border-neutral-700/30 last:border-b-0">
-                            <td className="px-3 py-2 text-neutral-200 font-medium">{item.metric || item.name || '-'}</td>
-                            <td className="px-3 py-2 text-brand-400 font-mono">{item.target || item.value || '-'}</td>
-                            <td className="px-3 py-2 text-neutral-300">{item.measurement || item.description || '-'}</td>
-                            <td className="px-3 py-2 text-warning-400">{item.alertThreshold || item.alert || '-'}</td>
+                            <td className="px-2 py-1 text-neutral-200 font-medium">{item.metric || item.name || '-'}</td>
+                            <td className="px-2 py-1 text-brand-400 font-mono text-[9px]">{item.target || item.value || '-'}</td>
+                            <td className="px-2 py-1 text-neutral-300">{item.measurement || item.description || '-'}</td>
+                            <td className="px-2 py-1 text-warning-400 text-[9px]">{item.alertThreshold || item.alert || '-'}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -515,487 +525,392 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
                 </div>
               ))}
             </div>
-          </>
+          </div>
         )}
 
-        {/* Full System Design Mode - Only render if NOT focused answer */}
+        {/* Full System Design Mode - Optimized Grid Layout */}
         {!systemDesign.focusedAnswer && (
-          <>
-        {/* Overview */}
-        {systemDesign.overview && (
-          <div className="rounded-lg p-3 bg-neutral-700/30 border border-neutral-600/50">
-            <h4 className="text-xs font-semibold uppercase tracking-wide mb-1.5 text-neutral-400">
-              Overview
-            </h4>
-            <p className="text-sm text-neutral-300 leading-relaxed">{systemDesign.overview}</p>
-          </div>
-        )}
+          <div className="grid grid-cols-12 gap-2 auto-rows-min">
 
-        {/* Requirements */}
-        {systemDesign.requirements && (
-          <div className="grid grid-cols-2 gap-3">
-            {systemDesign.requirements.functional && systemDesign.requirements.functional.length > 0 && (
-              <div className="rounded-lg p-3 bg-neutral-700/30 border border-neutral-600/50">
-                <h4 className="text-xs font-semibold uppercase tracking-wide mb-2 text-neutral-400">
-                  Functional
-                </h4>
-                <ul className="space-y-1">
-                  {systemDesign.requirements.functional.map((req, i) => (
-                    <li key={i} className="text-xs text-neutral-300 flex items-start gap-2">
-                      <span className="text-brand-400 mt-0.5 flex-shrink-0">•</span>
-                      {req}
-                    </li>
-                  ))}
-                </ul>
+            {/* Row 1: Overview (spans 8) + Scalability (spans 4) */}
+            {systemDesign.overview && (
+              <div className={`rounded p-2 bg-neutral-700/30 border border-neutral-600/50 ${hasScalability ? 'col-span-8' : 'col-span-12'}`}>
+                <h4 className="text-[9px] font-semibold uppercase tracking-wide mb-1 text-neutral-500">Overview</h4>
+                <p className="text-[11px] text-neutral-300 leading-snug">{systemDesign.overview}</p>
               </div>
             )}
-            {systemDesign.requirements.nonFunctional && systemDesign.requirements.nonFunctional.length > 0 && (
-              <div className="rounded-lg p-3 bg-neutral-700/30 border border-neutral-600/50">
-                <h4 className="text-xs font-semibold uppercase tracking-wide mb-2 text-neutral-400">
-                  Non-Functional
-                </h4>
-                <ul className="space-y-1">
-                  {systemDesign.requirements.nonFunctional.map((req, i) => (
-                    <li key={i} className="text-xs text-neutral-300 flex items-start gap-2">
-                      <span className="text-brand-400 mt-0.5 flex-shrink-0">•</span>
-                      {req}
-                    </li>
+            {hasScalability && (
+              <div className="col-span-4 rounded p-2 bg-neutral-700/30 border border-neutral-600/50">
+                <h4 className="text-[9px] font-semibold uppercase tracking-wide mb-1 text-neutral-500">Scalability</h4>
+                <div className="flex flex-wrap gap-1">
+                  {systemDesign.scalability.map((item, i) => (
+                    <span key={i} className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-brand-400/10 text-brand-400 text-[9px] rounded border border-brand-400/30" title={item}>
+                      <svg className="w-2.5 h-2.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                      </svg>
+                      {item.length > 20 ? item.substring(0, 18) + '...' : item}
+                    </span>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
-          </div>
-        )}
 
-        {/* Architecture Components + Scalability */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-          {systemDesign.architecture && (
-            <div className="rounded-lg p-3 bg-neutral-700/30 border border-neutral-600/50">
-              <h4 className="text-xs font-semibold uppercase tracking-wide mb-2 text-neutral-400">
-                Components
-              </h4>
-              {systemDesign.architecture.components && systemDesign.architecture.components.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mb-2">
-                  {systemDesign.architecture.components.map((component, i) => (
-                    <span
-                      key={i}
-                      className="px-2 py-0.5 bg-neutral-600/50 text-neutral-300 text-[10px] rounded border border-neutral-500/50"
-                    >
+            {/* Row 2: Requirements (Functional + Non-Functional side by side) */}
+            {hasRequirements && (
+              <>
+                {systemDesign.requirements.functional?.length > 0 && (
+                  <div className="col-span-6 rounded p-2 bg-neutral-700/30 border border-neutral-600/50">
+                    <h4 className="text-[9px] font-semibold uppercase tracking-wide mb-1 text-neutral-500">Functional</h4>
+                    <ul className="space-y-0.5">
+                      {systemDesign.requirements.functional.map((req, i) => (
+                        <li key={i} className="text-[10px] text-neutral-300 flex items-start gap-1.5">
+                          <span className="text-brand-400 mt-0.5 flex-shrink-0 text-[8px]">●</span>
+                          {req}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {systemDesign.requirements.nonFunctional?.length > 0 && (
+                  <div className="col-span-6 rounded p-2 bg-neutral-700/30 border border-neutral-600/50">
+                    <h4 className="text-[9px] font-semibold uppercase tracking-wide mb-1 text-neutral-500">Non-Functional</h4>
+                    <ul className="space-y-0.5">
+                      {systemDesign.requirements.nonFunctional.map((req, i) => (
+                        <li key={i} className="text-[10px] text-neutral-300 flex items-start gap-1.5">
+                          <span className="text-brand-400 mt-0.5 flex-shrink-0 text-[8px]">●</span>
+                          {req}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Row 3: Architecture Components */}
+            {hasArchitecture && (
+              <div className="col-span-12 rounded p-2 bg-neutral-700/30 border border-neutral-600/50">
+                <h4 className="text-[9px] font-semibold uppercase tracking-wide mb-1 text-neutral-500">Architecture Components</h4>
+                <div className="flex flex-wrap gap-1 mb-1.5">
+                  {systemDesign.architecture.components?.map((component, i) => (
+                    <span key={i} className="px-1.5 py-0.5 bg-neutral-600/50 text-neutral-300 text-[9px] rounded border border-neutral-500/50">
                       {component}
                     </span>
                   ))}
                 </div>
-              )}
-              {systemDesign.architecture.description && (
-                <p className="text-xs text-neutral-200 leading-relaxed">{systemDesign.architecture.description}</p>
-              )}
-            </div>
-          )}
-
-          {systemDesign.scalability && systemDesign.scalability.length > 0 && (
-            <div className="rounded-lg p-3 bg-neutral-700/30 border border-neutral-600/50">
-              <h4 className="text-xs font-semibold uppercase tracking-wide mb-2 text-neutral-400">
-                Scalability
-              </h4>
-              <div className="flex flex-wrap gap-1.5">
-                {systemDesign.scalability.map((item, i) => (
-                  <span
-                    key={i}
-                    className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-brand-400/10 text-brand-400 text-[10px] rounded border border-brand-400/30"
-                    title={item}
-                  >
-                    <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                    </svg>
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Edge Cases & Tradeoffs */}
-        {(systemDesign.edgeCases?.length > 0 || systemDesign.tradeoffs?.length > 0) && (
-          <div className="grid grid-cols-2 gap-3">
-            {systemDesign.tradeoffs && systemDesign.tradeoffs.length > 0 && (
-              <div className="rounded-lg p-3 bg-warning-500/10 border border-warning-500/30">
-                <h4 className="text-xs font-semibold uppercase tracking-wide mb-2 flex items-center gap-1.5 text-warning-400">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-                  </svg>
-                  Tradeoffs
-                </h4>
-                <ul className="space-y-1.5">
-                  {systemDesign.tradeoffs.map((tradeoff, i) => (
-                    <li key={i} className="text-xs text-warning-200 flex items-start gap-2">
-                      <span className="text-warning-400 mt-0.5 flex-shrink-0">⚖</span>
-                      <span>{typeof tradeoff === 'string' ? tradeoff.replace(/^Tradeoff \d+:\s*/i, '') : tradeoff}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {systemDesign.edgeCases && systemDesign.edgeCases.length > 0 && (
-              <div className="rounded-lg p-3 bg-error-500/10 border border-error-500/30">
-                <h4 className="text-xs font-semibold uppercase tracking-wide mb-2 flex items-center gap-1.5 text-error-400">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                  Edge Cases
-                </h4>
-                <ul className="space-y-1.5">
-                  {systemDesign.edgeCases.map((edge, i) => (
-                    <li key={i} className="text-xs text-error-200 flex items-start gap-2">
-                      <span className="text-error-400 mt-0.5 flex-shrink-0">⚠</span>
-                      <span>{typeof edge === 'string' ? edge.replace(/^Edge case \d+:\s*/i, '') : edge}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Diagrams - Only show for full system design, NOT for focused questions */}
-        {!systemDesign.focusedAnswer && (
-        <div className="space-y-3">
-          {/* ASCII Architecture Diagram */}
-          <div className="rounded-lg p-3 bg-neutral-700/30 border border-neutral-600/50">
-            <h4 className="text-xs font-semibold uppercase tracking-wide mb-2 flex items-center justify-between text-neutral-400">
-              <span className="flex items-center gap-1.5">
-                Text Architecture
-                <span className="px-1.5 py-0.5 bg-neutral-600/50 text-neutral-500 border border-neutral-500/50 rounded text-[9px] font-medium">
-                  ASCII
-                </span>
-              </span>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setDiagramDetailLevel(diagramDetailLevel === 'detailed' ? 'overview' : 'detailed')}
-                  className={`px-2 py-1 text-[10px] font-medium rounded border transition-all ${
-                    diagramDetailLevel === 'detailed'
-                      ? 'bg-info-500/10 text-info-400 border-info-500/30'
-                      : 'bg-brand-400/10 text-brand-400 border-brand-400/30'
-                  }`}
-                >
-                  {diagramDetailLevel === 'detailed' ? 'Detailed' : 'Overview'}
-                </button>
-              </div>
-            </h4>
-            <ASCIIDiagram systemDesign={systemDesign} detailed={diagramDetailLevel === 'detailed'} />
-          </div>
-
-          {/* Cloud Architecture Diagram */}
-          <div
-            className={`rounded-lg p-3 bg-neutral-700/30 border border-neutral-600/50 ${diagramData ? 'cursor-pointer hover:border-brand-400/30 group' : ''} transition-all`}
-            onClick={() => diagramData && setDiagramModal(true)}
-          >
-            <h4 className="text-xs font-semibold uppercase tracking-wide mb-2 flex items-center justify-between text-neutral-400">
-              <span className="flex items-center gap-1.5">
-                Visual Diagram
-                {diagramData?.cloudProvider && (
-                  <span className="px-1.5 py-0.5 bg-brand-400/10 text-brand-400 border border-brand-400/30 rounded text-[9px] font-medium uppercase">
-                    {diagramData.cloudProvider}
-                  </span>
+                {systemDesign.architecture.description && (
+                  <p className="text-[10px] text-neutral-400 leading-snug">{systemDesign.architecture.description}</p>
                 )}
-              </span>
-              <div className="flex items-center gap-2">
-                {diagramData && (
-                  <>
-                    <span className="text-[9px] text-neutral-500 px-1.5 py-0.5 bg-neutral-600/50 rounded">
-                      {diagramDetailLevel === 'detailed' ? 'Detailed' : 'Overview'}
-                    </span>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setDiagramModal(true); }}
-                      className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded border transition-all bg-brand-400 text-white border-brand-400 hover:bg-brand-500"
-                    >
+              </div>
+            )}
+
+            {/* Row 4: Tradeoffs + Edge Cases (side by side) */}
+            {(hasTradeoffs || hasEdgeCases) && (
+              <>
+                {hasTradeoffs && (
+                  <div className={`rounded p-2 bg-warning-500/10 border border-warning-500/30 ${hasEdgeCases ? 'col-span-6' : 'col-span-12'}`}>
+                    <h4 className="text-[9px] font-semibold uppercase tracking-wide mb-1 flex items-center gap-1 text-warning-400">
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
                       </svg>
-                      Expand
-                    </button>
-                    {diagramDetailLevel !== 'detailed' && (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleGenerateDiagram('detailed'); }}
-                        disabled={generatingDiagram}
-                        className={`flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded border transition-all ${
-                          detailedDiagram
-                            ? 'bg-info-500/10 text-info-400 border-info-500/30 hover:bg-info-500/20'
-                            : 'bg-info-500 text-white border-info-500 hover:bg-info-600'
-                        }`}
-                      >
-                        {detailedDiagram ? 'Deep Dive ✓' : 'Deep Dive'}
-                      </button>
-                    )}
-                    {diagramDetailLevel === 'detailed' && (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleGenerateDiagram('overview'); }}
-                        disabled={generatingDiagram}
-                        className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded border transition-all bg-neutral-600/50 text-neutral-300 border-neutral-500/50 hover:bg-neutral-600"
-                      >
-                        Overview ✓
-                      </button>
-                    )}
-                  </>
+                      Tradeoffs
+                    </h4>
+                    <ul className="space-y-0.5">
+                      {systemDesign.tradeoffs.slice(0, 4).map((tradeoff, i) => (
+                        <li key={i} className="text-[10px] text-warning-200 flex items-start gap-1.5">
+                          <span className="text-warning-400 mt-0.5 flex-shrink-0">⚖</span>
+                          <span>{typeof tradeoff === 'string' ? tradeoff.replace(/^Tradeoff \d+:\s*/i, '') : tradeoff}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
-                {!diagramData && !generatingDiagram && (
-                  <>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleGenerateDiagram('overview'); }}
-                      className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded border transition-all bg-brand-400 text-white border-brand-400 hover:bg-brand-500"
-                    >
-                      Overview
-                    </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleGenerateDiagram('detailed'); }}
-                      className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded border transition-all bg-info-500 text-white border-info-500 hover:bg-info-600"
-                    >
-                      Deep Dive
-                    </button>
-                  </>
+                {hasEdgeCases && (
+                  <div className={`rounded p-2 bg-error-500/10 border border-error-500/30 ${hasTradeoffs ? 'col-span-6' : 'col-span-12'}`}>
+                    <h4 className="text-[9px] font-semibold uppercase tracking-wide mb-1 flex items-center gap-1 text-error-400">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      Edge Cases
+                    </h4>
+                    <ul className="space-y-0.5">
+                      {systemDesign.edgeCases.slice(0, 4).map((edge, i) => (
+                        <li key={i} className="text-[10px] text-error-200 flex items-start gap-1.5">
+                          <span className="text-error-400 mt-0.5 flex-shrink-0">⚠</span>
+                          <span>{typeof edge === 'string' ? edge.replace(/^Edge case \d+:\s*/i, '') : edge}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
-              </div>
-            </h4>
-            <div className="w-full">
-              <CloudArchitectureDiagram
-                imageUrl={diagramData?.imageUrl}
-                loading={generatingDiagram}
-                error={diagramError}
-                cloudProvider={diagramData?.cloudProvider || cloudProvider}
-              />
-            </div>
-          </div>
+              </>
+            )}
 
-          {/* Professional Diagram (Eraser.io) */}
-          {(autoGenerateEraser || eraserDiagram) && (
-          <div
-            className={`rounded-lg p-3 bg-neutral-700/30 border border-neutral-600/50 ${eraserDiagram ? 'cursor-pointer hover:border-brand-400/30 group' : ''} transition-all`}
-            onClick={() => eraserDiagram && setProDiagramModal(true)}
-          >
-            <h4 className="text-xs font-semibold uppercase tracking-wide mb-2 flex items-center justify-between text-neutral-400">
-              <span>Pro Diagram</span>
-              <div className="flex items-center gap-2">
-                {eraserDiagram && (
+            {/* Row 5: Tabbed Diagrams Section (consolidated) */}
+            <div className="col-span-12 rounded p-2 bg-neutral-700/30 border border-neutral-600/50">
+              {/* Diagram Tabs */}
+              <div className="flex items-center justify-between mb-2 border-b border-neutral-600/50 pb-1.5">
+                <div className="flex gap-1">
                   <button
-                    onClick={(e) => { e.stopPropagation(); setProDiagramModal(true); }}
-                    className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium rounded border transition-all bg-brand-400 text-white border-brand-400 hover:bg-brand-500"
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                    </svg>
-                    Expand
-                  </button>
-                )}
-                {onGenerateEraserDiagram && !eraserDiagram && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleGenerateEraser(); }}
-                    disabled={generatingEraser}
-                    className={`flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium rounded border transition-all ${
-                      generatingEraser
-                        ? 'bg-neutral-600/50 text-neutral-400 border-neutral-500/50'
-                        : 'bg-brand-400 text-white border-brand-400 hover:bg-brand-500'
+                    onClick={() => setActiveDiagramTab('ascii')}
+                    className={`px-2 py-0.5 text-[9px] font-semibold uppercase rounded transition-all ${
+                      activeDiagramTab === 'ascii' ? 'bg-brand-400 text-white' : 'bg-neutral-600/50 text-neutral-400 hover:bg-neutral-600'
                     }`}
                   >
-                    {generatingEraser ? (
-                      <>
-                        <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                        </svg>
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
-                        </svg>
-                        Generate
-                      </>
-                    )}
+                    ASCII
                   </button>
-                )}
-              </div>
-            </h4>
-
-            {eraserDiagram ? (
-              <div className="w-full">
-                {imageError ? (
-                  <div className="rounded-lg border border-neutral-600/50 bg-neutral-800 p-4">
-                    <p className="text-xs text-neutral-400 mb-2">Failed to load diagram image</p>
-                    <p className="text-[10px] text-neutral-500 mb-2 break-all">URL: {eraserDiagram.imageUrl?.substring(0, 100)}...</p>
-                    {eraserDiagram.editUrl && (
-                      <a
-                        href={eraserDiagram.editUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium rounded bg-neutral-700 text-neutral-300 border border-neutral-600/50 hover:bg-neutral-600"
-                      >
-                        View on Eraser.io
-                      </a>
-                    )}
-                  </div>
-                ) : (
-                  <div className="rounded-lg overflow-hidden border border-neutral-600/50 bg-neutral-800">
-                    <img
-                      src={eraserDiagram.imageUrl}
-                      alt="Architecture Diagram"
-                      className="w-full h-auto"
-                      onError={(e) => {
-                        console.error('Eraser image failed to load:', eraserDiagram.imageUrl);
-                        setImageError(true);
-                      }}
-                    />
-                  </div>
-                )}
-                {!imageError && eraserDiagram.editUrl && (
-                  <a
-                    href={eraserDiagram.editUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium rounded bg-neutral-700 text-neutral-300 border border-neutral-600/50 hover:bg-neutral-600"
+                  <button
+                    onClick={() => setActiveDiagramTab('cloud')}
+                    className={`px-2 py-0.5 text-[9px] font-semibold uppercase rounded transition-all ${
+                      activeDiagramTab === 'cloud' ? 'bg-brand-400 text-white' : 'bg-neutral-600/50 text-neutral-400 hover:bg-neutral-600'
+                    }`}
                   >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                    Edit on Eraser.io
-                  </a>
+                    Cloud {diagramData?.cloudProvider && `(${diagramData.cloudProvider.toUpperCase()})`}
+                  </button>
+                  {showProDiagram && (
+                    <button
+                      onClick={() => setActiveDiagramTab('pro')}
+                      className={`px-2 py-0.5 text-[9px] font-semibold uppercase rounded transition-all ${
+                        activeDiagramTab === 'pro' ? 'bg-brand-400 text-white' : 'bg-neutral-600/50 text-neutral-400 hover:bg-neutral-600'
+                      }`}
+                    >
+                      Pro
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center gap-1">
+                  {activeDiagramTab === 'ascii' && (
+                    <button
+                      onClick={() => setDiagramDetailLevel(diagramDetailLevel === 'detailed' ? 'overview' : 'detailed')}
+                      className={`px-1.5 py-0.5 text-[8px] font-medium rounded border transition-all ${
+                        diagramDetailLevel === 'detailed' ? 'bg-info-500/10 text-info-400 border-info-500/30' : 'bg-brand-400/10 text-brand-400 border-brand-400/30'
+                      }`}
+                    >
+                      {diagramDetailLevel === 'detailed' ? 'Detailed' : 'Overview'}
+                    </button>
+                  )}
+                  {activeDiagramTab === 'cloud' && (
+                    <>
+                      {diagramData && (
+                        <button
+                          onClick={() => setDiagramModal(true)}
+                          className="flex items-center gap-0.5 px-1.5 py-0.5 text-[8px] font-medium rounded border bg-brand-400 text-white border-brand-400 hover:bg-brand-500"
+                        >
+                          <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                          </svg>
+                          Expand
+                        </button>
+                      )}
+                      {!diagramData && !generatingDiagram && (
+                        <>
+                          <button
+                            onClick={() => handleGenerateDiagram('overview')}
+                            className="px-1.5 py-0.5 text-[8px] font-medium rounded border bg-brand-400 text-white border-brand-400 hover:bg-brand-500"
+                          >
+                            Overview
+                          </button>
+                          <button
+                            onClick={() => handleGenerateDiagram('detailed')}
+                            className="px-1.5 py-0.5 text-[8px] font-medium rounded border bg-info-500 text-white border-info-500 hover:bg-info-600"
+                          >
+                            Deep Dive
+                          </button>
+                        </>
+                      )}
+                      {diagramData && !detailedDiagram && diagramDetailLevel !== 'detailed' && (
+                        <button
+                          onClick={() => handleGenerateDiagram('detailed')}
+                          disabled={generatingDiagram}
+                          className="px-1.5 py-0.5 text-[8px] font-medium rounded border bg-info-500 text-white border-info-500 hover:bg-info-600"
+                        >
+                          Deep Dive
+                        </button>
+                      )}
+                    </>
+                  )}
+                  {activeDiagramTab === 'pro' && (
+                    <>
+                      {eraserDiagram && (
+                        <button
+                          onClick={() => setProDiagramModal(true)}
+                          className="flex items-center gap-0.5 px-1.5 py-0.5 text-[8px] font-medium rounded border bg-brand-400 text-white border-brand-400 hover:bg-brand-500"
+                        >
+                          <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                          </svg>
+                          Expand
+                        </button>
+                      )}
+                      {onGenerateEraserDiagram && !eraserDiagram && (
+                        <button
+                          onClick={handleGenerateEraser}
+                          disabled={generatingEraser}
+                          className={`px-1.5 py-0.5 text-[8px] font-medium rounded border transition-all ${
+                            generatingEraser ? 'bg-neutral-600/50 text-neutral-400 border-neutral-500/50' : 'bg-brand-400 text-white border-brand-400 hover:bg-brand-500'
+                          }`}
+                        >
+                          {generatingEraser ? 'Generating...' : 'Generate'}
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Diagram Content */}
+              <div className="max-h-[220px] overflow-auto">
+                {activeDiagramTab === 'ascii' && (
+                  <ASCIIDiagram systemDesign={systemDesign} detailed={diagramDetailLevel === 'detailed'} />
+                )}
+                {activeDiagramTab === 'cloud' && (
+                  <CloudArchitectureDiagram
+                    imageUrl={diagramData?.imageUrl}
+                    loading={generatingDiagram}
+                    error={diagramError}
+                    cloudProvider={diagramData?.cloudProvider || cloudProvider}
+                  />
+                )}
+                {activeDiagramTab === 'pro' && (
+                  <>
+                    {eraserDiagram ? (
+                      <div className="w-full">
+                        {imageError ? (
+                          <div className="rounded border border-neutral-600/50 bg-neutral-800 p-2 text-center">
+                            <p className="text-[10px] text-neutral-400">Failed to load diagram</p>
+                            {eraserDiagram.editUrl && (
+                              <a href={eraserDiagram.editUrl} target="_blank" rel="noopener noreferrer" className="text-[9px] text-brand-400 hover:underline">
+                                View on Eraser.io
+                              </a>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="rounded overflow-hidden border border-neutral-600/50 bg-neutral-800">
+                            <img src={eraserDiagram.imageUrl} alt="Architecture Diagram" className="w-full h-auto max-h-[200px] object-contain" onError={() => setImageError(true)} />
+                          </div>
+                        )}
+                        {!imageError && eraserDiagram.editUrl && (
+                          <a href={eraserDiagram.editUrl} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-medium rounded bg-neutral-700 text-neutral-300 border border-neutral-600/50 hover:bg-neutral-600">
+                            <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            Edit on Eraser.io
+                          </a>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center py-4 text-neutral-500">
+                        <svg className="w-6 h-6 mx-auto mb-1 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                        </svg>
+                        <p className="text-[9px]">Click Generate for professional diagram</p>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
-            ) : (
-              <div className="text-center py-6 text-neutral-500">
-                <svg className="w-8 h-8 mx-auto mb-2 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
-                </svg>
-                <p className="text-[10px]">Click Generate for professional diagram</p>
+            </div>
+
+            {/* Row 6: Tech Justifications (compact grid) */}
+            {hasTechJustifications && (
+              <div className="col-span-12 rounded p-2 bg-neutral-700/30 border border-neutral-600/50">
+                <h4 className="text-[9px] font-semibold uppercase tracking-wide mb-1.5 flex items-center gap-1.5 text-neutral-500">
+                  Technologies
+                  <span className="px-1 py-0.5 bg-brand-400/10 text-brand-400 border border-brand-400/30 rounded text-[8px]">{systemDesign.techJustifications.length}</span>
+                </h4>
+                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5">
+                  {systemDesign.techJustifications.map((item, i) => (
+                    <div key={i} className="bg-neutral-800 border border-neutral-700/50 rounded p-1.5 hover:border-brand-400/30 transition-colors">
+                      <div className="flex flex-wrap items-center gap-1 mb-1">
+                        <span className="px-1 py-0.5 bg-brand-500 text-white text-[8px] font-semibold rounded">{item.tech}</span>
+                        {item.category && <span className="px-1 py-0.5 bg-neutral-700 text-neutral-400 text-[7px] font-medium rounded">{item.category}</span>}
+                      </div>
+                      <p className="text-[9px] text-neutral-300 leading-snug line-clamp-2">{item.why}</p>
+                      {item.alternatives && <p className="text-[8px] text-brand-400 mt-0.5 truncate"><span className="font-semibold">Alt:</span> {item.alternatives}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Row 7: Comparison (side by side, compact) */}
+            {systemDesign.comparison && (
+              <div className="col-span-12 grid grid-cols-2 gap-2">
+                {systemDesign.comparison.approach1 && (
+                  <div className="rounded p-2 bg-neutral-800 border border-neutral-700/50">
+                    <h5 className="text-[10px] font-bold text-neutral-200 mb-1 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-info-400"></span>
+                      {systemDesign.comparison.approach1.name || 'Approach 1'}
+                    </h5>
+                    <div className="grid grid-cols-2 gap-2">
+                      {systemDesign.comparison.approach1.pros?.length > 0 && (
+                        <div>
+                          <span className="text-[8px] font-semibold text-brand-400 uppercase">Pros</span>
+                          <ul className="mt-0.5 space-y-0.5">
+                            {systemDesign.comparison.approach1.pros.slice(0, 3).map((pro, i) => (
+                              <li key={i} className="text-[9px] text-neutral-200 flex items-start gap-1">
+                                <span className="text-brand-400 mt-0.5 text-[8px]">+</span>
+                                <span className="line-clamp-1">{pro}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {systemDesign.comparison.approach1.cons?.length > 0 && (
+                        <div>
+                          <span className="text-[8px] font-semibold text-error-400 uppercase">Cons</span>
+                          <ul className="mt-0.5 space-y-0.5">
+                            {systemDesign.comparison.approach1.cons.slice(0, 3).map((con, i) => (
+                              <li key={i} className="text-[9px] text-neutral-200 flex items-start gap-1">
+                                <span className="text-error-400 mt-0.5 text-[8px]">-</span>
+                                <span className="line-clamp-1">{con}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {systemDesign.comparison.approach2 && (
+                  <div className="rounded p-2 bg-neutral-800 border border-neutral-700/50">
+                    <h5 className="text-[10px] font-bold text-neutral-200 mb-1 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-accent-purple"></span>
+                      {systemDesign.comparison.approach2.name || 'Approach 2'}
+                    </h5>
+                    <div className="grid grid-cols-2 gap-2">
+                      {systemDesign.comparison.approach2.pros?.length > 0 && (
+                        <div>
+                          <span className="text-[8px] font-semibold text-brand-400 uppercase">Pros</span>
+                          <ul className="mt-0.5 space-y-0.5">
+                            {systemDesign.comparison.approach2.pros.slice(0, 3).map((pro, i) => (
+                              <li key={i} className="text-[9px] text-neutral-200 flex items-start gap-1">
+                                <span className="text-brand-400 mt-0.5 text-[8px]">+</span>
+                                <span className="line-clamp-1">{pro}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {systemDesign.comparison.approach2.cons?.length > 0 && (
+                        <div>
+                          <span className="text-[8px] font-semibold text-error-400 uppercase">Cons</span>
+                          <ul className="mt-0.5 space-y-0.5">
+                            {systemDesign.comparison.approach2.cons.slice(0, 3).map((con, i) => (
+                              <li key={i} className="text-[9px] text-neutral-200 flex items-start gap-1">
+                                <span className="text-error-400 mt-0.5 text-[8px]">-</span>
+                                <span className="line-clamp-1">{con}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
-          )}
-        </div>
-        )}
-
-        {/* Tech Justifications */}
-        {systemDesign.techJustifications && systemDesign.techJustifications.length > 0 && (
-          <CollapsibleSection
-            title="Why These Technologies?"
-            defaultOpen={true}
-            badge={`${systemDesign.techJustifications.length}`}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {systemDesign.techJustifications.map((item, i) => (
-                <div key={i} className="bg-neutral-800 border border-neutral-700/50 rounded-lg p-3 hover:border-brand-400/30 transition-colors">
-                  <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                    <span className="px-1.5 py-0.5 bg-brand-500 text-white text-[10px] font-semibold rounded">
-                      {item.tech}
-                    </span>
-                    {item.category && (
-                      <span className="px-1.5 py-0.5 bg-neutral-700 text-neutral-400 text-[9px] font-medium rounded">
-                        {item.category}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-neutral-300 leading-relaxed mb-2">
-                    {item.why}
-                  </p>
-                  <div className="space-y-1 text-[10px]">
-                    {item.without && (
-                      <p className="text-neutral-300">
-                        <span className="font-semibold text-neutral-200">Risk:</span> {item.without}
-                      </p>
-                    )}
-                    {item.alternatives && (
-                      <p className="text-brand-400">
-                        <span className="font-semibold">Alt:</span> {item.alternatives}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CollapsibleSection>
-        )}
-
-        {/* Comparison Section */}
-        {systemDesign.comparison && (
-          <CollapsibleSection
-            title="Comparison"
-            defaultOpen={true}
-          >
-            <div className="grid grid-cols-2 gap-3">
-              {systemDesign.comparison.approach1 && (
-                <div className="rounded-lg p-3 bg-neutral-800 border border-neutral-700/50">
-                  <h5 className="text-xs font-bold text-neutral-200 mb-2 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-info-400"></span>
-                    {systemDesign.comparison.approach1.name || 'Approach 1'}
-                  </h5>
-                  {systemDesign.comparison.approach1.pros && (
-                    <div className="mb-2">
-                      <span className="text-[9px] font-semibold text-brand-400 uppercase">Pros</span>
-                      <ul className="mt-1 space-y-0.5">
-                        {systemDesign.comparison.approach1.pros.map((pro, i) => (
-                          <li key={i} className="text-[10px] text-neutral-200 flex items-start gap-1.5">
-                            <span className="text-brand-400 mt-0.5">+</span>
-                            {pro}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {systemDesign.comparison.approach1.cons && (
-                    <div>
-                      <span className="text-[9px] font-semibold text-error-400 uppercase">Cons</span>
-                      <ul className="mt-1 space-y-0.5">
-                        {systemDesign.comparison.approach1.cons.map((con, i) => (
-                          <li key={i} className="text-[10px] text-neutral-200 flex items-start gap-1.5">
-                            <span className="text-error-400 mt-0.5">-</span>
-                            {con}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              )}
-              {systemDesign.comparison.approach2 && (
-                <div className="rounded-lg p-3 bg-neutral-800 border border-neutral-700/50">
-                  <h5 className="text-xs font-bold text-neutral-200 mb-2 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-accent-purple"></span>
-                    {systemDesign.comparison.approach2.name || 'Approach 2'}
-                  </h5>
-                  {systemDesign.comparison.approach2.pros && (
-                    <div className="mb-2">
-                      <span className="text-[9px] font-semibold text-brand-400 uppercase">Pros</span>
-                      <ul className="mt-1 space-y-0.5">
-                        {systemDesign.comparison.approach2.pros.map((pro, i) => (
-                          <li key={i} className="text-[10px] text-neutral-200 flex items-start gap-1.5">
-                            <span className="text-brand-400 mt-0.5">+</span>
-                            {pro}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {systemDesign.comparison.approach2.cons && (
-                    <div>
-                      <span className="text-[9px] font-semibold text-error-400 uppercase">Cons</span>
-                      <ul className="mt-1 space-y-0.5">
-                        {systemDesign.comparison.approach2.cons.map((con, i) => (
-                          <li key={i} className="text-[10px] text-neutral-200 flex items-start gap-1.5">
-                            <span className="text-error-400 mt-0.5">-</span>
-                            {con}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </CollapsibleSection>
-        )}
-          </>
         )}
 
         {/* Cloud Architecture Diagram Modal */}
