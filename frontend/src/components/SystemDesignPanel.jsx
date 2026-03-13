@@ -80,6 +80,22 @@ function CloudArchitectureDiagram({
 
 // Modal component for full-screen diagram view
 function DiagramModal({ isOpen, onClose, title, children }) {
+  // Handle ESC key to close modal
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown, true);
+    return () => document.removeEventListener('keydown', handleKeyDown, true);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
@@ -98,9 +114,10 @@ function DiagramModal({ isOpen, onClose, title, children }) {
           </h3>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-neutral-700/50 transition-colors"
+            className="p-2 rounded-lg bg-neutral-700/50 hover:bg-neutral-600 transition-colors"
+            title="Close (ESC)"
           >
-            <svg className="w-5 h-5 text-neutral-400 hover:text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-neutral-300 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
