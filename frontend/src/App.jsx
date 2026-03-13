@@ -112,7 +112,7 @@ export default function App() {
   // ---------------------------------------------------------------------------
   // Mode State
   // ---------------------------------------------------------------------------
-  const [ascendMode, setAscendMode] = useLocalState('coding');
+  const [ascendMode, setAscendMode] = useLocalStorage('ascend_mode', 'coding');
   const [designDetailLevel, setDesignDetailLevel] = useLocalState('basic');
   const [codingDetailLevel, setCodingDetailLevel] = useLocalState('basic');
   const [codingLanguage, setCodingLanguage] = useLocalState('auto');
