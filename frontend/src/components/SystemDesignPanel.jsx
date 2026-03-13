@@ -348,7 +348,7 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
   );
 }
 
-export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGenerateEraser = false, onGenerateEraserDiagram, question, cloudProvider = 'auto' }) {
+export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGenerateEraser = false, onGenerateEraserDiagram, question, cloudProvider = 'auto', qaHistory = [], onFollowUpQuestion, isProcessingFollowUp = false }) {
   const { isElectron } = useElectron();
   const [generatingEraser, setGeneratingEraser] = useState(false);
   const [diagramModal, setDiagramModal] = useState(false);
@@ -361,7 +361,6 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
   const [diagramError, setDiagramError] = useState(null);
   const [diagramDetailLevel, setDiagramDetailLevel] = useState('overview');
   const [showASCII, setShowASCII] = useState(true);
-  const [activeDiagramTab, setActiveDiagramTab] = useState('ascii'); // 'ascii' | 'cloud' | 'pro'
 
   const diagramData = diagramDetailLevel === 'detailed' ? detailedDiagram : overviewDiagram;
   const hasComparison = systemDesign?.comparison || systemDesign?.comparisonDiagram;
@@ -532,10 +531,10 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
         {!systemDesign.focusedAnswer && (
           <div className="grid grid-cols-12 gap-2 auto-rows-min">
 
-            {/* Row 1: Overview (spans 8) + Scalability (spans 4) */}
+            {/* Row 1: Explanation (spans 8) + Scalability (spans 4) */}
             {systemDesign.overview && (
               <div className={`rounded p-2 bg-neutral-700/30 border border-neutral-600/50 ${hasScalability ? 'col-span-8' : 'col-span-12'}`}>
-                <h4 className="text-[9px] font-semibold uppercase tracking-wide mb-1 text-neutral-500">Overview</h4>
+                <h4 className="text-[9px] font-semibold uppercase tracking-wide mb-1 text-neutral-500">Explanation</h4>
                 <p className="text-[11px] text-neutral-300 leading-snug">{systemDesign.overview}</p>
               </div>
             )}
@@ -555,11 +554,11 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
               </div>
             )}
 
-            {/* Row 2: Requirements (Functional + Non-Functional side by side) */}
-            {hasRequirements && (
+            {/* Row 2: Requirements + Tradeoffs + Edge Cases (4 columns) */}
+            {(hasRequirements || hasTradeoffs || hasEdgeCases) && (
               <>
-                {systemDesign.requirements.functional?.length > 0 && (
-                  <div className="col-span-6 rounded p-2 bg-neutral-700/30 border border-neutral-600/50">
+                {systemDesign.requirements?.functional?.length > 0 && (
+                  <div className="col-span-3 rounded p-2 bg-neutral-700/30 border border-neutral-600/50">
                     <h4 className="text-[9px] font-semibold uppercase tracking-wide mb-1 text-neutral-500">Functional</h4>
                     <ul className="space-y-0.5">
                       {systemDesign.requirements.functional.map((req, i) => (
@@ -571,14 +570,50 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
                     </ul>
                   </div>
                 )}
-                {systemDesign.requirements.nonFunctional?.length > 0 && (
-                  <div className="col-span-6 rounded p-2 bg-neutral-700/30 border border-neutral-600/50">
+                {systemDesign.requirements?.nonFunctional?.length > 0 && (
+                  <div className="col-span-3 rounded p-2 bg-neutral-700/30 border border-neutral-600/50">
                     <h4 className="text-[9px] font-semibold uppercase tracking-wide mb-1 text-neutral-500">Non-Functional</h4>
                     <ul className="space-y-0.5">
                       {systemDesign.requirements.nonFunctional.map((req, i) => (
                         <li key={i} className="text-[10px] text-neutral-300 flex items-start gap-1.5">
                           <span className="text-brand-400 mt-0.5 flex-shrink-0 text-[8px]">●</span>
                           {req}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {hasTradeoffs && (
+                  <div className="col-span-3 rounded p-2 bg-warning-500/10 border border-warning-500/30">
+                    <h4 className="text-[9px] font-semibold uppercase tracking-wide mb-1 flex items-center gap-1 text-warning-400">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                      </svg>
+                      Tradeoffs
+                    </h4>
+                    <ul className="space-y-0.5">
+                      {systemDesign.tradeoffs.slice(0, 4).map((tradeoff, i) => (
+                        <li key={i} className="text-[10px] text-warning-200 flex items-start gap-1.5">
+                          <span className="text-warning-400 mt-0.5 flex-shrink-0">⚖</span>
+                          <span>{typeof tradeoff === 'string' ? tradeoff.replace(/^Tradeoff \d+:\s*/i, '') : tradeoff}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {hasEdgeCases && (
+                  <div className="col-span-3 rounded p-2 bg-error-500/10 border border-error-500/30">
+                    <h4 className="text-[9px] font-semibold uppercase tracking-wide mb-1 flex items-center gap-1 text-error-400">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      Edge Cases
+                    </h4>
+                    <ul className="space-y-0.5">
+                      {systemDesign.edgeCases.slice(0, 4).map((edge, i) => (
+                        <li key={i} className="text-[10px] text-error-200 flex items-start gap-1.5">
+                          <span className="text-error-400 mt-0.5 flex-shrink-0">⚠</span>
+                          <span>{typeof edge === 'string' ? edge.replace(/^Edge case \d+:\s*/i, '') : edge}</span>
                         </li>
                       ))}
                     </ul>
@@ -604,210 +639,68 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
               </div>
             )}
 
-            {/* Row 4: Tradeoffs + Edge Cases (side by side) */}
-            {(hasTradeoffs || hasEdgeCases) && (
-              <>
-                {hasTradeoffs && (
-                  <div className={`rounded p-2 bg-warning-500/10 border border-warning-500/30 ${hasEdgeCases ? 'col-span-6' : 'col-span-12'}`}>
-                    <h4 className="text-[9px] font-semibold uppercase tracking-wide mb-1 flex items-center gap-1 text-warning-400">
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-                      </svg>
-                      Tradeoffs
-                    </h4>
-                    <ul className="space-y-0.5">
-                      {systemDesign.tradeoffs.slice(0, 4).map((tradeoff, i) => (
-                        <li key={i} className="text-[10px] text-warning-200 flex items-start gap-1.5">
-                          <span className="text-warning-400 mt-0.5 flex-shrink-0">⚖</span>
-                          <span>{typeof tradeoff === 'string' ? tradeoff.replace(/^Tradeoff \d+:\s*/i, '') : tradeoff}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {hasEdgeCases && (
-                  <div className={`rounded p-2 bg-error-500/10 border border-error-500/30 ${hasTradeoffs ? 'col-span-6' : 'col-span-12'}`}>
-                    <h4 className="text-[9px] font-semibold uppercase tracking-wide mb-1 flex items-center gap-1 text-error-400">
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                      </svg>
-                      Edge Cases
-                    </h4>
-                    <ul className="space-y-0.5">
-                      {systemDesign.edgeCases.slice(0, 4).map((edge, i) => (
-                        <li key={i} className="text-[10px] text-error-200 flex items-start gap-1.5">
-                          <span className="text-error-400 mt-0.5 flex-shrink-0">⚠</span>
-                          <span>{typeof edge === 'string' ? edge.replace(/^Edge case \d+:\s*/i, '') : edge}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </>
-            )}
 
-            {/* Row 5: Tabbed Diagrams Section (consolidated) */}
-            <div className="col-span-12 rounded p-2 bg-neutral-700/30 border border-neutral-600/50">
-              {/* Diagram Tabs */}
-              <div className="flex items-center justify-between mb-2 border-b border-neutral-600/50 pb-1.5">
-                <div className="flex gap-1">
+            {/* Row 4: Diagrams Side by Side (ASCII + Cloud) */}
+            <div className="col-span-12 grid grid-cols-2 gap-2">
+              {/* ASCII Diagram */}
+              <div className="rounded p-2 bg-neutral-700/30 border border-neutral-600/50">
+                <div className="flex items-center justify-between mb-1.5">
+                  <h4 className="text-[9px] font-semibold uppercase tracking-wide text-neutral-500">ASCII Architecture</h4>
                   <button
-                    onClick={() => setActiveDiagramTab('ascii')}
-                    className={`px-2 py-0.5 text-[9px] font-semibold uppercase rounded transition-all ${
-                      activeDiagramTab === 'ascii' ? 'bg-brand-400 text-white' : 'bg-neutral-600/50 text-neutral-400 hover:bg-neutral-600'
+                    onClick={() => setDiagramDetailLevel(diagramDetailLevel === 'detailed' ? 'overview' : 'detailed')}
+                    className={`px-1.5 py-0.5 text-[8px] font-medium rounded border transition-all ${
+                      diagramDetailLevel === 'detailed' ? 'bg-info-500/10 text-info-400 border-info-500/30' : 'bg-brand-400/10 text-brand-400 border-brand-400/30'
                     }`}
                   >
-                    ASCII
+                    {diagramDetailLevel === 'detailed' ? 'Detailed' : 'Overview'}
                   </button>
-                  <button
-                    onClick={() => setActiveDiagramTab('cloud')}
-                    className={`px-2 py-0.5 text-[9px] font-semibold uppercase rounded transition-all ${
-                      activeDiagramTab === 'cloud' ? 'bg-brand-400 text-white' : 'bg-neutral-600/50 text-neutral-400 hover:bg-neutral-600'
-                    }`}
-                  >
-                    Cloud {diagramData?.cloudProvider && `(${diagramData.cloudProvider.toUpperCase()})`}
-                  </button>
-                  {showProDiagram && (
-                    <button
-                      onClick={() => setActiveDiagramTab('pro')}
-                      className={`px-2 py-0.5 text-[9px] font-semibold uppercase rounded transition-all ${
-                        activeDiagramTab === 'pro' ? 'bg-brand-400 text-white' : 'bg-neutral-600/50 text-neutral-400 hover:bg-neutral-600'
-                      }`}
-                    >
-                      Pro
-                    </button>
-                  )}
                 </div>
-                <div className="flex items-center gap-1">
-                  {activeDiagramTab === 'ascii' && (
-                    <button
-                      onClick={() => setDiagramDetailLevel(diagramDetailLevel === 'detailed' ? 'overview' : 'detailed')}
-                      className={`px-1.5 py-0.5 text-[8px] font-medium rounded border transition-all ${
-                        diagramDetailLevel === 'detailed' ? 'bg-info-500/10 text-info-400 border-info-500/30' : 'bg-brand-400/10 text-brand-400 border-brand-400/30'
-                      }`}
-                    >
-                      {diagramDetailLevel === 'detailed' ? 'Detailed' : 'Overview'}
-                    </button>
-                  )}
-                  {activeDiagramTab === 'cloud' && (
-                    <>
-                      {diagramData && (
-                        <button
-                          onClick={() => setDiagramModal(true)}
-                          className="flex items-center gap-0.5 px-1.5 py-0.5 text-[8px] font-medium rounded border bg-brand-400 text-white border-brand-400 hover:bg-brand-500"
-                        >
-                          <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                          </svg>
-                          Expand
-                        </button>
-                      )}
-                      {!diagramData && !generatingDiagram && (
-                        <>
-                          <button
-                            onClick={() => handleGenerateDiagram('overview')}
-                            className="px-1.5 py-0.5 text-[8px] font-medium rounded border bg-brand-400 text-white border-brand-400 hover:bg-brand-500"
-                          >
-                            Overview
-                          </button>
-                          <button
-                            onClick={() => handleGenerateDiagram('detailed')}
-                            className="px-1.5 py-0.5 text-[8px] font-medium rounded border bg-info-500 text-white border-info-500 hover:bg-info-600"
-                          >
-                            Deep Dive
-                          </button>
-                        </>
-                      )}
-                      {diagramData && !detailedDiagram && diagramDetailLevel !== 'detailed' && (
-                        <button
-                          onClick={() => handleGenerateDiagram('detailed')}
-                          disabled={generatingDiagram}
-                          className="px-1.5 py-0.5 text-[8px] font-medium rounded border bg-info-500 text-white border-info-500 hover:bg-info-600"
-                        >
-                          Deep Dive
-                        </button>
-                      )}
-                    </>
-                  )}
-                  {activeDiagramTab === 'pro' && (
-                    <>
-                      {eraserDiagram && (
-                        <button
-                          onClick={() => setProDiagramModal(true)}
-                          className="flex items-center gap-0.5 px-1.5 py-0.5 text-[8px] font-medium rounded border bg-brand-400 text-white border-brand-400 hover:bg-brand-500"
-                        >
-                          <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                          </svg>
-                          Expand
-                        </button>
-                      )}
-                      {onGenerateEraserDiagram && !eraserDiagram && (
-                        <button
-                          onClick={handleGenerateEraser}
-                          disabled={generatingEraser}
-                          className={`px-1.5 py-0.5 text-[8px] font-medium rounded border transition-all ${
-                            generatingEraser ? 'bg-neutral-600/50 text-neutral-400 border-neutral-500/50' : 'bg-brand-400 text-white border-brand-400 hover:bg-brand-500'
-                          }`}
-                        >
-                          {generatingEraser ? 'Generating...' : 'Generate'}
-                        </button>
-                      )}
-                    </>
-                  )}
-                </div>
+                <ASCIIDiagram systemDesign={systemDesign} detailed={diagramDetailLevel === 'detailed'} />
               </div>
 
-              {/* Diagram Content */}
-              <div className="max-h-[220px] overflow-auto">
-                {activeDiagramTab === 'ascii' && (
-                  <ASCIIDiagram systemDesign={systemDesign} detailed={diagramDetailLevel === 'detailed'} />
-                )}
-                {activeDiagramTab === 'cloud' && (
-                  <CloudArchitectureDiagram
-                    imageUrl={diagramData?.imageUrl}
-                    loading={generatingDiagram}
-                    error={diagramError}
-                    cloudProvider={diagramData?.cloudProvider || cloudProvider}
-                  />
-                )}
-                {activeDiagramTab === 'pro' && (
-                  <>
-                    {eraserDiagram ? (
-                      <div className="w-full">
-                        {imageError ? (
-                          <div className="rounded border border-neutral-600/50 bg-neutral-800 p-2 text-center">
-                            <p className="text-[10px] text-neutral-400">Failed to load diagram</p>
-                            {eraserDiagram.editUrl && (
-                              <a href={eraserDiagram.editUrl} target="_blank" rel="noopener noreferrer" className="text-[9px] text-brand-400 hover:underline">
-                                View on Eraser.io
-                              </a>
-                            )}
-                          </div>
-                        ) : (
-                          <div className="rounded overflow-hidden border border-neutral-600/50 bg-neutral-800">
-                            <img src={eraserDiagram.imageUrl} alt="Architecture Diagram" className="w-full h-auto max-h-[200px] object-contain" onError={() => setImageError(true)} />
-                          </div>
-                        )}
-                        {!imageError && eraserDiagram.editUrl && (
-                          <a href={eraserDiagram.editUrl} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-medium rounded bg-neutral-700 text-neutral-300 border border-neutral-600/50 hover:bg-neutral-600">
-                            <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                            Edit on Eraser.io
-                          </a>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-center py-4 text-neutral-500">
-                        <svg className="w-6 h-6 mx-auto mb-1 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+              {/* Cloud Diagram */}
+              <div className="rounded p-2 bg-neutral-700/30 border border-neutral-600/50">
+                <div className="flex items-center justify-between mb-1.5">
+                  <h4 className="text-[9px] font-semibold uppercase tracking-wide text-neutral-500">
+                    Cloud {diagramData?.cloudProvider && `(${diagramData.cloudProvider.toUpperCase()})`}
+                  </h4>
+                  <div className="flex items-center gap-1">
+                    {diagramData && (
+                      <button
+                        onClick={() => setDiagramModal(true)}
+                        className="flex items-center gap-0.5 px-1.5 py-0.5 text-[8px] font-medium rounded border bg-brand-400 text-white border-brand-400 hover:bg-brand-500"
+                      >
+                        <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                         </svg>
-                        <p className="text-[9px]">Click Generate for professional diagram</p>
-                      </div>
+                        Expand
+                      </button>
                     )}
-                  </>
-                )}
+                    {!diagramData && !generatingDiagram && (
+                      <button
+                        onClick={() => handleGenerateDiagram('overview')}
+                        className="px-1.5 py-0.5 text-[8px] font-medium rounded border bg-brand-400 text-white border-brand-400 hover:bg-brand-500"
+                      >
+                        Generate
+                      </button>
+                    )}
+                    {diagramData && !detailedDiagram && diagramDetailLevel !== 'detailed' && (
+                      <button
+                        onClick={() => handleGenerateDiagram('detailed')}
+                        disabled={generatingDiagram}
+                        className="px-1.5 py-0.5 text-[8px] font-medium rounded border bg-info-500 text-white border-info-500 hover:bg-info-600"
+                      >
+                        Deep Dive
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <CloudArchitectureDiagram
+                  imageUrl={diagramData?.imageUrl}
+                  loading={generatingDiagram}
+                  error={diagramError}
+                  cloudProvider={diagramData?.cloudProvider || cloudProvider}
+                />
               </div>
             </div>
 
@@ -833,7 +726,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
               </div>
             )}
 
-            {/* Row 7: Comparison (side by side, compact) */}
+            {/* Row 6: Comparison (side by side, compact) */}
             {systemDesign.comparison && (
               <div className="col-span-12 grid grid-cols-2 gap-2">
                 {systemDesign.comparison.approach1 && (
@@ -907,6 +800,56 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
                       )}
                     </div>
                   </div>
+                )}
+              </div>
+            )}
+
+            {/* Row 7: Interviewer Q&A Section */}
+            {onFollowUpQuestion && (
+              <div className="col-span-12 rounded p-2 bg-info-400/5 border border-info-400/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-5 h-5 rounded flex items-center justify-center bg-info-400/20">
+                    <svg className="w-3 h-3 text-info-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                  </div>
+                  <span className="text-[9px] font-semibold uppercase tracking-wide text-info-400">
+                    Interviewer Q&A
+                  </span>
+                  {qaHistory.length > 0 && (
+                    <span className="px-1 py-0.5 bg-info-400/10 text-info-400 border border-info-400/30 rounded text-[8px]">
+                      {qaHistory.length}
+                    </span>
+                  )}
+                </div>
+
+                {/* Q&A History - compact view */}
+                {qaHistory.length > 0 ? (
+                  <div className="space-y-1.5 max-h-[150px] overflow-y-auto">
+                    {[...qaHistory].reverse().map((qa, i) => (
+                      <div key={i} className="p-1.5 rounded bg-neutral-800/50 border border-neutral-700/30">
+                        <div className="flex items-start gap-1.5 mb-1">
+                          <span className="w-4 h-4 rounded flex-shrink-0 flex items-center justify-center text-[8px] font-bold bg-info-900/30 text-info-400">Q</span>
+                          <p className="text-[10px] text-neutral-200 font-medium line-clamp-2">{qa.question}</p>
+                        </div>
+                        <div className="flex items-start gap-1.5">
+                          <span className="w-4 h-4 rounded flex-shrink-0 flex items-center justify-center text-[8px] font-bold bg-brand-900/30 text-brand-400">A</span>
+                          {qa.pending ? (
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-2.5 h-2.5 border-2 rounded-full animate-spin border-brand-400 border-t-transparent" />
+                              <p className="text-[9px] text-neutral-500 italic">Generating...</p>
+                            </div>
+                          ) : (
+                            <p className="text-[10px] text-neutral-300 line-clamp-3">{qa.answer}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[9px] text-neutral-500 text-center py-2">
+                    Questions will appear here when auto-listen captures interviewer questions
+                  </p>
                 )}
               </div>
             )}

@@ -17,7 +17,9 @@ import SettingsPanel from './components/settings/SettingsPanel';
 import SetupWizard from './components/settings/SetupWizard';
 import PlatformAuth from './components/PlatformAuth';
 import AscendAssistantPanel from './components/AscendAssistantPanel';
+import VoiceAssistantPanel from './components/VoiceAssistantPanel';
 import AscendModeSelector from './components/AscendModeSelector';
+import SystemDesignPanel from './components/SystemDesignPanel';
 import PrepTab from './components/PrepTab';
 import AscendPrepModal from './components/AscendPrepModal';
 import SavedSystemDesignsModal from './components/SavedSystemDesignsModal';
@@ -763,7 +765,7 @@ export default function App() {
   if (isVoiceAssistantWindow) {
     return (
       <div className="h-screen flex flex-col overflow-hidden" style={{ background: '#0a1a10' }}>
-        <AscendAssistantPanel
+        <VoiceAssistantPanel
           onClose={() => window.close()}
           provider={provider}
           model={model}
@@ -1214,7 +1216,125 @@ function CodingLayout({
   onSolve, onFetchUrl, onScreenshot, onClear, onFollowUpQuestion, isProcessingFollowUp,
   onExpandSystemDesign, onGenerateEraserDiagram, onExplanationsUpdate,
   codeDisplayRef, editorSettings, showAscendAssistant, onCloseAscendAssistant, provider, model,
+  qaHistory,
 }) {
+  const systemDesign = solution?.systemDesign || streamingContent.systemDesign;
+  const hasSystemDesign = systemDesign && systemDesign.included;
+
+  // System Design Mode - Vertical Layout: Problem on top, SystemDesignPanel below
+  if (ascendMode === 'system-design') {
+    return (
+      <div className="h-full bg-neutral-800">
+        <Allotment defaultSizes={showAscendAssistant ? [70, 30] : [100]}>
+          {/* Main Content - Vertical Stack */}
+          <Allotment.Pane minSize={600}>
+            <div className="h-full flex flex-col overflow-hidden bg-neutral-750">
+              {/* Top Section: Problem Input (compact, auto-height) */}
+              <div className="flex-shrink-0 border-b border-neutral-700/50">
+                {/* Panel Header */}
+                <div className="flex items-center justify-between px-4 py-2 bg-neutral-800/50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-1 h-4 rounded-full bg-gradient-to-b from-brand-400 to-brand-500" />
+                    <h2 className="text-sm font-semibold text-white">System Design</h2>
+                    <button
+                      onClick={onSavedDesignsClick}
+                      className={`
+                        flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-medium rounded-lg transition-all duration-200
+                        ${savedDesignsCount > 0
+                          ? 'bg-brand-400/10 text-brand-400 border border-brand-400/30'
+                          : 'bg-neutral-700 text-neutral-400 hover:text-neutral-300'
+                        }
+                      `}
+                    >
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                      </svg>
+                      Saved ({savedDesignsCount})
+                    </button>
+                  </div>
+                  <div className="flex items-center">
+                    <AscendModeSelector
+                      ascendMode={ascendMode}
+                      designDetailLevel={designDetailLevel}
+                      onDetailLevelChange={onDetailLevelChange}
+                      autoGenerateEraser={autoGenerateEraser}
+                      onAutoGenerateEraserChange={onAutoGenerateEraserChange}
+                      codingLanguage={codingLanguage}
+                      onLanguageChange={onLanguageChange}
+                      codingDetailLevel={codingDetailLevel}
+                      onCodingDetailLevelChange={onCodingDetailLevelChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="px-3 py-2">
+                  <ProblemInput
+                    onSubmit={onSolve}
+                    onFetchUrl={onFetchUrl}
+                    onScreenshot={onScreenshot}
+                    onClear={onClear}
+                    isLoading={isLoading}
+                    extractedText={extractedText}
+                    onExtractedTextClear={onExtractedTextClear}
+                    shouldClear={clearScreenshot}
+                    hasSolution={hasSolution}
+                    expanded={problemExpanded}
+                    onToggleExpand={onToggleExpand}
+                    ascendMode={ascendMode}
+                    loadedProblem={loadedProblem}
+                    detailLevel={codingDetailLevel}
+                    language={codingLanguage}
+                  />
+                </div>
+              </div>
+
+              {/* Bottom Section: System Design Panel (fills remaining space) */}
+              <div className="flex-1 min-h-0 overflow-auto p-3">
+                {hasSystemDesign ? (
+                  <SystemDesignPanel
+                    systemDesign={systemDesign}
+                    eraserDiagram={eraserDiagram}
+                    autoGenerateEraser={autoGenerateEraser}
+                    onGenerateEraserDiagram={onGenerateEraserDiagram}
+                    question={currentProblem || loadedProblem}
+                    cloudProvider="auto"
+                    qaHistory={qaHistory || []}
+                    onFollowUpQuestion={onFollowUpQuestion}
+                    isProcessingFollowUp={isProcessingFollowUp}
+                  />
+                ) : isLoading && loadingType === 'solve' ? (
+                  <div className="flex flex-col items-center justify-center h-full text-neutral-300">
+                    <div className="flex gap-1 mb-2">
+                      <span className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                    <span className="text-sm">Generating system design...</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-neutral-500">
+                    <svg className="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    <span className="text-sm">Enter a system design question to get started</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Allotment.Pane>
+
+          {/* Right Pane - Interview Assistant (optional) */}
+          {showAscendAssistant && (
+            <Allotment.Pane minSize={400}>
+              <VoiceAssistantPanel onClose={onCloseAscendAssistant} provider={provider} model={model} />
+            </Allotment.Pane>
+          )}
+        </Allotment>
+      </div>
+    );
+  }
+
+  // Coding/Behavioral Mode - Original horizontal split layout
   return (
     <div className="h-full bg-neutral-800">
       <Allotment defaultSizes={showAscendAssistant ? [30, 40, 30] : [30, 70]}>
@@ -1227,23 +1347,6 @@ function CodingLayout({
                 <div className="flex items-center gap-3">
                   <div className="w-1 h-5 rounded-full bg-gradient-to-b from-brand-400 to-brand-500" />
                   <h2 className="text-sm font-semibold text-white">Problem</h2>
-                  {ascendMode === 'system-design' && (
-                    <button
-                      onClick={onSavedDesignsClick}
-                      className={`
-                        flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg transition-all duration-200
-                        ${savedDesignsCount > 0
-                          ? 'bg-brand-400/10 text-brand-400 border border-brand-400/30'
-                          : 'bg-neutral-700 text-neutral-400 hover:text-neutral-300'
-                        }
-                      `}
-                    >
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                      </svg>
-                      Saved ({savedDesignsCount})
-                    </button>
-                  )}
                 </div>
                 <div className="flex items-center">
                   <AscendModeSelector
@@ -1329,7 +1432,7 @@ function CodingLayout({
         {/* Right Pane - Interview Assistant */}
         {showAscendAssistant && (
           <Allotment.Pane minSize={400}>
-            <AscendAssistantPanel onClose={onCloseAscendAssistant} provider={provider} model={model} />
+            <VoiceAssistantPanel onClose={onCloseAscendAssistant} provider={provider} model={model} />
           </Allotment.Pane>
         )}
       </Allotment>
