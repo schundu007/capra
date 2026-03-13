@@ -63,11 +63,11 @@ function CloudArchitectureDiagram({
   }
 
   return (
-    <div className={`rounded overflow-hidden border border-neutral-700/50 bg-neutral-800 flex justify-center ${expanded ? 'p-4' : 'p-3'}`}>
+    <div className={`rounded overflow-hidden border border-neutral-700/50 bg-neutral-800 flex justify-center ${expanded ? 'p-4' : 'p-4'}`}>
       <img
         src={imageUrl}
         alt="Cloud Architecture Diagram"
-        className={`h-auto object-contain ${expanded ? 'max-h-[80vh] max-w-full' : 'max-h-[280px] max-w-full'}`}
+        className={`h-auto object-contain ${expanded ? 'max-h-[80vh] max-w-full' : 'max-w-full'}`}
         onError={(e) => {
           console.error('[CloudDiagram] Image load error:', imageUrl, e);
           setImageError(true);
@@ -211,7 +211,7 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
   // Build LEFT-TO-RIGHT ASCII diagram
   const buildASCII = () => {
     const lines = [];
-    const boxW = 14;
+    const boxW = 18; // Wider boxes
 
     const makeBox = (label, w = boxW) => {
       const t = label.substring(0, w - 2);
@@ -223,8 +223,7 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
       ];
     };
 
-    const arrow = '───►';
-    const line = '────';
+    const arrow = ' ════► ';
 
     // Build component boxes
     const boxes = [];
@@ -233,21 +232,21 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
     boxes.push({ label: '👤 Client', tier: 'client' });
 
     // Edge/CDN
-    if (tiers.edge.length > 0) boxes.push({ label: tiers.edge[0].substring(0, 12), tier: 'edge' });
+    if (tiers.edge.length > 0) boxes.push({ label: tiers.edge[0].substring(0, 14), tier: 'edge' });
 
     // Gateway/LB
-    if (tiers.gateway.length > 0) boxes.push({ label: tiers.gateway[0].substring(0, 12), tier: 'gateway' });
+    if (tiers.gateway.length > 0) boxes.push({ label: tiers.gateway[0].substring(0, 14), tier: 'gateway' });
 
     // Compute services
     tiers.compute.slice(0, detailed ? 2 : 1).forEach(c => {
-      boxes.push({ label: c.substring(0, 12), tier: 'compute' });
+      boxes.push({ label: c.substring(0, 14), tier: 'compute' });
     });
 
     // Cache
-    if (tiers.cache.length > 0) boxes.push({ label: '🔴 ' + tiers.cache[0].substring(0, 9), tier: 'cache' });
+    if (tiers.cache.length > 0) boxes.push({ label: '🔴 ' + tiers.cache[0].substring(0, 11), tier: 'cache' });
 
     // Database
-    if (tiers.database.length > 0) boxes.push({ label: '💾 ' + tiers.database[0].substring(0, 9), tier: 'database' });
+    if (tiers.database.length > 0) boxes.push({ label: '💾 ' + tiers.database[0].substring(0, 11), tier: 'database' });
 
     // Build the horizontal flow
     if (boxes.length === 0) {
@@ -261,30 +260,28 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
       const b = makeBox(box.label);
       const isLast = i === boxes.length - 1;
 
-      row1 += b[0] + (isLast ? '' : '    ');
+      row1 += b[0] + (isLast ? '' : '       ');
       row2 += b[1] + (isLast ? '' : arrow);
-      row3 += b[2] + (isLast ? '' : '    ');
+      row3 += b[2] + (isLast ? '' : '       ');
     });
 
     lines.push('');
-    lines.push('  ══════════════════════════════════════════════════════════════════════════════════════');
     lines.push('  ' + row1);
     lines.push('  ' + row2);
     lines.push('  ' + row3);
-    lines.push('  ══════════════════════════════════════════════════════════════════════════════════════');
 
     // Add storage/queue below if detailed
     if (detailed && (tiers.storage.length > 0 || tiers.queue.length > 0)) {
       lines.push('');
       let extras = [];
-      if (tiers.storage.length > 0) extras.push('📦 ' + tiers.storage[0].substring(0, 15));
-      if (tiers.queue.length > 0) extras.push('⚡ ' + tiers.queue[0].substring(0, 15));
-      lines.push('  ASYNC: ' + extras.join('  │  '));
+      if (tiers.storage.length > 0) extras.push('📦 Storage: ' + tiers.storage[0].substring(0, 20));
+      if (tiers.queue.length > 0) extras.push('⚡ Queue: ' + tiers.queue[0].substring(0, 20));
+      lines.push('  ' + extras.join('    '));
     }
 
     // Tech stack footer
     lines.push('');
-    lines.push('  STACK: ' + techStack.slice(0, 8).join(' • '));
+    lines.push('  Tech: ' + techStack.slice(0, 10).join(' • '));
     lines.push('');
 
     return lines.join('\n');
@@ -293,7 +290,7 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
   const asciiDiagram = buildASCII();
 
   return (
-    <div className="font-mono text-[11px] leading-relaxed bg-neutral-900 text-brand-400 p-3 rounded overflow-x-auto whitespace-pre border border-neutral-700/50">
+    <div className="font-mono text-sm leading-relaxed bg-neutral-900 text-brand-400 p-4 rounded whitespace-pre border border-neutral-700/50">
       {asciiDiagram}
     </div>
   );
@@ -591,68 +588,65 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
             )}
 
 
-            {/* Row 4: Diagrams Side by Side (ASCII + Cloud) - Larger cards */}
-            <div className="col-span-12 grid grid-cols-2 gap-3">
-              {/* ASCII Diagram */}
-              <div className="rounded-lg p-3 bg-neutral-700/30 border border-neutral-600/50">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-[10px] font-semibold uppercase tracking-wide text-neutral-400">ASCII Architecture</h4>
-                  <button
-                    onClick={() => setDiagramDetailLevel(diagramDetailLevel === 'detailed' ? 'overview' : 'detailed')}
-                    className={`px-2 py-1 text-[9px] font-medium rounded border transition-all ${
-                      diagramDetailLevel === 'detailed' ? 'bg-info-500/10 text-info-400 border-info-500/30' : 'bg-brand-400/10 text-brand-400 border-brand-400/30'
-                    }`}
-                  >
-                    {diagramDetailLevel === 'detailed' ? 'Detailed' : 'Overview'}
-                  </button>
-                </div>
-                <ASCIIDiagram systemDesign={systemDesign} detailed={diagramDetailLevel === 'detailed'} />
+            {/* Row 4: ASCII Diagram - Full Width */}
+            <div className="col-span-12 rounded-lg p-4 bg-neutral-700/30 border border-neutral-600/50">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-neutral-300">Architecture Flow</h4>
+                <button
+                  onClick={() => setDiagramDetailLevel(diagramDetailLevel === 'detailed' ? 'overview' : 'detailed')}
+                  className={`px-3 py-1.5 text-xs font-medium rounded border transition-all ${
+                    diagramDetailLevel === 'detailed' ? 'bg-info-500/10 text-info-400 border-info-500/30' : 'bg-brand-400/10 text-brand-400 border-brand-400/30'
+                  }`}
+                >
+                  {diagramDetailLevel === 'detailed' ? 'Detailed' : 'Overview'}
+                </button>
               </div>
+              <ASCIIDiagram systemDesign={systemDesign} detailed={diagramDetailLevel === 'detailed'} />
+            </div>
 
-              {/* Cloud Diagram */}
-              <div className="rounded-lg p-3 bg-neutral-700/30 border border-neutral-600/50">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-[10px] font-semibold uppercase tracking-wide text-neutral-400">
-                    Cloud {diagramData?.cloudProvider && `(${diagramData.cloudProvider.toUpperCase()})`}
-                  </h4>
-                  <div className="flex items-center gap-1.5">
-                    {diagramData && (
-                      <button
-                        onClick={() => setDiagramModal(true)}
-                        className="flex items-center gap-1 px-2 py-1 text-[9px] font-medium rounded border bg-brand-400 text-white border-brand-400 hover:bg-brand-500"
-                      >
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                        </svg>
-                        Expand
-                      </button>
-                    )}
-                    {!diagramData && !generatingDiagram && (
-                      <button
-                        onClick={() => handleGenerateDiagram('overview')}
-                        className="px-2 py-1 text-[9px] font-medium rounded border bg-brand-400 text-white border-brand-400 hover:bg-brand-500"
-                      >
-                        Generate
-                      </button>
-                    )}
-                    {diagramData && !detailedDiagram && diagramDetailLevel !== 'detailed' && (
-                      <button
-                        onClick={() => handleGenerateDiagram('detailed')}
-                        disabled={generatingDiagram}
-                        className="px-2 py-1 text-[9px] font-medium rounded border bg-info-500 text-white border-info-500 hover:bg-info-600"
-                      >
-                        Deep Dive
-                      </button>
-                    )}
-                  </div>
+            {/* Row 5: Cloud Diagram - Full Width */}
+            <div className="col-span-12 rounded-lg p-4 bg-neutral-700/30 border border-neutral-600/50">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-neutral-300">
+                  Cloud Architecture {diagramData?.cloudProvider && `(${diagramData.cloudProvider.toUpperCase()})`}
+                </h4>
+                <div className="flex items-center gap-2">
+                  {diagramData && (
+                    <button
+                      onClick={() => setDiagramModal(true)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded border bg-brand-400 text-white border-brand-400 hover:bg-brand-500"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                      </svg>
+                      Full Screen
+                    </button>
+                  )}
+                  {!diagramData && !generatingDiagram && (
+                    <button
+                      onClick={() => handleGenerateDiagram('overview')}
+                      className="px-3 py-1.5 text-xs font-medium rounded border bg-brand-400 text-white border-brand-400 hover:bg-brand-500"
+                    >
+                      Generate Diagram
+                    </button>
+                  )}
+                  {diagramData && !detailedDiagram && diagramDetailLevel !== 'detailed' && (
+                    <button
+                      onClick={() => handleGenerateDiagram('detailed')}
+                      disabled={generatingDiagram}
+                      className="px-3 py-1.5 text-xs font-medium rounded border bg-info-500 text-white border-info-500 hover:bg-info-600"
+                    >
+                      Deep Dive
+                    </button>
+                  )}
                 </div>
-                <CloudArchitectureDiagram
-                  imageUrl={diagramData?.imageUrl}
-                  loading={generatingDiagram}
-                  error={diagramError}
-                  cloudProvider={diagramData?.cloudProvider || cloudProvider}
-                />
               </div>
+              <CloudArchitectureDiagram
+                imageUrl={diagramData?.imageUrl}
+                loading={generatingDiagram}
+                error={diagramError}
+                cloudProvider={diagramData?.cloudProvider || cloudProvider}
+              />
             </div>
 
             {/* Row 6: Tech Justifications (compact grid) */}
