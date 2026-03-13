@@ -121,7 +121,7 @@ function createApp() {
   app.use(cors({
     origin: true,
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id', 'X-Electron-App', 'X-Device-Id'],
   }));
 
@@ -170,6 +170,7 @@ function createApp() {
       hasAnthropicKey: !!getApiKey('anthropic'),
       hasOpenAIKey: !!getApiKey('openai'),
       hasEraserKey: !!getApiKey('eraser'),
+      hasDeepgramKey: !!getApiKey('deepgram'),
     });
   });
 
@@ -200,6 +201,7 @@ async function registerRoutes(app) {
   const { default: diagramRouter } = await import('../backend/src/routes/diagram.js');
   const { default: extractRouter } = await import('../backend/src/routes/extract.js');
   const { default: extensionRouter } = await import('../backend/src/routes/extension.js');
+  const { default: voiceRouter } = await import('../backend/src/routes/voice.js');
   const { errorHandler } = await import('../backend/src/middleware/errorHandler.js');
 
   // In Electron mode, we skip authentication (user provides their own keys)
@@ -215,6 +217,7 @@ async function registerRoutes(app) {
   app.use('/api/diagram', diagramRouter);
   app.use('/api/extract', extractRouter);
   app.use('/api/extension', extensionRouter);
+  app.use('/api/voice', voiceRouter);
 
   // Auth endpoints return Electron-specific responses
   app.get('/api/auth/check', (req, res) => {

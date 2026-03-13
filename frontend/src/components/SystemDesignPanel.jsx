@@ -63,11 +63,11 @@ function CloudArchitectureDiagram({
   }
 
   return (
-    <div className={`rounded overflow-hidden border border-neutral-700/50 bg-neutral-800 flex justify-center ${expanded ? 'p-4' : 'p-2'}`}>
+    <div className={`rounded overflow-hidden border border-neutral-700/50 bg-neutral-800 flex justify-center ${expanded ? 'p-4' : 'p-3'}`}>
       <img
         src={imageUrl}
         alt="Cloud Architecture Diagram"
-        className={`h-auto object-contain ${expanded ? 'max-h-[80vh] max-w-full' : 'max-h-[180px] max-w-full'}`}
+        className={`h-auto object-contain ${expanded ? 'max-h-[80vh] max-w-full' : 'max-h-[280px] max-w-full'}`}
         onError={(e) => {
           console.error('[CloudDiagram] Image load error:', imageUrl, e);
           setImageError(true);
@@ -160,7 +160,7 @@ function CollapsibleSection({ title, icon, color, children, defaultOpen = true, 
 }
 
 /**
- * ASCII Architecture Diagram Component
+ * ASCII Architecture Diagram Component - Left-to-Right Flow
  */
 function ASCIIDiagram({ systemDesign, detailed = false }) {
   if (!systemDesign?.included) return null;
@@ -175,23 +175,11 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
 
   const techStack = (systemDesign.techJustifications?.map(t => str(t.tech || t)) || []).filter(Boolean);
   const components = (systemDesign.architecture?.components || []).map(str).filter(Boolean);
-  const dataFlow = (systemDesign.dataFlow || []).map(str).filter(Boolean);
 
   const uniqueItems = [...new Set([...components, ...techStack])];
 
   const categorize = (items) => {
-    const tiers = {
-      client: [],
-      edge: [],
-      gateway: [],
-      compute: [],
-      cache: [],
-      database: [],
-      storage: [],
-      queue: [],
-      monitoring: []
-    };
-
+    const tiers = { client: [], edge: [], gateway: [], compute: [], cache: [], database: [], storage: [], queue: [] };
     const patterns = {
       client: /client|browser|mobile|app|user|frontend|web\s?app/i,
       edge: /cdn|cloudfront|cloudflare|edge|akamai/i,
@@ -200,157 +188,103 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
       cache: /redis|cache|memcache|elasticache/i,
       database: /database|db|rds|aurora|dynamo|postgres|mysql|mongo|sql|cockroach/i,
       storage: /s3|storage|gcs|blob|file|bucket|object/i,
-      queue: /queue|sqs|sns|kafka|kinesis|pubsub|rabbit|event|stream|message/i,
-      monitoring: /monitor|cloudwatch|prometheus|grafana|log|trace|alert|metric|datadog/i
+      queue: /queue|sqs|sns|kafka|kinesis|pubsub|rabbit|event|stream|message/i
     };
-
     items.forEach(item => {
       const itemStr = str(item);
       if (!itemStr) return;
       let matched = false;
       for (const [tier, pattern] of Object.entries(patterns)) {
         if (pattern.test(itemStr)) {
-          if (!tiers[tier].includes(itemStr)) {
-            tiers[tier].push(itemStr);
-          }
+          if (!tiers[tier].includes(itemStr)) tiers[tier].push(itemStr);
           matched = true;
           break;
         }
       }
-      if (!matched && !tiers.compute.includes(itemStr)) {
-        tiers.compute.push(itemStr);
-      }
+      if (!matched && !tiers.compute.includes(itemStr)) tiers.compute.push(itemStr);
     });
-
     return tiers;
   };
 
   const tiers = categorize(uniqueItems);
 
-  const makeBox = (text, width = null) => {
-    const t = str(text);
-    const w = width || t.length + 2;
-    const padded = t.substring(0, w - 2).padStart(Math.floor((w - 2 + t.length) / 2)).padEnd(w - 2);
-    return {
-      top: '┌' + '─'.repeat(Math.max(0, w - 2)) + '┐',
-      mid: '│' + padded + '│',
-      bot: '└' + '─'.repeat(Math.max(0, w - 2)) + '┘',
-      width: w
-    };
-  };
-
+  // Build LEFT-TO-RIGHT ASCII diagram
   const buildASCII = () => {
     const lines = [];
-    const title = detailed ? '═══ DETAILED SYSTEM ARCHITECTURE ═══' : '═══ SYSTEM ARCHITECTURE OVERVIEW ═══';
-    lines.push('');
-    lines.push('  ' + title);
-    lines.push('');
+    const boxW = 14;
 
-    const clientBox = makeBox('👤 Client', 14);
-    lines.push('  ' + clientBox.top);
-    lines.push('  ' + clientBox.mid);
-    lines.push('  ' + clientBox.bot);
-    lines.push('       │');
-    lines.push('       ▼');
+    const makeBox = (label, w = boxW) => {
+      const t = label.substring(0, w - 2);
+      const pad = Math.floor((w - 2 - t.length) / 2);
+      return [
+        '┌' + '─'.repeat(w - 2) + '┐',
+        '│' + ' '.repeat(pad) + t + ' '.repeat(w - 2 - pad - t.length) + '│',
+        '└' + '─'.repeat(w - 2) + '┘'
+      ];
+    };
 
-    if (tiers.edge.length > 0) {
-      const edgeBox = makeBox(tiers.edge[0], 18);
-      lines.push('  ' + edgeBox.top);
-      lines.push('  ' + edgeBox.mid);
-      lines.push('  ' + edgeBox.bot);
-      lines.push('       │');
-      lines.push('       ▼');
+    const arrow = '───►';
+    const line = '────';
+
+    // Build component boxes
+    const boxes = [];
+
+    // Client
+    boxes.push({ label: '👤 Client', tier: 'client' });
+
+    // Edge/CDN
+    if (tiers.edge.length > 0) boxes.push({ label: tiers.edge[0].substring(0, 12), tier: 'edge' });
+
+    // Gateway/LB
+    if (tiers.gateway.length > 0) boxes.push({ label: tiers.gateway[0].substring(0, 12), tier: 'gateway' });
+
+    // Compute services
+    tiers.compute.slice(0, detailed ? 2 : 1).forEach(c => {
+      boxes.push({ label: c.substring(0, 12), tier: 'compute' });
+    });
+
+    // Cache
+    if (tiers.cache.length > 0) boxes.push({ label: '🔴 ' + tiers.cache[0].substring(0, 9), tier: 'cache' });
+
+    // Database
+    if (tiers.database.length > 0) boxes.push({ label: '💾 ' + tiers.database[0].substring(0, 9), tier: 'database' });
+
+    // Build the horizontal flow
+    if (boxes.length === 0) {
+      return '  No architecture components found';
     }
 
-    if (tiers.gateway.length > 0) {
-      const lbBox = makeBox(tiers.gateway[0], 20);
-      lines.push('  ' + lbBox.top);
-      lines.push('  ' + lbBox.mid);
-      lines.push('  ' + lbBox.bot);
-      lines.push('       │');
-      lines.push('  ┌────┴────┐');
-      lines.push('  │         │');
-      lines.push('  ▼         ▼');
-    } else {
-      lines.push('       │');
-      lines.push('       ▼');
-    }
+    // Create 3 rows for boxes (top, middle, bottom)
+    let row1 = '', row2 = '', row3 = '';
 
-    const computeItems = tiers.compute.slice(0, detailed ? 3 : 2).map(str);
-    if (computeItems.length >= 2) {
-      const c0 = computeItems[0];
-      const c1 = computeItems[1];
-      lines.push('┌' + '─'.repeat(14) + '┐   ┌' + '─'.repeat(14) + '┐');
-      lines.push('│' + c0.substring(0, 14).padStart(Math.floor((14 + Math.min(c0.length, 14)) / 2)).padEnd(14) + '│   │' + c1.substring(0, 14).padStart(Math.floor((14 + Math.min(c1.length, 14)) / 2)).padEnd(14) + '│');
-      lines.push('└' + '─'.repeat(14) + '┘   └' + '─'.repeat(14) + '┘');
-      lines.push('       │              │');
-      lines.push('       └──────┬───────┘');
-      lines.push('              │');
-    } else if (computeItems.length === 1) {
-      const svcBox = makeBox(computeItems[0], 20);
-      lines.push('  ' + svcBox.top);
-      lines.push('  ' + svcBox.mid);
-      lines.push('  ' + svcBox.bot);
-      lines.push('         │');
-    }
+    boxes.forEach((box, i) => {
+      const b = makeBox(box.label);
+      const isLast = i === boxes.length - 1;
 
-    const hasCache = tiers.cache.length > 0;
-    const hasDb = tiers.database.length > 0;
-    const hasStorage = tiers.storage.length > 0;
-    const hasQueue = tiers.queue.length > 0;
-
-    if (hasCache || hasDb || hasStorage) {
-      if (hasCache && hasDb) {
-        lines.push('    ┌────────┴────────┐');
-        lines.push('    │                 │');
-        lines.push('    ▼                 ▼');
-        const cacheLabel = str(tiers.cache[0]).substring(0, 12);
-        const dbLabel = str(tiers.database[0]).substring(0, 14);
-        lines.push('┌' + '─'.repeat(14) + '┐   ┌' + '─'.repeat(16) + '┐');
-        lines.push('│' + ('🔴 ' + cacheLabel).substring(0, 14).padStart(Math.floor((14 + cacheLabel.length + 3) / 2)).padEnd(14) + '│   │' + ('💾 ' + dbLabel).substring(0, 16).padStart(Math.floor((16 + dbLabel.length + 3) / 2)).padEnd(16) + '│');
-        lines.push('└' + '─'.repeat(14) + '┘   └' + '─'.repeat(16) + '┘');
-      } else if (hasDb) {
-        lines.push('              │');
-        lines.push('              ▼');
-        const dbBox = makeBox('💾 ' + str(tiers.database[0]), 22);
-        lines.push('     ' + dbBox.top);
-        lines.push('     ' + dbBox.mid);
-        lines.push('     ' + dbBox.bot);
-      } else if (hasCache) {
-        lines.push('              │');
-        lines.push('              ▼');
-        const cacheBox = makeBox('🔴 ' + str(tiers.cache[0]), 20);
-        lines.push('     ' + cacheBox.top);
-        lines.push('     ' + cacheBox.mid);
-        lines.push('     ' + cacheBox.bot);
-      }
-    }
-
-    if (hasStorage && detailed) {
-      lines.push('');
-      lines.push('         ┌───────────────────┐');
-      lines.push('         │ 📦 ' + str(tiers.storage[0]).substring(0, 14).padEnd(14) + '│');
-      lines.push('         └───────────────────┘');
-    }
-
-    if (hasQueue && detailed) {
-      lines.push('');
-      lines.push('  ╔══════════════════════════╗');
-      lines.push('  ║ ⚡ ASYNC: ' + tiers.queue.map(str).slice(0, 2).join(', ').substring(0, 15).padEnd(15) + '║');
-      lines.push('  ╚══════════════════════════╝');
-    }
-
-    if (dataFlow.length > 0 && detailed) {
-      lines.push('');
-      lines.push('  ┄┄┄ DATA FLOW ┄┄┄');
-      dataFlow.slice(0, 3).forEach((flow, i) => {
-        lines.push('  ' + (i + 1) + '. ' + str(flow).substring(0, 50));
-      });
-    }
+      row1 += b[0] + (isLast ? '' : '    ');
+      row2 += b[1] + (isLast ? '' : arrow);
+      row3 += b[2] + (isLast ? '' : '    ');
+    });
 
     lines.push('');
-    lines.push('  ════════════════════════════════════════');
-    lines.push('  TECH: ' + techStack.map(str).slice(0, 6).join(' • ').substring(0, 45));
+    lines.push('  ══════════════════════════════════════════════════════════════════════════════════════');
+    lines.push('  ' + row1);
+    lines.push('  ' + row2);
+    lines.push('  ' + row3);
+    lines.push('  ══════════════════════════════════════════════════════════════════════════════════════');
+
+    // Add storage/queue below if detailed
+    if (detailed && (tiers.storage.length > 0 || tiers.queue.length > 0)) {
+      lines.push('');
+      let extras = [];
+      if (tiers.storage.length > 0) extras.push('📦 ' + tiers.storage[0].substring(0, 15));
+      if (tiers.queue.length > 0) extras.push('⚡ ' + tiers.queue[0].substring(0, 15));
+      lines.push('  ASYNC: ' + extras.join('  │  '));
+    }
+
+    // Tech stack footer
+    lines.push('');
+    lines.push('  STACK: ' + techStack.slice(0, 8).join(' • '));
     lines.push('');
 
     return lines.join('\n');
@@ -359,7 +293,7 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
   const asciiDiagram = buildASCII();
 
   return (
-    <div className="font-mono text-[10px] leading-tight bg-neutral-900 text-brand-400 p-2 rounded overflow-x-auto whitespace-pre border border-neutral-700/50 max-h-[200px] overflow-y-auto">
+    <div className="font-mono text-[11px] leading-relaxed bg-neutral-900 text-brand-400 p-3 rounded overflow-x-auto whitespace-pre border border-neutral-700/50">
       {asciiDiagram}
     </div>
   );
@@ -657,15 +591,15 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
             )}
 
 
-            {/* Row 4: Diagrams Side by Side (ASCII + Cloud) */}
-            <div className="col-span-12 grid grid-cols-2 gap-2">
+            {/* Row 4: Diagrams Side by Side (ASCII + Cloud) - Larger cards */}
+            <div className="col-span-12 grid grid-cols-2 gap-3">
               {/* ASCII Diagram */}
-              <div className="rounded p-2 bg-neutral-700/30 border border-neutral-600/50">
-                <div className="flex items-center justify-between mb-1.5">
-                  <h4 className="text-[9px] font-semibold uppercase tracking-wide text-neutral-500">ASCII Architecture</h4>
+              <div className="rounded-lg p-3 bg-neutral-700/30 border border-neutral-600/50">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-[10px] font-semibold uppercase tracking-wide text-neutral-400">ASCII Architecture</h4>
                   <button
                     onClick={() => setDiagramDetailLevel(diagramDetailLevel === 'detailed' ? 'overview' : 'detailed')}
-                    className={`px-1.5 py-0.5 text-[8px] font-medium rounded border transition-all ${
+                    className={`px-2 py-1 text-[9px] font-medium rounded border transition-all ${
                       diagramDetailLevel === 'detailed' ? 'bg-info-500/10 text-info-400 border-info-500/30' : 'bg-brand-400/10 text-brand-400 border-brand-400/30'
                     }`}
                   >
@@ -676,18 +610,18 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
               </div>
 
               {/* Cloud Diagram */}
-              <div className="rounded p-2 bg-neutral-700/30 border border-neutral-600/50">
-                <div className="flex items-center justify-between mb-1.5">
-                  <h4 className="text-[9px] font-semibold uppercase tracking-wide text-neutral-500">
+              <div className="rounded-lg p-3 bg-neutral-700/30 border border-neutral-600/50">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-[10px] font-semibold uppercase tracking-wide text-neutral-400">
                     Cloud {diagramData?.cloudProvider && `(${diagramData.cloudProvider.toUpperCase()})`}
                   </h4>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     {diagramData && (
                       <button
                         onClick={() => setDiagramModal(true)}
-                        className="flex items-center gap-0.5 px-1.5 py-0.5 text-[8px] font-medium rounded border bg-brand-400 text-white border-brand-400 hover:bg-brand-500"
+                        className="flex items-center gap-1 px-2 py-1 text-[9px] font-medium rounded border bg-brand-400 text-white border-brand-400 hover:bg-brand-500"
                       >
-                        <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                         </svg>
                         Expand
@@ -696,7 +630,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
                     {!diagramData && !generatingDiagram && (
                       <button
                         onClick={() => handleGenerateDiagram('overview')}
-                        className="px-1.5 py-0.5 text-[8px] font-medium rounded border bg-brand-400 text-white border-brand-400 hover:bg-brand-500"
+                        className="px-2 py-1 text-[9px] font-medium rounded border bg-brand-400 text-white border-brand-400 hover:bg-brand-500"
                       >
                         Generate
                       </button>
@@ -705,7 +639,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
                       <button
                         onClick={() => handleGenerateDiagram('detailed')}
                         disabled={generatingDiagram}
-                        className="px-1.5 py-0.5 text-[8px] font-medium rounded border bg-info-500 text-white border-info-500 hover:bg-info-600"
+                        className="px-2 py-1 text-[9px] font-medium rounded border bg-info-500 text-white border-info-500 hover:bg-info-600"
                       >
                         Deep Dive
                       </button>

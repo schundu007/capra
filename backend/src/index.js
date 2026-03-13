@@ -26,6 +26,7 @@ import creditsRouter from './routes/credits.js';
 import companyPrepsRouter from './routes/companyPreps.js';
 import usageRouter from './routes/usage.js';
 import deviceRouter from './routes/device.js';
+import voiceRouter from './routes/voice.js';
 import { authenticate } from './middleware/authenticate.js';
 import { isDatabaseConfigured } from './config/database.js';
 import { isStripeConfigured } from './config/stripe.js';
@@ -270,6 +271,10 @@ app.use('/api/credits', apiLimiter, creditsRouter);
 app.use('/api/company-preps', apiLimiter, companyPrepsRouter);
 app.use('/api/usage', apiLimiter, usageRouter);
 app.use('/api/device', apiLimiter, deviceRouter);
+
+// Voice assistant routes (SSE + REST)
+// No rate limiter on /events endpoint for real-time streaming
+app.use('/api/voice', authenticate, voiceRouter);
 
 // Enhanced health check
 app.get('/api/health', (req, res) => {
