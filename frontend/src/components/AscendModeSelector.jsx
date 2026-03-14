@@ -47,31 +47,36 @@ export default function AscendModeSelector({
         <button
           type="button"
           onClick={() => setShowLanguageModal(true)}
-          className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium rounded-full transition-colors"
-          style={{ background: '#f3f4f6', color: '#374151', border: '1px solid #e5e7eb' }}
+          className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all hover:scale-[1.02]"
+          style={{
+            background: 'linear-gradient(135deg, #2dd4bf 0%, #14b8a6 100%)',
+            color: 'white',
+            border: 'none',
+            boxShadow: '0 2px 8px rgba(45, 212, 191, 0.3)'
+          }}
         >
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
           </svg>
           <span>{LANGUAGE_LABELS[codingLanguage] || codingLanguage || 'Auto'}</span>
-          <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-3 h-3 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </button>
 
         {/* Detail Level Toggle */}
         <div
-          className="flex items-center rounded-full p-0.5"
-          style={{ background: '#f0f0f0', border: '1px solid #e0e0e0' }}
+          className="flex items-center rounded-lg p-0.5"
+          style={{ background: 'rgba(71, 85, 105, 0.5)', border: '1px solid rgba(100, 116, 139, 0.5)' }}
         >
           <button
             type="button"
             onClick={() => onCodingDetailLevelChange('basic')}
-            className="px-3 py-1 text-[10px] font-semibold transition-all rounded-full"
+            className="px-3 py-1.5 text-xs font-semibold transition-all rounded-md"
             style={{
               background: codingDetailLevel === 'basic' ? '#10b981' : 'transparent',
-              color: codingDetailLevel === 'basic' ? '#ffffff' : '#666666',
-              boxShadow: codingDetailLevel === 'basic' ? '0 1px 3px rgba(16, 185, 129, 0.3)' : 'none',
+              color: codingDetailLevel === 'basic' ? '#ffffff' : '#cbd5e1',
+              boxShadow: codingDetailLevel === 'basic' ? '0 2px 6px rgba(16, 185, 129, 0.4)' : 'none',
             }}
             title="Basic solution with essential explanation"
           >
@@ -80,11 +85,11 @@ export default function AscendModeSelector({
           <button
             type="button"
             onClick={() => onCodingDetailLevelChange('detailed')}
-            className="px-3 py-1 text-[10px] font-semibold transition-all rounded-full"
+            className="px-3 py-1.5 text-xs font-semibold transition-all rounded-md"
             style={{
               background: codingDetailLevel === 'detailed' ? '#10b981' : 'transparent',
-              color: codingDetailLevel === 'detailed' ? '#ffffff' : '#666666',
-              boxShadow: codingDetailLevel === 'detailed' ? '0 1px 3px rgba(16, 185, 129, 0.3)' : 'none',
+              color: codingDetailLevel === 'detailed' ? '#ffffff' : '#cbd5e1',
+              boxShadow: codingDetailLevel === 'detailed' ? '0 2px 6px rgba(16, 185, 129, 0.4)' : 'none',
             }}
             title="Full solution with detailed explanations"
           >
