@@ -7,6 +7,10 @@ const sseClients = new Set();
 
 // SSE endpoint for frontend to listen for problems
 router.get('/events', (req, res) => {
+  // Set CORS headers for SSE
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+
   // Set SSE headers
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');

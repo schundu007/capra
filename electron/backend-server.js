@@ -125,6 +125,14 @@ function createApp() {
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id', 'X-Electron-App', 'X-Device-Id'],
   }));
 
+  // Explicit OPTIONS handler for preflight requests
+  app.options('*', cors({
+    origin: true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id', 'X-Electron-App', 'X-Device-Id'],
+  }));
+
   // Body parsing
   app.use(express.json({ limit: '10mb' }));
 
@@ -133,6 +141,9 @@ function createApp() {
   app.use('/static/diagrams', express.static(DIAGRAM_OUTPUT_DIR, {
     maxAge: '1h',
     setHeaders: (res, filePath) => {
+      // Add CORS headers for static files
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
       if (filePath.endsWith('.png')) {
         res.setHeader('Content-Type', 'image/png');
       } else if (filePath.endsWith('.svg')) {
@@ -145,6 +156,9 @@ function createApp() {
   const DOCS_DIR = path.join(electronApp.getPath('userData'), 'documents');
   app.use('/static/documents', express.static(DOCS_DIR, {
     setHeaders: (res, filePath) => {
+      // Add CORS headers for static files
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
       if (filePath.endsWith('.html')) {
         res.setHeader('Content-Type', 'text/html');
       }
