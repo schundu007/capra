@@ -215,6 +215,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
   const [isGenerating, setIsGenerating] = useState(false);
   const isGeneratingRef = useRef(false); // Sync ref to prevent race conditions
   const [error, setError] = useState(null);
+  const [showBlackholeSetup, setShowBlackholeSetup] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
   const [recordingDuration, setRecordingDuration] = useState(0);
 
@@ -761,7 +762,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
           console.log('[Recording] System audio captured successfully');
         } catch (err) {
           console.error('[Recording] System audio capture failed:', err);
-          setError('Failed to capture system audio. Make sure BlackHole is installed and configured.');
+          setError('BLACKHOLE_SETUP_NEEDED');
           return;
         }
       } else {
@@ -1359,7 +1360,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
       )}
 
       {/* Error */}
-      {error && !showHistory && (
+      {error && !showHistory && error !== 'BLACKHOLE_SETUP_NEEDED' && (
         <div className="px-4 py-2 text-sm flex items-center justify-between bg-error-500/10 border-b border-error-500/30 text-error-400">
           <span>{error}</span>
           <button onClick={() => setError(null)} className="text-error-400 hover:text-error-300 transition-colors">
@@ -1367,6 +1368,36 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
+        </div>
+      )}
+
+      {/* BlackHole Setup Required */}
+      {error === 'BLACKHOLE_SETUP_NEEDED' && !showHistory && (
+        <div className="px-4 py-3 bg-amber-500/10 border-b border-amber-500/30">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <svg className="w-5 h-5 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span className="text-sm font-medium text-amber-400">BlackHole Required for Interviewer Audio</span>
+              </div>
+              <p className="text-xs text-neutral-300 mb-3">
+                To capture audio from Google Meet/Zoom, you need to install BlackHole (a free virtual audio driver) and configure it.
+              </p>
+              <button
+                onClick={() => setShowBlackholeSetup(true)}
+                className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-neutral-900 text-xs font-medium rounded-lg transition-colors"
+              >
+                View Setup Guide
+              </button>
+            </div>
+            <button onClick={() => setError(null)} className="text-neutral-400 hover:text-neutral-300 transition-colors">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
       )}
 
@@ -1462,7 +1493,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
 
         {/* VOICE SECTION (RIGHT) */}
         <div className="flex-1 p-2 bg-neutral-800">
-          <div className="flex gap-1">
+          <div className="flex gap-1 items-center">
             <button
               onClick={() => setAudioSource('system')}
               disabled={isRecording}
@@ -1484,6 +1515,15 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
               }`}
             >
               Speaker
+            </button>
+            <button
+              onClick={() => setShowBlackholeSetup(true)}
+              className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-700 transition-all"
+              title="Setup guide for capturing interviewer audio"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </button>
           </div>
         </div>
@@ -1718,6 +1758,107 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
         </div>
       </div>
         </>
+      )}
+
+      {/* BlackHole Setup Modal */}
+      {showBlackholeSetup && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-neutral-800 rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-neutral-700">
+            <div className="sticky top-0 bg-neutral-800 px-5 py-4 border-b border-neutral-700 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-white">BlackHole Setup Guide</h2>
+              <button
+                onClick={() => setShowBlackholeSetup(false)}
+                className="text-neutral-400 hover:text-white transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="px-5 py-4 space-y-5">
+              <p className="text-sm text-neutral-300">
+                BlackHole is a free virtual audio driver that lets Ascend capture audio from Google Meet, Zoom, and other apps.
+              </p>
+
+              {/* Step 1 */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-brand-500 text-white text-xs font-bold flex items-center justify-center">1</span>
+                  <h3 className="text-sm font-medium text-white">Download & Install BlackHole</h3>
+                </div>
+                <div className="ml-8 space-y-2">
+                  <p className="text-xs text-neutral-400">Download BlackHole 2ch (free) from the official website:</p>
+                  <a
+                    href="https://existential.audio/blackhole/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-3 py-2 bg-neutral-700 hover:bg-neutral-600 rounded-lg text-sm text-brand-400 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    existential.audio/blackhole
+                  </a>
+                  <p className="text-xs text-neutral-500">Run the installer and restart your Mac if prompted.</p>
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-brand-500 text-white text-xs font-bold flex items-center justify-center">2</span>
+                  <h3 className="text-sm font-medium text-white">Create Multi-Output Device</h3>
+                </div>
+                <div className="ml-8 space-y-2">
+                  <p className="text-xs text-neutral-400">This lets you hear audio AND capture it simultaneously:</p>
+                  <ol className="text-xs text-neutral-300 space-y-1.5 list-decimal list-inside">
+                    <li>Open <span className="text-brand-400 font-medium">Audio MIDI Setup</span> (search in Spotlight)</li>
+                    <li>Click the <span className="text-brand-400 font-medium">+</span> button at bottom left</li>
+                    <li>Select <span className="text-brand-400 font-medium">"Create Multi-Output Device"</span></li>
+                    <li>Check both <span className="text-brand-400 font-medium">BlackHole 2ch</span> and your <span className="text-brand-400 font-medium">speakers/headphones</span></li>
+                    <li>Right-click the Multi-Output Device → <span className="text-brand-400 font-medium">"Use This Device For Sound Output"</span></li>
+                  </ol>
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-brand-500 text-white text-xs font-bold flex items-center justify-center">3</span>
+                  <h3 className="text-sm font-medium text-white">Configure Ascend</h3>
+                </div>
+                <div className="ml-8 space-y-2">
+                  <ol className="text-xs text-neutral-300 space-y-1.5 list-decimal list-inside">
+                    <li>In Ascend, click the <span className="text-brand-400 font-medium">"Interviewer"</span> button (not "Speaker")</li>
+                    <li>Click the <span className="text-brand-400 font-medium">Record</span> button</li>
+                    <li>Ascend will now capture both your voice AND the interviewer's voice</li>
+                  </ol>
+                </div>
+              </div>
+
+              {/* Troubleshooting */}
+              <div className="bg-neutral-700/50 rounded-lg p-4 space-y-2">
+                <h4 className="text-xs font-medium text-neutral-200">Troubleshooting</h4>
+                <ul className="text-xs text-neutral-400 space-y-1">
+                  <li>• If you can't hear audio: Make sure your speakers/headphones are checked in the Multi-Output Device</li>
+                  <li>• If BlackHole doesn't appear: Restart your Mac after installation</li>
+                  <li>• Volume too low? Adjust the master volume slider in Audio MIDI Setup</li>
+                </ul>
+              </div>
+
+              <button
+                onClick={() => {
+                  setShowBlackholeSetup(false);
+                  setError(null);
+                }}
+                className="w-full py-2.5 bg-brand-500 hover:bg-brand-400 text-white font-medium rounded-lg transition-colors"
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
