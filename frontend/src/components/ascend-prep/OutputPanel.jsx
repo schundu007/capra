@@ -155,8 +155,13 @@ class ErrorBoundary extends Component {
 // Safe array helper - ensures we always have an array with valid objects
 const safeArray = (arr) => Array.isArray(arr) ? arr.filter(item => item != null && typeof item !== 'undefined') : [];
 
-// Safe string helper
-const safeStr = (str) => (typeof str === 'string' ? str : '') || '';
+// Safe string helper - handles strings, arrays, and other types
+const safeStr = (val) => {
+  if (typeof val === 'string') return val;
+  if (Array.isArray(val)) return val.filter(v => v != null).map(v => String(v)).join('\n');
+  if (val == null) return '';
+  return String(val);
+};
 
 // Safe property access helper for potentially undefined objects
 const safeProp = (obj, prop, defaultVal = '') => {
@@ -315,6 +320,12 @@ export default function OutputPanel({ section, content, streamingContent, isGene
         console.log('[OutputPanel] rawContent type:', typeof content.rawContent);
         console.log('[OutputPanel] rawContent first 100 chars:', String(content.rawContent).substring(0, 100));
         console.log('[OutputPanel] rawContent starts with {:', String(content.rawContent).trim().startsWith('{'));
+        console.log('[OutputPanel] rawContent length:', String(content.rawContent).length);
+        // Log the area around position 11126 where the error typically occurs
+        const raw = String(content.rawContent);
+        if (raw.length > 11100) {
+          console.log('[OutputPanel] Content around error position 11126:', JSON.stringify(raw.substring(11100, 11150)));
+        }
 
         const parsed = tryParseJSON(content.rawContent);
         if (parsed) {
@@ -750,7 +761,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                                     <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
                                     Situation
                                   </div>
-                                  <p className="text-sm leading-relaxed" style={{ color: '#166534' }}>{q.situation?.trim()}</p>
+                                  <p className="text-sm leading-relaxed" style={{ color: '#166534' }}>{safeStr(q.situation).trim()}</p>
                                 </div>
                               )}
                               {q.task && (
@@ -759,7 +770,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                                     <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" /></svg>
                                     Task
                                   </div>
-                                  <p className="text-sm leading-relaxed" style={{ color: '#1e40af' }}>{q.task?.trim()}</p>
+                                  <p className="text-sm leading-relaxed" style={{ color: '#1e40af' }}>{safeStr(q.task).trim()}</p>
                                 </div>
                               )}
                               {q.action && (
@@ -768,7 +779,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                                     <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" /></svg>
                                     Action
                                   </div>
-                                  <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: '#92400e' }}>{q.action?.trim()}</p>
+                                  <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: '#92400e' }}>{safeStr(q.action).trim()}</p>
                                 </div>
                               )}
                               {q.result && (
@@ -777,13 +788,13 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                                     <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
                                     Result
                                   </div>
-                                  <p className="text-sm leading-relaxed" style={{ color: '#6d28d9' }}>{q.result?.trim()}</p>
+                                  <p className="text-sm leading-relaxed" style={{ color: '#6d28d9' }}>{safeStr(q.result).trim()}</p>
                                 </div>
                               )}
                             </div>
                           </div>
                         )}
-                        {q.tips && <p className="mt-2 p-2 rounded italic text-xs" style={{ background: '#f8fafc', color: colors.accent }}>💡 {q.tips?.trim()}</p>}
+                        {q.tips && <p className="mt-2 p-2 rounded italic text-xs" style={{ background: '#f8fafc', color: colors.accent }}>💡 {safeStr(q.tips).trim()}</p>}
                       </div>
                     ))}
                   </div>
@@ -1099,6 +1110,21 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                       sections.push({ type: 'question', question: match[1], answer: match[2] });
                     }
 
+                    // Extract system design questions (use "title" field)
+                    const sdTitleMatches = str.matchAll(/"title"\s*:\s*"([^"]+)"/g);
+                    for (const match of sdTitleMatches) {
+                      // Only add if it looks like a system design question
+                      if (match[1].toLowerCase().includes('design') || match[1].toLowerCase().includes('system')) {
+                        sections.push({ type: 'sd-question', title: match[1] });
+                      }
+                    }
+
+                    // Extract architecture diagram descriptions
+                    const diagramMatches = str.matchAll(/"diagramDescription"\s*:\s*"([^"]+)"/g);
+                    for (const match of diagramMatches) {
+                      sections.push({ type: 'diagram', description: match[1] });
+                    }
+
                     // Extract concepts
                     const conceptMatches = str.matchAll(/"concept"\s*:\s*"([^"]+)"[^}]*"explanation"\s*:\s*"([^"]+)"/gs);
                     for (const match of conceptMatches) {
@@ -1139,6 +1165,20 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                                 <div key={i} className="mb-3 pl-2" style={{ borderLeft: '2px solid #10b981' }}>
                                   <p className="font-semibold text-sm">{item.concept}</p>
                                   <div className="text-xs mt-1" style={{ color: colors.textMuted }}>{renderMarkdown(item.explanation.replace(/\\n/g, '\n'))}</div>
+                                </div>
+                              );
+                            }
+                            if (item.type === 'sd-question') {
+                              return (
+                                <div key={i} className="p-3 rounded-lg" style={{ background: '#f0fdf4', border: '1px solid #86efac' }}>
+                                  <span className="font-bold text-base" style={{ color: '#166534' }}>{item.title}</span>
+                                </div>
+                              );
+                            }
+                            if (item.type === 'diagram') {
+                              return (
+                                <div key={i} className="p-3 rounded-lg" style={{ background: '#fef3c7', border: '1px solid #fcd34d' }}>
+                                  <p className="text-sm" style={{ color: '#92400e' }}>{item.description}</p>
                                 </div>
                               );
                             }

@@ -1135,13 +1135,24 @@ Return ONLY valid JSON - no markdown, no code blocks, no explanations before or 
   });
 
   let fullText = '';
+  let stopReason = null;
 
   for await (const event of stream) {
     if (event.type === 'content_block_delta' && event.delta?.text) {
       fullText += event.delta.text;
       yield { chunk: event.delta.text };
     }
+    // Capture stop reason to detect truncation
+    if (event.type === 'message_delta' && event.delta?.stop_reason) {
+      stopReason = event.delta.stop_reason;
+    }
   }
+
+  // Log if response was truncated
+  if (stopReason === 'max_tokens') {
+    console.warn(`[AscendPrep] Response truncated by max_tokens for section: ${section}`);
+  }
+  console.log(`[AscendPrep] Response completed. Stop reason: ${stopReason}, Length: ${fullText.length}`);
 
   // Parse final result
   try {
@@ -1152,6 +1163,39 @@ Return ONLY valid JSON - no markdown, no code blocks, no explanations before or 
     // Clean up all text content in the result
     yield { done: true, result: cleanupResult(result) };
   } catch (err) {
+    console.error(`[AscendPrep] JSON parse failed for section ${section}:`, err.message);
+    console.error(`[AscendPrep] JSON error position context:`, fullText.substring(Math.max(0, 11100), 11150));
+
+    // Try to repair common JSON issues
+    try {
+      let repairedJson = fullText;
+      // Fix truncated JSON by adding closing braces/brackets
+      if (stopReason === 'max_tokens') {
+        // Count open braces/brackets
+        const openBraces = (repairedJson.match(/\{/g) || []).length;
+        const closeBraces = (repairedJson.match(/\}/g) || []).length;
+        const openBrackets = (repairedJson.match(/\[/g) || []).length;
+        const closeBrackets = (repairedJson.match(/\]/g) || []).length;
+
+        // Add missing closing characters
+        repairedJson += '"'.repeat(repairedJson.split('"').length % 2 === 0 ? 0 : 1);
+        repairedJson += ']'.repeat(Math.max(0, openBrackets - closeBrackets));
+        repairedJson += '}'.repeat(Math.max(0, openBraces - closeBraces));
+
+        console.log(`[AscendPrep] Attempted JSON repair: added ${openBraces - closeBraces} braces, ${openBrackets - closeBrackets} brackets`);
+      }
+
+      const jsonMatch2 = repairedJson.match(/\{[\s\S]*\}/);
+      if (jsonMatch2) {
+        const result = JSON.parse(jsonMatch2[0]);
+        console.log(`[AscendPrep] JSON repair successful`);
+        yield { done: true, result: cleanupResult(result) };
+        return;
+      }
+    } catch (repairErr) {
+      console.error(`[AscendPrep] JSON repair also failed:`, repairErr.message);
+    }
+
     // Return raw text if JSON parsing fails
     yield { done: true, result: { rawContent: cleanupText(fullText) } };
   }
@@ -1208,14 +1252,25 @@ Return valid JSON.`;
   });
 
   let fullText = '';
+  let finishReason = null;
 
   for await (const chunk of stream) {
-    const text = chunk.choices[0]?.delta?.content || '';
+    const choice = chunk.choices[0];
+    const text = choice?.delta?.content || '';
     if (text) {
       fullText += text;
       yield { chunk: text };
     }
+    if (choice?.finish_reason) {
+      finishReason = choice.finish_reason;
+    }
   }
+
+  // Log completion info
+  if (finishReason === 'length') {
+    console.warn(`[AscendPrep] OpenAI response truncated by length for section: ${section}`);
+  }
+  console.log(`[AscendPrep] OpenAI response completed. Finish reason: ${finishReason}, Length: ${fullText.length}`);
 
   // Parse final result
   try {
@@ -1223,6 +1278,7 @@ Return valid JSON.`;
     // Clean up all text content in the result
     yield { done: true, result: cleanupResult(result) };
   } catch (err) {
+    console.error(`[AscendPrep] OpenAI JSON parse failed for section ${section}:`, err.message);
     // Return raw text if JSON parsing fails
     yield { done: true, result: { rawContent: cleanupText(fullText) } };
   }
