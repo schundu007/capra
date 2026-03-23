@@ -22129,6 +22129,37 @@ The key insight is combining two data structures: a HashMap provides O(1) lookup
 
       keyInsight: `Store the key in each Node because eviction requires removing items from both the linked list AND HashMap. Without the key stored, identifying which HashMap entry to remove would require O(n) traversal.`,
 
+      basicImplementation: {
+        title: 'LRU Cache Architecture',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────┐
+│                        LRU Cache                                │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                   HashMap<Key, Node*>                    │   │
+│  │    key1 ──► Node*    key2 ──► Node*    key3 ──► Node*   │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                    │              │              │              │
+│                    ▼              ▼              ▼              │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │              Doubly Linked List (Order)                  │   │
+│  │                                                          │   │
+│  │   HEAD ◄──► [MRU] ◄──► [Node] ◄──► [LRU] ◄──► TAIL      │   │
+│  │  (dummy)     ▲                        │      (dummy)     │   │
+│  │              │                        │                  │   │
+│  │         Most Recent              Least Recent            │   │
+│  │         (just accessed)          (evict first)           │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+│  Operations:                                                    │
+│  ┌───────────────┬──────────────────────────────────────────┐  │
+│  │ get(key)      │ O(1) lookup + move to front              │  │
+│  │ put(key,val)  │ O(1) insert at front, evict LRU if full  │  │
+│  └───────────────┴──────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘`
+      },
+
       implementation: `class Node:
     def __init__(self, key, value):
         self.key = key
@@ -22232,6 +22263,45 @@ class LRUCache:
         'Observer Pattern: Notify displays of availability changes',
         'Singleton Pattern: Single ParkingLot instance'
       ],
+
+      basicImplementation: {
+        title: 'Parking Lot Class Diagram',
+        architecture: `
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           ParkingLot (Singleton)                        │
+│  ┌────────────────────────────────────────────────────────────────┐    │
+│  │  - floors: List<Floor>                                          │    │
+│  │  - activeTickets: Map<String, ParkingTicket>                    │    │
+│  │  + parkVehicle(vehicle) → ParkingTicket                         │    │
+│  │  + unparkVehicle(ticket) → Payment                              │    │
+│  └────────────────────────────────────────────────────────────────┘    │
+│                                    │                                    │
+│                                    ▼                                    │
+│  ┌────────────────────────────────────────────────────────────────┐    │
+│  │                         Floor                                   │    │
+│  │  - floorNumber: int                                            │    │
+│  │  - spots: List<ParkingSpot>                                    │    │
+│  │  + getAvailableSpot(vehicleType) → ParkingSpot                 │    │
+│  │  + getAvailability() → Map<SpotSize, int>                      │    │
+│  └────────────────────────────────────────────────────────────────┘    │
+│                                    │                                    │
+│                                    ▼                                    │
+│  ┌────────────────────────────────────────────────────────────────┐    │
+│  │                      ParkingSpot                                │    │
+│  │  - spotId: String          - size: SpotSize                    │    │
+│  │  - vehicle: Vehicle        - isAvailable: bool                 │    │
+│  │  + canFit(vehicle) → bool  + park(vehicle) → bool              │    │
+│  └────────────────────────────────────────────────────────────────┘    │
+│                                                                         │
+│  ┌──────────────┐    ┌──────────────┐    ┌───────────────────────┐    │
+│  │   Vehicle    │    │ ParkingTicket│    │  PricingStrategy      │    │
+│  │  (Abstract)  │    │              │    │  <<interface>>        │    │
+│  ├──────────────┤    │ - vehicle    │    ├───────────────────────┤    │
+│  │ Bike │ Car   │    │ - spot       │    │ HourlyPricing         │    │
+│  │ Truck        │    │ - entryTime  │    │ DailyPricing          │    │
+│  └──────────────┘    └──────────────┘    └───────────────────────┘    │
+└─────────────────────────────────────────────────────────────────────────┘`
+      },
 
       implementation: `from abc import ABC, abstractmethod
 from enum import Enum
@@ -22361,6 +22431,43 @@ class ParkingLot:
         'State Pattern: Elevator states (IDLE, MOVING_UP, MOVING_DOWN, DOOR_OPEN)',
         'Command Pattern: Encapsulate requests as objects'
       ],
+
+      basicImplementation: {
+        title: 'Elevator System Architecture',
+        architecture: `
+┌──────────────────────────────────────────────────────────────────────────┐
+│                         ElevatorSystem                                    │
+│  ┌────────────────────────────────────────────────────────────────────┐  │
+│  │  - elevators: List<Elevator>                                       │  │
+│  │  - dispatcher: DispatchStrategy                                    │  │
+│  │  + addRequest(floor, direction)                                    │  │
+│  │  + dispatch(request) → Elevator                                    │  │
+│  └────────────────────────────────────────────────────────────────────┘  │
+│                    │                         │                            │
+│                    ▼                         ▼                            │
+│  ┌─────────────────────────────┐  ┌─────────────────────────────┐        │
+│  │        Elevator 1           │  │        Elevator 2           │        │
+│  │  ┌───────────────────────┐  │  │  ┌───────────────────────┐  │        │
+│  │  │ State: MOVING_UP      │  │  │  │ State: IDLE           │  │        │
+│  │  │ Floor: 5              │  │  │  │ Floor: 1              │  │        │
+│  │  │ Direction: UP         │  │  │  │ Direction: IDLE       │  │        │
+│  │  └───────────────────────┘  │  │  └───────────────────────┘  │        │
+│  │  ┌───────────────────────┐  │  │  ┌───────────────────────┐  │        │
+│  │  │ Requests (LOOK algo)  │  │  │  │ Requests              │  │        │
+│  │  │ UP:   {7, 10, 12}     │  │  │  │ UP:   {}              │  │        │
+│  │  │ DOWN: {3, 1}          │  │  │  │ DOWN: {}              │  │        │
+│  │  └───────────────────────┘  │  │  └───────────────────────┘  │        │
+│  └─────────────────────────────┘  └─────────────────────────────┘        │
+│                                                                           │
+│  LOOK Algorithm Flow:                                                     │
+│  ┌──────────────────────────────────────────────────────────────────┐    │
+│  │  1. Move UP serving all UP requests in sorted order              │    │
+│  │  2. When no more UP requests, reverse to DOWN                    │    │
+│  │  3. Move DOWN serving all DOWN requests in reverse sorted order  │    │
+│  │  4. Repeat until no requests remain                              │    │
+│  └──────────────────────────────────────────────────────────────────┘    │
+└──────────────────────────────────────────────────────────────────────────┘`
+      },
 
       implementation: `from enum import Enum
 from threading import Thread, Lock
@@ -23559,15 +23666,82 @@ class ATM:
       color: '#10b981',
       description: 'Core concepts of concurrent programming',
 
-      introduction: `Concurrency is the ability of a system to handle multiple tasks simultaneously. Understanding concurrency is essential for building efficient, scalable software systems.`,
+      introduction: `Concurrency is the ability of a system to handle multiple tasks simultaneously. Understanding concurrency is essential for building efficient, scalable software systems.
 
-      concepts: [
+In interviews, you'll be expected to understand the difference between processes and threads, recognize race conditions, and know how to prevent deadlocks.`,
+
+      basicImplementation: {
+        title: 'Concurrency vs Parallelism',
+        architecture: `
+CONCURRENCY vs PARALLELISM
+==========================
+
+CONCURRENCY (Single Core - Time Slicing):
+  Time ──────────────────────────────────────►
+
+  Core: [Task A][Task B][Task A][Task C][Task B][Task A]
+         │       │       │       │       │       │
+         └───────┴───────┴───────┴───────┴───────┘
+                    Context Switching
+
+  Tasks interleave, creating ILLUSION of parallelism
+
+
+PARALLELISM (Multiple Cores - True Simultaneous):
+  Time ──────────────────────────────────────►
+
+  Core 1: [────── Task A ──────][── Task D ──]
+  Core 2: [────── Task B ──────][── Task E ──]
+  Core 3: [────── Task C ──────][── Task F ──]
+
+  Tasks actually execute at the same time
+
+
+PROCESS vs THREAD
+=================
+
+  ┌─────────────────────────────────────────────────┐
+  │                    PROCESS                       │
+  │  ┌─────────────────────────────────────────┐    │
+  │  │           Own Memory Space               │    │
+  │  │  [Code] [Data] [Heap] [Stack]           │    │
+  │  └─────────────────────────────────────────┘    │
+  │  - Isolated from other processes                 │
+  │  - Inter-process communication (IPC) needed     │
+  │  - Higher overhead to create/switch              │
+  └─────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────┐
+  │                    THREADS                       │
+  │  ┌────────────── Shared ──────────────────┐     │
+  │  │      [Code] [Data] [Heap]              │     │
+  │  └────────────────────────────────────────┘     │
+  │  ┌─────────┐  ┌─────────┐  ┌─────────┐         │
+  │  │ Thread1 │  │ Thread2 │  │ Thread3 │         │
+  │  │ [Stack] │  │ [Stack] │  │ [Stack] │         │
+  │  └─────────┘  └─────────┘  └─────────┘         │
+  │  - Share memory (faster communication)          │
+  │  - Lower overhead                               │
+  │  - Need synchronization for shared data         │
+  └─────────────────────────────────────────────────┘
+
+
+DEADLOCK CONDITIONS (All 4 must hold):
+======================================
+  1. Mutual Exclusion  - Resource held exclusively
+  2. Hold and Wait     - Hold one, wait for another
+  3. No Preemption     - Cannot force release
+  4. Circular Wait     - A waits B, B waits C, C waits A`
+      },
+
+      coreEntities: [
         { name: 'Process vs Thread', description: 'Process has own memory space; threads share memory within a process' },
         { name: 'Parallelism vs Concurrency', description: 'Parallelism is simultaneous execution; concurrency is managing multiple tasks' },
         { name: 'Race Condition', description: 'When output depends on timing of uncontrollable events' },
-        { name: 'Critical Section', description: 'Code section accessing shared resources' },
+        { name: 'Critical Section', description: 'Code section accessing shared resources that needs protection' },
         { name: 'Deadlock', description: 'Circular wait where threads block each other forever' },
-        { name: 'Starvation', description: 'Thread never gets resources despite being ready' }
+        { name: 'Starvation', description: 'Thread never gets resources despite being ready to run' },
+        { name: 'Livelock', description: 'Threads keep responding to each other without making progress' }
       ]
     },
     {
@@ -23576,6 +23750,8 @@ class ATM:
       icon: 'lock',
       color: '#3b82f6',
       description: 'Locks, mutexes, semaphores, and more',
+
+      introduction: `Synchronization primitives are the building blocks for coordinating access to shared resources in concurrent programs. They prevent race conditions and ensure thread safety.`,
 
       primitives: [
         { name: 'Mutex', description: 'Mutual exclusion lock - only one thread can hold it', example: 'threading.Lock() in Python' },
@@ -23591,6 +23767,79 @@ class ATM:
       icon: 'alertTriangle',
       color: '#ef4444',
       description: 'Producer-Consumer, Readers-Writers, Dining Philosophers',
+
+      introduction: `These classic problems are frequently asked in interviews and demonstrate fundamental concurrency patterns. Understanding their solutions helps you tackle real-world synchronization challenges.`,
+
+      basicImplementation: {
+        title: 'Classic Concurrency Problem Diagrams',
+        architecture: `
+PRODUCER-CONSUMER PROBLEM
+=========================
+
+  Producer 1 ─┐                                        ┌─ Consumer 1
+  Producer 2 ─┼──► [Bounded Buffer Queue] ◄──┼─ Consumer 2
+  Producer 3 ─┘    [■][■][■][□][□][□][□][□]          └─ Consumer 3
+                         │             │
+                      items         spaces
+
+  Semaphores: empty_slots(N), filled_slots(0), mutex(1)
+
+  Producer Flow:                    Consumer Flow:
+  1. wait(empty_slots)              1. wait(filled_slots)
+  2. lock(mutex)                    2. lock(mutex)
+  3. add item to buffer             3. remove item from buffer
+  4. unlock(mutex)                  4. unlock(mutex)
+  5. signal(filled_slots)           5. signal(empty_slots)
+
+
+READERS-WRITERS PROBLEM
+=======================
+
+  Reader 1 ─┐
+  Reader 2 ─┼────► [SHARED RESOURCE] ◄──── Writer 1
+  Reader 3 ─┘      (Database/File)         (exclusive)
+
+  Rules:
+  [OK] Multiple readers can read simultaneously
+  [NO] Writer needs exclusive access (no readers, no other writers)
+
+  Variables: read_count=0, mutex, write_lock
+
+  Reader:                           Writer:
+  lock(mutex)                       lock(write_lock)
+  read_count++                      WRITE DATA
+  if first: lock(write_lock)        unlock(write_lock)
+  unlock(mutex)
+  READ DATA
+  lock(mutex)
+  read_count--
+  if last: unlock(write_lock)
+  unlock(mutex)
+
+
+DINING PHILOSOPHERS PROBLEM
+===========================
+
+            [P1]
+           /    \\
+         F1      F2
+        /          \\
+      [P5]        [P2]
+       |            |
+      F5           F3
+       |            |
+      [P4]--F4--[P3]
+
+  5 Philosophers, 5 Forks
+  Each needs 2 forks (left + right) to eat
+
+  DEADLOCK: All pick up left fork, wait for right forever!
+
+  Solutions:
+  1. Resource Hierarchy: Pick lower-numbered fork first
+  2. Arbitrator: Waiter limits concurrent attempts to 4
+  3. Chandy-Misra: Dirty/clean fork states`
+      },
 
       problems: [
         {
@@ -23616,6 +23865,46 @@ class ATM:
       icon: 'layers',
       color: '#8b5cf6',
       description: 'Managing worker threads efficiently',
+
+      introduction: `Thread pools manage a collection of reusable worker threads to execute tasks. They reduce overhead from thread creation/destruction and prevent resource exhaustion from unbounded thread spawning.`,
+
+      basicImplementation: {
+        title: 'Thread Pool Architecture',
+        architecture: `
+┌──────────────────────────────────────────────────────────────────────────┐
+│                           Thread Pool                                     │
+├──────────────────────────────────────────────────────────────────────────┤
+│                                                                           │
+│  ┌─────────────────┐    ┌──────────────────────────────────────────────┐ │
+│  │  Task Submitter │───►│              Task Queue                       │ │
+│  │  (Main Thread)  │    │  [Task1][Task2][Task3][Task4][Task5]...      │ │
+│  └─────────────────┘    └──────────────────────────────────────────────┘ │
+│                                         │                                 │
+│                                         ▼                                 │
+│         ┌───────────────────────────────────────────────────────┐        │
+│         │                   Worker Threads                       │        │
+│         │  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐   │        │
+│         │  │Worker 1 │  │Worker 2 │  │Worker 3 │  │Worker 4 │   │        │
+│         │  │ [busy]  │  │ [idle]  │  │ [busy]  │  │ [idle]  │   │        │
+│         │  └────┬────┘  └────┬────┘  └────┬────┘  └────┬────┘   │        │
+│         │       │            │            │            │         │        │
+│         │       ▼            ▼            ▼            ▼         │        │
+│         │   Execute      Wait for      Execute     Wait for     │        │
+│         │   Task 1       next task     Task 3      next task    │        │
+│         └───────────────────────────────────────────────────────┘        │
+│                                         │                                 │
+│                                         ▼                                 │
+│  ┌──────────────────────────────────────────────────────────────────┐   │
+│  │                        Completed Results                          │   │
+│  │                    Future1 ✓  Future2 ✓  Future3 ...              │   │
+│  └──────────────────────────────────────────────────────────────────┘   │
+│                                                                           │
+│  Benefits:                                                                │
+│  • Reuse threads (no creation overhead)                                  │
+│  • Bounded concurrency (prevent resource exhaustion)                     │
+│  • Task queue handles bursts gracefully                                  │
+└──────────────────────────────────────────────────────────────────────────┘`
+      },
 
       concepts: [
         'Reuse threads instead of creating/destroying',
@@ -23647,6 +23936,8 @@ with ThreadPoolExecutor(max_workers=4) as executor:
       icon: 'database',
       color: '#06b6d4',
       description: 'Thread-safe collections and atomic operations',
+
+      introduction: `Concurrent data structures are designed for safe access by multiple threads without external synchronization. They use techniques like lock-free algorithms, fine-grained locking, and copy-on-write semantics.`,
 
       structures: [
         { name: 'ConcurrentHashMap', description: 'Segment-level locking for high concurrency' },
@@ -27873,7 +28164,7 @@ Best,
         )}
 
         {/* System Design Topic Detail */}
-        {activePage === 'system-design' && (topicDetails.concepts || topicDetails.requirements || topicDetails.introduction) && (
+        {activePage === 'system-design' && (topicDetails.concepts || topicDetails.requirements || topicDetails.introduction || topicDetails.primitives || topicDetails.problems || topicDetails.structures || topicDetails.coreEntities || topicDetails.implementation) && (
           <div className="space-y-5">
             {/* Core Concept Topics - Key Concepts badges */}
             {topicDetails.concepts && !topicDetails.introduction && (
