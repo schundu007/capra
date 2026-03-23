@@ -23945,35 +23945,33 @@ Clearly state costs or constraints.
                         <p className="text-sm text-gray-500">Essential building blocks for system design</p>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    <div className="flex flex-wrap gap-2">
                       {filteredTopics.map((topic) => (
                         <div
                           key={topic.id}
                           onClick={() => setSelectedTopic(topic.id)}
-                          className="group relative rounded-xl transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl"
+                          className="group flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer hover:scale-[1.02]"
                           style={{
-                            background: `linear-gradient(135deg, ${topic.color}08, ${topic.color}02)`,
-                            border: `1px solid ${topic.color}20`
+                            background: 'rgba(255,255,255,0.02)',
+                            border: '1px solid rgba(255,255,255,0.08)'
                           }}
                         >
-                          <div className="p-3">
-                            <div className="flex items-center gap-2 mb-2">
-                              <div
-                                className="w-8 h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 flex-shrink-0"
-                                style={{ background: `${topic.color}15` }}
-                              >
-                                <Icon name={topic.icon} size={16} style={{ color: topic.color }} />
-                              </div>
-                              <h3 className="text-white font-semibold text-sm group-hover:text-blue-400 transition-colors truncate">{topic.title}</h3>
+                          {/* Column 1: Icon + Title */}
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div
+                              className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110"
+                              style={{ background: `${topic.color}15` }}
+                            >
+                              <Icon name={topic.icon} size={14} style={{ color: topic.color }} />
                             </div>
-                            <p className="text-gray-400 text-xs line-clamp-2 mb-2">{topic.description}</p>
-                            <div className="flex items-center justify-between">
-                              <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
-                                Concept
-                              </span>
-                              <Icon name="arrowRight" size={12} className="text-gray-500 group-hover:text-white transition-colors" />
-                            </div>
+                            <span className="text-white font-medium text-sm whitespace-nowrap group-hover:text-blue-400 transition-colors">{topic.title}</span>
                           </div>
+                          {/* Column 2: Description */}
+                          <span className="text-gray-500 text-xs whitespace-nowrap hidden md:block max-w-[200px] truncate">{topic.description}</span>
+                          {/* Column 3: Badge */}
+                          <span className="px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap flex-shrink-0" style={{ background: `${topic.color}15`, color: topic.color }}>
+                            Concept
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -23990,42 +23988,40 @@ Clearly state costs or constraints.
                         <p className="text-xs text-gray-500">Real-world systems frequently asked in interviews</p>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    <div className="flex flex-wrap gap-2">
                       {systemDesigns.map((design) => {
                         const difficultyColors = {
-                          'Easy': { bg: 'rgba(16,185,129,0.15)', text: '#10b981' },
-                          'Medium': { bg: 'rgba(234,179,8,0.15)', text: '#eab308' },
-                          'Hard': { bg: 'rgba(239,68,68,0.15)', text: '#ef4444' }
+                          'Easy': { bg: 'rgba(16,185,129,0.15)', text: '#10b981', border: 'rgba(16,185,129,0.3)' },
+                          'Medium': { bg: 'rgba(234,179,8,0.15)', text: '#eab308', border: 'rgba(234,179,8,0.3)' },
+                          'Hard': { bg: 'rgba(239,68,68,0.15)', text: '#ef4444', border: 'rgba(239,68,68,0.3)' }
                         };
                         const diffColor = difficultyColors[design.difficulty] || difficultyColors['Medium'];
                         return (
                           <div
                             key={design.id}
                             onClick={() => setSelectedTopic(design.id)}
-                            className="group relative rounded-xl transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl"
+                            className="group flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer hover:scale-[1.02]"
                             style={{
-                              background: `linear-gradient(135deg, ${design.color}08, ${design.color}02)`,
-                              border: `1px solid ${design.color}20`
+                              background: 'rgba(255,255,255,0.02)',
+                              border: '1px solid rgba(255,255,255,0.08)'
                             }}
                           >
-                            <div className="p-3">
-                              <div className="flex items-center gap-2 mb-2">
-                                    <div
-                                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 flex-shrink-0"
-                                  style={{ background: `${design.color}15` }}
-                                >
-                                  <Icon name={design.icon} size={16} style={{ color: design.color }} />
-                                </div>
-                              <h3 className="text-white font-semibold text-sm group-hover:text-purple-400 transition-colors truncate">{design.title}</h3>
+                            {/* Column 1: Icon + Title */}
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div
+                                className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110"
+                                style={{ background: `${design.color}15` }}
+                              >
+                                <Icon name={design.icon} size={14} style={{ color: design.color }} />
                               </div>
-                              <p className="text-gray-500 text-xs mb-2 line-clamp-1">{design.subtitle}</p>
-                              <div className="flex items-center justify-between">
-                                <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: diffColor.bg, color: diffColor.text }}>
-                                  {design.difficulty}
-                                </span>
-                                <Icon name="arrowRight" size={12} className="text-gray-500 group-hover:text-white transition-colors" />
-                              </div>
+                              <span className="text-white font-medium text-sm whitespace-nowrap group-hover:text-purple-400 transition-colors">{design.title}</span>
                             </div>
+                            {/* Column 2: Subtitle */}
+                            <span className="text-gray-500 text-xs whitespace-nowrap hidden sm:block">{design.subtitle}</span>
+                            {/* Column 3: Difficulty */}
+                            <span className="px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap flex-shrink-0" style={{ background: diffColor.bg, color: diffColor.text }}>
+                              {design.difficulty}
+                            </span>
                           </div>
                         );
                       })}
