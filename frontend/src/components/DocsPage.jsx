@@ -21533,6 +21533,660 @@ The ambiguity became a clear, measurable project."`
         'Highlight collaboration when appropriate'
       ]
     },
+    {
+      id: 'star-framework',
+      title: 'STAR Framework',
+      icon: 'target',
+      color: '#8b5cf6',
+      questions: 4,
+      description: 'The proven method for structuring behavioral answers.',
+
+      introduction: `The STAR method provides a structured approach to answering behavioral interview questions. It ensures responses are clear, concise, and compelling rather than rambling and unfocused. Without structure, candidates often leave interviewers asking: "Who is 'we'?", "What was YOUR specific role?", "How much impact did you actually have?"`,
+
+      keyQuestions: [
+        {
+          question: 'What does STAR stand for?',
+          answer: `**S - Situation (15-20% of answer)**
+Set the context. Describe where you worked, your team, and the project nature. Keep details brief but relevant.
+
+Example: "While working as a backend engineer at XYZ Corp, my team was responsible for improving API response times for our e-commerce checkout service."
+
+**T - Task (10-15% of answer)**
+Clarify YOUR specific responsibility, not just the team's role. Outline the problem you owned and any constraints.
+
+Example: "My responsibility was identifying API bottlenecks and proposing a scalable solution within two weeks."
+
+**A - Action (50-60% of answer)**
+This is the most important part. Showcase YOUR contributions, thought process, and decision-making. Detail your steps sequentially and highlight technical or interpersonal skills.
+
+Example: "I profiled endpoints, identified slow database queries, introduced Redis caching, and coordinated with frontend teams to reduce unnecessary API calls."
+
+**R - Result (15-20% of answer)**
+Quantify outcomes whenever possible. Highlight recognition or lessons learned.
+
+Example: "API response time improved by 45%, reducing cart abandonment by 12%. We adopted the approach as a best practice company-wide."`
+        },
+        {
+          question: 'How do I use STAR effectively?',
+          answer: `**Key Principles**
+
+STAR is "a compass, not a cage" — it provides guidance rather than rigid constraints.
+
+**The Chef Analogy**: While cooks follow recipes exactly, chefs understand principles and know when to adjust.
+
+**1. Select the Right Story**
+Choose examples relevant to the role you're interviewing for.
+
+**2. Tailor Stories for Multiple Questions**
+One story can demonstrate several competencies when properly framed.
+
+**3. Keep Situation and Task Short**
+Don't spend 80% of your time on context. Get to your Actions quickly.
+
+**4. Make the Action Step Shine**
+This is where you demonstrate your value. Be specific about what YOU did.
+
+**5. Quantify Results**
+Numbers are memorable and credible. "Improved by 40%" beats "improved significantly."`
+        },
+        {
+          question: 'What are common STAR mistakes?',
+          answer: `**Mistake 1: Spending too much time on Situation/Task**
+❌ "So let me give you some background... [3 minutes later]"
+✅ Set context in 30 seconds, then focus on Actions
+
+**Mistake 2: Using "we" instead of "I"**
+❌ "We decided to refactor the system..."
+✅ "I proposed refactoring the system, and after getting buy-in from the team..."
+
+**Mistake 3: Forgetting to state the Result**
+❌ "...and that's what we did."
+✅ "As a result, deployment time decreased from 4 hours to 15 minutes, and the approach was adopted by 3 other teams."
+
+**Mistake 4: Choosing irrelevant examples**
+❌ A story about college when you have 10 years of experience
+✅ Recent, relevant examples from your professional work
+
+**Mistake 5: Being too vague**
+❌ "I communicated effectively with stakeholders"
+✅ "I created a weekly status report and held bi-weekly sync meetings with the PM and design teams"`
+        }
+      ],
+
+      tips: [
+        'Practice your stories out loud - they should be 2-3 minutes',
+        'Prepare 10-15 stories that cover different competencies',
+        'Use "I" statements to show YOUR contribution',
+        'Always quantify results with specific metrics',
+        'Have alternative angles for the same story'
+      ]
+    },
+    {
+      id: 'story-banking',
+      title: 'Story Banking',
+      icon: 'folder',
+      color: '#06b6d4',
+      questions: 5,
+      description: 'Build a library of powerful interview stories.',
+
+      introduction: `A Story Bank is your interview preparation document—a curated collection of professional experiences that demonstrate key competencies. Having this prepared is "the single greatest thing you can do to reduce interview anxiety and boost your performance." Instead of trying to think of examples on the spot, you'll have ready-to-use stories for any question.`,
+
+      keyQuestions: [
+        {
+          question: 'How do I mine stories from my experience?',
+          answer: `**The Five-Step Story Mining Process**
+
+**Step 1: Identify Core Competencies**
+Understand what employers look for:
+• Teamwork & Collaboration
+• Problem-Solving
+• Communication Skills
+• Adaptability & Learning
+• Leadership & Initiative
+• Handling Failure & Feedback
+• Time Management
+
+**Step 2: List Major Career Milestones**
+Reflect on key events:
+• Significant projects delivered
+• Technical challenges overcome
+• Leadership opportunities taken
+• Conflict or high-pressure situations
+• Learning experiences from failures
+
+Don't limit yourself to successes—some of the best STAR answers come from challenging situations that show resilience and growth.
+
+**Step 3: Extract Potential Stories**
+For each milestone, answer:
+• What was the challenge or opportunity?
+• What was your specific role?
+• What action did you take?
+• What was the outcome?
+• Which skills does this demonstrate?
+
+**Step 4: Categorize Stories**
+Organize by competency "buckets":
+• Teamwork: Coordinating cross-functional teams
+• Problem-Solving: Debugging production outages
+• Leadership: Proposing and executing improvements
+• Adaptability: Learning new tech under tight deadlines
+• Failure Handling: Rolling back faulty releases
+
+**Step 5: Make Them STAR-Ready**
+• Structure in STAR format
+• Include metrics and measurable outcomes
+• Keep to 2-3 minutes when spoken
+• Identify alternative angles for flexibility`
+        },
+        {
+          question: 'What should I include in each story?',
+          answer: `**The STAR+L Template**
+
+For each story, document:
+
+**Story Title**: Create a memorable, short name
+Examples: "Legacy System Migration," "Production Outage Post-Mortem," "Cross-Team API Integration"
+
+**Core Competencies**: List 2-3 primary skills demonstrated
+Examples: Leadership, Technical Depth, Problem-Solving, Conflict Resolution
+
+**S - Situation**:
+• Your role, team, and business context
+• What was at stake and why it mattered
+• Keep brief: 2-3 sentences
+
+**T - Task**:
+• Your specific assignment or goal
+• What "success" looked like
+• Any constraints (time, resources, etc.)
+
+**A - Action** (most detailed, 3-5 bullets):
+• Initial analysis or planning approach
+• Key technical decisions with trade-off explanations
+• Collaboration and communication steps
+• Additional actions showing initiative
+
+**R - Result**:
+• Primary quantified outcome with metrics
+• Secondary positive outcomes
+• Recognition or adoption by others
+
+**L - Learning** (especially for failure stories):
+• Key lesson learned
+• How it changed your behavior or processes`
+        },
+        {
+          question: 'How many stories do I need?',
+          answer: `**Recommended: 10-15 Stories**
+
+Cover these categories:
+
+1. **Technical Achievement**
+   A complex technical problem you solved
+
+2. **Leadership/Initiative**
+   A time you led without being asked
+
+3. **Conflict Resolution**
+   Disagreement with colleague or manager
+
+4. **Failure and Recovery**
+   A mistake and what you learned
+
+5. **Cross-team Collaboration**
+   Working effectively with other teams
+
+6. **Mentoring/Coaching**
+   Helping others grow
+
+7. **Problem-solving Under Pressure**
+   Urgent situation requiring quick thinking
+
+8. **Going Above and Beyond**
+   Exceeding expectations
+
+**Pro Tip**: Each story should be versatile enough to answer multiple question types. A "conflict resolution" story might also demonstrate "communication skills" and "leadership."`
+        }
+      ],
+
+      tips: [
+        'Store stories in a flexible format (doc, Notion, etc.)',
+        'Update your story bank before each interview',
+        'Practice telling each story out loud',
+        'Get feedback from friends or mentors',
+        'Tailor stories to the specific company\'s values'
+      ]
+    },
+    {
+      id: 'why-this-company',
+      title: 'Why This Company?',
+      icon: 'building',
+      color: '#ec4899',
+      questions: 4,
+      description: 'Show genuine interest and research.',
+
+      introduction: `This question reveals whether you've done your homework. Generic answers like "I've heard you have great culture" signal insufficient preparation. The best answers show specific knowledge about the company, genuine enthusiasm for the opportunity, and clear alignment between your goals and what the company offers.`,
+
+      keyQuestions: [
+        {
+          question: 'How should I structure my answer?',
+          answer: `**The Company, Role, and Me Framework**
+
+**1. Company (What specifically attracts you)**
+"I've been following [Company]'s work on [specific product/technology]. Your recent [blog post/launch/initiative] about [specific thing] really resonated with me because..."
+
+**2. Role (Why this particular position)**
+"This role is exciting because it combines [skill 1] and [skill 2], which are exactly where I want to grow. I'm particularly interested in [specific responsibility from job description]..."
+
+**3. Me (How your background makes you suited)**
+"My experience with [relevant background] has prepared me well for these challenges. At [previous company], I worked on similar problems and would bring [specific value]..."`
+        },
+        {
+          question: 'What research should I do?',
+          answer: `**Essential Research Checklist**
+
+**Company Products & Services**
+• What do they make/sell/provide?
+• Who are their customers?
+• What problems do they solve?
+
+**Recent News & Developments**
+• Recent funding rounds or acquisitions
+• New product launches
+• Leadership changes
+• Press coverage
+
+**Engineering Blog & Tech Stack**
+• What technologies do they use?
+• What technical challenges have they solved?
+• What's their engineering culture like?
+
+**Company Values & Culture**
+• Mission statement
+• Core values
+• Employee reviews (Glassdoor, Blind)
+• Interview experiences
+
+**The Role Specifically**
+• Team size and structure
+• Key responsibilities
+• Growth opportunities
+• Reporting structure
+
+**Pro Tip**: Reference something specific you learned in your research. "I read your engineering blog post about migrating to Kubernetes and was impressed by how you handled the database migration challenges."`
+        },
+        {
+          question: 'What should I avoid saying?',
+          answer: `**Red Flags to Avoid**
+
+❌ **Generic praise**
+"You're a great company with a good culture"
+✅ Be specific: "Your commitment to open source, evidenced by [specific project], aligns with my values"
+
+❌ **Money/perks focused**
+"I heard the compensation is really good"
+✅ Focus on the work: "The technical challenges at your scale are exactly what I'm looking for"
+
+❌ **Using them as a stepping stone**
+"This would be great experience for my next role"
+✅ Show commitment: "I see this as a place where I can grow long-term"
+
+❌ **Desperation**
+"I really need a job right now"
+✅ Show selectivity: "I'm being thoughtful about my next role, and this stands out because..."
+
+❌ **Criticizing your current company**
+"My current company is terrible"
+✅ Focus on the pull: "I'm drawn to the opportunity to work on [specific challenge]"`
+        }
+      ],
+
+      tips: [
+        'Reference specific products, blog posts, or initiatives',
+        'Connect the company\'s mission to your personal values',
+        'Show you understand their technical challenges',
+        'Demonstrate enthusiasm without being over-the-top',
+        'Prepare different angles for different interviewers'
+      ]
+    },
+    {
+      id: 'cross-team-collaboration',
+      title: 'Cross-Team Collaboration',
+      icon: 'users',
+      color: '#14b8a6',
+      questions: 6,
+      description: 'Working effectively across organizational boundaries.',
+
+      introduction: `Modern product development requires engineers to collaborate effectively with Product Managers, UX Designers, QA, and other engineering teams—each with distinct goals and perspectives. These questions assess your ability to work across boundaries, influence without authority, and deliver results through partnership.`,
+
+      keyQuestions: [
+        {
+          question: 'What do interviewers look for?',
+          answer: `**Key Competencies Assessed**
+
+**1. Empathy**
+Understanding other teams' goals, constraints, and pressures—not viewing them as obstacles.
+
+**2. Communication**
+Translating technical concepts for non-technical audiences and vice versa.
+
+**3. Influence without Authority**
+Building consensus and driving decisions when you don't have direct control.
+
+**4. Big-Picture Thinking**
+Recognizing how your technical work serves broader business objectives.
+
+**5. Proactiveness**
+Establishing communication channels and relationships before problems arise.`
+        },
+        {
+          question: 'How do I structure a collaboration story?',
+          answer: `**STAR for Collaboration**
+
+**Situation**: Describe the project and each team's distinct (potentially conflicting) goals
+"Our backend team needed to ship a new API, but the mobile team had concerns about battery drain from frequent polling..."
+
+**Task**: Define the shared goal and your specific role in bridging teams
+"As the tech lead, I needed to find a solution that worked for both teams while meeting our launch deadline..."
+
+**Action**: Focus on proactive collaboration steps
+• Initiating cross-team meetings
+• Actively seeking to understand others' constraints
+• Translating technical requirements
+• Creating shared documentation or processes
+• Finding creative compromises
+
+**Result**: Highlight collaboration benefits beyond project completion
+• Stronger working relationships
+• Reusable processes for future projects
+• Improved team dynamics`
+        },
+        {
+          question: 'What mistakes should I avoid?',
+          answer: `**Common Collaboration Mistakes**
+
+**"Us vs. Them" Framing**
+❌ "The design team didn't understand our technical constraints, so we had to push back..."
+✅ "I worked with the design team to find alternatives that met both user experience goals and our technical constraints..."
+
+**Transactional Approach**
+❌ "They gave us requirements and we delivered"
+✅ "I proactively engaged to understand the 'why' behind requirements, which helped us find better solutions"
+
+**Vague Responses**
+❌ "I'm a good collaborator and work well with other teams"
+✅ Specific example with clear actions and outcomes
+
+**Taking All Credit**
+❌ "I solved the problem between the teams"
+✅ "Together, we found a solution that..." while still highlighting YOUR specific contributions`
+        }
+      ],
+
+      tips: [
+        'Show empathy for other teams\' constraints',
+        'Demonstrate proactive communication',
+        'Highlight how you bridged different perspectives',
+        'Quantify the collaborative outcome',
+        'Show that relationships improved as a result'
+      ]
+    },
+    {
+      id: 'receiving-feedback',
+      title: 'Receiving Feedback',
+      icon: 'messageCircle',
+      color: '#f97316',
+      questions: 5,
+      description: 'Demonstrate coachability and growth mindset.',
+
+      introduction: `Feedback questions assess whether you're coachable—can you receive criticism constructively, learn from it, and grow? Companies want people who will improve over time, not those who become defensive or dismiss input. A red flag: claiming you've never received critical feedback suggests difficulty accepting growth.`,
+
+      keyQuestions: [
+        {
+          question: 'What makes someone "coachable"?',
+          answer: `**Coachability Signals**
+
+**Open, not Defensive**
+Do you listen to understand, or immediately argue?
+
+**Self-Aware, not Arrogant**
+Can you acknowledge areas for improvement?
+
+**Proactive, not Passive**
+Do you take concrete action on feedback?
+
+**Resilient, not Fragile**
+Is feedback constructive input or demoralizing criticism?
+
+**Growth-Oriented**
+Do you seek feedback, or avoid it?`
+        },
+        {
+          question: 'How should I structure my answer?',
+          answer: `**The Four-Step Framework**
+
+**1. Set the Context**
+Describe genuine, substantive feedback you received. Choose real feedback, not humble-brags like "they said I work too hard."
+
+Example: "My manager gave me feedback that my code reviews were too harsh—I was thorough but my comments came across as critical rather than helpful."
+
+**2. Acknowledge Your Initial Reaction**
+This distinguishes strong answers. Admit your initial emotional response, then describe choosing to engage professionally.
+
+Example: "Honestly, I was surprised at first. I thought I was being helpful. But I took a day to reflect and realized there was truth in the feedback."
+
+**3. Detail Your Actions**
+Show concrete, specific steps you took. This proves you took the feedback seriously.
+
+Example: "I asked for specific examples, studied feedback guides for code reviews, rewrote my comments to focus on questions rather than directives, and asked my manager to monitor my reviews for a month."
+
+**4. Show Positive Outcome**
+Explain how your actions improved your work. Mention thanking the feedback-giver.
+
+Example: "Within a month, team members said my reviews were more helpful. I thanked my manager for the feedback—it made me a better mentor. I now apply the same principle when giving any kind of feedback."`
+        }
+      ],
+
+      tips: [
+        'Choose real, substantive feedback',
+        'Show emotional intelligence in your reaction',
+        'Be specific about actions you took',
+        'Demonstrate lasting change',
+        'Thank the person who gave feedback'
+      ]
+    },
+    {
+      id: 'time-management',
+      title: 'Time Management',
+      icon: 'clock',
+      color: '#6366f1',
+      questions: 5,
+      description: 'Managing competing priorities and tight deadlines.',
+
+      introduction: `Time management questions assess whether you have a systematic approach to prioritization, or if you just "work harder" when things pile up. Companies want people who can make strategic decisions about where to focus, communicate proactively about constraints, and deliver consistently even under pressure.`,
+
+      keyQuestions: [
+        {
+          question: 'How do you handle multiple tight deadlines?',
+          answer: `**The "Prioritize, Plan, Communicate" Framework**
+
+**1. Prioritize Ruthlessly**
+Use frameworks like the Eisenhower Matrix (Urgent vs. Important) to categorize tasks by business impact, not just arrival order.
+
+"When I have competing priorities, I first map them by impact and urgency. A P0 production bug always beats a feature with flexible deadline."
+
+**2. Plan Your Execution**
+Employ time-blocking, single-task focus, and detailed scheduling.
+
+"I block focused time in the morning for complex work, save meetings for afternoon, and protect at least 2 hours of uninterrupted coding time daily."
+
+**3. Communicate Proactively**
+Keep stakeholders informed about your plan, timelines, and capacity constraints.
+
+"I never silently miss a deadline. If I see a conflict coming, I flag it early with options: 'I can do A by Friday or B by Friday, but not both. Which is higher priority?'"`
+        },
+        {
+          question: 'What do interviewers look for?',
+          answer: `**Success Signals**
+
+✅ **Repeatable System**
+Not just "I worked late" but a structured approach you can apply consistently
+
+✅ **Strategic Thinking**
+Understanding what matters most, not just completing tasks in order received
+
+✅ **Transparency**
+Managing expectations proactively, especially about constraints
+
+✅ **Knowing Limits**
+Recognizing when to escalate or delegate rather than heroically overcommitting
+
+**Red Flags**
+
+❌ Presenting chaos management as a strength
+❌ "First in, first out" without strategic thinking
+❌ Focusing on stress levels rather than systems
+❌ Trying to do everything yourself`
+        }
+      ],
+
+      tips: [
+        'Describe a specific system you use',
+        'Show how you decide what\'s most important',
+        'Demonstrate proactive communication',
+        'Mention when you\'ve said "no" appropriately',
+        'Quantify outcomes when possible'
+      ]
+    },
+    {
+      id: 'learning-new-tech',
+      title: 'Learning New Technology',
+      icon: 'bookOpen',
+      color: '#84cc16',
+      questions: 4,
+      description: 'Show adaptability and self-directed learning.',
+
+      introduction: `Technology evolves constantly, so companies want engineers who can quickly learn and apply new skills. These questions assess whether you're a self-directed learner with a systematic approach, or someone who waits for formal training. The best answers show methodology, hands-on application, and eventual mastery.`,
+
+      keyQuestions: [
+        {
+          question: 'How should I structure my answer?',
+          answer: `**The "Learn, Build, Apply" Framework**
+
+**1. Learn Fundamentals**
+Start with official documentation and "Quick Start" guides.
+
+"When I needed to learn Kubernetes, I started with the official docs and the 'Kubernetes Up and Running' book. I focused on core concepts before diving into advanced features."
+
+**2. Build to Understand**
+Practice immediately in low-stakes environments.
+
+"I set up a local minikube cluster and deployed a simple app. Making mistakes in a sandbox helped me understand concepts much faster than just reading."
+
+**3. Apply to Projects**
+Transfer learning to real work, starting small.
+
+"I volunteered to containerize a non-critical internal tool. This gave me real-world experience while limiting blast radius. I documented my learnings for others."`
+        },
+        {
+          question: 'What do interviewers look for?',
+          answer: `**Success Signals**
+
+✅ **Self-Directed Initiative**
+Not waiting for formal training—proactively learning
+
+✅ **Systematic Methodology**
+A repeatable approach to acquiring new skills
+
+✅ **Hands-On Application**
+Building something real, not just reading docs
+
+✅ **Resource Discovery**
+Finding good learning materials independently
+
+✅ **Persistence**
+Working through obstacles and confusion
+
+✅ **Knowledge Sharing**
+Teaching others what you learned
+
+**Red Flags to Avoid**
+
+❌ Outdated examples (learning Java in 2010)
+❌ Passive: "My company sent me to training"
+❌ Theoretical without practical application
+❌ Oversimplified: "I just read the docs"`
+        }
+      ],
+
+      tips: [
+        'Use a recent, relevant example',
+        'Show your learning methodology',
+        'Mention specific resources used',
+        'Demonstrate practical application',
+        'Include how you shared knowledge with others'
+      ]
+    },
+    {
+      id: 'explaining-technical',
+      title: 'Explaining Technical Concepts',
+      icon: 'presentationChart',
+      color: '#0ea5e9',
+      questions: 4,
+      description: 'Communicate complex ideas clearly to any audience.',
+
+      introduction: `This question assesses whether you can bridge the gap between technical and non-technical worlds—a crucial skill for senior engineers who must work with product managers, executives, and customers. The best answers show empathy for the audience, use effective analogies, and connect technical details to business outcomes.`,
+
+      keyQuestions: [
+        {
+          question: 'What\'s the best framework for explaining technical concepts?',
+          answer: `**The ABT Method**
+
+**A - Analogy/Metaphor**
+Connect complex ideas to everyday experiences.
+
+"I explained our codebase's technical debt like a messy kitchen—you can still cook, but it takes longer and things get lost. Eventually, you need to stop and clean."
+
+**B - Benefit**
+Translate features into outcomes the listener cares about.
+
+"Instead of explaining caching implementation, I said: 'This will make pages load in 1 second instead of 5, which means customers won't abandon their carts.'"
+
+**T - Trade-off**
+Clearly state costs or constraints.
+
+"This improvement requires 3 weeks of work, during which we'll pause new features. The benefit is long-term stability."`
+        },
+        {
+          question: 'What pitfalls should I avoid?',
+          answer: `**Critical Pitfalls**
+
+**1. Condescension**
+❌ Patronizing tone that makes non-technical people feel stupid
+✅ Respectful explanations that acknowledge their expertise in their domain
+
+**2. Jargon Without Definition**
+❌ "The P99 latency is spiking due to GC pauses"
+✅ "The slowest 1% of requests are taking too long because of how we manage memory"
+
+**3. Missing the "Why"**
+❌ Explaining what you're doing technically
+✅ Explaining why they should care (business impact, user impact, risk)
+
+**4. One-Size-Fits-All**
+❌ Using the same explanation for everyone
+✅ Adapting depth and analogies based on the audience's background`
+        }
+      ],
+
+      tips: [
+        'Know your audience\'s background',
+        'Lead with the "why" before the "what"',
+        'Use concrete analogies from everyday life',
+        'Check for understanding throughout',
+        'Practice simplifying complex topics regularly'
+      ]
+    },
   ];
 
   // Company-Specific Prep
@@ -22816,31 +23470,54 @@ The ambiguity became a clear, measurable project."`
                   Key Questions & Answers
                 </h3>
                 {topicDetails.keyQuestions.map((item, index) => (
-                  <div key={index} className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <h4 className="text-lg font-semibold text-white mb-4 flex items-start gap-3">
-                      <span className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>
-                        {index + 1}
+                  <div key={index} className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.2) 100%)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <div className="px-6 py-4 flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${topicDetails.color}10, transparent)`, borderBottom: `1px solid ${topicDetails.color}20` }}>
+                      <span className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ background: `${topicDetails.color}25`, color: topicDetails.color }}>
+                        Q{index + 1}
                       </span>
-                      {item.question}
-                    </h4>
-                    <div className="text-gray-300 leading-relaxed whitespace-pre-line ml-11 prose prose-invert max-w-none">
-                      {item.answer.split('\n').map((line, i) => {
-                        if (line.startsWith('**') && line.endsWith('**')) {
-                          return <h5 key={i} className="text-white font-semibold mt-4 mb-2">{line.replace(/\*\*/g, '')}</h5>;
-                        } else if (line.startsWith('**')) {
-                          const parts = line.split('**');
-                          return (
-                            <p key={i} className="mb-2">
-                              {parts.map((part, j) => j % 2 === 1 ? <strong key={j} className="text-white">{part}</strong> : part)}
-                            </p>
-                          );
-                        } else if (line.startsWith('- ')) {
-                          return <li key={i} className="ml-4 mb-1">{line.substring(2)}</li>;
-                        } else if (line.trim() === '') {
-                          return <br key={i} />;
-                        }
-                        return <p key={i} className="mb-2">{line}</p>;
-                      })}
+                      <h4 className="text-lg font-semibold text-white">{item.question}</h4>
+                    </div>
+                    <div className="p-6">
+                      <div className="text-gray-300 leading-relaxed prose prose-invert max-w-none">
+                        {item.answer.split('\n').map((line, i) => {
+                          // Headers (bold text on its own line)
+                          if (line.startsWith('**') && line.endsWith('**')) {
+                            return <h5 key={i} className="text-white font-semibold mt-5 mb-3 text-base flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full" style={{ background: topicDetails.color }}></span>{line.replace(/\*\*/g, '')}</h5>;
+                          }
+                          // Bold text within line
+                          else if (line.includes('**')) {
+                            const parts = line.split('**');
+                            return (
+                              <p key={i} className="mb-2 text-sm leading-relaxed">
+                                {parts.map((part, j) => j % 2 === 1 ? <strong key={j} className="text-white font-medium">{part}</strong> : <span key={j}>{part}</span>)}
+                              </p>
+                            );
+                          }
+                          // Emoji checkmarks or bullets
+                          else if (line.startsWith('✅') || line.startsWith('❌')) {
+                            return <p key={i} className="mb-2 text-sm flex items-start gap-2"><span className="flex-shrink-0">{line.substring(0, 2)}</span><span>{line.substring(2)}</span></p>;
+                          }
+                          // Numbered items
+                          else if (/^\d+\./.test(line.trim())) {
+                            const num = line.match(/^(\d+)\./)[1];
+                            return <p key={i} className="mb-2 text-sm flex items-start gap-3"><span className="w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>{num}</span><span>{line.replace(/^\d+\.\s*/, '')}</span></p>;
+                          }
+                          // Bullet points
+                          else if (line.startsWith('- ') || line.startsWith('• ')) {
+                            return <p key={i} className="mb-1.5 text-sm flex items-start gap-2 ml-1"><span className="w-1 h-1 rounded-full mt-2 flex-shrink-0" style={{ background: topicDetails.color }}></span><span>{line.substring(2)}</span></p>;
+                          }
+                          // Example labels
+                          else if (line.toLowerCase().startsWith('example:')) {
+                            return <div key={i} className="mt-3 mb-2 p-4 rounded-lg text-sm italic" style={{ background: 'rgba(255,255,255,0.03)', borderLeft: `3px solid ${topicDetails.color}` }}>{line}</div>;
+                          }
+                          // Empty lines
+                          else if (line.trim() === '') {
+                            return <div key={i} className="h-2"></div>;
+                          }
+                          // Regular text
+                          return <p key={i} className="mb-2 text-sm leading-relaxed">{line}</p>;
+                        })}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -22848,44 +23525,69 @@ The ambiguity became a clear, measurable project."`
             )}
 
             {topicDetails.starExample && (
-              <div className="p-6 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
-                <h3 className="text-white font-semibold mb-4">STAR Framework Example</h3>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {Object.entries(topicDetails.starExample).map(([key, value]) => (
-                    <div key={key} className="p-4 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
-                      <div className="text-purple-400 text-sm font-semibold mb-1 uppercase">{key}</div>
-                      <div className="text-gray-300">{value}</div>
-                    </div>
-                  ))}
+              <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168, 85, 247, 0.08) 0%, rgba(0,0,0,0.3) 100%)', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+                <div className="px-5 py-3 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168, 85, 247, 0.05)' }}>
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-500/20">
+                    <Icon name="target" size={16} className="text-purple-400" />
+                  </div>
+                  <h3 className="text-base font-bold text-white">STAR Framework Example</h3>
+                </div>
+                <div className="p-5">
+                  <div className="grid md:grid-cols-2 gap-3">
+                    {Object.entries(topicDetails.starExample).map(([key, value]) => {
+                      const colors = { situation: '#3b82f6', task: '#f59e0b', action: '#10b981', result: '#ef4444' };
+                      const color = colors[key.toLowerCase()] || '#a855f7';
+                      return (
+                        <div key={key} className="p-4 rounded-xl transition-all hover:scale-[1.02]" style={{ background: 'rgba(0,0,0,0.4)', borderLeft: `3px solid ${color}` }}>
+                          <div className="text-sm font-bold mb-2 uppercase tracking-wide" style={{ color }}>{key}</div>
+                          <div className="text-gray-300 text-sm leading-relaxed">{value}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             )}
 
             {topicDetails.sampleQuestions && !topicDetails.keyQuestions && (
-              <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h3 className="text-white font-semibold mb-4">Sample Questions</h3>
-                <ul className="space-y-3">
-                  {topicDetails.sampleQuestions.map((q, i) => (
-                    <li key={i} className="flex items-start gap-3 py-2">
-                      <span className="w-6 h-6 rounded flex items-center justify-center text-xs font-mono flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>{i + 1}</span>
-                      <span className="text-gray-300">{q}</span>
-                    </li>
-                  ))}
-                </ul>
+              <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59, 130, 246, 0.08) 0%, rgba(0,0,0,0.3) 100%)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                <div className="px-5 py-3 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59, 130, 246, 0.05)' }}>
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-500/20">
+                    <Icon name="helpCircle" size={16} className="text-blue-400" />
+                  </div>
+                  <h3 className="text-base font-bold text-white">Sample Questions</h3>
+                </div>
+                <div className="p-5">
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {topicDetails.sampleQuestions.map((q, i) => (
+                      <div key={i} className="flex items-start gap-3 p-3 rounded-lg transition-colors hover:bg-white/5" style={{ background: 'rgba(0,0,0,0.2)' }}>
+                        <span className="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>{i + 1}</span>
+                        <span className="text-gray-300 text-sm">{q}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
 
             {topicDetails.tips && (
-              <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h3 className="text-white font-semibold mb-4">Tips for Success</h3>
-                <ul className="space-y-3">
-                  {topicDetails.tips.map((tip, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span className="text-green-400 mt-1">✓</span>
-                      <span className="text-gray-300">{tip}</span>
-                    </li>
-                  ))}
-                </ul>
+              <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(0,0,0,0.3) 100%)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                <div className="px-5 py-3 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16, 185, 129, 0.05)' }}>
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
+                    <Icon name="checkCircle" size={16} className="text-emerald-400" />
+                  </div>
+                  <h3 className="text-base font-bold text-white">Tips for Success</h3>
+                </div>
+                <div className="p-5">
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {topicDetails.tips.map((tip, i) => (
+                      <div key={i} className="flex items-start gap-3 p-3 rounded-lg transition-colors hover:bg-white/5">
+                        <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 bg-emerald-500/20 text-emerald-400 text-xs">✓</span>
+                        <span className="text-gray-300 text-sm">{tip}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
 
@@ -23031,9 +23733,9 @@ The ambiguity became a clear, measurable project."`
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 min-h-screen flex">
+        <div className="flex-1 min-h-screen flex justify-center">
           {/* Center Content */}
-          <div className={`flex-1 ${selectedTopic ? 'max-w-4xl' : ''}`}>
+          <div className={`w-full ${selectedTopic ? 'max-w-4xl' : 'max-w-6xl'} mx-auto`}>
             {/* Top Bar */}
             <div className="sticky top-0 z-20 px-8 py-4 flex items-center justify-between" style={{ background: 'rgba(10, 10, 15, 0.9)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
               {/* Breadcrumb */}
