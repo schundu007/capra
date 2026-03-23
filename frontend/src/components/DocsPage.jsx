@@ -4006,13 +4006,21 @@ The key insight: matrices are just indexed by (row, col) pairs. Master the index
         { name: 'Matrix Cells in Distance Order', difficulty: 'Easy' },
         { name: 'Lucky Numbers in a Matrix', difficulty: 'Easy' },
         { name: 'Special Positions in a Binary Matrix', difficulty: 'Easy' },
+        { name: 'Flood Fill', difficulty: 'Easy' },
+        { name: 'Island Perimeter', difficulty: 'Easy' },
+        { name: 'Richest Customer Wealth', difficulty: 'Easy' },
+        { name: 'Find Winner on a Tic Tac Toe Game', difficulty: 'Easy' },
+        { name: 'Count Negative Numbers in a Sorted Matrix', difficulty: 'Easy' },
+        { name: 'Check If Every Row and Column Contains All Numbers', difficulty: 'Easy' },
         // Medium - Traversal
         { name: 'Rotate Image', difficulty: 'Medium' },
         { name: 'Spiral Matrix', difficulty: 'Medium' },
         { name: 'Spiral Matrix II', difficulty: 'Medium' },
+        { name: 'Spiral Matrix III', difficulty: 'Medium' },
         { name: 'Diagonal Traverse', difficulty: 'Medium' },
         { name: 'Diagonal Traverse II', difficulty: 'Medium' },
         { name: 'Print Words Vertically', difficulty: 'Medium' },
+        { name: 'Sort the Matrix Diagonally', difficulty: 'Medium' },
         // Medium - Search
         { name: 'Search a 2D Matrix', difficulty: 'Medium' },
         { name: 'Search a 2D Matrix II', difficulty: 'Medium' },
@@ -4024,7 +4032,9 @@ The key insight: matrices are just indexed by (row, col) pairs. Master the index
         { name: 'Maximal Square', difficulty: 'Medium' },
         { name: 'Count Square Submatrices with All Ones', difficulty: 'Medium' },
         { name: 'Range Sum Query 2D - Immutable', difficulty: 'Medium' },
+        { name: 'Range Sum Query 2D - Mutable', difficulty: 'Hard' },
         { name: 'Where Will the Ball Fall', difficulty: 'Medium' },
+        { name: 'Battleships in a Board', difficulty: 'Medium' },
         // Medium - Grid Problems
         { name: 'Number of Islands', difficulty: 'Medium' },
         { name: 'Max Area of Island', difficulty: 'Medium' },
@@ -4033,11 +4043,14 @@ The key insight: matrices are just indexed by (row, col) pairs. Master the index
         { name: 'Rotting Oranges', difficulty: 'Medium' },
         { name: '01 Matrix', difficulty: 'Medium' },
         { name: 'Shortest Path in Binary Matrix', difficulty: 'Medium' },
+        { name: 'Making A Large Island', difficulty: 'Hard' },
         // Hard
         { name: 'Maximal Rectangle', difficulty: 'Hard' },
         { name: 'Sudoku Solver', difficulty: 'Hard' },
         { name: 'Candy Crush', difficulty: 'Medium' },
-        { name: 'Longest Increasing Path in a Matrix', difficulty: 'Hard' }
+        { name: 'Longest Increasing Path in a Matrix', difficulty: 'Hard' },
+        { name: 'Shortest Distance from All Buildings', difficulty: 'Hard' },
+        { name: 'Best Meeting Point', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
