@@ -79,10 +79,42 @@ function CloudArchitectureDiagram({ imageUrl, loading = false, error = null, clo
  * Original educational content for interview preparation
  */
 export default function DocsPage() {
-  const [activePage, setActivePage] = useState('coding');
+  // Initialize state from URL params for persistence on refresh
+  const getInitialState = () => {
+    const params = new URLSearchParams(window.location.search);
+    return {
+      page: params.get('page') || 'coding',
+      topic: params.get('topic') || null,
+    };
+  };
+
+  const initialState = getInitialState();
+  const [activePage, setActivePageState] = useState(initialState.page);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState('a-z');
-  const [selectedTopic, setSelectedTopic] = useState(null);
+  const [selectedTopic, setSelectedTopicState] = useState(initialState.topic);
+
+  // Update URL when state changes
+  const updateURL = (page, topic) => {
+    const params = new URLSearchParams();
+    if (page && page !== 'coding') params.set('page', page);
+    if (topic) params.set('topic', topic);
+    const queryString = params.toString();
+    const newURL = queryString ? `/docs?${queryString}` : '/docs';
+    window.history.replaceState({}, '', newURL);
+  };
+
+  // Wrapped setters that also update URL
+  const setActivePage = (page) => {
+    setActivePageState(page);
+    setSelectedTopicState(null);
+    updateURL(page, null);
+  };
+
+  const setSelectedTopic = (topic) => {
+    setSelectedTopicState(topic);
+    updateURL(activePage, topic);
+  };
 
   // Diagram generation state
   const [generatingDiagram, setGeneratingDiagram] = useState(false);
