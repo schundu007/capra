@@ -267,7 +267,8 @@ function FormattedContent({ content, color = 'emerald' }) {
  * Documentation Page with Sidebar Navigation and Topic Details
  * Original educational content for interview preparation
  */
-export default function DocsPage() {
+export default function DocsPage({ onBack }) {
+  const isElectron = window.electronAPI?.isElectron || false;
   // Initialize state from URL params for persistence on refresh
   const getInitialState = () => {
     const params = new URLSearchParams(window.location.search);
@@ -24470,6 +24471,15 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
             <div className="sticky top-0 z-20 px-8 py-4 flex items-center justify-between" style={{ background: 'rgba(10, 10, 15, 0.9)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
               {/* Breadcrumb */}
               <div className="flex items-center gap-2 text-sm">
+                {isElectron && onBack && (
+                  <button
+                    onClick={onBack}
+                    className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors mr-2"
+                  >
+                    <Icon name="arrowLeft" size={16} />
+                    <span>Back</span>
+                  </button>
+                )}
                 <span className="text-gray-500">Learn</span>
                 <Icon name="chevronRight" size={14} className="text-gray-600" />
                 <span className="text-gray-400">{pageConfig.title}</span>
