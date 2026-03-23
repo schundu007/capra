@@ -22369,43 +22369,56 @@ The ambiguity became a clear, measurable project."`
                   </div>
                 )}
 
-                {/* Create Flow */}
-                {topicDetails.createFlow && (
-                  <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                      <Icon name="arrowRight" size={20} className="text-blue-400" />
-                      {topicDetails.createFlow.title}
-                    </h2>
-                    <ol className="space-y-3">
-                      {topicDetails.createFlow.steps.map((step, i) => (
-                        <li key={i} className="flex items-start gap-3">
-                          <span className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#60a5fa' }}>
-                            {i + 1}
-                          </span>
-                          <span className="text-gray-300 pt-1">{step}</span>
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-                )}
+                {/* Flow Cards - Side by Side */}
+                {(topicDetails.createFlow || topicDetails.redirectFlow) && (
+                  <div className={`grid gap-4 ${topicDetails.createFlow && topicDetails.redirectFlow ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+                    {/* Create Flow */}
+                    {topicDetails.createFlow && (
+                      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                        <div className="px-5 py-3 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
+                          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-500/20">
+                            <Icon name="arrowRight" size={16} className="text-blue-400" />
+                          </div>
+                          <h3 className="text-base font-bold text-white">{topicDetails.createFlow.title}</h3>
+                        </div>
+                        <div className="p-4">
+                          <ol className="space-y-2">
+                            {topicDetails.createFlow.steps.map((step, i) => (
+                              <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
+                                <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                                  {i + 1}
+                                </span>
+                                <span className="text-gray-300 text-sm">{step}</span>
+                              </li>
+                            ))}
+                          </ol>
+                        </div>
+                      </div>
+                    )}
 
-                {/* Redirect Flow */}
-                {topicDetails.redirectFlow && (
-                  <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                      <Icon name="arrowLeft" size={20} className="text-purple-400" />
-                      {topicDetails.redirectFlow.title}
-                    </h2>
-                    <ol className="space-y-3">
-                      {topicDetails.redirectFlow.steps.map((step, i) => (
-                        <li key={i} className="flex items-start gap-3">
-                          <span className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ background: 'rgba(168, 85, 247, 0.2)', color: '#c084fc' }}>
-                            {i + 1}
-                          </span>
-                          <span className="text-gray-300 pt-1">{step}</span>
-                        </li>
-                      ))}
-                    </ol>
+                    {/* Redirect Flow */}
+                    {topicDetails.redirectFlow && (
+                      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
+                        <div className="px-5 py-3 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
+                          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-500/20">
+                            <Icon name="arrowLeft" size={16} className="text-purple-400" />
+                          </div>
+                          <h3 className="text-base font-bold text-white">{topicDetails.redirectFlow.title}</h3>
+                        </div>
+                        <div className="p-4">
+                          <ol className="space-y-2">
+                            {topicDetails.redirectFlow.steps.map((step, i) => (
+                              <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
+                                <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                                  {i + 1}
+                                </span>
+                                <span className="text-gray-300 text-sm">{step}</span>
+                              </li>
+                            ))}
+                          </ol>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
