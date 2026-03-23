@@ -105,7 +105,7 @@ function FormattedContent({ content, color = 'emerald' }) {
     return false;
   };
 
-  // Format inline text with bold and code
+  // Format inline text with bold, code, and quoted text
   const formatInlineText = (text) => {
     const parts = [];
     let remaining = text;
@@ -114,16 +114,27 @@ function FormattedContent({ content, color = 'emerald' }) {
     while (remaining.length > 0) {
       const boldMatch = remaining.match(/\*\*([^*]+)\*\*/);
       const codeMatch = remaining.match(/`([^`]+)`/);
+      // Match quoted text like "example text" - but only if it looks like speech/example
+      const quoteMatch = remaining.match(/"([^"]{10,})"/);
 
       let nextMatch = null;
       let matchType = null;
+      let matchIndex = Infinity;
 
-      if (boldMatch && (!codeMatch || boldMatch.index <= codeMatch.index)) {
+      if (boldMatch && boldMatch.index < matchIndex) {
         nextMatch = boldMatch;
         matchType = 'bold';
-      } else if (codeMatch) {
+        matchIndex = boldMatch.index;
+      }
+      if (codeMatch && codeMatch.index < matchIndex) {
         nextMatch = codeMatch;
         matchType = 'code';
+        matchIndex = codeMatch.index;
+      }
+      if (quoteMatch && quoteMatch.index < matchIndex) {
+        nextMatch = quoteMatch;
+        matchType = 'quote';
+        matchIndex = quoteMatch.index;
       }
 
       if (nextMatch) {
@@ -132,8 +143,11 @@ function FormattedContent({ content, color = 'emerald' }) {
         }
         if (matchType === 'bold') {
           parts.push(<strong key={keyCounter++} className="text-white font-semibold">{nextMatch[1]}</strong>);
-        } else {
+        } else if (matchType === 'code') {
           parts.push(<code key={keyCounter++} className={`${colors.highlight} px-1.5 py-0.5 rounded text-sm font-mono border`}>{nextMatch[1]}</code>);
+        } else if (matchType === 'quote') {
+          // Render quoted text as styled italic without quote marks
+          parts.push(<em key={keyCounter++} className="text-gray-200 italic">{nextMatch[1]}</em>);
         }
         remaining = remaining.substring(nextMatch.index + nextMatch[0].length);
       } else {
@@ -25331,15 +25345,31 @@ Best,
         {activePage === 'behavioral' && (topicDetails.sampleQuestions || topicDetails.starExample || topicDetails.introduction || topicDetails.keyQuestions) && (
           <div className="space-y-5">
             {/* Introduction */}
-            {topicDetails.introduction && (
-              <div id="overview" className="p-6 rounded-xl scroll-mt-24" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
-                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                  <Icon name="info" size={20} style={{ color: topicDetails.color }} />
-                  Overview
-                </h3>
-                <p className="text-gray-300 leading-relaxed whitespace-pre-line">{topicDetails.introduction}</p>
-              </div>
-            )}
+            {topicDetails.introduction && (() => {
+              // Check if introduction starts with a quoted question
+              const quoteMatch = topicDetails.introduction.match(/^"([^"]+)"\s*(.*)/s);
+              if (quoteMatch) {
+                const [, quotedQuestion, restOfText] = quoteMatch;
+                return (
+                  <div id="overview" className="scroll-mt-24 space-y-4">
+                    {/* Featured Question */}
+                    <div className="p-5 rounded-xl" style={{ background: `linear-gradient(135deg, ${topicDetails.color}15, ${topicDetails.color}05)`, borderLeft: `4px solid ${topicDetails.color}` }}>
+                      <p className="text-xl font-medium text-white italic">{quotedQuestion}</p>
+                    </div>
+                    {/* Overview Content */}
+                    <div className="px-1">
+                      <p className="text-gray-300 text-base leading-relaxed">{restOfText.trim()}</p>
+                    </div>
+                  </div>
+                );
+              }
+              // Regular introduction without leading quote
+              return (
+                <div id="overview" className="scroll-mt-24">
+                  <p className="text-gray-300 text-base leading-relaxed">{topicDetails.introduction}</p>
+                </div>
+              );
+            })()}
 
             {/* Key Questions - Row Mode Layout */}
             {topicDetails.keyQuestions && topicDetails.keyQuestions.length > 0 && (
@@ -25362,34 +25392,53 @@ Best,
                           <h4 className="text-white font-semibold text-base mb-3">{item.question}</h4>
                           <div className="text-gray-300 leading-relaxed">
                             {item.answer.split('\n').map((line, i) => {
-                              if (line.startsWith('**') && line.endsWith('**')) {
-                                return <h5 key={i} className="text-white font-semibold mt-4 mb-2 text-base flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full" style={{ background: topicDetails.color }}></span>{line.replace(/\*\*/g, '')}</h5>;
+                              const trimmedLine = line.trim();
+                              // Section headers like **Present**:
+                              if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**')) {
+                                return <h5 key={i} className="text-white font-semibold mt-4 mb-2 text-base flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full" style={{ background: topicDetails.color }}></span>{trimmedLine.replace(/\*\*/g, '')}</h5>;
                               }
-                              else if (line.includes('**')) {
-                                const parts = line.split('**');
+                              // Lines with bold text
+                              else if (trimmedLine.includes('**')) {
+                                const parts = trimmedLine.split('**');
                                 return (
                                   <p key={i} className="mb-2 text-base leading-relaxed">
                                     {parts.map((part, j) => j % 2 === 1 ? <strong key={j} className="text-white font-medium">{part}</strong> : <span key={j}>{part}</span>)}
                                   </p>
                                 );
                               }
-                              else if (line.startsWith('✅') || line.startsWith('❌')) {
-                                return <p key={i} className="mb-2 text-base flex items-start gap-2"><span className="flex-shrink-0">{line.substring(0, 2)}</span><span>{line.substring(2)}</span></p>;
+                              // Quoted example speech - render as styled blockquote
+                              else if (trimmedLine.startsWith('"') && trimmedLine.endsWith('"')) {
+                                const quoteContent = trimmedLine.slice(1, -1);
+                                return (
+                                  <div key={i} className="my-3 pl-4 py-2 text-base italic text-gray-200" style={{ borderLeft: `3px solid ${topicDetails.color}40` }}>
+                                    {quoteContent}
+                                  </div>
+                                );
                               }
-                              else if (/^\d+\./.test(line.trim())) {
-                                const num = line.match(/^(\d+)\./)[1];
-                                return <p key={i} className="mb-2 text-base flex items-start gap-3"><span className="w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>{num}</span><span>{line.replace(/^\d+\.\s*/, '')}</span></p>;
+                              // Inline quotes within the line
+                              else if (trimmedLine.includes('"') && /^[^"]*"[^"]{10,}"/.test(trimmedLine)) {
+                                const rendered = trimmedLine.replace(/"([^"]{10,})"/g, (_, content) => `<em>${content}</em>`);
+                                return (
+                                  <p key={i} className="mb-2 text-base leading-relaxed" dangerouslySetInnerHTML={{ __html: rendered.replace(/<em>/g, '<em class="text-gray-200 italic">') }} />
+                                );
                               }
-                              else if (line.startsWith('- ') || line.startsWith('• ')) {
-                                return <p key={i} className="mb-1.5 text-base flex items-start gap-2 ml-1"><span className="w-1 h-1 rounded-full mt-2 flex-shrink-0" style={{ background: topicDetails.color }}></span><span>{line.substring(2)}</span></p>;
+                              else if (trimmedLine.startsWith('✅') || trimmedLine.startsWith('❌')) {
+                                return <p key={i} className="mb-2 text-base flex items-start gap-2"><span className="flex-shrink-0">{trimmedLine.substring(0, 2)}</span><span>{trimmedLine.substring(2)}</span></p>;
                               }
-                              else if (line.toLowerCase().startsWith('example:')) {
-                                return <div key={i} className="mt-3 mb-2 p-4 rounded-lg text-base italic" style={{ background: 'rgba(255,255,255,0.03)', borderLeft: `3px solid ${topicDetails.color}` }}>{line}</div>;
+                              else if (/^\d+\./.test(trimmedLine)) {
+                                const num = trimmedLine.match(/^(\d+)\./)[1];
+                                return <p key={i} className="mb-2 text-base flex items-start gap-3"><span className="w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>{num}</span><span>{trimmedLine.replace(/^\d+\.\s*/, '')}</span></p>;
                               }
-                              else if (line.trim() === '') {
+                              else if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('• ')) {
+                                return <p key={i} className="mb-1.5 text-base flex items-start gap-2 ml-1"><span className="w-1 h-1 rounded-full mt-2 flex-shrink-0" style={{ background: topicDetails.color }}></span><span>{trimmedLine.substring(2)}</span></p>;
+                              }
+                              else if (trimmedLine.toLowerCase().startsWith('example:')) {
+                                return <div key={i} className="mt-3 mb-2 p-4 rounded-lg text-base italic" style={{ background: 'rgba(255,255,255,0.03)', borderLeft: `3px solid ${topicDetails.color}` }}>{trimmedLine}</div>;
+                              }
+                              else if (trimmedLine === '') {
                                 return <div key={i} className="h-2"></div>;
                               }
-                              return <p key={i} className="mb-2 text-base leading-relaxed">{line}</p>;
+                              return <p key={i} className="mb-2 text-base leading-relaxed">{trimmedLine}</p>;
                             })}
                           </div>
                         </div>
@@ -25515,6 +25564,14 @@ Best,
 
   return (
     <div className="min-h-screen" style={{ background: '#0a0a0f', fontFamily: "'Inter', sans-serif" }}>
+      {/* Electron drag region */}
+      {isElectron && (
+        <div
+          className="fixed top-0 left-0 right-0 h-8 z-50"
+          style={{ WebkitAppRegion: 'drag' }}
+        />
+      )}
+
       {/* Background grid pattern */}
       <div
         className="fixed inset-0 pointer-events-none opacity-30"
