@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Icon } from './Icons.jsx';
+import { getAuthHeaders } from '../utils/authHeaders.js';
 
 // Get API URL based on environment (Electron vs Web)
 const getApiUrl = () => {
@@ -120,7 +121,10 @@ export default function DocsPage() {
       const API_URL = getApiUrl();
       const response = await fetch(`${API_URL}/api/diagram/generate`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
         body: JSON.stringify({
           question: `Design ${topicTitle}`,
           cloudProvider: 'auto',
@@ -22588,7 +22592,7 @@ The ambiguity became a clear, measurable project."`
         </div>
 
         {/* Content */}
-        <div className="px-8 py-8 max-w-6xl mx-auto">
+        <div className="px-8 py-8 w-[80%] mx-auto">
           {/* Show topic detail or list */}
           {selectedTopic ? renderTopicDetail() : (
             <>
@@ -22624,29 +22628,27 @@ The ambiguity became a clear, measurable project."`
               {/* DSA Content */}
               {activePage === 'coding' && (
                 <>
-                  {/* Topic Cards Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
+                  {/* Topic Cards - Horizontal Rows */}
+                  <div className="flex flex-col gap-3 mb-12">
                     {filteredTopics.map((topic) => (
                       <div
                         key={topic.id}
                         onClick={() => setSelectedTopic(topic.id)}
-                        className="group p-5 rounded-xl transition-all hover:scale-[1.02] hover:bg-white/5 cursor-pointer"
+                        className="group flex items-center gap-4 p-4 rounded-xl transition-all hover:bg-white/5 cursor-pointer"
                         style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
                       >
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: `${topic.color}15` }}>
-                              <Icon name={topic.icon} size={20} style={{ color: topic.color }} />
-                            </div>
-                            <span className="text-white font-semibold">{topic.title}</span>
-                          </div>
-                          <Icon name="chevronRight" size={18} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
+                        <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}15` }}>
+                          <Icon name={topic.icon} size={20} style={{ color: topic.color }} />
                         </div>
-                        <p className="text-gray-400 text-sm mb-3 line-clamp-2">{topic.description}</p>
-                        <div className="flex items-center gap-2 text-gray-500 text-sm">
+                        <div className="flex-1 min-w-0">
+                          <span className="text-white font-semibold">{topic.title}</span>
+                          <p className="text-gray-400 text-sm truncate">{topic.description}</p>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-500 text-sm flex-shrink-0">
                           <Icon name="star" size={14} />
-                          <span>{topic.questions} Questions</span>
+                          <span>{topic.questions} Q</span>
                         </div>
+                        <Icon name="chevronRight" size={18} className="text-gray-600 group-hover:text-gray-400 transition-colors flex-shrink-0" />
                       </div>
                     ))}
                   </div>
@@ -22689,55 +22691,49 @@ The ambiguity became a clear, measurable project."`
               {/* System Design Content */}
               {activePage === 'system-design' && (
                 <>
-                  {/* Core Concepts */}
+                  {/* Core Concepts - Horizontal Rows */}
                   <h2 className="text-xl font-bold text-white mb-4">Core Concepts</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
+                  <div className="flex flex-col gap-3 mb-12">
                     {filteredTopics.map((topic) => (
                       <div
                         key={topic.id}
                         onClick={() => setSelectedTopic(topic.id)}
-                        className="group p-5 rounded-xl transition-all hover:scale-[1.02] hover:bg-white/5 cursor-pointer"
+                        className="group flex items-center gap-4 p-4 rounded-xl transition-all hover:bg-white/5 cursor-pointer"
                         style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
                       >
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: `${topic.color}15` }}>
-                              <Icon name={topic.icon} size={20} style={{ color: topic.color }} />
-                            </div>
-                            <span className="text-white font-semibold">{topic.title}</span>
-                          </div>
-                          <Icon name="chevronRight" size={18} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
+                        <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}15` }}>
+                          <Icon name={topic.icon} size={20} style={{ color: topic.color }} />
                         </div>
-                        <p className="text-gray-400 text-sm">{topic.description}</p>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-white font-semibold">{topic.title}</span>
+                          <p className="text-gray-400 text-sm truncate">{topic.description}</p>
+                        </div>
+                        <Icon name="chevronRight" size={18} className="text-gray-600 group-hover:text-gray-400 transition-colors flex-shrink-0" />
                       </div>
                     ))}
                   </div>
 
-                  {/* Common Designs */}
+                  {/* Common Designs - Horizontal Rows */}
                   <h2 className="text-xl font-bold text-white mb-4">Common System Designs</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
+                  <div className="flex flex-col gap-3 mb-12">
                     {systemDesigns.map((design) => (
                       <div
                         key={design.id}
                         onClick={() => setSelectedTopic(design.id)}
-                        className="group p-5 rounded-xl transition-all hover:scale-[1.01] hover:bg-white/5 cursor-pointer"
+                        className="group flex items-center gap-4 p-4 rounded-xl transition-all hover:bg-white/5 cursor-pointer"
                         style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
                       >
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${design.color}15` }}>
-                            <Icon name={design.icon} size={24} style={{ color: design.color }} />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-1">
-                              <h3 className="text-white font-semibold">{design.title}</h3>
-                              <Icon name="chevronRight" size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
-                            </div>
-                            <p className="text-gray-400 text-sm mb-2">{design.subtitle}</p>
-                            <span className="px-2 py-1 rounded text-xs" style={{ background: `${design.color}20`, color: design.color }}>
-                              {design.difficulty}
-                            </span>
-                          </div>
+                        <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${design.color}15` }}>
+                          <Icon name={design.icon} size={20} style={{ color: design.color }} />
                         </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-white font-semibold">{design.title}</h3>
+                          <p className="text-gray-400 text-sm truncate">{design.subtitle}</p>
+                        </div>
+                        <span className="px-2 py-1 rounded text-xs flex-shrink-0" style={{ background: `${design.color}20`, color: design.color }}>
+                          {design.difficulty}
+                        </span>
+                        <Icon name="chevronRight" size={18} className="text-gray-600 group-hover:text-gray-400 transition-colors flex-shrink-0" />
                       </div>
                     ))}
                   </div>
@@ -22793,59 +22789,53 @@ The ambiguity became a clear, measurable project."`
                     </div>
                   </div>
 
-                  {/* Question Categories */}
+                  {/* Question Categories - Horizontal Rows */}
                   <h2 className="text-xl font-bold text-white mb-4">Question Categories</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
+                  <div className="flex flex-col gap-3 mb-12">
                     {filteredTopics.map((topic) => (
                       <div
                         key={topic.id}
                         onClick={() => setSelectedTopic(topic.id)}
-                        className="group p-5 rounded-xl transition-all hover:scale-[1.02] hover:bg-white/5 cursor-pointer"
+                        className="group flex items-center gap-4 p-4 rounded-xl transition-all hover:bg-white/5 cursor-pointer"
                         style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
                       >
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: `${topic.color}15` }}>
-                              <Icon name={topic.icon} size={20} style={{ color: topic.color }} />
-                            </div>
-                            <span className="text-white font-semibold">{topic.title}</span>
-                          </div>
-                          <Icon name="chevronRight" size={18} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
+                        <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}15` }}>
+                          <Icon name={topic.icon} size={20} style={{ color: topic.color }} />
                         </div>
-                        <p className="text-gray-400 text-sm mb-3 line-clamp-2">{topic.description}</p>
-                        <div className="flex items-center gap-2 text-gray-500 text-sm">
+                        <div className="flex-1 min-w-0">
+                          <span className="text-white font-semibold">{topic.title}</span>
+                          <p className="text-gray-400 text-sm truncate">{topic.description}</p>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-500 text-sm flex-shrink-0">
                           <Icon name="star" size={14} />
-                          <span>{topic.questions} Questions</span>
+                          <span>{topic.questions} Q</span>
                         </div>
+                        <Icon name="chevronRight" size={18} className="text-gray-600 group-hover:text-gray-400 transition-colors flex-shrink-0" />
                       </div>
                     ))}
                   </div>
 
-                  {/* Company-Specific */}
+                  {/* Company-Specific - Horizontal Rows */}
                   <h2 className="text-xl font-bold text-white mb-4">Company-Specific Prep</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-3">
                     {companyPrep.map((company) => (
                       <div
                         key={company.id}
                         onClick={() => setSelectedTopic(company.id)}
-                        className="group p-5 rounded-xl transition-all hover:scale-[1.01] hover:bg-white/5 cursor-pointer"
+                        className="group flex items-center gap-4 p-4 rounded-xl transition-all hover:bg-white/5 cursor-pointer"
                         style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
                       >
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${company.color}15` }}>
-                            <Icon name={company.icon} size={24} style={{ color: company.color }} />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-1">
-                              <h3 className="text-white font-semibold">{company.title}</h3>
-                              <Icon name="chevronRight" size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
-                            </div>
-                            <p className="text-gray-400 text-sm mb-2">{company.subtitle}</p>
-                            <span className="px-2 py-1 rounded text-xs" style={{ background: `${company.color}20`, color: company.color }}>
-                              {company.count} Topics
-                            </span>
-                          </div>
+                        <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${company.color}15` }}>
+                          <Icon name={company.icon} size={20} style={{ color: company.color }} />
                         </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-white font-semibold">{company.title}</h3>
+                          <p className="text-gray-400 text-sm truncate">{company.subtitle}</p>
+                        </div>
+                        <span className="px-2 py-1 rounded text-xs flex-shrink-0" style={{ background: `${company.color}20`, color: company.color }}>
+                          {company.count} Topics
+                        </span>
+                        <Icon name="chevronRight" size={18} className="text-gray-600 group-hover:text-gray-400 transition-colors flex-shrink-0" />
                       </div>
                     ))}
                   </div>
