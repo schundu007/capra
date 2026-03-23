@@ -30,7 +30,7 @@ function CloudArchitectureDiagram({ imageUrl, loading = false, error = null, clo
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
           </svg>
           <div>
-            <p className="text-sm text-gray-300 font-medium">Generating architecture diagram...</p>
+            <p className="text-base text-gray-300 font-medium">Generating architecture diagram...</p>
             <p className="text-xs text-gray-500 mt-1">Using {cloudProvider.toUpperCase()} cloud icons</p>
           </div>
         </div>
@@ -56,7 +56,7 @@ function CloudArchitectureDiagram({ imageUrl, loading = false, error = null, clo
     return (
       <div className="text-center py-8 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
         <Icon name="image" size={32} className="mx-auto mb-3 text-gray-500" />
-        <p className="text-sm text-gray-400">Click "Generate Diagram" to create a visual architecture</p>
+        <p className="text-base text-gray-400">Click "Generate Diagram" to create a visual architecture</p>
         <p className="text-xs text-gray-500 mt-1">Real AWS/GCP/Azure cloud icons</p>
       </div>
     );
@@ -250,7 +250,7 @@ function FormattedContent({ content, color = 'emerald' }) {
         // Regular paragraph
         flushList();
         elements.push(
-          <p key={`p-${blockIdx}-${lineIdx}`} className="text-gray-300 text-sm leading-relaxed my-2">
+          <p key={`p-${blockIdx}-${lineIdx}`} className="text-gray-300 text-base leading-relaxed my-2">
             {formatInlineText(trimmed)}
           </p>
         );
@@ -304,6 +304,10 @@ export default function DocsPage({ onBack }) {
   const setSelectedTopic = (topic) => {
     setSelectedTopicState(topic);
     updateURL(activePage, topic);
+    // Scroll to top when selecting a topic
+    if (topic) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   // Diagram generation state
@@ -23460,12 +23464,12 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
           <div className="space-y-6">
             {/* Introduction - Comprehensive Overview */}
             {topicDetails.introduction && (
-              <div id="overview" className="rounded-2xl overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
-                <div className="px-5 py-3 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
+              <div id="overview" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                <div className="px-3 py-2 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
                     <Icon name="book" size={16} className="text-emerald-400" />
                   </div>
-                  <h3 className="text-base font-bold text-white">Overview</h3>
+                  <h3 className="text-xl font-bold text-white">Overview</h3>
                 </div>
                 <div className="p-5">
                   <FormattedContent content={topicDetails.introduction} color="emerald" />
@@ -23489,12 +23493,12 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
             <div id="when-to-use" className={`grid gap-4 scroll-mt-24 ${topicDetails.whenToUse && topicDetails.keyPatterns ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
               {/* When to Use */}
               {topicDetails.whenToUse && (
-                <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
-                  <div className="px-5 py-3 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
+                <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
+                  <div className="px-3 py-2 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-500/20">
                       <Icon name="target" size={16} className="text-purple-400" />
                     </div>
-                    <h3 className="text-base font-bold text-white">When to Use</h3>
+                    <h3 className="text-xl font-bold text-white">When to Use</h3>
                   </div>
                   <div className="p-4">
                     <ul className="space-y-2">
@@ -23511,12 +23515,12 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
 
               {/* Key Patterns */}
               {topicDetails.keyPatterns && (
-                <div className="rounded-2xl overflow-hidden" style={{ background: `linear-gradient(180deg, ${topicDetails.color}10 0%, rgba(0,0,0,0.4) 100%)`, border: `1px solid ${topicDetails.color}30` }}>
-                  <div className="px-5 py-3 border-b flex items-center gap-3" style={{ background: `${topicDetails.color}08`, borderColor: `${topicDetails.color}20` }}>
+                <div className="rounded-lg overflow-hidden" style={{ background: `linear-gradient(180deg, ${topicDetails.color}10 0%, rgba(0,0,0,0.4) 100%)`, border: `1px solid ${topicDetails.color}30` }}>
+                  <div className="px-3 py-2 border-b flex items-center gap-3" style={{ background: `${topicDetails.color}08`, borderColor: `${topicDetails.color}20` }}>
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${topicDetails.color}20` }}>
                       <Icon name="puzzle" size={16} style={{ color: topicDetails.color }} />
                     </div>
-                    <h3 className="text-base font-bold text-white">Key Patterns</h3>
+                    <h3 className="text-xl font-bold text-white">Key Patterns</h3>
                   </div>
                   <div className="p-4">
                     <div className="flex flex-wrap gap-2">
@@ -23535,12 +23539,12 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
             <div className={`grid gap-4 ${topicDetails.approach && topicDetails.commonMistakes ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
               {/* Approach - Step by Step */}
               {topicDetails.approach && (
-                <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
-                  <div className="px-5 py-3 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
+                <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                  <div className="px-3 py-2 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-500/20">
                       <Icon name="list" size={16} className="text-blue-400" />
                     </div>
-                    <h3 className="text-base font-bold text-white">Step-by-Step Approach</h3>
+                    <h3 className="text-xl font-bold text-white">Step-by-Step Approach</h3>
                   </div>
                   <div className="p-4">
                     <ol className="space-y-2">
@@ -23557,12 +23561,12 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
 
               {/* Common Mistakes */}
               {topicDetails.commonMistakes && (
-                <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(239,68,68,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(239,68,68,0.2)' }}>
-                  <div className="px-5 py-3 border-b border-red-500/20 flex items-center gap-3" style={{ background: 'rgba(239,68,68,0.05)' }}>
+                <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(239,68,68,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                  <div className="px-3 py-2 border-b border-red-500/20 flex items-center gap-3" style={{ background: 'rgba(239,68,68,0.05)' }}>
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-red-500/20">
                       <Icon name="alertTriangle" size={16} className="text-red-400" />
                     </div>
-                    <h3 className="text-base font-bold text-white">Common Mistakes</h3>
+                    <h3 className="text-xl font-bold text-white">Common Mistakes</h3>
                   </div>
                   <div className="p-4">
                     <ul className="space-y-2">
@@ -23580,12 +23584,12 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
 
             {/* Common Problems - Compact Table Layout */}
             {topicDetails.commonProblems && (
-              <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
-                <div className="px-5 py-3 border-b border-yellow-500/20 flex items-center gap-3" style={{ background: 'rgba(234,179,8,0.05)' }}>
+              <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
+                <div className="px-3 py-2 border-b border-yellow-500/20 flex items-center gap-3" style={{ background: 'rgba(234,179,8,0.05)' }}>
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-yellow-500/20">
                     <Icon name="star" size={16} className="text-yellow-400" />
                   </div>
-                  <h3 className="text-base font-bold text-white">Practice Problems</h3>
+                  <h3 className="text-xl font-bold text-white">Practice Problems</h3>
                   <span className="text-xs text-gray-500 ml-auto">{topicDetails.commonProblems.length} problems</span>
                 </div>
                 <div className="p-3">
@@ -23593,7 +23597,7 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
                     {topicDetails.commonProblems.map((problem, i) => (
                       <div key={i} className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 transition-colors">
                         <span className="w-5 h-5 rounded flex items-center justify-center text-xs font-mono bg-white/10 text-gray-400">{i + 1}</span>
-                        <span className="text-gray-300 text-sm flex-1 truncate">{typeof problem === 'string' ? problem : problem.name}</span>
+                        <span className="text-gray-300 text-base flex-1 truncate">{typeof problem === 'string' ? problem : problem.name}</span>
                         {typeof problem === 'object' && problem.difficulty && (
                           <span className={`px-1.5 py-0.5 rounded text-xs flex-shrink-0 ${
                             problem.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :
@@ -23612,16 +23616,16 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
             <div className="space-y-4">
               {/* Tips */}
               {topicDetails.tips && (
-                <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
-                  <div className="px-5 py-3 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                  <div className="px-3 py-2 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
                       <Icon name="lightbulb" size={16} className="text-emerald-400" />
                     </div>
-                    <h3 className="text-lg font-bold text-white">Tips & Tricks</h3>
+                    <h3 className="text-xl font-bold text-white">Tips & Tricks</h3>
                   </div>
                   <div className="divide-y divide-emerald-500/10">
                     {topicDetails.tips.map((tip, i) => (
-                      <div key={i} className="px-5 py-3 flex items-center gap-4 hover:bg-white/5 transition-colors">
+                      <div key={i} className="px-3 py-2 flex items-center gap-4 hover:bg-white/5 transition-colors">
                         <span className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-emerald-500/20 text-emerald-400 text-sm">✓</span>
                         <span className="text-gray-300 text-base">{tip}</span>
                       </div>
@@ -23632,16 +23636,16 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
 
               {/* Interview Tips */}
               {topicDetails.interviewTips && (
-                <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(245,158,11,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(245,158,11,0.2)' }}>
-                  <div className="px-5 py-3 border-b border-amber-500/20 flex items-center gap-3" style={{ background: 'rgba(245,158,11,0.05)' }}>
+                <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(245,158,11,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(245,158,11,0.2)' }}>
+                  <div className="px-3 py-2 border-b border-amber-500/20 flex items-center gap-3" style={{ background: 'rgba(245,158,11,0.05)' }}>
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-amber-500/20">
                       <Icon name="briefcase" size={16} className="text-amber-400" />
                     </div>
-                    <h3 className="text-lg font-bold text-white">Interview Tips</h3>
+                    <h3 className="text-xl font-bold text-white">Interview Tips</h3>
                   </div>
                   <div className="divide-y divide-amber-500/10">
                     {topicDetails.interviewTips.map((tip, i) => (
-                      <div key={i} className="px-5 py-3 flex items-center gap-4 hover:bg-white/5 transition-colors">
+                      <div key={i} className="px-3 py-2 flex items-center gap-4 hover:bg-white/5 transition-colors">
                         <span className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-500/20 text-amber-400 text-sm">★</span>
                         <span className="text-gray-300 text-base">{tip}</span>
                       </div>
@@ -23710,9 +23714,9 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
               <>
                 {/* Introduction (Comprehensive) */}
                 {topicDetails.introduction && (
-                  <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
                     <div className="px-6 py-4 border-b border-blue-500/20" style={{ background: 'rgba(59,130,246,0.05)' }}>
-                      <h2 className="text-lg font-bold text-white flex items-center gap-3">
+                      <h2 className="text-xl font-bold text-white flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-500/20">
                           <Icon name="book" size={18} className="text-blue-400" />
                         </div>
@@ -23728,19 +23732,19 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
                 {/* Requirements - Functional & Non-Functional */}
                 <div className="grid md:grid-cols-2 gap-4">
                   {/* Functional Requirements */}
-                  <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
-                    <div className="px-5 py-3 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                    <div className="px-3 py-2 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
                         <Icon name="check" size={16} className="text-emerald-400" />
                       </div>
-                      <h3 className="text-base font-bold text-white">Functional Requirements</h3>
+                      <h3 className="text-xl font-bold text-white">Functional Requirements</h3>
                     </div>
                     <div className="p-4">
                       <ul className="space-y-2">
                         {(topicDetails.functionalRequirements || topicDetails.requirements).map((req, i) => (
                           <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
                             <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0 bg-emerald-500/20 text-emerald-400 mt-0.5">✓</span>
-                            <span className="text-gray-300 text-sm">{req}</span>
+                            <span className="text-gray-300 text-base">{req}</span>
                           </li>
                         ))}
                       </ul>
@@ -23749,19 +23753,19 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
 
                   {/* Non-Functional Requirements */}
                   {topicDetails.nonFunctionalRequirements && (
-                    <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
-                      <div className="px-5 py-3 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
+                    <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                      <div className="px-3 py-2 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
                         <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-500/20">
                           <Icon name="zap" size={16} className="text-blue-400" />
                         </div>
-                        <h3 className="text-base font-bold text-white">Non-Functional Requirements</h3>
+                        <h3 className="text-xl font-bold text-white">Non-Functional Requirements</h3>
                       </div>
                       <div className="p-4">
                         <ul className="space-y-2">
                           {topicDetails.nonFunctionalRequirements.map((req, i) => (
                             <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
                               <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0 bg-blue-500/20 text-blue-400 mt-0.5">•</span>
-                              <span className="text-gray-300 text-sm">{req}</span>
+                              <span className="text-gray-300 text-base">{req}</span>
                             </li>
                           ))}
                         </ul>
@@ -23775,12 +23779,12 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
                   <div className={`grid gap-4 ${topicDetails.apiDesign?.endpoints && topicDetails.dataModel ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
                     {/* API Design */}
                     {topicDetails.apiDesign && topicDetails.apiDesign.endpoints && (
-                      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
-                        <div className="px-5 py-3 border-b border-green-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                      <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                        <div className="px-3 py-2 border-b border-green-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-green-500/20">
                             <Icon name="code" size={16} className="text-green-400" />
                           </div>
-                          <h3 className="text-base font-bold text-white">API Design</h3>
+                          <h3 className="text-xl font-bold text-white">API Design</h3>
                         </div>
                         <div className="p-3">
                           <div className="space-y-2">
@@ -23807,12 +23811,12 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
 
                     {/* Data Model */}
                     {topicDetails.dataModel && (
-                      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
-                        <div className="px-5 py-3 border-b border-yellow-500/20 flex items-center gap-3" style={{ background: 'rgba(234,179,8,0.05)' }}>
+                      <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
+                        <div className="px-3 py-2 border-b border-yellow-500/20 flex items-center gap-3" style={{ background: 'rgba(234,179,8,0.05)' }}>
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-yellow-500/20">
                             <Icon name="database" size={16} className="text-yellow-400" />
                           </div>
-                          <h3 className="text-base font-bold text-white">Data Model</h3>
+                          <h3 className="text-xl font-bold text-white">Data Model</h3>
                         </div>
                         <div className="overflow-x-auto" style={{ background: 'rgba(0,0,0,0.3)' }}>
                           <pre
@@ -23834,17 +23838,17 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
 
                 {/* Key Questions - Row Mode Layout */}
                 {topicDetails.keyQuestions && (
-                  <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
-                    <div className="px-5 py-3 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
+                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
+                    <div className="px-3 py-2 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-500/20">
                         <Icon name="messageSquare" size={16} className="text-purple-400" />
                       </div>
-                      <h3 className="text-lg font-bold text-white">Key Questions</h3>
-                      <span className="text-sm text-gray-500 ml-auto">{topicDetails.keyQuestions.length} topics</span>
+                      <h3 className="text-xl font-bold text-white">Key Questions</h3>
+                      <span className="text-base text-gray-500 ml-auto">{topicDetails.keyQuestions.length} topics</span>
                     </div>
                     <div className="divide-y divide-purple-500/10">
                       {topicDetails.keyQuestions.map((q, i) => (
-                        <div key={i} className="px-5 py-4 hover:bg-white/5 transition-colors">
+                        <div key={i} className="px-3 py-2 hover:bg-white/5 transition-colors">
                           <div className="flex items-start gap-4">
                             <span className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-sm text-purple-400 font-bold flex-shrink-0">{i + 1}</span>
                             <div className="flex-1 min-w-0">
@@ -23865,12 +23869,12 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
                   <div className="space-y-4">
                     {/* Basic Implementation */}
                     {topicDetails.basicImplementation && (
-                      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(249,115,22,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(249,115,22,0.2)' }}>
-                        <div className="px-5 py-3 border-b border-orange-500/20 flex items-center gap-3" style={{ background: 'rgba(249,115,22,0.05)' }}>
+                      <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(249,115,22,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(249,115,22,0.2)' }}>
+                        <div className="px-3 py-2 border-b border-orange-500/20 flex items-center gap-3" style={{ background: 'rgba(249,115,22,0.05)' }}>
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-orange-500/20">
                             <Icon name="layers" size={16} className="text-orange-400" />
                           </div>
-                          <h3 className="text-base font-bold text-white">{topicDetails.basicImplementation.title || 'Basic Approach'}</h3>
+                          <h3 className="text-xl font-bold text-white">{topicDetails.basicImplementation.title || 'Basic Approach'}</h3>
                         </div>
                         <div className="p-5">
                           <p className="text-gray-300 text-base mb-4">{topicDetails.basicImplementation.description}</p>
@@ -23911,15 +23915,15 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
 
                     {/* Advanced Implementation */}
                     {topicDetails.advancedImplementation && (
-                      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
-                        <div className="px-5 py-3 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                      <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                        <div className="px-3 py-2 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
                             <Icon name="zap" size={16} className="text-emerald-400" />
                           </div>
-                          <h3 className="text-base font-bold text-white">{topicDetails.advancedImplementation.title || 'Scalable Solution'}</h3>
+                          <h3 className="text-xl font-bold text-white">{topicDetails.advancedImplementation.title || 'Scalable Solution'}</h3>
                         </div>
                         <div className="p-4">
-                          <p className="text-gray-300 text-sm mb-3">{topicDetails.advancedImplementation.description}</p>
+                          <p className="text-gray-300 text-base mb-3">{topicDetails.advancedImplementation.description}</p>
                           {topicDetails.advancedImplementation.architecture && (
                             <div className="rounded-lg overflow-x-auto mb-3" style={{ background: 'rgba(0,0,0,0.5)' }}>
                               <pre
@@ -23972,13 +23976,13 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
                 <div className="space-y-4">
                   {/* Cloud Architecture Diagram */}
                   {activePage === 'system-design' && topicDetails && (
-                    <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
-                      <div className="px-5 py-3 border-b border-emerald-500/20 flex items-center justify-between" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                    <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                      <div className="px-3 py-2 border-b border-emerald-500/20 flex items-center justify-between" style={{ background: 'rgba(16,185,129,0.05)' }}>
                         <div className="flex items-center gap-3">
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
                             <Icon name="layers" size={16} className="text-emerald-400" />
                           </div>
-                          <h3 className="text-base font-bold text-white">Architecture Diagram</h3>
+                          <h3 className="text-xl font-bold text-white">Architecture Diagram</h3>
                         </div>
                         <div className="flex items-center gap-1">
                           <button
@@ -24027,16 +24031,16 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
 
                   {/* Tips */}
                   {topicDetails.tips && (
-                    <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
-                      <div className="px-5 py-3 border-b border-yellow-500/20 flex items-center gap-3" style={{ background: 'rgba(234,179,8,0.05)' }}>
+                    <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
+                      <div className="px-3 py-2 border-b border-yellow-500/20 flex items-center gap-3" style={{ background: 'rgba(234,179,8,0.05)' }}>
                         <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-yellow-500/20">
                           <Icon name="star" size={16} className="text-yellow-400" />
                         </div>
-                        <h3 className="text-lg font-bold text-white">Interview Tips</h3>
+                        <h3 className="text-xl font-bold text-white">Interview Tips</h3>
                       </div>
                       <div className="divide-y divide-yellow-500/10">
                         {topicDetails.tips.map((tip, i) => (
-                          <div key={i} className="px-5 py-3 flex items-center gap-4 hover:bg-white/5 transition-colors">
+                          <div key={i} className="px-3 py-2 flex items-center gap-4 hover:bg-white/5 transition-colors">
                             <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0 bg-yellow-500/20 text-yellow-400">★</span>
                             <span className="text-gray-300 text-base">{tip}</span>
                           </div>
@@ -24051,12 +24055,12 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
                   <div className="space-y-4">
                     {/* Create Flow */}
                     {topicDetails.createFlow && (
-                      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
-                        <div className="px-5 py-3 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
+                      <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                        <div className="px-3 py-2 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-500/20">
                             <Icon name="arrowRight" size={16} className="text-blue-400" />
                           </div>
-                          <h3 className="text-base font-bold text-white">{topicDetails.createFlow.title}</h3>
+                          <h3 className="text-xl font-bold text-white">{topicDetails.createFlow.title}</h3>
                         </div>
                         <div className="p-4">
                           <ol className="space-y-2">
@@ -24065,7 +24069,7 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
                                 <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-blue-500/20 text-blue-400 border border-blue-500/30">
                                   {i + 1}
                                 </span>
-                                <span className="text-gray-300 text-sm">{step}</span>
+                                <span className="text-gray-300 text-base">{step}</span>
                               </li>
                             ))}
                           </ol>
@@ -24075,12 +24079,12 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
 
                     {/* Redirect Flow */}
                     {topicDetails.redirectFlow && (
-                      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
-                        <div className="px-5 py-3 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
+                      <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
+                        <div className="px-3 py-2 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-500/20">
                             <Icon name="arrowLeft" size={16} className="text-purple-400" />
                           </div>
-                          <h3 className="text-base font-bold text-white">{topicDetails.redirectFlow.title}</h3>
+                          <h3 className="text-xl font-bold text-white">{topicDetails.redirectFlow.title}</h3>
                         </div>
                         <div className="p-4">
                           <ol className="space-y-2">
@@ -24089,7 +24093,7 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
                                 <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-purple-500/20 text-purple-400 border border-purple-500/30">
                                   {i + 1}
                                 </span>
-                                <span className="text-gray-300 text-sm">{step}</span>
+                                <span className="text-gray-300 text-base">{step}</span>
                               </li>
                             ))}
                           </ol>
@@ -24101,12 +24105,12 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
 
                 {/* Discussion Points - Compact Grid */}
                 {topicDetails.discussionPoints && (
-                  <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(6,182,212,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(6,182,212,0.2)' }}>
-                    <div className="px-5 py-3 border-b border-cyan-500/20 flex items-center gap-3" style={{ background: 'rgba(6,182,212,0.05)' }}>
+                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(6,182,212,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(6,182,212,0.2)' }}>
+                    <div className="px-3 py-2 border-b border-cyan-500/20 flex items-center gap-3" style={{ background: 'rgba(6,182,212,0.05)' }}>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-cyan-500/20">
                         <Icon name="messageCircle" size={16} className="text-cyan-400" />
                       </div>
-                      <h3 className="text-base font-bold text-white">Discussion Points</h3>
+                      <h3 className="text-xl font-bold text-white">Discussion Points</h3>
                     </div>
                     <div className="p-3">
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
@@ -24136,12 +24140,12 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
                   <div className={`grid gap-4 ${(!topicDetails.introduction && topicDetails.components) && topicDetails.keyDecisions ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
                     {/* System Components */}
                     {!topicDetails.introduction && topicDetails.components && (
-                      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
-                        <div className="px-5 py-3 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
+                      <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
+                        <div className="px-3 py-2 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-500/20">
                             <Icon name="layers" size={16} className="text-purple-400" />
                           </div>
-                          <h3 className="text-base font-bold text-white">System Components</h3>
+                          <h3 className="text-xl font-bold text-white">System Components</h3>
                         </div>
                         <div className="p-4">
                           <div className="flex flex-wrap gap-2">
@@ -24157,12 +24161,12 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
 
                     {/* Key Design Decisions */}
                     {topicDetails.keyDecisions && (
-                      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(245,158,11,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(245,158,11,0.2)' }}>
-                        <div className="px-5 py-3 border-b border-amber-500/20 flex items-center gap-3" style={{ background: 'rgba(245,158,11,0.05)' }}>
+                      <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(245,158,11,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(245,158,11,0.2)' }}>
+                        <div className="px-3 py-2 border-b border-amber-500/20 flex items-center gap-3" style={{ background: 'rgba(245,158,11,0.05)' }}>
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-amber-500/20">
                             <Icon name="lightbulb" size={16} className="text-amber-400" />
                           </div>
-                          <h3 className="text-base font-bold text-white">Key Design Decisions</h3>
+                          <h3 className="text-xl font-bold text-white">Key Design Decisions</h3>
                         </div>
                         <div className="p-4">
                           <ol className="space-y-2">
@@ -24171,7 +24175,7 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
                                 <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-amber-500/20 text-amber-400 border border-amber-500/30">
                                   {i + 1}
                                 </span>
-                                <span className="text-gray-300 text-sm">{decision}</span>
+                                <span className="text-gray-300 text-base">{decision}</span>
                               </li>
                             ))}
                           </ol>
@@ -24202,17 +24206,17 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
 
             {/* Key Questions - Row Mode Layout */}
             {topicDetails.keyQuestions && topicDetails.keyQuestions.length > 0 && (
-              <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.2) 100%)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <div className="px-5 py-3 border-b flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${topicDetails.color}10, transparent)`, borderColor: `${topicDetails.color}20` }}>
+              <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.2) 100%)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <div className="px-3 py-2 border-b flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${topicDetails.color}10, transparent)`, borderColor: `${topicDetails.color}20` }}>
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${topicDetails.color}20` }}>
                     <Icon name="messageSquare" size={16} style={{ color: topicDetails.color }} />
                   </div>
-                  <h3 className="text-lg font-bold text-white">Key Questions & Answers</h3>
-                  <span className="text-sm text-gray-500 ml-auto">{topicDetails.keyQuestions.length} questions</span>
+                  <h3 className="text-xl font-bold text-white">Key Questions & Answers</h3>
+                  <span className="text-base text-gray-500 ml-auto">{topicDetails.keyQuestions.length} questions</span>
                 </div>
                 <div className="divide-y" style={{ borderColor: `${topicDetails.color}10` }}>
                   {topicDetails.keyQuestions.map((item, index) => (
-                    <div key={index} className="px-5 py-4 hover:bg-white/5 transition-colors">
+                    <div key={index} className="px-3 py-2 hover:bg-white/5 transition-colors">
                       <div className="flex items-start gap-4">
                         <span className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ background: `${topicDetails.color}25`, color: topicDetails.color }}>
                           Q{index + 1}
@@ -24260,21 +24264,21 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
             )}
 
             {topicDetails.starExample && (
-              <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168, 85, 247, 0.08) 0%, rgba(0,0,0,0.3) 100%)', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
-                <div className="px-5 py-3 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168, 85, 247, 0.05)' }}>
+              <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168, 85, 247, 0.08) 0%, rgba(0,0,0,0.3) 100%)', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+                <div className="px-3 py-2 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168, 85, 247, 0.05)' }}>
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-500/20">
                     <Icon name="target" size={16} className="text-purple-400" />
                   </div>
-                  <h3 className="text-lg font-bold text-white">STAR Framework Example</h3>
+                  <h3 className="text-xl font-bold text-white">STAR Framework Example</h3>
                 </div>
                 <div className="divide-y divide-purple-500/10">
                   {Object.entries(topicDetails.starExample).map(([key, value]) => {
                     const colors = { situation: '#3b82f6', task: '#f59e0b', action: '#10b981', result: '#ef4444' };
                     const color = colors[key.toLowerCase()] || '#a855f7';
                     return (
-                      <div key={key} className="px-5 py-4 flex items-start gap-4 hover:bg-white/5 transition-colors">
+                      <div key={key} className="px-3 py-2 flex items-start gap-4 hover:bg-white/5 transition-colors">
                         <div className="w-24 flex-shrink-0">
-                          <div className="text-base font-bold uppercase tracking-wide" style={{ color }}>{key}</div>
+                          <div className="text-lg font-bold uppercase tracking-wide" style={{ color }}>{key}</div>
                         </div>
                         <div className="flex-1 text-gray-300 text-base leading-relaxed">{value}</div>
                       </div>
@@ -24285,16 +24289,16 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
             )}
 
             {topicDetails.sampleQuestions && !topicDetails.keyQuestions && (
-              <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59, 130, 246, 0.08) 0%, rgba(0,0,0,0.3) 100%)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                <div className="px-5 py-3 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59, 130, 246, 0.05)' }}>
+              <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59, 130, 246, 0.08) 0%, rgba(0,0,0,0.3) 100%)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                <div className="px-3 py-2 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59, 130, 246, 0.05)' }}>
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-500/20">
                     <Icon name="helpCircle" size={16} className="text-blue-400" />
                   </div>
-                  <h3 className="text-lg font-bold text-white">Sample Questions</h3>
+                  <h3 className="text-xl font-bold text-white">Sample Questions</h3>
                 </div>
                 <div className="divide-y divide-blue-500/10">
                   {topicDetails.sampleQuestions.map((q, i) => (
-                    <div key={i} className="px-5 py-3 flex items-center gap-4 hover:bg-white/5 transition-colors">
+                    <div key={i} className="px-3 py-2 flex items-center gap-4 hover:bg-white/5 transition-colors">
                       <span className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>{i + 1}</span>
                       <span className="text-gray-300 text-base">{q}</span>
                     </div>
@@ -24304,16 +24308,16 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
             )}
 
             {topicDetails.tips && (
-              <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(0,0,0,0.3) 100%)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                <div className="px-5 py-3 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16, 185, 129, 0.05)' }}>
+              <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(0,0,0,0.3) 100%)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                <div className="px-3 py-2 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16, 185, 129, 0.05)' }}>
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
                     <Icon name="checkCircle" size={16} className="text-emerald-400" />
                   </div>
-                  <h3 className="text-lg font-bold text-white">Tips for Success</h3>
+                  <h3 className="text-xl font-bold text-white">Tips for Success</h3>
                 </div>
                 <div className="divide-y divide-emerald-500/10">
                   {topicDetails.tips.map((tip, i) => (
-                    <div key={i} className="px-5 py-3 flex items-center gap-4 hover:bg-white/5 transition-colors">
+                    <div key={i} className="px-3 py-2 flex items-center gap-4 hover:bg-white/5 transition-colors">
                       <span className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-emerald-500/20 text-emerald-400 text-sm">✓</span>
                       <span className="text-gray-300 text-base">{tip}</span>
                     </div>
@@ -24394,7 +24398,7 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
                 <Icon name="ascend" size={22} className="text-white" />
               </div>
               <div>
-                <span className="text-lg font-bold text-white">Ascend</span>
+                <span className="text-xl font-bold text-white">Ascend</span>
                 <span className="block text-xs text-gray-500">Interview Prep</span>
               </div>
             </a>
@@ -24537,11 +24541,11 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-500">Sort:</span>
+                      <span className="text-base text-gray-500">Sort:</span>
                       <select
                         value={sortOrder}
                         onChange={(e) => setSortOrder(e.target.value)}
-                        className="px-4 py-3 rounded-xl text-sm text-gray-300 focus:outline-none cursor-pointer transition-all hover:bg-white/10"
+                        className="px-4 py-3 rounded-xl text-base text-gray-300 focus:outline-none cursor-pointer transition-all hover:bg-white/10"
                         style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
                       >
                         <option value="a-z">A - Z</option>
@@ -24550,7 +24554,7 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
                         <option value="least">Least Questions</option>
                       </select>
                     </div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-base text-gray-500">
                       {filteredTopics.length} {filteredTopics.length === 1 ? 'topic' : 'topics'}
                     </div>
                   </div>
@@ -24611,7 +24615,7 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
                     </div>
                     <div className="grid md:grid-cols-2 gap-6">
                       {/* Time Complexity Card */}
-                      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                      <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
                         <div className="px-6 py-4 border-b border-emerald-500/20" style={{ background: 'rgba(16,185,129,0.05)' }}>
                           <h3 className="text-white font-semibold flex items-center gap-2">
                             <Icon name="clock" size={18} className="text-emerald-400" />
@@ -24644,7 +24648,7 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
                         </div>
                       </div>
                       {/* Data Structure Selection Card */}
-                      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                      <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
                         <div className="px-6 py-4 border-b border-blue-500/20" style={{ background: 'rgba(59,130,246,0.05)' }}>
                           <h3 className="text-white font-semibold flex items-center gap-2">
                             <Icon name="database" size={18} className="text-blue-400" />
@@ -24691,7 +24695,7 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
                       </div>
                       <div>
                         <h2 className="text-2xl font-bold text-white">Core Concepts</h2>
-                        <p className="text-sm text-gray-500">Essential building blocks for system design</p>
+                        <p className="text-base text-gray-500">Essential building blocks for system design</p>
                       </div>
                     </div>
                     <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
@@ -24806,7 +24810,7 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
                         <Icon name="target" size={14} className="text-blue-400" />
                       </div>
                       <div>
-                        <h3 className="text-base font-bold text-white">Interview Framework</h3>
+                        <h3 className="text-xl font-bold text-white">Interview Framework</h3>
                         <p className="text-gray-500 text-xs">45-minute breakdown</p>
                       </div>
                     </div>
@@ -24841,7 +24845,7 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
               {activePage === 'behavioral' && (
                 <>
                   {/* STAR Method - Enhanced */}
-                  <div className="rounded-2xl overflow-hidden mb-10" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+                  <div className="rounded-lg overflow-hidden mb-10" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
                     <div className="px-6 py-4 border-b border-purple-500/20" style={{ background: 'rgba(168,85,247,0.05)' }}>
                       <h3 className="text-xl font-bold text-white flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-500/20">
@@ -25002,7 +25006,7 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
                     <a
                       key={item.id}
                       href={`#${item.id}`}
-                      className="block px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                      className="block px-3 py-2 text-base text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                     >
                       {item.label}
                     </a>
@@ -25022,7 +25026,7 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
                     </a>
                     <button
                       onClick={() => setSelectedTopic(null)}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:bg-white/5 rounded-lg transition-colors w-full text-left"
+                      className="flex items-center gap-2 px-3 py-2 text-base text-gray-400 hover:bg-white/5 rounded-lg transition-colors w-full text-left"
                     >
                       <Icon name="list" size={14} />
                       <span>All Topics</span>
