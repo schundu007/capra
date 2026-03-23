@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Icon } from './Icons.jsx';
 import { getAuthHeaders } from '../utils/authHeaders.js';
+import DiagramSVG from './DiagramSVG.jsx';
 
 // Get API URL based on environment (Electron vs Web)
 const getApiUrl = () => {
@@ -5974,25 +5975,8 @@ Traffic Estimates:
 
       basicImplementation: {
         title: 'Single Server Architecture',
-        description: 'Starting point for small applications',
-        architecture: `
-┌──────────┐     ┌─────────────────────────────────────┐
-│  Users   │────▶│          Single Server              │
-└──────────┘     │  ┌─────────┐  ┌────────────────┐   │
-                 │  │   Web   │  │    Database    │   │
-                 │  │  Server │  │  (PostgreSQL)  │   │
-                 │  └─────────┘  └────────────────┘   │
-                 └─────────────────────────────────────┘
-
-Capacity:
-- Users: ~1,000 concurrent
-- RPS: ~100-1,000
-- Storage: Limited by disk
-
-Limitations:
-- Single point of failure
-- Cannot scale beyond machine limits
-- Maintenance requires downtime`,
+        description: 'Starting point for small applications. A single server hosts both the web server and database, suitable for low-traffic applications with ~1,000 concurrent users and 100-1,000 RPS.',
+        svgTemplate: 'singleServer',
         problems: [
           'Single point of failure - any failure takes down entire system',
           'Limited scalability - constrained by single machine',
@@ -6003,33 +5987,8 @@ Limitations:
 
       advancedImplementation: {
         title: 'Distributed Architecture',
-        architecture: `
-┌─────────┐    ┌─────────┐    ┌──────────────────────────────────────────┐
-│  Users  │───▶│   CDN   │───▶│              Load Balancer               │
-└─────────┘    └─────────┘    └────────────────────┬─────────────────────┘
-                                                   │
-                 ┌─────────────────────────────────┼─────────────────────────────────┐
-                 │                                 │                                 │
-          ┌──────▼──────┐                   ┌──────▼──────┐                   ┌──────▼──────┐
-          │  App Server │                   │  App Server │                   │  App Server │
-          │      1      │                   │      2      │                   │      3      │
-          └──────┬──────┘                   └──────┬──────┘                   └──────┬──────┘
-                 │                                 │                                 │
-                 └─────────────────────────────────┼─────────────────────────────────┘
-                                                   │
-                              ┌────────────────────┼────────────────────┐
-                              │                    │                    │
-                       ┌──────▼──────┐      ┌──────▼──────┐      ┌──────▼──────┐
-                       │   Cache     │      │   Primary   │      │   Replica   │
-                       │   (Redis)   │      │     DB      │      │     DB      │
-                       └─────────────┘      └─────────────┘      └─────────────┘
-
-Components:
-- CDN: Static assets, edge caching
-- Load Balancer: Distribute traffic, health checks
-- App Servers: Stateless, horizontally scalable
-- Cache: Redis for hot data, session storage
-- Database: Primary-replica for read scaling`,
+        description: 'CDN for static assets → Load Balancer distributes traffic → Multiple stateless App Servers → Redis Cache + Primary-Replica Database setup.',
+        svgTemplate: 'loadBalancer',
         keyPoints: [
           'Stateless app servers enable horizontal scaling',
           'CDN offloads static content and reduces latency',
@@ -6307,21 +6266,7 @@ NoSQL Graph:
       basicImplementation: {
         title: 'Single Database Architecture',
         description: 'Traditional setup with one database server',
-        architecture: `
-┌──────────────┐     ┌──────────────┐
-│  App Server  │────▶│   Database   │
-└──────────────┘     │  (Primary)   │
-                     └──────────────┘
-
-Capacity:
-- Connections: ~100-500 concurrent
-- Queries/sec: ~1,000-10,000
-- Storage: TB scale
-
-Limitations:
-- Single point of failure
-- Read bottleneck at scale
-- Limited by single machine`,
+        svgTemplate: 'singleDatabase',
         problems: [
           'No failover capability',
           'Read contention at scale',
@@ -6332,31 +6277,8 @@ Limitations:
 
       advancedImplementation: {
         title: 'Sharded Database Architecture',
-        architecture: `
-┌─────────────┐    ┌───────────────────────────────────────────────────────┐
-│ App Servers │───▶│              Shard Router / Proxy                     │
-└─────────────┘    └───────────────────────────┬───────────────────────────┘
-                                               │
-              ┌────────────────────────────────┼────────────────────────────┐
-              │                                │                            │
-       ┌──────▼──────┐                  ┌──────▼──────┐              ┌──────▼──────┐
-       │   Shard 1   │                  │   Shard 2   │              │   Shard 3   │
-       │  users 1-1M │                  │ users 1M-2M │              │ users 2M-3M │
-       └──────┬──────┘                  └──────┬──────┘              └──────┬──────┘
-              │                                │                            │
-       ┌──────▼──────┐                  ┌──────▼──────┐              ┌──────▼──────┐
-       │   Replica   │                  │   Replica   │              │   Replica   │
-       └─────────────┘                  └─────────────┘              └─────────────┘
-
-Each shard:
-- Primary + Replica(s)
-- Independent scaling
-- Owns a partition of data
-
-Cross-cutting concerns:
-- Shard router handles key → shard mapping
-- Global tables (countries, config) replicated to all
-- Cross-shard queries aggregated at app layer`,
+        description: 'Distributed database with data partitioned across multiple shards, each with its own replicas for high availability.',
+        svgTemplate: 'shardedDatabase',
         keyPoints: [
           'Consistent hashing minimizes data movement when adding shards',
           'Each shard has its own replicas for read scaling',
@@ -6670,20 +6592,8 @@ Request 100 ─┘
 
       basicImplementation: {
         title: 'Simple Application Cache',
-        description: 'Single Redis instance for caching',
-        architecture: `
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│  App Server │────▶│    Redis    │     │   Database  │
-└─────────────┘     │   (Cache)   │     └──────▲──────┘
-                    └─────────────┘            │
-                                               │
-                    Cache miss? ───────────────┘
-
-Cache-Aside Pattern:
-1. App checks Redis
-2. If miss, query database
-3. Store result in Redis with TTL
-4. Return data`,
+        description: 'Single Redis instance for caching with cache-aside pattern',
+        svgTemplate: 'simpleCache',
         problems: [
           'Single point of failure',
           'Limited memory capacity',
@@ -6694,46 +6604,8 @@ Cache-Aside Pattern:
 
       advancedImplementation: {
         title: 'Multi-Tier Caching Architecture',
-        architecture: `
-┌─────────┐     ┌─────────────────────────────────────────────────────────────┐
-│ Clients │────▶│                       CDN Cache                             │
-└─────────┘     │              (Static assets, API responses)                 │
-                └─────────────────────────────┬───────────────────────────────┘
-                                              │
-                             ┌────────────────▼────────────────┐
-                             │         Load Balancer           │
-                             └────────────────┬────────────────┘
-                                              │
-        ┌─────────────────────────────────────┼─────────────────────────────────────┐
-        │                                     │                                     │
- ┌──────▼──────┐                       ┌──────▼──────┐                       ┌──────▼──────┐
- │  App Server │                       │  App Server │                       │  App Server │
- │ ┌─────────┐ │                       │ ┌─────────┐ │                       │ ┌─────────┐ │
- │ │ L1 Cache│ │                       │ │ L1 Cache│ │                       │ │ L1 Cache│ │
- │ │(In-Proc)│ │                       │ │(In-Proc)│ │                       │ │(In-Proc)│ │
- │ └─────────┘ │                       │ └─────────┘ │                       │ └─────────┘ │
- └──────┬──────┘                       └──────┬──────┘                       └──────┬──────┘
-        │                                     │                                     │
-        └─────────────────────────────────────┼─────────────────────────────────────┘
-                                              │
-                    ┌─────────────────────────▼─────────────────────────┐
-                    │              Redis Cluster (L2 Cache)             │
-                    │   ┌────────┐    ┌────────┐    ┌────────┐         │
-                    │   │Primary │    │Primary │    │Primary │         │
-                    │   │   +    │    │   +    │    │   +    │         │
-                    │   │Replica │    │Replica │    │Replica │         │
-                    │   └────────┘    └────────┘    └────────┘         │
-                    └──────────────────────────────────────────────────┘
-                                              │
-                    ┌─────────────────────────▼─────────────────────────┐
-                    │                    Database                       │
-                    └──────────────────────────────────────────────────┘
-
-Cache Tiers:
-- CDN: Edge caching for static/cacheable content
-- L1 (In-process): Microsecond access, small capacity
-- L2 (Redis Cluster): Millisecond access, shared across servers
-- Database: Source of truth`,
+        description: 'CDN for edge caching → L1 in-process cache → L2 Redis cluster → Database, with each tier providing faster access than the next.',
+        svgTemplate: 'multiTierCache',
         keyPoints: [
           'Multi-tier reduces load on each subsequent tier',
           'L1 cache prevents network round-trip for hot data',
@@ -7032,18 +6904,8 @@ Messages that fail repeatedly go to separate queue for investigation.
 
       basicImplementation: {
         title: 'Simple Message Queue',
-        description: 'Single broker for async processing',
-        architecture: `
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│   Producer   │────▶│    Queue     │────▶│   Consumer   │
-│  (Web App)   │     │  (RabbitMQ)  │     │   (Worker)   │
-└──────────────┘     └──────────────┘     └──────────────┘
-
-Use case: Email sending
-1. User submits form
-2. Web app enqueues "send email" task
-3. Worker processes queue, sends email
-4. User gets immediate response (not waiting for email)`,
+        description: 'Single broker for async processing - Producer sends to queue, consumer processes asynchronously.',
+        svgTemplate: 'simpleQueue',
         problems: [
           'Single point of failure',
           'Limited throughput',
@@ -7054,40 +6916,8 @@ Use case: Email sending
 
       advancedImplementation: {
         title: 'Distributed Event Streaming',
-        architecture: `
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          Kafka Cluster (3+ Brokers)                         │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                        Topic: user-events                            │   │
-│  │   ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │   │
-│  │   │ Partition 0  │  │ Partition 1  │  │ Partition 2  │              │   │
-│  │   │   Leader     │  │   Leader     │  │   Leader     │              │   │
-│  │   │   Broker 1   │  │   Broker 2   │  │   Broker 3   │              │   │
-│  │   │              │  │              │  │              │              │   │
-│  │   │  Replicas:   │  │  Replicas:   │  │  Replicas:   │              │   │
-│  │   │  Broker 2,3  │  │  Broker 1,3  │  │  Broker 1,2  │              │   │
-│  │   └──────────────┘  └──────────────┘  └──────────────┘              │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-└───────────────────────────────────┬─────────────────────────────────────────┘
-                                    │
-        ┌───────────────────────────┼───────────────────────────┐
-        │                           │                           │
-        ▼                           ▼                           ▼
-┌───────────────┐          ┌───────────────┐          ┌───────────────┐
-│Consumer Group │          │Consumer Group │          │Consumer Group │
-│  "analytics"  │          │   "search"    │          │  "billing"    │
-│               │          │               │          │               │
-│ ┌───┐ ┌───┐   │          │ ┌───┐ ┌───┐   │          │    ┌───┐      │
-│ │ C1│ │ C2│   │          │ │ C1│ │ C2│   │          │    │ C1│      │
-│ └───┘ └───┘   │          │ └───┘ └───┘   │          │    └───┘      │
-└───────────────┘          └───────────────┘          └───────────────┘
-
-Features:
-- Partitions for parallelism
-- Replication for fault tolerance
-- Consumer groups for load balancing
-- Independent groups for different use cases
-- Message replay capability`,
+        description: 'Kafka cluster with multiple producers, partitioned topics, and consumer groups for horizontal scaling.',
+        svgTemplate: 'distributedQueue',
         keyPoints: [
           'Partitions enable parallel processing',
           'Replication factor of 3 for fault tolerance',
@@ -7840,27 +7670,8 @@ No server-side storage
 
       basicImplementation: {
         title: 'Single Load Balancer',
-        description: 'Basic load balancing setup',
-        architecture: `
-┌─────────┐     ┌──────────────┐     ┌─────────────┐
-│ Clients │────▶│ Load Balancer│────▶│  Server 1   │
-└─────────┘     │   (NGINX)    │────▶│  Server 2   │
-                │              │────▶│  Server 3   │
-                └──────────────┘     └─────────────┘
-
-NGINX Configuration:
-upstream backend {
-    server 10.0.0.1:8080;
-    server 10.0.0.2:8080;
-    server 10.0.0.3:8080;
-}
-
-server {
-    listen 80;
-    location / {
-        proxy_pass http://backend;
-    }
-}`,
+        description: 'Basic load balancing with NGINX distributing traffic across multiple backend servers using round-robin.',
+        svgTemplate: 'loadBalancer',
         problems: [
           'Load balancer is single point of failure',
           'No automatic failover',
@@ -8062,17 +7873,8 @@ return {0, tokens}
 
       basicImplementation: {
         title: 'Basic Rate Limiter',
-        description: 'Single Redis instance with Lua scripts',
-        architecture: `
-┌──────────┐     ┌──────────────┐     ┌──────────┐
-│  Client  │────▶│  API Server  │────▶│  Backend │
-└──────────┘     └──────┬───────┘     └──────────┘
-                       │
-                       ▼
-                ┌──────────────┐
-                │    Redis     │
-                │ Token Bucket │
-                └──────────────┘`,
+        description: 'Single Redis instance with Lua scripts for token bucket implementation',
+        svgTemplate: 'rateLimiter',
         problems: ['Single point of failure', 'No failover']
       },
 
@@ -8454,26 +8256,8 @@ http://user-service:8080/users/123
 
       basicImplementation: {
         title: 'Simple Microservices',
-        description: 'Direct service-to-service calls',
-        architecture: `
-┌─────────────────────────────────────────────────────────────┐
-│                       API Gateway                           │
-│              (Routing, Auth, Rate Limiting)                 │
-└─────────────────────────────┬───────────────────────────────┘
-                              │
-        ┌─────────────────────┼─────────────────────┐
-        │                     │                     │
-        ▼                     ▼                     ▼
-┌───────────────┐     ┌───────────────┐     ┌───────────────┐
-│    User       │     │    Order      │     │   Product     │
-│   Service     │◀───▶│   Service     │◀───▶│   Service     │
-│               │     │               │     │               │
-│   [Users DB]  │     │  [Orders DB]  │     │ [Products DB] │
-└───────────────┘     └───────────────┘     └───────────────┘
-
-- Each service owns its database
-- Sync HTTP calls between services
-- API Gateway for external clients`,
+        description: 'API Gateway routing to independent services, each owning their database',
+        svgTemplate: 'simpleMicroservices',
         problems: [
           'Direct calls create tight coupling',
           'No fault tolerance (cascading failures)',
@@ -8484,21 +8268,9 @@ http://user-service:8080/users/123
 
       advancedImplementation: {
         title: 'Production Microservices Architecture',
+        description: 'API Gateway with service mesh providing mTLS, circuit breakers, and observability across services.',
+        svgTemplate: 'apiGateway',
         architecture: `
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                            Clients (Web, Mobile)                            │
-└───────────────────────────────────┬─────────────────────────────────────────┘
-                                    │
-┌───────────────────────────────────▼─────────────────────────────────────────┐
-│                        API Gateway (Kong/Envoy)                             │
-│           Auth │ Rate Limit │ Routing │ SSL │ Logging                      │
-└───────────────────────────────────┬─────────────────────────────────────────┘
-                                    │
-┌───────────────────────────────────▼─────────────────────────────────────────┐
-│                         Service Mesh (Istio/Linkerd)                        │
-│    mTLS │ Circuit Breaker │ Retry │ Load Balancing │ Tracing               │
-└───────────────────────────────────┬─────────────────────────────────────────┘
-                                    │
         ┌───────────────────────────┼───────────────────────────┐
         │                           │                           │
         ▼                           ▼                           ▼
@@ -9661,19 +9433,8 @@ Avoid special characters (/, +, =) as they cause URL encoding issues.`
 
       basicImplementation: {
         title: 'Basic Implementation',
-        description: `Client → Load Balancer → Web Server → Count Cache → Database
-
-The web server requests a base-10 number from the count cache, converts it to base-62, and uses it as the short URL. This is stored in the database and returned to the user.`,
-        architecture: `
-┌────────┐    ┌──────────────┐    ┌────────────┐    ┌─────────────┐
-│ Client │───▶│ Load Balancer│───▶│ Web Server │───▶│  Database   │
-└────────┘    └──────────────┘    └────────────┘    └─────────────┘
-                                        │
-                                        ▼
-                                 ┌─────────────┐
-                                 │ Count Cache │
-                                 │  (Redis)    │
-                                 └─────────────┘`,
+        description: 'Client → Load Balancer → Web Server → Count Cache → Database. The web server requests a base-10 number from the count cache, converts it to base-62, and uses it as the short URL.',
+        svgTemplate: 'urlShortener',
         problems: [
           'Single point of failure in web server, cache, and database',
           'When horizontally scaled, distributed caches can return same number → COLLISION',
@@ -9904,24 +9665,8 @@ Structure:
 
       basicImplementation: {
         title: 'Basic Implementation (Fan-out on Write)',
-        description: 'When a user posts a tweet, immediately push it to all followers\' timeline caches.',
-        architecture: `
-┌────────┐    ┌──────────────┐    ┌─────────────┐
-│ Client │───▶│ Tweet Service│───▶│  Tweet DB   │
-└────────┘    └──────────────┘    └─────────────┘
-                     │
-                     ▼
-              ┌─────────────┐
-              │  Fan-out    │
-              │  Service    │
-              └─────────────┘
-                     │
-         ┌──────────┴──────────┐
-         ▼                     ▼
-┌─────────────────┐    ┌─────────────────┐
-│ Timeline Cache  │    │ Timeline Cache  │
-│  (Follower 1)   │    │  (Follower N)   │
-└─────────────────┘    └─────────────────┘`,
+        description: 'When a user posts a tweet, fan-out service pushes it to all followers\' timeline caches',
+        svgTemplate: 'fanoutOnWrite',
         problems: [
           'Celebrity tweets to 10M followers = 10M cache writes',
           'Hot celebrities cause massive write amplification',
@@ -10175,17 +9920,8 @@ rides {
 
       basicImplementation: {
         title: 'Basic Implementation',
-        description: 'Simple approach with single database and basic matching.',
-        architecture: `
-┌────────┐    ┌──────────────┐    ┌─────────────┐
-│ Rider  │───▶│ Ride Service │◀───│   Driver    │
-│  App   │    └──────────────┘    │     App     │
-└────────┘           │            └─────────────┘
-                     ▼
-              ┌─────────────┐
-              │  Database   │
-              │  (PostGIS)  │
-              └─────────────┘`,
+        description: 'Rider and Driver apps connect to Matching service, with Location service and Redis for real-time tracking',
+        svgTemplate: 'rideSharing',
         problems: [
           'Database cannot handle 1M location updates/second',
           'PostGIS queries slow at scale',
@@ -10442,37 +10178,8 @@ Quick quality first: 360p available in minutes, 4K later`
 
       basicImplementation: {
         title: 'Basic Architecture',
-        description: 'Monolithic upload, transcoding, and streaming with single CDN',
-        architecture: `
-┌─────────────────────────────────────────────────────────────────────────┐
-│                              YOUTUBE BASIC                              │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                         │
-│  ┌──────────┐      ┌──────────────┐      ┌──────────────────┐          │
-│  │  Client  │─────▶│ API Gateway  │─────▶│  Upload Service  │          │
-│  └──────────┘      └──────────────┘      └────────┬─────────┘          │
-│                                                    │                    │
-│                                           ┌────────▼─────────┐          │
-│                                           │   Raw Storage    │          │
-│                                           │      (S3)        │          │
-│                                           └────────┬─────────┘          │
-│                                                    │                    │
-│                                           ┌────────▼─────────┐          │
-│                                           │  Transcoding     │          │
-│                                           │    Workers       │          │
-│                                           └────────┬─────────┘          │
-│                                                    │                    │
-│  ┌──────────┐      ┌──────────────┐      ┌────────▼─────────┐          │
-│  │  Client  │◀────▶│     CDN      │◀────▶│ Transcoded Store │          │
-│  │ (Watch)  │      │              │      │      (S3)        │          │
-│  └──────────┘      └──────────────┘      └──────────────────┘          │
-│                                                                         │
-│  ┌───────────────────────────────────────────────────────────┐         │
-│  │                      Metadata DB                           │         │
-│  │    videos | channels | comments | subscriptions            │         │
-│  └───────────────────────────────────────────────────────────┘         │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘`,
+        description: 'Upload → Transcode → Store → CDN → Client pipeline for video streaming',
+        svgTemplate: 'videoStreaming',
         problems: [
           'Single transcoding queue becomes bottleneck',
           'No adaptive bitrate - fixed quality',
@@ -12216,36 +11923,8 @@ ML-Enhanced:
 
       basicImplementation: {
         title: 'Basic Architecture',
-        description: 'Monolithic e-commerce with single database',
-        architecture: `
-┌─────────────────────────────────────────────────────────────────────────┐
-│                            AMAZON BASIC                                 │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                         │
-│  ┌──────────┐      ┌──────────────┐      ┌──────────────────┐          │
-│  │  Client  │─────▶│ Load Balancer│─────▶│   Monolith App   │          │
-│  └──────────┘      └──────────────┘      └────────┬─────────┘          │
-│                                                    │                    │
-│                                           ┌────────▼─────────┐          │
-│                                           │    PostgreSQL    │          │
-│                                           │   (Everything)   │          │
-│                                           │                  │          │
-│                                           │ - Products       │          │
-│                                           │ - Inventory      │          │
-│                                           │ - Orders         │          │
-│                                           │ - Users          │          │
-│                                           └──────────────────┘          │
-│                                                                         │
-│  CHECKOUT:                                                              │
-│  BEGIN TRANSACTION                                                      │
-│    1. Decrement inventory                                               │
-│    2. Charge payment (external call)                                    │
-│    3. Create order                                                      │
-│  COMMIT                                                                 │
-│                                                                         │
-│  Problem: External payment call inside transaction = bad                │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘`,
+        description: 'Client → CDN → Load Balancer → microservices (Product, Order, Payment)',
+        svgTemplate: 'ecommerce',
         problems: [
           'Single database bottleneck',
           'Long transactions with external calls',
@@ -13362,28 +13041,9 @@ PR(A) = (1-d)/N + d × Σ(PR(Ti)/C(Ti))
 
       basicImplementation: {
         title: 'Basic Search Architecture',
-        description: 'Single datacenter with document-partitioned index',
+        description: 'Query → Search Service → Elasticsearch with index shards for parallel query processing',
+        svgTemplate: 'searchEngine',
         architecture: `
-┌─────────────────────────────────────────────────────────────────┐
-│                     Basic Search Engine                          │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│   ┌──────────┐                                                   │
-│   │   User   │                                                   │
-│   └────┬─────┘                                                   │
-│        │ "black cat"                                             │
-│        ▼                                                         │
-│   ┌─────────────────┐                                            │
-│   │  Query Server   │                                            │
-│   │  (Parse, Spell) │                                            │
-│   └────────┬────────┘                                            │
-│            │                                                     │
-│   ┌────────┴────────┬────────────────┬────────────────┐         │
-│   ▼                 ▼                ▼                ▼         │
-│ ┌───────┐      ┌───────┐       ┌───────┐       ┌───────┐       │
-│ │Shard 1│      │Shard 2│       │Shard 3│       │Shard N│       │
-│ │Docs   │      │Docs   │       │Docs   │       │Docs   │       │
-│ │1-10M  │      │10-20M │       │20-30M │       │...    │       │
 │ └───────┘      └───────┘       └───────┘       └───────┘       │
 │            │                                                     │
 │            ▼                                                     │
@@ -13746,25 +13406,8 @@ function shouldDelay(user, notification) {
 
       basicImplementation: {
         title: 'Basic Notification Architecture',
-        description: 'Single queue with multiple channel workers',
-        architecture: `
-┌─────────────────────────────────────────────────────────────────┐
-│                  Basic Notification System                       │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│   ┌──────────┐      ┌────────────────┐      ┌──────────────┐   │
-│   │   API    │─────▶│   Message      │─────▶│   Workers    │   │
-│   │  Server  │      │   Queue (SQS)  │      │              │   │
-│   └──────────┘      └────────────────┘      └──────┬───────┘   │
-│                                                     │           │
-│                            ┌────────────────────────┼───────┐   │
-│                            ▼            ▼           ▼       │   │
-│                       ┌────────┐  ┌────────┐  ┌────────┐   │   │
-│                       │  FCM   │  │SendGrid│  │ Twilio │   │   │
-│                       │ (Push) │  │(Email) │  │ (SMS)  │   │   │
-│                       └────────┘  └────────┘  └────────┘   │   │
-│                                                             │   │
-└─────────────────────────────────────────────────────────────────┘`,
+        description: 'Single queue with multiple channel workers distributing to Push, Email, and SMS providers',
+        svgTemplate: 'notificationSystem',
         problems: [
           'Single queue = no priority handling',
           'No user preference checking',
@@ -15281,24 +14924,8 @@ WHERE channel_id = ? AND id > last_read_message_id
 
       basicImplementation: {
         title: 'Basic Chat Architecture',
-        description: 'Single WebSocket server with direct database',
-        architecture: `
-┌─────────────────────────────────────────────────────────────────┐
-│                     Basic Chat System                            │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│   ┌──────────┐        ┌──────────────┐       ┌──────────────┐   │
-│   │ Clients  │◀──────▶│  WebSocket   │──────▶│  PostgreSQL  │   │
-│   │          │        │   Server     │       │              │   │
-│   └──────────┘        └──────────────┘       └──────────────┘   │
-│                              │                                   │
-│                              ▼                                   │
-│                       ┌──────────────┐                          │
-│                       │     S3       │                          │
-│                       │   (Files)    │                          │
-│                       └──────────────┘                          │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘`,
+        description: 'Single WebSocket server with direct database connection for real-time messaging',
+        svgTemplate: 'simpleChat',
         problems: [
           'Single server = limited connections',
           'No fan-out mechanism for multi-server',
@@ -15309,32 +14936,11 @@ WHERE channel_id = ? AND id > last_read_message_id
 
       advancedImplementation: {
         title: 'Production Chat Architecture',
+        description: 'WebSocket gateway cluster with Redis Pub/Sub for cross-server message fan-out, Cassandra for message storage.',
+        svgTemplate: 'distributedChat',
         architecture: `
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                       Production Chat Architecture                            │
-├──────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  ┌─────────────┐                                                             │
-│  │   Clients   │                                                             │
-│  └──────┬──────┘                                                             │
-│         │ WebSocket                                                          │
-│         ▼                                                                    │
-│  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │                    WebSocket Gateway Cluster                         │    │
-│  │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐              │    │
-│  │  │  Gateway 1  │    │  Gateway 2  │    │  Gateway 3  │              │    │
-│  │  │  (100K conn)│    │  (100K conn)│    │  (100K conn)│              │    │
-│  │  └──────┬──────┘    └──────┬──────┘    └──────┬──────┘              │    │
-│  └─────────┼─────────────────┼─────────────────┼───────────────────────┘    │
-│            │                 │                 │                             │
-│            └─────────────────┼─────────────────┘                             │
-│                              ▼                                               │
+                              (Diagram above shows simplified architecture)
 │  ┌──────────────────────────────────────────────────────────────────────┐   │
-│  │                      Redis Pub/Sub Cluster                            │   │
-│  │              (Channel subscriptions for message fan-out)              │   │
-│  └──────────────────────────────────┬───────────────────────────────────┘   │
-│                                     │                                        │
-│  ┌──────────────────────────────────┼───────────────────────────────────┐   │
 │  │                          SERVICE LAYER                                │   │
 │  │  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐     │   │
 │  │  │  Message   │  │  Channel   │  │  Presence  │  │   Search   │     │   │
@@ -22131,33 +21737,8 @@ The key insight is combining two data structures: a HashMap provides O(1) lookup
 
       basicImplementation: {
         title: 'LRU Cache Architecture',
-        architecture: `
-┌─────────────────────────────────────────────────────────────────┐
-│                        LRU Cache                                │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │                   HashMap<Key, Node*>                    │   │
-│  │    key1 ──► Node*    key2 ──► Node*    key3 ──► Node*   │   │
-│  └─────────────────────────────────────────────────────────┘   │
-│                    │              │              │              │
-│                    ▼              ▼              ▼              │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │              Doubly Linked List (Order)                  │   │
-│  │                                                          │   │
-│  │   HEAD ◄──► [MRU] ◄──► [Node] ◄──► [LRU] ◄──► TAIL      │   │
-│  │  (dummy)     ▲                        │      (dummy)     │   │
-│  │              │                        │                  │   │
-│  │         Most Recent              Least Recent            │   │
-│  │         (just accessed)          (evict first)           │   │
-│  └─────────────────────────────────────────────────────────┘   │
-│                                                                 │
-│  Operations:                                                    │
-│  ┌───────────────┬──────────────────────────────────────────┐  │
-│  │ get(key)      │ O(1) lookup + move to front              │  │
-│  │ put(key,val)  │ O(1) insert at front, evict LRU if full  │  │
-│  └───────────────┴──────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘`
+        description: 'Combines HashMap for O(1) lookup with Doubly Linked List for O(1) order management. HEAD = Most Recently Used, TAIL = Least Recently Used (evict first). get(key) returns value and moves to front. put(key,val) inserts at front, evicts LRU if full.',
+        svgTemplate: 'lruCache'
       },
 
       implementation: `class Node:
@@ -22265,42 +21846,9 @@ class LRUCache:
       ],
 
       basicImplementation: {
-        title: 'Parking Lot Class Diagram',
-        architecture: `
-┌─────────────────────────────────────────────────────────────────────────┐
-│                           ParkingLot (Singleton)                        │
-│  ┌────────────────────────────────────────────────────────────────┐    │
-│  │  - floors: List<Floor>                                          │    │
-│  │  - activeTickets: Map<String, ParkingTicket>                    │    │
-│  │  + parkVehicle(vehicle) → ParkingTicket                         │    │
-│  │  + unparkVehicle(ticket) → Payment                              │    │
-│  └────────────────────────────────────────────────────────────────┘    │
-│                                    │                                    │
-│                                    ▼                                    │
-│  ┌────────────────────────────────────────────────────────────────┐    │
-│  │                         Floor                                   │    │
-│  │  - floorNumber: int                                            │    │
-│  │  - spots: List<ParkingSpot>                                    │    │
-│  │  + getAvailableSpot(vehicleType) → ParkingSpot                 │    │
-│  │  + getAvailability() → Map<SpotSize, int>                      │    │
-│  └────────────────────────────────────────────────────────────────┘    │
-│                                    │                                    │
-│                                    ▼                                    │
-│  ┌────────────────────────────────────────────────────────────────┐    │
-│  │                      ParkingSpot                                │    │
-│  │  - spotId: String          - size: SpotSize                    │    │
-│  │  - vehicle: Vehicle        - isAvailable: bool                 │    │
-│  │  + canFit(vehicle) → bool  + park(vehicle) → bool              │    │
-│  └────────────────────────────────────────────────────────────────┘    │
-│                                                                         │
-│  ┌──────────────┐    ┌──────────────┐    ┌───────────────────────┐    │
-│  │   Vehicle    │    │ ParkingTicket│    │  PricingStrategy      │    │
-│  │  (Abstract)  │    │              │    │  <<interface>>        │    │
-│  ├──────────────┤    │ - vehicle    │    ├───────────────────────┤    │
-│  │ Bike │ Car   │    │ - spot       │    │ HourlyPricing         │    │
-│  │ Truck        │    │ - entryTime  │    │ DailyPricing          │    │
-│  └──────────────┘    └──────────────┘    └───────────────────────┘    │
-└─────────────────────────────────────────────────────────────────────────┘`
+        title: 'Parking Lot System',
+        description: 'ParkingLot (Singleton) manages multiple Floors with ParkingSpots. Vehicle hierarchy (Bike/Car/Truck) with SpotSize compatibility. PricingStrategy interface for flexible fee calculation. Entry/Exit issues ParkingTicket tracking vehicle, spot, and time.',
+        svgTemplate: 'parkingLot'
       },
 
       implementation: `from abc import ABC, abstractmethod
@@ -22434,39 +21982,8 @@ class ParkingLot:
 
       basicImplementation: {
         title: 'Elevator System Architecture',
-        architecture: `
-┌──────────────────────────────────────────────────────────────────────────┐
-│                         ElevatorSystem                                    │
-│  ┌────────────────────────────────────────────────────────────────────┐  │
-│  │  - elevators: List<Elevator>                                       │  │
-│  │  - dispatcher: DispatchStrategy                                    │  │
-│  │  + addRequest(floor, direction)                                    │  │
-│  │  + dispatch(request) → Elevator                                    │  │
-│  └────────────────────────────────────────────────────────────────────┘  │
-│                    │                         │                            │
-│                    ▼                         ▼                            │
-│  ┌─────────────────────────────┐  ┌─────────────────────────────┐        │
-│  │        Elevator 1           │  │        Elevator 2           │        │
-│  │  ┌───────────────────────┐  │  │  ┌───────────────────────┐  │        │
-│  │  │ State: MOVING_UP      │  │  │  │ State: IDLE           │  │        │
-│  │  │ Floor: 5              │  │  │  │ Floor: 1              │  │        │
-│  │  │ Direction: UP         │  │  │  │ Direction: IDLE       │  │        │
-│  │  └───────────────────────┘  │  │  └───────────────────────┘  │        │
-│  │  ┌───────────────────────┐  │  │  ┌───────────────────────┐  │        │
-│  │  │ Requests (LOOK algo)  │  │  │  │ Requests              │  │        │
-│  │  │ UP:   {7, 10, 12}     │  │  │  │ UP:   {}              │  │        │
-│  │  │ DOWN: {3, 1}          │  │  │  │ DOWN: {}              │  │        │
-│  │  └───────────────────────┘  │  │  └───────────────────────┘  │        │
-│  └─────────────────────────────┘  └─────────────────────────────┘        │
-│                                                                           │
-│  LOOK Algorithm Flow:                                                     │
-│  ┌──────────────────────────────────────────────────────────────────┐    │
-│  │  1. Move UP serving all UP requests in sorted order              │    │
-│  │  2. When no more UP requests, reverse to DOWN                    │    │
-│  │  3. Move DOWN serving all DOWN requests in reverse sorted order  │    │
-│  │  4. Repeat until no requests remain                              │    │
-│  └──────────────────────────────────────────────────────────────────┘    │
-└──────────────────────────────────────────────────────────────────────────┘`
+        description: 'ElevatorSystem manages multiple Elevators with DispatchStrategy. Each Elevator has state (IDLE/UP/DOWN), current floor, and request queues. LOOK Algorithm: Move UP serving requests in order, reverse when no more UP requests, move DOWN serving in reverse order.',
+        svgTemplate: 'elevatorSystem'
       },
 
       implementation: `from enum import Enum
@@ -23671,67 +23188,9 @@ class ATM:
 In interviews, you'll be expected to understand the difference between processes and threads, recognize race conditions, and know how to prevent deadlocks.`,
 
       basicImplementation: {
-        title: 'Concurrency vs Parallelism',
-        architecture: `
-CONCURRENCY vs PARALLELISM
-==========================
-
-CONCURRENCY (Single Core - Time Slicing):
-  Time ──────────────────────────────────────►
-
-  Core: [Task A][Task B][Task A][Task C][Task B][Task A]
-         │       │       │       │       │       │
-         └───────┴───────┴───────┴───────┴───────┘
-                    Context Switching
-
-  Tasks interleave, creating ILLUSION of parallelism
-
-
-PARALLELISM (Multiple Cores - True Simultaneous):
-  Time ──────────────────────────────────────►
-
-  Core 1: [────── Task A ──────][── Task D ──]
-  Core 2: [────── Task B ──────][── Task E ──]
-  Core 3: [────── Task C ──────][── Task F ──]
-
-  Tasks actually execute at the same time
-
-
-PROCESS vs THREAD
-=================
-
-  ┌─────────────────────────────────────────────────┐
-  │                    PROCESS                       │
-  │  ┌─────────────────────────────────────────┐    │
-  │  │           Own Memory Space               │    │
-  │  │  [Code] [Data] [Heap] [Stack]           │    │
-  │  └─────────────────────────────────────────┘    │
-  │  - Isolated from other processes                 │
-  │  - Inter-process communication (IPC) needed     │
-  │  - Higher overhead to create/switch              │
-  └─────────────────────────────────────────────────┘
-
-  ┌─────────────────────────────────────────────────┐
-  │                    THREADS                       │
-  │  ┌────────────── Shared ──────────────────┐     │
-  │  │      [Code] [Data] [Heap]              │     │
-  │  └────────────────────────────────────────┘     │
-  │  ┌─────────┐  ┌─────────┐  ┌─────────┐         │
-  │  │ Thread1 │  │ Thread2 │  │ Thread3 │         │
-  │  │ [Stack] │  │ [Stack] │  │ [Stack] │         │
-  │  └─────────┘  └─────────┘  └─────────┘         │
-  │  - Share memory (faster communication)          │
-  │  - Lower overhead                               │
-  │  - Need synchronization for shared data         │
-  └─────────────────────────────────────────────────┘
-
-
-DEADLOCK CONDITIONS (All 4 must hold):
-======================================
-  1. Mutual Exclusion  - Resource held exclusively
-  2. Hold and Wait     - Hold one, wait for another
-  3. No Preemption     - Cannot force release
-  4. Circular Wait     - A waits B, B waits C, C waits A`
+        title: 'Process vs Thread',
+        description: 'Concurrency manages multiple tasks through time-slicing (illusion of parallelism). Parallelism executes tasks truly simultaneously on multiple cores. Processes have isolated memory (higher overhead, IPC needed). Threads share memory within a process (lower overhead, need synchronization).',
+        svgTemplate: 'concurrencyFundamentals'
       },
 
       coreEntities: [
@@ -23771,74 +23230,9 @@ DEADLOCK CONDITIONS (All 4 must hold):
       introduction: `These classic problems are frequently asked in interviews and demonstrate fundamental concurrency patterns. Understanding their solutions helps you tackle real-world synchronization challenges.`,
 
       basicImplementation: {
-        title: 'Classic Concurrency Problem Diagrams',
-        architecture: `
-PRODUCER-CONSUMER PROBLEM
-=========================
-
-  Producer 1 ─┐                                        ┌─ Consumer 1
-  Producer 2 ─┼──► [Bounded Buffer Queue] ◄──┼─ Consumer 2
-  Producer 3 ─┘    [■][■][■][□][□][□][□][□]          └─ Consumer 3
-                         │             │
-                      items         spaces
-
-  Semaphores: empty_slots(N), filled_slots(0), mutex(1)
-
-  Producer Flow:                    Consumer Flow:
-  1. wait(empty_slots)              1. wait(filled_slots)
-  2. lock(mutex)                    2. lock(mutex)
-  3. add item to buffer             3. remove item from buffer
-  4. unlock(mutex)                  4. unlock(mutex)
-  5. signal(filled_slots)           5. signal(empty_slots)
-
-
-READERS-WRITERS PROBLEM
-=======================
-
-  Reader 1 ─┐
-  Reader 2 ─┼────► [SHARED RESOURCE] ◄──── Writer 1
-  Reader 3 ─┘      (Database/File)         (exclusive)
-
-  Rules:
-  [OK] Multiple readers can read simultaneously
-  [NO] Writer needs exclusive access (no readers, no other writers)
-
-  Variables: read_count=0, mutex, write_lock
-
-  Reader:                           Writer:
-  lock(mutex)                       lock(write_lock)
-  read_count++                      WRITE DATA
-  if first: lock(write_lock)        unlock(write_lock)
-  unlock(mutex)
-  READ DATA
-  lock(mutex)
-  read_count--
-  if last: unlock(write_lock)
-  unlock(mutex)
-
-
-DINING PHILOSOPHERS PROBLEM
-===========================
-
-            [P1]
-           /    \\
-         F1      F2
-        /          \\
-      [P5]        [P2]
-       |            |
-      F5           F3
-       |            |
-      [P4]--F4--[P3]
-
-  5 Philosophers, 5 Forks
-  Each needs 2 forks (left + right) to eat
-
-  DEADLOCK: All pick up left fork, wait for right forever!
-
-  Solutions:
-  1. Resource Hierarchy: Pick lower-numbered fork first
-  2. Arbitrator: Waiter limits concurrent attempts to 4
-  3. Chandy-Misra: Dirty/clean fork states`
+        title: 'Producer-Consumer Pattern',
+        description: 'Producers add items to a bounded buffer while consumers remove them. Uses semaphores (empty_slots, filled_slots) and mutex for synchronization. Producer: wait(empty)→lock→add→unlock→signal(filled). Consumer: wait(filled)→lock→remove→unlock→signal(empty).',
+        svgTemplate: 'producerConsumer'
       },
 
       problems: [
@@ -28204,8 +27598,10 @@ Best,
                 )}
 
                 {/* Requirements - Functional & Non-Functional */}
+                {(topicDetails.functionalRequirements || topicDetails.requirements || topicDetails.nonFunctionalRequirements) && (
                 <div id="requirements" className="grid md:grid-cols-2 gap-4 scroll-mt-24">
                   {/* Functional Requirements */}
+                  {(topicDetails.functionalRequirements || topicDetails.requirements) && (
                   <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
                     <div className="px-3 py-2 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
@@ -28224,6 +27620,7 @@ Best,
                       </ul>
                     </div>
                   </div>
+                  )}
 
                   {/* Non-Functional Requirements */}
                   {topicDetails.nonFunctionalRequirements && (
@@ -28247,6 +27644,7 @@ Best,
                     </div>
                   )}
                 </div>
+                )}
 
                 {/* API Design + Data Model - Side by Side Row */}
                 {(topicDetails.apiDesign?.endpoints || topicDetails.dataModel) && (
@@ -28352,7 +27750,13 @@ Best,
                         </div>
                         <div className="p-5">
                           <p className="text-gray-300 text-base mb-4">{topicDetails.basicImplementation.description}</p>
-                          {topicDetails.basicImplementation.architecture && (
+                          {topicDetails.basicImplementation.svgTemplate && (
+                            <DiagramSVG
+                              template={topicDetails.basicImplementation.svgTemplate}
+                              className="mb-4"
+                            />
+                          )}
+                          {topicDetails.basicImplementation.architecture && !topicDetails.basicImplementation.svgTemplate && (
                             <div className="rounded-lg overflow-x-auto mb-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
                               <pre
                                 className="p-4 text-sm leading-6 text-cyan-400"
@@ -28398,7 +27802,13 @@ Best,
                         </div>
                         <div className="p-4">
                           <p className="text-gray-300 text-base mb-3">{topicDetails.advancedImplementation.description}</p>
-                          {topicDetails.advancedImplementation.architecture && (
+                          {topicDetails.advancedImplementation.svgTemplate && (
+                            <DiagramSVG
+                              template={topicDetails.advancedImplementation.svgTemplate}
+                              className="mb-3"
+                            />
+                          )}
+                          {topicDetails.advancedImplementation.architecture && !topicDetails.advancedImplementation.svgTemplate && (
                             <div className="rounded-lg overflow-x-auto mb-3" style={{ background: 'rgba(0,0,0,0.5)' }}>
                               <pre
                                 className="p-3 text-xs leading-5 text-emerald-400"
