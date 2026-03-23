@@ -23116,56 +23116,36 @@ The ambiguity became a clear, measurable project."`
               {/* DSA Content */}
               {activePage === 'coding' && (
                 <>
-                  {/* Topic Cards - Premium grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-12">
+                  {/* Topic Cards - 4-column compact grid */}
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-8">
                     {filteredTopics.map((topic, idx) => (
                       <div
                         key={topic.id}
                         onClick={() => setSelectedTopic(topic.id)}
-                        className="group relative rounded-2xl transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl"
+                        className="group relative rounded-xl transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl"
                         style={{
                           background: `linear-gradient(135deg, ${topic.color}08, ${topic.color}02)`,
                           border: `1px solid ${topic.color}20`
                         }}
                       >
-                        {/* Card content */}
-                        <div className="p-5">
-                          <div className="flex items-start justify-between mb-4">
+                        <div className="p-3">
+                          <div className="flex items-center gap-2 mb-2">
                             <div
-                              className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+                              className="w-8 h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 flex-shrink-0"
                               style={{ background: `${topic.color}15` }}
                             >
-                              <Icon name={topic.icon} size={24} style={{ color: topic.color }} />
+                              <Icon name={topic.icon} size={16} style={{ color: topic.color }} />
                             </div>
-                            <div className="flex items-center gap-2">
-                              <span
-                                className="px-2.5 py-1 rounded-lg text-xs font-medium"
-                                style={{ background: `${topic.color}15`, color: topic.color }}
-                              >
-                                {topic.questions} problems
-                              </span>
-                            </div>
+                            <h3 className="text-white font-semibold text-sm group-hover:text-emerald-400 transition-colors truncate">{topic.title}</h3>
                           </div>
-                          <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-emerald-400 transition-colors">{topic.title}</h3>
-                          <p className="text-gray-400 text-sm line-clamp-2 mb-4">{topic.description}</p>
+                          <p className="text-gray-400 text-xs line-clamp-2 mb-2">{topic.description}</p>
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-xs text-gray-500">
-                              <span className="flex items-center gap-1">
-                                <Icon name="clock" size={12} />
-                                {topic.timeComplexity || 'Various'}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1 text-sm font-medium group-hover:translate-x-1 transition-transform" style={{ color: topic.color }}>
-                              <span>Learn</span>
-                              <Icon name="arrowRight" size={14} />
-                            </div>
+                            <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
+                              {topic.questions}Q
+                            </span>
+                            <Icon name="arrowRight" size={12} className="text-gray-500 group-hover:text-white transition-colors" />
                           </div>
                         </div>
-                        {/* Hover glow effect */}
-                        <div
-                          className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-                          style={{ boxShadow: `0 0 40px ${topic.color}15` }}
-                        />
                       </div>
                     ))}
                   </div>
@@ -23263,60 +23243,52 @@ The ambiguity became a clear, measurable project."`
                         <p className="text-sm text-gray-500">Essential building blocks for system design</p>
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                       {filteredTopics.map((topic) => (
                         <div
                           key={topic.id}
                           onClick={() => setSelectedTopic(topic.id)}
-                          className="group relative rounded-2xl transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl"
+                          className="group relative rounded-xl transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl"
                           style={{
                             background: `linear-gradient(135deg, ${topic.color}08, ${topic.color}02)`,
                             border: `1px solid ${topic.color}20`
                           }}
                         >
-                          <div className="p-5">
-                            <div className="flex items-start justify-between mb-4">
+                          <div className="p-3">
+                            <div className="flex items-center gap-2 mb-2">
                               <div
-                                className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+                                className="w-8 h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 flex-shrink-0"
                                 style={{ background: `${topic.color}15` }}
                               >
-                                <Icon name={topic.icon} size={24} style={{ color: topic.color }} />
+                                <Icon name={topic.icon} size={16} style={{ color: topic.color }} />
                               </div>
-                              <span
-                                className="px-2.5 py-1 rounded-lg text-xs font-medium"
-                                style={{ background: `${topic.color}15`, color: topic.color }}
-                              >
+                              <h3 className="text-white font-semibold text-sm group-hover:text-blue-400 transition-colors truncate">{topic.title}</h3>
+                            </div>
+                            <p className="text-gray-400 text-xs line-clamp-2 mb-2">{topic.description}</p>
+                            <div className="flex items-center justify-between">
+                              <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
                                 Concept
                               </span>
-                            </div>
-                            <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-blue-400 transition-colors">{topic.title}</h3>
-                            <p className="text-gray-400 text-sm line-clamp-2 mb-4">{topic.description}</p>
-                            <div className="flex items-center gap-1 text-sm font-medium group-hover:translate-x-1 transition-transform" style={{ color: topic.color }}>
-                              <span>Study</span>
-                              <Icon name="arrowRight" size={14} />
+                              <Icon name="arrowRight" size={12} className="text-gray-500 group-hover:text-white transition-colors" />
                             </div>
                           </div>
-                          <div
-                            className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-                            style={{ boxShadow: `0 0 40px ${topic.color}15` }}
-                          />
                         </div>
                       ))}
                     </div>
                   </div>
 
                   {/* System Design Problems Section */}
-                  <div className="mb-12">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-500/10">
-                        <Icon name="systemDesign" size={20} className="text-purple-400" />
+                  <div className="mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-500/10">
+                        <Icon name="systemDesign" size={16} className="text-purple-400" />
                       </div>
                       <div>
-                        <h2 className="text-2xl font-bold text-white">Common System Designs</h2>
-                        <p className="text-sm text-gray-500">Real-world systems frequently asked in interviews</p>
+                        <h2 className="text-xl font-bold text-white">Common System Designs</h2>
+                        <p className="text-xs text-gray-500">Real-world systems frequently asked in interviews</p>
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                       {systemDesigns.map((design) => {
                         const difficultyColors = {
                           'Easy': { bg: 'rgba(16,185,129,0.15)', text: '#10b981' },
@@ -23328,72 +23300,66 @@ The ambiguity became a clear, measurable project."`
                           <div
                             key={design.id}
                             onClick={() => setSelectedTopic(design.id)}
-                            className="group relative rounded-2xl transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl"
+                            className="group relative rounded-xl transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl"
                             style={{
                               background: `linear-gradient(135deg, ${design.color}08, ${design.color}02)`,
                               border: `1px solid ${design.color}20`
                             }}
                           >
-                            <div className="p-5">
-                              <div className="flex items-start justify-between mb-4">
-                                <div
-                                  className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+                            <div className="p-3">
+                              <div className="flex items-center gap-2 mb-2">
+                                    <div
+                                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 flex-shrink-0"
                                   style={{ background: `${design.color}15` }}
                                 >
-                                  <Icon name={design.icon} size={24} style={{ color: design.color }} />
+                                  <Icon name={design.icon} size={16} style={{ color: design.color }} />
                                 </div>
-                                <span
-                                  className="px-2.5 py-1 rounded-lg text-xs font-medium"
-                                  style={{ background: diffColor.bg, color: diffColor.text }}
-                                >
+                              <h3 className="text-white font-semibold text-sm group-hover:text-purple-400 transition-colors truncate">{design.title}</h3>
+                              </div>
+                              <p className="text-gray-500 text-xs mb-2 line-clamp-1">{design.subtitle}</p>
+                              <div className="flex items-center justify-between">
+                                <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: diffColor.bg, color: diffColor.text }}>
                                   {design.difficulty}
                                 </span>
-                              </div>
-                              <h3 className="text-white font-semibold text-lg mb-1 group-hover:text-purple-400 transition-colors">{design.title}</h3>
-                              <p className="text-gray-500 text-sm mb-4">{design.subtitle}</p>
-                              <div className="flex items-center gap-1 text-sm font-medium group-hover:translate-x-1 transition-transform" style={{ color: design.color }}>
-                                <span>Design</span>
-                                <Icon name="arrowRight" size={14} />
+                                <Icon name="arrowRight" size={12} className="text-gray-500 group-hover:text-white transition-colors" />
                               </div>
                             </div>
-                            <div
-                              className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-                              style={{ boxShadow: `0 0 40px ${design.color}15` }}
-                            />
                           </div>
                         );
                       })}
                     </div>
                   </div>
 
-                  {/* Interview Framework - Enhanced */}
-                  <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.02))', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                    <div className="px-6 py-4 border-b border-blue-500/20" style={{ background: 'rgba(59,130,246,0.05)' }}>
-                      <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-500/20">
-                          <Icon name="target" size={20} className="text-blue-400" />
-                        </div>
-                        System Design Interview Framework
-                      </h3>
-                      <p className="text-gray-400 text-sm mt-1 ml-13">45-minute interview breakdown</p>
+                  {/* Interview Framework - Compact */}
+                  <div className="rounded-xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.02))', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                    <div className="px-4 py-3 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-500/20">
+                        <Icon name="target" size={14} className="text-blue-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-white">Interview Framework</h3>
+                        <p className="text-gray-500 text-xs">45-minute breakdown</p>
+                      </div>
                     </div>
-                    <div className="p-6">
-                      <div className="grid md:grid-cols-4 gap-4">
+                    <div className="p-3">
+                      <div className="grid grid-cols-4 gap-2">
                         {[
-                          { time: '5 min', step: 'Requirements', desc: 'Clarify functional & non-functional requirements, scale', icon: 'list', color: '#10b981' },
-                          { time: '5 min', step: 'Estimations', desc: 'Back-of-envelope: QPS, storage, bandwidth', icon: 'calculator', color: '#eab308' },
-                          { time: '20 min', step: 'High-Level Design', desc: 'Components, data flow, API design', icon: 'systemDesign', color: '#3b82f6' },
-                          { time: '15 min', step: 'Deep Dive', desc: 'Database schema, scaling, trade-offs', icon: 'database', color: '#a855f7' },
+                          { time: '5m', step: 'Requirements', desc: 'Functional & non-functional', icon: 'list', color: '#10b981' },
+                          { time: '5m', step: 'Estimations', desc: 'QPS, storage, bandwidth', icon: 'calculator', color: '#eab308' },
+                          { time: '20m', step: 'High-Level', desc: 'Components, data flow', icon: 'systemDesign', color: '#3b82f6' },
+                          { time: '15m', step: 'Deep Dive', desc: 'Schema, scaling', icon: 'database', color: '#a855f7' },
                         ].map((phase, i) => (
-                          <div key={i} className="relative rounded-xl p-5" style={{ background: 'rgba(0,0,0,0.3)' }}>
-                            <div className="absolute top-0 left-6 -translate-y-1/2 px-3 py-1 rounded-full text-xs font-bold" style={{ background: phase.color, color: '#0a0a0f' }}>
-                              {phase.time}
+                          <div key={i} className="rounded-lg p-3" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="w-6 h-6 rounded flex items-center justify-center" style={{ background: `${phase.color}20` }}>
+                                <Icon name={phase.icon} size={12} style={{ color: phase.color }} />
+                              </div>
+                              <span className="px-1.5 py-0.5 rounded text-xs font-bold" style={{ background: phase.color, color: '#0a0a0f' }}>
+                                {phase.time}
+                              </span>
                             </div>
-                            <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3 mt-2" style={{ background: `${phase.color}20` }}>
-                              <Icon name={phase.icon} size={18} style={{ color: phase.color }} />
-                            </div>
-                            <div className="text-white font-semibold mb-2">{phase.step}</div>
-                            <div className="text-gray-400 text-sm">{phase.desc}</div>
+                            <div className="text-white font-semibold text-xs mb-1">{phase.step}</div>
+                            <div className="text-gray-500 text-xs">{phase.desc}</div>
                           </div>
                         ))}
                       </div>
@@ -23444,108 +23410,90 @@ The ambiguity became a clear, measurable project."`
                   </div>
 
                   {/* Question Categories Section */}
-                  <div className="mb-12">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-500/10">
-                        <Icon name="messageSquare" size={20} className="text-purple-400" />
+                  <div className="mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-500/10">
+                        <Icon name="messageSquare" size={16} className="text-purple-400" />
                       </div>
                       <div>
-                        <h2 className="text-2xl font-bold text-white">Question Categories</h2>
-                        <p className="text-sm text-gray-500">Common behavioral question types with example answers</p>
+                        <h2 className="text-xl font-bold text-white">Question Categories</h2>
+                        <p className="text-xs text-gray-500">Common behavioral question types with example answers</p>
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                       {filteredTopics.map((topic) => (
                         <div
                           key={topic.id}
                           onClick={() => setSelectedTopic(topic.id)}
-                          className="group relative rounded-2xl transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl"
+                          className="group relative rounded-xl transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl"
                           style={{
                             background: `linear-gradient(135deg, ${topic.color}08, ${topic.color}02)`,
                             border: `1px solid ${topic.color}20`
                           }}
                         >
-                          <div className="p-5">
-                            <div className="flex items-start justify-between mb-4">
+                          <div className="p-3">
+                            <div className="flex items-center gap-2 mb-2">
                               <div
-                                className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+                                className="w-8 h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 flex-shrink-0"
                                 style={{ background: `${topic.color}15` }}
                               >
-                                <Icon name={topic.icon} size={24} style={{ color: topic.color }} />
+                                <Icon name={topic.icon} size={16} style={{ color: topic.color }} />
                               </div>
-                              <span
-                                className="px-2.5 py-1 rounded-lg text-xs font-medium"
-                                style={{ background: `${topic.color}15`, color: topic.color }}
-                              >
-                                {topic.questions} questions
-                              </span>
+                              <h3 className="text-white font-semibold text-sm group-hover:text-purple-400 transition-colors truncate">{topic.title}</h3>
                             </div>
-                            <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-purple-400 transition-colors">{topic.title}</h3>
-                            <p className="text-gray-400 text-sm line-clamp-2 mb-4">{topic.description}</p>
-                            <div className="flex items-center gap-1 text-sm font-medium group-hover:translate-x-1 transition-transform" style={{ color: topic.color }}>
-                              <span>Practice</span>
-                              <Icon name="arrowRight" size={14} />
+                            <p className="text-gray-400 text-xs line-clamp-2 mb-2">{topic.description}</p>
+                            <div className="flex items-center justify-between">
+                              <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
+                                {topic.questions}Q
+                              </span>
+                              <Icon name="arrowRight" size={12} className="text-gray-500 group-hover:text-white transition-colors" />
                             </div>
                           </div>
-                          <div
-                            className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-                            style={{ boxShadow: `0 0 40px ${topic.color}15` }}
-                          />
                         </div>
                       ))}
                     </div>
                   </div>
 
                   {/* Company-Specific Section */}
-                  <div className="mb-8">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-500/10">
-                        <Icon name="briefcase" size={20} className="text-amber-400" />
+                  <div className="mb-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-500/10">
+                        <Icon name="briefcase" size={16} className="text-amber-400" />
                       </div>
                       <div>
-                        <h2 className="text-2xl font-bold text-white">Company-Specific Prep</h2>
-                        <p className="text-sm text-gray-500">Tailored guidance for top tech companies</p>
+                        <h2 className="text-xl font-bold text-white">Company-Specific Prep</h2>
+                        <p className="text-xs text-gray-500">Tailored guidance for top tech companies</p>
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {companyPrep.map((company) => (
                         <div
                           key={company.id}
                           onClick={() => setSelectedTopic(company.id)}
-                          className="group relative rounded-2xl transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl"
+                          className="group relative rounded-xl transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl"
                           style={{
                             background: `linear-gradient(135deg, ${company.color}08, ${company.color}02)`,
                             border: `1px solid ${company.color}20`
                           }}
                         >
-                          <div className="p-5 flex items-center gap-4">
-                            <div
-                              className="w-14 h-14 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 flex-shrink-0"
-                              style={{ background: `${company.color}15` }}
-                            >
-                              <Icon name={company.icon} size={28} style={{ color: company.color }} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h3 className="text-white font-semibold text-lg mb-1 group-hover:text-amber-400 transition-colors">{company.title}</h3>
-                              <p className="text-gray-500 text-sm">{company.subtitle}</p>
-                            </div>
-                            <div className="flex flex-col items-end gap-2">
-                              <span
-                                className="px-3 py-1 rounded-lg text-xs font-medium"
-                                style={{ background: `${company.color}15`, color: company.color }}
+                          <div className="p-3">
+                            <div className="flex items-center gap-2 mb-2">
+                              <div
+                                className="w-8 h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 flex-shrink-0"
+                                style={{ background: `${company.color}15` }}
                               >
-                                {company.count} Topics
-                              </span>
-                              <div className="flex items-center gap-1 text-sm font-medium opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1" style={{ color: company.color }}>
-                                <span>Explore</span>
-                                <Icon name="arrowRight" size={14} />
+                                <Icon name={company.icon} size={16} style={{ color: company.color }} />
                               </div>
+                              <h3 className="text-white font-semibold text-sm group-hover:text-amber-400 transition-colors truncate">{company.title}</h3>
+                            </div>
+                            <p className="text-gray-500 text-xs mb-2 truncate">{company.subtitle}</p>
+                            <div className="flex items-center justify-between">
+                              <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: `${company.color}15`, color: company.color }}>
+                                {company.count}
+                              </span>
+                              <Icon name="arrowRight" size={12} className="text-gray-500 group-hover:text-white transition-colors" />
                             </div>
                           </div>
-                          <div
-                            className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-                            style={{ boxShadow: `0 0 40px ${company.color}15` }}
-                          />
                         </div>
                       ))}
                     </div>
