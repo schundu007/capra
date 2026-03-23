@@ -217,28 +217,36 @@ with Diagram("GKE Architecture", filename=DIAGRAM_FILENAME, outformat=DIAGRAM_FO
     lb >> gke >> db
 """
 
-USER_PROMPT_OVERVIEW = """Generate a COMPACT, HORIZONTAL Python diagram for this system design interview question:
+USER_PROMPT_OVERVIEW = """Generate a HORIZONTAL LEFT-TO-RIGHT Python diagram for this system design interview question:
 
 Question: {question}
 Cloud Provider: {cloud_provider}
 
 CRITICAL LAYOUT REQUIREMENTS:
-- 8-12 nodes MAXIMUM - keep it compact
-- MUST use direction="LR" for LEFT-TO-RIGHT horizontal flow
-- MUST include graph_attr and node_attr for compact sizing:
-  graph_attr={{"splines": "ortho", "nodesep": "0.4", "ranksep": "0.6", "fontsize": "11", "pad": "0.3"}}
-  node_attr={{"fontsize": "10", "width": "1.2", "height": "1.2"}}
-- ARRANGE IN HORIZONTAL ROWS: Connect nodes in a single horizontal chain where possible
-- Use SHORT labels (max 10 chars): "LB", "Cache", "DB", "API", "CDN"
-- Group into 2-3 small clusters max
-- NO monitoring, NO security details - just core flow
+- 10-15 nodes for overview - show core components
+- MUST use direction="LR" for LEFT-TO-RIGHT horizontal flow (NEVER use "TB")
+- MUST include graph_attr for compact horizontal layout:
+  graph_attr={{"splines": "ortho", "nodesep": "0.5", "ranksep": "0.8", "pad": "0.4"}}
+- ARRANGE IN HORIZONTAL ROWS using Cluster groupings:
+  - Row 1 cluster: Users/Clients
+  - Row 2 cluster: Edge/CDN/DNS
+  - Row 3 cluster: Load Balancer/API Gateway
+  - Row 4 cluster: Application services
+  - Row 5 cluster: Data stores (Cache, DB, Storage)
+- Connect clusters horizontally: cluster1 >> cluster2 >> cluster3
+- Use short labels: "LB", "Cache", "DB", "API", "CDN", "Users"
 
-HORIZONTAL ROW PATTERN - arrange nodes like this:
-  users >> cdn >> lb >> [api1, api2] >> cache >> db
+HORIZONTAL CLUSTER PATTERN:
+with Cluster("Edge"):
+    cdn = CloudFront("CDN")
+    dns = Route53("DNS")
+edge_nodes = [dns, cdn]
 
-Remember: ONLY output valid Python code. Use filename=DIAGRAM_FILENAME and outformat=DIAGRAM_FORMAT and show=False and direction="LR" and graph_attr and node_attr. Use real {cloud_provider} service icons."""
+Then connect: users >> edge_nodes >> lb >> services >> data
 
-USER_PROMPT_DETAILED = """Generate a DETAILED but COMPACT Python diagram for this system design interview question:
+Remember: ONLY output valid Python code. Use filename=DIAGRAM_FILENAME and outformat=DIAGRAM_FORMAT and show=False and direction="LR" and graph_attr. Use real {cloud_provider} service icons."""
+
+USER_PROMPT_DETAILED = """Generate a DETAILED HORIZONTAL Python diagram for this system design interview question:
 
 Question: {question}
 Cloud Provider: {cloud_provider}
@@ -246,32 +254,33 @@ Difficulty: {difficulty}
 Category: {category}
 
 CRITICAL LAYOUT REQUIREMENTS:
-- 12-18 nodes MAXIMUM - detailed but compact
-- MUST use direction="LR" for LEFT-TO-RIGHT horizontal flow
-- MUST include graph_attr and node_attr for compact sizing:
-  graph_attr={{"splines": "ortho", "nodesep": "0.4", "ranksep": "0.5", "fontsize": "10", "pad": "0.2"}}
-  node_attr={{"fontsize": "9", "width": "1.0", "height": "1.0"}}
-- ARRANGE IN HORIZONTAL ROWS within each cluster
-- Use SHORT labels (max 12 chars): "Redis", "Primary DB", "API GW", "Queue"
+- 15-25 nodes for detailed view - show ALL important services
+- MUST use direction="LR" for LEFT-TO-RIGHT horizontal flow (NEVER use "TB")
+- MUST include graph_attr for horizontal layout:
+  graph_attr={{"splines": "ortho", "nodesep": "0.5", "ranksep": "0.8", "pad": "0.4"}}
+- ARRANGE IN HORIZONTAL TIERS using Cluster groupings - each tier flows left to right
+- If diagram gets wide, use multiple horizontal rows (tiers) stacked vertically
 
-HORIZONTAL ROW STRUCTURE:
-- Row 1 (Ingress): dns >> cdn >> waf >> lb
-- Row 2 (App): lb >> [api1, api2, api3] >> cache
-- Row 3 (Data): cache >> db >> storage
-- Row 4 (Async): queue >> workers
+HORIZONTAL TIER STRUCTURE (arrange services HORIZONTALLY within each tier):
+- Tier 1 (Ingress): DNS >> CDN >> WAF >> Load Balancer >> API Gateway
+- Tier 2 (Application): [Service1, Service2, Service3] arranged horizontally
+- Tier 3 (Data): Cache >> Primary DB >> Read Replicas >> Storage
+- Tier 4 (Async): Queue >> SNS/SQS >> Workers >> DLQ
+- Tier 5 (Observability): Monitoring >> Logging >> Tracing
 
-CORE COMPONENTS (pick relevant ones):
-1. INGRESS: CDN, WAF, Load Balancer, API Gateway
-2. APP: 1-2 service nodes (not every instance)
-3. DATA: Primary DB, Cache, Storage
-4. ASYNC: Queue, Worker
+INCLUDE ALL THESE COMPONENTS:
+1. INGRESS: DNS, CDN, WAF, Load Balancer, API Gateway
+2. APPLICATION: App servers, microservices (show 2-3 nodes)
+3. DATA: Primary DB, Read Replicas, Cache (Redis), Object Storage
+4. ASYNC: Message Queue (SQS/Kafka), SNS, Workers, DLQ
+5. OBSERVABILITY: CloudWatch/Monitoring, Logging, X-Ray/Tracing
+6. SECURITY: IAM, KMS, Secrets Manager (1-2 nodes)
 
-LABELING RULES:
-- Short labels only: "LB", "API", "Cache", "DB"
-- Label key edges only: "HTTPS", "Events"
-- Skip monitoring connections
+LABELING:
+- Use short but descriptive labels: "Primary DB", "Redis Cache", "API GW"
+- Label key connections: "HTTPS", "gRPC", "Events", "Async"
 
-Remember: ONLY output valid Python code. Use filename=DIAGRAM_FILENAME and outformat=DIAGRAM_FORMAT and show=False and direction="LR" and graph_attr and node_attr. Use real {cloud_provider} service icons."""
+Remember: ONLY output valid Python code. Use filename=DIAGRAM_FILENAME and outformat=DIAGRAM_FORMAT and show=False and direction="LR" and graph_attr. Use real {cloud_provider} service icons. Include ALL services needed for production."""
 
 RETRY_PROMPT_TEMPLATE = """The previous diagram code failed with this error:
 {error_message}
