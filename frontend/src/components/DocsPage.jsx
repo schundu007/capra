@@ -8374,6 +8374,59 @@ http_requests_total{endpoint="/api/orders", status="200"}
     },
   ];
 
+  // System Design Problem Categories
+  const systemDesignProblemCategories = [
+    { id: 'social', name: 'Social Media & Networking', icon: 'users', color: '#3b82f6' },
+    { id: 'streaming', name: 'Streaming & Media', icon: 'play', color: '#ef4444' },
+    { id: 'communication', name: 'Communication & Messaging', icon: 'messageSquare', color: '#8b5cf6' },
+    { id: 'ecommerce', name: 'E-commerce & Marketplace', icon: 'shoppingCart', color: '#f59e0b' },
+    { id: 'infrastructure', name: 'Infrastructure & Tools', icon: 'server', color: '#10b981' },
+    { id: 'storage', name: 'Storage & Data', icon: 'database', color: '#06b6d4' },
+  ];
+
+  const systemDesignProblemCategoryMap = {
+    // Social Media & Networking
+    'twitter': 'social',
+    'instagram': 'social',
+    'facebook-newsfeed': 'social',
+    'linkedin': 'social',
+    'tinder': 'social',
+    // Streaming & Media
+    'youtube': 'streaming',
+    'netflix': 'streaming',
+    'spotify': 'streaming',
+    // Communication & Messaging
+    'whatsapp': 'communication',
+    'chat-system': 'communication',
+    'zoom': 'communication',
+    'notification-system': 'communication',
+    // E-commerce & Marketplace
+    'amazon': 'ecommerce',
+    'airbnb': 'ecommerce',
+    'doordash': 'ecommerce',
+    'yelp': 'ecommerce',
+    'ticketmaster': 'ecommerce',
+    'hotel-booking': 'ecommerce',
+    'uber': 'ecommerce',
+    // Infrastructure & Tools
+    'url-shortener': 'infrastructure',
+    'rate-limiter': 'infrastructure',
+    'unique-id-generator': 'infrastructure',
+    'typeahead': 'infrastructure',
+    'google-maps': 'infrastructure',
+    'leaderboard': 'infrastructure',
+    'twitter-trends': 'infrastructure',
+    'google-docs': 'infrastructure',
+    // Storage & Data
+    'dropbox': 'storage',
+    'pastebin': 'storage',
+    'key-value-store': 'storage',
+    'web-crawler': 'storage',
+    'news-aggregator': 'storage',
+    'search-engine': 'storage',
+    'payment-system': 'storage',
+  };
+
   // Common System Designs
   const systemDesigns = [
     {
@@ -26116,9 +26169,9 @@ Best,
                     })}
                   </div>
 
-                  {/* System Design Problems Section */}
-                  <div className="mb-8">
-                    <div className="flex items-center gap-3 mb-4">
+                  {/* System Design Problems Section - Grouped by Category */}
+                  <div className="space-y-6 mb-8">
+                    <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-500/10">
                         <Icon name="systemDesign" size={16} className="text-purple-400" />
                       </div>
@@ -26127,55 +26180,55 @@ Best,
                         <p className="text-xs text-gray-500">Real-world systems frequently asked in interviews</p>
                       </div>
                     </div>
-                    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-                      <table className="w-full">
-                        <thead>
-                          <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
-                            <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">System</th>
-                            <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 hidden md:table-cell">Description</th>
-                            <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 w-24">Difficulty</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {systemDesigns.map((design) => {
-                            const difficultyColors = {
-                              'Easy': { bg: 'rgba(16,185,129,0.15)', text: '#10b981' },
-                              'Medium': { bg: 'rgba(234,179,8,0.15)', text: '#eab308' },
-                              'Hard': { bg: 'rgba(239,68,68,0.15)', text: '#ef4444' }
-                            };
-                            const diffColor = difficultyColors[design.difficulty] || difficultyColors['Medium'];
-                            return (
-                              <tr
-                                key={design.id}
-                                onClick={() => setSelectedTopic(design.id)}
-                                className="group cursor-pointer transition-all hover:bg-white/5"
-                                style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
-                              >
-                                <td className="px-4 py-3">
+                    {systemDesignProblemCategories.map((category) => {
+                      const categoryDesigns = systemDesigns.filter(d => systemDesignProblemCategoryMap[d.id] === category.id);
+                      if (categoryDesigns.length === 0) return null;
+                      const difficultyColors = {
+                        'Easy': { bg: 'rgba(16,185,129,0.15)', text: '#10b981' },
+                        'Medium': { bg: 'rgba(234,179,8,0.15)', text: '#eab308' },
+                        'Hard': { bg: 'rgba(239,68,68,0.15)', text: '#ef4444' }
+                      };
+                      return (
+                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+                          {/* Category Header */}
+                          <div className="px-4 py-3 flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${category.color}20` }}>
+                              <Icon name={category.icon} size={16} style={{ color: category.color }} />
+                            </div>
+                            <div>
+                              <h3 className="text-base font-bold text-white">{category.name}</h3>
+                              <span className="text-xs text-gray-500">{categoryDesigns.length} systems</span>
+                            </div>
+                          </div>
+                          {/* Designs in Category */}
+                          <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                            {categoryDesigns.map((design) => {
+                              const diffColor = difficultyColors[design.difficulty] || difficultyColors['Medium'];
+                              return (
+                                <div
+                                  key={design.id}
+                                  onClick={() => setSelectedTopic(design.id)}
+                                  className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
+                                >
                                   <div className="flex items-center gap-3">
-                                    <div
-                                      className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                                      style={{ background: `${design.color}15` }}
-                                    >
-                                      <Icon name={design.icon} size={16} style={{ color: design.color }} />
+                                    <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${design.color}15` }}>
+                                      <Icon name={design.icon} size={12} style={{ color: design.color }} />
                                     </div>
-                                    <span className="text-white font-medium group-hover:text-purple-400 transition-colors">{design.title}</span>
+                                    <div>
+                                      <span className="text-white text-sm font-medium group-hover:text-purple-400 transition-colors">{design.title}</span>
+                                      <span className="text-gray-500 text-xs ml-2 hidden md:inline">{design.subtitle}</span>
+                                    </div>
                                   </div>
-                                </td>
-                                <td className="px-4 py-3 hidden md:table-cell">
-                                  <span className="text-gray-400 text-sm">{design.subtitle}</span>
-                                </td>
-                                <td className="px-4 py-3 text-right">
-                                  <span className="px-2 py-1 rounded text-sm font-medium" style={{ background: diffColor.bg, color: diffColor.text }}>
+                                  <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: diffColor.bg, color: diffColor.text }}>
                                     {design.difficulty}
                                   </span>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
 
                   {/* Interview Framework - Compact */}
