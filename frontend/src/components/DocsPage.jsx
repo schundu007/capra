@@ -7239,20 +7239,8 @@ JWT Payload:
 
       basicImplementation: {
         title: 'Simple REST API',
-        description: 'Basic CRUD API design',
-        architecture: `
-┌─────────────┐     ┌────────────────────────────────────────────┐
-│   Client    │────▶│              REST API                      │
-│ (Browser/   │     │                                            │
-│   Mobile)   │◀────│  GET    /users        → List users         │
-└─────────────┘     │  GET    /users/:id    → Get user           │
-                    │  POST   /users        → Create user        │
-                    │  PUT    /users/:id    → Update user        │
-                    │  DELETE /users/:id    → Delete user        │
-                    │                                            │
-                    │  Response format:                          │
-                    │  { "data": {...}, "meta": {...} }          │
-                    └────────────────────────────────────────────┘`,
+        description: 'Client → REST API with CRUD operations (GET, POST, PUT, DELETE)',
+        svgTemplate: 'restApi',
         problems: [
           'Over-fetching: Getting more data than needed',
           'Under-fetching: Multiple requests for related data',
@@ -7263,44 +7251,8 @@ JWT Payload:
 
       advancedImplementation: {
         title: 'API Gateway Architecture',
-        architecture: `
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                 Clients                                      │
-│     ┌─────────┐      ┌─────────┐      ┌─────────┐      ┌─────────┐          │
-│     │   Web   │      │  Mobile │      │  IoT    │      │ Partner │          │
-│     │   App   │      │   App   │      │ Devices │      │   API   │          │
-│     └────┬────┘      └────┬────┘      └────┬────┘      └────┬────┘          │
-└──────────┼────────────────┼────────────────┼────────────────┼────────────────┘
-           │                │                │                │
-           └────────────────┴────────────────┴────────────────┘
-                                    │
-                                    ▼
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                            API Gateway                                        │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │Authentication│  │ Rate Limiting│  │   Routing    │  │   Logging    │     │
-│  │    & Auth    │  │              │  │              │  │  & Metrics   │     │
-│  └──────────────┘  └──────────────┘  └──────────────┘  └──────────────┘     │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │  Caching     │  │   SSL/TLS    │  │  Versioning  │  │  Transform   │     │
-│  │              │  │ Termination  │  │              │  │   Response   │     │
-│  └──────────────┘  └──────────────┘  └──────────────┘  └──────────────┘     │
-└───────────────────────────────────┬──────────────────────────────────────────┘
-                                    │
-        ┌───────────────────────────┼───────────────────────────┐
-        │                           │                           │
-        ▼                           ▼                           ▼
-┌───────────────┐          ┌───────────────┐          ┌───────────────┐
-│  User Service │          │ Order Service │          │Product Service│
-│    (gRPC)     │          │    (gRPC)     │          │    (gRPC)     │
-└───────────────┘          └───────────────┘          └───────────────┘
-
-Benefits:
-- Single entry point for all clients
-- Cross-cutting concerns in one place
-- Protocol translation (REST → gRPC)
-- Rate limiting per client/API key
-- Request/response transformation`,
+        description: 'API Gateway handling auth, rate limiting, SSL, and routing to internal gRPC microservices',
+        svgTemplate: 'apiGateway',
         keyPoints: [
           'Gateway handles auth, rate limiting, logging',
           'Internal services use gRPC for performance',
@@ -7682,41 +7634,8 @@ No server-side storage
 
       advancedImplementation: {
         title: 'Global Load Balancing Architecture',
-        architecture: `
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              Global DNS                                      │
-│                          (GeoDNS / Anycast)                                  │
-│                    Route to nearest region                                   │
-└───────────────────────────────────┬─────────────────────────────────────────┘
-                                    │
-        ┌───────────────────────────┼───────────────────────────┐
-        │                           │                           │
-        ▼                           ▼                           ▼
-┌───────────────┐          ┌───────────────┐          ┌───────────────┐
-│   US-West     │          │   US-East     │          │   EU-West     │
-│   Region      │          │   Region      │          │   Region      │
-└───────┬───────┘          └───────┬───────┘          └───────┬───────┘
-        │                           │                           │
-        ▼                           ▼                           ▼
-┌───────────────┐          ┌───────────────┐          ┌───────────────┐
-│  Regional LB  │          │  Regional LB  │          │  Regional LB  │
-│  (HA Pair)    │          │  (HA Pair)    │          │  (HA Pair)    │
-└───────┬───────┘          └───────┬───────┘          └───────┬───────┘
-        │                           │                           │
-        ▼                           ▼                           ▼
-┌───────────────┐          ┌───────────────┐          ┌───────────────┐
-│ ┌───┐ ┌───┐   │          │ ┌───┐ ┌───┐   │          │ ┌───┐ ┌───┐   │
-│ │S1 │ │S2 │   │          │ │S1 │ │S2 │   │          │ │S1 │ │S2 │   │
-│ └───┘ └───┘   │          │ └───┘ └───┘   │          │ └───┘ └───┘   │
-│ ┌───┐ ┌───┐   │          │ ┌───┐ ┌───┐   │          │ ┌───┐ ┌───┐   │
-│ │S3 │ │S4 │   │          │ │S3 │ │S4 │   │          │ │S3 │ │S4 │   │
-│ └───┘ └───┘   │          │ └───┘ └───┘   │          │ └───┘ └───┘   │
-└───────────────┘          └───────────────┘          └───────────────┘
-
-Tiers:
-1. Global: GeoDNS routes to nearest region
-2. Regional: HA load balancer pair
-3. Local: Server pool with health checks`,
+        description: 'GeoDNS routing users to nearest region, with regional HA load balancers and server pools',
+        svgTemplate: 'globalLoadBalancer',
         keyPoints: [
           'GeoDNS routes users to nearest region',
           'Each region has redundant load balancers',
@@ -7880,25 +7799,8 @@ return {0, tokens}
 
       advancedImplementation: {
         title: 'Production Architecture',
-        architecture: `
-┌─────────┐    ┌─────────────────────┐    ┌─────────────┐
-│ Clients │───▶│    CDN / Edge       │───▶│    Load     │
-└─────────┘    │ (First-line limit)  │    │  Balancer   │
-               └─────────────────────┘    └──────┬──────┘
-                                                 │
-                    ┌────────────────────────────┼────────────────────────────┐
-                    ▼                            ▼                            ▼
-             ┌─────────────┐             ┌─────────────┐             ┌─────────────┐
-             │  Gateway 1  │             │  Gateway 2  │             │  Gateway 3  │
-             │ Local Cache │             │ Local Cache │             │ Local Cache │
-             └──────┬──────┘             └──────┬──────┘             └──────┬──────┘
-                    └────────────────────────────┼────────────────────────────┘
-                                                 ▼
-                    ┌──────────────────────────────────────────────────────────┐
-                    │                   Redis Cluster (6 nodes)                 │
-                    │   Primary 1 ── Replica 1    Primary 2 ── Replica 2       │
-                    │                      Primary 3 ── Replica 3              │
-                    └──────────────────────────────────────────────────────────┘`,
+        description: 'CDN Edge → API Gateway → Redis Cluster for distributed rate limiting',
+        svgTemplate: 'rateLimiterAdvanced',
         keyPoints: [
           'Edge rate limiting at CDN for DDoS protection',
           'Redis Cluster with automatic failover',
@@ -8672,31 +8574,8 @@ def verify_token(token, secret):
 
       basicImplementation: {
         title: 'Basic Authentication',
-        description: 'Session-based authentication',
-        architecture: `
-┌─────────────┐     ┌──────────────────────────────────────┐
-│   Client    │     │           Application                │
-│  (Browser)  │     │                                      │
-└──────┬──────┘     │  ┌──────────┐    ┌──────────────┐   │
-       │            │  │  Auth    │    │   Session    │   │
-       │            │  │ Service  │───▶│    Store     │   │
-       │            │  └──────────┘    │   (Redis)    │   │
-       │            │                   └──────────────┘   │
-       │            │                                      │
-       │  Login     │                   ┌──────────────┐   │
-       │───────────▶│                   │   Database   │   │
-       │            │                   │  (Users)     │   │
-       │  Session   │                   └──────────────┘   │
-       │◀───────────│                                      │
-       │  Cookie    │                                      │
-       │            └──────────────────────────────────────┘
-
-Flow:
-1. User submits credentials
-2. Server validates against database
-3. Server creates session in Redis
-4. Server sets session cookie
-5. Subsequent requests include cookie`,
+        description: 'Client → Auth Service → Session Store (Redis) + User Database',
+        svgTemplate: 'sessionAuth',
         problems: [
           'Server must store session state',
           'Hard to scale across servers',
@@ -8707,32 +8586,9 @@ Flow:
 
       advancedImplementation: {
         title: 'Zero-Trust Security Architecture',
-        architecture: `
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                               Internet                                       │
-└───────────────────────────────────┬─────────────────────────────────────────┘
-                                    │
-┌───────────────────────────────────▼─────────────────────────────────────────┐
-│                              WAF / DDoS Protection                          │
-│                          (Cloudflare / AWS Shield)                          │
-└───────────────────────────────────┬─────────────────────────────────────────┘
-                                    │
-┌───────────────────────────────────▼─────────────────────────────────────────┐
-│                            API Gateway                                       │
-│      Rate Limiting │ IP Filtering │ Request Validation │ Logging           │
-└───────────────────────────────────┬─────────────────────────────────────────┘
-                                    │
-┌───────────────────────────────────▼─────────────────────────────────────────┐
-│                         Identity Provider                                    │
-│                    (Auth0 / Okta / Cognito)                                 │
-│         MFA │ SSO │ OAuth │ Password Policies │ Brute Force Protection     │
-└───────────────────────────────────┬─────────────────────────────────────────┘
-                                    │ JWT / Token
-┌───────────────────────────────────▼─────────────────────────────────────────┐
-│                          Service Mesh (mTLS)                                │
-│               All service-to-service traffic encrypted                      │
-└───────────────────────────────────┬─────────────────────────────────────────┘
-                                    │
+        description: 'WAF → API Gateway → Identity Provider (JWT) → Service Mesh with mTLS',
+        svgTemplate: 'serviceMesh',
+        oldArchitecture: `
         ┌───────────────────────────┼───────────────────────────┐
         │                           │                           │
         ▼                           ▼                           ▼
@@ -9160,30 +9016,8 @@ http_requests_total{endpoint="/api/orders", status="200"}
 
       basicImplementation: {
         title: 'Basic Monitoring Stack',
-        description: 'Simple metrics and logging setup',
-        architecture: `
-┌─────────────────────────────────────────────────────────────┐
-│                      Application                             │
-│     ┌──────────┐          ┌──────────┐                      │
-│     │ /metrics │          │  Logs    │                      │
-│     │ endpoint │          │ (stdout) │                      │
-│     └────┬─────┘          └────┬─────┘                      │
-└──────────┼─────────────────────┼────────────────────────────┘
-           │                     │
-           │                     │
-           ▼                     ▼
-    ┌──────────────┐      ┌──────────────┐
-    │  Prometheus  │      │   Loki /     │
-    │   (scrape)   │      │   ELK Stack  │
-    └──────┬───────┘      └──────┬───────┘
-           │                     │
-           └──────────┬──────────┘
-                      │
-                      ▼
-               ┌──────────────┐
-               │   Grafana    │
-               │ (dashboards) │
-               └──────────────┘`,
+        description: 'Services → Collector → Prometheus, Jaeger, ELK → Grafana dashboards',
+        svgTemplate: 'observability',
         problems: [
           'No distributed tracing',
           'Manual alert configuration',
@@ -9445,21 +9279,8 @@ Avoid special characters (/, +, =) as they cause URL encoding issues.`
 
       advancedImplementation: {
         title: 'Advanced Implementation with ZooKeeper',
-        description: `Instead of distributed count caches, use ZooKeeper as a centralized coordination service. ZooKeeper maintains number ranges (1 million values per range). When a web server starts, it gets a range from ZooKeeper and uses those numbers for short URLs. This avoids collisions.`,
-        architecture: `
-┌────────┐    ┌──────────────┐    ┌────────────┐    ┌─────────────┐
-│ Client │───▶│ Load Balancer│───▶│ Web Servers│───▶│  Database   │
-└────────┘    └──────────────┘    └────────────┘    └─────────────┘
-                                        │                  │
-                                        ▼                  ▼
-                               ┌─────────────────┐   ┌─────────┐
-                               │   ZooKeeper     │   │  Cache  │
-                               │ Range Allocator │   │ (Redis) │
-                               │ 0 - 1M          │   └─────────┘
-                               │ 1M - 2M         │
-                               │ 2M - 3M         │
-                               │ ...             │
-                               └─────────────────┘`,
+        description: 'ZooKeeper allocates ID ranges to web servers, avoiding collisions. Each server generates IDs independently.',
+        svgTemplate: 'urlShortenerAdvanced',
         keyPoints: [
           'ZooKeeper allocates ranges of 1 million IDs to each web server',
           'Each server generates IDs independently within its range - no collisions',
@@ -9677,24 +9498,8 @@ Structure:
 
       advancedImplementation: {
         title: 'Hybrid Fan-out (Twitter\'s Approach)',
-        description: 'Use fan-out on write for regular users (<10K followers), fan-out on read for celebrities. Timeline reads merge cached feed with celebrity tweets fetched on-demand.',
-        architecture: `
-┌────────┐    ┌──────────────┐    ┌─────────────┐
-│ Client │───▶│ Tweet Service│───▶│  Tweet DB   │
-└────────┘    └──────────────┘    └─────────────┘
-                     │
-        ┌────────────┴────────────┐
-        ▼                         ▼
-┌───────────────┐         ┌───────────────┐
-│ Fan-out Write │         │ Celebrity     │
-│ (< 10K foll.) │         │ Tweet Cache   │
-└───────────────┘         └───────────────┘
-        │                         │
-        ▼                         │
-┌───────────────┐                 │
-│ User Timeline │◀────────────────┘
-│    Cache      │    (merged on read)
-└───────────────┘`,
+        description: 'Fan-out on write for <10K followers, celebrity tweets merged on read from cache',
+        svgTemplate: 'hybridFanout',
         keyPoints: [
           'Follower threshold (e.g., 10K) determines fan-out strategy',
           'Timeline read merges pre-computed feed + celebrity tweets',
@@ -9932,31 +9737,8 @@ rides {
 
       advancedImplementation: {
         title: 'Scalable Implementation with Cell-based Architecture',
-        description: 'Divide the city into cells, each managed by dedicated services. Use in-memory spatial index for fast matching.',
-        architecture: `
-┌────────┐    ┌──────────────┐    ┌─────────────┐
-│ Rider  │───▶│   Gateway    │◀───│   Driver    │
-└────────┘    └──────────────┘    └─────────────┘
-                     │
-        ┌────────────┼────────────┐
-        ▼            ▼            ▼
-┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-│  Cell A     │ │  Cell B     │ │  Cell C     │
-│  Service    │ │  Service    │ │  Service    │
-└─────────────┘ └─────────────┘ └─────────────┘
-        │            │            │
-        └────────────┼────────────┘
-                     ▼
-              ┌─────────────┐    ┌─────────────┐
-              │   Redis     │    │   Kafka     │
-              │ (Locations) │    │  (Events)   │
-              └─────────────┘    └─────────────┘
-                                       │
-                                       ▼
-                              ┌─────────────┐
-                              │    Ride     │
-                              │  Database   │
-                              └─────────────┘`,
+        description: 'City divided into S2 cells, each with dedicated services. Redis Geo for O(log N) spatial queries.',
+        svgTemplate: 'cellBasedArch',
         keyPoints: [
           'Divide city into S2 cells (roughly 1km²)',
           'Each cell service manages drivers in that area',
@@ -10471,6 +10253,7 @@ Sticky sessions ensure reconnection goes to same server.`
       basicImplementation: {
         title: 'Basic Implementation',
         description: 'Single chat server handling WebSocket connections and message routing.',
+        svgTemplate: 'whatsapp',
         architecture: `
 ┌────────┐    ┌──────────────┐    ┌─────────────┐
 │ Client │◀══▶│  Chat Server │───▶│ Message DB  │
@@ -10768,6 +10551,7 @@ Ring buffer pattern: Stories are circular, auto-evict after 24h`
       basicImplementation: {
         title: 'Basic Architecture',
         description: 'Monolithic service with pull-based feed generation',
+        svgTemplate: 'instagram',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                           INSTAGRAM BASIC                               │
@@ -11145,6 +10929,7 @@ Changes are pushed through notification service, client then fetches full delta.
       basicImplementation: {
         title: 'Basic Architecture',
         description: 'Simple upload/download without block-level sync',
+        svgTemplate: 'dropbox',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                           DROPBOX BASIC                                 │
@@ -11531,6 +11316,7 @@ Personalization touches:
       basicImplementation: {
         title: 'Basic Architecture',
         description: 'Simple streaming with single CDN',
+        svgTemplate: 'netflix',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                            NETFLIX BASIC                                │
@@ -12276,6 +12062,7 @@ For offline-first/P2P: CRDT`
       basicImplementation: {
         title: 'Basic Architecture',
         description: 'Simple last-write-wins without real-time collaboration',
+        svgTemplate: 'googleDocs',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                          GOOGLE DOCS BASIC                              │
@@ -13763,6 +13550,7 @@ return {0, tokens}  -- denied
       basicImplementation: {
         title: 'Basic Rate Limiter Architecture',
         description: 'Single server rate limiting with Redis',
+        svgTemplate: 'distributedRateLimiter',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────┐
 │                     Basic Rate Limiter                          │
@@ -14165,6 +13953,7 @@ queue_positions {
       basicImplementation: {
         title: 'Basic Architecture',
         description: 'Simple booking without queue or advanced locking',
+        svgTemplate: 'ticketBooking',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                         TICKETMASTER BASIC                              │
@@ -14554,6 +14343,7 @@ Search Logs → Kafka → Flink → Aggregator → Trie Updater
       basicImplementation: {
         title: 'Basic Typeahead Architecture',
         description: 'In-memory trie with pre-computed suggestions',
+        svgTemplate: 'typeahead',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Basic Typeahead System                        │
@@ -15261,6 +15051,7 @@ Return aggregations for filters:
       basicImplementation: {
         title: 'Basic Yelp Architecture',
         description: 'PostGIS for geospatial, single database',
+        svgTemplate: 'yelp',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────┐
 │                       Basic Yelp System                          │
@@ -15598,6 +15389,7 @@ Optimization:
       basicImplementation: {
         title: 'Basic Architecture',
         description: 'Simple swipe and match without optimization',
+        svgTemplate: 'tinder',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                            TINDER BASIC                                 │
@@ -16044,6 +15836,7 @@ Returns decryption key (valid for 30 days)
       basicImplementation: {
         title: 'Basic Music Streaming',
         description: 'Simple audio serving with basic playlists',
+        svgTemplate: 'spotify',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Basic Spotify System                          │
@@ -16390,6 +16183,7 @@ Optimization:
       basicImplementation: {
         title: 'Basic Architecture',
         description: 'Simple search and booking without availability optimization',
+        svgTemplate: 'airbnb',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                            AIRBNB BASIC                                 │
@@ -16836,6 +16630,7 @@ If demand > supply by X%:
       basicImplementation: {
         title: 'Basic Food Delivery',
         description: 'Simple order flow without optimization',
+        svgTemplate: 'doordash',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────┐
 │                   Basic Food Delivery System                     │
@@ -17207,6 +17002,7 @@ Where credibility considers:
       basicImplementation: {
         title: 'Single Region Architecture',
         description: 'Handle trends for one geographic area',
+        svgTemplate: 'twitterTrending',
         architecture: `
 ┌─────────────────────────────────────────────────────────────┐
 │                    Tweet Ingestion                          │
@@ -17656,6 +17452,7 @@ Cons: Storage not immediately reclaimed
       basicImplementation: {
         title: 'Simple Architecture',
         description: 'Single server with direct S3 access',
+        svgTemplate: 'pastebin',
         architecture: `
 ┌─────────────────────────────────────────────────────────────┐
 │                    Pastebin Architecture                    │
@@ -17876,6 +17673,7 @@ Bloom filter for fast "definitely not seen" checks before expensive hash lookups
       basicImplementation: {
         title: 'Basic Architecture',
         description: 'Single-threaded crawler',
+        svgTemplate: 'webCrawler',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                         WEB CRAWLER BASIC                               │
@@ -18214,6 +18012,7 @@ Instead:
       basicImplementation: {
         title: 'Pull-Based Architecture',
         description: 'Simple pull model - compute feed on read',
+        svgTemplate: 'facebookFeed',
         architecture: `
 ┌─────────────────────────────────────────────────────────────┐
 │                   Basic Feed System                         │
@@ -18631,6 +18430,7 @@ Merkle Tree sync:
       basicImplementation: {
         title: 'Single-Node Key-Value Store',
         description: 'In-memory hash map with persistence',
+        svgTemplate: 'keyValueStore',
         architecture: `
 ┌─────────────────────────────────────────────────────────────┐
 │                  Single Node KV Store                       │
@@ -19017,6 +18817,7 @@ No coordination, but:
       basicImplementation: {
         title: 'Single Server Snowflake',
         description: 'Simple in-memory generator',
+        svgTemplate: 'distributedId',
         architecture: `
 ┌─────────────────────────────────────────────────────────────┐
 │                  Single Server Generator                    │
@@ -19419,6 +19220,7 @@ if story involves major entity (president, CEO):
       basicImplementation: {
         title: 'Simple News Aggregator',
         description: 'RSS ingestion with basic ranking',
+        svgTemplate: 'googleNews',
         architecture: `
 ┌─────────────────────────────────────────────────────────────┐
 │                  Basic News Aggregator                      │
@@ -19830,6 +19632,7 @@ Shard by leaderboard key:
       basicImplementation: {
         title: 'Single Redis Leaderboard',
         description: 'Simple sorted set implementation',
+        svgTemplate: 'leaderboard',
         architecture: `
 ┌─────────────────────────────────────────────────────────────┐
 │                  Basic Leaderboard                          │
@@ -20238,6 +20041,7 @@ Search results: Cache by query hash
       basicImplementation: {
         title: 'Simple Booking System',
         description: 'Single database with basic search',
+        svgTemplate: 'hotelBooking',
         architecture: `
 ┌─────────────────────────────────────────────────────────────┐
 │                  Basic Hotel Booking                        │
@@ -20658,6 +20462,7 @@ Confidence interval:
       basicImplementation: {
         title: 'Basic Mapping System',
         description: 'Static tiles with simple routing',
+        svgTemplate: 'googleMaps',
         architecture: `
 ┌─────────────────────────────────────────────────────────────┐
 │                  Basic Maps System                          │
@@ -21069,6 +20874,7 @@ For very large meetings (webinars):
       basicImplementation: {
         title: 'Simple Video Call',
         description: 'Peer-to-peer for 2 participants',
+        svgTemplate: 'zoom',
         architecture: `
 ┌─────────────────────────────────────────────────────────────┐
 │                  Basic P2P Video Call                       │
@@ -21507,6 +21313,7 @@ Privacy: Option to view anonymously (hides viewer)
       basicImplementation: {
         title: 'Simple Professional Network',
         description: 'Basic profiles and connections',
+        svgTemplate: 'linkedin',
         architecture: `
 ┌─────────────────────────────────────────────────────────────┐
 │                  Basic LinkedIn Clone                       │
@@ -23264,6 +23071,8 @@ In interviews, you'll be expected to understand the difference between processes
 
       basicImplementation: {
         title: 'Thread Pool Architecture',
+        description: 'Managing worker threads efficiently with task queue and bounded concurrency',
+        svgTemplate: 'threadPool',
         architecture: `
 ┌──────────────────────────────────────────────────────────────────────────┐
 │                           Thread Pool                                     │
