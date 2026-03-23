@@ -495,11 +495,26 @@ export default function DocsPage({ onBack }) {
         { name: 'Two Sum', difficulty: 'Easy' },
         { name: 'Contains Duplicate', difficulty: 'Easy' },
         { name: 'Valid Anagram', difficulty: 'Easy' },
+        { name: 'Two Sum II', difficulty: 'Medium' },
         { name: 'Group Anagrams', difficulty: 'Medium' },
         { name: 'Top K Frequent Elements', difficulty: 'Medium' },
         { name: 'Product of Array Except Self', difficulty: 'Medium' },
         { name: 'Longest Consecutive Sequence', difficulty: 'Medium' },
-        { name: 'Subarray Sum Equals K', difficulty: 'Medium' }
+        { name: 'Subarray Sum Equals K', difficulty: 'Medium' },
+        { name: 'Encode and Decode Strings', difficulty: 'Medium' },
+        { name: '3Sum', difficulty: 'Medium' },
+        { name: 'Container With Most Water', difficulty: 'Medium' },
+        { name: 'Best Time to Buy and Sell Stock', difficulty: 'Easy' },
+        { name: 'Maximum Subarray', difficulty: 'Medium' },
+        { name: 'Merge Intervals', difficulty: 'Medium' },
+        { name: 'Insert Interval', difficulty: 'Medium' },
+        { name: 'Set Matrix Zeroes', difficulty: 'Medium' },
+        { name: 'Spiral Matrix', difficulty: 'Medium' },
+        { name: 'Rotate Image', difficulty: 'Medium' },
+        { name: 'Word Search', difficulty: 'Medium' },
+        { name: 'First Missing Positive', difficulty: 'Hard' },
+        { name: 'Trapping Rain Water', difficulty: 'Hard' },
+        { name: 'Median of Two Sorted Arrays', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
@@ -618,10 +633,18 @@ Binary search works on any **monotonic** property—not just sorted arrays. If y
         { name: 'Binary Search', difficulty: 'Easy' },
         { name: 'First Bad Version', difficulty: 'Easy' },
         { name: 'Search Insert Position', difficulty: 'Easy' },
+        { name: 'Guess Number Higher or Lower', difficulty: 'Easy' },
         { name: 'Search in Rotated Sorted Array', difficulty: 'Medium' },
+        { name: 'Search in Rotated Sorted Array II', difficulty: 'Medium' },
         { name: 'Find Minimum in Rotated Sorted Array', difficulty: 'Medium' },
+        { name: 'Find Peak Element', difficulty: 'Medium' },
         { name: 'Search a 2D Matrix', difficulty: 'Medium' },
+        { name: 'Search a 2D Matrix II', difficulty: 'Medium' },
         { name: 'Koko Eating Bananas', difficulty: 'Medium' },
+        { name: 'Capacity To Ship Packages', difficulty: 'Medium' },
+        { name: 'Split Array Largest Sum', difficulty: 'Hard' },
+        { name: 'Find K Closest Elements', difficulty: 'Medium' },
+        { name: 'Time Based Key-Value Store', difficulty: 'Medium' },
         { name: 'Median of Two Sorted Arrays', difficulty: 'Hard' }
       ],
 
@@ -771,14 +794,22 @@ Two pointers work when you can eliminate possibilities by moving one pointer—e
       ],
 
       commonProblems: [
+        { name: 'Valid Palindrome', difficulty: 'Easy' },
         { name: 'Two Sum II (sorted)', difficulty: 'Medium' },
         { name: 'Three Sum', difficulty: 'Medium' },
+        { name: 'Four Sum', difficulty: 'Medium' },
         { name: 'Container With Most Water', difficulty: 'Medium' },
-        { name: 'Trapping Rain Water', difficulty: 'Hard' },
         { name: 'Remove Duplicates from Sorted Array', difficulty: 'Easy' },
-        { name: 'Valid Palindrome', difficulty: 'Easy' },
+        { name: 'Remove Duplicates from Sorted Array II', difficulty: 'Medium' },
+        { name: 'Move Zeroes', difficulty: 'Easy' },
+        { name: 'Squares of a Sorted Array', difficulty: 'Easy' },
         { name: 'Linked List Cycle', difficulty: 'Easy' },
-        { name: 'Sort Colors (Dutch National Flag)', difficulty: 'Medium' }
+        { name: 'Linked List Cycle II', difficulty: 'Medium' },
+        { name: 'Happy Number', difficulty: 'Easy' },
+        { name: 'Sort Colors (Dutch National Flag)', difficulty: 'Medium' },
+        { name: 'Backspace String Compare', difficulty: 'Easy' },
+        { name: 'Partition Labels', difficulty: 'Medium' },
+        { name: 'Trapping Rain Water', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
@@ -938,13 +969,20 @@ Expand the right pointer to include more elements. When a condition is violated,
 
       commonProblems: [
         { name: 'Best Time to Buy and Sell Stock', difficulty: 'Easy' },
+        { name: 'Contains Duplicate II', difficulty: 'Easy' },
         { name: 'Longest Substring Without Repeating Characters', difficulty: 'Medium' },
         { name: 'Longest Repeating Character Replacement', difficulty: 'Medium' },
         { name: 'Permutation in String', difficulty: 'Medium' },
+        { name: 'Find All Anagrams in a String', difficulty: 'Medium' },
+        { name: 'Fruit Into Baskets', difficulty: 'Medium' },
+        { name: 'Max Consecutive Ones III', difficulty: 'Medium' },
+        { name: 'Grumpy Bookstore Owner', difficulty: 'Medium' },
+        { name: 'Maximum Points from Cards', difficulty: 'Medium' },
         { name: 'Minimum Window Substring', difficulty: 'Hard' },
         { name: 'Sliding Window Maximum', difficulty: 'Hard' },
-        { name: 'Fruit Into Baskets', difficulty: 'Medium' },
-        { name: 'Subarrays with K Different Integers', difficulty: 'Hard' }
+        { name: 'Subarrays with K Different Integers', difficulty: 'Hard' },
+        { name: 'Minimum Size Subarray Sum', difficulty: 'Medium' },
+        { name: 'Substring with Concatenation of All Words', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
@@ -1772,13 +1810,29 @@ def network_delay_time(times, n, k):
 
       commonProblems: [
         { name: 'Climbing Stairs', difficulty: 'Easy' },
+        { name: 'Min Cost Climbing Stairs', difficulty: 'Easy' },
         { name: 'House Robber', difficulty: 'Medium' },
+        { name: 'House Robber II', difficulty: 'Medium' },
         { name: 'Coin Change', difficulty: 'Medium' },
+        { name: 'Coin Change 2', difficulty: 'Medium' },
         { name: 'Longest Increasing Subsequence', difficulty: 'Medium' },
         { name: 'Unique Paths', difficulty: 'Medium' },
-        { name: 'Edit Distance', difficulty: 'Medium' },
+        { name: 'Unique Paths II', difficulty: 'Medium' },
+        { name: 'Minimum Path Sum', difficulty: 'Medium' },
+        { name: 'Triangle', difficulty: 'Medium' },
+        { name: 'Decode Ways', difficulty: 'Medium' },
+        { name: 'Word Break', difficulty: 'Medium' },
         { name: 'Longest Common Subsequence', difficulty: 'Medium' },
-        { name: 'Word Break', difficulty: 'Medium' }
+        { name: 'Edit Distance', difficulty: 'Medium' },
+        { name: 'Palindrome Substrings', difficulty: 'Medium' },
+        { name: 'Longest Palindromic Subsequence', difficulty: 'Medium' },
+        { name: 'Target Sum', difficulty: 'Medium' },
+        { name: 'Partition Equal Subset Sum', difficulty: 'Medium' },
+        { name: 'Best Time to Buy and Sell Stock with Cooldown', difficulty: 'Medium' },
+        { name: 'Interleaving String', difficulty: 'Medium' },
+        { name: 'Distinct Subsequences', difficulty: 'Hard' },
+        { name: 'Regular Expression Matching', difficulty: 'Hard' },
+        { name: 'Burst Balloons', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
