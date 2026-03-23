@@ -38,28 +38,33 @@ class DiagramResult:
 
 
 # System prompt for Claude to generate diagram code
-SYSTEM_PROMPT = """You are a DETAILED cloud architecture diagram generator for an interview preparation tool called Capra.
+SYSTEM_PROMPT = """You are a COMPACT cloud architecture diagram generator for an interview preparation tool called Capra.
 
-Your job: Given a system design interview question, generate Python code using the `diagrams` library (by mingrammer) that creates a COMPREHENSIVE, INTERVIEW-READY cloud architecture diagram that shows PRODUCTION-GRADE detail.
+Your job: Given a system design interview question, generate Python code using the `diagrams` library (by mingrammer) that creates a COMPACT, READABLE cloud architecture diagram.
 
-INTERVIEW CONTEXT: This diagram will be used in system design interviews where interviewers will ask deep-dive questions. The diagram MUST show enough detail to support technical discussions about:
-- Data flow and request paths
-- Caching strategies
-- Database choices and replication
-- Message queues and async processing
-- CDN and edge caching
-- Load balancing strategies
-- Monitoring and observability
-- Security boundaries
-
-CRITICAL RULES:
+CRITICAL LAYOUT RULES (MUST FOLLOW):
 1. ONLY output valid Python code — no markdown, no explanations, no backticks, no ```python blocks.
 2. Use the correct cloud provider icons based on the specified provider.
 3. Use `show=False` — diagrams will be rendered server-side.
 4. Use the provided `filename` variable: filename=DIAGRAM_FILENAME
 5. Use the provided format variable: outformat=DIAGRAM_FORMAT
-6. ALWAYS use direction="LR" for HORIZONTAL left-to-right flow. NEVER use "TB" (top-bottom). Architecture diagrams must flow horizontally.
-7. Group related services into Clusters — VPCs, subnets, AZs, regions, logical tiers.
+6. ALWAYS use direction="LR" for HORIZONTAL left-to-right flow. NEVER use "TB" (top-bottom).
+7. ALWAYS add graph_attr and node_attr for COMPACT sizing:
+   graph_attr={
+       "splines": "ortho",
+       "nodesep": "0.4",
+       "ranksep": "0.6",
+       "fontsize": "11",
+       "pad": "0.3"
+   }
+   node_attr={
+       "fontsize": "10",
+       "width": "1.2",
+       "height": "1.2"
+   }
+8. ARRANGE NODES IN HORIZONTAL ROWS - use lists of nodes connected together to create horizontal groupings.
+9. Keep diagrams SMALL - max 800px wide equivalent. Use compact spacing.
+10. Group related services into Clusters — but keep clusters COMPACT.
 
 DETAIL REQUIREMENTS (KEEP IT READABLE):
 8. Show 15-20 nodes MAXIMUM for detailed diagrams - comprehensive but READABLE.
@@ -191,66 +196,82 @@ from diagrams.gcp.compute import GKE
 from diagrams.gcp.network import LoadBalancing
 from diagrams.gcp.database import SQL
 
-with Diagram("GKE Architecture", filename=DIAGRAM_FILENAME, outformat=DIAGRAM_FORMAT, show=False, direction="LR"):
-    lb = LoadBalancing("Load Balancer")
+graph_attr = {
+    "splines": "ortho",
+    "nodesep": "0.4",
+    "ranksep": "0.6",
+    "fontsize": "11",
+    "pad": "0.3"
+}
+node_attr = {
+    "fontsize": "10",
+    "width": "1.2",
+    "height": "1.2"
+}
+
+with Diagram("GKE Architecture", filename=DIAGRAM_FILENAME, outformat=DIAGRAM_FORMAT, show=False, direction="LR", graph_attr=graph_attr, node_attr=node_attr):
+    lb = LoadBalancing("LB")
     with Cluster("GKE Cluster"):
         gke = GKE("GKE")
     db = SQL("Cloud SQL")
     lb >> gke >> db
 """
 
-USER_PROMPT_OVERVIEW = """Generate a CLEAN, EXPLAINABLE Python diagram for this system design interview question:
+USER_PROMPT_OVERVIEW = """Generate a COMPACT, HORIZONTAL Python diagram for this system design interview question:
 
 Question: {question}
 Cloud Provider: {cloud_provider}
 
-OVERVIEW DIAGRAM REQUIREMENTS (for initial interview explanation):
-- 10-15 nodes MAXIMUM - keep it simple and explainable
-- Show ONLY the core components: Users, CDN, Load Balancer, App Servers, Cache, Database, Storage
-- CRITICAL: Use direction="LR" for HORIZONTAL left-to-right flow (NOT vertical)
-- Group into 3 clusters max: Ingress, Application, Data
-- Label key connections only: "HTTPS", "Read/Write", "Cache"
-- NO security details, NO monitoring, NO edge cases
-- This diagram should be explainable in 2-3 minutes
+CRITICAL LAYOUT REQUIREMENTS:
+- 8-12 nodes MAXIMUM - keep it compact
+- MUST use direction="LR" for LEFT-TO-RIGHT horizontal flow
+- MUST include graph_attr and node_attr for compact sizing:
+  graph_attr={{"splines": "ortho", "nodesep": "0.4", "ranksep": "0.6", "fontsize": "11", "pad": "0.3"}}
+  node_attr={{"fontsize": "10", "width": "1.2", "height": "1.2"}}
+- ARRANGE IN HORIZONTAL ROWS: Connect nodes in a single horizontal chain where possible
+- Use SHORT labels (max 10 chars): "LB", "Cache", "DB", "API", "CDN"
+- Group into 2-3 small clusters max
+- NO monitoring, NO security details - just core flow
 
-LAYOUT RULE: Always use direction="LR" in the Diagram() call for horizontal architecture flow.
+HORIZONTAL ROW PATTERN - arrange nodes like this:
+  users >> cdn >> lb >> [api1, api2] >> cache >> db
 
-Remember: ONLY output valid Python code. Use filename=DIAGRAM_FILENAME and outformat=DIAGRAM_FORMAT and show=False and direction="LR". Use real {cloud_provider} service icons. Keep it SIMPLE and CLEAR."""
+Remember: ONLY output valid Python code. Use filename=DIAGRAM_FILENAME and outformat=DIAGRAM_FORMAT and show=False and direction="LR" and graph_attr and node_attr. Use real {cloud_provider} service icons."""
 
-USER_PROMPT_DETAILED = """Generate a DETAILED but READABLE Python diagram for this system design interview question:
+USER_PROMPT_DETAILED = """Generate a DETAILED but COMPACT Python diagram for this system design interview question:
 
 Question: {question}
 Cloud Provider: {cloud_provider}
 Difficulty: {difficulty}
 Category: {category}
 
-CRITICAL LAYOUT: Use direction="LR" for HORIZONTAL left-to-right architecture flow (NOT vertical/TB).
+CRITICAL LAYOUT REQUIREMENTS:
+- 12-18 nodes MAXIMUM - detailed but compact
+- MUST use direction="LR" for LEFT-TO-RIGHT horizontal flow
+- MUST include graph_attr and node_attr for compact sizing:
+  graph_attr={{"splines": "ortho", "nodesep": "0.4", "ranksep": "0.5", "fontsize": "10", "pad": "0.2"}}
+  node_attr={{"fontsize": "9", "width": "1.0", "height": "1.0"}}
+- ARRANGE IN HORIZONTAL ROWS within each cluster
+- Use SHORT labels (max 12 chars): "Redis", "Primary DB", "API GW", "Queue"
 
-REQUIREMENTS FOR INTERVIEW-READY DIAGRAM:
-- 15-20 nodes MAXIMUM - detailed but still human-readable
-- MUST use direction="LR" in Diagram() call for horizontal flow
-- Group into 4-5 logical clusters with clear boundaries
-- Use short, readable labels (max 15 characters per line)
+HORIZONTAL ROW STRUCTURE:
+- Row 1 (Ingress): dns >> cdn >> waf >> lb
+- Row 2 (App): lb >> [api1, api2, api3] >> cache
+- Row 3 (Data): cache >> db >> storage
+- Row 4 (Async): queue >> workers
 
-CORE COMPONENTS (pick relevant ones, ~15-20 total):
-1. INGRESS (1 cluster): DNS, CDN, WAF, Load Balancer, API Gateway
-2. APPLICATION (1 cluster): App Servers/Containers (just 1-2 nodes, not every instance)
-3. DATA (1 cluster): Primary DB, Read Replica, Cache (Redis), Object Storage
-4. ASYNC (1 cluster): Message Queue (SQS/Kafka), Worker Service, DLQ
-5. OBSERVABILITY (1 cluster): Monitoring, Logging (combine into 1-2 nodes)
+CORE COMPONENTS (pick relevant ones):
+1. INGRESS: CDN, WAF, Load Balancer, API Gateway
+2. APP: 1-2 service nodes (not every instance)
+3. DATA: Primary DB, Cache, Storage
+4. ASYNC: Queue, Worker
 
 LABELING RULES:
-- Use short labels: "Redis Cache", "Primary DB", "API GW"
-- Label key edges only: "HTTPS", "Events", "Reads", "Writes"
-- Don't label every connection - only important data flows
+- Short labels only: "LB", "API", "Cache", "DB"
+- Label key edges only: "HTTPS", "Events"
+- Skip monitoring connections
 
-WHAT TO SKIP (to keep readable):
-- Don't show every replica/instance - just represent with 1 node + label "(3x)"
-- Don't show every security component - just WAF at ingress
-- Don't show monitoring connections to every service - 1 dashed line to observability cluster
-- Don't show both read AND write paths - pick the primary flow
-
-Remember: ONLY output valid Python code. Use filename=DIAGRAM_FILENAME and outformat=DIAGRAM_FORMAT and show=False. Use real {cloud_provider} service icons. Diagram must be READABLE with clear text."""
+Remember: ONLY output valid Python code. Use filename=DIAGRAM_FILENAME and outformat=DIAGRAM_FORMAT and show=False and direction="LR" and graph_attr and node_attr. Use real {cloud_provider} service icons."""
 
 RETRY_PROMPT_TEMPLATE = """The previous diagram code failed with this error:
 {error_message}
