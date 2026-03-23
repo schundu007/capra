@@ -75,6 +75,179 @@ function CloudArchitectureDiagram({ imageUrl, loading = false, error = null, clo
 }
 
 /**
+ * Format markdown-like text into styled React elements
+ */
+function FormattedContent({ content, color = 'emerald' }) {
+  if (!content) return null;
+
+  const colorClasses = {
+    emerald: { heading: 'text-emerald-400', bullet: 'text-emerald-400', highlight: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20', diagram: 'bg-emerald-950/50 border-emerald-500/20 text-emerald-400' },
+    blue: { heading: 'text-blue-400', bullet: 'text-blue-400', highlight: 'bg-blue-500/10 text-blue-300 border-blue-500/20', diagram: 'bg-blue-950/50 border-blue-500/20 text-blue-400' },
+    purple: { heading: 'text-purple-400', bullet: 'text-purple-400', highlight: 'bg-purple-500/10 text-purple-300 border-purple-500/20', diagram: 'bg-purple-950/50 border-purple-500/20 text-purple-400' },
+    amber: { heading: 'text-amber-400', bullet: 'text-amber-400', highlight: 'bg-amber-500/10 text-amber-300 border-amber-500/20', diagram: 'bg-amber-950/50 border-amber-500/20 text-amber-400' },
+    cyan: { heading: 'text-cyan-400', bullet: 'text-cyan-400', highlight: 'bg-cyan-500/10 text-cyan-300 border-cyan-500/20', diagram: 'bg-cyan-950/50 border-cyan-500/20 text-cyan-400' },
+  };
+
+  const colors = colorClasses[color] || colorClasses.emerald;
+
+  // Check if line looks like ASCII diagram (box drawing, arrows, pipes)
+  const isDiagramLine = (line) => {
+    const diagramChars = ['─', '│', '┌', '┐', '└', '┘', '├', '┤', '┬', '┴', '┼', '═', '║', '╔', '╗', '╚', '╝', '→', '←', '↑', '↓', '──', '->', '<-', '|', '+--', '|--'];
+    return diagramChars.some(char => line.includes(char)) ||
+           (line.match(/^\s*[\|│┃]/) && line.length > 3) ||
+           (line.match(/^\s*[+┌┐└┘├┤┬┴┼╔╗╚╝][-─═]/) ) ||
+           (line.includes('───') || line.includes('---'));
+  };
+
+  // Format inline text with bold and code
+  const formatInlineText = (text) => {
+    const parts = [];
+    let remaining = text;
+    let keyCounter = 0;
+
+    while (remaining.length > 0) {
+      const boldMatch = remaining.match(/\*\*([^*]+)\*\*/);
+      const codeMatch = remaining.match(/`([^`]+)`/);
+
+      let nextMatch = null;
+      let matchType = null;
+
+      if (boldMatch && (!codeMatch || boldMatch.index <= codeMatch.index)) {
+        nextMatch = boldMatch;
+        matchType = 'bold';
+      } else if (codeMatch) {
+        nextMatch = codeMatch;
+        matchType = 'code';
+      }
+
+      if (nextMatch) {
+        if (nextMatch.index > 0) {
+          parts.push(remaining.substring(0, nextMatch.index));
+        }
+        if (matchType === 'bold') {
+          parts.push(<strong key={keyCounter++} className="text-white font-semibold">{nextMatch[1]}</strong>);
+        } else {
+          parts.push(<code key={keyCounter++} className={`${colors.highlight} px-1.5 py-0.5 rounded text-xs font-mono border`}>{nextMatch[1]}</code>);
+        }
+        remaining = remaining.substring(nextMatch.index + nextMatch[0].length);
+      } else {
+        parts.push(remaining);
+        break;
+      }
+    }
+
+    return parts.length > 0 ? parts : text;
+  };
+
+  // Split content into blocks first (diagrams vs text)
+  const blocks = [];
+  let currentBlock = { type: 'text', lines: [] };
+  const lines = content.split('\n');
+
+  lines.forEach((line) => {
+    const isDiagram = isDiagramLine(line);
+
+    if (isDiagram) {
+      if (currentBlock.type !== 'diagram') {
+        if (currentBlock.lines.length > 0) {
+          blocks.push(currentBlock);
+        }
+        currentBlock = { type: 'diagram', lines: [] };
+      }
+      currentBlock.lines.push(line); // Keep original line with spacing
+    } else {
+      if (currentBlock.type !== 'text') {
+        if (currentBlock.lines.length > 0) {
+          blocks.push(currentBlock);
+        }
+        currentBlock = { type: 'text', lines: [] };
+      }
+      currentBlock.lines.push(line);
+    }
+  });
+
+  if (currentBlock.lines.length > 0) {
+    blocks.push(currentBlock);
+  }
+
+  // Render blocks
+  const elements = [];
+
+  blocks.forEach((block, blockIdx) => {
+    if (block.type === 'diagram') {
+      // Render diagram with preserved spacing
+      elements.push(
+        <div key={`diagram-${blockIdx}`} className={`my-4 rounded-xl ${colors.diagram} border overflow-x-auto`}>
+          <pre className="p-4 font-mono text-xs leading-relaxed" style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace' }}>
+            {block.lines.join('\n')}
+          </pre>
+        </div>
+      );
+    } else {
+      // Process text block
+      let currentList = [];
+
+      const flushList = () => {
+        if (currentList.length > 0) {
+          elements.push(
+            <ul key={`list-${elements.length}`} className="space-y-1.5 my-3 ml-2">
+              {currentList.map((item, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className={`w-1.5 h-1.5 rounded-full ${colors.bullet.replace('text-', 'bg-')} mt-2 flex-shrink-0`} />
+                  <span className="text-gray-300 text-sm leading-relaxed">{formatInlineText(item)}</span>
+                </li>
+              ))}
+            </ul>
+          );
+          currentList = [];
+        }
+      };
+
+      block.lines.forEach((line, lineIdx) => {
+        const trimmed = line.trim();
+
+        // Skip empty lines and code fence markers
+        if (!trimmed || trimmed === '```' || trimmed === '...') {
+          flushList();
+          return;
+        }
+
+        // Bold section headers
+        if (trimmed.match(/^\*\*[^*]+\*\*[:\s(]/) || (trimmed.startsWith('**') && trimmed.endsWith(':'))) {
+          flushList();
+          const headerText = trimmed.replace(/\*\*/g, '');
+          elements.push(
+            <div key={`h-${blockIdx}-${lineIdx}`} className={`${colors.heading} font-semibold text-sm mt-5 mb-2 first:mt-0 flex items-center gap-2`}>
+              <span className={`w-2 h-2 rounded-sm ${colors.heading.replace('text-', 'bg-')}`} />
+              {headerText}
+            </div>
+          );
+          return;
+        }
+
+        // List items
+        if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
+          currentList.push(trimmed.substring(2));
+          return;
+        }
+
+        // Regular paragraph
+        flushList();
+        elements.push(
+          <p key={`p-${blockIdx}-${lineIdx}`} className="text-gray-300 text-sm leading-relaxed my-2">
+            {formatInlineText(trimmed)}
+          </p>
+        );
+      });
+
+      flushList();
+    }
+  });
+
+  return <div className="formatted-content">{elements}</div>;
+}
+
+/**
  * Documentation Page with Sidebar Navigation and Topic Details
  * Original educational content for interview preparation
  */
@@ -21849,12 +22022,18 @@ The ambiguity became a clear, measurable project."`
           <div className="space-y-8">
             {/* Introduction - Comprehensive Overview */}
             {topicDetails.introduction && (
-              <div className="p-6 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.02))', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                  <Icon name="book" size={20} style={{ color: topicDetails.color }} />
-                  Overview
-                </h3>
-                <p className="text-gray-300 leading-relaxed whitespace-pre-line">{topicDetails.introduction}</p>
+              <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                <div className="px-6 py-4 border-b border-emerald-500/20" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                  <h3 className="text-lg font-bold text-white flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/20">
+                      <Icon name="book" size={18} className="text-emerald-400" />
+                    </div>
+                    Overview
+                  </h3>
+                </div>
+                <div className="p-6">
+                  <FormattedContent content={topicDetails.introduction} color="emerald" />
+                </div>
               </div>
             )}
 
@@ -22071,45 +22250,62 @@ The ambiguity became a clear, measurable project."`
 
                 {/* Introduction (Comprehensive) */}
                 {topicDetails.introduction && (
-                  <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <h2 className="text-xl font-bold text-white mb-4">Introduction</h2>
-                    <p className="text-gray-300 whitespace-pre-line leading-relaxed">{topicDetails.introduction}</p>
+                  <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                    <div className="px-6 py-4 border-b border-blue-500/20" style={{ background: 'rgba(59,130,246,0.05)' }}>
+                      <h2 className="text-lg font-bold text-white flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-500/20">
+                          <Icon name="book" size={18} className="text-blue-400" />
+                        </div>
+                        Introduction
+                      </h2>
+                    </div>
+                    <div className="p-6">
+                      <FormattedContent content={topicDetails.introduction} color="blue" />
+                    </div>
                   </div>
                 )}
 
                 {/* Requirements - Functional & Non-Functional */}
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid md:grid-cols-2 gap-4">
                   {/* Functional Requirements */}
-                  <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                      <Icon name="check" size={18} className="text-green-400" />
-                      Functional Requirements
-                    </h3>
-                    <ul className="space-y-2">
-                      {(topicDetails.functionalRequirements || topicDetails.requirements).map((req, i) => (
-                        <li key={i} className="flex items-start gap-2 text-gray-300">
-                          <span className="text-green-400 mt-1">✓</span>
-                          <span>{req}</span>
-                        </li>
-                      ))}
-                    </ul>
+                  <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                    <div className="px-5 py-3 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
+                        <Icon name="check" size={16} className="text-emerald-400" />
+                      </div>
+                      <h3 className="text-base font-bold text-white">Functional Requirements</h3>
+                    </div>
+                    <div className="p-4">
+                      <ul className="space-y-2">
+                        {(topicDetails.functionalRequirements || topicDetails.requirements).map((req, i) => (
+                          <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
+                            <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0 bg-emerald-500/20 text-emerald-400 mt-0.5">✓</span>
+                            <span className="text-gray-300 text-sm">{req}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
 
                   {/* Non-Functional Requirements */}
                   {topicDetails.nonFunctionalRequirements && (
-                    <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                        <Icon name="zap" size={18} className="text-blue-400" />
-                        Non-Functional Requirements
-                      </h3>
-                      <ul className="space-y-2">
-                        {topicDetails.nonFunctionalRequirements.map((req, i) => (
-                          <li key={i} className="flex items-start gap-2 text-gray-300">
-                            <span className="text-blue-400 mt-1">•</span>
-                            <span>{req}</span>
-                          </li>
-                        ))}
-                      </ul>
+                    <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                      <div className="px-5 py-3 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
+                        <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-500/20">
+                          <Icon name="zap" size={16} className="text-blue-400" />
+                        </div>
+                        <h3 className="text-base font-bold text-white">Non-Functional Requirements</h3>
+                      </div>
+                      <div className="p-4">
+                        <ul className="space-y-2">
+                          {topicDetails.nonFunctionalRequirements.map((req, i) => (
+                            <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
+                              <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0 bg-blue-500/20 text-blue-400 mt-0.5">•</span>
+                              <span className="text-gray-300 text-sm">{req}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -22203,23 +22399,7 @@ The ambiguity became a clear, measurable project."`
                             </h4>
                           </div>
                           <div className="p-4">
-                            <div className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
-                              {q.answer.split('\n').map((line, lineIdx) => {
-                                if (line.startsWith('**') && line.endsWith('**:')) {
-                                  return <p key={lineIdx} className="text-white font-semibold mt-3 mb-1 first:mt-0">{line.replace(/\*\*/g, '')}</p>;
-                                } else if (line.startsWith('- ')) {
-                                  return (
-                                    <div key={lineIdx} className="flex items-start gap-2 ml-2 my-1">
-                                      <span className="text-purple-400 mt-1">•</span>
-                                      <span>{line.substring(2)}</span>
-                                    </div>
-                                  );
-                                } else if (line.trim()) {
-                                  return <p key={lineIdx} className="my-1">{line}</p>;
-                                }
-                                return <div key={lineIdx} className="h-2" />;
-                              })}
-                            </div>
+                            <FormattedContent content={q.answer} color="purple" />
                           </div>
                         </div>
                       ))}
