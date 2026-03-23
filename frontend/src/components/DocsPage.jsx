@@ -492,9 +492,22 @@ export default function DocsPage({ onBack }) {
       ],
 
       commonProblems: [
+        // Easy
         { name: 'Two Sum', difficulty: 'Easy' },
         { name: 'Contains Duplicate', difficulty: 'Easy' },
         { name: 'Valid Anagram', difficulty: 'Easy' },
+        { name: 'Move Zeroes', difficulty: 'Easy' },
+        { name: 'Majority Element', difficulty: 'Easy' },
+        { name: 'Remove Duplicates from Sorted Array', difficulty: 'Easy' },
+        { name: 'Best Time to Buy and Sell Stock', difficulty: 'Easy' },
+        { name: 'Design HashMap', difficulty: 'Easy' },
+        { name: 'Maximum Number of Balloons', difficulty: 'Easy' },
+        { name: 'Number of Good Pairs', difficulty: 'Easy' },
+        { name: 'Isomorphic Strings', difficulty: 'Easy' },
+        { name: 'Ransom Note', difficulty: 'Easy' },
+        { name: 'Contains Duplicate II', difficulty: 'Easy' },
+        { name: 'Range Sum Query - Immutable', difficulty: 'Easy' },
+        // Medium
         { name: 'Two Sum II', difficulty: 'Medium' },
         { name: 'Group Anagrams', difficulty: 'Medium' },
         { name: 'Top K Frequent Elements', difficulty: 'Medium' },
@@ -502,19 +515,28 @@ export default function DocsPage({ onBack }) {
         { name: 'Longest Consecutive Sequence', difficulty: 'Medium' },
         { name: 'Subarray Sum Equals K', difficulty: 'Medium' },
         { name: 'Encode and Decode Strings', difficulty: 'Medium' },
-        { name: '3Sum', difficulty: 'Medium' },
-        { name: 'Container With Most Water', difficulty: 'Medium' },
-        { name: 'Best Time to Buy and Sell Stock', difficulty: 'Easy' },
+        { name: 'Encode and Decode TinyURL', difficulty: 'Medium' },
+        { name: 'Reorganize String', difficulty: 'Medium' },
+        { name: 'Split Array into Consecutive Subsequences', difficulty: 'Medium' },
+        { name: 'Number of Matching Subsequences', difficulty: 'Medium' },
+        { name: 'Rotate Array', difficulty: 'Medium' },
+        { name: 'Increasing Triplet Subsequence', difficulty: 'Medium' },
+        { name: 'Number of Zero-Filled Subarrays', difficulty: 'Medium' },
+        { name: 'Best Time to Buy and Sell Stock II', difficulty: 'Medium' },
         { name: 'Maximum Subarray', difficulty: 'Medium' },
-        { name: 'Merge Intervals', difficulty: 'Medium' },
-        { name: 'Insert Interval', difficulty: 'Medium' },
+        { name: 'Maximum Sum Circular Subarray', difficulty: 'Medium' },
+        { name: 'Maximum Product Subarray', difficulty: 'Medium' },
+        { name: 'Subarray Sums Divisible by K', difficulty: 'Medium' },
+        { name: 'Continuous Subarray Sum', difficulty: 'Medium' },
+        { name: 'Contiguous Array', difficulty: 'Medium' },
         { name: 'Set Matrix Zeroes', difficulty: 'Medium' },
         { name: 'Spiral Matrix', difficulty: 'Medium' },
         { name: 'Rotate Image', difficulty: 'Medium' },
-        { name: 'Word Search', difficulty: 'Medium' },
+        { name: 'Valid Sudoku', difficulty: 'Medium' },
+        { name: 'Game of Life', difficulty: 'Medium' },
+        // Hard
         { name: 'First Missing Positive', difficulty: 'Hard' },
-        { name: 'Trapping Rain Water', difficulty: 'Hard' },
-        { name: 'Median of Two Sorted Arrays', difficulty: 'Hard' }
+        { name: 'Trapping Rain Water', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
@@ -630,22 +652,51 @@ Binary search works on any **monotonic** property—not just sorted arrays. If y
       ],
 
       commonProblems: [
+        // Easy
         { name: 'Binary Search', difficulty: 'Easy' },
         { name: 'First Bad Version', difficulty: 'Easy' },
         { name: 'Search Insert Position', difficulty: 'Easy' },
         { name: 'Guess Number Higher or Lower', difficulty: 'Easy' },
+        { name: 'Valid Perfect Square', difficulty: 'Easy' },
+        { name: 'Sqrt(x)', difficulty: 'Easy' },
+        { name: 'Arranging Coins', difficulty: 'Easy' },
+        { name: 'Count Negative Numbers in a Sorted Matrix', difficulty: 'Easy' },
+        { name: 'Intersection of Two Arrays', difficulty: 'Easy' },
+        { name: 'Intersection of Two Arrays II', difficulty: 'Easy' },
+        { name: 'Two Sum II - Input Array Is Sorted', difficulty: 'Medium' },
+        // Medium
         { name: 'Search in Rotated Sorted Array', difficulty: 'Medium' },
         { name: 'Search in Rotated Sorted Array II', difficulty: 'Medium' },
         { name: 'Find Minimum in Rotated Sorted Array', difficulty: 'Medium' },
+        { name: 'Find Minimum in Rotated Sorted Array II', difficulty: 'Hard' },
         { name: 'Find Peak Element', difficulty: 'Medium' },
+        { name: 'Peak Index in a Mountain Array', difficulty: 'Medium' },
+        { name: 'Find in Mountain Array', difficulty: 'Hard' },
         { name: 'Search a 2D Matrix', difficulty: 'Medium' },
         { name: 'Search a 2D Matrix II', difficulty: 'Medium' },
         { name: 'Koko Eating Bananas', difficulty: 'Medium' },
-        { name: 'Capacity To Ship Packages', difficulty: 'Medium' },
-        { name: 'Split Array Largest Sum', difficulty: 'Hard' },
+        { name: 'Capacity To Ship Packages Within D Days', difficulty: 'Medium' },
+        { name: 'Minimum Number of Days to Make m Bouquets', difficulty: 'Medium' },
+        { name: 'Find the Smallest Divisor Given a Threshold', difficulty: 'Medium' },
+        { name: 'Magnetic Force Between Two Balls', difficulty: 'Medium' },
         { name: 'Find K Closest Elements', difficulty: 'Medium' },
         { name: 'Time Based Key-Value Store', difficulty: 'Medium' },
-        { name: 'Median of Two Sorted Arrays', difficulty: 'Hard' }
+        { name: 'Random Pick with Weight', difficulty: 'Medium' },
+        { name: 'Find First and Last Position of Element', difficulty: 'Medium' },
+        { name: 'Single Element in a Sorted Array', difficulty: 'Medium' },
+        { name: 'Find Right Interval', difficulty: 'Medium' },
+        { name: 'Minimum Limit of Balls in a Bag', difficulty: 'Medium' },
+        { name: 'Maximum Value at a Given Index in a Bounded Array', difficulty: 'Medium' },
+        { name: 'Minimize Maximum of Array', difficulty: 'Medium' },
+        // Hard
+        { name: 'Median of Two Sorted Arrays', difficulty: 'Hard' },
+        { name: 'Split Array Largest Sum', difficulty: 'Hard' },
+        { name: 'Aggressive Cows', difficulty: 'Hard' },
+        { name: 'Book Allocation Problem', difficulty: 'Hard' },
+        { name: 'Painters Partition Problem', difficulty: 'Hard' },
+        { name: 'Minimize Max Distance to Gas Station', difficulty: 'Hard' },
+        { name: 'Kth Smallest Number in Multiplication Table', difficulty: 'Hard' },
+        { name: 'Find K-th Smallest Pair Distance', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
@@ -794,22 +845,49 @@ Two pointers work when you can eliminate possibilities by moving one pointer—e
       ],
 
       commonProblems: [
+        // Easy
         { name: 'Valid Palindrome', difficulty: 'Easy' },
-        { name: 'Two Sum II (sorted)', difficulty: 'Medium' },
-        { name: 'Three Sum', difficulty: 'Medium' },
-        { name: 'Four Sum', difficulty: 'Medium' },
-        { name: 'Container With Most Water', difficulty: 'Medium' },
+        { name: 'Valid Palindrome II', difficulty: 'Easy' },
         { name: 'Remove Duplicates from Sorted Array', difficulty: 'Easy' },
-        { name: 'Remove Duplicates from Sorted Array II', difficulty: 'Medium' },
         { name: 'Move Zeroes', difficulty: 'Easy' },
         { name: 'Squares of a Sorted Array', difficulty: 'Easy' },
+        { name: 'Merge Sorted Array', difficulty: 'Easy' },
+        { name: 'Remove Element', difficulty: 'Easy' },
         { name: 'Linked List Cycle', difficulty: 'Easy' },
-        { name: 'Linked List Cycle II', difficulty: 'Medium' },
+        { name: 'Middle of the Linked List', difficulty: 'Easy' },
         { name: 'Happy Number', difficulty: 'Easy' },
-        { name: 'Sort Colors (Dutch National Flag)', difficulty: 'Medium' },
         { name: 'Backspace String Compare', difficulty: 'Easy' },
+        { name: 'Is Subsequence', difficulty: 'Easy' },
+        { name: 'Reverse String', difficulty: 'Easy' },
+        { name: 'Reverse Vowels of a String', difficulty: 'Easy' },
+        // Medium
+        { name: 'Two Sum II - Input Array Is Sorted', difficulty: 'Medium' },
+        { name: 'Three Sum', difficulty: 'Medium' },
+        { name: 'Three Sum Closest', difficulty: 'Medium' },
+        { name: 'Four Sum', difficulty: 'Medium' },
+        { name: 'Container With Most Water', difficulty: 'Medium' },
+        { name: 'Remove Duplicates from Sorted Array II', difficulty: 'Medium' },
+        { name: 'Linked List Cycle II', difficulty: 'Medium' },
+        { name: 'Sort Colors (Dutch National Flag)', difficulty: 'Medium' },
         { name: 'Partition Labels', difficulty: 'Medium' },
-        { name: 'Trapping Rain Water', difficulty: 'Hard' }
+        { name: 'Boats to Save People', difficulty: 'Medium' },
+        { name: 'Remove Nth Node From End of List', difficulty: 'Medium' },
+        { name: 'Rotate List', difficulty: 'Medium' },
+        { name: 'Swap Nodes in Pairs', difficulty: 'Medium' },
+        { name: 'Longest Word in Dictionary through Deleting', difficulty: 'Medium' },
+        { name: 'Interval List Intersections', difficulty: 'Medium' },
+        { name: 'Find the Duplicate Number', difficulty: 'Medium' },
+        { name: 'Next Permutation', difficulty: 'Medium' },
+        { name: 'String Compression', difficulty: 'Medium' },
+        { name: 'Pair with Target Sum', difficulty: 'Easy' },
+        { name: 'Triplet Sum to Zero', difficulty: 'Medium' },
+        { name: 'Triplet Sum Close to Target', difficulty: 'Medium' },
+        { name: 'Triplets with Smaller Sum', difficulty: 'Medium' },
+        { name: 'Subarrays with Product Less than K', difficulty: 'Medium' },
+        { name: 'Comparing Strings containing Backspaces', difficulty: 'Medium' },
+        // Hard
+        { name: 'Trapping Rain Water', difficulty: 'Hard' },
+        { name: 'Minimum Window Sort', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
@@ -968,8 +1046,12 @@ Expand the right pointer to include more elements. When a condition is violated,
       ],
 
       commonProblems: [
+        // Easy
         { name: 'Best Time to Buy and Sell Stock', difficulty: 'Easy' },
         { name: 'Contains Duplicate II', difficulty: 'Easy' },
+        { name: 'Maximum Average Subarray I', difficulty: 'Easy' },
+        { name: 'Minimum Recolors to Get K Consecutive Black Blocks', difficulty: 'Easy' },
+        // Medium
         { name: 'Longest Substring Without Repeating Characters', difficulty: 'Medium' },
         { name: 'Longest Repeating Character Replacement', difficulty: 'Medium' },
         { name: 'Permutation in String', difficulty: 'Medium' },
@@ -978,11 +1060,34 @@ Expand the right pointer to include more elements. When a condition is violated,
         { name: 'Max Consecutive Ones III', difficulty: 'Medium' },
         { name: 'Grumpy Bookstore Owner', difficulty: 'Medium' },
         { name: 'Maximum Points from Cards', difficulty: 'Medium' },
+        { name: 'Minimum Size Subarray Sum', difficulty: 'Medium' },
+        { name: 'Maximum Number of Vowels in a Substring', difficulty: 'Medium' },
+        { name: 'Get Equal Substrings Within Budget', difficulty: 'Medium' },
+        { name: 'Longest Turbulent Subarray', difficulty: 'Medium' },
+        { name: 'Count Number of Nice Subarrays', difficulty: 'Medium' },
+        { name: 'Replace the Substring for Balanced String', difficulty: 'Medium' },
+        { name: 'Max Sum of Rectangle No Larger Than K', difficulty: 'Hard' },
+        { name: 'Binary Subarrays With Sum', difficulty: 'Medium' },
+        { name: 'Number of Substrings Containing All Three Characters', difficulty: 'Medium' },
+        { name: 'Longest Subarray of 1s After Deleting One Element', difficulty: 'Medium' },
+        { name: 'Maximum Erasure Value', difficulty: 'Medium' },
+        { name: 'Frequency of the Most Frequent Element', difficulty: 'Medium' },
+        { name: 'Longest Nice Subarray', difficulty: 'Medium' },
+        { name: 'Maximum Sum of Almost Unique Subarray', difficulty: 'Medium' },
+        { name: 'K Radius Subarray Averages', difficulty: 'Medium' },
+        { name: 'Maximum Length of Repeated Subarray', difficulty: 'Medium' },
+        { name: 'Subarray Product Less Than K', difficulty: 'Medium' },
+        { name: 'Longest Substring with At Least K Repeating Characters', difficulty: 'Medium' },
+        { name: 'Longest Substring with At Most K Distinct Characters', difficulty: 'Medium' },
+        { name: 'Longest Substring with At Most Two Distinct Characters', difficulty: 'Medium' },
+        // Hard
         { name: 'Minimum Window Substring', difficulty: 'Hard' },
         { name: 'Sliding Window Maximum', difficulty: 'Hard' },
         { name: 'Subarrays with K Different Integers', difficulty: 'Hard' },
-        { name: 'Minimum Size Subarray Sum', difficulty: 'Medium' },
-        { name: 'Substring with Concatenation of All Words', difficulty: 'Hard' }
+        { name: 'Substring with Concatenation of All Words', difficulty: 'Hard' },
+        { name: 'Minimum Window Subsequence', difficulty: 'Hard' },
+        { name: 'Count Subarrays With Fixed Bounds', difficulty: 'Hard' },
+        { name: 'Shortest Subarray with Sum at Least K', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
@@ -1148,14 +1253,48 @@ A monotonic stack maintains elements in increasing or decreasing order. When a n
       ],
 
       commonProblems: [
+        // Easy
         { name: 'Valid Parentheses', difficulty: 'Easy' },
+        { name: 'Next Greater Element I', difficulty: 'Easy' },
+        { name: 'Implement Stack using Queues', difficulty: 'Easy' },
+        { name: 'Implement Queue using Stacks', difficulty: 'Easy' },
+        { name: 'Baseball Game', difficulty: 'Easy' },
+        { name: 'Remove All Adjacent Duplicates In String', difficulty: 'Easy' },
+        { name: 'Backspace String Compare', difficulty: 'Easy' },
+        { name: 'Make The String Great', difficulty: 'Easy' },
+        // Medium
         { name: 'Min Stack', difficulty: 'Medium' },
         { name: 'Daily Temperatures', difficulty: 'Medium' },
-        { name: 'Next Greater Element', difficulty: 'Easy' },
-        { name: 'Largest Rectangle in Histogram', difficulty: 'Hard' },
-        { name: 'Basic Calculator', difficulty: 'Hard' },
         { name: 'Evaluate Reverse Polish Notation', difficulty: 'Medium' },
-        { name: 'Decode String', difficulty: 'Medium' }
+        { name: 'Decode String', difficulty: 'Medium' },
+        { name: 'Next Greater Element II', difficulty: 'Medium' },
+        { name: 'Online Stock Span', difficulty: 'Medium' },
+        { name: 'Car Fleet', difficulty: 'Medium' },
+        { name: 'Asteroid Collision', difficulty: 'Medium' },
+        { name: 'Remove K Digits', difficulty: 'Medium' },
+        { name: 'Simplify Path', difficulty: 'Medium' },
+        { name: 'Generate Parentheses', difficulty: 'Medium' },
+        { name: 'Score of Parentheses', difficulty: 'Medium' },
+        { name: 'Minimum Add to Make Parentheses Valid', difficulty: 'Medium' },
+        { name: 'Minimum Remove to Make Valid Parentheses', difficulty: 'Medium' },
+        { name: 'Validate Stack Sequences', difficulty: 'Medium' },
+        { name: '132 Pattern', difficulty: 'Medium' },
+        { name: 'Remove All Adjacent Duplicates in String II', difficulty: 'Medium' },
+        { name: 'Flatten Nested List Iterator', difficulty: 'Medium' },
+        { name: 'Exclusive Time of Functions', difficulty: 'Medium' },
+        { name: 'Sum of Subarray Minimums', difficulty: 'Medium' },
+        { name: 'Sum of Subarray Ranges', difficulty: 'Medium' },
+        { name: 'Maximum Width Ramp', difficulty: 'Medium' },
+        { name: 'Longest Valid Parentheses', difficulty: 'Hard' },
+        { name: 'Trapping Rain Water', difficulty: 'Hard' },
+        // Hard
+        { name: 'Largest Rectangle in Histogram', difficulty: 'Hard' },
+        { name: 'Maximal Rectangle', difficulty: 'Hard' },
+        { name: 'Basic Calculator', difficulty: 'Hard' },
+        { name: 'Basic Calculator II', difficulty: 'Medium' },
+        { name: 'Basic Calculator III', difficulty: 'Hard' },
+        { name: 'Number of Atoms', difficulty: 'Hard' },
+        { name: 'Tag Validator', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
@@ -1314,14 +1453,45 @@ Most linked list problems become easier if you:
       ],
 
       commonProblems: [
+        // Easy
         { name: 'Reverse Linked List', difficulty: 'Easy' },
         { name: 'Merge Two Sorted Lists', difficulty: 'Easy' },
         { name: 'Linked List Cycle', difficulty: 'Easy' },
-        { name: 'Remove Nth Node From End', difficulty: 'Medium' },
+        { name: 'Middle of the Linked List', difficulty: 'Easy' },
+        { name: 'Delete Node in a Linked List', difficulty: 'Medium' },
+        { name: 'Remove Duplicates from Sorted List', difficulty: 'Easy' },
+        { name: 'Palindrome Linked List', difficulty: 'Easy' },
+        { name: 'Intersection of Two Linked Lists', difficulty: 'Easy' },
+        { name: 'Remove Linked List Elements', difficulty: 'Easy' },
+        { name: 'Convert Binary Number in a Linked List to Integer', difficulty: 'Easy' },
+        // Medium
+        { name: 'Remove Nth Node From End of List', difficulty: 'Medium' },
         { name: 'Reorder List', difficulty: 'Medium' },
         { name: 'Add Two Numbers', difficulty: 'Medium' },
+        { name: 'Add Two Numbers II', difficulty: 'Medium' },
         { name: 'Copy List with Random Pointer', difficulty: 'Medium' },
-        { name: 'Reverse Nodes in K-Group', difficulty: 'Hard' }
+        { name: 'Linked List Cycle II', difficulty: 'Medium' },
+        { name: 'Remove Duplicates from Sorted List II', difficulty: 'Medium' },
+        { name: 'Rotate List', difficulty: 'Medium' },
+        { name: 'Swap Nodes in Pairs', difficulty: 'Medium' },
+        { name: 'Partition List', difficulty: 'Medium' },
+        { name: 'Sort List', difficulty: 'Medium' },
+        { name: 'Insertion Sort List', difficulty: 'Medium' },
+        { name: 'Odd Even Linked List', difficulty: 'Medium' },
+        { name: 'Split Linked List in Parts', difficulty: 'Medium' },
+        { name: 'Design Linked List', difficulty: 'Medium' },
+        { name: 'Design Browser History', difficulty: 'Medium' },
+        { name: 'LRU Cache', difficulty: 'Medium' },
+        { name: 'Flatten a Multilevel Doubly Linked List', difficulty: 'Medium' },
+        { name: 'Next Greater Node In Linked List', difficulty: 'Medium' },
+        { name: 'Remove Zero Sum Consecutive Nodes from Linked List', difficulty: 'Medium' },
+        { name: 'Swapping Nodes in a Linked List', difficulty: 'Medium' },
+        { name: 'Design Front Middle Back Queue', difficulty: 'Medium' },
+        // Hard
+        { name: 'Reverse Nodes in K-Group', difficulty: 'Hard' },
+        { name: 'Merge K Sorted Lists', difficulty: 'Hard' },
+        { name: 'LFU Cache', difficulty: 'Hard' },
+        { name: 'All O\'one Data Structure', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
@@ -1476,14 +1646,66 @@ Most linked list problems become easier if you:
       ],
 
       commonProblems: [
+        // Easy
         { name: 'Maximum Depth of Binary Tree', difficulty: 'Easy' },
+        { name: 'Minimum Depth of Binary Tree', difficulty: 'Easy' },
         { name: 'Invert Binary Tree', difficulty: 'Easy' },
         { name: 'Same Tree', difficulty: 'Easy' },
+        { name: 'Symmetric Tree', difficulty: 'Easy' },
+        { name: 'Subtree of Another Tree', difficulty: 'Easy' },
+        { name: 'Balanced Binary Tree', difficulty: 'Easy' },
+        { name: 'Diameter of Binary Tree', difficulty: 'Easy' },
+        { name: 'Path Sum', difficulty: 'Easy' },
+        { name: 'Binary Tree Paths', difficulty: 'Easy' },
+        { name: 'Sum of Left Leaves', difficulty: 'Easy' },
+        { name: 'Average of Levels in Binary Tree', difficulty: 'Easy' },
+        { name: 'Merge Two Binary Trees', difficulty: 'Easy' },
+        { name: 'Search in a Binary Search Tree', difficulty: 'Easy' },
+        { name: 'Range Sum of BST', difficulty: 'Easy' },
+        { name: 'Univalued Binary Tree', difficulty: 'Easy' },
+        { name: 'Leaf-Similar Trees', difficulty: 'Easy' },
+        { name: 'Convert Sorted Array to Binary Search Tree', difficulty: 'Easy' },
+        // Medium
         { name: 'Validate Binary Search Tree', difficulty: 'Medium' },
-        { name: 'Lowest Common Ancestor', difficulty: 'Medium' },
+        { name: 'Lowest Common Ancestor of a Binary Tree', difficulty: 'Medium' },
+        { name: 'Lowest Common Ancestor of a BST', difficulty: 'Medium' },
         { name: 'Binary Tree Level Order Traversal', difficulty: 'Medium' },
+        { name: 'Binary Tree Level Order Traversal II', difficulty: 'Medium' },
+        { name: 'Binary Tree Zigzag Level Order Traversal', difficulty: 'Medium' },
+        { name: 'Binary Tree Right Side View', difficulty: 'Medium' },
         { name: 'Construct Binary Tree from Preorder and Inorder', difficulty: 'Medium' },
-        { name: 'Binary Tree Maximum Path Sum', difficulty: 'Hard' }
+        { name: 'Construct Binary Tree from Inorder and Postorder', difficulty: 'Medium' },
+        { name: 'Kth Smallest Element in a BST', difficulty: 'Medium' },
+        { name: 'Count Good Nodes in Binary Tree', difficulty: 'Medium' },
+        { name: 'Path Sum II', difficulty: 'Medium' },
+        { name: 'Path Sum III', difficulty: 'Medium' },
+        { name: 'Sum Root to Leaf Numbers', difficulty: 'Medium' },
+        { name: 'Flatten Binary Tree to Linked List', difficulty: 'Medium' },
+        { name: 'Populating Next Right Pointers in Each Node', difficulty: 'Medium' },
+        { name: 'Populating Next Right Pointers in Each Node II', difficulty: 'Medium' },
+        { name: 'Binary Search Tree Iterator', difficulty: 'Medium' },
+        { name: 'Delete Node in a BST', difficulty: 'Medium' },
+        { name: 'Insert into a Binary Search Tree', difficulty: 'Medium' },
+        { name: 'Trim a Binary Search Tree', difficulty: 'Medium' },
+        { name: 'House Robber III', difficulty: 'Medium' },
+        { name: 'Most Frequent Subtree Sum', difficulty: 'Medium' },
+        { name: 'Find Duplicate Subtrees', difficulty: 'Medium' },
+        { name: 'All Nodes Distance K in Binary Tree', difficulty: 'Medium' },
+        { name: 'Serialize and Deserialize BST', difficulty: 'Medium' },
+        { name: 'Recover Binary Search Tree', difficulty: 'Medium' },
+        { name: 'Convert BST to Greater Tree', difficulty: 'Medium' },
+        { name: 'Construct Binary Search Tree from Preorder', difficulty: 'Medium' },
+        { name: 'Maximum Binary Tree', difficulty: 'Medium' },
+        { name: 'Maximum Width of Binary Tree', difficulty: 'Medium' },
+        { name: 'Distribute Coins in Binary Tree', difficulty: 'Medium' },
+        { name: 'Flip Equivalent Binary Trees', difficulty: 'Medium' },
+        // Hard
+        { name: 'Binary Tree Maximum Path Sum', difficulty: 'Hard' },
+        { name: 'Serialize and Deserialize Binary Tree', difficulty: 'Hard' },
+        { name: 'Binary Tree Cameras', difficulty: 'Hard' },
+        { name: 'Vertical Order Traversal of a Binary Tree', difficulty: 'Hard' },
+        { name: 'Smallest String Starting From Leaf', difficulty: 'Medium' },
+        { name: 'Maximum Sum BST in Binary Tree', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
@@ -1619,14 +1841,72 @@ def level_order(root):
       ],
 
       commonProblems: [
+        // Easy
+        { name: 'Find if Path Exists in Graph', difficulty: 'Easy' },
+        { name: 'Find the Town Judge', difficulty: 'Easy' },
+        { name: 'Find Center of Star Graph', difficulty: 'Easy' },
+        // Medium - BFS/DFS
         { name: 'Number of Islands', difficulty: 'Medium' },
+        { name: 'Max Area of Island', difficulty: 'Medium' },
         { name: 'Clone Graph', difficulty: 'Medium' },
+        { name: 'Pacific Atlantic Water Flow', difficulty: 'Medium' },
+        { name: 'Surrounded Regions', difficulty: 'Medium' },
+        { name: 'Rotting Oranges', difficulty: 'Medium' },
+        { name: 'Walls and Gates', difficulty: 'Medium' },
+        { name: '01 Matrix', difficulty: 'Medium' },
+        { name: 'Snakes and Ladders', difficulty: 'Medium' },
+        { name: 'Open the Lock', difficulty: 'Medium' },
+        { name: 'Shortest Path in Binary Matrix', difficulty: 'Medium' },
+        { name: 'As Far from Land as Possible', difficulty: 'Medium' },
+        { name: 'Shortest Bridge', difficulty: 'Medium' },
+        // Medium - Topological Sort
         { name: 'Course Schedule', difficulty: 'Medium' },
         { name: 'Course Schedule II', difficulty: 'Medium' },
-        { name: 'Pacific Atlantic Water Flow', difficulty: 'Medium' },
-        { name: 'Network Delay Time', difficulty: 'Medium' },
+        { name: 'Alien Dictionary', difficulty: 'Hard' },
+        { name: 'Parallel Courses', difficulty: 'Medium' },
+        { name: 'Minimum Height Trees', difficulty: 'Medium' },
+        { name: 'Sequence Reconstruction', difficulty: 'Medium' },
+        { name: 'Find All Possible Recipes from Given Supplies', difficulty: 'Medium' },
+        // Medium - Union Find
+        { name: 'Number of Provinces', difficulty: 'Medium' },
         { name: 'Redundant Connection', difficulty: 'Medium' },
-        { name: 'Word Ladder', difficulty: 'Hard' }
+        { name: 'Most Stones Removed with Same Row or Column', difficulty: 'Medium' },
+        { name: 'Satisfiability of Equality Equations', difficulty: 'Medium' },
+        { name: 'Accounts Merge', difficulty: 'Medium' },
+        { name: 'Number of Connected Components', difficulty: 'Medium' },
+        { name: 'Graph Valid Tree', difficulty: 'Medium' },
+        { name: 'Regions Cut By Slashes', difficulty: 'Medium' },
+        { name: 'Making A Large Island', difficulty: 'Hard' },
+        // Medium - Shortest Path
+        { name: 'Network Delay Time', difficulty: 'Medium' },
+        { name: 'Cheapest Flights Within K Stops', difficulty: 'Medium' },
+        { name: 'Path with Maximum Probability', difficulty: 'Medium' },
+        { name: 'Path With Minimum Effort', difficulty: 'Medium' },
+        { name: 'Swim in Rising Water', difficulty: 'Hard' },
+        { name: 'Find the City With the Smallest Number of Neighbors', difficulty: 'Medium' },
+        // Medium - Other
+        { name: 'All Paths From Source to Target', difficulty: 'Medium' },
+        { name: 'Keys and Rooms', difficulty: 'Medium' },
+        { name: 'Is Graph Bipartite?', difficulty: 'Medium' },
+        { name: 'Possible Bipartition', difficulty: 'Medium' },
+        { name: 'Evaluate Division', difficulty: 'Medium' },
+        { name: 'Detect Cycles in 2D Grid', difficulty: 'Medium' },
+        { name: 'Minimum Number of Vertices to Reach All Nodes', difficulty: 'Medium' },
+        { name: 'Find Eventual Safe States', difficulty: 'Medium' },
+        { name: 'Loud and Rich', difficulty: 'Medium' },
+        { name: 'Time Needed to Inform All Employees', difficulty: 'Medium' },
+        { name: 'Count Sub Islands', difficulty: 'Medium' },
+        { name: 'Reorder Routes to Make All Paths Lead to City Zero', difficulty: 'Medium' },
+        // Hard
+        { name: 'Word Ladder', difficulty: 'Hard' },
+        { name: 'Word Ladder II', difficulty: 'Hard' },
+        { name: 'Reconstruct Itinerary', difficulty: 'Hard' },
+        { name: 'Critical Connections in a Network', difficulty: 'Hard' },
+        { name: 'Min Cost to Connect All Points', difficulty: 'Medium' },
+        { name: 'Number of Operations to Make Network Connected', difficulty: 'Medium' },
+        { name: 'Longest Increasing Path in a Matrix', difficulty: 'Hard' },
+        { name: 'Shortest Path Visiting All Nodes', difficulty: 'Hard' },
+        { name: 'Bus Routes', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
@@ -1809,30 +2089,101 @@ def network_delay_time(times, n, k):
       ],
 
       commonProblems: [
+        // Easy - 1D DP
         { name: 'Climbing Stairs', difficulty: 'Easy' },
         { name: 'Min Cost Climbing Stairs', difficulty: 'Easy' },
+        { name: 'Fibonacci Number', difficulty: 'Easy' },
+        { name: 'Tribonacci Number', difficulty: 'Easy' },
+        { name: 'Divisor Game', difficulty: 'Easy' },
+        { name: 'Is Subsequence', difficulty: 'Easy' },
+        { name: 'Pascal\'s Triangle', difficulty: 'Easy' },
+        { name: 'Pascal\'s Triangle II', difficulty: 'Easy' },
+        { name: 'Counting Bits', difficulty: 'Easy' },
+        // Medium - House Robber Pattern
         { name: 'House Robber', difficulty: 'Medium' },
         { name: 'House Robber II', difficulty: 'Medium' },
+        { name: 'House Robber III', difficulty: 'Medium' },
+        { name: 'Delete and Earn', difficulty: 'Medium' },
+        // Medium - Knapsack Pattern
         { name: 'Coin Change', difficulty: 'Medium' },
         { name: 'Coin Change 2', difficulty: 'Medium' },
-        { name: 'Longest Increasing Subsequence', difficulty: 'Medium' },
+        { name: 'Target Sum', difficulty: 'Medium' },
+        { name: 'Partition Equal Subset Sum', difficulty: 'Medium' },
+        { name: 'Last Stone Weight II', difficulty: 'Medium' },
+        { name: 'Ones and Zeroes', difficulty: 'Medium' },
+        { name: 'Profitable Schemes', difficulty: 'Hard' },
+        // Medium - Grid DP
         { name: 'Unique Paths', difficulty: 'Medium' },
         { name: 'Unique Paths II', difficulty: 'Medium' },
         { name: 'Minimum Path Sum', difficulty: 'Medium' },
         { name: 'Triangle', difficulty: 'Medium' },
+        { name: 'Dungeon Game', difficulty: 'Hard' },
+        { name: 'Maximal Square', difficulty: 'Medium' },
+        { name: 'Maximal Rectangle', difficulty: 'Hard' },
+        { name: 'Cherry Pickup', difficulty: 'Hard' },
+        { name: 'Cherry Pickup II', difficulty: 'Hard' },
+        // Medium - LIS Pattern
+        { name: 'Longest Increasing Subsequence', difficulty: 'Medium' },
+        { name: 'Number of Longest Increasing Subsequence', difficulty: 'Medium' },
+        { name: 'Russian Doll Envelopes', difficulty: 'Hard' },
+        { name: 'Maximum Length of Pair Chain', difficulty: 'Medium' },
+        { name: 'Longest String Chain', difficulty: 'Medium' },
+        { name: 'Increasing Triplet Subsequence', difficulty: 'Medium' },
+        // Medium - String DP
         { name: 'Decode Ways', difficulty: 'Medium' },
         { name: 'Word Break', difficulty: 'Medium' },
+        { name: 'Word Break II', difficulty: 'Hard' },
         { name: 'Longest Common Subsequence', difficulty: 'Medium' },
         { name: 'Edit Distance', difficulty: 'Medium' },
-        { name: 'Palindrome Substrings', difficulty: 'Medium' },
-        { name: 'Longest Palindromic Subsequence', difficulty: 'Medium' },
-        { name: 'Target Sum', difficulty: 'Medium' },
-        { name: 'Partition Equal Subset Sum', difficulty: 'Medium' },
-        { name: 'Best Time to Buy and Sell Stock with Cooldown', difficulty: 'Medium' },
+        { name: 'Delete Operation for Two Strings', difficulty: 'Medium' },
+        { name: 'Minimum ASCII Delete Sum for Two Strings', difficulty: 'Medium' },
+        { name: 'Shortest Common Supersequence', difficulty: 'Hard' },
         { name: 'Interleaving String', difficulty: 'Medium' },
         { name: 'Distinct Subsequences', difficulty: 'Hard' },
+        // Medium - Palindrome DP
+        { name: 'Palindromic Substrings', difficulty: 'Medium' },
+        { name: 'Longest Palindromic Substring', difficulty: 'Medium' },
+        { name: 'Longest Palindromic Subsequence', difficulty: 'Medium' },
+        { name: 'Palindrome Partitioning II', difficulty: 'Hard' },
+        { name: 'Minimum Insertions to Make String Palindrome', difficulty: 'Hard' },
+        // Medium - Stock Trading
+        { name: 'Best Time to Buy and Sell Stock', difficulty: 'Easy' },
+        { name: 'Best Time to Buy and Sell Stock II', difficulty: 'Medium' },
+        { name: 'Best Time to Buy and Sell Stock III', difficulty: 'Hard' },
+        { name: 'Best Time to Buy and Sell Stock IV', difficulty: 'Hard' },
+        { name: 'Best Time to Buy and Sell Stock with Cooldown', difficulty: 'Medium' },
+        { name: 'Best Time to Buy and Sell Stock with Transaction Fee', difficulty: 'Medium' },
+        // Medium - Other
+        { name: 'Perfect Squares', difficulty: 'Medium' },
+        { name: 'Ugly Number II', difficulty: 'Medium' },
+        { name: 'Jump Game', difficulty: 'Medium' },
+        { name: 'Jump Game II', difficulty: 'Medium' },
+        { name: 'Maximum Subarray', difficulty: 'Medium' },
+        { name: 'Maximum Product Subarray', difficulty: 'Medium' },
+        { name: 'Integer Break', difficulty: 'Medium' },
+        { name: 'Longest Turbulent Subarray', difficulty: 'Medium' },
+        { name: 'Stone Game', difficulty: 'Medium' },
+        { name: 'Stone Game II', difficulty: 'Medium' },
+        { name: 'Predict the Winner', difficulty: 'Medium' },
+        { name: 'Partition Array for Maximum Sum', difficulty: 'Medium' },
+        { name: 'Count Square Submatrices with All Ones', difficulty: 'Medium' },
+        { name: 'Minimum Falling Path Sum', difficulty: 'Medium' },
+        { name: 'Minimum Cost For Tickets', difficulty: 'Medium' },
+        { name: 'Longest Arithmetic Subsequence', difficulty: 'Medium' },
+        { name: 'Longest Arithmetic Subsequence of Given Difference', difficulty: 'Medium' },
+        { name: 'Maximum Sum Circular Subarray', difficulty: 'Medium' },
+        // Hard
         { name: 'Regular Expression Matching', difficulty: 'Hard' },
-        { name: 'Burst Balloons', difficulty: 'Hard' }
+        { name: 'Wildcard Matching', difficulty: 'Hard' },
+        { name: 'Burst Balloons', difficulty: 'Hard' },
+        { name: 'Super Egg Drop', difficulty: 'Hard' },
+        { name: 'Longest Valid Parentheses', difficulty: 'Hard' },
+        { name: 'Frog Jump', difficulty: 'Hard' },
+        { name: 'Scramble String', difficulty: 'Hard' },
+        { name: 'Maximum Profit in Job Scheduling', difficulty: 'Hard' },
+        { name: 'Strange Printer', difficulty: 'Hard' },
+        { name: 'Number of Ways to Rearrange Sticks', difficulty: 'Hard' },
+        { name: 'Minimum Difficulty of a Job Schedule', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
@@ -1979,14 +2330,46 @@ def climb_stairs_optimized(n):
       ],
 
       commonProblems: [
+        // Easy
+        { name: 'Last Stone Weight', difficulty: 'Easy' },
+        { name: 'Kth Largest Element in a Stream', difficulty: 'Easy' },
+        { name: 'Relative Ranks', difficulty: 'Easy' },
+        // Medium
         { name: 'Kth Largest Element in an Array', difficulty: 'Medium' },
         { name: 'Top K Frequent Elements', difficulty: 'Medium' },
+        { name: 'Top K Frequent Words', difficulty: 'Medium' },
+        { name: 'K Closest Points to Origin', difficulty: 'Medium' },
+        { name: 'Task Scheduler', difficulty: 'Medium' },
+        { name: 'Reorganize String', difficulty: 'Medium' },
+        { name: 'Meeting Rooms II', difficulty: 'Medium' },
+        { name: 'Meeting Rooms III', difficulty: 'Hard' },
+        { name: 'Smallest Range Covering Elements from K Lists', difficulty: 'Hard' },
+        { name: 'Single-Threaded CPU', difficulty: 'Medium' },
+        { name: 'Process Tasks Using Servers', difficulty: 'Medium' },
+        { name: 'Seat Reservation Manager', difficulty: 'Medium' },
+        { name: 'Design Twitter', difficulty: 'Medium' },
+        { name: 'Minimum Cost to Connect Sticks', difficulty: 'Medium' },
+        { name: 'Maximum Subsequence Score', difficulty: 'Medium' },
+        { name: 'Total Cost to Hire K Workers', difficulty: 'Medium' },
+        { name: 'Minimum Number of Refueling Stops', difficulty: 'Hard' },
+        { name: 'Maximum Performance of a Team', difficulty: 'Hard' },
+        { name: 'Smallest Number in Infinite Set', difficulty: 'Medium' },
+        { name: 'Maximum Number of Events That Can Be Attended', difficulty: 'Medium' },
+        { name: 'Maximum Number of Events That Can Be Attended II', difficulty: 'Hard' },
+        { name: 'Furthest Building You Can Reach', difficulty: 'Medium' },
+        { name: 'Find K Pairs with Smallest Sums', difficulty: 'Medium' },
+        { name: 'Kth Smallest Element in a Sorted Matrix', difficulty: 'Medium' },
+        { name: 'Sort Characters By Frequency', difficulty: 'Medium' },
+        { name: 'Ugly Number II', difficulty: 'Medium' },
+        { name: 'Super Ugly Number', difficulty: 'Medium' },
+        { name: 'Minimum Cost to Hire K Workers', difficulty: 'Hard' },
+        // Hard
         { name: 'Merge K Sorted Lists', difficulty: 'Hard' },
         { name: 'Find Median from Data Stream', difficulty: 'Hard' },
-        { name: 'Task Scheduler', difficulty: 'Medium' },
-        { name: 'K Closest Points to Origin', difficulty: 'Medium' },
-        { name: 'Reorganize String', difficulty: 'Medium' },
-        { name: 'Meeting Rooms II', difficulty: 'Medium' }
+        { name: 'Sliding Window Median', difficulty: 'Hard' },
+        { name: 'IPO', difficulty: 'Hard' },
+        { name: 'Trapping Rain Water II', difficulty: 'Hard' },
+        { name: 'The Skyline Problem', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
@@ -2126,14 +2509,50 @@ class MedianFinder:
       ],
 
       commonProblems: [
+        // Medium - Subsets/Combinations
         { name: 'Subsets', difficulty: 'Medium' },
-        { name: 'Permutations', difficulty: 'Medium' },
+        { name: 'Subsets II', difficulty: 'Medium' },
+        { name: 'Combinations', difficulty: 'Medium' },
         { name: 'Combination Sum', difficulty: 'Medium' },
-        { name: 'Word Search', difficulty: 'Medium' },
-        { name: 'N-Queens', difficulty: 'Hard' },
+        { name: 'Combination Sum II', difficulty: 'Medium' },
+        { name: 'Combination Sum III', difficulty: 'Medium' },
+        { name: 'Letter Combinations of Phone Number', difficulty: 'Medium' },
+        { name: 'Generate Parentheses', difficulty: 'Medium' },
+        // Medium - Permutations
+        { name: 'Permutations', difficulty: 'Medium' },
+        { name: 'Permutations II', difficulty: 'Medium' },
+        { name: 'Next Permutation', difficulty: 'Medium' },
+        { name: 'Permutation Sequence', difficulty: 'Hard' },
+        // Medium - Partitioning
         { name: 'Palindrome Partitioning', difficulty: 'Medium' },
+        { name: 'Partition to K Equal Sum Subsets', difficulty: 'Medium' },
+        { name: 'Matchsticks to Square', difficulty: 'Medium' },
+        { name: 'Fair Distribution of Cookies', difficulty: 'Medium' },
+        // Medium - Word/Grid Search
+        { name: 'Word Search', difficulty: 'Medium' },
+        { name: 'Word Search II', difficulty: 'Hard' },
+        { name: 'Path with Maximum Gold', difficulty: 'Medium' },
+        { name: 'Unique Paths III', difficulty: 'Hard' },
+        { name: 'Robot Room Cleaner', difficulty: 'Hard' },
+        // Medium - Other
+        { name: 'Restore IP Addresses', difficulty: 'Medium' },
+        { name: 'Split a String Into the Max Number of Unique Substrings', difficulty: 'Medium' },
+        { name: 'Maximum Length of a Concatenated String with Unique Characters', difficulty: 'Medium' },
+        { name: 'Reconstruct Itinerary', difficulty: 'Hard' },
+        { name: 'Beautiful Arrangement', difficulty: 'Medium' },
+        { name: 'Splitting a String Into Descending Consecutive Values', difficulty: 'Medium' },
+        { name: 'Find Unique Binary String', difficulty: 'Medium' },
+        { name: 'Maximum Score Words Formed by Letters', difficulty: 'Hard' },
+        // Hard - Constraint Satisfaction
+        { name: 'N-Queens', difficulty: 'Hard' },
+        { name: 'N-Queens II', difficulty: 'Hard' },
         { name: 'Sudoku Solver', difficulty: 'Hard' },
-        { name: 'Letter Combinations of Phone Number', difficulty: 'Medium' }
+        { name: 'Expression Add Operators', difficulty: 'Hard' },
+        { name: 'Word Squares', difficulty: 'Hard' },
+        { name: 'Stickers to Spell Word', difficulty: 'Hard' },
+        { name: 'Zuma Game', difficulty: 'Hard' },
+        { name: 'Remove Invalid Parentheses', difficulty: 'Hard' },
+        { name: 'Additive Number', difficulty: 'Medium' }
       ],
 
       commonMistakes: [
@@ -2328,15 +2747,56 @@ In interviews, greedy problems often involve intervals, scheduling, or making se
       ],
 
       commonProblems: [
+        // Easy
+        { name: 'Assign Cookies', difficulty: 'Easy' },
+        { name: 'Lemonade Change', difficulty: 'Easy' },
+        { name: 'Maximum Units on a Truck', difficulty: 'Easy' },
+        { name: 'Can Place Flowers', difficulty: 'Easy' },
+        // Medium - Jump Game
         { name: 'Jump Game', difficulty: 'Medium' },
         { name: 'Jump Game II', difficulty: 'Medium' },
-        { name: 'Gas Station', difficulty: 'Medium' },
+        { name: 'Jump Game III', difficulty: 'Medium' },
+        { name: 'Jump Game VII', difficulty: 'Medium' },
+        { name: 'Video Stitching', difficulty: 'Medium' },
+        // Medium - Intervals
         { name: 'Merge Intervals', difficulty: 'Medium' },
+        { name: 'Insert Interval', difficulty: 'Medium' },
         { name: 'Non-overlapping Intervals', difficulty: 'Medium' },
-        { name: 'Partition Labels', difficulty: 'Medium' },
+        { name: 'Minimum Number of Arrows to Burst Balloons', difficulty: 'Medium' },
+        { name: 'Meeting Rooms', difficulty: 'Easy' },
+        { name: 'Meeting Rooms II', difficulty: 'Medium' },
+        { name: 'Car Pooling', difficulty: 'Medium' },
+        { name: 'My Calendar I', difficulty: 'Medium' },
+        { name: 'My Calendar II', difficulty: 'Medium' },
+        // Medium - Scheduling/Selection
+        { name: 'Gas Station', difficulty: 'Medium' },
         { name: 'Task Scheduler', difficulty: 'Medium' },
+        { name: 'Partition Labels', difficulty: 'Medium' },
+        { name: 'Maximum Number of Events That Can Be Attended', difficulty: 'Medium' },
+        { name: 'Minimum Deletions to Make Character Frequencies Unique', difficulty: 'Medium' },
+        { name: 'Remove Covered Intervals', difficulty: 'Medium' },
+        { name: 'Maximum Length of Pair Chain', difficulty: 'Medium' },
+        { name: 'Minimum Cost for Tickets', difficulty: 'Medium' },
+        // Medium - Other Greedy
+        { name: 'Two City Scheduling', difficulty: 'Medium' },
+        { name: 'Boats to Save People', difficulty: 'Medium' },
+        { name: 'Broken Calculator', difficulty: 'Medium' },
+        { name: 'Hand of Straights', difficulty: 'Medium' },
+        { name: 'Divide Array in Sets of K Consecutive Numbers', difficulty: 'Medium' },
+        { name: 'Reduce Array Size to The Half', difficulty: 'Medium' },
+        { name: 'Queue Reconstruction by Height', difficulty: 'Medium' },
+        { name: 'Advantage Shuffle', difficulty: 'Medium' },
+        { name: 'Wiggle Subsequence', difficulty: 'Medium' },
+        { name: 'Monotone Increasing Digits', difficulty: 'Medium' },
+        { name: 'Minimum Add to Make Parentheses Valid', difficulty: 'Medium' },
+        // Hard
         { name: 'Candy', difficulty: 'Hard' },
-        { name: 'Minimum Number of Arrows', difficulty: 'Medium' }
+        { name: 'Minimum Number of Taps to Open to Water a Garden', difficulty: 'Hard' },
+        { name: 'Minimum Initial Energy to Finish Tasks', difficulty: 'Hard' },
+        { name: 'Create Maximum Number', difficulty: 'Hard' },
+        { name: 'IPO', difficulty: 'Hard' },
+        { name: 'Patching Array', difficulty: 'Hard' },
+        { name: 'Minimum Number of Refueling Stops', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
@@ -2564,14 +3024,32 @@ Every trie interview problem fundamentally comes down to: tree traversal with ch
       ],
 
       commonProblems: [
-        { name: 'Implement Trie', difficulty: 'Medium' },
-        { name: 'Word Search II', difficulty: 'Hard' },
-        { name: 'Design Add and Search Words', difficulty: 'Medium' },
+        // Medium
+        { name: 'Implement Trie (Prefix Tree)', difficulty: 'Medium' },
+        { name: 'Design Add and Search Words Data Structure', difficulty: 'Medium' },
         { name: 'Replace Words', difficulty: 'Medium' },
         { name: 'Longest Word in Dictionary', difficulty: 'Medium' },
         { name: 'Map Sum Pairs', difficulty: 'Medium' },
+        { name: 'Top K Frequent Words', difficulty: 'Medium' },
+        { name: 'Maximum XOR of Two Numbers in an Array', difficulty: 'Medium' },
+        { name: 'Implement Magic Dictionary', difficulty: 'Medium' },
+        { name: 'Short Encoding of Words', difficulty: 'Medium' },
+        { name: 'Index Pairs of a String', difficulty: 'Easy' },
+        { name: 'Longest Common Prefix', difficulty: 'Easy' },
+        { name: 'Search Suggestions System', difficulty: 'Medium' },
+        { name: 'Stream of Characters', difficulty: 'Hard' },
+        { name: 'Camelcase Matching', difficulty: 'Medium' },
+        { name: 'Extra Characters in a String', difficulty: 'Medium' },
+        { name: 'Count Prefixes of a Given String', difficulty: 'Easy' },
+        // Hard
+        { name: 'Word Search II', difficulty: 'Hard' },
         { name: 'Concatenated Words', difficulty: 'Hard' },
-        { name: 'Word Squares', difficulty: 'Hard' }
+        { name: 'Word Squares', difficulty: 'Hard' },
+        { name: 'Palindrome Pairs', difficulty: 'Hard' },
+        { name: 'Design Search Autocomplete System', difficulty: 'Hard' },
+        { name: 'Maximum XOR With an Element From Array', difficulty: 'Hard' },
+        { name: 'Count Pairs With XOR in a Range', difficulty: 'Hard' },
+        { name: 'K-th Smallest in Lexicographical Order', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
@@ -2825,15 +3303,37 @@ Bit manipulation appears in: finding duplicates/missing numbers, efficient math 
       ],
 
       commonProblems: [
+        // Easy
         { name: 'Single Number', difficulty: 'Easy' },
-        { name: 'Single Number II', difficulty: 'Medium' },
-        { name: 'Single Number III', difficulty: 'Medium' },
         { name: 'Number of 1 Bits', difficulty: 'Easy' },
         { name: 'Counting Bits', difficulty: 'Easy' },
         { name: 'Reverse Bits', difficulty: 'Easy' },
         { name: 'Missing Number', difficulty: 'Easy' },
+        { name: 'Power of Two', difficulty: 'Easy' },
+        { name: 'Power of Four', difficulty: 'Easy' },
+        { name: 'Binary Watch', difficulty: 'Easy' },
+        { name: 'Hamming Distance', difficulty: 'Easy' },
+        { name: 'Convert a Number to Hexadecimal', difficulty: 'Easy' },
+        { name: 'Add Binary', difficulty: 'Easy' },
+        { name: 'Number Complement', difficulty: 'Easy' },
+        { name: 'Binary Number with Alternating Bits', difficulty: 'Easy' },
+        { name: 'Prime Number of Set Bits in Binary Representation', difficulty: 'Easy' },
+        // Medium
+        { name: 'Single Number II', difficulty: 'Medium' },
+        { name: 'Single Number III', difficulty: 'Medium' },
         { name: 'Sum of Two Integers', difficulty: 'Medium' },
-        { name: 'Power of Two', difficulty: 'Easy' }
+        { name: 'Subsets (using bits)', difficulty: 'Medium' },
+        { name: 'Bitwise AND of Numbers Range', difficulty: 'Medium' },
+        { name: 'Repeated DNA Sequences', difficulty: 'Medium' },
+        { name: 'Gray Code', difficulty: 'Medium' },
+        { name: 'Total Hamming Distance', difficulty: 'Medium' },
+        { name: 'Maximum XOR of Two Numbers in an Array', difficulty: 'Medium' },
+        { name: 'Decode XORed Array', difficulty: 'Easy' },
+        { name: 'Decode XORed Permutation', difficulty: 'Medium' },
+        { name: 'Find XOR Sum of All Pairs Bitwise AND', difficulty: 'Hard' },
+        { name: 'Minimum One Bit Operations to Make Integers Zero', difficulty: 'Hard' },
+        // Hard
+        { name: 'Maximum XOR With an Element From Array', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
@@ -3069,15 +3569,54 @@ The key insight for math problems: look for patterns, use modular arithmetic to 
       ],
 
       commonProblems: [
-        { name: 'Pow(x, n)', difficulty: 'Medium' },
+        // Easy - Number Theory
         { name: 'Sqrt(x)', difficulty: 'Easy' },
         { name: 'Happy Number', difficulty: 'Easy' },
         { name: 'Plus One', difficulty: 'Easy' },
+        { name: 'Fizz Buzz', difficulty: 'Easy' },
+        { name: 'Palindrome Number', difficulty: 'Easy' },
+        { name: 'Roman to Integer', difficulty: 'Easy' },
+        { name: 'Integer to Roman', difficulty: 'Medium' },
+        { name: 'Add Digits', difficulty: 'Easy' },
+        { name: 'Ugly Number', difficulty: 'Easy' },
+        { name: 'Perfect Number', difficulty: 'Easy' },
+        { name: 'Excel Sheet Column Number', difficulty: 'Easy' },
+        { name: 'Excel Sheet Column Title', difficulty: 'Easy' },
+        { name: 'Factorial Trailing Zeroes', difficulty: 'Medium' },
+        { name: 'Reverse Integer', difficulty: 'Medium' },
+        // Medium - Math
+        { name: 'Pow(x, n)', difficulty: 'Medium' },
+        { name: 'Count Primes', difficulty: 'Medium' },
+        { name: 'Ugly Number II', difficulty: 'Medium' },
+        { name: 'Super Ugly Number', difficulty: 'Medium' },
+        { name: 'Nth Digit', difficulty: 'Medium' },
+        { name: 'Multiply Strings', difficulty: 'Medium' },
+        { name: 'Add Two Numbers (Linked List)', difficulty: 'Medium' },
+        { name: 'String to Integer (atoi)', difficulty: 'Medium' },
+        { name: 'Divide Two Integers', difficulty: 'Medium' },
+        { name: 'Fraction to Recurring Decimal', difficulty: 'Medium' },
+        { name: 'Basic Calculator II', difficulty: 'Medium' },
+        // Medium - Geometry
         { name: 'Rotate Image', difficulty: 'Medium' },
         { name: 'Spiral Matrix', difficulty: 'Medium' },
-        { name: 'Count Primes', difficulty: 'Medium' },
+        { name: 'Spiral Matrix II', difficulty: 'Medium' },
         { name: 'Rectangle Overlap', difficulty: 'Easy' },
-        { name: 'Valid Square', difficulty: 'Medium' }
+        { name: 'Rectangle Area', difficulty: 'Medium' },
+        { name: 'Valid Square', difficulty: 'Medium' },
+        { name: 'Max Points on a Line', difficulty: 'Hard' },
+        { name: 'Minimum Area Rectangle', difficulty: 'Medium' },
+        { name: 'K Closest Points to Origin', difficulty: 'Medium' },
+        { name: 'Check If It Is a Straight Line', difficulty: 'Easy' },
+        // Medium - Random/Sampling
+        { name: 'Random Pick with Weight', difficulty: 'Medium' },
+        { name: 'Random Pick Index', difficulty: 'Medium' },
+        { name: 'Shuffle an Array', difficulty: 'Medium' },
+        { name: 'Linked List Random Node', difficulty: 'Medium' },
+        // Hard
+        { name: 'Largest Number', difficulty: 'Medium' },
+        { name: 'Integer to English Words', difficulty: 'Hard' },
+        { name: 'Minimum Moves to Equal Array Elements', difficulty: 'Medium' },
+        { name: 'Number of Digit One', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
@@ -3323,15 +3862,47 @@ The key insight: matrices are just indexed by (row, col) pairs. Master the index
       ],
 
       commonProblems: [
+        // Easy
+        { name: 'Transpose Matrix', difficulty: 'Easy' },
+        { name: 'Reshape the Matrix', difficulty: 'Easy' },
+        { name: 'Toeplitz Matrix', difficulty: 'Easy' },
+        { name: 'Flipping an Image', difficulty: 'Easy' },
+        { name: 'Cells with Odd Values in a Matrix', difficulty: 'Easy' },
+        { name: 'Matrix Cells in Distance Order', difficulty: 'Easy' },
+        { name: 'Lucky Numbers in a Matrix', difficulty: 'Easy' },
+        { name: 'Special Positions in a Binary Matrix', difficulty: 'Easy' },
+        // Medium - Traversal
         { name: 'Rotate Image', difficulty: 'Medium' },
         { name: 'Spiral Matrix', difficulty: 'Medium' },
         { name: 'Spiral Matrix II', difficulty: 'Medium' },
-        { name: 'Set Matrix Zeroes', difficulty: 'Medium' },
+        { name: 'Diagonal Traverse', difficulty: 'Medium' },
+        { name: 'Diagonal Traverse II', difficulty: 'Medium' },
+        { name: 'Print Words Vertically', difficulty: 'Medium' },
+        // Medium - Search
         { name: 'Search a 2D Matrix', difficulty: 'Medium' },
         { name: 'Search a 2D Matrix II', difficulty: 'Medium' },
+        { name: 'Kth Smallest Element in a Sorted Matrix', difficulty: 'Medium' },
+        // Medium - Modification
+        { name: 'Set Matrix Zeroes', difficulty: 'Medium' },
         { name: 'Valid Sudoku', difficulty: 'Medium' },
         { name: 'Game of Life', difficulty: 'Medium' },
-        { name: 'Diagonal Traverse', difficulty: 'Medium' }
+        { name: 'Maximal Square', difficulty: 'Medium' },
+        { name: 'Count Square Submatrices with All Ones', difficulty: 'Medium' },
+        { name: 'Range Sum Query 2D - Immutable', difficulty: 'Medium' },
+        { name: 'Where Will the Ball Fall', difficulty: 'Medium' },
+        // Medium - Grid Problems
+        { name: 'Number of Islands', difficulty: 'Medium' },
+        { name: 'Max Area of Island', difficulty: 'Medium' },
+        { name: 'Surrounded Regions', difficulty: 'Medium' },
+        { name: 'Pacific Atlantic Water Flow', difficulty: 'Medium' },
+        { name: 'Rotting Oranges', difficulty: 'Medium' },
+        { name: '01 Matrix', difficulty: 'Medium' },
+        { name: 'Shortest Path in Binary Matrix', difficulty: 'Medium' },
+        // Hard
+        { name: 'Maximal Rectangle', difficulty: 'Hard' },
+        { name: 'Sudoku Solver', difficulty: 'Hard' },
+        { name: 'Candy Crush', difficulty: 'Medium' },
+        { name: 'Longest Increasing Path in a Matrix', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
@@ -3615,14 +4186,41 @@ Understanding recursion deeply unlocks: binary tree problems, divide and conquer
       ],
 
       commonProblems: [
-        { name: 'Fibonacci', difficulty: 'Easy' },
-        { name: 'Factorial', difficulty: 'Easy' },
+        // Easy
+        { name: 'Fibonacci Number', difficulty: 'Easy' },
+        { name: 'Climbing Stairs', difficulty: 'Easy' },
         { name: 'Reverse String', difficulty: 'Easy' },
+        { name: 'Swap Nodes in Pairs', difficulty: 'Medium' },
+        { name: 'Power of Two', difficulty: 'Easy' },
+        { name: 'Power of Three', difficulty: 'Easy' },
+        { name: 'Power of Four', difficulty: 'Easy' },
+        { name: 'Merge Two Sorted Lists', difficulty: 'Easy' },
+        { name: 'Maximum Depth of Binary Tree', difficulty: 'Easy' },
+        { name: 'Same Tree', difficulty: 'Easy' },
+        { name: 'Invert Binary Tree', difficulty: 'Easy' },
+        // Medium
         { name: 'Generate Parentheses', difficulty: 'Medium' },
         { name: 'Pow(x, n)', difficulty: 'Medium' },
-        { name: 'Merge Sort', difficulty: 'Medium' },
+        { name: 'Sort List (Merge Sort)', difficulty: 'Medium' },
         { name: 'Subsets', difficulty: 'Medium' },
-        { name: 'Letter Combinations of Phone', difficulty: 'Medium' }
+        { name: 'Permutations', difficulty: 'Medium' },
+        { name: 'Combinations', difficulty: 'Medium' },
+        { name: 'Combination Sum', difficulty: 'Medium' },
+        { name: 'Letter Combinations of Phone Number', difficulty: 'Medium' },
+        { name: 'Validate Binary Search Tree', difficulty: 'Medium' },
+        { name: 'Construct Binary Tree from Preorder and Inorder', difficulty: 'Medium' },
+        { name: 'Flatten Binary Tree to Linked List', difficulty: 'Medium' },
+        { name: 'Lowest Common Ancestor of Binary Tree', difficulty: 'Medium' },
+        { name: 'Decode String', difficulty: 'Medium' },
+        { name: 'Target Sum', difficulty: 'Medium' },
+        { name: 'Word Search', difficulty: 'Medium' },
+        { name: 'K-th Symbol in Grammar', difficulty: 'Medium' },
+        { name: 'Different Ways to Add Parentheses', difficulty: 'Medium' },
+        // Hard
+        { name: 'Merge K Sorted Lists', difficulty: 'Hard' },
+        { name: 'Median of Two Sorted Arrays', difficulty: 'Hard' },
+        { name: 'Regular Expression Matching', difficulty: 'Hard' },
+        { name: 'Strobogrammatic Number III', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
@@ -3877,14 +4475,45 @@ In interviews, you'll rarely implement sort from scratch. Instead, focus on:
       ],
 
       commonProblems: [
+        // Easy
+        { name: 'Merge Sorted Array', difficulty: 'Easy' },
+        { name: 'Squares of a Sorted Array', difficulty: 'Easy' },
+        { name: 'Valid Anagram', difficulty: 'Easy' },
+        { name: 'Contains Duplicate', difficulty: 'Easy' },
+        { name: 'Intersection of Two Arrays', difficulty: 'Easy' },
+        { name: 'Intersection of Two Arrays II', difficulty: 'Easy' },
+        { name: 'Relative Sort Array', difficulty: 'Easy' },
+        { name: 'Height Checker', difficulty: 'Easy' },
+        { name: 'Sort Array By Parity', difficulty: 'Easy' },
+        { name: 'Sort Array By Parity II', difficulty: 'Easy' },
+        // Medium - Core Sorting
         { name: 'Sort an Array', difficulty: 'Medium' },
         { name: 'Sort Colors', difficulty: 'Medium' },
-        { name: 'Kth Largest Element', difficulty: 'Medium' },
-        { name: 'Merge Intervals', difficulty: 'Medium' },
-        { name: 'Largest Number', difficulty: 'Medium' },
-        { name: 'Meeting Rooms II', difficulty: 'Medium' },
         { name: 'Sort List', difficulty: 'Medium' },
-        { name: 'Wiggle Sort II', difficulty: 'Medium' }
+        { name: 'Insertion Sort List', difficulty: 'Medium' },
+        { name: 'Wiggle Sort II', difficulty: 'Medium' },
+        // Medium - Custom Comparators
+        { name: 'Largest Number', difficulty: 'Medium' },
+        { name: 'Custom Sort String', difficulty: 'Medium' },
+        { name: 'Queue Reconstruction by Height', difficulty: 'Medium' },
+        { name: 'Sort Characters By Frequency', difficulty: 'Medium' },
+        { name: 'Group Anagrams', difficulty: 'Medium' },
+        { name: 'Reorder Data in Log Files', difficulty: 'Medium' },
+        // Medium - Selection/Partitioning
+        { name: 'Kth Largest Element in an Array', difficulty: 'Medium' },
+        { name: 'Top K Frequent Elements', difficulty: 'Medium' },
+        { name: 'Top K Frequent Words', difficulty: 'Medium' },
+        { name: 'K Closest Points to Origin', difficulty: 'Medium' },
+        { name: 'Find K Closest Elements', difficulty: 'Medium' },
+        // Medium - Merge/Intervals
+        { name: 'Merge Intervals', difficulty: 'Medium' },
+        { name: 'Insert Interval', difficulty: 'Medium' },
+        { name: 'Meeting Rooms II', difficulty: 'Medium' },
+        { name: 'Car Fleet', difficulty: 'Medium' },
+        // Hard
+        { name: 'Merge K Sorted Lists', difficulty: 'Hard' },
+        { name: 'Median of Two Sorted Arrays', difficulty: 'Hard' },
+        { name: 'Maximum Gap', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
@@ -4135,14 +4764,37 @@ Sweep line technique: Instead of treating intervals as wholes, process START and
       ],
 
       commonProblems: [
+        // Easy
+        { name: 'Meeting Rooms', difficulty: 'Easy' },
+        { name: 'Summary Ranges', difficulty: 'Easy' },
+        // Medium - Core Interval
         { name: 'Merge Intervals', difficulty: 'Medium' },
         { name: 'Insert Interval', difficulty: 'Medium' },
-        { name: 'Meeting Rooms', difficulty: 'Easy' },
         { name: 'Meeting Rooms II', difficulty: 'Medium' },
         { name: 'Non-overlapping Intervals', difficulty: 'Medium' },
-        { name: 'Minimum Number of Arrows', difficulty: 'Medium' },
+        { name: 'Minimum Number of Arrows to Burst Balloons', difficulty: 'Medium' },
         { name: 'Interval List Intersections', difficulty: 'Medium' },
-        { name: 'Employee Free Time', difficulty: 'Hard' }
+        { name: 'Remove Covered Intervals', difficulty: 'Medium' },
+        { name: 'Partition Labels', difficulty: 'Medium' },
+        // Medium - Calendar/Scheduling
+        { name: 'My Calendar I', difficulty: 'Medium' },
+        { name: 'My Calendar II', difficulty: 'Medium' },
+        { name: 'My Calendar III', difficulty: 'Hard' },
+        { name: 'Car Pooling', difficulty: 'Medium' },
+        { name: 'Corporate Flight Bookings', difficulty: 'Medium' },
+        { name: 'Range Addition', difficulty: 'Medium' },
+        { name: 'Video Stitching', difficulty: 'Medium' },
+        // Medium - Range Coverage
+        { name: 'Missing Ranges', difficulty: 'Easy' },
+        { name: 'Add Bold Tag in String', difficulty: 'Medium' },
+        { name: 'Data Stream as Disjoint Intervals', difficulty: 'Hard' },
+        { name: 'Maximum Number of Events That Can Be Attended', difficulty: 'Medium' },
+        { name: 'Maximum Number of Events That Can Be Attended II', difficulty: 'Hard' },
+        // Hard
+        { name: 'Employee Free Time', difficulty: 'Hard' },
+        { name: 'The Skyline Problem', difficulty: 'Hard' },
+        { name: 'Rectangle Area II', difficulty: 'Hard' },
+        { name: 'Falling Squares', difficulty: 'Hard' }
       ],
 
       commonMistakes: [
@@ -4613,7 +5265,33 @@ def binary_search_left(nums, target):
       keyPatterns: ['BFS', 'Level order traversal', 'Sliding window max', 'Task scheduling'],
       timeComplexity: 'O(1) enqueue/dequeue',
       spaceComplexity: 'O(n)',
-      commonProblems: ['Implement Queue using Stacks', 'Design Circular Queue', 'Sliding Window Maximum', 'Task Scheduler', 'Number of Recent Calls'],
+      commonProblems: [
+        // Easy
+        { name: 'Implement Queue using Stacks', difficulty: 'Easy' },
+        { name: 'Number of Recent Calls', difficulty: 'Easy' },
+        { name: 'First Unique Character in a String', difficulty: 'Easy' },
+        { name: 'Moving Average from Data Stream', difficulty: 'Easy' },
+        // Medium
+        { name: 'Design Circular Queue', difficulty: 'Medium' },
+        { name: 'Design Circular Deque', difficulty: 'Medium' },
+        { name: 'Design Front Middle Back Queue', difficulty: 'Medium' },
+        { name: 'Dota2 Senate', difficulty: 'Medium' },
+        { name: 'Task Scheduler', difficulty: 'Medium' },
+        { name: 'Number of Students Unable to Eat Lunch', difficulty: 'Easy' },
+        { name: 'Time Needed to Buy Tickets', difficulty: 'Easy' },
+        { name: 'Reveal Cards In Increasing Order', difficulty: 'Medium' },
+        { name: 'Rotting Oranges', difficulty: 'Medium' },
+        { name: 'Walls and Gates', difficulty: 'Medium' },
+        { name: 'Open the Lock', difficulty: 'Medium' },
+        { name: 'Shortest Path in Binary Matrix', difficulty: 'Medium' },
+        { name: 'Jump Game III', difficulty: 'Medium' },
+        { name: 'Jump Game IV', difficulty: 'Hard' },
+        { name: 'Snakes and Ladders', difficulty: 'Medium' },
+        // Hard
+        { name: 'Sliding Window Maximum', difficulty: 'Hard' },
+        { name: 'Shortest Subarray with Sum at Least K', difficulty: 'Hard' },
+        { name: 'Constrained Subsequence Sum', difficulty: 'Hard' }
+      ],
       tips: [
         'Use deque for O(1) operations on both ends',
         'BFS uses queue for level-by-level exploration',
