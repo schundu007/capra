@@ -22424,80 +22424,107 @@ The ambiguity became a clear, measurable project."`
 
                 {/* Discussion Points */}
                 {topicDetails.discussionPoints && (
-                  <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                      <Icon name="messageCircle" size={20} className="text-cyan-400" />
-                      Additional Discussion Points
-                    </h2>
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {topicDetails.discussionPoints.map((point, i) => (
-                        <div key={i} className="p-4 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
-                          <h4 className="text-cyan-400 font-semibold mb-2">{point.topic}</h4>
-                          <ul className="space-y-1">
-                            {point.points.map((p, j) => (
-                              <li key={j} className="flex items-start gap-2 text-gray-400 text-sm">
-                                <span className="text-cyan-400 mt-1">•</span>
-                                <span>{p}</span>
+                  <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(6,182,212,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(6,182,212,0.2)' }}>
+                    <div className="px-6 py-4 border-b border-cyan-500/20" style={{ background: 'rgba(6,182,212,0.05)' }}>
+                      <h2 className="text-lg font-bold text-white flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-cyan-500/20">
+                          <Icon name="messageCircle" size={18} className="text-cyan-400" />
+                        </div>
+                        Additional Discussion Points
+                      </h2>
+                    </div>
+                    <div className="p-4">
+                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {topicDetails.discussionPoints.map((point, i) => (
+                          <div key={i} className="p-4 rounded-xl transition-all hover:scale-[1.01]" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(6,182,212,0.1)' }}>
+                            <h4 className="text-cyan-400 font-semibold mb-2 text-sm">{point.topic}</h4>
+                            <ul className="space-y-1">
+                              {point.points.map((p, j) => (
+                                <li key={j} className="flex items-start gap-2 text-gray-400 text-xs">
+                                  <span className="text-cyan-400 mt-0.5">•</span>
+                                  <span>{p}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Components & Decisions - Side by Side */}
+                {(!topicDetails.introduction && topicDetails.components) || topicDetails.keyDecisions ? (
+                  <div className={`grid gap-4 ${(!topicDetails.introduction && topicDetails.components) && topicDetails.keyDecisions ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+                    {/* System Components */}
+                    {!topicDetails.introduction && topicDetails.components && (
+                      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
+                        <div className="px-5 py-3 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
+                          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-500/20">
+                            <Icon name="layers" size={16} className="text-purple-400" />
+                          </div>
+                          <h3 className="text-base font-bold text-white">System Components</h3>
+                        </div>
+                        <div className="p-4">
+                          <div className="flex flex-wrap gap-2">
+                            {topicDetails.components.map((comp, i) => (
+                              <span key={i} className="px-3 py-1.5 rounded-lg text-sm bg-purple-500/15 text-purple-400 border border-purple-500/20">
+                                {comp}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Key Design Decisions */}
+                    {topicDetails.keyDecisions && (
+                      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(245,158,11,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(245,158,11,0.2)' }}>
+                        <div className="px-5 py-3 border-b border-amber-500/20 flex items-center gap-3" style={{ background: 'rgba(245,158,11,0.05)' }}>
+                          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-amber-500/20">
+                            <Icon name="lightbulb" size={16} className="text-amber-400" />
+                          </div>
+                          <h3 className="text-base font-bold text-white">Key Design Decisions</h3>
+                        </div>
+                        <div className="p-4">
+                          <ol className="space-y-2">
+                            {topicDetails.keyDecisions.map((decision, i) => (
+                              <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
+                                <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                                  {i + 1}
+                                </span>
+                                <span className="text-gray-300 text-sm">{decision}</span>
                               </li>
                             ))}
-                          </ul>
+                          </ol>
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    )}
                   </div>
-                )}
-
-                {/* Fallback: Simple Components Display */}
-                {!topicDetails.introduction && topicDetails.components && (
-                  <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                      <Icon name="layers" size={18} className="text-purple-400" />
-                      System Components
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {topicDetails.components.map((comp, i) => (
-                        <span key={i} className="px-3 py-1.5 rounded-lg text-sm bg-purple-500/15 text-purple-400">
-                          {comp}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Key Design Decisions */}
-                {topicDetails.keyDecisions && (
-                  <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                      <Icon name="lightbulb" size={18} className="text-amber-400" />
-                      Key Design Decisions
-                    </h3>
-                    <ul className="space-y-3">
-                      {topicDetails.keyDecisions.map((decision, i) => (
-                        <li key={i} className="flex items-start gap-3">
-                          <span className="w-6 h-6 rounded flex items-center justify-center text-xs font-mono flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>{i + 1}</span>
-                          <span className="text-gray-300">{decision}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                ) : null}
               </>
             )}
 
             {topicDetails.tips && (
-              <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                  <Icon name="star" size={18} className="text-yellow-400" />
-                  Tips
-                </h3>
-                <ul className="space-y-3">
-                  {topicDetails.tips.map((tip, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span className="text-green-400 mt-1">•</span>
-                      <span className="text-gray-300">{tip}</span>
-                    </li>
-                  ))}
-                </ul>
+              <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
+                <div className="px-5 py-3 border-b border-yellow-500/20 flex items-center gap-3" style={{ background: 'rgba(234,179,8,0.05)' }}>
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-yellow-500/20">
+                    <Icon name="star" size={16} className="text-yellow-400" />
+                  </div>
+                  <h3 className="text-base font-bold text-white">Tips</h3>
+                </div>
+                <div className="p-4">
+                  <ul className="space-y-2">
+                    {topicDetails.tips.map((tip, i) => (
+                      <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
+                        <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0 bg-yellow-500/20 text-yellow-400">
+                          <Icon name="star" size={12} />
+                        </span>
+                        <span className="text-gray-300 text-sm">{tip}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             )}
           </div>
