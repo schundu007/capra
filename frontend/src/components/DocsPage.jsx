@@ -22016,38 +22016,60 @@ The ambiguity became a clear, measurable project."`
         {/* Back button */}
         <button
           onClick={() => setSelectedTopic(null)}
-          className="flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors"
+          className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-all hover:gap-3 group"
         >
-          <Icon name="chevronLeft" size={18} />
+          <Icon name="chevronLeft" size={18} className="transition-transform group-hover:-translate-x-0.5" />
           <span>Back to {pageConfig.title}</span>
         </button>
 
-        {/* Topic Header */}
-        <div className="flex items-start gap-4 mb-8">
-          <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${topicDetails.color}20` }}>
-            <Icon name={topicDetails.icon} size={28} style={{ color: topicDetails.color }} />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2">{topicDetails.title}</h1>
-            <p className="text-gray-400 text-lg">{topicDetails.description}</p>
+        {/* Topic Header - Enhanced */}
+        <div className="rounded-2xl p-6 mb-8" style={{ background: `linear-gradient(135deg, ${topicDetails.color}10, ${topicDetails.color}05)`, border: `1px solid ${topicDetails.color}20` }}>
+          <div className="flex items-start gap-5">
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform hover:scale-105"
+              style={{ background: `${topicDetails.color}20` }}
+            >
+              <Icon name={topicDetails.icon} size={32} style={{ color: topicDetails.color }} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-2 flex-wrap">
+                <h1 className="text-3xl font-bold text-white">{topicDetails.title}</h1>
+                {topicDetails.difficulty && (
+                  <span className={`px-3 py-1 rounded-lg text-sm font-medium ${
+                    topicDetails.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                    topicDetails.difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
+                    'bg-red-500/20 text-red-400 border border-red-500/30'
+                  }`}>
+                    {topicDetails.difficulty}
+                  </span>
+                )}
+                {topicDetails.questions && (
+                  <span className="px-3 py-1 rounded-lg text-sm font-medium bg-white/5 text-gray-400 border border-white/10">
+                    {topicDetails.questions} problems
+                  </span>
+                )}
+              </div>
+              <p className="text-gray-400 text-lg">{topicDetails.description}</p>
+              {topicDetails.subtitle && !topicDetails.difficulty && (
+                <p className="text-gray-500 text-sm mt-1">{topicDetails.subtitle}</p>
+              )}
+            </div>
           </div>
         </div>
 
         {/* DSA Topic Detail */}
         {activePage === 'coding' && topicDetails.keyPatterns && (
-          <div className="space-y-8">
+          <div className="space-y-6">
             {/* Introduction - Comprehensive Overview */}
             {topicDetails.introduction && (
-              <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
-                <div className="px-6 py-4 border-b border-emerald-500/20" style={{ background: 'rgba(16,185,129,0.05)' }}>
-                  <h3 className="text-lg font-bold text-white flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/20">
-                      <Icon name="book" size={18} className="text-emerald-400" />
-                    </div>
-                    Overview
-                  </h3>
+              <div id="overview" className="rounded-2xl overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                <div className="px-5 py-3 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
+                    <Icon name="book" size={16} className="text-emerald-400" />
+                  </div>
+                  <h3 className="text-base font-bold text-white">Overview</h3>
                 </div>
-                <div className="p-6">
+                <div className="p-5">
                   <FormattedContent content={topicDetails.introduction} color="emerald" />
                 </div>
               </div>
@@ -22065,131 +22087,175 @@ The ambiguity became a clear, measurable project."`
               </div>
             </div>
 
-            {/* When to Use - Pattern Recognition */}
-            {topicDetails.whenToUse && (
-              <div className="p-6 rounded-xl" style={{ background: 'rgba(168, 85, 247, 0.08)', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
-                <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                  <Icon name="target" size={18} className="text-purple-400" />
-                  When to Use This Pattern
-                </h3>
-                <ul className="space-y-3">
-                  {topicDetails.whenToUse.map((item, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span className="text-purple-400 mt-1">→</span>
-                      <span className="text-gray-300">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Key Patterns */}
-            <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                <Icon name="puzzle" size={18} style={{ color: topicDetails.color }} />
-                Key Patterns
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {topicDetails.keyPatterns.map((pattern, i) => (
-                  <span key={i} className="px-3 py-1.5 rounded-lg text-sm" style={{ background: `${topicDetails.color}15`, color: topicDetails.color }}>
-                    {pattern}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Approach - Step by Step */}
-            {topicDetails.approach && (
-              <div className="p-6 rounded-xl" style={{ background: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                  <Icon name="list" size={18} className="text-blue-400" />
-                  Step-by-Step Approach
-                </h3>
-                <ol className="space-y-3">
-                  {topicDetails.approach.map((step, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0" style={{ background: 'rgba(59, 130, 246, 0.3)', color: '#60a5fa' }}>{i + 1}</span>
-                      <span className="text-gray-300">{step}</span>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            )}
-
-            {/* Common Problems */}
-            <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                <Icon name="star" size={18} className="text-yellow-400" />
-                Common Problems
-              </h3>
-              <div className="space-y-2">
-                {topicDetails.commonProblems.map((problem, i) => (
-                  <div key={i} className="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-white/5 transition-colors">
-                    <span className="w-6 h-6 rounded flex items-center justify-center text-xs font-mono" style={{ background: 'rgba(255,255,255,0.1)' }}>{i + 1}</span>
-                    <span className="text-gray-300">{typeof problem === 'string' ? problem : problem.name}</span>
-                    {typeof problem === 'object' && problem.difficulty && (
-                      <span className={`px-2 py-0.5 rounded text-xs ${
-                        problem.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :
-                        problem.difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-400' :
-                        'bg-red-500/20 text-red-400'
-                      }`}>{problem.difficulty}</span>
-                    )}
+            {/* When to Use + Key Patterns - Side by Side Row */}
+            <div id="when-to-use" className={`grid gap-4 scroll-mt-24 ${topicDetails.whenToUse && topicDetails.keyPatterns ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+              {/* When to Use */}
+              {topicDetails.whenToUse && (
+                <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
+                  <div className="px-5 py-3 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-500/20">
+                      <Icon name="target" size={16} className="text-purple-400" />
+                    </div>
+                    <h3 className="text-base font-bold text-white">When to Use</h3>
                   </div>
-                ))}
-              </div>
+                  <div className="p-4">
+                    <ul className="space-y-2">
+                      {topicDetails.whenToUse.map((item, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm">
+                          <span className="text-purple-400 mt-0.5">→</span>
+                          <span className="text-gray-300">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
+
+              {/* Key Patterns */}
+              {topicDetails.keyPatterns && (
+                <div className="rounded-2xl overflow-hidden h-fit" style={{ background: `linear-gradient(180deg, ${topicDetails.color}10 0%, rgba(0,0,0,0.4) 100%)`, border: `1px solid ${topicDetails.color}30` }}>
+                  <div className="px-5 py-3 border-b flex items-center gap-3" style={{ background: `${topicDetails.color}08`, borderColor: `${topicDetails.color}20` }}>
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${topicDetails.color}20` }}>
+                      <Icon name="puzzle" size={16} style={{ color: topicDetails.color }} />
+                    </div>
+                    <h3 className="text-base font-bold text-white">Key Patterns</h3>
+                  </div>
+                  <div className="p-4">
+                    <div className="flex flex-wrap gap-2">
+                      {topicDetails.keyPatterns.map((pattern, i) => (
+                        <span key={i} className="px-3 py-1.5 rounded-lg text-sm" style={{ background: `${topicDetails.color}15`, color: topicDetails.color }}>
+                          {pattern}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Common Mistakes */}
-            {topicDetails.commonMistakes && (
-              <div className="p-6 rounded-xl" style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-                <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                  <Icon name="alertTriangle" size={18} className="text-red-400" />
-                  Common Mistakes to Avoid
-                </h3>
-                <ul className="space-y-3">
-                  {topicDetails.commonMistakes.map((mistake, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span className="text-red-400 mt-1">✗</span>
-                      <span className="text-gray-300">{mistake}</span>
-                    </li>
-                  ))}
-                </ul>
+            {/* Approach + Common Mistakes - Side by Side Row */}
+            <div className={`grid gap-4 ${topicDetails.approach && topicDetails.commonMistakes ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+              {/* Approach - Step by Step */}
+              {topicDetails.approach && (
+                <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                  <div className="px-5 py-3 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-500/20">
+                      <Icon name="list" size={16} className="text-blue-400" />
+                    </div>
+                    <h3 className="text-base font-bold text-white">Step-by-Step Approach</h3>
+                  </div>
+                  <div className="p-4">
+                    <ol className="space-y-2">
+                      {topicDetails.approach.map((step, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm">
+                          <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-blue-500/20 text-blue-400">{i + 1}</span>
+                          <span className="text-gray-300">{step}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                </div>
+              )}
+
+              {/* Common Mistakes */}
+              {topicDetails.commonMistakes && (
+                <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(239,68,68,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                  <div className="px-5 py-3 border-b border-red-500/20 flex items-center gap-3" style={{ background: 'rgba(239,68,68,0.05)' }}>
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-red-500/20">
+                      <Icon name="alertTriangle" size={16} className="text-red-400" />
+                    </div>
+                    <h3 className="text-base font-bold text-white">Common Mistakes</h3>
+                  </div>
+                  <div className="p-4">
+                    <ul className="space-y-2">
+                      {topicDetails.commonMistakes.map((mistake, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm">
+                          <span className="text-red-400 mt-0.5">✗</span>
+                          <span className="text-gray-300">{mistake}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Common Problems - Compact Table Layout */}
+            {topicDetails.commonProblems && (
+              <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
+                <div className="px-5 py-3 border-b border-yellow-500/20 flex items-center gap-3" style={{ background: 'rgba(234,179,8,0.05)' }}>
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-yellow-500/20">
+                    <Icon name="star" size={16} className="text-yellow-400" />
+                  </div>
+                  <h3 className="text-base font-bold text-white">Practice Problems</h3>
+                  <span className="text-xs text-gray-500 ml-auto">{topicDetails.commonProblems.length} problems</span>
+                </div>
+                <div className="p-3">
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                    {topicDetails.commonProblems.map((problem, i) => (
+                      <div key={i} className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 transition-colors">
+                        <span className="w-5 h-5 rounded flex items-center justify-center text-xs font-mono bg-white/10 text-gray-400">{i + 1}</span>
+                        <span className="text-gray-300 text-sm flex-1 truncate">{typeof problem === 'string' ? problem : problem.name}</span>
+                        {typeof problem === 'object' && problem.difficulty && (
+                          <span className={`px-1.5 py-0.5 rounded text-xs flex-shrink-0 ${
+                            problem.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :
+                            problem.difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-400' :
+                            'bg-red-500/20 text-red-400'
+                          }`}>{problem.difficulty.charAt(0)}</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
 
-            {/* Tips */}
-            <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                <Icon name="lightbulb" size={18} className="text-amber-400" />
-                Tips & Tricks
-              </h3>
-              <ul className="space-y-3">
-                {topicDetails.tips.map((tip, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <span className="text-green-400 mt-1">✓</span>
-                    <span className="text-gray-300">{tip}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {/* Tips + Interview Tips - Side by Side Row */}
+            <div className={`grid gap-4 ${topicDetails.tips && topicDetails.interviewTips ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+              {/* Tips */}
+              {topicDetails.tips && (
+                <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                  <div className="px-5 py-3 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
+                      <Icon name="lightbulb" size={16} className="text-emerald-400" />
+                    </div>
+                    <h3 className="text-base font-bold text-white">Tips & Tricks</h3>
+                  </div>
+                  <div className="p-4">
+                    <ul className="space-y-2">
+                      {topicDetails.tips.map((tip, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm">
+                          <span className="text-emerald-400 mt-0.5">✓</span>
+                          <span className="text-gray-300">{tip}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
 
-            {/* Interview Tips */}
-            {topicDetails.interviewTips && (
-              <div className="p-6 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.02))', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
-                <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                  <Icon name="briefcase" size={18} className="text-amber-400" />
-                  Interview Tips
-                </h3>
-                <ul className="space-y-3">
-                  {topicDetails.interviewTips.map((tip, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span className="text-amber-400 mt-1">★</span>
-                      <span className="text-gray-300">{tip}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+              {/* Interview Tips */}
+              {topicDetails.interviewTips && (
+                <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(245,158,11,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(245,158,11,0.2)' }}>
+                  <div className="px-5 py-3 border-b border-amber-500/20 flex items-center gap-3" style={{ background: 'rgba(245,158,11,0.05)' }}>
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-amber-500/20">
+                      <Icon name="briefcase" size={16} className="text-amber-400" />
+                    </div>
+                    <h3 className="text-base font-bold text-white">Interview Tips</h3>
+                  </div>
+                  <div className="p-4">
+                    <ul className="space-y-2">
+                      {topicDetails.interviewTips.map((tip, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm">
+                          <span className="text-amber-400 mt-0.5">★</span>
+                          <span className="text-gray-300">{tip}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Code Example */}
             {topicDetails.codeExample && (
@@ -22227,7 +22293,7 @@ The ambiguity became a clear, measurable project."`
 
         {/* System Design Topic Detail */}
         {activePage === 'system-design' && (topicDetails.concepts || topicDetails.requirements || topicDetails.introduction) && (
-          <div className="space-y-8">
+          <div className="space-y-5">
             {/* Core Concept Topics - Key Concepts badges */}
             {topicDetails.concepts && !topicDetails.introduction && (
               <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
@@ -22248,22 +22314,6 @@ The ambiguity became a clear, measurable project."`
             {/* Comprehensive System Design Content (Core Concepts and Common Designs) */}
             {(topicDetails.requirements || topicDetails.introduction) && (
               <>
-                {/* Difficulty Badge */}
-                {topicDetails.difficulty && (
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className={`px-3 py-1 rounded-lg text-sm font-medium ${
-                      topicDetails.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :
-                      topicDetails.difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-400' :
-                      'bg-red-500/20 text-red-400'
-                    }`}>
-                      {topicDetails.difficulty}
-                    </span>
-                    {topicDetails.subtitle && (
-                      <span className="text-gray-500">{topicDetails.subtitle}</span>
-                    )}
-                  </div>
-                )}
-
                 {/* Introduction (Comprehensive) */}
                 {topicDetails.introduction && (
                   <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
@@ -22326,67 +22376,89 @@ The ambiguity became a clear, measurable project."`
                   )}
                 </div>
 
-                {/* Data Model */}
-                {topicDetails.dataModel && (
-                  <div className="p-6 rounded-xl" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                      <Icon name="database" size={20} className="text-yellow-400" />
-                      Data Model
-                    </h2>
-                    {topicDetails.dataModel.description && (
-                      <p className="text-gray-400 mb-4">{topicDetails.dataModel.description}</p>
+                {/* API Design + Data Model - Side by Side Row */}
+                {(topicDetails.apiDesign?.endpoints || topicDetails.dataModel) && (
+                  <div className={`grid gap-4 ${topicDetails.apiDesign?.endpoints && topicDetails.dataModel ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+                    {/* API Design */}
+                    {topicDetails.apiDesign && topicDetails.apiDesign.endpoints && (
+                      <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                        <div className="px-5 py-3 border-b border-green-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-green-500/20">
+                            <Icon name="code" size={16} className="text-green-400" />
+                          </div>
+                          <h3 className="text-base font-bold text-white">API Design</h3>
+                        </div>
+                        <div className="p-3">
+                          <div className="space-y-2">
+                            {topicDetails.apiDesign.endpoints.map((endpoint, i) => (
+                              <div key={i} className="rounded-lg p-3" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${
+                                    endpoint.method === 'GET' ? 'bg-blue-500/20 text-blue-400' :
+                                    endpoint.method === 'POST' || endpoint.method === 'INSERT' ? 'bg-green-500/20 text-green-400' :
+                                    endpoint.method === 'PUT' || endpoint.method === 'UPDATE' ? 'bg-yellow-500/20 text-yellow-400' :
+                                    'bg-red-500/20 text-red-400'
+                                  }`}>
+                                    {endpoint.method}
+                                  </span>
+                                  <code className="text-emerald-400 font-mono text-xs">{endpoint.path}</code>
+                                </div>
+                                <div className="text-gray-400 text-xs">{endpoint.response}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
                     )}
-                    <pre className="font-mono text-sm text-yellow-400 bg-black/50 p-4 rounded-lg overflow-x-auto whitespace-pre">
-                      {topicDetails.dataModel.schema}
-                    </pre>
+
+                    {/* Data Model */}
+                    {topicDetails.dataModel && (
+                      <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
+                        <div className="px-5 py-3 border-b border-yellow-500/20 flex items-center gap-3" style={{ background: 'rgba(234,179,8,0.05)' }}>
+                          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-yellow-500/20">
+                            <Icon name="database" size={16} className="text-yellow-400" />
+                          </div>
+                          <h3 className="text-base font-bold text-white">Data Model</h3>
+                        </div>
+                        <div className="overflow-x-auto" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                          <pre
+                            className="p-3 text-xs leading-5 text-yellow-300"
+                            style={{
+                              fontFamily: '"SF Mono", Monaco, "Cascadia Code", Consolas, "Courier New", monospace',
+                              whiteSpace: 'pre',
+                              margin: 0,
+                              tabSize: 4
+                            }}
+                          >
+                            {topicDetails.dataModel.schema}
+                          </pre>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
-                {/* API Design (Comprehensive) */}
-                {topicDetails.apiDesign && topicDetails.apiDesign.endpoints && (
-                  <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
-                    <div className="px-6 py-4 border-b border-green-500/20" style={{ background: 'rgba(16,185,129,0.05)' }}>
-                      <h2 className="text-lg font-bold text-white flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-green-500/20">
-                          <Icon name="code" size={18} className="text-green-400" />
-                        </div>
-                        API Design
-                      </h2>
-                      {topicDetails.apiDesign.description && (
-                        <p className="text-gray-400 text-sm mt-1 ml-11">{topicDetails.apiDesign.description}</p>
-                      )}
+                {/* Key Questions - Compact Accordion Style */}
+                {topicDetails.keyQuestions && (
+                  <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
+                    <div className="px-5 py-3 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-500/20">
+                        <Icon name="messageSquare" size={16} className="text-purple-400" />
+                      </div>
+                      <h3 className="text-base font-bold text-white">Key Questions</h3>
+                      <span className="text-xs text-gray-500 ml-auto">{topicDetails.keyQuestions.length} topics</span>
                     </div>
-                    <div className="p-4">
-                      <div className="grid gap-3">
-                        {topicDetails.apiDesign.endpoints.map((endpoint, i) => (
-                          <div key={i} className="group rounded-xl p-4 transition-all hover:scale-[1.01]" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                            <div className="flex items-center gap-3 mb-3">
-                              <span className={`px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wide ${
-                                endpoint.method === 'GET' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
-                                endpoint.method === 'POST' || endpoint.method === 'INSERT' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
-                                endpoint.method === 'PUT' || endpoint.method === 'UPDATE' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
-                                endpoint.method === 'SELECT' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
-                                'bg-red-500/20 text-red-400 border border-red-500/30'
-                              }`}>
-                                {endpoint.method}
-                              </span>
-                              <code className="text-emerald-400 font-mono text-sm bg-black/30 px-3 py-1.5 rounded-lg flex-1">{endpoint.path}</code>
+                    <div className="p-3">
+                      <div className="grid md:grid-cols-2 gap-3">
+                        {topicDetails.keyQuestions.map((q, i) => (
+                          <div key={i} className="rounded-xl overflow-hidden" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(168,85,247,0.1)' }}>
+                            <div className="px-3 py-2 border-b border-purple-500/10 flex items-center gap-2" style={{ background: 'rgba(168,85,247,0.05)' }}>
+                              <span className="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center text-xs text-purple-400 font-bold flex-shrink-0">{i + 1}</span>
+                              <h4 className="text-purple-300 font-semibold text-sm truncate">{q.question}</h4>
                             </div>
-                            <div className="grid grid-cols-2 gap-4 ml-1">
-                              {endpoint.params && (
-                                <div className="flex items-center gap-2">
-                                  <span className="text-gray-500 text-xs uppercase tracking-wide">Params:</span>
-                                  <span className="text-gray-300 text-sm font-mono bg-white/5 px-2 py-0.5 rounded">{endpoint.params}</span>
-                                </div>
-                              )}
-                              <div className="flex items-center gap-2">
-                                <span className="text-gray-500 text-xs uppercase tracking-wide">Response:</span>
-                                <span className="text-gray-300 text-sm">{endpoint.response}</span>
-                              </div>
+                            <div className="p-3 max-h-48 overflow-y-auto">
+                              <FormattedContent content={q.answer} color="purple" />
                             </div>
-                            {endpoint.notes && (
-                              <p className="text-gray-500 text-xs mt-2 ml-1 italic">{endpoint.notes}</p>
-                            )}
                           </div>
                         ))}
                       </div>
@@ -22394,176 +22466,193 @@ The ambiguity became a clear, measurable project."`
                   </div>
                 )}
 
-                {/* Key Questions */}
-                {topicDetails.keyQuestions && (
-                  <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
-                    <div className="px-6 py-4 border-b border-purple-500/20" style={{ background: 'rgba(168,85,247,0.05)' }}>
-                      <h2 className="text-lg font-bold text-white flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-500/20">
-                          <Icon name="messageSquare" size={18} className="text-purple-400" />
-                        </div>
-                        Key Questions to Consider
-                      </h2>
-                    </div>
-                    <div className="p-4 space-y-4">
-                      {topicDetails.keyQuestions.map((q, i) => (
-                        <div key={i} className="rounded-xl overflow-hidden" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(168,85,247,0.1)' }}>
-                          <div className="px-4 py-3 border-b border-purple-500/10" style={{ background: 'rgba(168,85,247,0.05)' }}>
-                            <h4 className="text-purple-300 font-semibold flex items-center gap-2">
-                              <span className="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center text-xs text-purple-400 font-bold">{i + 1}</span>
-                              {q.question}
-                            </h4>
+                {/* Basic + Advanced Implementation - Side by Side Row */}
+                {(topicDetails.basicImplementation || topicDetails.advancedImplementation) && (
+                  <div className={`grid gap-4 ${topicDetails.basicImplementation && topicDetails.advancedImplementation ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+                    {/* Basic Implementation */}
+                    {topicDetails.basicImplementation && (
+                      <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(249,115,22,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(249,115,22,0.2)' }}>
+                        <div className="px-5 py-3 border-b border-orange-500/20 flex items-center gap-3" style={{ background: 'rgba(249,115,22,0.05)' }}>
+                          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-orange-500/20">
+                            <Icon name="layers" size={16} className="text-orange-400" />
                           </div>
-                          <div className="p-4">
-                            <FormattedContent content={q.answer} color="purple" />
-                          </div>
+                          <h3 className="text-base font-bold text-white">{topicDetails.basicImplementation.title || 'Basic Approach'}</h3>
                         </div>
-                      ))}
-                    </div>
+                        <div className="p-4">
+                          <p className="text-gray-300 text-sm mb-3">{topicDetails.basicImplementation.description}</p>
+                          {topicDetails.basicImplementation.architecture && (
+                            <div className="rounded-lg overflow-x-auto mb-3" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                              <pre
+                                className="p-3 text-xs leading-5 text-cyan-400"
+                                style={{
+                                  fontFamily: '"SF Mono", Monaco, "Cascadia Code", Consolas, "Courier New", monospace',
+                                  whiteSpace: 'pre',
+                                  margin: 0,
+                                  tabSize: 4
+                                }}
+                              >
+                                {topicDetails.basicImplementation.architecture}
+                              </pre>
+                            </div>
+                          )}
+                          {topicDetails.basicImplementation.problems && (
+                            <div>
+                              <h4 className="text-red-400 text-xs font-semibold mb-2 flex items-center gap-1">
+                                <Icon name="alertTriangle" size={12} />
+                                Issues:
+                              </h4>
+                              <ul className="space-y-1">
+                                {topicDetails.basicImplementation.problems.map((problem, i) => (
+                                  <li key={i} className="flex items-start gap-2 text-gray-400 text-xs">
+                                    <span className="text-red-400 mt-0.5">✗</span>
+                                    <span>{problem}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Advanced Implementation */}
+                    {topicDetails.advancedImplementation && (
+                      <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                        <div className="px-5 py-3 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
+                            <Icon name="zap" size={16} className="text-emerald-400" />
+                          </div>
+                          <h3 className="text-base font-bold text-white">{topicDetails.advancedImplementation.title || 'Scalable Solution'}</h3>
+                        </div>
+                        <div className="p-4">
+                          <p className="text-gray-300 text-sm mb-3">{topicDetails.advancedImplementation.description}</p>
+                          {topicDetails.advancedImplementation.architecture && (
+                            <div className="rounded-lg overflow-x-auto mb-3" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                              <pre
+                                className="p-3 text-xs leading-5 text-emerald-400"
+                                style={{
+                                  fontFamily: '"SF Mono", Monaco, "Cascadia Code", Consolas, "Courier New", monospace',
+                                  whiteSpace: 'pre',
+                                  margin: 0,
+                                  tabSize: 4
+                                }}
+                              >
+                                {topicDetails.advancedImplementation.architecture}
+                              </pre>
+                            </div>
+                          )}
+                          {topicDetails.advancedImplementation.keyPoints && (
+                            <div className="mb-3">
+                              <h4 className="text-emerald-400 text-xs font-semibold mb-2">Key Points:</h4>
+                              <ul className="space-y-1">
+                                {topicDetails.advancedImplementation.keyPoints.map((point, i) => (
+                                  <li key={i} className="flex items-start gap-2 text-gray-400 text-xs">
+                                    <span className="text-emerald-400 mt-0.5">✓</span>
+                                    <span>{point}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          {(topicDetails.advancedImplementation.databaseChoice || topicDetails.advancedImplementation.caching) && (
+                            <div className="flex flex-wrap gap-2">
+                              {topicDetails.advancedImplementation.databaseChoice && (
+                                <span className="px-2 py-1 rounded-lg text-xs bg-yellow-500/10 text-yellow-400">
+                                  DB: {topicDetails.advancedImplementation.databaseChoice}
+                                </span>
+                              )}
+                              {topicDetails.advancedImplementation.caching && (
+                                <span className="px-2 py-1 rounded-lg text-xs bg-blue-500/10 text-blue-400">
+                                  Cache: {topicDetails.advancedImplementation.caching}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
-                {/* Basic Implementation */}
-                {topicDetails.basicImplementation && (
-                  <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                      <Icon name="layers" size={20} className="text-orange-400" />
-                      {topicDetails.basicImplementation.title}
-                    </h2>
-                    <p className="text-gray-300 mb-4">{topicDetails.basicImplementation.description}</p>
-                    {topicDetails.basicImplementation.architecture && (
-                      <pre className="font-mono text-xs text-green-400 bg-black/50 p-4 rounded-lg overflow-x-auto mb-4 whitespace-pre">
-                        {topicDetails.basicImplementation.architecture}
-                      </pre>
-                    )}
-                    {topicDetails.basicImplementation.problems && (
-                      <div className="mt-4">
-                        <h4 className="text-red-400 font-semibold mb-2 flex items-center gap-2">
-                          <Icon name="alertTriangle" size={16} />
-                          Problems with this approach:
-                        </h4>
+                {/* Cloud Architecture Diagram + Tips - Side by Side Row */}
+                <div className={`grid gap-4 ${topicDetails.tips ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+                  {/* Cloud Architecture Diagram */}
+                  {activePage === 'system-design' && topicDetails && (
+                    <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                      <div className="px-5 py-3 border-b border-emerald-500/20 flex items-center justify-between" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                        <div className="flex items-center gap-3">
+                          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
+                            <Icon name="layers" size={16} className="text-emerald-400" />
+                          </div>
+                          <h3 className="text-base font-bold text-white">Architecture Diagram</h3>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleGenerateDiagram(topicDetails.title || selectedTopic, 'overview')}
+                            disabled={generatingDiagram}
+                            className="px-2 py-1 text-xs font-medium rounded transition-all"
+                            style={{
+                              background: diagramDetailLevel === 'overview' && diagramData ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.15)',
+                              color: '#34d399'
+                            }}
+                          >
+                            {generatingDiagram && diagramDetailLevel === 'overview' ? '...' : 'Quick'}
+                          </button>
+                          <button
+                            onClick={() => handleGenerateDiagram(topicDetails.title || selectedTopic, 'detailed')}
+                            disabled={generatingDiagram}
+                            className="px-2 py-1 text-xs font-medium rounded transition-all"
+                            style={{
+                              background: diagramDetailLevel === 'detailed' && diagramData ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.15)',
+                              color: '#60a5fa'
+                            }}
+                          >
+                            {generatingDiagram && diagramDetailLevel === 'detailed' ? '...' : 'Full'}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="p-3">
+                        <CloudArchitectureDiagram
+                          imageUrl={diagramData?.imageUrl}
+                          loading={generatingDiagram}
+                          error={diagramError}
+                          cloudProvider={diagramData?.cloudProvider || 'auto'}
+                          onRetry={() => handleGenerateDiagram(topicDetails.title || selectedTopic, diagramDetailLevel)}
+                        />
+                        {diagramData && (
+                          <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
+                            <span>{(diagramData.cloudProvider || 'auto').toUpperCase()}</span>
+                            <a href={diagramData.imageUrl} target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300">
+                              Full Size →
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tips */}
+                  {topicDetails.tips && (
+                    <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
+                      <div className="px-5 py-3 border-b border-yellow-500/20 flex items-center gap-3" style={{ background: 'rgba(234,179,8,0.05)' }}>
+                        <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-yellow-500/20">
+                          <Icon name="star" size={16} className="text-yellow-400" />
+                        </div>
+                        <h3 className="text-base font-bold text-white">Interview Tips</h3>
+                      </div>
+                      <div className="p-4">
                         <ul className="space-y-2">
-                          {topicDetails.basicImplementation.problems.map((problem, i) => (
-                            <li key={i} className="flex items-start gap-2 text-gray-300">
-                              <span className="text-red-400 mt-1">✗</span>
-                              <span>{problem}</span>
+                          {topicDetails.tips.map((tip, i) => (
+                            <li key={i} className="flex items-start gap-2 text-sm">
+                              <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0 bg-yellow-500/20 text-yellow-400">★</span>
+                              <span className="text-gray-300">{tip}</span>
                             </li>
                           ))}
                         </ul>
                       </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Advanced Implementation */}
-                {topicDetails.advancedImplementation && (
-                  <div className="p-6 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.02))', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                      <Icon name="zap" size={20} className="text-green-400" />
-                      {topicDetails.advancedImplementation.title}
-                    </h2>
-                    <p className="text-gray-300 mb-4">{topicDetails.advancedImplementation.description}</p>
-                    {topicDetails.advancedImplementation.architecture && (
-                      <pre className="font-mono text-xs text-green-400 bg-black/50 p-4 rounded-lg overflow-x-auto mb-4 whitespace-pre">
-                        {topicDetails.advancedImplementation.architecture}
-                      </pre>
-                    )}
-                    {topicDetails.advancedImplementation.keyPoints && (
-                      <div className="mt-4">
-                        <h4 className="text-green-400 font-semibold mb-2">Key Points:</h4>
-                        <ul className="space-y-2">
-                          {topicDetails.advancedImplementation.keyPoints.map((point, i) => (
-                            <li key={i} className="flex items-start gap-2 text-gray-300">
-                              <span className="text-green-400 mt-1">✓</span>
-                              <span>{point}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    {(topicDetails.advancedImplementation.databaseChoice || topicDetails.advancedImplementation.caching) && (
-                      <div className="mt-4 grid md:grid-cols-2 gap-4">
-                        {topicDetails.advancedImplementation.databaseChoice && (
-                          <div className="p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
-                            <span className="text-yellow-400 text-sm font-semibold">Database: </span>
-                            <span className="text-gray-300 text-sm">{topicDetails.advancedImplementation.databaseChoice}</span>
-                          </div>
-                        )}
-                        {topicDetails.advancedImplementation.caching && (
-                          <div className="p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
-                            <span className="text-blue-400 text-sm font-semibold">Caching: </span>
-                            <span className="text-gray-300 text-sm">{topicDetails.advancedImplementation.caching}</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Cloud Architecture Diagram - Real-time generation */}
-                {activePage === 'system-design' && topicDetails && (
-                  <div className="p-6 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(59, 130, 246, 0.08))', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                    <div className="flex items-center justify-between mb-4">
-                      <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                        <Icon name="layers" size={20} className="text-emerald-400" />
-                        Cloud Architecture Diagram
-                      </h2>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleGenerateDiagram(topicDetails.title || selectedTopic, 'overview')}
-                          disabled={generatingDiagram}
-                          className="px-4 py-2 text-sm font-medium rounded-lg transition-all flex items-center gap-2"
-                          style={{
-                            background: diagramDetailLevel === 'overview' && diagramData ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.15)',
-                            border: '1px solid rgba(16, 185, 129, 0.4)',
-                            color: '#34d399'
-                          }}
-                        >
-                          <Icon name="zap" size={14} />
-                          {generatingDiagram && diagramDetailLevel === 'overview' ? 'Generating...' : 'Overview'}
-                        </button>
-                        <button
-                          onClick={() => handleGenerateDiagram(topicDetails.title || selectedTopic, 'detailed')}
-                          disabled={generatingDiagram}
-                          className="px-4 py-2 text-sm font-medium rounded-lg transition-all flex items-center gap-2"
-                          style={{
-                            background: diagramDetailLevel === 'detailed' && diagramData ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.15)',
-                            border: '1px solid rgba(59, 130, 246, 0.4)',
-                            color: '#60a5fa'
-                          }}
-                        >
-                          <Icon name="layers" size={14} />
-                          {generatingDiagram && diagramDetailLevel === 'detailed' ? 'Generating...' : 'Detailed'}
-                        </button>
-                      </div>
                     </div>
-                    <p className="text-gray-400 text-sm mb-4">
-                      Generate professional architecture diagrams using real AWS, GCP, and Azure cloud icons.
-                      Choose "Overview" for high-level architecture or "Detailed" for component-level views.
-                    </p>
-                    <CloudArchitectureDiagram
-                      imageUrl={diagramData?.imageUrl}
-                      loading={generatingDiagram}
-                      error={diagramError}
-                      cloudProvider={diagramData?.cloudProvider || 'auto'}
-                      onRetry={() => handleGenerateDiagram(topicDetails.title || selectedTopic, diagramDetailLevel)}
-                    />
-                    {diagramData && (
-                      <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
-                        <span>Provider: {(diagramData.cloudProvider || 'auto').toUpperCase()} • Level: {diagramDetailLevel}</span>
-                        <a
-                          href={diagramData.imageUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
-                        >
-                          <Icon name="externalLink" size={12} />
-                          Open Full Size
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                )}
+                  )}
+                </div>
 
                 {/* Flow Cards - Side by Side */}
                 {(topicDetails.createFlow || topicDetails.redirectFlow) && (
@@ -22618,29 +22707,30 @@ The ambiguity became a clear, measurable project."`
                   </div>
                 )}
 
-                {/* Discussion Points */}
+                {/* Discussion Points - Compact Grid */}
                 {topicDetails.discussionPoints && (
                   <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(6,182,212,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(6,182,212,0.2)' }}>
-                    <div className="px-6 py-4 border-b border-cyan-500/20" style={{ background: 'rgba(6,182,212,0.05)' }}>
-                      <h2 className="text-lg font-bold text-white flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-cyan-500/20">
-                          <Icon name="messageCircle" size={18} className="text-cyan-400" />
-                        </div>
-                        Additional Discussion Points
-                      </h2>
+                    <div className="px-5 py-3 border-b border-cyan-500/20 flex items-center gap-3" style={{ background: 'rgba(6,182,212,0.05)' }}>
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-cyan-500/20">
+                        <Icon name="messageCircle" size={16} className="text-cyan-400" />
+                      </div>
+                      <h3 className="text-base font-bold text-white">Discussion Points</h3>
                     </div>
-                    <div className="p-4">
-                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div className="p-3">
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
                         {topicDetails.discussionPoints.map((point, i) => (
-                          <div key={i} className="p-4 rounded-xl transition-all hover:scale-[1.01]" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(6,182,212,0.1)' }}>
-                            <h4 className="text-cyan-400 font-semibold mb-2 text-sm">{point.topic}</h4>
-                            <ul className="space-y-1">
-                              {point.points.map((p, j) => (
-                                <li key={j} className="flex items-start gap-2 text-gray-400 text-xs">
+                          <div key={i} className="p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(6,182,212,0.1)' }}>
+                            <h4 className="text-cyan-400 font-semibold mb-1.5 text-xs">{point.topic}</h4>
+                            <ul className="space-y-0.5">
+                              {point.points.slice(0, 3).map((p, j) => (
+                                <li key={j} className="flex items-start gap-1 text-gray-400 text-xs">
                                   <span className="text-cyan-400 mt-0.5">•</span>
-                                  <span>{p}</span>
+                                  <span className="truncate">{p}</span>
                                 </li>
                               ))}
+                              {point.points.length > 3 && (
+                                <li className="text-gray-500 text-xs">+{point.points.length - 3} more</li>
+                              )}
                             </ul>
                           </div>
                         ))}
@@ -22701,34 +22791,12 @@ The ambiguity became a clear, measurable project."`
               </>
             )}
 
-            {topicDetails.tips && (
-              <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
-                <div className="px-5 py-3 border-b border-yellow-500/20 flex items-center gap-3" style={{ background: 'rgba(234,179,8,0.05)' }}>
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-yellow-500/20">
-                    <Icon name="star" size={16} className="text-yellow-400" />
-                  </div>
-                  <h3 className="text-base font-bold text-white">Tips</h3>
-                </div>
-                <div className="p-4">
-                  <ul className="space-y-2">
-                    {topicDetails.tips.map((tip, i) => (
-                      <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
-                        <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0 bg-yellow-500/20 text-yellow-400">
-                          <Icon name="star" size={12} />
-                        </span>
-                        <span className="text-gray-300 text-sm">{tip}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            )}
           </div>
         )}
 
         {/* Behavioral Topic Detail */}
         {activePage === 'behavioral' && (topicDetails.sampleQuestions || topicDetails.starExample || topicDetails.introduction || topicDetails.keyQuestions) && (
-          <div className="space-y-8">
+          <div className="space-y-5">
             {/* Introduction */}
             {topicDetails.introduction && (
               <div className="p-6 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
@@ -22839,154 +22907,342 @@ The ambiguity became a clear, measurable project."`
     );
   };
 
+  // Generate table of contents for topic detail view
+  const getTableOfContents = () => {
+    if (!topicDetails) return [];
+    const toc = [];
+
+    if (activePage === 'coding') {
+      if (topicDetails.introduction) toc.push({ id: 'overview', label: 'Overview' });
+      if (topicDetails.whenToUse) toc.push({ id: 'when-to-use', label: 'When to Use' });
+      if (topicDetails.approach) toc.push({ id: 'approach', label: 'Approach' });
+      if (topicDetails.codeExamples) toc.push({ id: 'code-examples', label: 'Code Examples' });
+      if (topicDetails.commonProblems) toc.push({ id: 'practice', label: 'Practice Problems' });
+      if (topicDetails.tips) toc.push({ id: 'tips', label: 'Interview Tips' });
+    } else if (activePage === 'system-design') {
+      if (topicDetails.overview) toc.push({ id: 'overview', label: 'Overview' });
+      if (topicDetails.requirements) toc.push({ id: 'requirements', label: 'Requirements' });
+      if (topicDetails.keyQuestions) toc.push({ id: 'key-questions', label: 'Key Questions' });
+      if (topicDetails.estimation) toc.push({ id: 'estimation', label: 'Estimation' });
+      if (topicDetails.apiDesign) toc.push({ id: 'api-design', label: 'API Design' });
+      if (topicDetails.dataModel) toc.push({ id: 'data-model', label: 'Data Model' });
+      if (topicDetails.basicImplementation) toc.push({ id: 'architecture', label: 'Architecture' });
+    } else if (activePage === 'behavioral') {
+      if (topicDetails.overview) toc.push({ id: 'overview', label: 'Overview' });
+      if (topicDetails.examples) toc.push({ id: 'examples', label: 'Example Answers' });
+      if (topicDetails.tips) toc.push({ id: 'tips', label: 'Interview Tips' });
+    }
+    return toc;
+  };
+
+  const tableOfContents = getTableOfContents();
+
   return (
-    <div className="min-h-screen flex" style={{ background: '#09090b', fontFamily: "'Inter', sans-serif" }}>
-      {/* Sidebar */}
-      <div className="w-64 flex-shrink-0 h-screen sticky top-0 flex flex-col" style={{ background: '#0a0a0f', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
-        {/* Logo */}
-        <div className="p-5">
-          <a href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-              <Icon name="ascend" size={20} className="text-white" />
+    <div className="min-h-screen" style={{ background: '#0a0a0f', fontFamily: "'Inter', sans-serif" }}>
+      {/* Background grid pattern */}
+      <div
+        className="fixed inset-0 pointer-events-none opacity-30"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(79, 79, 79, 0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(79, 79, 79, 0.08) 1px, transparent 1px)
+          `,
+          backgroundSize: '60px 60px'
+        }}
+      />
+
+      <div className="relative flex">
+        {/* Left Sidebar - Navigation */}
+        <div className="w-72 flex-shrink-0 h-screen sticky top-0 flex flex-col" style={{ background: 'linear-gradient(180deg, #0d0d12 0%, #0a0a0f 100%)', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+          {/* Logo */}
+          <div className="p-6">
+            <a href="/" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                <Icon name="ascend" size={22} className="text-white" />
+              </div>
+              <div>
+                <span className="text-lg font-bold text-white">Ascend</span>
+                <span className="block text-xs text-gray-500">Interview Prep</span>
+              </div>
+            </a>
+          </div>
+
+          {/* Category Navigation */}
+          <nav className="flex-1 px-4 py-2 overflow-y-auto">
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-3">Learning Tracks</div>
+            {navItems.map((item) => {
+              const isActive = activePage === item.id;
+              const accentColor = item.id === 'coding' ? '#10b981' : item.id === 'system-design' ? '#3b82f6' : '#a855f7';
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => { setActivePage(item.id); setSelectedTopic(null); }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all mb-1 ${
+                    isActive ? 'text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  }`}
+                  style={isActive ? {
+                    background: `linear-gradient(135deg, ${accentColor}15, ${accentColor}05)`,
+                    border: `1px solid ${accentColor}30`
+                  } : {}}
+                >
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center transition-transform"
+                    style={{ background: isActive ? `${accentColor}20` : 'rgba(255,255,255,0.05)' }}
+                  >
+                    <Icon name={item.icon} size={16} style={{ color: isActive ? accentColor : '#9ca3af' }} />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <span className="font-medium block">{item.label}</span>
+                    <span className="text-xs text-gray-500">
+                      {item.id === 'coding' ? `${codingTopics.length} topics` :
+                       item.id === 'system-design' ? `${systemDesignTopics.length + systemDesigns.length} topics` :
+                       `${behavioralTopics.length} topics`}
+                    </span>
+                  </div>
+                  {isActive && <div className="w-1.5 h-1.5 rounded-full" style={{ background: accentColor }} />}
+                </button>
+              );
+            })}
+
+            {/* Quick Links */}
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mt-8 mb-3">Quick Links</div>
+            <a
+              href="/"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all text-amber-400 hover:bg-amber-400/10"
+            >
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-400/10">
+                <Icon name="zap" size={16} />
+              </div>
+              <span className="font-medium">Practice Mode</span>
+            </a>
+          </nav>
+
+          {/* Pro Badge */}
+          <div className="p-4 m-4 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(59,130,246,0.15))', border: '1px solid rgba(168,85,247,0.2)' }}>
+            <div className="flex items-center gap-2 mb-2">
+              <Icon name="crown" size={16} className="text-purple-400" />
+              <span className="text-sm font-semibold text-white">Ascend Pro</span>
             </div>
-            <span className="text-lg font-bold text-white">Ascend</span>
-          </a>
-        </div>
-
-        {/* Main Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          {navItems.map((item) => {
-            const isActive = activePage === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => { setActivePage(item.id); setSelectedTopic(null); }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
-                  isActive
-                    ? 'bg-white/10 text-white'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <Icon name={item.icon} size={18} className={isActive ? 'text-green-400' : ''} />
-                <span className="font-medium">{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* Bottom Items */}
-        <div className="px-3 py-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-          <a
-            href="/"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all hover:bg-white/5"
-            style={{ color: '#f59e0b' }}
-          >
-            <Icon name="zap" size={18} />
-            <span className="font-medium">Try Ascend</span>
-          </a>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 min-h-screen">
-        {/* Top Bar */}
-        <div className="sticky top-0 z-20 px-8 py-4 flex items-center justify-between" style={{ background: 'rgba(9, 9, 11, 0.9)', backdropFilter: 'blur(8px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <div />
-          <div className="flex items-center gap-4">
-            <a href="/" className="px-4 py-2 rounded-lg text-sm font-medium text-green-400 hover:bg-green-400/10 transition-colors" style={{ border: '1px solid rgba(16, 185, 129, 0.3)' }}>
-              Try Ascend Free
+            <p className="text-xs text-gray-400 mb-3">Get AI-powered practice with real-time feedback</p>
+            <a href="/" className="block text-center py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90" style={{ background: 'linear-gradient(135deg, #a855f7, #3b82f6)' }}>
+              Try Free
             </a>
           </div>
         </div>
 
-        {/* Content */}
-        <div className="px-8 py-8 w-[80%] mx-auto">
-          {/* Show topic detail or list */}
-          {selectedTopic ? renderTopicDetail() : (
-            <>
-              {/* Page Title */}
-              <h1 className="text-3xl font-bold text-white mb-8">{pageConfig.title}</h1>
-
-              {/* Search and Sort */}
-              <div className="flex items-center justify-between mb-6">
-                <div className="relative">
-                  <Icon name="search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                  <input
-                    type="text"
-                    placeholder="Search topics"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-4 py-2.5 rounded-lg text-sm text-white placeholder-gray-500 w-64 focus:outline-none focus:ring-1"
-                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
-                  />
-                </div>
-                <select
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value)}
-                  className="px-4 py-2.5 rounded-lg text-sm text-gray-400 focus:outline-none cursor-pointer"
-                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
-                >
-                  <option value="a-z">A - Z</option>
-                  <option value="z-a">Z - A</option>
-                  <option value="most">Most Questions</option>
-                  <option value="least">Least Questions</option>
-                </select>
+        {/* Main Content Area */}
+        <div className="flex-1 min-h-screen flex">
+          {/* Center Content */}
+          <div className={`flex-1 ${selectedTopic ? 'max-w-4xl' : ''}`}>
+            {/* Top Bar */}
+            <div className="sticky top-0 z-20 px-8 py-4 flex items-center justify-between" style={{ background: 'rgba(10, 10, 15, 0.9)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              {/* Breadcrumb */}
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-gray-500">Learn</span>
+                <Icon name="chevronRight" size={14} className="text-gray-600" />
+                <span className="text-gray-400">{pageConfig.title}</span>
+                {selectedTopic && topicDetails && (
+                  <>
+                    <Icon name="chevronRight" size={14} className="text-gray-600" />
+                    <span className="text-white">{topicDetails.title}</span>
+                  </>
+                )}
               </div>
+              <div className="flex items-center gap-3">
+                <a
+                  href="/"
+                  className="px-4 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-90"
+                  style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white' }}
+                >
+                  Start Practice
+                </a>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="px-8 py-8">
+              {/* Show topic detail or list */}
+              {selectedTopic ? renderTopicDetail() : (
+                <>
+                  {/* Page Hero */}
+                  <div className="mb-10">
+                    <div
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium mb-4"
+                      style={{ background: `${pageConfig.color}15`, color: pageConfig.color }}
+                    >
+                      <Icon name={activePage === 'coding' ? 'code' : activePage === 'system-design' ? 'systemDesign' : 'users'} size={12} />
+                      {activePage === 'coding' ? 'Algorithms' : activePage === 'system-design' ? 'Architecture' : 'Soft Skills'}
+                    </div>
+                    <h1 className="text-4xl font-bold text-white mb-3">{pageConfig.title}</h1>
+                    <p className="text-lg text-gray-400 max-w-2xl">
+                      {activePage === 'coding' && 'Master the fundamental data structures and algorithms needed to ace technical interviews at top tech companies.'}
+                      {activePage === 'system-design' && 'Learn to design scalable, reliable systems that can handle millions of users. Essential for senior engineering roles.'}
+                      {activePage === 'behavioral' && 'Prepare compelling stories and answers for behavioral interviews using proven frameworks like STAR.'}
+                    </p>
+                  </div>
+
+                  {/* Search and Filters */}
+                  <div className="flex items-center gap-4 mb-8 p-4 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div className="relative flex-1 max-w-md">
+                      <Icon name="search" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                      <input
+                        type="text"
+                        placeholder="Search topics..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-11 pr-4 py-3 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 transition-all"
+                        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', '--tw-ring-color': pageConfig.color }}
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500">Sort:</span>
+                      <select
+                        value={sortOrder}
+                        onChange={(e) => setSortOrder(e.target.value)}
+                        className="px-4 py-3 rounded-xl text-sm text-gray-300 focus:outline-none cursor-pointer transition-all hover:bg-white/10"
+                        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+                      >
+                        <option value="a-z">A - Z</option>
+                        <option value="z-a">Z - A</option>
+                        <option value="most">Most Questions</option>
+                        <option value="least">Least Questions</option>
+                      </select>
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {filteredTopics.length} {filteredTopics.length === 1 ? 'topic' : 'topics'}
+                    </div>
+                  </div>
 
               {/* DSA Content */}
               {activePage === 'coding' && (
                 <>
-                  {/* Topic Cards - 2-column grid with horizontal cards */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-12">
-                    {filteredTopics.map((topic) => (
+                  {/* Topic Cards - Premium grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-12">
+                    {filteredTopics.map((topic, idx) => (
                       <div
                         key={topic.id}
                         onClick={() => setSelectedTopic(topic.id)}
-                        className="group flex items-center gap-3 p-3 rounded-lg transition-all hover:bg-white/5 cursor-pointer"
-                        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
+                        className="group relative rounded-2xl transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl"
+                        style={{
+                          background: `linear-gradient(135deg, ${topic.color}08, ${topic.color}02)`,
+                          border: `1px solid ${topic.color}20`
+                        }}
                       >
-                        <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}15` }}>
-                          <Icon name={topic.icon} size={18} style={{ color: topic.color }} />
+                        {/* Card content */}
+                        <div className="p-5">
+                          <div className="flex items-start justify-between mb-4">
+                            <div
+                              className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+                              style={{ background: `${topic.color}15` }}
+                            >
+                              <Icon name={topic.icon} size={24} style={{ color: topic.color }} />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span
+                                className="px-2.5 py-1 rounded-lg text-xs font-medium"
+                                style={{ background: `${topic.color}15`, color: topic.color }}
+                              >
+                                {topic.questions} problems
+                              </span>
+                            </div>
+                          </div>
+                          <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-emerald-400 transition-colors">{topic.title}</h3>
+                          <p className="text-gray-400 text-sm line-clamp-2 mb-4">{topic.description}</p>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                              <span className="flex items-center gap-1">
+                                <Icon name="clock" size={12} />
+                                {topic.timeComplexity || 'Various'}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1 text-sm font-medium group-hover:translate-x-1 transition-transform" style={{ color: topic.color }}>
+                              <span>Learn</span>
+                              <Icon name="arrowRight" size={14} />
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <span className="text-white font-medium text-sm">{topic.title}</span>
-                          <p className="text-gray-500 text-xs truncate">{topic.description}</p>
-                        </div>
-                        <span className="text-gray-500 text-xs flex-shrink-0">{topic.questions}Q</span>
-                        <Icon name="chevronRight" size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors flex-shrink-0" />
+                        {/* Hover glow effect */}
+                        <div
+                          className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                          style={{ boxShadow: `0 0 40px ${topic.color}15` }}
+                        />
                       </div>
                     ))}
                   </div>
 
-                  {/* Quick Reference */}
-                  <h2 className="text-xl font-bold text-white mb-6">Quick Reference</h2>
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                        <Icon name="clock" size={18} className="text-green-400" />
-                        Time Complexity Cheat Sheet
-                      </h3>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between"><span className="text-gray-400">O(1)</span><span className="text-green-400">Constant - Best</span></div>
-                        <div className="flex justify-between"><span className="text-gray-400">O(log n)</span><span className="text-green-400">Logarithmic - Great</span></div>
-                        <div className="flex justify-between"><span className="text-gray-400">O(n)</span><span className="text-yellow-400">Linear - Good</span></div>
-                        <div className="flex justify-between"><span className="text-gray-400">O(n log n)</span><span className="text-yellow-400">Linearithmic - Fair</span></div>
-                        <div className="flex justify-between"><span className="text-gray-400">O(n²)</span><span className="text-orange-400">Quadratic - Slow</span></div>
-                        <div className="flex justify-between"><span className="text-gray-400">O(2ⁿ)</span><span className="text-red-400">Exponential - Avoid</span></div>
+                  {/* Quick Reference - Enhanced */}
+                  <div className="mb-8">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-500/10">
+                        <Icon name="book" size={20} className="text-emerald-400" />
                       </div>
+                      <h2 className="text-2xl font-bold text-white">Quick Reference</h2>
                     </div>
-                    <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                        <Icon name="database" size={18} className="text-blue-400" />
-                        When to Use What
-                      </h3>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between"><span className="text-gray-400">Fast lookup</span><span className="text-white">Hash Map</span></div>
-                        <div className="flex justify-between"><span className="text-gray-400">Sorted data</span><span className="text-white">Binary Search Tree</span></div>
-                        <div className="flex justify-between"><span className="text-gray-400">FIFO operations</span><span className="text-white">Queue</span></div>
-                        <div className="flex justify-between"><span className="text-gray-400">LIFO operations</span><span className="text-white">Stack</span></div>
-                        <div className="flex justify-between"><span className="text-gray-400">Priority access</span><span className="text-white">Heap</span></div>
-                        <div className="flex justify-between"><span className="text-gray-400">Prefix matching</span><span className="text-white">Trie</span></div>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {/* Time Complexity Card */}
+                      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                        <div className="px-6 py-4 border-b border-emerald-500/20" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                          <h3 className="text-white font-semibold flex items-center gap-2">
+                            <Icon name="clock" size={18} className="text-emerald-400" />
+                            Time Complexity Cheat Sheet
+                          </h3>
+                        </div>
+                        <div className="p-6">
+                          <table className="w-full text-sm">
+                            <tbody>
+                              {[
+                                { complexity: 'O(1)', desc: 'Constant', rating: 'Best', color: '#10b981' },
+                                { complexity: 'O(log n)', desc: 'Logarithmic', rating: 'Great', color: '#10b981' },
+                                { complexity: 'O(n)', desc: 'Linear', rating: 'Good', color: '#eab308' },
+                                { complexity: 'O(n log n)', desc: 'Linearithmic', rating: 'Fair', color: '#eab308' },
+                                { complexity: 'O(n²)', desc: 'Quadratic', rating: 'Slow', color: '#f97316' },
+                                { complexity: 'O(2ⁿ)', desc: 'Exponential', rating: 'Avoid', color: '#ef4444' },
+                              ].map((item, i) => (
+                                <tr key={i} className="border-b border-white/5 last:border-0">
+                                  <td className="py-2.5 font-mono text-emerald-400">{item.complexity}</td>
+                                  <td className="py-2.5 text-gray-400">{item.desc}</td>
+                                  <td className="py-2.5 text-right">
+                                    <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: `${item.color}20`, color: item.color }}>
+                                      {item.rating}
+                                    </span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                      {/* Data Structure Selection Card */}
+                      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                        <div className="px-6 py-4 border-b border-blue-500/20" style={{ background: 'rgba(59,130,246,0.05)' }}>
+                          <h3 className="text-white font-semibold flex items-center gap-2">
+                            <Icon name="database" size={18} className="text-blue-400" />
+                            When to Use What
+                          </h3>
+                        </div>
+                        <div className="p-6">
+                          <table className="w-full text-sm">
+                            <tbody>
+                              {[
+                                { need: 'Fast lookup', solution: 'Hash Map', icon: 'hash' },
+                                { need: 'Sorted data', solution: 'BST / TreeMap', icon: 'tree' },
+                                { need: 'FIFO operations', solution: 'Queue', icon: 'list' },
+                                { need: 'LIFO operations', solution: 'Stack', icon: 'layers' },
+                                { need: 'Priority access', solution: 'Heap', icon: 'triangle' },
+                                { need: 'Prefix matching', solution: 'Trie', icon: 'search' },
+                              ].map((item, i) => (
+                                <tr key={i} className="border-b border-white/5 last:border-0">
+                                  <td className="py-2.5 text-gray-400">{item.need}</td>
+                                  <td className="py-2.5 text-right">
+                                    <span className="px-3 py-1 rounded-lg text-xs font-medium bg-blue-500/10 text-blue-400">
+                                      {item.solution}
+                                    </span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -22996,72 +23252,151 @@ The ambiguity became a clear, measurable project."`
               {/* System Design Content */}
               {activePage === 'system-design' && (
                 <>
-                  {/* Core Concepts - 2-column grid */}
-                  <h2 className="text-xl font-bold text-white mb-4">Core Concepts</h2>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-12">
-                    {filteredTopics.map((topic) => (
-                      <div
-                        key={topic.id}
-                        onClick={() => setSelectedTopic(topic.id)}
-                        className="group flex items-center gap-3 p-3 rounded-lg transition-all hover:bg-white/5 cursor-pointer"
-                        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
-                      >
-                        <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}15` }}>
-                          <Icon name={topic.icon} size={18} style={{ color: topic.color }} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <span className="text-white font-medium text-sm">{topic.title}</span>
-                          <p className="text-gray-500 text-xs truncate">{topic.description}</p>
-                        </div>
-                        <Icon name="chevronRight" size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors flex-shrink-0" />
+                  {/* Core Concepts Section */}
+                  <div className="mb-12">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-500/10">
+                        <Icon name="layers" size={20} className="text-blue-400" />
                       </div>
-                    ))}
-                  </div>
-
-                  {/* Common Designs - 2-column grid */}
-                  <h2 className="text-xl font-bold text-white mb-4">Common System Designs</h2>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-12">
-                    {systemDesigns.map((design) => (
-                      <div
-                        key={design.id}
-                        onClick={() => setSelectedTopic(design.id)}
-                        className="group flex items-center gap-3 p-3 rounded-lg transition-all hover:bg-white/5 cursor-pointer"
-                        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
-                      >
-                        <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${design.color}15` }}>
-                          <Icon name={design.icon} size={18} style={{ color: design.color }} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <span className="text-white font-medium text-sm">{design.title}</span>
-                          <p className="text-gray-500 text-xs truncate">{design.subtitle}</p>
-                        </div>
-                        <span className="px-2 py-0.5 rounded text-xs flex-shrink-0" style={{ background: `${design.color}20`, color: design.color }}>
-                          {design.difficulty}
-                        </span>
-                        <Icon name="chevronRight" size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors flex-shrink-0" />
+                      <div>
+                        <h2 className="text-2xl font-bold text-white">Core Concepts</h2>
+                        <p className="text-sm text-gray-500">Essential building blocks for system design</p>
                       </div>
-                    ))}
-                  </div>
-
-                  {/* Interview Framework */}
-                  <div className="p-6 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.02))', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                      <Icon name="target" size={20} className="text-blue-400" />
-                      System Design Interview Framework (45 min)
-                    </h3>
-                    <div className="grid md:grid-cols-4 gap-4">
-                      {[
-                        { time: '5 min', step: 'Requirements', desc: 'Clarify functional & non-functional requirements, scale' },
-                        { time: '5 min', step: 'Estimations', desc: 'Back-of-envelope: QPS, storage, bandwidth' },
-                        { time: '20 min', step: 'High-Level Design', desc: 'Components, data flow, API design' },
-                        { time: '15 min', step: 'Deep Dive', desc: 'Database schema, scaling, trade-offs' },
-                      ].map((phase, i) => (
-                        <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(0,0,0,0.3)' }}>
-                          <div className="text-blue-400 text-sm font-bold mb-1">{phase.time}</div>
-                          <div className="text-white font-semibold mb-2">{phase.step}</div>
-                          <div className="text-gray-400 text-sm">{phase.desc}</div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                      {filteredTopics.map((topic) => (
+                        <div
+                          key={topic.id}
+                          onClick={() => setSelectedTopic(topic.id)}
+                          className="group relative rounded-2xl transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl"
+                          style={{
+                            background: `linear-gradient(135deg, ${topic.color}08, ${topic.color}02)`,
+                            border: `1px solid ${topic.color}20`
+                          }}
+                        >
+                          <div className="p-5">
+                            <div className="flex items-start justify-between mb-4">
+                              <div
+                                className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+                                style={{ background: `${topic.color}15` }}
+                              >
+                                <Icon name={topic.icon} size={24} style={{ color: topic.color }} />
+                              </div>
+                              <span
+                                className="px-2.5 py-1 rounded-lg text-xs font-medium"
+                                style={{ background: `${topic.color}15`, color: topic.color }}
+                              >
+                                Concept
+                              </span>
+                            </div>
+                            <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-blue-400 transition-colors">{topic.title}</h3>
+                            <p className="text-gray-400 text-sm line-clamp-2 mb-4">{topic.description}</p>
+                            <div className="flex items-center gap-1 text-sm font-medium group-hover:translate-x-1 transition-transform" style={{ color: topic.color }}>
+                              <span>Study</span>
+                              <Icon name="arrowRight" size={14} />
+                            </div>
+                          </div>
+                          <div
+                            className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                            style={{ boxShadow: `0 0 40px ${topic.color}15` }}
+                          />
                         </div>
                       ))}
+                    </div>
+                  </div>
+
+                  {/* System Design Problems Section */}
+                  <div className="mb-12">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-500/10">
+                        <Icon name="systemDesign" size={20} className="text-purple-400" />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-bold text-white">Common System Designs</h2>
+                        <p className="text-sm text-gray-500">Real-world systems frequently asked in interviews</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                      {systemDesigns.map((design) => {
+                        const difficultyColors = {
+                          'Easy': { bg: 'rgba(16,185,129,0.15)', text: '#10b981' },
+                          'Medium': { bg: 'rgba(234,179,8,0.15)', text: '#eab308' },
+                          'Hard': { bg: 'rgba(239,68,68,0.15)', text: '#ef4444' }
+                        };
+                        const diffColor = difficultyColors[design.difficulty] || difficultyColors['Medium'];
+                        return (
+                          <div
+                            key={design.id}
+                            onClick={() => setSelectedTopic(design.id)}
+                            className="group relative rounded-2xl transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl"
+                            style={{
+                              background: `linear-gradient(135deg, ${design.color}08, ${design.color}02)`,
+                              border: `1px solid ${design.color}20`
+                            }}
+                          >
+                            <div className="p-5">
+                              <div className="flex items-start justify-between mb-4">
+                                <div
+                                  className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+                                  style={{ background: `${design.color}15` }}
+                                >
+                                  <Icon name={design.icon} size={24} style={{ color: design.color }} />
+                                </div>
+                                <span
+                                  className="px-2.5 py-1 rounded-lg text-xs font-medium"
+                                  style={{ background: diffColor.bg, color: diffColor.text }}
+                                >
+                                  {design.difficulty}
+                                </span>
+                              </div>
+                              <h3 className="text-white font-semibold text-lg mb-1 group-hover:text-purple-400 transition-colors">{design.title}</h3>
+                              <p className="text-gray-500 text-sm mb-4">{design.subtitle}</p>
+                              <div className="flex items-center gap-1 text-sm font-medium group-hover:translate-x-1 transition-transform" style={{ color: design.color }}>
+                                <span>Design</span>
+                                <Icon name="arrowRight" size={14} />
+                              </div>
+                            </div>
+                            <div
+                              className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                              style={{ boxShadow: `0 0 40px ${design.color}15` }}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Interview Framework - Enhanced */}
+                  <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.02))', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                    <div className="px-6 py-4 border-b border-blue-500/20" style={{ background: 'rgba(59,130,246,0.05)' }}>
+                      <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-500/20">
+                          <Icon name="target" size={20} className="text-blue-400" />
+                        </div>
+                        System Design Interview Framework
+                      </h3>
+                      <p className="text-gray-400 text-sm mt-1 ml-13">45-minute interview breakdown</p>
+                    </div>
+                    <div className="p-6">
+                      <div className="grid md:grid-cols-4 gap-4">
+                        {[
+                          { time: '5 min', step: 'Requirements', desc: 'Clarify functional & non-functional requirements, scale', icon: 'list', color: '#10b981' },
+                          { time: '5 min', step: 'Estimations', desc: 'Back-of-envelope: QPS, storage, bandwidth', icon: 'calculator', color: '#eab308' },
+                          { time: '20 min', step: 'High-Level Design', desc: 'Components, data flow, API design', icon: 'systemDesign', color: '#3b82f6' },
+                          { time: '15 min', step: 'Deep Dive', desc: 'Database schema, scaling, trade-offs', icon: 'database', color: '#a855f7' },
+                        ].map((phase, i) => (
+                          <div key={i} className="relative rounded-xl p-5" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                            <div className="absolute top-0 left-6 -translate-y-1/2 px-3 py-1 rounded-full text-xs font-bold" style={{ background: phase.color, color: '#0a0a0f' }}>
+                              {phase.time}
+                            </div>
+                            <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3 mt-2" style={{ background: `${phase.color}20` }}>
+                              <Icon name={phase.icon} size={18} style={{ color: phase.color }} />
+                            </div>
+                            <div className="text-white font-semibold mb-2">{phase.step}</div>
+                            <div className="text-gray-400 text-sm">{phase.desc}</div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </>
@@ -23070,87 +23405,204 @@ The ambiguity became a clear, measurable project."`
               {/* Behavioral Content */}
               {activePage === 'behavioral' && (
                 <>
-                  {/* STAR Method */}
-                  <div className="p-6 rounded-xl mb-8" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
-                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                      <Icon name="star" size={20} className="text-purple-400" />
-                      The STAR Method
-                    </h3>
-                    <div className="grid md:grid-cols-4 gap-4">
-                      {[
-                        { letter: 'S', title: 'Situation', desc: 'Set the scene and give context', color: '#ef4444' },
-                        { letter: 'T', title: 'Task', desc: 'Describe your responsibility', color: '#f59e0b' },
-                        { letter: 'A', title: 'Action', desc: 'Explain what you did', color: '#22c55e' },
-                        { letter: 'R', title: 'Result', desc: 'Share the outcomes', color: '#3b82f6' },
-                      ].map((step, i) => (
-                        <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(0,0,0,0.3)' }}>
-                          <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3 text-xl font-bold" style={{ background: `${step.color}20`, color: step.color }}>
-                            {step.letter}
+                  {/* STAR Method - Enhanced */}
+                  <div className="rounded-2xl overflow-hidden mb-10" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+                    <div className="px-6 py-4 border-b border-purple-500/20" style={{ background: 'rgba(168,85,247,0.05)' }}>
+                      <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-500/20">
+                          <Icon name="star" size={20} className="text-purple-400" />
+                        </div>
+                        The STAR Method
+                      </h3>
+                      <p className="text-gray-400 text-sm mt-1 ml-13">The proven framework for behavioral interview answers</p>
+                    </div>
+                    <div className="p-6">
+                      <div className="grid md:grid-cols-4 gap-4">
+                        {[
+                          { letter: 'S', title: 'Situation', desc: 'Set the scene and give context for your story', color: '#ef4444', tip: 'Be specific about when and where' },
+                          { letter: 'T', title: 'Task', desc: 'Describe your responsibility or challenge', color: '#f59e0b', tip: 'Focus on YOUR role' },
+                          { letter: 'A', title: 'Action', desc: 'Explain the specific steps you took', color: '#22c55e', tip: 'Use "I" not "we"' },
+                          { letter: 'R', title: 'Result', desc: 'Share the outcomes and what you learned', color: '#3b82f6', tip: 'Quantify when possible' },
+                        ].map((step, i) => (
+                          <div key={i} className="relative rounded-xl p-5" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                            <div
+                              className="w-14 h-14 rounded-xl flex items-center justify-center mb-4 text-2xl font-bold transition-transform hover:scale-110"
+                              style={{ background: `${step.color}20`, color: step.color }}
+                            >
+                              {step.letter}
+                            </div>
+                            <div className="text-white font-semibold text-lg mb-2">{step.title}</div>
+                            <div className="text-gray-400 text-sm mb-3">{step.desc}</div>
+                            <div className="flex items-center gap-2 text-xs" style={{ color: step.color }}>
+                              <Icon name="lightbulb" size={12} />
+                              <span>{step.tip}</span>
+                            </div>
                           </div>
-                          <div className="text-white font-semibold mb-2">{step.title}</div>
-                          <div className="text-gray-400 text-sm">{step.desc}</div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Question Categories Section */}
+                  <div className="mb-12">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-500/10">
+                        <Icon name="messageSquare" size={20} className="text-purple-400" />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-bold text-white">Question Categories</h2>
+                        <p className="text-sm text-gray-500">Common behavioral question types with example answers</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                      {filteredTopics.map((topic) => (
+                        <div
+                          key={topic.id}
+                          onClick={() => setSelectedTopic(topic.id)}
+                          className="group relative rounded-2xl transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl"
+                          style={{
+                            background: `linear-gradient(135deg, ${topic.color}08, ${topic.color}02)`,
+                            border: `1px solid ${topic.color}20`
+                          }}
+                        >
+                          <div className="p-5">
+                            <div className="flex items-start justify-between mb-4">
+                              <div
+                                className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+                                style={{ background: `${topic.color}15` }}
+                              >
+                                <Icon name={topic.icon} size={24} style={{ color: topic.color }} />
+                              </div>
+                              <span
+                                className="px-2.5 py-1 rounded-lg text-xs font-medium"
+                                style={{ background: `${topic.color}15`, color: topic.color }}
+                              >
+                                {topic.questions} questions
+                              </span>
+                            </div>
+                            <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-purple-400 transition-colors">{topic.title}</h3>
+                            <p className="text-gray-400 text-sm line-clamp-2 mb-4">{topic.description}</p>
+                            <div className="flex items-center gap-1 text-sm font-medium group-hover:translate-x-1 transition-transform" style={{ color: topic.color }}>
+                              <span>Practice</span>
+                              <Icon name="arrowRight" size={14} />
+                            </div>
+                          </div>
+                          <div
+                            className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                            style={{ boxShadow: `0 0 40px ${topic.color}15` }}
+                          />
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* Question Categories - 2-column grid */}
-                  <h2 className="text-xl font-bold text-white mb-4">Question Categories</h2>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-12">
-                    {filteredTopics.map((topic) => (
-                      <div
-                        key={topic.id}
-                        onClick={() => setSelectedTopic(topic.id)}
-                        className="group flex items-center gap-3 p-3 rounded-lg transition-all hover:bg-white/5 cursor-pointer"
-                        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
-                      >
-                        <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}15` }}>
-                          <Icon name={topic.icon} size={18} style={{ color: topic.color }} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <span className="text-white font-medium text-sm">{topic.title}</span>
-                          <p className="text-gray-500 text-xs truncate">{topic.description}</p>
-                        </div>
-                        <span className="text-gray-500 text-xs flex-shrink-0">{topic.questions}Q</span>
-                        <Icon name="chevronRight" size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors flex-shrink-0" />
+                  {/* Company-Specific Section */}
+                  <div className="mb-8">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-500/10">
+                        <Icon name="briefcase" size={20} className="text-amber-400" />
                       </div>
-                    ))}
-                  </div>
-
-                  {/* Company-Specific - 2-column grid */}
-                  <h2 className="text-xl font-bold text-white mb-4">Company-Specific Prep</h2>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                    {companyPrep.map((company) => (
-                      <div
-                        key={company.id}
-                        onClick={() => setSelectedTopic(company.id)}
-                        className="group flex items-center gap-3 p-3 rounded-lg transition-all hover:bg-white/5 cursor-pointer"
-                        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
-                      >
-                        <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${company.color}15` }}>
-                          <Icon name={company.icon} size={18} style={{ color: company.color }} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <span className="text-white font-medium text-sm">{company.title}</span>
-                          <p className="text-gray-500 text-xs truncate">{company.subtitle}</p>
-                        </div>
-                        <span className="px-2 py-0.5 rounded text-xs flex-shrink-0" style={{ background: `${company.color}20`, color: company.color }}>
-                          {company.count} Topics
-                        </span>
-                        <Icon name="chevronRight" size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors flex-shrink-0" />
+                      <div>
+                        <h2 className="text-2xl font-bold text-white">Company-Specific Prep</h2>
+                        <p className="text-sm text-gray-500">Tailored guidance for top tech companies</p>
                       </div>
-                    ))}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {companyPrep.map((company) => (
+                        <div
+                          key={company.id}
+                          onClick={() => setSelectedTopic(company.id)}
+                          className="group relative rounded-2xl transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl"
+                          style={{
+                            background: `linear-gradient(135deg, ${company.color}08, ${company.color}02)`,
+                            border: `1px solid ${company.color}20`
+                          }}
+                        >
+                          <div className="p-5 flex items-center gap-4">
+                            <div
+                              className="w-14 h-14 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 flex-shrink-0"
+                              style={{ background: `${company.color}15` }}
+                            >
+                              <Icon name={company.icon} size={28} style={{ color: company.color }} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-white font-semibold text-lg mb-1 group-hover:text-amber-400 transition-colors">{company.title}</h3>
+                              <p className="text-gray-500 text-sm">{company.subtitle}</p>
+                            </div>
+                            <div className="flex flex-col items-end gap-2">
+                              <span
+                                className="px-3 py-1 rounded-lg text-xs font-medium"
+                                style={{ background: `${company.color}15`, color: company.color }}
+                              >
+                                {company.count} Topics
+                              </span>
+                              <div className="flex items-center gap-1 text-sm font-medium opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1" style={{ color: company.color }}>
+                                <span>Explore</span>
+                                <Icon name="arrowRight" size={14} />
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                            style={{ boxShadow: `0 0 40px ${company.color}15` }}
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </>
               )}
             </>
           )}
         </div>
+          </div>
+
+          {/* Right Sidebar - Table of Contents (only shown on topic detail) */}
+          {selectedTopic && topicDetails && tableOfContents.length > 0 && (
+            <div className="w-64 flex-shrink-0 hidden xl:block">
+              <div className="sticky top-24 p-6">
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">On this page</div>
+                <nav className="space-y-1">
+                  {tableOfContents.map((item) => (
+                    <a
+                      key={item.id}
+                      href={`#${item.id}`}
+                      className="block px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                    >
+                      {item.label}
+                    </a>
+                  ))}
+                </nav>
+
+                {/* Quick Actions */}
+                <div className="mt-8 pt-6 border-t border-white/10">
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Quick Actions</div>
+                  <div className="space-y-2">
+                    <a
+                      href="/"
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-emerald-400 hover:bg-emerald-400/10 rounded-lg transition-colors"
+                    >
+                      <Icon name="play" size={14} />
+                      <span>Practice Now</span>
+                    </a>
+                    <button
+                      onClick={() => setSelectedTopic(null)}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:bg-white/5 rounded-lg transition-colors w-full text-left"
+                    >
+                      <Icon name="list" size={14} />
+                      <span>All Topics</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       <style>{`
         .animate-fade-in {
-          animation: fadeIn 0.2s ease-out;
+          animation: fadeIn 0.3s ease-out;
         }
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
@@ -23169,6 +23621,29 @@ The ambiguity became a clear, measurable project."`
           -moz-tab-size: 4 !important;
           line-height: 1.4 !important;
           letter-spacing: 0 !important;
+        }
+        /* Smooth scrolling for anchor links */
+        html {
+          scroll-behavior: smooth;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+          background: rgba(255,255,255,0.02);
+        }
+        ::-webkit-scrollbar-thumb {
+          background: rgba(255,255,255,0.1);
+          border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: rgba(255,255,255,0.2);
+        }
+        /* Card hover effects */
+        .group:hover .hover-glow {
+          opacity: 1;
         }
       `}</style>
     </div>
