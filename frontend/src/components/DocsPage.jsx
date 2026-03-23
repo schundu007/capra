@@ -26122,7 +26122,7 @@ Best,
                               </td>
                               <td className="px-4 py-3 text-right">
                                 <span className="px-2 py-1 rounded text-sm font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
-                                  {topic.questions}Q
+                                  {topic.keyQuestions?.length || topic.sampleQuestions?.length || 0}Q
                                 </span>
                               </td>
                             </tr>
