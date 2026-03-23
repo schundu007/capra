@@ -23728,6 +23728,350 @@ To improve, I now open every sprint with a 10-minute 'definition of done' check 
         'Document learnings for others'
       ]
     },
+    {
+      id: 'negotiation',
+      title: 'Negotiation Best Practices',
+      icon: 'dollarSign',
+      color: '#10b981',
+      questions: 5,
+      description: 'Negotiate offers confidently and professionally.',
+
+      introduction: `Negotiation is a critical skill that most engineers underutilize. A well-executed negotiation can result in 10-30% higher compensation without damaging your relationship with the employer. The key is preparation, data, and confident delivery.`,
+
+      keyQuestions: [
+        {
+          question: 'How should I approach salary negotiation?',
+          answer: `**The Negotiation Framework**
+
+**1. Research Before You Talk Numbers**
+- Use levels.fyi, Glassdoor, Blind for market data
+- Know the range for your level at this specific company
+- Factor in location, team, and your unique value
+
+**2. Never Give the First Number**
+- "I'm flexible on compensation and more focused on finding the right fit. What's the range for this role?"
+- If pressed: "Based on my research and experience, I'm targeting [range], but I'm open to discussing the full package."
+
+**3. Wait for the Written Offer**
+- Don't negotiate verbally—wait for the written offer
+- This gives you time to evaluate and prepare a counter
+
+**4. The Counter Formula**
+- Thank them for the offer
+- Express enthusiasm for the role
+- Present your counter with justification
+- Be specific: "Based on my 5 years in distributed systems and the market data I've gathered, I'm looking for $X base and Y RSUs."
+
+**5. Negotiate the Full Package**
+- Base salary, equity, sign-on bonus
+- Start date, PTO, remote flexibility
+- Level and title (can affect future earnings)`
+        },
+        {
+          question: 'What are common negotiation mistakes?',
+          answer: `**Mistakes to Avoid**
+
+❌ **Accepting immediately**
+"Let me think about it" is always acceptable. Take 24-48 hours.
+
+❌ **Revealing your current salary**
+"I'd prefer to focus on the value I'll bring to this role rather than my current compensation."
+
+❌ **Negotiating against yourself**
+State your ask once, then wait. Silence is powerful.
+
+❌ **Being apologetic**
+Don't say "I hate to ask, but..." or "I know this is awkward..."
+
+❌ **Focusing only on base salary**
+Equity, bonus, sign-on, and level can be more negotiable.
+
+❌ **Threatening to walk**
+Stay collaborative: "I'm excited about this opportunity and want to find a number that works for both of us."
+
+❌ **Not getting it in writing**
+Verbal promises mean nothing. Get the final offer in writing before accepting.`
+        },
+        {
+          question: 'How do I handle competing offers?',
+          answer: `**Leveraging Multiple Offers**
+
+**1. Timing is Everything**
+- Try to align offer deadlines across companies
+- Request extensions if needed: "I'm in final stages with other companies and want to make a thoughtful decision. Could I have until [date]?"
+
+**2. Be Transparent (Strategically)**
+- "I have a competing offer at $X, but your company is my first choice. Is there flexibility to close the gap?"
+- Don't lie about offers you don't have
+
+**3. Use Specifics**
+- "Company Y offered $Z base with A RSUs. I'd prefer to join you—can you match or exceed this?"
+
+**4. Don't Auction**
+- Going back and forth repeatedly damages relationships
+- Make one strong counter, then decide
+
+**5. Consider Total Value**
+- Higher base vs more equity
+- Better team vs higher title
+- Growth potential vs immediate comp`
+        },
+        {
+          question: 'What if they say the offer is final?',
+          answer: `**Handling "Final Offer" Situations**
+
+**1. Verify It's Actually Final**
+Often, "final" isn't really final. Ask:
+- "Is there any flexibility on [specific component]?"
+- "What would it take to reach [your number]?"
+
+**2. Negotiate Non-Salary Items**
+If base is truly fixed, pivot to:
+- Sign-on bonus (often easier to approve)
+- Additional equity
+- Earlier review/promotion timeline
+- Extra PTO
+- Remote work flexibility
+- Start date (more time = free money)
+
+**3. Get Future Commitments**
+- "If the base can't move, could we agree to a 6-month review with a path to $X based on performance?"
+- Get this in writing.
+
+**4. Know Your Walk-Away Point**
+- Have a number below which you won't accept
+- Be prepared to politely decline if they can't meet it
+- "I appreciate the offer, but I need to decline. If circumstances change, I'd love to reconnect."`
+        }
+      ],
+
+      tips: [
+        'Research market rates thoroughly before negotiating',
+        'Never accept immediately—always take time to consider',
+        'Negotiate the full package, not just base salary',
+        'Get everything in writing before accepting',
+        'Stay positive and collaborative throughout'
+      ]
+    },
+    {
+      id: 'asking-questions',
+      title: 'Asking Thoughtful Questions',
+      icon: 'helpCircle',
+      color: '#3b82f6',
+      questions: 4,
+      description: 'Ask questions that demonstrate insight and interest.',
+
+      introduction: `The questions you ask interviewers reveal as much about you as your answers. Thoughtful questions show genuine interest, strategic thinking, and help you evaluate if the role is right for you.`,
+
+      keyQuestions: [
+        {
+          question: 'What questions should I ask interviewers?',
+          answer: `**High-Impact Questions by Category**
+
+**About the Role**
+- "What does success look like in the first 90 days?"
+- "What's the biggest challenge the team is facing right now?"
+- "How is performance measured for this role?"
+
+**About the Team**
+- "Can you describe the team's working style and culture?"
+- "How does the team handle disagreements on technical decisions?"
+- "What's the on-call rotation like?"
+
+**About Growth**
+- "What does the career path look like for this role?"
+- "How does the company support learning and development?"
+- "Can you give an example of someone who grew in this team?"
+
+**About the Company**
+- "What's the company's biggest priority this year?"
+- "How has the engineering culture evolved recently?"
+- "What keeps you excited about working here?"
+
+**Red Flag Detection**
+- "How long has the team been in its current form?"
+- "What happened to the previous person in this role?"
+- "How often do priorities change mid-sprint?"`
+        },
+        {
+          question: 'What questions should I avoid?',
+          answer: `**Questions to Avoid**
+
+❌ **Easily Googled Information**
+"What does your company do?" — Shows no preparation
+
+❌ **Premature Benefits Questions**
+"How many vacation days do I get?" — Wait for offer stage
+
+❌ **Negative Framing**
+"I heard your tech debt is terrible. Is that true?"
+✅ Better: "How does the team balance new features with technical improvements?"
+
+❌ **Salary Too Early**
+Save compensation discussions for recruiter/HR, not technical rounds
+
+❌ **Nothing at All**
+"No questions, I think you covered everything" — Always have questions prepared
+
+❌ **Questions That Suggest You Won't Stay**
+"How quickly can I get promoted out of this role?"
+✅ Better: "What does career growth look like here?"`
+        }
+      ],
+
+      tips: [
+        'Prepare 5-7 questions for each interview',
+        'Tailor questions to your interviewer\'s role',
+        'Take notes on answers for follow-up conversations',
+        'Ask about challenges—it shows maturity',
+        'Use questions to evaluate if YOU want the role'
+      ]
+    },
+    {
+      id: 'professionalism',
+      title: 'Non-Verbal Communication',
+      icon: 'eye',
+      color: '#8b5cf6',
+      questions: 3,
+      description: 'Project confidence through body language and presence.',
+
+      introduction: `Non-verbal cues account for a significant portion of how you're perceived. Even in video interviews, your body language, eye contact, and professional presence matter.`,
+
+      keyQuestions: [
+        {
+          question: 'How do I project confidence in interviews?',
+          answer: `**Non-Verbal Best Practices**
+
+**In-Person Interviews**
+- **Posture**: Sit up straight, lean slightly forward (shows engagement)
+- **Handshake**: Firm, brief, with eye contact and a smile
+- **Eye Contact**: Maintain 60-70% of the time; look at the speaker
+- **Hands**: Keep them visible; avoid fidgeting or crossing arms
+- **Smile**: Natural, genuine—especially when greeting
+
+**Video Interviews**
+- **Camera Position**: Eye level, not looking down at laptop
+- **Lighting**: Face the light source, avoid backlighting
+- **Background**: Clean, professional, minimal distractions
+- **Eye Contact**: Look at the camera when speaking, not the screen
+- **Audio**: Use headphones to avoid echo
+
+**Voice and Pace**
+- Speak clearly and at a measured pace
+- Pause before answering (shows thoughtfulness)
+- Vary your tone to show enthusiasm
+- Avoid filler words: "um," "like," "you know"`
+        },
+        {
+          question: 'How do I handle nervousness?',
+          answer: `**Managing Interview Nerves**
+
+**Before the Interview**
+- Prepare thoroughly—confidence comes from readiness
+- Practice answers out loud (not just in your head)
+- Do a mock interview with a friend
+- Exercise the morning of—releases nervous energy
+- Arrive/log in 10 min early to settle
+
+**During the Interview**
+- Take a breath before answering
+- It's okay to pause and think
+- If you're nervous, acknowledge it briefly: "I'm excited about this opportunity, so I may be a bit nervous."
+- Focus on the conversation, not your performance
+- Remember: they want you to succeed
+
+**Physical Techniques**
+- Power pose before entering (2 min in a private space)
+- Slow, deep breaths (4 in, 4 hold, 4 out)
+- Unclench your jaw and relax your shoulders
+- Smile—it releases tension and positive hormones`
+        }
+      ],
+
+      tips: [
+        'Test your video setup before remote interviews',
+        'Practice speaking out loud, not just in your head',
+        'Record yourself to identify nervous habits',
+        'Power pose before interviews to boost confidence',
+        'Remember that interviewers want you to succeed'
+      ]
+    },
+    {
+      id: 'following-up',
+      title: 'Following Up & Next Steps',
+      icon: 'send',
+      color: '#f59e0b',
+      questions: 3,
+      description: 'Handle post-interview communication professionally.',
+
+      introduction: `The interview process doesn't end when you leave the room. Professional follow-up can reinforce your candidacy and help you stand out.`,
+
+      keyQuestions: [
+        {
+          question: 'How should I follow up after an interview?',
+          answer: `**The Follow-Up Framework**
+
+**Timing**
+- Send a thank-you email within 24 hours
+- One email per interviewer is ideal
+- Keep it brief—3-4 sentences
+
+**Structure**
+1. Thank them for their time
+2. Reference something specific from your conversation
+3. Reinforce your interest and fit
+4. Express enthusiasm for next steps
+
+**Example Email**:
+"Hi [Name],
+
+Thank you for taking the time to speak with me today about the Senior Engineer role. I especially enjoyed our discussion about [specific topic—e.g., your approach to scaling the recommendation system].
+
+Our conversation reinforced my excitement about joining [Company] and contributing to [specific goal or project mentioned].
+
+Looking forward to the next steps.
+
+Best,
+[Your Name]"
+
+**What to Avoid**
+- Generic copy-paste messages
+- Overly long emails
+- Asking about timeline/decision in the thank-you
+- Following up too frequently`
+        },
+        {
+          question: 'How do I handle waiting for a decision?',
+          answer: `**Managing the Waiting Period**
+
+**Set Expectations**
+- Ask at the end of interviews: "What are the next steps and timeline?"
+- Note the date they mention for follow-up
+
+**Following Up on Timeline**
+- Wait until after their stated timeline
+- Send a brief, polite check-in:
+  "Hi [Recruiter], I wanted to follow up on the [Role] position. I remain very interested and would love to hear about next steps when you have an update."
+
+**If You Have a Deadline**
+- Be transparent: "I have an offer with a deadline on [date]. [Company] is my first choice—is there any way to accelerate the process?"
+- Give at least a week's notice if possible
+
+**If Rejected**
+- Respond graciously: "Thank you for letting me know. I enjoyed learning about [Company] and hope our paths cross again."
+- Ask for feedback (they may or may not provide it)
+- Connect on LinkedIn for future opportunities`
+        }
+      ],
+
+      tips: [
+        'Send thank-you emails within 24 hours',
+        'Reference specific conversation points',
+        'Don\'t ask about decisions in thank-you notes',
+        'Follow up once after their stated timeline passes',
+        'Respond graciously to rejections—bridges matter'
+      ]
+    },
   ];
 
   // Company-Specific Prep
