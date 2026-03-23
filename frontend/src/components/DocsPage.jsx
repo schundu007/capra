@@ -92,11 +92,17 @@ function FormattedContent({ content, color = 'emerald' }) {
 
   // Check if line looks like ASCII diagram (box drawing, arrows, pipes)
   const isDiagramLine = (line) => {
-    const diagramChars = ['─', '│', '┌', '┐', '└', '┘', '├', '┤', '┬', '┴', '┼', '═', '║', '╔', '╗', '╚', '╝', '→', '←', '↑', '↓', '──', '->', '<-', '|', '+--', '|--'];
-    return diagramChars.some(char => line.includes(char)) ||
-           (line.match(/^\s*[\|│┃]/) && line.length > 3) ||
-           (line.match(/^\s*[+┌┐└┘├┤┬┴┼╔╗╚╝][-─═]/) ) ||
-           (line.includes('───') || line.includes('---'));
+    // Box drawing and arrow characters
+    if (/[─│┌┐└┘├┤┬┴┼═║╔╗╚╝╠╣╦╩╬▶▼◀▲→←↑↓►◄]/.test(line)) return true;
+    // Lines with multiple dashes or pipes (ASCII art)
+    if (/[|]{2,}|[-]{3,}|[─]{2,}|[=]{3,}/.test(line)) return true;
+    // Lines starting with pipe or box char
+    if (/^\s*[|│┃├└┌╔╚╠]/.test(line)) return true;
+    // Lines with arrow patterns
+    if (/──+[>▶►]|[<◀◄]──+|->|<-/.test(line)) return true;
+    // Lines that are mostly whitespace with some box chars (diagram continuation)
+    if (line.length > 10 && /^\s{4,}[│|├└┌]/.test(line)) return true;
+    return false;
   };
 
   // Format inline text with bold and code
@@ -175,10 +181,20 @@ function FormattedContent({ content, color = 'emerald' }) {
 
   blocks.forEach((block, blockIdx) => {
     if (block.type === 'diagram') {
-      // Render diagram with preserved spacing
+      // Render diagram with preserved spacing - use inline styles to guarantee monospace
       elements.push(
-        <div key={`diagram-${blockIdx}`} className={`my-4 rounded-xl ${colors.diagram} border overflow-x-auto`}>
-          <pre className="p-4 font-mono text-xs leading-relaxed" style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace' }}>
+        <div key={`diagram-${blockIdx}`} className="my-4 rounded-xl border overflow-x-auto" style={{ background: 'rgba(0,0,0,0.4)', borderColor: 'rgba(255,255,255,0.1)' }}>
+          <pre
+            className="p-4 text-xs leading-5"
+            style={{
+              fontFamily: '"SF Mono", "Monaco", "Inconsolata", "Fira Mono", "Droid Sans Mono", "Source Code Pro", "Courier New", monospace',
+              whiteSpace: 'pre',
+              tabSize: 4,
+              color: '#a5f3fc',
+              margin: 0,
+              overflow: 'visible'
+            }}
+          >
             {block.lines.join('\n')}
           </pre>
         </div>
@@ -23145,6 +23161,14 @@ The ambiguity became a clear, measurable project."`
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
+        }
+        .formatted-content pre {
+          font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace !important;
+          white-space: pre !important;
+          tab-size: 4 !important;
+          -moz-tab-size: 4 !important;
+          line-height: 1.4 !important;
+          letter-spacing: 0 !important;
         }
       `}</style>
     </div>
