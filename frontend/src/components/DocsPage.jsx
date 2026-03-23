@@ -22059,6 +22059,1604 @@ Privacy: Option to view anonymously (hides viewer)
     },
   ];
 
+  // LLD Problem Categories
+  const lldProblemCategories = [
+    { id: 'data-structures', name: 'Data Structures', icon: 'database', color: '#10b981' },
+    { id: 'games', name: 'Games & Puzzles', icon: 'gamepad', color: '#8b5cf6' },
+    { id: 'systems', name: 'Real-World Systems', icon: 'server', color: '#3b82f6' },
+    { id: 'utilities', name: 'Utilities & Tools', icon: 'tool', color: '#f59e0b' },
+  ];
+
+  const lldProblemCategoryMap = {
+    'lru-cache': 'data-structures',
+    'parking-lot': 'systems',
+    'elevator-system': 'systems',
+    'library-management': 'systems',
+    'tic-tac-toe': 'games',
+    'snake-ladder': 'games',
+    'logging-framework': 'utilities',
+    'vending-machine': 'systems',
+    'atm-system': 'systems',
+    'task-scheduler': 'utilities',
+    'stack-overflow': 'systems',
+    'chess': 'games',
+    'hotel-booking-lld': 'systems',
+    'movie-ticket-booking': 'systems',
+    'car-rental': 'systems',
+  };
+
+  // Low-Level Design Problems
+  const lldProblems = [
+    {
+      id: 'lru-cache',
+      title: 'LRU Cache',
+      subtitle: 'Least Recently Used Cache',
+      icon: 'database',
+      color: '#10b981',
+      difficulty: 'Medium',
+      description: 'Design a data structure that stores key-value pairs with automatic eviction of least recently accessed items.',
+
+      introduction: `The LRU Cache is a fundamental data structure problem that tests your understanding of hash maps, doubly linked lists, and cache eviction policies. It's commonly asked in interviews at top tech companies.
+
+The key insight is combining two data structures: a HashMap provides O(1) lookup while a doubly linked list maintains usage order with head as Most Recently Used and tail as Least Recently Used.`,
+
+      functionalRequirements: [
+        'get(key): Returns value if key exists, otherwise returns -1',
+        'put(key, value): Inserts new pair or updates existing value',
+        'Automatic eviction of least recently used item when capacity exceeded',
+        'Both operations update recency of accessed/inserted items',
+        'Generic key-value support (keys must be hashable)'
+      ],
+
+      nonFunctionalRequirements: [
+        'Time Complexity: O(1) average for both get and put operations',
+        'Thread Safety: Must be thread-safe for concurrent environments',
+        'Modularity: Clean OOP design with separation of concerns',
+        'Memory Efficiency: Optimized for speed and space constraints'
+      ],
+
+      coreEntities: [
+        { name: 'Node<K, V>', description: 'Contains key, value, and prev/next pointers for linked list' },
+        { name: 'DoublyLinkedList<K, V>', description: 'Manages node ordering with addFirst, remove, moveToFront, removeLast operations' },
+        { name: 'LRUCache<K, V>', description: 'Main class with capacity, map, and list - coordinates lookup and ordering' }
+      ],
+
+      designPatterns: [
+        'Composite Pattern: Node combines data with list linkage',
+        'Facade Pattern: LRUCache hides complexity of two data structures',
+        'Iterator Pattern: For traversing cache contents'
+      ],
+
+      keyInsight: `Store the key in each Node because eviction requires removing items from both the linked list AND HashMap. Without the key stored, identifying which HashMap entry to remove would require O(n) traversal.`,
+
+      implementation: `class Node:
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+        self.prev = None
+        self.next = None
+
+class LRUCache:
+    def __init__(self, capacity: int):
+        self.capacity = capacity
+        self.cache = {}  # key -> Node
+        # Dummy head and tail to avoid edge cases
+        self.head = Node(0, 0)
+        self.tail = Node(0, 0)
+        self.head.next = self.tail
+        self.tail.prev = self.head
+
+    def _add_to_front(self, node):
+        """Add node right after head (MRU position)"""
+        node.prev = self.head
+        node.next = self.head.next
+        self.head.next.prev = node
+        self.head.next = node
+
+    def _remove(self, node):
+        """Remove node from its current position"""
+        node.prev.next = node.next
+        node.next.prev = node.prev
+
+    def get(self, key: int) -> int:
+        if key in self.cache:
+            node = self.cache[key]
+            self._remove(node)
+            self._add_to_front(node)
+            return node.value
+        return -1
+
+    def put(self, key: int, value: int) -> None:
+        if key in self.cache:
+            node = self.cache[key]
+            node.value = value
+            self._remove(node)
+            self._add_to_front(node)
+        else:
+            if len(self.cache) >= self.capacity:
+                # Remove LRU (node before tail)
+                lru = self.tail.prev
+                self._remove(lru)
+                del self.cache[lru.key]
+
+            new_node = Node(key, value)
+            self.cache[key] = new_node
+            self._add_to_front(new_node)`
+    },
+    {
+      id: 'parking-lot',
+      title: 'Parking Lot',
+      subtitle: 'Vehicle Parking System',
+      icon: 'car',
+      color: '#3b82f6',
+      difficulty: 'Medium',
+      description: 'Design a parking lot system managing multiple floors with different spot sizes for various vehicle types.',
+
+      introduction: `The parking lot system is a classic LLD interview problem that tests your OOP design skills. It involves managing vehicle parking across multiple floors with different spot sizes, handling concurrent entry/exit, and calculating fees.`,
+
+      functionalRequirements: [
+        'Support multiple floors with configurable parking spots',
+        'Handle three vehicle types: bikes, cars, and trucks',
+        'Classify spots by size (small, compact, large)',
+        'Automatically assign compatible spots',
+        'Issue tickets tracking entry/exit times',
+        'Calculate fees based on duration',
+        'Display real-time availability by floor and size'
+      ],
+
+      nonFunctionalRequirements: [
+        'Follow OOP principles with clear separation of concerns',
+        'Handle concurrent entry/exit without race conditions',
+        'Be modular and extensible for future enhancements',
+        'Ensure thread-safe concurrent access'
+      ],
+
+      parkingRules: [
+        'Bikes → small spots only',
+        'Cars → compact or large spots',
+        'Trucks → large spots only'
+      ],
+
+      coreEntities: [
+        { name: 'ParkingLot', description: 'Main orchestrator managing floors and overall operations' },
+        { name: 'Floor', description: 'Manages parking spots on a single level' },
+        { name: 'ParkingSpot', description: 'Individual parking space with size and availability' },
+        { name: 'Vehicle', description: 'Abstract class for Bike, Car, Truck types' },
+        { name: 'ParkingTicket', description: 'Tracks entry time, spot, and vehicle' },
+        { name: 'PricingStrategy', description: 'Interface for different fee calculation methods' }
+      ],
+
+      designPatterns: [
+        'Strategy Pattern: Flexible pricing models (hourly, daily, monthly)',
+        'Factory Pattern: Vehicle and spot creation',
+        'Observer Pattern: Notify displays of availability changes',
+        'Singleton Pattern: Single ParkingLot instance'
+      ],
+
+      implementation: `from abc import ABC, abstractmethod
+from enum import Enum
+from datetime import datetime
+from threading import Lock
+
+class VehicleType(Enum):
+    BIKE = 1
+    CAR = 2
+    TRUCK = 3
+
+class SpotSize(Enum):
+    SMALL = 1
+    COMPACT = 2
+    LARGE = 3
+
+class Vehicle(ABC):
+    def __init__(self, license_plate: str):
+        self.license_plate = license_plate
+
+    @abstractmethod
+    def get_type(self) -> VehicleType:
+        pass
+
+class Car(Vehicle):
+    def get_type(self) -> VehicleType:
+        return VehicleType.CAR
+
+class ParkingSpot:
+    def __init__(self, spot_id: str, size: SpotSize, floor: int):
+        self.spot_id = spot_id
+        self.size = size
+        self.floor = floor
+        self.vehicle = None
+        self.lock = Lock()
+
+    def is_available(self) -> bool:
+        return self.vehicle is None
+
+    def can_fit(self, vehicle: Vehicle) -> bool:
+        if vehicle.get_type() == VehicleType.BIKE:
+            return self.size == SpotSize.SMALL
+        elif vehicle.get_type() == VehicleType.CAR:
+            return self.size in [SpotSize.COMPACT, SpotSize.LARGE]
+        else:  # TRUCK
+            return self.size == SpotSize.LARGE
+
+    def park(self, vehicle: Vehicle) -> bool:
+        with self.lock:
+            if self.is_available() and self.can_fit(vehicle):
+                self.vehicle = vehicle
+                return True
+            return False
+
+class ParkingTicket:
+    def __init__(self, vehicle: Vehicle, spot: ParkingSpot):
+        self.vehicle = vehicle
+        self.spot = spot
+        self.entry_time = datetime.now()
+        self.exit_time = None
+
+class ParkingLot:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __init__(self):
+        self.floors = []
+        self.active_tickets = {}
+
+    def park_vehicle(self, vehicle: Vehicle) -> ParkingTicket:
+        for floor in self.floors:
+            for spot in floor.spots:
+                if spot.park(vehicle):
+                    ticket = ParkingTicket(vehicle, spot)
+                    self.active_tickets[vehicle.license_plate] = ticket
+                    return ticket
+        return None  # No available spot`
+    },
+    {
+      id: 'elevator-system',
+      title: 'Elevator System',
+      subtitle: 'Multi-Elevator Controller',
+      icon: 'arrowUpDown',
+      color: '#8b5cf6',
+      difficulty: 'Hard',
+      description: 'Design an elevator system with multiple elevators, efficient scheduling, and the LOOK algorithm.',
+
+      introduction: `An elevator system combines mechanical and software components to transport people vertically. The design manages movement control, door operations, user requests, and scheduling logic using algorithms like SCAN and LOOK.`,
+
+      functionalRequirements: [
+        'Support multiple elevators serving multiple floors',
+        'Handle internal requests (cabin buttons) and external requests (hall buttons with direction)',
+        'Dispatch requests to suitable elevators using configurable strategies',
+        'Implement LOOK algorithm for efficient request serving',
+        'Display current floor and direction',
+        'Run each elevator independently in separate threads'
+      ],
+
+      nonFunctionalRequirements: [
+        'Follow OOP principles with clear separation of concerns',
+        'Maintain modularity for new dispatch strategies',
+        'Ensure thread-safe concurrent operations',
+        'Support swappable dispatch strategies at runtime'
+      ],
+
+      algorithms: [
+        { name: 'FIFO', description: 'Serves requests in arrival order—simple but inefficient with unnecessary back-and-forth' },
+        { name: 'SCAN', description: 'Moves in one direction serving all requests, then reverses. Travels to extremes even without requests' },
+        { name: 'LOOK (Recommended)', description: 'Travels only to furthest pending request in current direction, then reverses immediately' }
+      ],
+
+      coreEntities: [
+        { name: 'ElevatorSystem', description: 'Main controller managing all elevators' },
+        { name: 'Elevator', description: 'Individual elevator with state, position, and request queue' },
+        { name: 'Request', description: 'Represents floor request with direction' },
+        { name: 'DispatchStrategy', description: 'Interface for different scheduling algorithms' },
+        { name: 'Display', description: 'Shows current floor and direction' }
+      ],
+
+      designPatterns: [
+        'Strategy Pattern: Pluggable scheduling algorithms (FIFO, SCAN, LOOK)',
+        'Observer Pattern: Display updates when elevator moves',
+        'State Pattern: Elevator states (IDLE, MOVING_UP, MOVING_DOWN, DOOR_OPEN)',
+        'Command Pattern: Encapsulate requests as objects'
+      ],
+
+      implementation: `from enum import Enum
+from threading import Thread, Lock
+from collections import deque
+import heapq
+
+class Direction(Enum):
+    UP = 1
+    DOWN = -1
+    IDLE = 0
+
+class ElevatorState(Enum):
+    IDLE = 0
+    MOVING = 1
+    DOOR_OPEN = 2
+
+class Request:
+    def __init__(self, floor: int, direction: Direction = None):
+        self.floor = floor
+        self.direction = direction
+
+class Elevator:
+    def __init__(self, elevator_id: int, min_floor: int, max_floor: int):
+        self.id = elevator_id
+        self.current_floor = min_floor
+        self.direction = Direction.IDLE
+        self.state = ElevatorState.IDLE
+        self.min_floor = min_floor
+        self.max_floor = max_floor
+        # Two sets: requests above and below current floor
+        self.up_requests = set()
+        self.down_requests = set()
+        self.lock = Lock()
+
+    def add_request(self, floor: int):
+        with self.lock:
+            if floor > self.current_floor:
+                self.up_requests.add(floor)
+            elif floor < self.current_floor:
+                self.down_requests.add(floor)
+
+            if self.direction == Direction.IDLE:
+                self._set_direction()
+
+    def _set_direction(self):
+        if self.up_requests:
+            self.direction = Direction.UP
+        elif self.down_requests:
+            self.direction = Direction.DOWN
+        else:
+            self.direction = Direction.IDLE
+
+    def move(self):
+        """LOOK algorithm implementation"""
+        with self.lock:
+            if self.direction == Direction.UP:
+                if self.up_requests:
+                    next_floor = min(self.up_requests)
+                    self.up_requests.remove(next_floor)
+                    self.current_floor = next_floor
+                else:
+                    self.direction = Direction.DOWN
+                    self.move()
+            elif self.direction == Direction.DOWN:
+                if self.down_requests:
+                    next_floor = max(self.down_requests)
+                    self.down_requests.remove(next_floor)
+                    self.current_floor = next_floor
+                else:
+                    self.direction = Direction.UP
+                    self.move()`
+    },
+    {
+      id: 'tic-tac-toe',
+      title: 'Tic Tac Toe',
+      subtitle: 'Classic Board Game',
+      icon: 'grid',
+      color: '#ef4444',
+      difficulty: 'Easy',
+      description: 'Design a Tic Tac Toe game with win detection, scoreboard, and extensible architecture.',
+
+      introduction: `Tic Tac Toe is a simple game but provides an excellent opportunity to demonstrate clean OOP design, design patterns, and extensibility considerations.`,
+
+      functionalRequirements: [
+        'Two players alternate placing X and O on 3x3 grid',
+        'Detect win conditions (row, column, diagonal)',
+        'Detect draw when board is full',
+        'Track scores across multiple games',
+        'Validate moves (bounds and cell availability)'
+      ],
+
+      coreEntities: [
+        { name: 'Symbol (Enum)', description: 'X, O, EMPTY values' },
+        { name: 'GameStatus (Enum)', description: 'IN_PROGRESS, WINNER_X, WINNER_O, DRAW' },
+        { name: 'Player', description: 'Name and assigned symbol (immutable)' },
+        { name: 'Cell', description: 'Board position (mutable symbol)' },
+        { name: 'Board', description: 'Manages 3×3 grid operations' },
+        { name: 'Game', description: 'Orchestrates gameplay and win detection' },
+        { name: 'Scoreboard', description: 'Tracks wins across sessions' }
+      ],
+
+      designPatterns: [
+        'Strategy Pattern: Pluggable win detection (RowWinningStrategy, ColumnWinningStrategy, DiagonalWinningStrategy)',
+        'Observer Pattern: Scoreboard observes game completion events',
+        'Singleton Pattern: Single TicTacToeSystem instance'
+      ],
+
+      implementation: `from enum import Enum
+from typing import List, Optional
+
+class Symbol(Enum):
+    X = 'X'
+    O = 'O'
+    EMPTY = ' '
+
+class GameStatus(Enum):
+    IN_PROGRESS = 0
+    WINNER_X = 1
+    WINNER_O = 2
+    DRAW = 3
+
+class Player:
+    def __init__(self, name: str, symbol: Symbol):
+        self.name = name
+        self.symbol = symbol
+
+class Board:
+    def __init__(self, size: int = 3):
+        self.size = size
+        self.grid = [[Symbol.EMPTY] * size for _ in range(size)]
+
+    def place(self, row: int, col: int, symbol: Symbol) -> bool:
+        if self._is_valid(row, col) and self.grid[row][col] == Symbol.EMPTY:
+            self.grid[row][col] = symbol
+            return True
+        return False
+
+    def _is_valid(self, row: int, col: int) -> bool:
+        return 0 <= row < self.size and 0 <= col < self.size
+
+    def is_full(self) -> bool:
+        return all(cell != Symbol.EMPTY for row in self.grid for cell in row)
+
+class Game:
+    def __init__(self, player1: Player, player2: Player):
+        self.board = Board()
+        self.players = [player1, player2]
+        self.current_player_idx = 0
+        self.status = GameStatus.IN_PROGRESS
+
+    def make_move(self, row: int, col: int) -> bool:
+        if self.status != GameStatus.IN_PROGRESS:
+            return False
+
+        current = self.players[self.current_player_idx]
+        if self.board.place(row, col, current.symbol):
+            if self._check_winner(current.symbol):
+                self.status = GameStatus.WINNER_X if current.symbol == Symbol.X else GameStatus.WINNER_O
+            elif self.board.is_full():
+                self.status = GameStatus.DRAW
+            else:
+                self.current_player_idx = 1 - self.current_player_idx
+            return True
+        return False
+
+    def _check_winner(self, symbol: Symbol) -> bool:
+        # Check rows, columns, and diagonals
+        for i in range(self.board.size):
+            if all(self.board.grid[i][j] == symbol for j in range(self.board.size)):
+                return True
+            if all(self.board.grid[j][i] == symbol for j in range(self.board.size)):
+                return True
+
+        if all(self.board.grid[i][i] == symbol for i in range(self.board.size)):
+            return True
+        if all(self.board.grid[i][self.board.size-1-i] == symbol for i in range(self.board.size)):
+            return True
+
+        return False`
+    },
+    {
+      id: 'snake-ladder',
+      title: 'Snake and Ladder',
+      subtitle: 'Classic Board Game',
+      icon: 'gamepad',
+      color: '#22c55e',
+      difficulty: 'Easy',
+      description: 'Design the Snake and Ladder game with dice rolling, player turns, and board entities.',
+
+      introduction: `Snake and Ladder is a classic board game that demonstrates clean OOP design with entities, game rules, and turn management. Players roll dice to move toward cell 100, with snakes moving them backward and ladders moving them forward.`,
+
+      functionalRequirements: [
+        'Players start at position 0 and move toward 100',
+        'Roll dice (1-6) to determine movement',
+        'Rolling 6 grants an extra turn',
+        'Landing on snake slides player backward',
+        'Landing on ladder moves player forward',
+        'Victory requires landing exactly on cell 100',
+        'Support multiple players with turn queue'
+      ],
+
+      coreEntities: [
+        { name: 'GameStatus (Enum)', description: 'NOT_STARTED, RUNNING, FINISHED' },
+        { name: 'Player', description: 'Name (immutable) and position (mutable, starts at 0)' },
+        { name: 'BoardEntity (Abstract)', description: 'Base for Snake and Ladder with start/end positions' },
+        { name: 'Snake', description: 'Validates start > end (downward movement)' },
+        { name: 'Ladder', description: 'Validates start < end (upward movement)' },
+        { name: 'Dice', description: 'Generates random rolls between 1-6' },
+        { name: 'Board', description: 'Manages position transitions using Map for O(1) lookups' },
+        { name: 'Game', description: 'Orchestrates gameplay using Queue for turn management' }
+      ],
+
+      designPatterns: [
+        'Builder Pattern: Complex Game construction with validation',
+        'Template Method Pattern: Snake and Ladder share structure with different validation',
+        'Facade Pattern: Game as single entry point hiding complexity'
+      ],
+
+      implementation: `from enum import Enum
+from collections import deque
+from random import randint
+from typing import Dict, List
+
+class GameStatus(Enum):
+    NOT_STARTED = 0
+    RUNNING = 1
+    FINISHED = 2
+
+class Player:
+    def __init__(self, name: str):
+        self.name = name
+        self.position = 0
+
+class Dice:
+    def __init__(self, faces: int = 6):
+        self.faces = faces
+
+    def roll(self) -> int:
+        return randint(1, self.faces)
+
+class Board:
+    def __init__(self, size: int = 100):
+        self.size = size
+        self.transitions: Dict[int, int] = {}  # start -> end
+
+    def add_snake(self, head: int, tail: int):
+        assert head > tail, "Snake head must be above tail"
+        self.transitions[head] = tail
+
+    def add_ladder(self, bottom: int, top: int):
+        assert bottom < top, "Ladder bottom must be below top"
+        self.transitions[bottom] = top
+
+    def get_final_position(self, position: int) -> int:
+        return self.transitions.get(position, position)
+
+class Game:
+    def __init__(self, board: Board, players: List[Player]):
+        self.board = board
+        self.players = deque(players)
+        self.status = GameStatus.NOT_STARTED
+        self.winner = None
+        self.dice = Dice()
+
+    def start(self):
+        self.status = GameStatus.RUNNING
+
+    def take_turn(self) -> str:
+        if self.status != GameStatus.RUNNING:
+            return "Game not running"
+
+        player = self.players[0]
+        roll = self.dice.roll()
+        new_pos = player.position + roll
+
+        # Must land exactly on 100
+        if new_pos > self.board.size:
+            self.players.rotate(-1)  # Skip turn
+            return f"{player.name} rolled {roll}, stays at {player.position}"
+
+        # Apply snake/ladder
+        final_pos = self.board.get_final_position(new_pos)
+        player.position = final_pos
+
+        result = f"{player.name} rolled {roll}, moved to {final_pos}"
+
+        if final_pos == self.board.size:
+            self.status = GameStatus.FINISHED
+            self.winner = player
+            return f"{result} - WINNER!"
+
+        # Roll 6 = extra turn, otherwise rotate
+        if roll != 6:
+            self.players.rotate(-1)
+        else:
+            result += " (extra turn!)"
+
+        return result`
+    },
+    {
+      id: 'logging-framework',
+      title: 'Logging Framework',
+      subtitle: 'Customizable Logger',
+      icon: 'fileText',
+      color: '#06b6d4',
+      difficulty: 'Medium',
+      description: 'Design a logging framework with multiple log levels, appenders, and formatters.',
+
+      introduction: `A logging framework provides a standardized way to record, format, filter, and route log messages. This design demonstrates Strategy pattern for formatters/appenders and proper separation of concerns.`,
+
+      functionalRequirements: [
+        'Log Levels: DEBUG, INFO, WARN, ERROR, FATAL with configurable minimum',
+        'Multiple Destinations: Console and file outputs simultaneously',
+        'Message Routing: Single messages can route to multiple appenders',
+        'Custom Formatting: Pluggable formatters with timestamp and level',
+        'Asynchronous Support: Non-blocking logging',
+        'Simple API: logger.info("message")'
+      ],
+
+      nonFunctionalRequirements: [
+        'Thread Safety: Concurrent-safe without interleaving',
+        'Performance: Minimal overhead on application',
+        'Extensibility: Easy to add custom appenders/formatters'
+      ],
+
+      coreEntities: [
+        { name: 'LogLevel (Enum)', description: 'DEBUG, INFO, WARN, ERROR, FATAL' },
+        { name: 'LogMessage', description: 'Timestamp, level, content, metadata' },
+        { name: 'Formatter', description: 'Converts messages to string format' },
+        { name: 'Appender', description: 'Outputs to destinations (console, file)' },
+        { name: 'Logger', description: 'Main interface for logging calls' },
+        { name: 'LoggerConfig', description: 'Configuration management' }
+      ],
+
+      designPatterns: [
+        'Strategy Pattern: Multiple formatters and appenders',
+        'Observer Pattern: Appenders observe logger events',
+        'Builder Pattern: Configuration construction',
+        'Singleton Pattern: Single logger instance'
+      ],
+
+      implementation: `from enum import IntEnum
+from datetime import datetime
+from abc import ABC, abstractmethod
+from threading import Lock
+from queue import Queue
+from threading import Thread
+
+class LogLevel(IntEnum):
+    DEBUG = 0
+    INFO = 1
+    WARN = 2
+    ERROR = 3
+    FATAL = 4
+
+class LogMessage:
+    def __init__(self, level: LogLevel, message: str):
+        self.level = level
+        self.message = message
+        self.timestamp = datetime.now()
+
+class Formatter(ABC):
+    @abstractmethod
+    def format(self, msg: LogMessage) -> str:
+        pass
+
+class SimpleFormatter(Formatter):
+    def format(self, msg: LogMessage) -> str:
+        return f"[{msg.timestamp}] [{msg.level.name}] {msg.message}"
+
+class Appender(ABC):
+    def __init__(self, formatter: Formatter = None):
+        self.formatter = formatter or SimpleFormatter()
+
+    @abstractmethod
+    def append(self, msg: LogMessage):
+        pass
+
+class ConsoleAppender(Appender):
+    def append(self, msg: LogMessage):
+        print(self.formatter.format(msg))
+
+class FileAppender(Appender):
+    def __init__(self, filepath: str, formatter: Formatter = None):
+        super().__init__(formatter)
+        self.filepath = filepath
+        self.lock = Lock()
+
+    def append(self, msg: LogMessage):
+        with self.lock:
+            with open(self.filepath, 'a') as f:
+                f.write(self.formatter.format(msg) + '\\n')
+
+class Logger:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
+    def __init__(self):
+        if self._initialized:
+            return
+        self._initialized = True
+        self.appenders = []
+        self.min_level = LogLevel.DEBUG
+
+    def add_appender(self, appender: Appender):
+        self.appenders.append(appender)
+
+    def log(self, level: LogLevel, message: str):
+        if level >= self.min_level:
+            msg = LogMessage(level, message)
+            for appender in self.appenders:
+                appender.append(msg)
+
+    def debug(self, msg): self.log(LogLevel.DEBUG, msg)
+    def info(self, msg): self.log(LogLevel.INFO, msg)
+    def warn(self, msg): self.log(LogLevel.WARN, msg)
+    def error(self, msg): self.log(LogLevel.ERROR, msg)
+    def fatal(self, msg): self.log(LogLevel.FATAL, msg)`
+    },
+    {
+      id: 'vending-machine',
+      title: 'Vending Machine',
+      subtitle: 'State Machine Design',
+      icon: 'shoppingCart',
+      color: '#f59e0b',
+      difficulty: 'Medium',
+      description: 'Design a vending machine with coin-based payments, product selection, and state management.',
+
+      introduction: `The vending machine problem demonstrates the State Pattern beautifully. The machine transitions through distinct states (Idle, Accepting Money, Dispensing, etc.) based on user actions.`,
+
+      functionalRequirements: [
+        'Accept coin-based payments with fixed denominations',
+        'Enable product selection by code',
+        'Dispense selected products',
+        'Return change if amount exceeds price',
+        'Allow transaction cancellation with refund',
+        'Support inventory restocking'
+      ],
+
+      nonFunctionalRequirements: [
+        'Ensure atomicity in purchase operations',
+        'Handle one transaction at a time',
+        'Follow OOP design principles'
+      ],
+
+      states: [
+        'Idle: Awaiting user input',
+        'Accepting Money: Processing coin insertions',
+        'Item Selected: User chooses product',
+        'Dispensing: Releasing item and calculating change',
+        'Returning Change: Delivering remainder'
+      ],
+
+      coreEntities: [
+        { name: 'VendingMachine', description: 'Main orchestrator with current state' },
+        { name: 'State (Abstract)', description: 'Interface for all states' },
+        { name: 'Item', description: 'Product with code, name, price, quantity' },
+        { name: 'Inventory', description: 'Tracks stock levels' },
+        { name: 'CoinBox', description: 'Manages inserted coins and change' }
+      ],
+
+      designPatterns: [
+        'State Pattern: Manages operational states',
+        'Strategy Pattern: Different payment validation',
+        'Singleton Pattern: Single vending machine instance'
+      ],
+
+      implementation: `from abc import ABC, abstractmethod
+from enum import Enum
+from typing import Dict
+
+class Coin(Enum):
+    PENNY = 1
+    NICKEL = 5
+    DIME = 10
+    QUARTER = 25
+    DOLLAR = 100
+
+class Item:
+    def __init__(self, code: str, name: str, price: int, quantity: int):
+        self.code = code
+        self.name = name
+        self.price = price  # in cents
+        self.quantity = quantity
+
+class State(ABC):
+    @abstractmethod
+    def insert_coin(self, machine, coin: Coin): pass
+    @abstractmethod
+    def select_item(self, machine, code: str): pass
+    @abstractmethod
+    def dispense(self, machine): pass
+    @abstractmethod
+    def cancel(self, machine): pass
+
+class IdleState(State):
+    def insert_coin(self, machine, coin: Coin):
+        machine.balance += coin.value
+        machine.state = machine.accepting_money_state
+        print(f"Inserted {coin.name}, balance: {machine.balance}")
+
+    def select_item(self, machine, code: str):
+        print("Please insert coins first")
+
+    def dispense(self, machine):
+        print("Please select an item first")
+
+    def cancel(self, machine):
+        print("No transaction to cancel")
+
+class AcceptingMoneyState(State):
+    def insert_coin(self, machine, coin: Coin):
+        machine.balance += coin.value
+        print(f"Inserted {coin.name}, balance: {machine.balance}")
+
+    def select_item(self, machine, code: str):
+        item = machine.inventory.get(code)
+        if not item or item.quantity == 0:
+            print("Item not available")
+            return
+        if machine.balance < item.price:
+            print(f"Insufficient funds. Need {item.price - machine.balance} more")
+            return
+        machine.selected_item = item
+        machine.state = machine.dispensing_state
+        machine.dispense()
+
+    def dispense(self, machine):
+        print("Please select an item")
+
+    def cancel(self, machine):
+        print(f"Returning {machine.balance} cents")
+        machine.balance = 0
+        machine.state = machine.idle_state
+
+class DispensingState(State):
+    def insert_coin(self, machine, coin: Coin):
+        print("Please wait, dispensing")
+
+    def select_item(self, machine, code: str):
+        print("Please wait, dispensing")
+
+    def dispense(self, machine):
+        item = machine.selected_item
+        change = machine.balance - item.price
+        item.quantity -= 1
+        print(f"Dispensing {item.name}")
+        if change > 0:
+            print(f"Returning change: {change} cents")
+        machine.balance = 0
+        machine.selected_item = None
+        machine.state = machine.idle_state
+
+    def cancel(self, machine):
+        print("Cannot cancel during dispensing")
+
+class VendingMachine:
+    def __init__(self):
+        self.idle_state = IdleState()
+        self.accepting_money_state = AcceptingMoneyState()
+        self.dispensing_state = DispensingState()
+        self.state = self.idle_state
+        self.balance = 0
+        self.selected_item = None
+        self.inventory: Dict[str, Item] = {}`
+    },
+    {
+      id: 'task-scheduler',
+      title: 'Task Scheduler',
+      subtitle: 'Job Scheduling System',
+      icon: 'clock',
+      color: '#8b5cf6',
+      difficulty: 'Medium',
+      description: 'Design a task scheduler that manages one-time and recurring tasks with concurrent execution.',
+
+      introduction: `A Task Scheduler manages the execution of tasks at predefined times or intervals. It's used in operating systems, distributed systems, and backend services to automate jobs.`,
+
+      functionalRequirements: [
+        'One-time tasks executing at specific future times',
+        'Recurring tasks running at fixed intervals',
+        'Concurrent execution using worker threads',
+        'Task cancellation before execution',
+        'Observer notifications for task lifecycle events',
+        'Status tracking throughout execution'
+      ],
+
+      nonFunctionalRequirements: [
+        'Thread-safe concurrent scheduling',
+        'Exception handling without crashing workers',
+        'Tasks are independent (no dependencies)'
+      ],
+
+      coreEntities: [
+        { name: 'Task', description: 'Runnable unit with execution time and status' },
+        { name: 'ScheduledTask', description: 'Wrapper with scheduling metadata' },
+        { name: 'TaskScheduler', description: 'Main scheduler using priority queue' },
+        { name: 'WorkerPool', description: 'Thread pool for concurrent execution' },
+        { name: 'TaskObserver', description: 'Listener for task events' }
+      ],
+
+      implementation: `import heapq
+import threading
+import time
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Callable, Optional
+from concurrent.futures import ThreadPoolExecutor
+
+class TaskStatus(Enum):
+    PENDING = 0
+    RUNNING = 1
+    COMPLETED = 2
+    FAILED = 3
+    CANCELLED = 4
+
+class Task:
+    def __init__(self, task_id: str, func: Callable,
+                 run_at: datetime, interval: Optional[timedelta] = None):
+        self.task_id = task_id
+        self.func = func
+        self.run_at = run_at
+        self.interval = interval  # None for one-time tasks
+        self.status = TaskStatus.PENDING
+
+    def __lt__(self, other):
+        return self.run_at < other.run_at
+
+class TaskScheduler:
+    def __init__(self, num_workers: int = 4):
+        self.tasks = []  # min-heap by run_at
+        self.task_map = {}  # task_id -> Task
+        self.lock = threading.Lock()
+        self.executor = ThreadPoolExecutor(max_workers=num_workers)
+        self.running = False
+        self.scheduler_thread = None
+
+    def schedule(self, task: Task):
+        with self.lock:
+            heapq.heappush(self.tasks, task)
+            self.task_map[task.task_id] = task
+
+    def cancel(self, task_id: str) -> bool:
+        with self.lock:
+            if task_id in self.task_map:
+                task = self.task_map[task_id]
+                if task.status == TaskStatus.PENDING:
+                    task.status = TaskStatus.CANCELLED
+                    return True
+        return False
+
+    def start(self):
+        self.running = True
+        self.scheduler_thread = threading.Thread(target=self._run_scheduler)
+        self.scheduler_thread.start()
+
+    def _run_scheduler(self):
+        while self.running:
+            with self.lock:
+                now = datetime.now()
+                while self.tasks and self.tasks[0].run_at <= now:
+                    task = heapq.heappop(self.tasks)
+                    if task.status == TaskStatus.CANCELLED:
+                        continue
+                    self.executor.submit(self._execute_task, task)
+            time.sleep(0.1)  # Check every 100ms
+
+    def _execute_task(self, task: Task):
+        try:
+            task.status = TaskStatus.RUNNING
+            task.func()
+            task.status = TaskStatus.COMPLETED
+
+            # Reschedule if recurring
+            if task.interval:
+                task.run_at = datetime.now() + task.interval
+                task.status = TaskStatus.PENDING
+                self.schedule(task)
+        except Exception as e:
+            task.status = TaskStatus.FAILED
+            print(f"Task {task.task_id} failed: {e}")`
+    },
+    {
+      id: 'stack-overflow',
+      title: 'Stack Overflow',
+      subtitle: 'Q&A Platform',
+      icon: 'messageSquare',
+      color: '#f97316',
+      difficulty: 'Hard',
+      description: 'Design a Q&A platform with voting, reputation, tags, and answer acceptance.',
+
+      introduction: `Stack Overflow is a Q&A platform with user reputation management, voting mechanisms, and tag-based organization. The design emphasizes strong consistency for voting and supports high-concurrency scenarios.`,
+
+      functionalRequirements: [
+        'Users can post questions and answers',
+        'Voting (upvote/downvote) on questions and answers',
+        'Reputation system based on votes and accepts',
+        'Tag-based categorization of questions',
+        'Mark answer as accepted',
+        'Comments on questions and answers',
+        'Search by keywords, tags, users'
+      ],
+
+      coreEntities: [
+        { name: 'User', description: 'Platform participant with thread-safe reputation' },
+        { name: 'Content (Abstract)', description: 'Base class for all content' },
+        { name: 'Post (Abstract)', description: 'Extends Content, enables voting' },
+        { name: 'Question', description: 'Has tags, accepted answer reference' },
+        { name: 'Answer', description: 'Linked to parent question' },
+        { name: 'Comment', description: 'Flat annotations without voting' },
+        { name: 'Vote', description: 'Tracks voter and vote type' },
+        { name: 'Tag', description: 'Categories for questions' }
+      ],
+
+      designPatterns: [
+        'Observer Pattern: ReputationManager listens for vote events',
+        'Strategy Pattern: Multiple SearchStrategy implementations',
+        'Facade Pattern: StackOverflowService provides unified API'
+      ],
+
+      reputationRules: [
+        'Question upvote: +10 to author',
+        'Question downvote: -2 to author',
+        'Answer upvote: +10 to author',
+        'Answer downvote: -2 to author',
+        'Answer accepted: +15 to author',
+        'Accepting answer: +2 to question author'
+      ],
+
+      implementation: `from datetime import datetime
+from enum import Enum
+from threading import Lock
+from typing import List, Set, Optional
+
+class VoteType(Enum):
+    UPVOTE = 1
+    DOWNVOTE = -1
+
+class User:
+    def __init__(self, user_id: str, username: str):
+        self.user_id = user_id
+        self.username = username
+        self.reputation = 1
+        self._lock = Lock()
+
+    def update_reputation(self, delta: int):
+        with self._lock:
+            self.reputation = max(1, self.reputation + delta)
+
+class Post:
+    def __init__(self, post_id: str, author: User, content: str):
+        self.post_id = post_id
+        self.author = author
+        self.content = content
+        self.created_at = datetime.now()
+        self.votes = {}  # user_id -> VoteType
+        self._lock = Lock()
+
+    def vote(self, user: User, vote_type: VoteType) -> bool:
+        with self._lock:
+            if user.user_id == self.author.user_id:
+                return False  # Can't vote on own post
+
+            old_vote = self.votes.get(user.user_id)
+            if old_vote == vote_type:
+                return False  # Already voted same way
+
+            self.votes[user.user_id] = vote_type
+
+            # Update reputation
+            if old_vote:
+                # Undo old vote
+                self.author.update_reputation(-old_vote.value * 10)
+            self.author.update_reputation(vote_type.value * 10)
+            return True
+
+    def get_score(self) -> int:
+        return sum(v.value for v in self.votes.values())
+
+class Question(Post):
+    def __init__(self, post_id: str, author: User, title: str, content: str):
+        super().__init__(post_id, author, content)
+        self.title = title
+        self.tags: Set[str] = set()
+        self.answers: List['Answer'] = []
+        self.accepted_answer: Optional['Answer'] = None
+
+    def add_answer(self, answer: 'Answer'):
+        self.answers.append(answer)
+
+    def accept_answer(self, answer: 'Answer', user: User) -> bool:
+        if user.user_id != self.author.user_id:
+            return False  # Only question author can accept
+        if answer not in self.answers:
+            return False
+
+        self.accepted_answer = answer
+        answer.author.update_reputation(15)  # +15 for accepted
+        self.author.update_reputation(2)  # +2 for accepting
+        return True
+
+class Answer(Post):
+    def __init__(self, post_id: str, author: User, content: str, question: Question):
+        super().__init__(post_id, author, content)
+        self.question = question
+        self.is_accepted = False`
+    },
+    {
+      id: 'chess',
+      title: 'Chess Game',
+      subtitle: 'Classic Board Game',
+      icon: 'crown',
+      color: '#1e293b',
+      difficulty: 'Hard',
+      description: 'Design a chess game with piece movements, game rules, check/checkmate detection.',
+
+      introduction: `Chess is a complex LLD problem that tests your ability to model intricate game logic using OOP principles. The key challenges include representing the board, implementing piece movements, and detecting check/checkmate conditions.
+
+The Strategy Pattern is perfect for chess pieces because each piece type has different movement rules, but we want to treat them uniformly. Using Factory pattern simplifies piece creation.`,
+
+      functionalRequirements: [
+        'Represent 8x8 chess board with alternating colors',
+        'Support all six piece types: King, Queen, Rook, Bishop, Knight, Pawn',
+        'Implement unique movement rules for each piece',
+        'Validate legal moves (bounds, blocking, capture rules)',
+        'Detect check, checkmate, and stalemate conditions',
+        'Support special moves: castling, en passant, pawn promotion',
+        'Alternate turns between white and black players'
+      ],
+
+      nonFunctionalRequirements: [
+        'Follow SOLID principles for extensibility',
+        'Use design patterns appropriately',
+        'Efficient move validation'
+      ],
+
+      pieceMovements: [
+        { piece: 'King', movement: 'One square in any direction' },
+        { piece: 'Queen', movement: 'Any number of squares horizontally, vertically, or diagonally' },
+        { piece: 'Rook', movement: 'Any number of squares horizontally or vertically' },
+        { piece: 'Bishop', movement: 'Any number of squares diagonally' },
+        { piece: 'Knight', movement: 'L-shape: 2 squares in one direction + 1 perpendicular (can jump)' },
+        { piece: 'Pawn', movement: 'Forward one (or two from start), captures diagonally' }
+      ],
+
+      coreEntities: [
+        { name: 'Piece (Abstract)', description: 'Base class with color, position, and abstract canMove method' },
+        { name: 'King, Queen, Rook, Bishop, Knight, Pawn', description: 'Concrete pieces implementing movement logic' },
+        { name: 'Board', description: '8x8 grid managing piece placement and move validation' },
+        { name: 'Cell/Square', description: 'Individual board position with optional piece' },
+        { name: 'Player', description: 'Represents white or black player' },
+        { name: 'Move', description: 'Encapsulates piece, source, destination' },
+        { name: 'Game', description: 'Orchestrates gameplay, turn management, win detection' }
+      ],
+
+      designPatterns: [
+        'Strategy Pattern: Different movement strategies for each piece type',
+        'Factory Pattern: PieceFactory creates pieces based on type',
+        'Command Pattern: Move objects for undo/redo capability',
+        'Observer Pattern: Notify UI of game state changes'
+      ],
+
+      implementation: `from abc import ABC, abstractmethod
+from enum import Enum
+from typing import List, Optional, Tuple
+
+class Color(Enum):
+    WHITE = 'white'
+    BLACK = 'black'
+
+class PieceType(Enum):
+    KING = 'K'
+    QUEEN = 'Q'
+    ROOK = 'R'
+    BISHOP = 'B'
+    KNIGHT = 'N'
+    PAWN = 'P'
+
+class Piece(ABC):
+    def __init__(self, color: Color, row: int, col: int):
+        self.color = color
+        self.row = row
+        self.col = col
+        self.has_moved = False
+
+    @abstractmethod
+    def get_type(self) -> PieceType:
+        pass
+
+    @abstractmethod
+    def can_move(self, board: 'Board', dest_row: int, dest_col: int) -> bool:
+        pass
+
+    def _is_valid_position(self, row: int, col: int) -> bool:
+        return 0 <= row < 8 and 0 <= col < 8
+
+class Knight(Piece):
+    def get_type(self) -> PieceType:
+        return PieceType.KNIGHT
+
+    def can_move(self, board: 'Board', dest_row: int, dest_col: int) -> bool:
+        if not self._is_valid_position(dest_row, dest_col):
+            return False
+
+        row_diff = abs(dest_row - self.row)
+        col_diff = abs(dest_col - self.col)
+
+        # L-shape: 2+1 or 1+2
+        if not ((row_diff == 2 and col_diff == 1) or (row_diff == 1 and col_diff == 2)):
+            return False
+
+        # Check destination
+        dest_piece = board.get_piece(dest_row, dest_col)
+        return dest_piece is None or dest_piece.color != self.color
+
+class Rook(Piece):
+    def get_type(self) -> PieceType:
+        return PieceType.ROOK
+
+    def can_move(self, board: 'Board', dest_row: int, dest_col: int) -> bool:
+        if not self._is_valid_position(dest_row, dest_col):
+            return False
+
+        # Must move in straight line
+        if self.row != dest_row and self.col != dest_col:
+            return False
+
+        # Check path is clear
+        return board.is_path_clear(self.row, self.col, dest_row, dest_col)
+
+class Board:
+    def __init__(self):
+        self.grid = [[None for _ in range(8)] for _ in range(8)]
+        self._setup_pieces()
+
+    def get_piece(self, row: int, col: int) -> Optional[Piece]:
+        return self.grid[row][col]
+
+    def is_path_clear(self, start_row: int, start_col: int,
+                      end_row: int, end_col: int) -> bool:
+        row_step = 0 if start_row == end_row else (1 if end_row > start_row else -1)
+        col_step = 0 if start_col == end_col else (1 if end_col > start_col else -1)
+
+        row, col = start_row + row_step, start_col + col_step
+        while (row, col) != (end_row, end_col):
+            if self.grid[row][col] is not None:
+                return False
+            row += row_step
+            col += col_step
+
+        # Check destination (can capture enemy)
+        dest_piece = self.grid[end_row][end_col]
+        return dest_piece is None or dest_piece.color != self.grid[start_row][start_col].color
+
+class Game:
+    def __init__(self):
+        self.board = Board()
+        self.current_turn = Color.WHITE
+        self.is_over = False
+        self.winner = None
+
+    def make_move(self, start: Tuple[int, int], end: Tuple[int, int]) -> bool:
+        piece = self.board.get_piece(*start)
+        if piece is None or piece.color != self.current_turn:
+            return False
+
+        if not piece.can_move(self.board, *end):
+            return False
+
+        # Execute move
+        self.board.grid[end[0]][end[1]] = piece
+        self.board.grid[start[0]][start[1]] = None
+        piece.row, piece.col = end
+        piece.has_moved = True
+
+        # Switch turn
+        self.current_turn = Color.BLACK if self.current_turn == Color.WHITE else Color.WHITE
+        return True`
+    },
+    {
+      id: 'atm-system',
+      title: 'ATM System',
+      subtitle: 'Banking Machine',
+      icon: 'creditCard',
+      color: '#059669',
+      difficulty: 'Medium',
+      description: 'Design an ATM system with card authentication, transactions, and state management.',
+
+      introduction: `The ATM system is a classic example of the State Pattern in action. The ATM transitions through distinct states (Idle, Card Inserted, PIN Entered, Transaction) based on user actions, making it ideal for demonstrating state-based design.
+
+The Chain of Responsibility pattern handles cash dispensing with different denominations.`,
+
+      functionalRequirements: [
+        'Card insertion and ejection',
+        'PIN authentication (with retry limit)',
+        'Balance inquiry',
+        'Cash withdrawal with denomination selection',
+        'Cash deposit',
+        'Fund transfer between accounts',
+        'Print receipt'
+      ],
+
+      nonFunctionalRequirements: [
+        'Thread-safe for concurrent operations',
+        'Validate user balance AND ATM cash availability',
+        'Secure PIN handling',
+        'Transaction atomicity'
+      ],
+
+      states: [
+        'Idle: Awaiting card insertion',
+        'Card Inserted: Awaiting PIN entry',
+        'Authenticated: User verified, awaiting operation selection',
+        'Transaction: Processing withdrawal/deposit/transfer',
+        'Cash Dispensing: Releasing cash to user'
+      ],
+
+      coreEntities: [
+        { name: 'ATM', description: 'Main context class holding current state' },
+        { name: 'ATMState (Interface)', description: 'Defines insertCard, enterPin, selectOperation, etc.' },
+        { name: 'IdleState, HasCardState, AuthenticatedState', description: 'Concrete states' },
+        { name: 'Card', description: 'Customer card with number and PIN' },
+        { name: 'Account', description: 'Bank account with balance' },
+        { name: 'CashDispenser', description: 'Manages cash inventory by denomination' },
+        { name: 'Transaction', description: 'Records transaction details' }
+      ],
+
+      designPatterns: [
+        'State Pattern: ATM states manage allowed operations',
+        'Chain of Responsibility: Cash dispensing by denomination',
+        'Strategy Pattern: Different transaction types',
+        'Singleton Pattern: Single ATM instance'
+      ],
+
+      cashDispensingChain: [
+        'FiveHundredDispenser → TwoHundredDispenser → OneHundredDispenser → FiftyDispenser → TwentyDispenser',
+        'Each dispenser handles its denomination and passes remainder to next'
+      ],
+
+      implementation: `from abc import ABC, abstractmethod
+from enum import Enum
+from typing import Optional
+from dataclasses import dataclass
+
+class TransactionType(Enum):
+    BALANCE_INQUIRY = 'balance'
+    WITHDRAW = 'withdraw'
+    DEPOSIT = 'deposit'
+    TRANSFER = 'transfer'
+
+@dataclass
+class Card:
+    card_number: str
+    pin: str
+    account_id: str
+
+@dataclass
+class Account:
+    account_id: str
+    balance: float
+
+    def withdraw(self, amount: float) -> bool:
+        if amount <= self.balance:
+            self.balance -= amount
+            return True
+        return False
+
+    def deposit(self, amount: float):
+        self.balance += amount
+
+class ATMState(ABC):
+    @abstractmethod
+    def insert_card(self, atm: 'ATM', card: Card): pass
+    @abstractmethod
+    def enter_pin(self, atm: 'ATM', pin: str): pass
+    @abstractmethod
+    def select_operation(self, atm: 'ATM', op: TransactionType): pass
+    @abstractmethod
+    def withdraw(self, atm: 'ATM', amount: float): pass
+    @abstractmethod
+    def eject_card(self, atm: 'ATM'): pass
+
+class IdleState(ATMState):
+    def insert_card(self, atm: 'ATM', card: Card):
+        atm.current_card = card
+        atm.state = HasCardState()
+        print("Card inserted. Please enter PIN.")
+
+    def enter_pin(self, atm, pin): print("Please insert card first")
+    def select_operation(self, atm, op): print("Please insert card first")
+    def withdraw(self, atm, amount): print("Please insert card first")
+    def eject_card(self, atm): print("No card to eject")
+
+class HasCardState(ATMState):
+    def __init__(self):
+        self.pin_attempts = 0
+        self.max_attempts = 3
+
+    def insert_card(self, atm, card):
+        print("Card already inserted")
+
+    def enter_pin(self, atm: 'ATM', pin: str):
+        if atm.current_card.pin == pin:
+            atm.state = AuthenticatedState()
+            print("PIN correct. Select operation.")
+        else:
+            self.pin_attempts += 1
+            if self.pin_attempts >= self.max_attempts:
+                print("Too many attempts. Card blocked.")
+                atm.eject_card()
+            else:
+                print(f"Wrong PIN. {self.max_attempts - self.pin_attempts} attempts left.")
+
+    def select_operation(self, atm, op): print("Please enter PIN first")
+    def withdraw(self, atm, amount): print("Please enter PIN first")
+    def eject_card(self, atm: 'ATM'):
+        atm.current_card = None
+        atm.state = IdleState()
+        print("Card ejected")
+
+class AuthenticatedState(ATMState):
+    def insert_card(self, atm, card): print("Card already inserted")
+    def enter_pin(self, atm, pin): print("Already authenticated")
+
+    def select_operation(self, atm: 'ATM', op: TransactionType):
+        account = atm.get_account(atm.current_card.account_id)
+        if op == TransactionType.BALANCE_INQUIRY:
+            print(f"Balance: ${account.balance:.2f}")
+        elif op == TransactionType.WITHDRAW:
+            print("Enter withdrawal amount")
+
+    def withdraw(self, atm: 'ATM', amount: float):
+        account = atm.get_account(atm.current_card.account_id)
+        if account.withdraw(amount):
+            if atm.cash_dispenser.dispense(amount):
+                print(f"Please take ${amount:.2f}")
+            else:
+                account.deposit(amount)  # Rollback
+                print("ATM has insufficient cash")
+        else:
+            print("Insufficient funds")
+
+    def eject_card(self, atm: 'ATM'):
+        atm.current_card = None
+        atm.state = IdleState()
+        print("Card ejected. Thank you!")
+
+# Chain of Responsibility for cash dispensing
+class CashDispenser:
+    def __init__(self):
+        self.denominations = {100: 10, 50: 20, 20: 50}  # value: count
+
+    def dispense(self, amount: float) -> bool:
+        remaining = int(amount)
+        dispensed = {}
+
+        for denom in sorted(self.denominations.keys(), reverse=True):
+            if remaining >= denom and self.denominations[denom] > 0:
+                count = min(remaining // denom, self.denominations[denom])
+                dispensed[denom] = count
+                remaining -= count * denom
+
+        if remaining == 0:
+            for d, c in dispensed.items():
+                self.denominations[d] -= c
+            return True
+        return False
+
+class ATM:
+    def __init__(self):
+        self.state = IdleState()
+        self.current_card: Optional[Card] = None
+        self.cash_dispenser = CashDispenser()
+        self.accounts = {}  # account_id -> Account
+
+    def get_account(self, account_id: str) -> Account:
+        return self.accounts.get(account_id)
+
+    def insert_card(self, card: Card): self.state.insert_card(self, card)
+    def enter_pin(self, pin: str): self.state.enter_pin(self, pin)
+    def withdraw(self, amount: float): self.state.withdraw(self, amount)
+    def eject_card(self): self.state.eject_card(self)`
+    },
+  ];
+
+  // Concurrency Topics
+  const concurrencyTopics = [
+    {
+      id: 'concurrency-fundamentals',
+      title: 'Concurrency Fundamentals',
+      icon: 'cpu',
+      color: '#10b981',
+      description: 'Core concepts of concurrent programming',
+
+      introduction: `Concurrency is the ability of a system to handle multiple tasks simultaneously. Understanding concurrency is essential for building efficient, scalable software systems.`,
+
+      concepts: [
+        { name: 'Process vs Thread', description: 'Process has own memory space; threads share memory within a process' },
+        { name: 'Parallelism vs Concurrency', description: 'Parallelism is simultaneous execution; concurrency is managing multiple tasks' },
+        { name: 'Race Condition', description: 'When output depends on timing of uncontrollable events' },
+        { name: 'Critical Section', description: 'Code section accessing shared resources' },
+        { name: 'Deadlock', description: 'Circular wait where threads block each other forever' },
+        { name: 'Starvation', description: 'Thread never gets resources despite being ready' }
+      ]
+    },
+    {
+      id: 'synchronization-primitives',
+      title: 'Synchronization Primitives',
+      icon: 'lock',
+      color: '#3b82f6',
+      description: 'Locks, mutexes, semaphores, and more',
+
+      primitives: [
+        { name: 'Mutex', description: 'Mutual exclusion lock - only one thread can hold it', example: 'threading.Lock() in Python' },
+        { name: 'Semaphore', description: 'Counting lock allowing N concurrent accesses', example: 'threading.Semaphore(n)' },
+        { name: 'Condition Variable', description: 'Wait for specific condition with notification', example: 'threading.Condition()' },
+        { name: 'Read-Write Lock', description: 'Multiple readers OR one writer', example: 'threading.RLock()' },
+        { name: 'Barrier', description: 'Wait until all threads reach a point', example: 'threading.Barrier(n)' }
+      ]
+    },
+    {
+      id: 'classic-problems',
+      title: 'Classic Concurrency Problems',
+      icon: 'alertTriangle',
+      color: '#ef4444',
+      description: 'Producer-Consumer, Readers-Writers, Dining Philosophers',
+
+      problems: [
+        {
+          name: 'Producer-Consumer',
+          description: 'Producers add items to buffer, consumers remove. Must handle full/empty buffer.',
+          solution: 'Use bounded queue with semaphores or condition variables'
+        },
+        {
+          name: 'Readers-Writers',
+          description: 'Multiple readers can read simultaneously, but writers need exclusive access.',
+          solution: 'Read-write locks with reader/writer preference strategies'
+        },
+        {
+          name: 'Dining Philosophers',
+          description: 'N philosophers share N forks, need 2 forks to eat. Avoid deadlock.',
+          solution: 'Resource hierarchy, arbitrator, or Chandy-Misra solution'
+        }
+      ]
+    },
+    {
+      id: 'thread-pools',
+      title: 'Thread Pools',
+      icon: 'layers',
+      color: '#8b5cf6',
+      description: 'Managing worker threads efficiently',
+
+      concepts: [
+        'Reuse threads instead of creating/destroying',
+        'Bounded pool prevents resource exhaustion',
+        'Task queue for work distribution',
+        'ThreadPoolExecutor in Python, ExecutorService in Java'
+      ],
+
+      implementation: `from concurrent.futures import ThreadPoolExecutor
+import time
+
+def task(n):
+    print(f"Task {n} starting")
+    time.sleep(1)
+    return n * 2
+
+# Create pool with 4 workers
+with ThreadPoolExecutor(max_workers=4) as executor:
+    # Submit tasks
+    futures = [executor.submit(task, i) for i in range(10)]
+
+    # Get results
+    for future in futures:
+        print(f"Result: {future.result()}")`
+    },
+    {
+      id: 'concurrent-data-structures',
+      title: 'Concurrent Data Structures',
+      icon: 'database',
+      color: '#06b6d4',
+      description: 'Thread-safe collections and atomic operations',
+
+      structures: [
+        { name: 'ConcurrentHashMap', description: 'Segment-level locking for high concurrency' },
+        { name: 'BlockingQueue', description: 'Thread-safe queue with blocking operations' },
+        { name: 'CopyOnWriteArrayList', description: 'Snapshot semantics for read-heavy workloads' },
+        { name: 'AtomicInteger', description: 'Lock-free atomic operations via CAS' }
+      ]
+    }
+  ];
+
   // Behavioral Topics
   // Behavioral topic categories for organized display
   const behavioralCategories = [
@@ -25932,7 +27530,9 @@ Best,
     if (activePage === 'coding') return codingTopics.find(t => t.id === selectedTopic);
     if (activePage === 'system-design') {
       return systemDesignTopics.find(t => t.id === selectedTopic) ||
-             systemDesigns.find(t => t.id === selectedTopic);
+             systemDesigns.find(t => t.id === selectedTopic) ||
+             lldProblems.find(t => t.id === selectedTopic) ||
+             concurrencyTopics.find(t => t.id === selectedTopic);
     }
     if (activePage === 'behavioral') {
       return behavioralTopics.find(t => t.id === selectedTopic) ||
@@ -26767,6 +28367,160 @@ Best,
                     )}
                   </div>
                 ) : null}
+
+                {/* LLD Core Entities */}
+                {topicDetails.coreEntities && (
+                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(20,184,166,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(20,184,166,0.2)' }}>
+                    <div className="px-3 py-2 border-b border-teal-500/20 flex items-center gap-3" style={{ background: 'rgba(20,184,166,0.05)' }}>
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-teal-500/20">
+                        <Icon name="box" size={16} className="text-teal-400" />
+                      </div>
+                      <h3 className="text-xl font-bold text-white">Core Entities</h3>
+                    </div>
+                    <div className="p-4 space-y-2">
+                      {topicDetails.coreEntities.map((entity, i) => (
+                        <div key={i} className="flex items-start gap-3 p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(20,184,166,0.1)' }}>
+                          <code className="text-teal-400 font-mono text-sm font-semibold whitespace-nowrap">{entity.name}</code>
+                          <span className="text-gray-400 text-sm">{entity.description}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* LLD Design Patterns */}
+                {topicDetails.designPatterns && (
+                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(139,92,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(139,92,246,0.2)' }}>
+                    <div className="px-3 py-2 border-b border-violet-500/20 flex items-center gap-3" style={{ background: 'rgba(139,92,246,0.05)' }}>
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-violet-500/20">
+                        <Icon name="puzzle" size={16} className="text-violet-400" />
+                      </div>
+                      <h3 className="text-xl font-bold text-white">Design Patterns</h3>
+                    </div>
+                    <div className="p-4">
+                      <ul className="space-y-2">
+                        {topicDetails.designPatterns.map((pattern, i) => (
+                          <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
+                            <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0 bg-violet-500/20 text-violet-400 mt-0.5">✦</span>
+                            <span className="text-gray-300 text-sm">{pattern}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+
+                {/* LLD Implementation Code */}
+                {topicDetails.implementation && (
+                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(34,197,94,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(34,197,94,0.2)' }}>
+                    <div className="px-3 py-2 border-b border-green-500/20 flex items-center gap-3" style={{ background: 'rgba(34,197,94,0.05)' }}>
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-green-500/20">
+                        <Icon name="code" size={16} className="text-green-400" />
+                      </div>
+                      <h3 className="text-xl font-bold text-white">Implementation</h3>
+                    </div>
+                    <div className="overflow-x-auto" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                      <pre
+                        className="p-4 text-sm leading-6 text-green-300"
+                        style={{
+                          fontFamily: '"SF Mono", Monaco, "Cascadia Code", Consolas, "Courier New", monospace',
+                          whiteSpace: 'pre',
+                          margin: 0,
+                          tabSize: 4
+                        }}
+                      >
+                        {topicDetails.implementation}
+                      </pre>
+                    </div>
+                  </div>
+                )}
+
+                {/* Concurrency Concepts */}
+                {topicDetails.concepts && Array.isArray(topicDetails.concepts) && topicDetails.concepts[0]?.name && (
+                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(249,115,22,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(249,115,22,0.2)' }}>
+                    <div className="px-3 py-2 border-b border-orange-500/20 flex items-center gap-3" style={{ background: 'rgba(249,115,22,0.05)' }}>
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-orange-500/20">
+                        <Icon name="cpu" size={16} className="text-orange-400" />
+                      </div>
+                      <h3 className="text-xl font-bold text-white">Core Concepts</h3>
+                    </div>
+                    <div className="p-4 space-y-2">
+                      {topicDetails.concepts.map((concept, i) => (
+                        <div key={i} className="flex items-start gap-3 p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(249,115,22,0.1)' }}>
+                          <code className="text-orange-400 font-mono text-sm font-semibold whitespace-nowrap">{concept.name}</code>
+                          <span className="text-gray-400 text-sm">{concept.description}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Concurrency Primitives */}
+                {topicDetails.primitives && (
+                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                    <div className="px-3 py-2 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-500/20">
+                        <Icon name="lock" size={16} className="text-blue-400" />
+                      </div>
+                      <h3 className="text-xl font-bold text-white">Synchronization Primitives</h3>
+                    </div>
+                    <div className="p-4 space-y-2">
+                      {topicDetails.primitives.map((prim, i) => (
+                        <div key={i} className="p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(59,130,246,0.1)' }}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <code className="text-blue-400 font-mono text-sm font-semibold">{prim.name}</code>
+                            {prim.example && <code className="text-gray-500 text-xs">{prim.example}</code>}
+                          </div>
+                          <span className="text-gray-400 text-sm">{prim.description}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Concurrency Classic Problems */}
+                {topicDetails.problems && topicDetails.problems[0]?.solution && (
+                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(239,68,68,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                    <div className="px-3 py-2 border-b border-red-500/20 flex items-center gap-3" style={{ background: 'rgba(239,68,68,0.05)' }}>
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-red-500/20">
+                        <Icon name="alertTriangle" size={16} className="text-red-400" />
+                      </div>
+                      <h3 className="text-xl font-bold text-white">Classic Problems</h3>
+                    </div>
+                    <div className="divide-y divide-red-500/10">
+                      {topicDetails.problems.map((problem, i) => (
+                        <div key={i} className="p-4">
+                          <h4 className="text-red-400 font-semibold text-base mb-2">{problem.name}</h4>
+                          <p className="text-gray-400 text-sm mb-2">{problem.description}</p>
+                          <div className="flex items-start gap-2">
+                            <span className="text-green-400 text-xs font-semibold">Solution:</span>
+                            <span className="text-gray-300 text-sm">{problem.solution}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Concurrency Data Structures */}
+                {topicDetails.structures && (
+                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(6,182,212,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(6,182,212,0.2)' }}>
+                    <div className="px-3 py-2 border-b border-cyan-500/20 flex items-center gap-3" style={{ background: 'rgba(6,182,212,0.05)' }}>
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-cyan-500/20">
+                        <Icon name="database" size={16} className="text-cyan-400" />
+                      </div>
+                      <h3 className="text-xl font-bold text-white">Concurrent Data Structures</h3>
+                    </div>
+                    <div className="p-4 space-y-2">
+                      {topicDetails.structures.map((struct, i) => (
+                        <div key={i} className="flex items-start gap-3 p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(6,182,212,0.1)' }}>
+                          <code className="text-cyan-400 font-mono text-sm font-semibold whitespace-nowrap">{struct.name}</code>
+                          <span className="text-gray-400 text-sm">{struct.description}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </>
             )}
 
@@ -27060,7 +28814,7 @@ Best,
                     <span className="font-medium block">{item.label}</span>
                     <span className="text-xs text-gray-500">
                       {item.id === 'coding' ? `${codingTopics.length} topics` :
-                       item.id === 'system-design' ? `${systemDesignTopics.length + systemDesigns.length} topics` :
+                       item.id === 'system-design' ? `${systemDesignTopics.length + systemDesigns.length + lldProblems.length + concurrencyTopics.length} topics` :
                        `${behavioralTopics.length} topics`}
                     </span>
                   </div>
@@ -27422,6 +29176,103 @@ Best,
                         </div>
                       );
                     })}
+                  </div>
+
+                  {/* Low-Level Design Problems Section */}
+                  <div className="space-y-6 mb-8">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-teal-500/10">
+                        <Icon name="code" size={16} className="text-teal-400" />
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold text-white">Low-Level Design (LLD)</h2>
+                        <p className="text-xs text-gray-500">Object-oriented design problems with class diagrams and implementations</p>
+                      </div>
+                    </div>
+                    {lldProblemCategories.map((category) => {
+                      const categoryProblems = lldProblems.filter(p => lldProblemCategoryMap[p.id] === category.id);
+                      if (categoryProblems.length === 0) return null;
+                      const difficultyColors = {
+                        'Easy': { bg: 'rgba(16,185,129,0.15)', text: '#10b981' },
+                        'Medium': { bg: 'rgba(234,179,8,0.15)', text: '#eab308' },
+                        'Hard': { bg: 'rgba(239,68,68,0.15)', text: '#ef4444' }
+                      };
+                      return (
+                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+                          <div className="px-4 py-3 flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${category.color}20` }}>
+                              <Icon name={category.icon} size={16} style={{ color: category.color }} />
+                            </div>
+                            <div>
+                              <h3 className="text-base font-bold text-white">{category.name}</h3>
+                              <span className="text-xs text-gray-500">{categoryProblems.length} problems</span>
+                            </div>
+                          </div>
+                          <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                            {categoryProblems.map((problem) => {
+                              const diffColor = difficultyColors[problem.difficulty] || difficultyColors['Medium'];
+                              return (
+                                <div
+                                  key={problem.id}
+                                  onClick={() => setSelectedTopic(problem.id)}
+                                  className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${problem.color}15` }}>
+                                      <Icon name={problem.icon} size={12} style={{ color: problem.color }} />
+                                    </div>
+                                    <div>
+                                      <span className="text-white text-sm font-medium group-hover:text-teal-400 transition-colors">{problem.title}</span>
+                                      <span className="text-gray-500 text-xs ml-2 hidden md:inline">{problem.subtitle}</span>
+                                    </div>
+                                  </div>
+                                  <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: diffColor.bg, color: diffColor.text }}>
+                                    {problem.difficulty}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Concurrency Section */}
+                  <div className="space-y-6 mb-8">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-orange-500/10">
+                        <Icon name="cpu" size={16} className="text-orange-400" />
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold text-white">Concurrency & Multithreading</h2>
+                        <p className="text-xs text-gray-500">Thread-safe programming, synchronization, and classic problems</p>
+                      </div>
+                    </div>
+                    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                        {concurrencyTopics.map((topic) => (
+                          <div
+                            key={topic.id}
+                            onClick={() => setSelectedTopic(topic.id)}
+                            className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}15` }}>
+                                <Icon name={topic.icon} size={12} style={{ color: topic.color }} />
+                              </div>
+                              <div>
+                                <span className="text-white text-sm font-medium group-hover:text-orange-400 transition-colors">{topic.title}</span>
+                                <span className="text-gray-500 text-xs ml-2 hidden md:inline">{topic.description}</span>
+                              </div>
+                            </div>
+                            <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
+                              {topic.concepts?.length || topic.primitives?.length || topic.problems?.length || 0} items
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
                   {/* Interview Framework - Compact */}
