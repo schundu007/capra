@@ -20805,6 +20805,82 @@ Privacy: Option to view anonymously (hides viewer)
   ];
 
   // Behavioral Topics
+  // Behavioral topic categories for organized display
+  const behavioralCategories = [
+    { id: 'career', name: 'Career & Self-Presentation', icon: 'user', color: '#10b981' },
+    { id: 'leadership', name: 'Leadership & Influence', icon: 'users', color: '#3b82f6' },
+    { id: 'teamwork', name: 'Teamwork & Collaboration', icon: 'gitMerge', color: '#8b5cf6' },
+    { id: 'conflict', name: 'Conflict & Challenges', icon: 'alertTriangle', color: '#ef4444' },
+    { id: 'problem-solving', name: 'Problem Solving & Technical', icon: 'code', color: '#06b6d4' },
+    { id: 'delivery', name: 'Time Management & Delivery', icon: 'clock', color: '#f59e0b' },
+    { id: 'growth', name: 'Growth & Learning', icon: 'trendingUp', color: '#22c55e' },
+    { id: 'communication', name: 'Communication', icon: 'messageSquare', color: '#ec4899' },
+    { id: 'achievements', name: 'Projects & Achievements', icon: 'star', color: '#eab308' },
+    { id: 'fundamentals', name: 'Interview Fundamentals', icon: 'book', color: '#6366f1' },
+  ];
+
+  // Map topic IDs to categories
+  const topicCategoryMap = {
+    // Career & Self-Presentation
+    'tell-me-about-yourself': 'career',
+    'strengths-weaknesses': 'career',
+    'why-this-company': 'career',
+    'company-change-reason': 'career',
+    'colleague-description': 'career',
+    // Leadership & Influence
+    'leadership': 'leadership',
+    'mentoring-coaching': 'leadership',
+    'above-and-beyond': 'leadership',
+    // Teamwork & Collaboration
+    'cross-team-collaboration': 'teamwork',
+    'building-trust': 'teamwork',
+    'disagreement-with-manager': 'teamwork',
+    'disagree-senior-engineer': 'teamwork',
+    // Conflict & Challenges
+    'conflict-resolution': 'conflict',
+    'being-proven-wrong': 'conflict',
+    'disagree-and-commit': 'conflict',
+    // Problem Solving & Technical
+    'problem-solving': 'problem-solving',
+    'production-outage': 'problem-solving',
+    'data-driven-debugging': 'problem-solving',
+    'debugging-distributed': 'problem-solving',
+    'optimizing-performance': 'problem-solving',
+    'incomplete-information': 'problem-solving',
+    'simplifying-systems': 'problem-solving',
+    // Time Management & Delivery
+    'time-management': 'delivery',
+    'tight-deadlines': 'delivery',
+    'missed-deadline': 'delivery',
+    'speed-vs-quality': 'delivery',
+    'recovering-behind': 'delivery',
+    'bias-for-action': 'delivery',
+    // Growth & Learning
+    'learning-new-tech': 'growth',
+    'comfort-zone': 'growth',
+    'learning-unfamiliar-domain': 'growth',
+    'innovation': 'growth',
+    'adapting-requirements': 'growth',
+    'raising-quality-bar': 'growth',
+    // Communication
+    'explaining-technical': 'communication',
+    'receiving-feedback': 'communication',
+    'giving-feedback': 'communication',
+    // Projects & Achievements
+    'achievements': 'achievements',
+    'proud-project': 'achievements',
+    'failure-mistakes': 'achievements',
+    // Interview Fundamentals
+    'star-framework': 'fundamentals',
+    'story-banking': 'fundamentals',
+    'what-are-behavioral-interviews': 'fundamentals',
+    'handling-follow-ups': 'fundamentals',
+    'negotiation': 'fundamentals',
+    'asking-questions': 'fundamentals',
+    'professionalism': 'fundamentals',
+    'following-up': 'fundamentals',
+  };
+
   const behavioralTopics = [
     {
       id: 'tell-me-about-yourself',
@@ -22974,6 +23050,30 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
 They often mention my habit of pairing over Slack huddles to unblock PRs quickly and my concise post-mortem write-ups that turn incidents into reusable runbooks.
 
 In 360° reviews, the words that pop up most are dependable, pragmatic, and collaborative."`
+        },
+        {
+          question: 'What specific feedback have you received from managers?',
+          answer: `**How to Structure This**:
+
+Reference actual performance reviews or 1:1 feedback:
+
+**Sample Response**:
+"In my last review, my manager highlighted three things: First, my ability to own complex technical problems end-to-end—she specifically mentioned how I drove our database migration while keeping stakeholders informed at every step.
+
+Second, she noted that I'm the go-to person for unblocking teammates. I regularly get Slack messages asking for debugging help or code review guidance.
+
+The constructive feedback was around delegation—I sometimes take on too much myself instead of distributing work. I've been working on this by identifying tasks that would help junior engineers grow and explicitly offering them those opportunities."`
+        },
+        {
+          question: 'What would your teammates say is your biggest contribution?',
+          answer: `**Focus on Team Impact**:
+
+**Sample Response**:
+"My teammates would probably mention the internal tools I built that saved everyone time. I noticed our team spent hours each week on repetitive deployment tasks, so I created a CLI tool that automated our most common operations.
+
+They'd also mention code reviews—I'm known for thorough but constructive feedback. Several engineers have told me my reviews helped them level up their coding practices.
+
+Beyond technical work, they'd say I'm someone who keeps team morale up during crunch times. I try to acknowledge everyone's contributions and make sure we celebrate wins together."`
         }
       ],
 
@@ -22996,19 +23096,47 @@ In 360° reviews, the words that pop up most are dependable, pragmatic, and coll
 
       keyQuestions: [
         {
-          question: 'How do I discuss strengths and weaknesses authentically?',
+          question: 'How do I discuss strengths authentically?',
           answer: `**What Interviewers Look For**:
 - Genuine self-awareness—no clichés or humble-brags
 - Strength directly relevant to the role with evidence
-- Weakness that is authentic yet non-fatal, plus improvement plan
-- Growth mindset—turning feedback into action
+- Specific examples that demonstrate the strength
 
 **Sample Response**:
-"My colleagues say my super-power is translating complex distributed-systems issues into clear, decisive action—whether that's white-boarding a fix during an incident or writing concise design docs that unblock cross-team work.
+"My greatest strength is translating complex distributed-systems issues into clear, decisive action—whether that's white-boarding a fix during an incident or writing concise design docs that unblock cross-team work.
 
-The flip side is that I can be impatient with ambiguous priorities; if goals aren't well defined, I tend to over-clarify on my own.
+For example, last quarter we had a cascading failure that took down three services. I quickly identified the root cause, coordinated the response across teams, and had us back online in 20 minutes. My post-incident write-up became a template for the team."`
+        },
+        {
+          question: 'How do I discuss weaknesses without hurting my chances?',
+          answer: `**The Right Approach**:
+- Pick a real weakness, not a humble-brag like "I work too hard"
+- Choose something non-fatal to the role
+- Show concrete improvement steps you're taking
 
-To improve, I now open every sprint with a 10-minute 'definition of done' check and keep a living RFC so the whole team shapes scope together—reducing churn and harnessing everyone's context, not just mine."`
+**Sample Response**:
+"The flip side is that I can be impatient with ambiguous priorities; if goals aren't well defined, I tend to over-clarify on my own rather than involving the team.
+
+To improve, I now open every sprint with a 10-minute 'definition of done' check and keep a living RFC so the whole team shapes scope together—reducing churn and harnessing everyone's context, not just mine.
+
+My manager has noticed the improvement, and it's helped our planning become more collaborative."`
+        },
+        {
+          question: 'What are examples of good vs bad weakness answers?',
+          answer: `**Bad Answers** (Don't Say These):
+❌ "I'm a perfectionist" — overused, sounds fake
+❌ "I work too hard" — obvious humble-brag
+❌ "I don't have any weaknesses" — lacks self-awareness
+❌ "I'm bad at [core job skill]" — disqualifying
+
+**Good Answers** (Authentic + Improvable):
+✅ "I sometimes struggle to say no to requests, which can lead to overcommitment. I now use a priority matrix and discuss trade-offs with my manager."
+
+✅ "I tend to dive into coding before fully designing the solution. I've started writing brief design docs even for small features."
+
+✅ "Public speaking used to make me nervous. I've been practicing by presenting at team meetings and recently led my first all-hands demo."
+
+✅ "I can be too direct in code reviews. I've learned to balance critical feedback with acknowledgment of what's working well."`
         }
       ],
 
@@ -26078,58 +26206,49 @@ Best,
                     </div>
                   </div>
 
-                  {/* Question Categories Section */}
-                  <div className="mb-8">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-500/10">
-                        <Icon name="messageSquare" size={16} className="text-purple-400" />
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-bold text-white">Question Categories</h2>
-                        <p className="text-xs text-gray-500">Common behavioral question types with example answers</p>
-                      </div>
-                    </div>
-                    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-                      <table className="w-full">
-                        <thead>
-                          <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
-                            <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Category</th>
-                            <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 hidden md:table-cell">Description</th>
-                            <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 w-24">Questions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {filteredTopics.map((topic) => (
-                            <tr
-                              key={topic.id}
-                              onClick={() => setSelectedTopic(topic.id)}
-                              className="group cursor-pointer transition-all hover:bg-white/5"
-                              style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
-                            >
-                              <td className="px-4 py-3">
+                  {/* Question Categories Section - Grouped by Category */}
+                  <div className="space-y-6 mb-8">
+                    {behavioralCategories.map((category) => {
+                      const categoryTopics = filteredTopics.filter(t => topicCategoryMap[t.id] === category.id);
+                      if (categoryTopics.length === 0) return null;
+                      return (
+                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+                          {/* Category Header */}
+                          <div className="px-4 py-3 flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${category.color}20` }}>
+                              <Icon name={category.icon} size={16} style={{ color: category.color }} />
+                            </div>
+                            <div>
+                              <h3 className="text-base font-bold text-white">{category.name}</h3>
+                              <span className="text-xs text-gray-500">{categoryTopics.length} topics</span>
+                            </div>
+                          </div>
+                          {/* Topics in Category */}
+                          <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                            {categoryTopics.map((topic) => (
+                              <div
+                                key={topic.id}
+                                onClick={() => setSelectedTopic(topic.id)}
+                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
+                              >
                                 <div className="flex items-center gap-3">
-                                  <div
-                                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                                    style={{ background: `${topic.color}15` }}
-                                  >
-                                    <Icon name={topic.icon} size={16} style={{ color: topic.color }} />
+                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}15` }}>
+                                    <Icon name={topic.icon} size={12} style={{ color: topic.color }} />
                                   </div>
-                                  <span className="text-white font-medium group-hover:text-purple-400 transition-colors">{topic.title}</span>
+                                  <div>
+                                    <span className="text-white text-sm font-medium group-hover:text-purple-400 transition-colors">{topic.title}</span>
+                                    <span className="text-gray-500 text-xs ml-2 hidden md:inline">{topic.description}</span>
+                                  </div>
                                 </div>
-                              </td>
-                              <td className="px-4 py-3 hidden md:table-cell">
-                                <span className="text-gray-400 text-sm">{topic.description}</span>
-                              </td>
-                              <td className="px-4 py-3 text-right">
-                                <span className="px-2 py-1 rounded text-sm font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
+                                <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
                                   {topic.keyQuestions?.length || topic.sampleQuestions?.length || 0}Q
                                 </span>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
 
                   {/* Company-Specific Section */}
