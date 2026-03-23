@@ -22132,55 +22132,95 @@ The ambiguity became a clear, measurable project."`
 
                 {/* API Design (Comprehensive) */}
                 {topicDetails.apiDesign && topicDetails.apiDesign.endpoints && (
-                  <div className="p-6 rounded-xl" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                      <Icon name="code" size={20} className="text-green-400" />
-                      API Design
-                    </h2>
-                    {topicDetails.apiDesign.description && (
-                      <p className="text-gray-400 mb-4">{topicDetails.apiDesign.description}</p>
-                    )}
-                    <div className="space-y-4">
-                      {topicDetails.apiDesign.endpoints.map((endpoint, i) => (
-                        <div key={i} className="p-4 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
-                          <div className="flex items-center gap-3 mb-2">
-                            <span className={`px-2 py-1 rounded text-xs font-bold ${
-                              endpoint.method === 'GET' ? 'bg-blue-500/20 text-blue-400' :
-                              endpoint.method === 'POST' ? 'bg-green-500/20 text-green-400' :
-                              endpoint.method === 'PUT' ? 'bg-yellow-500/20 text-yellow-400' :
-                              'bg-red-500/20 text-red-400'
-                            }`}>
-                              {endpoint.method}
-                            </span>
-                            <code className="text-green-400 font-mono">{endpoint.path}</code>
-                          </div>
-                          {endpoint.params && (
-                            <p className="text-gray-400 text-sm mb-1">Params: {endpoint.params}</p>
-                          )}
-                          <p className="text-gray-400 text-sm mb-1">Response: {endpoint.response}</p>
-                          {endpoint.notes && (
-                            <p className="text-gray-500 text-sm italic">{endpoint.notes}</p>
-                          )}
+                  <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                    <div className="px-6 py-4 border-b border-green-500/20" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                      <h2 className="text-lg font-bold text-white flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-green-500/20">
+                          <Icon name="code" size={18} className="text-green-400" />
                         </div>
-                      ))}
+                        API Design
+                      </h2>
+                      {topicDetails.apiDesign.description && (
+                        <p className="text-gray-400 text-sm mt-1 ml-11">{topicDetails.apiDesign.description}</p>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <div className="grid gap-3">
+                        {topicDetails.apiDesign.endpoints.map((endpoint, i) => (
+                          <div key={i} className="group rounded-xl p-4 transition-all hover:scale-[1.01]" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <div className="flex items-center gap-3 mb-3">
+                              <span className={`px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wide ${
+                                endpoint.method === 'GET' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                                endpoint.method === 'POST' || endpoint.method === 'INSERT' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                                endpoint.method === 'PUT' || endpoint.method === 'UPDATE' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
+                                endpoint.method === 'SELECT' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
+                                'bg-red-500/20 text-red-400 border border-red-500/30'
+                              }`}>
+                                {endpoint.method}
+                              </span>
+                              <code className="text-emerald-400 font-mono text-sm bg-black/30 px-3 py-1.5 rounded-lg flex-1">{endpoint.path}</code>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 ml-1">
+                              {endpoint.params && (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-gray-500 text-xs uppercase tracking-wide">Params:</span>
+                                  <span className="text-gray-300 text-sm font-mono bg-white/5 px-2 py-0.5 rounded">{endpoint.params}</span>
+                                </div>
+                              )}
+                              <div className="flex items-center gap-2">
+                                <span className="text-gray-500 text-xs uppercase tracking-wide">Response:</span>
+                                <span className="text-gray-300 text-sm">{endpoint.response}</span>
+                              </div>
+                            </div>
+                            {endpoint.notes && (
+                              <p className="text-gray-500 text-xs mt-2 ml-1 italic">{endpoint.notes}</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
 
                 {/* Key Questions */}
                 {topicDetails.keyQuestions && (
-                  <div className="p-6 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
-                    <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                      <Icon name="messageSquare" size={20} className="text-purple-400" />
-                      Key Questions to Consider
-                    </h2>
-                    <div className="space-y-6">
+                  <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
+                    <div className="px-6 py-4 border-b border-purple-500/20" style={{ background: 'rgba(168,85,247,0.05)' }}>
+                      <h2 className="text-lg font-bold text-white flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-500/20">
+                          <Icon name="messageSquare" size={18} className="text-purple-400" />
+                        </div>
+                        Key Questions to Consider
+                      </h2>
+                    </div>
+                    <div className="p-4 space-y-4">
                       {topicDetails.keyQuestions.map((q, i) => (
-                        <div key={i}>
-                          <h4 className="text-purple-400 font-semibold mb-2">{q.question}</h4>
-                          <pre className="text-gray-300 text-sm whitespace-pre-wrap bg-black/30 p-4 rounded-lg font-mono">
-                            {q.answer}
-                          </pre>
+                        <div key={i} className="rounded-xl overflow-hidden" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(168,85,247,0.1)' }}>
+                          <div className="px-4 py-3 border-b border-purple-500/10" style={{ background: 'rgba(168,85,247,0.05)' }}>
+                            <h4 className="text-purple-300 font-semibold flex items-center gap-2">
+                              <span className="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center text-xs text-purple-400 font-bold">{i + 1}</span>
+                              {q.question}
+                            </h4>
+                          </div>
+                          <div className="p-4">
+                            <div className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+                              {q.answer.split('\n').map((line, lineIdx) => {
+                                if (line.startsWith('**') && line.endsWith('**:')) {
+                                  return <p key={lineIdx} className="text-white font-semibold mt-3 mb-1 first:mt-0">{line.replace(/\*\*/g, '')}</p>;
+                                } else if (line.startsWith('- ')) {
+                                  return (
+                                    <div key={lineIdx} className="flex items-start gap-2 ml-2 my-1">
+                                      <span className="text-purple-400 mt-1">•</span>
+                                      <span>{line.substring(2)}</span>
+                                    </div>
+                                  );
+                                } else if (line.trim()) {
+                                  return <p key={lineIdx} className="my-1">{line}</p>;
+                                }
+                                return <div key={lineIdx} className="h-2" />;
+                              })}
+                            </div>
+                          </div>
                         </div>
                       ))}
                     </div>
