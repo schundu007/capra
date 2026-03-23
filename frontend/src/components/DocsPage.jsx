@@ -23492,7 +23492,7 @@ class AuthenticatedState(ATMState):
     def select_operation(self, atm: 'ATM', op: TransactionType):
         account = atm.get_account(atm.current_card.account_id)
         if op == TransactionType.BALANCE_INQUIRY:
-            print(f"Balance: ${account.balance:.2f}")
+            print(f"Balance: $" + str(round(account.balance, 2)))
         elif op == TransactionType.WITHDRAW:
             print("Enter withdrawal amount")
 
@@ -23500,7 +23500,7 @@ class AuthenticatedState(ATMState):
         account = atm.get_account(atm.current_card.account_id)
         if account.withdraw(amount):
             if atm.cash_dispenser.dispense(amount):
-                print(f"Please take ${amount:.2f}")
+                print(f"Please take $" + str(round(amount, 2)))
             else:
                 account.deposit(amount)  # Rollback
                 print("ATM has insufficient cash")
