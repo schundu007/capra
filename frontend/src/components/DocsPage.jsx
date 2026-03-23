@@ -22935,6 +22935,799 @@ Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
         'Show the positive outcome of the feedback'
       ]
     },
+    {
+      id: 'colleague-description',
+      title: 'How Would Colleagues Describe You?',
+      icon: 'users',
+      color: '#8b5cf6',
+      questions: 3,
+      description: 'Self-awareness backed by real peer feedback.',
+
+      introduction: `This question tests self-awareness and whether you understand how others perceive you. Interviewers want concrete examples and specific feedback you've received, not generic adjectives.`,
+
+      keyQuestions: [
+        {
+          question: 'How should I answer this question?',
+          answer: `**What Interviewers Look For**:
+- Self-awareness backed by real feedback, not empty adjectives
+- Balance of technical excellence and interpersonal impact
+- Specific examples—how your behaviour helps the team
+- Humility and openness to grow
+
+**Sample Response**:
+"My peers would say I'm the engineer who 'keeps calm and de-risks chaos.' I'm known for translating complex problems into clear action plans, jumping into on-call rotations even when it isn't my week, and coaching newer devs through their first production deploys.
+
+They often mention my habit of pairing over Slack huddles to unblock PRs quickly and my concise post-mortem write-ups that turn incidents into reusable runbooks.
+
+In 360° reviews, the words that pop up most are dependable, pragmatic, and collaborative."`
+        }
+      ],
+
+      tips: [
+        'Reference actual feedback from reviews or peers',
+        'Balance technical and interpersonal qualities',
+        'Give specific behavioral examples',
+        'Show humility—acknowledge areas for growth'
+      ]
+    },
+    {
+      id: 'strengths-weaknesses',
+      title: 'Strengths & Weaknesses',
+      icon: 'scale',
+      color: '#f59e0b',
+      questions: 4,
+      description: 'Authentic self-assessment with growth mindset.',
+
+      introduction: `This classic question tests your self-awareness and growth mindset. Avoid clichés and humble-brags. Show genuine reflection and concrete improvement plans.`,
+
+      keyQuestions: [
+        {
+          question: 'How do I discuss strengths and weaknesses authentically?',
+          answer: `**What Interviewers Look For**:
+- Genuine self-awareness—no clichés or humble-brags
+- Strength directly relevant to the role with evidence
+- Weakness that is authentic yet non-fatal, plus improvement plan
+- Growth mindset—turning feedback into action
+
+**Sample Response**:
+"My colleagues say my super-power is translating complex distributed-systems issues into clear, decisive action—whether that's white-boarding a fix during an incident or writing concise design docs that unblock cross-team work.
+
+The flip side is that I can be impatient with ambiguous priorities; if goals aren't well defined, I tend to over-clarify on my own.
+
+To improve, I now open every sprint with a 10-minute 'definition of done' check and keep a living RFC so the whole team shapes scope together—reducing churn and harnessing everyone's context, not just mine."`
+        }
+      ],
+
+      tips: [
+        'Choose a strength relevant to the role',
+        'Pick a real weakness, not a humble-brag',
+        'Show concrete steps you take to improve',
+        'Demonstrate self-awareness and growth'
+      ]
+    },
+    {
+      id: 'disagree-senior-engineer',
+      title: 'Disagreeing with Senior Engineers',
+      icon: 'gitBranch',
+      color: '#ef4444',
+      questions: 3,
+      description: 'Challenge senior views with data and diplomacy.',
+
+      introduction: `This question tests whether you can respectfully challenge experienced colleagues when you have valid concerns, using data and collaboration rather than hierarchy.`,
+
+      keyQuestions: [
+        {
+          question: 'How do I disagree with senior engineers effectively?',
+          answer: `**What Interviewers Look For**:
+- Confidently challenge senior views when data warrants it
+- Back proposals with metrics, design docs, and prototypes
+- Listen first; collaborate over winning arguments
+- Use structured processes (ADRs, RFCs) for closure
+- Prioritise customer/business impact over personal victory
+
+**STAR Example**:
+
+**Situation**: "Principal engineer wanted to hard-fork our API gateway, doubling upkeep and threatening compliance deadlines."
+
+**Task**: "Win support for a shared-gateway upgrade without slipping the release."
+
+**Action**:
+- Benchmarked latency, modelled cost
+- Authored an ADR comparing options
+- Demoed a plugin POC
+- Facilitated a governance vote with all voices heard
+
+**Result**: "Shared gateway chosen 7–2; launch on time; £140k yearly infra savings; 40% less future duplication; stronger partnership with the principal engineer."`
+        }
+      ],
+
+      tips: [
+        'Lead with data, not opinion',
+        'Use structured decision-making (ADRs, RFCs)',
+        'Show respect and collaboration',
+        'Focus on outcomes, not winning the argument'
+      ]
+    },
+    {
+      id: 'incomplete-information',
+      title: 'Decisions with Incomplete Information',
+      icon: 'helpCircle',
+      color: '#06b6d4',
+      questions: 3,
+      description: 'Make high-stakes calls when data is limited.',
+
+      introduction: `This question assesses your ability to make confident decisions under uncertainty, using structured risk assessment and fast feedback loops.`,
+
+      keyQuestions: [
+        {
+          question: 'How do I make decisions with incomplete data?',
+          answer: `**What Interviewers Look For**:
+- Comfort making high-stakes calls with incomplete data
+- Structured risk assessment and fast feedback loops
+- Use of confidence-boosting mechanisms (experiments, feature flags)
+- Accountability for the outcome
+
+**STAR Example**:
+
+**Situation**: "At a HealthTech start-up we had to pick a sharding key for a multi-region database launch, but only 30 days of patchy query data."
+
+**Task**: "Decide within 24h so the schema freeze could proceed on schedule."
+
+**Action**:
+- Sampled 5% of logs, ran entropy analysis
+- White-boarded options with SREs
+- Chose user-ID hash sharding under a gradual feature flag
+
+**Result**: "Migration hit the deadline; p99 read latency stayed at 99.97%; no hot partitions after six months, validating the call."`
+        }
+      ],
+
+      tips: [
+        'Show structured thinking even with limited data',
+        'Use experiments and feature flags to reduce risk',
+        'Take accountability for outcomes',
+        'Document assumptions for later validation'
+      ]
+    },
+    {
+      id: 'tight-deadlines',
+      title: 'Delivering Under Tight Deadlines',
+      icon: 'zap',
+      color: '#f97316',
+      questions: 4,
+      description: 'Meet immovable deadlines through prioritization.',
+
+      introduction: `This question tests your ability to deliver quality work under pressure through ruthless prioritization, risk management, and clear communication.`,
+
+      keyQuestions: [
+        {
+          question: 'How do I deliver effectively under tight deadlines?',
+          answer: `**What Interviewers Look For**:
+- Ruthless prioritisation and milestone tracking
+- Early risk spotting, scope control, and fallback planning
+- Rapid feedback loops (feature flags, load tests)
+- Clear, concise stakeholder communication
+
+**STAR Example**:
+
+**Situation**: "Six weeks before Black Friday, marketing requested a homepage recommendation engine."
+
+**Task**: "Lead a two-engineer squad to deliver the feature—without downtime—before traffic spiked."
+
+**Action**:
+- Broke work into weekly milestones
+- Picked a managed vector DB to skip ops overhead
+- Gated rollout with feature flags
+- Ran nightly load tests
+- Enforced scope via a MoSCoW list
+
+**Result**: "Launched two days early; CTR rose 18%, adding £1.2M in Black-Friday revenue; team won the company's 'Hack-to-Prod' award."`
+        }
+      ],
+
+      tips: [
+        'Break work into clear milestones',
+        'Cut scope ruthlessly—focus on must-haves',
+        'Use feature flags and automated testing',
+        'Communicate progress and risks early'
+      ]
+    },
+    {
+      id: 'speed-vs-quality',
+      title: 'Speed vs Quality Trade-offs',
+      icon: 'scale',
+      color: '#eab308',
+      questions: 3,
+      description: 'Balance delivery speed with long-term quality.',
+
+      introduction: `This question tests your ability to navigate the tension between shipping fast and maintaining quality, with clear communication about trade-offs.`,
+
+      keyQuestions: [
+        {
+          question: 'How do I balance speed and quality?',
+          answer: `**What Interviewers Look For**:
+- Clear view of speed-vs-quality tension
+- Customer-first mindset with long-term safeguards
+- Mechanisms to retire tech debt (backlogs, flags, refactors)
+- Transparent stakeholder communication on risks
+
+**STAR Example**:
+
+**Situation**: "Enterprise client needed a payment API live in 3 weeks, but our platform lacked full audit logging for compliance."
+
+**Task**: "Ship MVP on time without creating brittle tech or compliance risk."
+
+**Action**:
+- Delivered core API behind a feature flag
+- Stubbed audit events to S3
+- Documented debt and booked a follow-up sprint
+- Aligned client on roadmap
+
+**Result**: "Launched in 18 days, securing a £1.6M contract; full audit logging rolled out six weeks later with zero downtime and 100% customer retention."`
+        }
+      ],
+
+      tips: [
+        'Document trade-offs explicitly',
+        'Plan to address debt—don\'t just accumulate it',
+        'Use feature flags for controlled rollouts',
+        'Communicate risks transparently to stakeholders'
+      ]
+    },
+    {
+      id: 'recovering-behind',
+      title: 'Recovering from Falling Behind',
+      icon: 'refreshCw',
+      color: '#ef4444',
+      questions: 3,
+      description: 'Detect schedule drift early and recover.',
+
+      introduction: `This question tests your ability to spot schedule problems early, escalate appropriately, and rally resources to recover momentum.`,
+
+      keyQuestions: [
+        {
+          question: 'How do I recover when falling behind schedule?',
+          answer: `**What Interviewers Look For**:
+- Fast, data-driven detection of schedule drift
+- Courage to surface problems early
+- Escalation with impact and recovery options
+- Focus on solution, not blame
+
+**STAR Example**:
+
+**Situation**: "A GDPR data-deletion service was 30% behind sprint burndown halfway to launch, risking regulatory fines."
+
+**Task**: "Flag the slip early and restore the timeline without cutting compliance corners."
+
+**Action**:
+- Posted a risk ticket with metrics to exec Slack
+- Held a 15-min triage
+- Trimmed nice-to-haves
+- Added a part-time SRE
+- Split load-test work to run in parallel
+
+**Result**: "Caught up in nine days, shipped on the original date, passed the external audit, and avoided £500k potential penalties."`
+        }
+      ],
+
+      tips: [
+        'Detect problems early with data',
+        'Escalate with solutions, not just problems',
+        'Protect critical scope—cut nice-to-haves',
+        'Parallelise work where possible'
+      ]
+    },
+    {
+      id: 'building-trust',
+      title: 'Building Trust with Skeptics',
+      icon: 'shield',
+      color: '#10b981',
+      questions: 3,
+      description: 'Win over skeptical stakeholders through consistency.',
+
+      introduction: `This question tests your ability to build credibility with stakeholders who doubt you, through consistent communication and small wins.`,
+
+      keyQuestions: [
+        {
+          question: 'How do I build trust with skeptical stakeholders?',
+          answer: `**What Interviewers Look For**:
+- Empathy to understand stakeholder concerns
+- Consistent, transparent communication
+- Data-backed progress updates
+- Follow-through on small promises
+
+**STAR Example**:
+
+**Situation**: "A newly hired VP of Sales doubted engineering could deliver a real-time CRM integration promised to a £2M prospect in six weeks."
+
+**Task**: "Earn the VP's trust and keep the deal on track."
+
+**Action**:
+- Held a 30-min kickoff to capture 'must-haves'
+- Set up a public Jira dashboard and daily Slack digest
+- Delivered a working webhook POC in week 2
+- Invited the VP to sprint demos
+- Openly flagged risks with mitigation plans
+
+**Result**: "Skepticism turned to advocacy—VP green-lit scope freeze, the prospect signed on schedule, and the same transparency template became standard for future cross-org projects."`
+        }
+      ],
+
+      tips: [
+        'Understand their concerns first',
+        'Over-communicate progress transparently',
+        'Deliver small wins early',
+        'Always follow through on commitments'
+      ]
+    },
+    {
+      id: 'simplifying-systems',
+      title: 'Simplifying Complex Systems',
+      icon: 'minimize',
+      color: '#8b5cf6',
+      questions: 3,
+      description: 'Reduce complexity while maintaining functionality.',
+
+      introduction: `This question assesses your ability to identify accidental complexity and simplify systems through data-driven refactoring.`,
+
+      keyQuestions: [
+        {
+          question: 'How do I simplify complex systems?',
+          answer: `**What Interviewers Look For**:
+- Ability to spot accidental complexity
+- Data-driven refactors that cut cognitive load
+- Rigorous validation—tests, metrics, developer feedback
+- Long-term ownership of maintainability
+
+**STAR Example**:
+
+**Situation**: "Our Node.js billing service had a home-grown promise wrapper and 3,000 lines of duplicated retry logic, causing onboarding friction and weekly production bugs."
+
+**Task**: "Replace the custom layer with native async/await and a shared retry util—without halting new feature work."
+
+**Action**:
+- Flag-guarded refactor
+- Added unit tests for critical paths
+- Swapped modules incrementally
+- Deleted legacy code behind a one-week dark-launch
+
+**Result**: "Codebase shrank by 2.1k LOC (-22%), p95 latency improved 9%, new-hire ramp-up survey score rose from 3.2→4.6/5, and incident rate dropped to zero in the following quarter."`
+        }
+      ],
+
+      tips: [
+        'Measure complexity: LOC, incidents, onboarding time',
+        'Refactor incrementally with feature flags',
+        'Validate with tests and metrics',
+        'Track developer feedback'
+      ]
+    },
+    {
+      id: 'raising-quality-bar',
+      title: 'Raising the Quality Bar',
+      icon: 'trendingUp',
+      color: '#10b981',
+      questions: 3,
+      description: 'Improve engineering standards measurably.',
+
+      introduction: `This question tests your ability to raise quality standards through concrete actions like coverage gates, review processes, and automation.`,
+
+      keyQuestions: [
+        {
+          question: 'How do I raise quality standards on a team?',
+          answer: `**What Interviewers Look For**:
+- Concrete examples of raising engineering quality
+- Use of measurable metrics (coverage, MTTR, defects)
+- Ability to influence peers through code reviews and automation
+- Balance between speed and quality
+
+**STAR Example**:
+
+**Situation**: "Our B2B analytics API had only 62% test coverage and averaged three P1 incidents per quarter."
+
+**Task**: "Lift quality without slowing a pending feature launch in eight weeks."
+
+**Action**:
+- Introduced a CI gate for branch coverage ≥85%
+- Added contract tests for all public endpoints
+- Rolled out a lightweight review checklist
+- Created Grafana SLO dashboards
+
+**Result**: "Coverage hit 91%; P1s dropped to zero for the next two quarters; mean PR review time fell 22% due to clearer guidelines—proving higher quality and faster flow."`
+        }
+      ],
+
+      tips: [
+        'Set measurable quality gates',
+        'Automate enforcement in CI',
+        'Create clear guidelines and checklists',
+        'Show that quality improves speed'
+      ]
+    },
+    {
+      id: 'being-proven-wrong',
+      title: 'Being Proven Wrong',
+      icon: 'refreshCw',
+      color: '#f97316',
+      questions: 3,
+      description: 'Handle being wrong with grace and data.',
+
+      introduction: `This question tests your openness to having your ideas challenged and your ability to pivot when evidence disproves your assumptions.`,
+
+      keyQuestions: [
+        {
+          question: 'Tell me about a time you were proven wrong',
+          answer: `**What Interviewers Look For**:
+- Openness to challenge—no attachment to pet ideas
+- Ability to design data-driven experiments
+- Willingness to pivot when evidence disproves assumptions
+- Clear communication of findings
+
+**STAR Example**:
+
+**Situation**: "I proposed switching our image-processing pipeline from Python to Rust for speed; the staff engineer argued GC pauses, not language, caused latency."
+
+**Task**: "Prove which bottleneck mattered before committing two sprint cycles."
+
+**Action**:
+- Added perf counters
+- Captured 10k traces
+- Isolated CPU vs GC time
+- Built a Rust POC for the hottest function
+
+**Result**: "Data showed GC was 6% of latency; Rust POC cut resize 35%. We optimised Python I/O first (20% gain) and scheduled a phased Rust rewrite for V2—saving four weeks now and charting a clear future path."`
+        }
+      ],
+
+      tips: [
+        'Show you can change your mind with data',
+        'Design experiments to test assumptions',
+        'Credit others when they\'re right',
+        'Focus on the best outcome, not being right'
+      ]
+    },
+    {
+      id: 'optimizing-performance',
+      title: 'Optimizing Performance',
+      icon: 'zap',
+      color: '#06b6d4',
+      questions: 4,
+      description: 'Profile, baseline, and improve system performance.',
+
+      introduction: `This question tests your ability to systematically identify and fix performance bottlenecks with measurable business impact.`,
+
+      keyQuestions: [
+        {
+          question: 'How do I approach performance optimization?',
+          answer: `**What Interviewers Look For**:
+- Skill in profiling and setting measurable targets
+- Ability to weigh latency, throughput, and cost trade-offs
+- Use of safe rollout mechanisms (canaries, feature flags)
+- Clear business impact: faster UX, lower spend
+
+**STAR Example**:
+
+**Situation**: "Our search API's p99 latency hit 1.8s at peak, and autoscaling costs spiked 40% during sales events."
+
+**Task**: "Cut p99 below 600ms and trim AWS spend by 25% within one sprint."
+
+**Action**:
+- Added OpenTelemetry traces
+- Found ORM N+1 queries and cache thrash
+- Batched DB calls, introduced Redis edge cache
+- Validated with k6 load tests
+- Canary-deployed behind a flag
+
+**Result**: "p99 dropped to 420ms; EC2 usage –32%, saving £18k/yr; checkout conversion +6%. Dashboards now gate all merges, preventing regression."`
+        }
+      ],
+
+      tips: [
+        'Always profile before optimizing',
+        'Set measurable targets upfront',
+        'Use canary deployments to validate',
+        'Quantify business impact'
+      ]
+    },
+    {
+      id: 'data-driven-debugging',
+      title: 'Data-Driven Debugging',
+      icon: 'search',
+      color: '#3b82f6',
+      questions: 3,
+      description: 'Debug systematically with tracing and metrics.',
+
+      introduction: `This question tests your ability to debug complex issues using observability tools and hypothesis-driven investigation.`,
+
+      keyQuestions: [
+        {
+          question: 'How do I debug complex issues systematically?',
+          answer: `**What Interviewers Look For**:
+- Instinct to instrument first, guess later
+- Fluency with tracing, logging, and observability
+- Hypothesis-driven debugging that isolates root cause
+- Quantified wins: latency, error rate improvements
+
+**STAR Example**:
+
+**Situation**: "Checkout API p95 latency spiked to 2.4s; team suspected database congestion."
+
+**Task**: "Pinpoint the real bottleneck and restore p95 < 300ms within 48h."
+
+**Action**:
+- Enabled distributed tracing
+- Layered Grafana dashboards
+- Log-sampled slow paths
+- Found 78% of latency in TLS handshakes—an NLB cert mis-chain—not the DB
+- Patched certs, added handshake alerts
+
+**Result**: "p95 fell to 180ms, error rate -95%, saved £12k/month. Dashboard template adopted across six squads."`
+        }
+      ],
+
+      tips: [
+        'Instrument before guessing',
+        'Use distributed tracing across services',
+        'Form hypotheses and test them',
+        'Create reusable dashboard templates'
+      ]
+    },
+    {
+      id: 'disagree-and-commit',
+      title: 'Disagree and Commit',
+      icon: 'checkCircle',
+      color: '#10b981',
+      questions: 3,
+      description: 'Fully commit after decisions are made.',
+
+      introduction: `This question tests your professionalism in supporting decisions you disagreed with, without passive resistance or "I told you so" moments.`,
+
+      keyQuestions: [
+        {
+          question: 'How do I handle disagree and commit?',
+          answer: `**What Interviewers Look For**:
+- Ability to disagree, then fully commit
+- Professionalism: no passive resistance
+- Focus on delivery quality despite personal preference
+- Reflections that turn disagreement into learning
+
+**STAR Example**:
+
+**Situation**: "I championed an event-driven pipeline for real-time analytics, but the architecture board opted for a nightly BigQuery batch to cut cost."
+
+**Task**: "Set aside my preference and ensure the batch solution shipped in eight weeks with <0.5% data drift."
+
+**Action**:
+- Re-wrote the project plan
+- Paired with data engineers on Airflow DAGs
+- Added checksum guards
+- Created a Looker dashboard for next-day KPIs
+
+**Result**: "Launched one week early, saved £90k/yr in infra, and achieved 99.98% data accuracy. Post-mortem documented trade-offs, and the board later used the template for future design debates."`
+        }
+      ],
+
+      tips: [
+        'Once decided, commit 100%',
+        'No passive resistance or sabotage',
+        'Focus on making the chosen path succeed',
+        'Document learnings for future decisions'
+      ]
+    },
+    {
+      id: 'bias-for-action',
+      title: 'Bias for Action',
+      icon: 'play',
+      color: '#f97316',
+      questions: 3,
+      description: 'Act decisively when waiting would cost value.',
+
+      introduction: `This question tests your ability to move fast with calculated risks rather than waiting for perfect information.`,
+
+      keyQuestions: [
+        {
+          question: 'How do I demonstrate bias for action?',
+          answer: `**What Interviewers Look For**:
+- Bias for action when waiting would cost value
+- Structured risk assessment and rollback plan
+- Fast feedback loops (flags, A/B, canaries)
+- Ability to quantify trade-offs
+
+**STAR Example**:
+
+**Situation**: "Start-up needed Apple Pay before holiday rush, but we lacked full device-level telemetry to size traffic."
+
+**Task**: "Ship in four weeks (half normal time) without melting checkout."
+
+**Action**:
+- Estimated volume from browser UA sampling
+- Built a throttling gate
+- Canary-launched to 10% traffic
+- Set autoscaling alarms at 70% CPU
+
+**Result**: "Delivered one week early; p95 latency +30ms (within SLO); Apple Pay accounted for 14% of holiday revenue uplift. Post-mortem added a standard 'incomplete-data launch' checklist."`
+        }
+      ],
+
+      tips: [
+        'Move fast with calculated risks',
+        'Have rollback plans ready',
+        'Use canary launches and feature flags',
+        'Document learnings for future launches'
+      ]
+    },
+    {
+      id: 'debugging-distributed',
+      title: 'Debugging Distributed Systems',
+      icon: 'network',
+      color: '#8b5cf6',
+      questions: 3,
+      description: 'Trace issues across multiple services.',
+
+      introduction: `This question tests your ability to debug complex issues that span multiple services, networks, and infrastructure layers.`,
+
+      keyQuestions: [
+        {
+          question: 'How do I debug distributed system issues?',
+          answer: `**What Interviewers Look For**:
+- Systematic, hypothesis-driven debugging
+- Fluency with observability: tracing, metrics, logs
+- Cross-service thinking—network, storage, app layers
+- Quantified outcome: reduced MTTR, incidents
+
+**STAR Example**:
+
+**Situation**: "Users saw random 502s during checkout; errors spanned API-gateway, payments, and inventory services."
+
+**Task**: "Trace the fault path and restore <0.01% error rate inside a two-hour incident window."
+
+**Action**:
+- Enabled Jaeger trace filter on failing request IDs
+- Correlated spans in Kibana
+- Overlaid p99 latency in Grafana
+- Spotted 400ms spikes at internal gRPC hop
+- Packet capture revealed 1% MTU mismatch drops between EKS nodes
+- Rolled back recent CNI upgrade, patched kube-proxy config
+
+**Result**: "Error rate fell from 0.7% to 0.005% in 90 min; MTTR cut by 40%. Added MTU health probe—subsequent similar issue diagnosed in 8 min."`
+        }
+      ],
+
+      tips: [
+        'Use distributed tracing across all services',
+        'Correlate logs, metrics, and traces',
+        'Consider network and infrastructure layers',
+        'Build reusable debugging runbooks'
+      ]
+    },
+    {
+      id: 'adapting-requirements',
+      title: 'Adapting to Changed Requirements',
+      icon: 'refreshCw',
+      color: '#eab308',
+      questions: 3,
+      description: 'Pivot gracefully when requirements change.',
+
+      introduction: `This question tests your ability to detect when new information invalidates your plan and pivot without sunk-cost bias.`,
+
+      keyQuestions: [
+        {
+          question: 'How do I handle changing requirements mid-project?',
+          answer: `**What Interviewers Look For**:
+- Early detection of invalidating information
+- Data-driven pivot rather than sunk-cost bias
+- Clear stakeholder communication
+- Ability to maintain team morale
+
+**STAR Example**:
+
+**Situation**: "Halfway through building an on-prem ETL cluster, AWS announced a new serverless Glue feature that met the same GDPR requirements at one-third the cost."
+
+**Task**: "Decide within 48h whether to continue or pivot without missing the Black-Friday deadline."
+
+**Action**:
+- Ran a cost/perf spike on Glue with sample data
+- Compared SLA metrics
+- Held a 30-min exec briefing
+- Re-scoped backlog—kept data model work, scrapped bare-metal scripts
+
+**Result**: "Pivot approved; delivery date held; infra spend projected –55% (£120k/yr). Team velocity dipped only one sprint, and the client later used our evaluation memo as their reference architecture."`
+        }
+      ],
+
+      tips: [
+        'Stay alert for new information that changes the game',
+        'Evaluate pivots objectively—avoid sunk-cost bias',
+        'Communicate changes clearly to stakeholders',
+        'Preserve work that transfers to the new approach'
+      ]
+    },
+    {
+      id: 'innovation',
+      title: 'Building Something from Scratch',
+      icon: 'lightbulb',
+      color: '#f59e0b',
+      questions: 3,
+      description: 'Demonstrate originality with end-to-end ownership.',
+
+      introduction: `This question tests your ability to innovate—creating something new with technical depth and clear business impact.`,
+
+      keyQuestions: [
+        {
+          question: 'Tell me about something you built from scratch',
+          answer: `**What Interviewers Look For**:
+- Demonstrated originality with technical depth
+- End-to-end ownership from idea to production
+- Ability to de-risk and iterate under uncertainty
+- Clear linkage between invention and business impact
+
+**STAR Example**:
+
+**Situation**: "Patient records at HealthTechCo were duplicated across systems, hurting care quality and blocking EU expansion."
+
+**Task**: "In 4 months build an identity-matching engine that lifts match precision to ≥95% and scales to 10k TPS."
+
+**Action**:
+- Prototyped a Bloom-filter + graph-traversal algorithm in Rust
+- Added stream-processing with Flink
+- Gated rollout via feature flags
+- Authored patent write-up
+
+**Result**: "Precision hit 97%, duplicates dropped 85%, saving £3.4M/yr; platform cleared EU audit; patent pending and solution open-sourced."`
+        }
+      ],
+
+      tips: [
+        'Show end-to-end ownership',
+        'Explain technical decisions and trade-offs',
+        'Quantify business impact',
+        'Highlight iteration and de-risking'
+      ]
+    },
+    {
+      id: 'learning-unfamiliar-domain',
+      title: 'Learning Unfamiliar Domain Fast',
+      icon: 'book',
+      color: '#06b6d4',
+      questions: 3,
+      description: 'Rapidly upskill when expertise is absent.',
+
+      introduction: `This question tests your ability to quickly learn and deliver value in domains where you have no prior expertise.`,
+
+      keyQuestions: [
+        {
+          question: 'How do I learn an unfamiliar domain quickly?',
+          answer: `**What Interviewers Look For**:
+- Bias for action when expertise is absent
+- Rapid-learning playbook: curate sources, build POC, get feedback
+- Ability to translate fresh knowledge into production value fast
+- Reflection: what stuck, what to reuse
+
+**STAR Example**:
+
+**Situation**: "Refund fraud surged 60% on our e-commerce platform; leadership wanted an ML-based detector in six weeks, but we had no data-science team."
+
+**Task**: "Quickly up-skill on anomaly-detection models and deliver a production-ready service."
+
+**Action**:
+- Consumed a fast.ai course
+- Read two academic papers
+- Slack-mentored with a DS from another org
+- Prototyped Isolation-Forest in Jupyter
+- Back-tested on 12M orders
+- Containerised the model, exposed a gRPC endpoint
+
+**Result**: "Deployed in week 5; caught 92% of fraudulent refunds with 3% false positives, saving £0.5M/quarter. Wrote a 2-page 'ML-bootstrap' guide now used by three squads."`
+        }
+      ],
+
+      tips: [
+        'Start with focused courses and papers',
+        'Find mentors in the domain',
+        'Build working prototypes quickly',
+        'Document learnings for others'
+      ]
+    },
   ];
 
   // Company-Specific Prep
