@@ -415,6 +415,42 @@ export default function DocsPage({ onBack }) {
     { id: 'behavioral', label: 'Behavioral', icon: 'users' },
   ];
 
+  // Coding topic categories
+  const codingCategories = [
+    { id: 'arrays', name: 'Arrays & Strings', icon: 'code', color: '#ef4444' },
+    { id: 'two-pointers', name: 'Two Pointers & Sliding Window', icon: 'arrowRight', color: '#f59e0b' },
+    { id: 'searching', name: 'Searching & Sorting', icon: 'search', color: '#eab308' },
+    { id: 'stacks-queues', name: 'Stacks & Queues', icon: 'layers', color: '#22c55e' },
+    { id: 'linked-lists', name: 'Linked Lists', icon: 'link', color: '#14b8a6' },
+    { id: 'trees', name: 'Trees & Graphs', icon: 'gitBranch', color: '#06b6d4' },
+    { id: 'dp', name: 'Dynamic Programming', icon: 'grid', color: '#3b82f6' },
+    { id: 'advanced', name: 'Advanced Patterns', icon: 'puzzle', color: '#8b5cf6' },
+  ];
+
+  const codingCategoryMap = {
+    'arrays-hashing': 'arrays',
+    'matrix': 'arrays',
+    'intervals': 'arrays',
+    'two-pointers': 'two-pointers',
+    'sliding-window': 'two-pointers',
+    'binary-search': 'searching',
+    'sorting': 'searching',
+    'search-algorithms': 'searching',
+    'stacks': 'stacks-queues',
+    'queues': 'stacks-queues',
+    'linked-lists': 'linked-lists',
+    'trees': 'trees',
+    'graphs': 'trees',
+    'tries': 'trees',
+    'heaps': 'trees',
+    'dynamic-programming': 'dp',
+    'backtracking': 'advanced',
+    'greedy': 'advanced',
+    'bit-manipulation': 'advanced',
+    'math-geometry': 'advanced',
+    'recursion': 'advanced',
+  };
+
   // DSA Topics with content
   const codingTopics = [
     {
@@ -4609,6 +4645,28 @@ def max_sliding_window(nums, k):
 # - Other patterns: 30%`
     },
   ];
+
+  // System Design topic categories
+  const systemDesignCategories = [
+    { id: 'fundamentals', name: 'Core Fundamentals', icon: 'lightbulb', color: '#10b981' },
+    { id: 'storage', name: 'Storage & Databases', icon: 'database', color: '#3b82f6' },
+    { id: 'communication', name: 'Communication & APIs', icon: 'globe', color: '#8b5cf6' },
+    { id: 'scalability', name: 'Scalability & Performance', icon: 'trendingUp', color: '#f59e0b' },
+    { id: 'reliability', name: 'Reliability & Security', icon: 'shield', color: '#ef4444' },
+  ];
+
+  const systemDesignCategoryMap = {
+    'fundamentals': 'fundamentals',
+    'databases': 'storage',
+    'caching': 'storage',
+    'message-queues': 'communication',
+    'api-design': 'communication',
+    'load-balancing': 'scalability',
+    'rate-limiting': 'scalability',
+    'microservices': 'scalability',
+    'security': 'reliability',
+    'monitoring': 'reliability',
+  };
 
   // System Design Topics
   const systemDesignTopics = [
@@ -25886,47 +25944,49 @@ Best,
               {/* DSA Content */}
               {activePage === 'coding' && (
                 <>
-                  {/* Topic Cards - Table layout */}
-                  <div className="mb-8 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-                    <table className="w-full">
-                      <thead>
-                        <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Topic</th>
-                          <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 hidden md:table-cell">Description</th>
-                          <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 w-24">Questions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredTopics.map((topic, idx) => (
-                          <tr
-                            key={topic.id}
-                            onClick={() => setSelectedTopic(topic.id)}
-                            className="group cursor-pointer transition-all hover:bg-white/5"
-                            style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
-                          >
-                            <td className="px-4 py-3">
-                              <div className="flex items-center gap-3">
-                                <div
-                                  className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                                  style={{ background: `${topic.color}15` }}
-                                >
-                                  <Icon name={topic.icon} size={16} style={{ color: topic.color }} />
+                  {/* Topic Cards - Grouped by Category */}
+                  <div className="space-y-6 mb-8">
+                    {codingCategories.map((category) => {
+                      const categoryTopics = filteredTopics.filter(t => codingCategoryMap[t.id] === category.id);
+                      if (categoryTopics.length === 0) return null;
+                      return (
+                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+                          {/* Category Header */}
+                          <div className="px-4 py-3 flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${category.color}20` }}>
+                              <Icon name={category.icon} size={16} style={{ color: category.color }} />
+                            </div>
+                            <div>
+                              <h3 className="text-base font-bold text-white">{category.name}</h3>
+                              <span className="text-xs text-gray-500">{categoryTopics.length} topics</span>
+                            </div>
+                          </div>
+                          {/* Topics in Category */}
+                          <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                            {categoryTopics.map((topic) => (
+                              <div
+                                key={topic.id}
+                                onClick={() => setSelectedTopic(topic.id)}
+                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}15` }}>
+                                    <Icon name={topic.icon} size={12} style={{ color: topic.color }} />
+                                  </div>
+                                  <div>
+                                    <span className="text-white text-sm font-medium group-hover:text-emerald-400 transition-colors">{topic.title}</span>
+                                    <span className="text-gray-500 text-xs ml-2 hidden md:inline">{topic.description}</span>
+                                  </div>
                                 </div>
-                                <span className="text-white font-medium group-hover:text-emerald-400 transition-colors">{topic.title}</span>
+                                <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
+                                  {topic.questions}Q
+                                </span>
                               </div>
-                            </td>
-                            <td className="px-4 py-3 hidden md:table-cell">
-                              <span className="text-gray-400 text-sm">{topic.description}</span>
-                            </td>
-                            <td className="px-4 py-3 text-right">
-                              <span className="px-2 py-1 rounded text-sm font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
-                                {topic.questions}Q
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
 
                   {/* Quick Reference - Enhanced */}
@@ -26011,58 +26071,49 @@ Best,
               {/* System Design Content */}
               {activePage === 'system-design' && (
                 <>
-                  {/* Core Concepts Section */}
-                  <div className="mb-12">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-500/10">
-                        <Icon name="layers" size={20} className="text-blue-400" />
-                      </div>
-                      <div>
-                        <h2 className="text-2xl font-bold text-white">Core Concepts</h2>
-                        <p className="text-base text-gray-500">Essential building blocks for system design</p>
-                      </div>
-                    </div>
-                    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-                      <table className="w-full">
-                        <thead>
-                          <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
-                            <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Concept</th>
-                            <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 hidden md:table-cell">Description</th>
-                            <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 w-24">Type</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {filteredTopics.map((topic) => (
-                            <tr
-                              key={topic.id}
-                              onClick={() => setSelectedTopic(topic.id)}
-                              className="group cursor-pointer transition-all hover:bg-white/5"
-                              style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
-                            >
-                              <td className="px-4 py-3">
+                  {/* Core Concepts Section - Grouped by Category */}
+                  <div className="space-y-6 mb-8">
+                    {systemDesignCategories.map((category) => {
+                      const categoryTopics = filteredTopics.filter(t => systemDesignCategoryMap[t.id] === category.id);
+                      if (categoryTopics.length === 0) return null;
+                      return (
+                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+                          {/* Category Header */}
+                          <div className="px-4 py-3 flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${category.color}20` }}>
+                              <Icon name={category.icon} size={16} style={{ color: category.color }} />
+                            </div>
+                            <div>
+                              <h3 className="text-base font-bold text-white">{category.name}</h3>
+                              <span className="text-xs text-gray-500">{categoryTopics.length} topics</span>
+                            </div>
+                          </div>
+                          {/* Topics in Category */}
+                          <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                            {categoryTopics.map((topic) => (
+                              <div
+                                key={topic.id}
+                                onClick={() => setSelectedTopic(topic.id)}
+                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
+                              >
                                 <div className="flex items-center gap-3">
-                                  <div
-                                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                                    style={{ background: `${topic.color}15` }}
-                                  >
-                                    <Icon name={topic.icon} size={16} style={{ color: topic.color }} />
+                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}15` }}>
+                                    <Icon name={topic.icon} size={12} style={{ color: topic.color }} />
                                   </div>
-                                  <span className="text-white font-medium group-hover:text-blue-400 transition-colors">{topic.title}</span>
+                                  <div>
+                                    <span className="text-white text-sm font-medium group-hover:text-blue-400 transition-colors">{topic.title}</span>
+                                    <span className="text-gray-500 text-xs ml-2 hidden md:inline">{topic.description}</span>
+                                  </div>
                                 </div>
-                              </td>
-                              <td className="px-4 py-3 hidden md:table-cell">
-                                <span className="text-gray-400 text-sm">{topic.description}</span>
-                              </td>
-                              <td className="px-4 py-3 text-right">
-                                <span className="px-2 py-1 rounded text-sm font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
-                                  Concept
+                                <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
+                                  {topic.keyQuestions?.length || topic.questions || 0}Q
                                 </span>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
 
                   {/* System Design Problems Section */}
@@ -26295,7 +26346,7 @@ Best,
                               </td>
                               <td className="px-4 py-3 text-right">
                                 <span className="px-2 py-1 rounded text-sm font-medium" style={{ background: `${company.color}15`, color: company.color }}>
-                                  {company.count}
+                                  {company.keyQuestions?.length || 0}
                                 </span>
                               </td>
                             </tr>
