@@ -23818,36 +23818,34 @@ Clearly state costs or constraints.
               {/* DSA Content */}
               {activePage === 'coding' && (
                 <>
-                  {/* Topic Cards - 4-column compact grid */}
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-8">
+                  {/* Topic Cards - Horizontal row layout */}
+                  <div className="flex flex-wrap gap-2 mb-8">
                     {filteredTopics.map((topic, idx) => (
                       <div
                         key={topic.id}
                         onClick={() => setSelectedTopic(topic.id)}
-                        className="group relative rounded-xl transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl"
+                        className="group flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer hover:scale-[1.02]"
                         style={{
-                          background: `linear-gradient(135deg, ${topic.color}08, ${topic.color}02)`,
-                          border: `1px solid ${topic.color}20`
+                          background: 'rgba(255,255,255,0.02)',
+                          border: '1px solid rgba(255,255,255,0.08)'
                         }}
                       >
-                        <div className="p-3">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div
-                              className="w-8 h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 flex-shrink-0"
-                              style={{ background: `${topic.color}15` }}
-                            >
-                              <Icon name={topic.icon} size={16} style={{ color: topic.color }} />
-                            </div>
-                            <h3 className="text-white font-semibold text-sm group-hover:text-emerald-400 transition-colors truncate">{topic.title}</h3>
+                        {/* Column 1: Icon + Title */}
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div
+                            className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110"
+                            style={{ background: `${topic.color}15` }}
+                          >
+                            <Icon name={topic.icon} size={14} style={{ color: topic.color }} />
                           </div>
-                          <p className="text-gray-400 text-xs line-clamp-2 mb-2">{topic.description}</p>
-                          <div className="flex items-center justify-between">
-                            <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
-                              {topic.questions}Q
-                            </span>
-                            <Icon name="arrowRight" size={12} className="text-gray-500 group-hover:text-white transition-colors" />
-                          </div>
+                          <span className="text-white font-medium text-sm whitespace-nowrap group-hover:text-emerald-400 transition-colors">{topic.title}</span>
                         </div>
+                        {/* Column 2: Description */}
+                        <span className="text-gray-500 text-xs whitespace-nowrap hidden md:block max-w-[180px] truncate">{topic.description}</span>
+                        {/* Column 3: Questions badge */}
+                        <span className="px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap flex-shrink-0" style={{ background: `${topic.color}15`, color: topic.color }}>
+                          {topic.questions}Q
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -24118,35 +24116,33 @@ Clearly state costs or constraints.
                         <p className="text-xs text-gray-500">Common behavioral question types with example answers</p>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    <div className="flex flex-wrap gap-2">
                       {filteredTopics.map((topic) => (
                         <div
                           key={topic.id}
                           onClick={() => setSelectedTopic(topic.id)}
-                          className="group relative rounded-xl transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl"
+                          className="group flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer hover:scale-[1.02]"
                           style={{
-                            background: `linear-gradient(135deg, ${topic.color}08, ${topic.color}02)`,
-                            border: `1px solid ${topic.color}20`
+                            background: 'rgba(255,255,255,0.02)',
+                            border: '1px solid rgba(255,255,255,0.08)'
                           }}
                         >
-                          <div className="p-3">
-                            <div className="flex items-center gap-2 mb-2">
-                              <div
-                                className="w-8 h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 flex-shrink-0"
-                                style={{ background: `${topic.color}15` }}
-                              >
-                                <Icon name={topic.icon} size={16} style={{ color: topic.color }} />
-                              </div>
-                              <h3 className="text-white font-semibold text-sm group-hover:text-purple-400 transition-colors truncate">{topic.title}</h3>
+                          {/* Column 1: Icon + Title */}
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div
+                              className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110"
+                              style={{ background: `${topic.color}15` }}
+                            >
+                              <Icon name={topic.icon} size={14} style={{ color: topic.color }} />
                             </div>
-                            <p className="text-gray-400 text-xs line-clamp-2 mb-2">{topic.description}</p>
-                            <div className="flex items-center justify-between">
-                              <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
-                                {topic.questions}Q
-                              </span>
-                              <Icon name="arrowRight" size={12} className="text-gray-500 group-hover:text-white transition-colors" />
-                            </div>
+                            <span className="text-white font-medium text-sm whitespace-nowrap group-hover:text-purple-400 transition-colors">{topic.title}</span>
                           </div>
+                          {/* Column 2: Description */}
+                          <span className="text-gray-500 text-xs whitespace-nowrap hidden md:block max-w-[200px] truncate">{topic.description}</span>
+                          {/* Column 3: Questions badge */}
+                          <span className="px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap flex-shrink-0" style={{ background: `${topic.color}15`, color: topic.color }}>
+                            {topic.questions}Q
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -24163,35 +24159,33 @@ Clearly state costs or constraints.
                         <p className="text-xs text-gray-500">Tailored guidance for top tech companies</p>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="flex flex-wrap gap-2">
                       {companyPrep.map((company) => (
                         <div
                           key={company.id}
                           onClick={() => setSelectedTopic(company.id)}
-                          className="group relative rounded-xl transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl"
+                          className="group flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer hover:scale-[1.02]"
                           style={{
-                            background: `linear-gradient(135deg, ${company.color}08, ${company.color}02)`,
-                            border: `1px solid ${company.color}20`
+                            background: 'rgba(255,255,255,0.02)',
+                            border: '1px solid rgba(255,255,255,0.08)'
                           }}
                         >
-                          <div className="p-3">
-                            <div className="flex items-center gap-2 mb-2">
-                              <div
-                                className="w-8 h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 flex-shrink-0"
-                                style={{ background: `${company.color}15` }}
-                              >
-                                <Icon name={company.icon} size={16} style={{ color: company.color }} />
-                              </div>
-                              <h3 className="text-white font-semibold text-sm group-hover:text-amber-400 transition-colors truncate">{company.title}</h3>
+                          {/* Column 1: Icon + Title */}
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div
+                              className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110"
+                              style={{ background: `${company.color}15` }}
+                            >
+                              <Icon name={company.icon} size={14} style={{ color: company.color }} />
                             </div>
-                            <p className="text-gray-500 text-xs mb-2 truncate">{company.subtitle}</p>
-                            <div className="flex items-center justify-between">
-                              <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: `${company.color}15`, color: company.color }}>
-                                {company.count}
-                              </span>
-                              <Icon name="arrowRight" size={12} className="text-gray-500 group-hover:text-white transition-colors" />
-                            </div>
+                            <span className="text-white font-medium text-sm whitespace-nowrap group-hover:text-amber-400 transition-colors">{company.title}</span>
                           </div>
+                          {/* Column 2: Subtitle */}
+                          <span className="text-gray-500 text-xs whitespace-nowrap hidden sm:block">{company.subtitle}</span>
+                          {/* Column 3: Count badge */}
+                          <span className="px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap flex-shrink-0" style={{ background: `${company.color}15`, color: company.color }}>
+                            {company.count}
+                          </span>
                         </div>
                       ))}
                     </div>
