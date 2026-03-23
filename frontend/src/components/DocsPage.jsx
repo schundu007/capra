@@ -133,7 +133,7 @@ function FormattedContent({ content, color = 'emerald' }) {
         if (matchType === 'bold') {
           parts.push(<strong key={keyCounter++} className="text-white font-semibold">{nextMatch[1]}</strong>);
         } else {
-          parts.push(<code key={keyCounter++} className={`${colors.highlight} px-1.5 py-0.5 rounded text-xs font-mono border`}>{nextMatch[1]}</code>);
+          parts.push(<code key={keyCounter++} className={`${colors.highlight} px-1.5 py-0.5 rounded text-sm font-mono border`}>{nextMatch[1]}</code>);
         }
         remaining = remaining.substring(nextMatch.index + nextMatch[0].length);
       } else {
@@ -185,7 +185,7 @@ function FormattedContent({ content, color = 'emerald' }) {
       elements.push(
         <div key={`diagram-${blockIdx}`} className="my-4 rounded-xl border overflow-x-auto" style={{ background: 'rgba(0,0,0,0.4)', borderColor: 'rgba(255,255,255,0.1)' }}>
           <pre
-            className="p-4 text-xs leading-5"
+            className="p-4 text-sm leading-6"
             style={{
               fontFamily: '"SF Mono", "Monaco", "Inconsolata", "Fira Mono", "Droid Sans Mono", "Source Code Pro", "Courier New", monospace',
               whiteSpace: 'pre',
@@ -210,7 +210,7 @@ function FormattedContent({ content, color = 'emerald' }) {
               {currentList.map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <span className={`w-1.5 h-1.5 rounded-full ${colors.bullet.replace('text-', 'bg-')} mt-2 flex-shrink-0`} />
-                  <span className="text-gray-300 text-sm leading-relaxed">{formatInlineText(item)}</span>
+                  <span className="text-gray-300 text-base leading-relaxed">{formatInlineText(item)}</span>
                 </li>
               ))}
             </ul>
@@ -22187,6 +22187,749 @@ Clearly state costs or constraints.
         'Practice simplifying complex topics regularly'
       ]
     },
+    {
+      id: 'what-are-behavioral-interviews',
+      title: 'What Are Behavioral Interviews?',
+      icon: 'info',
+      color: '#6366f1',
+      questions: 5,
+      description: 'Understanding the purpose and format of behavioral interviews.',
+
+      introduction: `Behavioral interviews are structured conversations where interviewers assess how you've handled real situations in the past. The fundamental premise is that past behavior is the best predictor of future behavior. Unlike technical interviews that test skills, behavioral interviews reveal your soft skills, work style, and cultural fit.`,
+
+      keyQuestions: [
+        {
+          question: 'What is the purpose of behavioral interviews?',
+          answer: `**Core Purpose**
+
+Behavioral interviews help companies answer: "Will this person succeed and thrive here?"
+
+**What They Assess**:
+- **Problem-solving approach**: How you tackle challenges
+- **Collaboration style**: How you work with others
+- **Communication skills**: How clearly you convey ideas
+- **Leadership potential**: How you influence and guide
+- **Cultural fit**: How your values align with the company
+- **Growth mindset**: How you learn from experiences
+
+**Why Past Behavior Matters**:
+The premise is that how you handled situations before predicts how you'll handle similar situations in the future. Interviewers want specific examples, not hypotheticals.`
+        },
+        {
+          question: 'What are common myths about behavioral interviews?',
+          answer: `**Myth 1: "Just be yourself"**
+❌ Reality: Be your BEST self with prepared, polished stories
+
+**Myth 2: "They're just casual conversations"**
+❌ Reality: Every question has a specific competency being evaluated
+
+**Myth 3: "Any story will do"**
+❌ Reality: Choose stories that highlight the specific skill being asked about
+
+**Myth 4: "Shorter answers are better"**
+❌ Reality: Detailed STAR stories (2-3 minutes) show depth of experience
+
+**Myth 5: "Technical skills matter more"**
+❌ Reality: Many candidates fail behavioral rounds despite strong technical skills
+
+**Myth 6: "You can wing it"**
+❌ Reality: Top performers prepare 8-12 detailed stories in advance`
+        },
+        {
+          question: 'How should I prepare for behavioral interviews?',
+          answer: `**4-Week Preparation Plan**
+
+**Week 1: Story Mining**
+- Review past 2-3 years of work
+- Identify 10-15 significant situations
+- Document key details: context, actions, outcomes
+
+**Week 2: Story Development**
+- Structure each story using STAR format
+- Add specific metrics and details
+- Practice telling each in 2-3 minutes
+
+**Week 3: Company Research**
+- Study company values and culture
+- Map your stories to their competencies
+- Prepare company-specific examples
+
+**Week 4: Practice & Refine**
+- Mock interviews with peers
+- Record yourself and review
+- Refine based on feedback`
+        }
+      ],
+
+      tips: [
+        'Prepare 8-12 detailed stories that cover common themes',
+        'Each story should be 2-3 minutes with specific details',
+        'Practice telling stories out loud, not just in your head',
+        'Have backup stories in case your first choice doesn\'t fit',
+        'Research the company\'s values before the interview'
+      ]
+    },
+    {
+      id: 'handling-follow-ups',
+      title: 'Handling Follow-up Questions',
+      icon: 'messageCircle',
+      color: '#ec4899',
+      questions: 4,
+      description: 'Navigate deeper probing questions with confidence.',
+
+      introduction: `Follow-up questions are where behavioral interviews get real. Interviewers use them to probe deeper, verify details, and see how you think on your feet. Being prepared for follow-ups separates good candidates from great ones.`,
+
+      keyQuestions: [
+        {
+          question: 'What types of follow-up questions should I expect?',
+          answer: `**Common Follow-up Categories**
+
+**1. Clarification Questions**
+"Can you tell me more about your specific role in that project?"
+"What exactly did YOU do vs. the team?"
+
+**2. Probing Questions**
+"What alternatives did you consider?"
+"Why did you choose that approach over others?"
+
+**3. Outcome Questions**
+"What happened after that?"
+"How did you measure success?"
+
+**4. Learning Questions**
+"What would you do differently?"
+"What did you learn from this experience?"
+
+**5. Challenge Questions**
+"What was the hardest part?"
+"How did you handle the pushback?"
+
+**Preparation Tip**: For each story, prepare answers to these 5 categories.`
+        },
+        {
+          question: 'How do I handle unexpected questions?',
+          answer: `**The PAUSE Method**
+
+**P - Pause**
+Take a breath. 2-3 seconds of silence is fine.
+
+**A - Acknowledge**
+"That's a great question" or "Let me think about that..."
+
+**U - Understand**
+If unclear, ask for clarification: "When you say X, do you mean...?"
+
+**S - Structure**
+Organize your thoughts: "I'll share three key factors..."
+
+**E - Execute**
+Deliver your answer confidently
+
+**If You're Truly Stuck**:
+"I haven't encountered exactly that situation, but here's a similar experience..."
+OR
+"I'd approach it by [describe your thinking process]"`
+        }
+      ],
+
+      tips: [
+        'Know your stories deeply - anticipate follow-up angles',
+        'It\'s okay to pause and think',
+        'Ask for clarification if a question is unclear',
+        'Don\'t invent details - admit when you don\'t remember',
+        'Turn "I don\'t know" into "Here\'s how I\'d approach it"'
+      ]
+    },
+    {
+      id: 'company-change-reason',
+      title: 'Why Are You Leaving?',
+      icon: 'arrowRightCircle',
+      color: '#f97316',
+      questions: 3,
+      description: 'Explain your career transition positively and professionally.',
+
+      introduction: `"Why are you leaving your current role?" is a delicate question that requires careful framing. Interviewers want to understand your motivations and ensure you won't badmouth employers. The key is to be honest while staying positive and focusing on growth.`,
+
+      keyQuestions: [
+        {
+          question: 'How do I explain leaving without being negative?',
+          answer: `**The Growth Framework**
+
+**DO Focus On**:
+✅ Seeking new challenges
+✅ Career growth opportunities
+✅ Learning new technologies
+✅ Bigger scope or impact
+✅ Better alignment with goals
+
+**DON'T Mention**:
+❌ Bad manager or coworkers
+❌ Unfair treatment
+❌ Salary issues as primary reason
+❌ Company politics
+❌ Complaints about workload
+
+**Example Responses**:
+
+"I've learned a lot at [Company], but I'm ready for the next challenge. I'm particularly excited about [new company's] work in [area] because..."
+
+"After 3 years, I've accomplished what I set out to do. I led our team through [achievement], and now I'm looking to apply that experience at a larger scale."
+
+"I'm looking for an opportunity to work more closely with [specific technology/domain], which aligns better with my career goals."`
+        },
+        {
+          question: 'What if I was laid off or fired?',
+          answer: `**If Laid Off**:
+"Our company went through a restructuring, and my role was eliminated along with [context]. It gave me the opportunity to be more intentional about my next step, and that's why I'm excited about this role."
+
+**If Performance-Related**:
+Be honest but focus on learning:
+"That role wasn't the right fit for me at the time. I've reflected on that experience and [specific lesson learned]. Since then, I've [demonstrated improvement]."
+
+**Key Principles**:
+- Don't lie - it can be verified
+- Keep it brief - don't over-explain
+- Pivot to the positive - what you learned
+- Show growth - how you've improved`
+        }
+      ],
+
+      tips: [
+        'Keep explanations brief - 30 seconds max',
+        'Focus on what you\'re moving toward, not away from',
+        'Never badmouth previous employers',
+        'Have a consistent narrative for your career moves',
+        'Connect your reasons to the new opportunity'
+      ]
+    },
+    {
+      id: 'proud-project',
+      title: 'Most Proud Project',
+      icon: 'trophy',
+      color: '#eab308',
+      questions: 4,
+      description: 'Showcase your best work and demonstrate impact.',
+
+      introduction: `"Tell me about a project you're most proud of" is your chance to shine. This question assesses technical depth, ownership, impact, and your ability to articulate complex work. Choose a project where you can demonstrate clear ownership and measurable outcomes.`,
+
+      keyQuestions: [
+        {
+          question: 'How do I choose the right project?',
+          answer: `**Selection Criteria**
+
+**1. Impact & Scale**
+Choose projects with measurable business impact:
+- Revenue growth
+- Cost savings
+- User metrics improvement
+- Performance gains
+
+**2. Your Ownership**
+Pick projects where YOU drove decisions, not just executed tasks.
+
+**3. Technical Depth**
+Select projects that showcase your expertise level.
+
+**4. Recent & Relevant**
+Ideally from last 2-3 years and related to the role you're applying for.
+
+**5. Good Story Arc**
+Projects with challenges, pivots, and learnings make better stories.
+
+**Red Flags to Avoid**:
+❌ Projects where you were just a contributor
+❌ Classified/NDA projects you can't discuss
+❌ Projects that failed without clear learnings
+❌ Old projects that don't reflect current abilities`
+        },
+        {
+          question: 'How do I structure the answer?',
+          answer: `**The Pride Project Framework**
+
+**1. Context (30 seconds)**
+"I led the redesign of our payment processing system which handles $2M in daily transactions."
+
+**2. Challenge (30 seconds)**
+"We were experiencing 15% transaction failures due to legacy architecture and needed to maintain 99.99% uptime during migration."
+
+**3. Your Approach (60 seconds)**
+- Technical decisions you made
+- Trade-offs you considered
+- How you collaborated with others
+
+**4. Execution Highlights (30 seconds)**
+Key moments, pivots, or creative solutions
+
+**5. Results (30 seconds)**
+Specific metrics and business impact:
+"Reduced failures to 0.1%, saving $500K annually. The architecture became the template for other teams."
+
+**6. Learnings (15 seconds)**
+"I learned that incremental migration with feature flags reduces risk significantly."`
+        }
+      ],
+
+      tips: [
+        'Quantify impact: revenue, users, performance, time saved',
+        'Emphasize YOUR decisions and contributions',
+        'Include technical details appropriate for your audience',
+        'Show collaboration even while highlighting your role',
+        'Prepare follow-up details about challenges and trade-offs'
+      ]
+    },
+    {
+      id: 'mentoring-coaching',
+      title: 'Mentoring & Coaching',
+      icon: 'userCheck',
+      color: '#14b8a6',
+      questions: 4,
+      description: 'Show how you develop and support others.',
+
+      introduction: `Mentoring questions assess your ability to develop others—a crucial skill for senior engineers and leaders. Companies want to see that you can transfer knowledge, provide feedback, and help others grow while maintaining productivity.`,
+
+      keyQuestions: [
+        {
+          question: 'Tell me about a time you mentored someone',
+          answer: `**STAR Example**
+
+**Situation**:
+"A junior engineer on my team was struggling with system design and her PR reviews were taking multiple iterations."
+
+**Task**:
+"As her tech lead, I wanted to help her level up while not creating dependency on me for every decision."
+
+**Action**:
+- Set up weekly 1:1s focused on growth, separate from project work
+- Created a learning plan targeting specific gaps
+- Paired on complex PRs, explaining my thought process
+- Gradually shifted from "do this" to "what do you think?"
+- Introduced her to relevant resources and communities
+
+**Result**:
+"Within 4 months, she was independently designing features and her PR approval rate went from 40% to 90%. She's now mentoring others.
+
+The key was meeting her where she was and progressively increasing autonomy."`
+        },
+        {
+          question: 'How do you balance mentoring with your own work?',
+          answer: `**Practical Framework**
+
+**1. Structured Time**
+"I block 2-3 hours weekly specifically for mentoring. This prevents it from eating into deep work time."
+
+**2. Asynchronous First**
+"I encourage mentees to write down questions and context. This helps them think through problems and makes our sync time more productive."
+
+**3. Teaching to Fish**
+"Instead of giving answers, I guide with questions: 'What have you tried? What do you think is happening?' This builds independence."
+
+**4. Group Learning**
+"I turn common questions into team knowledge sharing, multiplying impact."
+
+**5. Clear Boundaries**
+"I'm available for guidance, but I expect mentees to drive their own learning. I'm a resource, not a crutch."`
+        }
+      ],
+
+      tips: [
+        'Show empathy and patience in your examples',
+        'Demonstrate how you adapted to the mentee\'s needs',
+        'Quantify growth: promotions, skill improvements, independence',
+        'Highlight teaching moments that scaled beyond one person',
+        'Show you can give direct feedback constructively'
+      ]
+    },
+    {
+      id: 'disagreement-with-manager',
+      title: 'Disagreement with Manager',
+      icon: 'userMinus',
+      color: '#ef4444',
+      questions: 3,
+      description: 'Navigate hierarchy conflicts professionally.',
+
+      introduction: `Disagreeing with your manager is delicate territory. Interviewers want to see that you can advocate for your position while respecting hierarchy, ultimately committing to decisions even when you disagree. This tests your professionalism, communication, and ability to disagree constructively.`,
+
+      keyQuestions: [
+        {
+          question: 'Tell me about a time you disagreed with your manager',
+          answer: `**STAR Example**
+
+**Situation**:
+"My manager wanted to release a feature on an aggressive timeline that I believed would compromise quality and create technical debt."
+
+**Task**:
+"I needed to voice my concerns without being insubordinate, while ultimately supporting whatever decision was made."
+
+**Action**:
+- Requested a 1:1 to discuss (not in public)
+- Came prepared with data: "Here are the specific risks I see..."
+- Proposed alternatives: "We could do X first, then Y..."
+- Asked questions to understand their perspective
+- After discussion, committed: "I understand the business need. Here's how I'll make it work."
+
+**Result**:
+"We compromised on a phased approach. We launched a smaller scope on time, then added features in week 2. My manager appreciated that I raised concerns constructively, and we developed a better working relationship.
+
+Key learning: Disagree with data, not emotion. And once decided, commit fully."`
+        },
+        {
+          question: 'What if your manager was clearly wrong?',
+          answer: `**The Escalation Framework**
+
+**1. Data Over Opinion**
+"I never say 'you're wrong.' I present data: 'I've seen X happen when we do this. Can we discuss?'"
+
+**2. Seek to Understand**
+"Maybe they have context I don't. I ask: 'Help me understand the reasoning behind this approach.'"
+
+**3. Propose, Don't Oppose**
+"Instead of 'That won't work,' I say 'What if we tried X instead?'"
+
+**4. Document Concerns**
+"If I'm overruled on something serious, I document it constructively: 'I want to note the risks I see so we can monitor for them.'"
+
+**5. Commit and Deliver**
+"Once decided, I fully commit. Saying 'I told you so' later never helps."
+
+**When to Escalate**:
+Only for ethical issues or serious risks. Never for bruised egos.`
+        }
+      ],
+
+      tips: [
+        'Never badmouth your manager in the interview',
+        'Show you can disagree AND commit',
+        'Emphasize private conversations, not public confrontations',
+        'Focus on the issue, not the person',
+        'Highlight what you learned about working with different styles'
+      ]
+    },
+    {
+      id: 'production-outage',
+      title: 'Production Outage Handling',
+      icon: 'alertTriangle',
+      color: '#dc2626',
+      questions: 4,
+      description: 'Demonstrate crisis management and problem-solving under pressure.',
+
+      introduction: `Production outages test your technical skills, composure under pressure, and ability to communicate during crisis. Interviewers want to see structured problem-solving, clear communication, and learning from incidents.`,
+
+      keyQuestions: [
+        {
+          question: 'Walk me through how you handled a production outage',
+          answer: `**STAR Example**
+
+**Situation**:
+"At 2 AM, our payment service went down, affecting thousands of customers. I was the on-call engineer."
+
+**Task**:
+"Restore service immediately while coordinating with stakeholders and documenting for the post-mortem."
+
+**Action**:
+**Immediate Response (First 5 minutes)**:
+- Acknowledged the alert and joined the incident channel
+- Assessed severity and escalated to relevant teams
+- Communicated status to stakeholders
+
+**Investigation (Next 15 minutes)**:
+- Checked dashboards and recent deployments
+- Identified a bad database migration causing deadlocks
+- Rolled back the migration
+
+**Resolution (Next 30 minutes)**:
+- Verified service recovery
+- Monitored for 30 minutes
+- Sent all-clear communication
+
+**Follow-up (Next day)**:
+- Wrote detailed incident report
+- Led post-mortem meeting
+- Implemented preventive measures
+
+**Result**:
+"Service restored in 50 minutes. We implemented migration testing that caught 3 similar issues in the next quarter."`
+        },
+        {
+          question: 'How do you stay calm during outages?',
+          answer: `**Crisis Composure Framework**
+
+**1. Preparation**
+"I stay calm because I've prepared: runbooks, monitoring, rollback procedures."
+
+**2. Structure Over Panic**
+"I follow a checklist: Acknowledge → Assess → Act → Communicate. Structure replaces panic."
+
+**3. Focus on Solutions**
+"I separate 'fix now' from 'blame later.' Post-mortems are for root cause; incidents are for resolution."
+
+**4. Clear Communication**
+"I over-communicate during incidents: 'Here's what we know, here's what we're doing, next update in 10 minutes.'"
+
+**5. Know When to Escalate**
+"I'm not afraid to pull in help. Getting service back up is more important than solving it alone."`
+        }
+      ],
+
+      tips: [
+        'Have a clear structure for your incident story',
+        'Show calm, methodical problem-solving',
+        'Highlight communication throughout the incident',
+        'Include post-incident learnings and improvements',
+        'Demonstrate ownership without throwing others under the bus'
+      ]
+    },
+    {
+      id: 'comfort-zone',
+      title: 'Working Outside Comfort Zone',
+      icon: 'trendingUp',
+      color: '#8b5cf6',
+      questions: 3,
+      description: 'Show adaptability and willingness to grow.',
+
+      introduction: `This question assesses your adaptability, learning agility, and growth mindset. Companies want to hire people who can stretch beyond their current skills and thrive in uncertainty.`,
+
+      keyQuestions: [
+        {
+          question: 'Tell me about a time you worked outside your comfort zone',
+          answer: `**STAR Example**
+
+**Situation**:
+"I was a backend engineer when our company needed someone to lead a mobile app initiative. I had zero mobile experience."
+
+**Task**:
+"Build and ship a mobile app in 4 months while learning React Native from scratch."
+
+**Action**:
+- Acknowledged the gap and created a learning plan
+- Spent first 2 weeks on intensive tutorials and small projects
+- Found a mentor who had mobile experience
+- Started with the simplest features to build confidence
+- Asked lots of questions and accepted early code reviews
+- Gradually took on more complex features
+
+**Result**:
+"We shipped on time. The app reached 50K downloads in the first month. More importantly, I discovered I enjoy mobile development and have since led two more mobile projects.
+
+The key was being humble about what I didn't know while confident in my ability to learn."`
+        },
+        {
+          question: 'How do you approach learning new skills quickly?',
+          answer: `**Rapid Learning Framework**
+
+**1. Set Clear Goals**
+"I define what 'competent' looks like for this specific need, not mastery."
+
+**2. Learn by Doing**
+"I start building immediately. I learn best by hitting real problems, not reading documentation."
+
+**3. Find Mentors**
+"I identify someone who knows this well and ask for guidance: 'What would you focus on? What should I avoid?'"
+
+**4. Embrace Discomfort**
+"I accept that I'll feel incompetent for a while. That's part of growth."
+
+**5. Ship Something Small**
+"I build momentum with quick wins before tackling big challenges."`
+        }
+      ],
+
+      tips: [
+        'Show enthusiasm for learning, not anxiety about gaps',
+        'Demonstrate how you structured your learning',
+        'Include specific actions you took to upskill',
+        'Highlight the outcome and growth achieved',
+        'Connect to your broader growth mindset'
+      ]
+    },
+    {
+      id: 'missed-deadline',
+      title: 'Missing a Deadline',
+      icon: 'clock',
+      color: '#f59e0b',
+      questions: 3,
+      description: 'Handle delivery failures with accountability and recovery.',
+
+      introduction: `This question tests your accountability, communication skills, and ability to recover from setbacks. Everyone misses deadlines occasionally—interviewers want to see how you handle it professionally.`,
+
+      keyQuestions: [
+        {
+          question: 'Tell me about a time you missed a deadline',
+          answer: `**STAR Example**
+
+**Situation**:
+"I committed to delivering a feature for a product launch, but midway through, we discovered an integration issue that would take an extra week to resolve."
+
+**Task**:
+"Communicate the delay, manage stakeholder expectations, and minimize business impact."
+
+**Action**:
+- Identified the issue early and assessed realistic timeline
+- Immediately communicated to stakeholders: "We've hit an unexpected blocker. Here's the impact and our options."
+- Proposed alternatives: partial delivery, workaround, or delay
+- Worked with PM to reprioritize and adjust launch plans
+- Put in extra effort to minimize delay where possible
+- Documented lessons for future estimations
+
+**Result**:
+"We delayed by 5 days instead of 7 by finding a workaround for part of the issue. Product adjusted the launch plan, and we hit the new date.
+
+My manager appreciated the early communication—she said it's worse to find out on the deadline day."`
+        },
+        {
+          question: 'How do you prevent missed deadlines?',
+          answer: `**Prevention Framework**
+
+**1. Buffer Time**
+"I add 20-30% buffer for unknowns. If I estimate 8 days, I communicate 10."
+
+**2. Early Warning System**
+"I track progress daily. If I'm falling behind at 30%, I raise the flag immediately."
+
+**3. Scope Negotiation**
+"I work with stakeholders to identify what's truly necessary vs. nice-to-have."
+
+**4. Risk Identification**
+"I explicitly call out dependencies and risks upfront: 'This assumes the API is ready.'"
+
+**5. Regular Check-ins**
+"I proactively update stakeholders weekly, not just when there are problems."`
+        }
+      ],
+
+      tips: [
+        'Show you communicated early, not at the last minute',
+        'Demonstrate accountability without making excuses',
+        'Include what you did to minimize impact',
+        'Highlight systemic improvements you made',
+        'Be honest but not self-flagellating'
+      ]
+    },
+    {
+      id: 'above-and-beyond',
+      title: 'Going Above and Beyond',
+      icon: 'rocket',
+      color: '#10b981',
+      questions: 3,
+      description: 'Demonstrate initiative and exceeding expectations.',
+
+      introduction: `This question identifies candidates who don't just meet expectations but actively look for ways to add value. It tests your initiative, ownership mentality, and commitment to excellence.`,
+
+      keyQuestions: [
+        {
+          question: 'Tell me about a time you went above and beyond',
+          answer: `**STAR Example**
+
+**Situation**:
+"Our team was launching a major feature, and I noticed our deployment process was error-prone and slow—taking 2 hours per release."
+
+**Task**:
+"This wasn't my responsibility, but I saw an opportunity to significantly improve our velocity."
+
+**Action**:
+- Analyzed the current deployment pipeline on my own time
+- Prototyped an automated solution using existing tools
+- Presented the proposal to my manager with clear ROI
+- Led the implementation, coordinating with DevOps
+- Created documentation and trained the team
+
+**Result**:
+"Reduced deployment time from 2 hours to 15 minutes. We went from releasing weekly to daily. The solution was adopted by other teams, and I received a spot bonus for the initiative.
+
+Key insight: I didn't wait to be asked. I saw a problem and took ownership."`
+        },
+        {
+          question: 'How do you identify opportunities to add extra value?',
+          answer: `**Value-Finding Framework**
+
+**1. Pain Point Radar**
+"I constantly notice: 'What's slowing us down? What do people complain about?'"
+
+**2. User Perspective**
+"I think: 'What would make our users' lives better that we're not doing?'"
+
+**3. Efficiency Lens**
+"I ask: 'Where are we doing manual work that could be automated?'"
+
+**4. Quality Focus**
+"I consider: 'What shortcuts are we taking that will hurt us later?'"
+
+**5. Business Awareness**
+"I stay aware of company goals and look for alignment opportunities."`
+        }
+      ],
+
+      tips: [
+        'Choose examples where you initiated, not just responded',
+        'Show impact beyond your job description',
+        'Quantify the extra value you created',
+        'Demonstrate how you balanced this with core responsibilities',
+        'Connect your initiative to broader team or company goals'
+      ]
+    },
+    {
+      id: 'giving-feedback',
+      title: 'Giving Constructive Feedback',
+      icon: 'messageSquare',
+      color: '#06b6d4',
+      questions: 4,
+      description: 'Provide feedback that helps others grow.',
+
+      introduction: `Giving feedback is a crucial skill that many people avoid. Interviewers want to see that you can provide direct, constructive feedback that helps colleagues improve while maintaining positive relationships.`,
+
+      keyQuestions: [
+        {
+          question: 'Tell me about a time you gave difficult feedback',
+          answer: `**STAR Example**
+
+**Situation**:
+"A peer engineer was consistently shipping code with bugs that were caught in production. It was affecting team velocity and his reputation."
+
+**Task**:
+"Provide feedback that would help him improve without damaging our working relationship."
+
+**Action**:
+- Requested a private conversation
+- Started with genuine positives: "Your architecture designs are strong..."
+- Shared specific observations: "In the last sprint, we had 3 bugs from your PRs that reached production..."
+- Made it about outcomes, not character: "This is creating extra work and affecting our metrics"
+- Asked for their perspective: "What do you think is contributing to this?"
+- Collaboratively identified solutions: additional testing, pairing, smaller PRs
+- Offered support: "I'm happy to do more thorough code reviews if helpful"
+
+**Result**:
+"His defect rate dropped by 80% over the next month. He thanked me later for being direct—he hadn't realized the pattern. We have a stronger relationship now because of that honest conversation."`
+        },
+        {
+          question: 'What framework do you use for giving feedback?',
+          answer: `**SBI Framework (Situation-Behavior-Impact)**
+
+**1. Situation**
+"In yesterday's meeting with the client..."
+
+**2. Behavior** (Observable, not judgmental)
+"You interrupted them several times and didn't let them finish their points..."
+
+**3. Impact** (Effect, not accusation)
+"This made them seem frustrated, and they mentioned it to me afterward."
+
+**Key Principles**:
+✅ Timely: Give feedback close to the event
+✅ Specific: Cite concrete examples
+✅ Private: Never in front of others
+✅ Balanced: Include positives when genuine
+✅ Actionable: Suggest specific improvements
+✅ Curious: Ask for their perspective`
+        }
+      ],
+
+      tips: [
+        'Show you gave feedback privately, not publicly',
+        'Demonstrate empathy while being direct',
+        'Focus on behavior and impact, not personality',
+        'Include how you followed up',
+        'Show the positive outcome of the feedback'
+      ]
+    },
   ];
 
   // Company-Specific Prep
@@ -22745,7 +23488,7 @@ Clearly state costs or constraints.
             <div id="when-to-use" className={`grid gap-4 scroll-mt-24 ${topicDetails.whenToUse && topicDetails.keyPatterns ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
               {/* When to Use */}
               {topicDetails.whenToUse && (
-                <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
+                <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
                   <div className="px-5 py-3 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-500/20">
                       <Icon name="target" size={16} className="text-purple-400" />
@@ -22767,7 +23510,7 @@ Clearly state costs or constraints.
 
               {/* Key Patterns */}
               {topicDetails.keyPatterns && (
-                <div className="rounded-2xl overflow-hidden h-fit" style={{ background: `linear-gradient(180deg, ${topicDetails.color}10 0%, rgba(0,0,0,0.4) 100%)`, border: `1px solid ${topicDetails.color}30` }}>
+                <div className="rounded-2xl overflow-hidden" style={{ background: `linear-gradient(180deg, ${topicDetails.color}10 0%, rgba(0,0,0,0.4) 100%)`, border: `1px solid ${topicDetails.color}30` }}>
                   <div className="px-5 py-3 border-b flex items-center gap-3" style={{ background: `${topicDetails.color}08`, borderColor: `${topicDetails.color}20` }}>
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${topicDetails.color}20` }}>
                       <Icon name="puzzle" size={16} style={{ color: topicDetails.color }} />
@@ -22791,7 +23534,7 @@ Clearly state costs or constraints.
             <div className={`grid gap-4 ${topicDetails.approach && topicDetails.commonMistakes ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
               {/* Approach - Step by Step */}
               {topicDetails.approach && (
-                <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
                   <div className="px-5 py-3 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-500/20">
                       <Icon name="list" size={16} className="text-blue-400" />
@@ -22813,7 +23556,7 @@ Clearly state costs or constraints.
 
               {/* Common Mistakes */}
               {topicDetails.commonMistakes && (
-                <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(239,68,68,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(239,68,68,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(239,68,68,0.2)' }}>
                   <div className="px-5 py-3 border-b border-red-500/20 flex items-center gap-3" style={{ background: 'rgba(239,68,68,0.05)' }}>
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-red-500/20">
                       <Icon name="alertTriangle" size={16} className="text-red-400" />
@@ -22864,48 +23607,44 @@ Clearly state costs or constraints.
               </div>
             )}
 
-            {/* Tips + Interview Tips - Side by Side Row */}
-            <div className={`grid gap-4 ${topicDetails.tips && topicDetails.interviewTips ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+            {/* Tips + Interview Tips - Row Mode */}
+            <div className="space-y-4">
               {/* Tips */}
               {topicDetails.tips && (
-                <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
                   <div className="px-5 py-3 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
                       <Icon name="lightbulb" size={16} className="text-emerald-400" />
                     </div>
-                    <h3 className="text-base font-bold text-white">Tips & Tricks</h3>
+                    <h3 className="text-lg font-bold text-white">Tips & Tricks</h3>
                   </div>
-                  <div className="p-4">
-                    <ul className="space-y-2">
-                      {topicDetails.tips.map((tip, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm">
-                          <span className="text-emerald-400 mt-0.5">✓</span>
-                          <span className="text-gray-300">{tip}</span>
-                        </li>
-                      ))}
-                    </ul>
+                  <div className="divide-y divide-emerald-500/10">
+                    {topicDetails.tips.map((tip, i) => (
+                      <div key={i} className="px-5 py-3 flex items-center gap-4 hover:bg-white/5 transition-colors">
+                        <span className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-emerald-500/20 text-emerald-400 text-sm">✓</span>
+                        <span className="text-gray-300 text-base">{tip}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
 
               {/* Interview Tips */}
               {topicDetails.interviewTips && (
-                <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(245,158,11,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(245,158,11,0.2)' }}>
+                <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(245,158,11,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(245,158,11,0.2)' }}>
                   <div className="px-5 py-3 border-b border-amber-500/20 flex items-center gap-3" style={{ background: 'rgba(245,158,11,0.05)' }}>
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-amber-500/20">
                       <Icon name="briefcase" size={16} className="text-amber-400" />
                     </div>
-                    <h3 className="text-base font-bold text-white">Interview Tips</h3>
+                    <h3 className="text-lg font-bold text-white">Interview Tips</h3>
                   </div>
-                  <div className="p-4">
-                    <ul className="space-y-2">
-                      {topicDetails.interviewTips.map((tip, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm">
-                          <span className="text-amber-400 mt-0.5">★</span>
-                          <span className="text-gray-300">{tip}</span>
-                        </li>
-                      ))}
-                    </ul>
+                  <div className="divide-y divide-amber-500/10">
+                    {topicDetails.interviewTips.map((tip, i) => (
+                      <div key={i} className="px-5 py-3 flex items-center gap-4 hover:bg-white/5 transition-colors">
+                        <span className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-500/20 text-amber-400 text-sm">★</span>
+                        <span className="text-gray-300 text-base">{tip}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
@@ -23035,7 +23774,7 @@ Clearly state costs or constraints.
                   <div className={`grid gap-4 ${topicDetails.apiDesign?.endpoints && topicDetails.dataModel ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
                     {/* API Design */}
                     {topicDetails.apiDesign && topicDetails.apiDesign.endpoints && (
-                      <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
                         <div className="px-5 py-3 border-b border-green-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-green-500/20">
                             <Icon name="code" size={16} className="text-green-400" />
@@ -23067,7 +23806,7 @@ Clearly state costs or constraints.
 
                     {/* Data Model */}
                     {topicDetails.dataModel && (
-                      <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
+                      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
                         <div className="px-5 py-3 border-b border-yellow-500/20 flex items-center gap-3" style={{ background: 'rgba(234,179,8,0.05)' }}>
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-yellow-500/20">
                             <Icon name="database" size={16} className="text-yellow-400" />
@@ -23092,52 +23831,52 @@ Clearly state costs or constraints.
                   </div>
                 )}
 
-                {/* Key Questions - Compact Accordion Style */}
+                {/* Key Questions - Row Mode Layout */}
                 {topicDetails.keyQuestions && (
                   <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
                     <div className="px-5 py-3 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-500/20">
                         <Icon name="messageSquare" size={16} className="text-purple-400" />
                       </div>
-                      <h3 className="text-base font-bold text-white">Key Questions</h3>
-                      <span className="text-xs text-gray-500 ml-auto">{topicDetails.keyQuestions.length} topics</span>
+                      <h3 className="text-lg font-bold text-white">Key Questions</h3>
+                      <span className="text-sm text-gray-500 ml-auto">{topicDetails.keyQuestions.length} topics</span>
                     </div>
-                    <div className="p-3">
-                      <div className="grid md:grid-cols-2 gap-3">
-                        {topicDetails.keyQuestions.map((q, i) => (
-                          <div key={i} className="rounded-xl overflow-hidden" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(168,85,247,0.1)' }}>
-                            <div className="px-3 py-2 border-b border-purple-500/10 flex items-center gap-2" style={{ background: 'rgba(168,85,247,0.05)' }}>
-                              <span className="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center text-xs text-purple-400 font-bold flex-shrink-0">{i + 1}</span>
-                              <h4 className="text-purple-300 font-semibold text-sm truncate">{q.question}</h4>
-                            </div>
-                            <div className="p-3 max-h-48 overflow-y-auto">
-                              <FormattedContent content={q.answer} color="purple" />
+                    <div className="divide-y divide-purple-500/10">
+                      {topicDetails.keyQuestions.map((q, i) => (
+                        <div key={i} className="px-5 py-4 hover:bg-white/5 transition-colors">
+                          <div className="flex items-start gap-4">
+                            <span className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-sm text-purple-400 font-bold flex-shrink-0">{i + 1}</span>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-purple-300 font-semibold text-base mb-2">{q.question}</h4>
+                              <div className="text-gray-300">
+                                <FormattedContent content={q.answer} color="purple" />
+                              </div>
                             </div>
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
 
-                {/* Basic + Advanced Implementation - Side by Side Row */}
+                {/* Basic + Advanced Implementation - Row Mode */}
                 {(topicDetails.basicImplementation || topicDetails.advancedImplementation) && (
-                  <div className={`grid gap-4 ${topicDetails.basicImplementation && topicDetails.advancedImplementation ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+                  <div className="space-y-4">
                     {/* Basic Implementation */}
                     {topicDetails.basicImplementation && (
-                      <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(249,115,22,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(249,115,22,0.2)' }}>
+                      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(249,115,22,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(249,115,22,0.2)' }}>
                         <div className="px-5 py-3 border-b border-orange-500/20 flex items-center gap-3" style={{ background: 'rgba(249,115,22,0.05)' }}>
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-orange-500/20">
                             <Icon name="layers" size={16} className="text-orange-400" />
                           </div>
                           <h3 className="text-base font-bold text-white">{topicDetails.basicImplementation.title || 'Basic Approach'}</h3>
                         </div>
-                        <div className="p-4">
-                          <p className="text-gray-300 text-sm mb-3">{topicDetails.basicImplementation.description}</p>
+                        <div className="p-5">
+                          <p className="text-gray-300 text-base mb-4">{topicDetails.basicImplementation.description}</p>
                           {topicDetails.basicImplementation.architecture && (
-                            <div className="rounded-lg overflow-x-auto mb-3" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                            <div className="rounded-lg overflow-x-auto mb-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
                               <pre
-                                className="p-3 text-xs leading-5 text-cyan-400"
+                                className="p-4 text-sm leading-6 text-cyan-400"
                                 style={{
                                   fontFamily: '"SF Mono", Monaco, "Cascadia Code", Consolas, "Courier New", monospace',
                                   whiteSpace: 'pre',
@@ -23151,13 +23890,13 @@ Clearly state costs or constraints.
                           )}
                           {topicDetails.basicImplementation.problems && (
                             <div>
-                              <h4 className="text-red-400 text-xs font-semibold mb-2 flex items-center gap-1">
-                                <Icon name="alertTriangle" size={12} />
+                              <h4 className="text-red-400 text-sm font-semibold mb-3 flex items-center gap-2">
+                                <Icon name="alertTriangle" size={14} />
                                 Issues:
                               </h4>
-                              <ul className="space-y-1">
+                              <ul className="space-y-2">
                                 {topicDetails.basicImplementation.problems.map((problem, i) => (
-                                  <li key={i} className="flex items-start gap-2 text-gray-400 text-xs">
+                                  <li key={i} className="flex items-start gap-3 text-gray-400 text-base">
                                     <span className="text-red-400 mt-0.5">✗</span>
                                     <span>{problem}</span>
                                   </li>
@@ -23171,7 +23910,7 @@ Clearly state costs or constraints.
 
                     {/* Advanced Implementation */}
                     {topicDetails.advancedImplementation && (
-                      <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
                         <div className="px-5 py-3 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
                             <Icon name="zap" size={16} className="text-emerald-400" />
@@ -23228,11 +23967,11 @@ Clearly state costs or constraints.
                   </div>
                 )}
 
-                {/* Cloud Architecture Diagram + Tips - Side by Side Row */}
-                <div className={`grid gap-4 ${topicDetails.tips ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+                {/* Cloud Architecture Diagram + Tips - Row Mode */}
+                <div className="space-y-4">
                   {/* Cloud Architecture Diagram */}
                   {activePage === 'system-design' && topicDetails && (
-                    <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                    <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
                       <div className="px-5 py-3 border-b border-emerald-500/20 flex items-center justify-between" style={{ background: 'rgba(16,185,129,0.05)' }}>
                         <div className="flex items-center gap-3">
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
@@ -23287,30 +24026,28 @@ Clearly state costs or constraints.
 
                   {/* Tips */}
                   {topicDetails.tips && (
-                    <div className="rounded-2xl overflow-hidden h-fit" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
+                    <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
                       <div className="px-5 py-3 border-b border-yellow-500/20 flex items-center gap-3" style={{ background: 'rgba(234,179,8,0.05)' }}>
                         <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-yellow-500/20">
                           <Icon name="star" size={16} className="text-yellow-400" />
                         </div>
-                        <h3 className="text-base font-bold text-white">Interview Tips</h3>
+                        <h3 className="text-lg font-bold text-white">Interview Tips</h3>
                       </div>
-                      <div className="p-4">
-                        <ul className="space-y-2">
-                          {topicDetails.tips.map((tip, i) => (
-                            <li key={i} className="flex items-start gap-2 text-sm">
-                              <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0 bg-yellow-500/20 text-yellow-400">★</span>
-                              <span className="text-gray-300">{tip}</span>
-                            </li>
-                          ))}
-                        </ul>
+                      <div className="divide-y divide-yellow-500/10">
+                        {topicDetails.tips.map((tip, i) => (
+                          <div key={i} className="px-5 py-3 flex items-center gap-4 hover:bg-white/5 transition-colors">
+                            <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0 bg-yellow-500/20 text-yellow-400">★</span>
+                            <span className="text-gray-300 text-base">{tip}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   )}
                 </div>
 
-                {/* Flow Cards - Side by Side */}
+                {/* Flow Cards - Row Mode */}
                 {(topicDetails.createFlow || topicDetails.redirectFlow) && (
-                  <div className={`grid gap-4 ${topicDetails.createFlow && topicDetails.redirectFlow ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+                  <div className="space-y-4">
                     {/* Create Flow */}
                     {topicDetails.createFlow && (
                       <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
@@ -23462,65 +24199,62 @@ Clearly state costs or constraints.
               </div>
             )}
 
-            {/* Key Questions with Detailed Answers */}
+            {/* Key Questions - Row Mode Layout */}
             {topicDetails.keyQuestions && topicDetails.keyQuestions.length > 0 && (
-              <div className="space-y-6">
-                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                  <Icon name="messageSquare" size={20} style={{ color: topicDetails.color }} />
-                  Key Questions & Answers
-                </h3>
-                {topicDetails.keyQuestions.map((item, index) => (
-                  <div key={index} className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.2) 100%)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                    <div className="px-6 py-4 flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${topicDetails.color}10, transparent)`, borderBottom: `1px solid ${topicDetails.color}20` }}>
-                      <span className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ background: `${topicDetails.color}25`, color: topicDetails.color }}>
-                        Q{index + 1}
-                      </span>
-                      <h4 className="text-lg font-semibold text-white">{item.question}</h4>
-                    </div>
-                    <div className="p-6">
-                      <div className="text-gray-300 leading-relaxed prose prose-invert max-w-none">
-                        {item.answer.split('\n').map((line, i) => {
-                          // Headers (bold text on its own line)
-                          if (line.startsWith('**') && line.endsWith('**')) {
-                            return <h5 key={i} className="text-white font-semibold mt-5 mb-3 text-base flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full" style={{ background: topicDetails.color }}></span>{line.replace(/\*\*/g, '')}</h5>;
-                          }
-                          // Bold text within line
-                          else if (line.includes('**')) {
-                            const parts = line.split('**');
-                            return (
-                              <p key={i} className="mb-2 text-sm leading-relaxed">
-                                {parts.map((part, j) => j % 2 === 1 ? <strong key={j} className="text-white font-medium">{part}</strong> : <span key={j}>{part}</span>)}
-                              </p>
-                            );
-                          }
-                          // Emoji checkmarks or bullets
-                          else if (line.startsWith('✅') || line.startsWith('❌')) {
-                            return <p key={i} className="mb-2 text-sm flex items-start gap-2"><span className="flex-shrink-0">{line.substring(0, 2)}</span><span>{line.substring(2)}</span></p>;
-                          }
-                          // Numbered items
-                          else if (/^\d+\./.test(line.trim())) {
-                            const num = line.match(/^(\d+)\./)[1];
-                            return <p key={i} className="mb-2 text-sm flex items-start gap-3"><span className="w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>{num}</span><span>{line.replace(/^\d+\.\s*/, '')}</span></p>;
-                          }
-                          // Bullet points
-                          else if (line.startsWith('- ') || line.startsWith('• ')) {
-                            return <p key={i} className="mb-1.5 text-sm flex items-start gap-2 ml-1"><span className="w-1 h-1 rounded-full mt-2 flex-shrink-0" style={{ background: topicDetails.color }}></span><span>{line.substring(2)}</span></p>;
-                          }
-                          // Example labels
-                          else if (line.toLowerCase().startsWith('example:')) {
-                            return <div key={i} className="mt-3 mb-2 p-4 rounded-lg text-sm italic" style={{ background: 'rgba(255,255,255,0.03)', borderLeft: `3px solid ${topicDetails.color}` }}>{line}</div>;
-                          }
-                          // Empty lines
-                          else if (line.trim() === '') {
-                            return <div key={i} className="h-2"></div>;
-                          }
-                          // Regular text
-                          return <p key={i} className="mb-2 text-sm leading-relaxed">{line}</p>;
-                        })}
+              <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.2) 100%)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <div className="px-5 py-3 border-b flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${topicDetails.color}10, transparent)`, borderColor: `${topicDetails.color}20` }}>
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${topicDetails.color}20` }}>
+                    <Icon name="messageSquare" size={16} style={{ color: topicDetails.color }} />
+                  </div>
+                  <h3 className="text-lg font-bold text-white">Key Questions & Answers</h3>
+                  <span className="text-sm text-gray-500 ml-auto">{topicDetails.keyQuestions.length} questions</span>
+                </div>
+                <div className="divide-y" style={{ borderColor: `${topicDetails.color}10` }}>
+                  {topicDetails.keyQuestions.map((item, index) => (
+                    <div key={index} className="px-5 py-4 hover:bg-white/5 transition-colors">
+                      <div className="flex items-start gap-4">
+                        <span className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ background: `${topicDetails.color}25`, color: topicDetails.color }}>
+                          Q{index + 1}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-white font-semibold text-base mb-3">{item.question}</h4>
+                          <div className="text-gray-300 leading-relaxed">
+                            {item.answer.split('\n').map((line, i) => {
+                              if (line.startsWith('**') && line.endsWith('**')) {
+                                return <h5 key={i} className="text-white font-semibold mt-4 mb-2 text-base flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full" style={{ background: topicDetails.color }}></span>{line.replace(/\*\*/g, '')}</h5>;
+                              }
+                              else if (line.includes('**')) {
+                                const parts = line.split('**');
+                                return (
+                                  <p key={i} className="mb-2 text-base leading-relaxed">
+                                    {parts.map((part, j) => j % 2 === 1 ? <strong key={j} className="text-white font-medium">{part}</strong> : <span key={j}>{part}</span>)}
+                                  </p>
+                                );
+                              }
+                              else if (line.startsWith('✅') || line.startsWith('❌')) {
+                                return <p key={i} className="mb-2 text-base flex items-start gap-2"><span className="flex-shrink-0">{line.substring(0, 2)}</span><span>{line.substring(2)}</span></p>;
+                              }
+                              else if (/^\d+\./.test(line.trim())) {
+                                const num = line.match(/^(\d+)\./)[1];
+                                return <p key={i} className="mb-2 text-base flex items-start gap-3"><span className="w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>{num}</span><span>{line.replace(/^\d+\.\s*/, '')}</span></p>;
+                              }
+                              else if (line.startsWith('- ') || line.startsWith('• ')) {
+                                return <p key={i} className="mb-1.5 text-base flex items-start gap-2 ml-1"><span className="w-1 h-1 rounded-full mt-2 flex-shrink-0" style={{ background: topicDetails.color }}></span><span>{line.substring(2)}</span></p>;
+                              }
+                              else if (line.toLowerCase().startsWith('example:')) {
+                                return <div key={i} className="mt-3 mb-2 p-4 rounded-lg text-base italic" style={{ background: 'rgba(255,255,255,0.03)', borderLeft: `3px solid ${topicDetails.color}` }}>{line}</div>;
+                              }
+                              else if (line.trim() === '') {
+                                return <div key={i} className="h-2"></div>;
+                              }
+                              return <p key={i} className="mb-2 text-base leading-relaxed">{line}</p>;
+                            })}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
 
@@ -23530,21 +24264,21 @@ Clearly state costs or constraints.
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-500/20">
                     <Icon name="target" size={16} className="text-purple-400" />
                   </div>
-                  <h3 className="text-base font-bold text-white">STAR Framework Example</h3>
+                  <h3 className="text-lg font-bold text-white">STAR Framework Example</h3>
                 </div>
-                <div className="p-5">
-                  <div className="grid md:grid-cols-2 gap-3">
-                    {Object.entries(topicDetails.starExample).map(([key, value]) => {
-                      const colors = { situation: '#3b82f6', task: '#f59e0b', action: '#10b981', result: '#ef4444' };
-                      const color = colors[key.toLowerCase()] || '#a855f7';
-                      return (
-                        <div key={key} className="p-4 rounded-xl transition-all hover:scale-[1.02]" style={{ background: 'rgba(0,0,0,0.4)', borderLeft: `3px solid ${color}` }}>
-                          <div className="text-sm font-bold mb-2 uppercase tracking-wide" style={{ color }}>{key}</div>
-                          <div className="text-gray-300 text-sm leading-relaxed">{value}</div>
+                <div className="divide-y divide-purple-500/10">
+                  {Object.entries(topicDetails.starExample).map(([key, value]) => {
+                    const colors = { situation: '#3b82f6', task: '#f59e0b', action: '#10b981', result: '#ef4444' };
+                    const color = colors[key.toLowerCase()] || '#a855f7';
+                    return (
+                      <div key={key} className="px-5 py-4 flex items-start gap-4 hover:bg-white/5 transition-colors">
+                        <div className="w-24 flex-shrink-0">
+                          <div className="text-base font-bold uppercase tracking-wide" style={{ color }}>{key}</div>
                         </div>
-                      );
-                    })}
-                  </div>
+                        <div className="flex-1 text-gray-300 text-base leading-relaxed">{value}</div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -23555,17 +24289,15 @@ Clearly state costs or constraints.
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-500/20">
                     <Icon name="helpCircle" size={16} className="text-blue-400" />
                   </div>
-                  <h3 className="text-base font-bold text-white">Sample Questions</h3>
+                  <h3 className="text-lg font-bold text-white">Sample Questions</h3>
                 </div>
-                <div className="p-5">
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    {topicDetails.sampleQuestions.map((q, i) => (
-                      <div key={i} className="flex items-start gap-3 p-3 rounded-lg transition-colors hover:bg-white/5" style={{ background: 'rgba(0,0,0,0.2)' }}>
-                        <span className="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>{i + 1}</span>
-                        <span className="text-gray-300 text-sm">{q}</span>
-                      </div>
-                    ))}
-                  </div>
+                <div className="divide-y divide-blue-500/10">
+                  {topicDetails.sampleQuestions.map((q, i) => (
+                    <div key={i} className="px-5 py-3 flex items-center gap-4 hover:bg-white/5 transition-colors">
+                      <span className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>{i + 1}</span>
+                      <span className="text-gray-300 text-base">{q}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -23576,17 +24308,15 @@ Clearly state costs or constraints.
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
                     <Icon name="checkCircle" size={16} className="text-emerald-400" />
                   </div>
-                  <h3 className="text-base font-bold text-white">Tips for Success</h3>
+                  <h3 className="text-lg font-bold text-white">Tips for Success</h3>
                 </div>
-                <div className="p-5">
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    {topicDetails.tips.map((tip, i) => (
-                      <div key={i} className="flex items-start gap-3 p-3 rounded-lg transition-colors hover:bg-white/5">
-                        <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 bg-emerald-500/20 text-emerald-400 text-xs">✓</span>
-                        <span className="text-gray-300 text-sm">{tip}</span>
-                      </div>
-                    ))}
-                  </div>
+                <div className="divide-y divide-emerald-500/10">
+                  {topicDetails.tips.map((tip, i) => (
+                    <div key={i} className="px-5 py-3 flex items-center gap-4 hover:bg-white/5 transition-colors">
+                      <span className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-emerald-500/20 text-emerald-400 text-sm">✓</span>
+                      <span className="text-gray-300 text-base">{tip}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -23733,9 +24463,9 @@ Clearly state costs or constraints.
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 min-h-screen">
-          {/* Center Content */}
-          <div className="w-full">
+        <div className="flex-1 min-h-screen flex justify-center">
+          {/* Center Content - 80% width */}
+          <div className="w-full" style={{ maxWidth: '80vw' }}>
             {/* Top Bar */}
             <div className="sticky top-0 z-20 px-8 py-4 flex items-center justify-between" style={{ background: 'rgba(10, 10, 15, 0.9)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
               {/* Breadcrumb */}
