@@ -25979,7 +25979,7 @@ Best,
                                   </div>
                                 </div>
                                 <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
-                                  {topic.questions}Q
+                                  {topic.commonProblems?.length || topic.keyQuestions?.length || 0}Q
                                 </span>
                               </div>
                             ))}
