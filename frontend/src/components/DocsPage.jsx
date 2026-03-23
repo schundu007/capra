@@ -24673,7 +24673,7 @@ Best,
             </div>
 
             {/* Approach + Common Mistakes - Side by Side Row */}
-            <div className={`grid gap-4 ${topicDetails.approach && topicDetails.commonMistakes ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+            <div id="approach" className={`grid gap-4 scroll-mt-24 ${topicDetails.approach && topicDetails.commonMistakes ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
               {/* Approach - Step by Step */}
               {topicDetails.approach && (
                 <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
@@ -24721,7 +24721,7 @@ Best,
 
             {/* Common Problems - Compact Table Layout */}
             {topicDetails.commonProblems && (
-              <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
+              <div id="practice" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
                 <div className="px-3 py-2 border-b border-yellow-500/20 flex items-center gap-3" style={{ background: 'rgba(234,179,8,0.05)' }}>
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-yellow-500/20">
                     <Icon name="star" size={16} className="text-yellow-400" />
@@ -24750,7 +24750,7 @@ Best,
             )}
 
             {/* Tips + Interview Tips - Row Mode */}
-            <div className="space-y-4">
+            <div id="tips" className="space-y-4 scroll-mt-24">
               {/* Tips */}
               {topicDetails.tips && (
                 <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
@@ -24807,7 +24807,7 @@ Best,
 
             {/* Multiple Code Examples */}
             {topicDetails.codeExamples && topicDetails.codeExamples.length > 0 && (
-              <div className="space-y-6">
+              <div id="code-examples" className="space-y-6 scroll-mt-24">
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
                   <Icon name="code" size={20} className="text-green-400" />
                   Code Examples
@@ -24851,7 +24851,7 @@ Best,
               <>
                 {/* Introduction (Comprehensive) */}
                 {topicDetails.introduction && (
-                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                  <div id="overview" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
                     <div className="px-6 py-4 border-b border-blue-500/20" style={{ background: 'rgba(59,130,246,0.05)' }}>
                       <h2 className="text-xl font-bold text-white flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-500/20">
@@ -24867,7 +24867,7 @@ Best,
                 )}
 
                 {/* Requirements - Functional & Non-Functional */}
-                <div className="grid md:grid-cols-2 gap-4">
+                <div id="requirements" className="grid md:grid-cols-2 gap-4 scroll-mt-24">
                   {/* Functional Requirements */}
                   <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
                     <div className="px-3 py-2 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
@@ -24913,10 +24913,10 @@ Best,
 
                 {/* API Design + Data Model - Side by Side Row */}
                 {(topicDetails.apiDesign?.endpoints || topicDetails.dataModel) && (
-                  <div className={`grid gap-4 ${topicDetails.apiDesign?.endpoints && topicDetails.dataModel ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+                  <div className={`grid gap-4 scroll-mt-24 ${topicDetails.apiDesign?.endpoints && topicDetails.dataModel ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
                     {/* API Design */}
                     {topicDetails.apiDesign && topicDetails.apiDesign.endpoints && (
-                      <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                      <div id="api-design" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
                         <div className="px-3 py-2 border-b border-green-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-green-500/20">
                             <Icon name="code" size={16} className="text-green-400" />
@@ -24948,7 +24948,7 @@ Best,
 
                     {/* Data Model */}
                     {topicDetails.dataModel && (
-                      <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
+                      <div id="data-model" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
                         <div className="px-3 py-2 border-b border-yellow-500/20 flex items-center gap-3" style={{ background: 'rgba(234,179,8,0.05)' }}>
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-yellow-500/20">
                             <Icon name="database" size={16} className="text-yellow-400" />
@@ -24975,7 +24975,7 @@ Best,
 
                 {/* Key Questions - Row Mode Layout */}
                 {topicDetails.keyQuestions && (
-                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
+                  <div id="key-questions" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
                     <div className="px-3 py-2 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-500/20">
                         <Icon name="messageSquare" size={16} className="text-purple-400" />
@@ -25003,7 +25003,7 @@ Best,
 
                 {/* Basic + Advanced Implementation - Row Mode */}
                 {(topicDetails.basicImplementation || topicDetails.advancedImplementation) && (
-                  <div className="space-y-4">
+                  <div id="architecture" className="space-y-4 scroll-mt-24">
                     {/* Basic Implementation */}
                     {topicDetails.basicImplementation && (
                       <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(249,115,22,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(249,115,22,0.2)' }}>
@@ -25332,7 +25332,7 @@ Best,
           <div className="space-y-5">
             {/* Introduction */}
             {topicDetails.introduction && (
-              <div className="p-6 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+              <div id="overview" className="p-6 rounded-xl scroll-mt-24" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
                 <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                   <Icon name="info" size={20} style={{ color: topicDetails.color }} />
                   Overview
@@ -25343,7 +25343,7 @@ Best,
 
             {/* Key Questions - Row Mode Layout */}
             {topicDetails.keyQuestions && topicDetails.keyQuestions.length > 0 && (
-              <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.2) 100%)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div id="key-questions" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.2) 100%)', border: '1px solid rgba(255,255,255,0.08)' }}>
                 <div className="px-3 py-2 border-b flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${topicDetails.color}10, transparent)`, borderColor: `${topicDetails.color}20` }}>
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${topicDetails.color}20` }}>
                     <Icon name="messageSquare" size={16} style={{ color: topicDetails.color }} />
@@ -25401,7 +25401,7 @@ Best,
             )}
 
             {topicDetails.starExample && (
-              <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168, 85, 247, 0.08) 0%, rgba(0,0,0,0.3) 100%)', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+              <div id="star-example" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(168, 85, 247, 0.08) 0%, rgba(0,0,0,0.3) 100%)', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
                 <div className="px-3 py-2 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168, 85, 247, 0.05)' }}>
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-500/20">
                     <Icon name="target" size={16} className="text-purple-400" />
@@ -25426,7 +25426,7 @@ Best,
             )}
 
             {topicDetails.sampleQuestions && !topicDetails.keyQuestions && (
-              <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59, 130, 246, 0.08) 0%, rgba(0,0,0,0.3) 100%)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+              <div id="sample-questions" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(59, 130, 246, 0.08) 0%, rgba(0,0,0,0.3) 100%)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
                 <div className="px-3 py-2 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59, 130, 246, 0.05)' }}>
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-500/20">
                     <Icon name="helpCircle" size={16} className="text-blue-400" />
@@ -25445,7 +25445,7 @@ Best,
             )}
 
             {topicDetails.tips && (
-              <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(0,0,0,0.3) 100%)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+              <div id="tips" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(0,0,0,0.3) 100%)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
                 <div className="px-3 py-2 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16, 185, 129, 0.05)' }}>
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
                     <Icon name="checkCircle" size={16} className="text-emerald-400" />
@@ -25494,7 +25494,7 @@ Best,
       if (topicDetails.commonProblems) toc.push({ id: 'practice', label: 'Practice Problems' });
       if (topicDetails.tips) toc.push({ id: 'tips', label: 'Interview Tips' });
     } else if (activePage === 'system-design') {
-      if (topicDetails.overview) toc.push({ id: 'overview', label: 'Overview' });
+      if (topicDetails.introduction) toc.push({ id: 'overview', label: 'Overview' });
       if (topicDetails.requirements) toc.push({ id: 'requirements', label: 'Requirements' });
       if (topicDetails.keyQuestions) toc.push({ id: 'key-questions', label: 'Key Questions' });
       if (topicDetails.estimation) toc.push({ id: 'estimation', label: 'Estimation' });
@@ -25502,9 +25502,11 @@ Best,
       if (topicDetails.dataModel) toc.push({ id: 'data-model', label: 'Data Model' });
       if (topicDetails.basicImplementation) toc.push({ id: 'architecture', label: 'Architecture' });
     } else if (activePage === 'behavioral') {
-      if (topicDetails.overview) toc.push({ id: 'overview', label: 'Overview' });
-      if (topicDetails.examples) toc.push({ id: 'examples', label: 'Example Answers' });
-      if (topicDetails.tips) toc.push({ id: 'tips', label: 'Interview Tips' });
+      if (topicDetails.introduction) toc.push({ id: 'overview', label: 'Overview' });
+      if (topicDetails.keyQuestions) toc.push({ id: 'key-questions', label: 'Key Questions' });
+      if (topicDetails.starExample) toc.push({ id: 'star-example', label: 'STAR Example' });
+      if (topicDetails.sampleQuestions) toc.push({ id: 'sample-questions', label: 'Sample Questions' });
+      if (topicDetails.tips) toc.push({ id: 'tips', label: 'Tips' });
     }
     return toc;
   };
