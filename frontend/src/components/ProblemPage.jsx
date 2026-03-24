@@ -199,6 +199,7 @@ export default function ProblemPage({ slug, onBack, onSolve }) {
   const [bottomTab, setBottomTab] = useState('testcase');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedSolution, setGeneratedSolution] = useState(null);
+  const [generationError, setGenerationError] = useState(null);
 
   const dbProblem = getProblemBySlug(slug);
   const urlParams = getUrlParams();
@@ -242,9 +243,18 @@ export default function ProblemPage({ slug, onBack, onSolve }) {
   const generateSolution = async () => {
     if (isGenerating) return;
     setIsGenerating(true);
+    setGenerationError(null);
 
     try {
-      const problemStatement = `Solve the "${problem.name}" problem. This is a ${problem.difficulty} ${problem.category} problem.`;
+      const problemStatement = `Solve the "${problem.name}" coding problem step by step.
+
+Problem Category: ${problem.category}
+Difficulty: ${problem.difficulty}
+
+Please provide:
+1. A clear explanation of the approach
+2. Complete working code in ${LANGUAGE_CONFIG[selectedLanguage]?.name || selectedLanguage}
+3. Time and space complexity analysis`;
 
       const response = await fetch(`${API_URL}/api/solve/stream`, {
         method: 'POST',
@@ -257,9 +267,24 @@ export default function ProblemPage({ slug, onBack, onSolve }) {
         }),
       });
 
+      // Check for auth/subscription errors
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (response.status === 401) {
+          setGenerationError('Please log in to generate solutions.');
+        } else if (response.status === 403 || errorData.subscriptionRequired) {
+          setGenerationError('Subscription required. Please upgrade to generate solutions.');
+        } else {
+          setGenerationError(errorData.error || `Error: ${response.status}`);
+        }
+        setIsGenerating(false);
+        return;
+      }
+
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let fullResponse = '';
+      let codeExtracted = false;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -272,30 +297,60 @@ export default function ProblemPage({ slug, onBack, onSolve }) {
           if (line.startsWith('data: ')) {
             try {
               const data = JSON.parse(line.slice(6));
+
+              // Check for errors in stream
+              if (data.error) {
+                setGenerationError(data.error);
+                setIsGenerating(false);
+                return;
+              }
+
               if (data.chunk) {
                 fullResponse += data.chunk;
               }
               if (data.done && data.result) {
                 // Extract code from result
-                const code = data.result.code || data.result.solution || fullResponse;
-                setGeneratedSolution({
-                  [selectedLanguage]: {
-                    code: code,
-                    timeComplexity: data.result.timeComplexity || 'See solution',
-                    spaceComplexity: data.result.spaceComplexity || 'See solution',
-                  }
-                });
-                setUserCode(code);
+                const code = data.result.code || data.result.solution || '';
+                if (code) {
+                  setGeneratedSolution({
+                    [selectedLanguage]: {
+                      code: code,
+                      timeComplexity: data.result.timeComplexity || 'See solution',
+                      spaceComplexity: data.result.spaceComplexity || 'See solution',
+                    }
+                  });
+                  setUserCode(code);
+                  codeExtracted = true;
+                }
                 setActiveTab('solution');
               }
             } catch (e) {
-              // Ignore parse errors
+              // Ignore parse errors for partial chunks
             }
           }
         }
       }
+
+      // If no code was extracted from structured response, try to extract from raw response
+      if (!codeExtracted && fullResponse) {
+        // Try to extract code block from response
+        const codeMatch = fullResponse.match(/```(?:python|javascript|java|cpp|go)?\n([\s\S]*?)```/);
+        if (codeMatch) {
+          const code = codeMatch[1].trim();
+          setGeneratedSolution({
+            [selectedLanguage]: {
+              code: code,
+              timeComplexity: 'See solution',
+              spaceComplexity: 'See solution',
+            }
+          });
+          setUserCode(code);
+        }
+        setActiveTab('solution');
+      }
     } catch (error) {
       console.error('Failed to generate solution:', error);
+      setGenerationError('Failed to connect. Please check your internet connection.');
     } finally {
       setIsGenerating(false);
     }
@@ -549,6 +604,11 @@ export default function ProblemPage({ slug, onBack, onSolve }) {
                         <p className="text-gray-300 mb-4">
                           Click <strong className="text-purple-400">"Generate Solution"</strong> to get examples, constraints, and a complete solution for this problem.
                         </p>
+                        {generationError && (
+                          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+                            {generationError}
+                          </div>
+                        )}
                         <button
                           onClick={generateSolution}
                           disabled={isGenerating}
