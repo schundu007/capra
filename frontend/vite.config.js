@@ -3,8 +3,8 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  // Use relative paths for Electron file:// protocol compatibility
-  base: './',
+  // Use absolute paths for webapp, relative for Electron (set via VITE_BASE_URL env)
+  base: process.env.VITE_ELECTRON === 'true' ? './' : '/',
   server: {
     port: 5173,
     allowedHosts: ['localhost', 'electron.test', '.test'],
