@@ -27356,11 +27356,8 @@ Best,
                       const problemData = getProblemBySlug(slug);
                       const difficulty = typeof problem === 'object' ? problem.difficulty : (problemData?.difficulty || null);
 
-                      // If problem exists in our database, link to problem page
-                      // Otherwise, fall back to auto-solve with problem name
-                      const href = problemData
-                        ? `/problems/${slug}`
-                        : `/?problem=${encodeURIComponent(`Solve the "${problemName}" problem. This is a classic ${topicDetails.title} problem.`)}&autosolve=true`;
+                      // Always link to problem page, passing name/difficulty/category as URL params for unknown problems
+                      const href = `/problems/${slug}?name=${encodeURIComponent(problemName)}&difficulty=${encodeURIComponent(difficulty || 'Medium')}&category=${encodeURIComponent(topicDetails.title)}`;
 
                       return (
                         <a

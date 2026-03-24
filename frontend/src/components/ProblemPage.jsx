@@ -162,6 +162,29 @@ function HintCard({ hint, index }) {
 }
 
 /**
+ * Parse URL parameters for dynamic problem data
+ */
+function getUrlParams() {
+  if (typeof window === 'undefined') return {};
+  const params = new URLSearchParams(window.location.search);
+  return {
+    name: params.get('name'),
+    difficulty: params.get('difficulty'),
+    category: params.get('category'),
+  };
+}
+
+/**
+ * Convert slug back to title case name
+ */
+function slugToName(slug) {
+  return slug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+/**
  * Main ProblemPage Component - LeetCode/TechPrep style problem viewer with code editor
  */
 export default function ProblemPage({ slug, onBack, onSolve }) {
@@ -174,44 +197,109 @@ export default function ProblemPage({ slug, onBack, onSolve }) {
   const [isRunning, setIsRunning] = useState(false);
   const [output, setOutput] = useState(null);
   const [bottomTab, setBottomTab] = useState('testcase');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedSolution, setGeneratedSolution] = useState(null);
 
-  const problem = getProblemBySlug(slug);
+  const dbProblem = getProblemBySlug(slug);
+  const urlParams = getUrlParams();
+
+  // Create a dynamic problem object for problems not in database
+  const problem = dbProblem || {
+    id: slug,
+    name: urlParams.name || slugToName(slug),
+    difficulty: urlParams.difficulty || 'Medium',
+    category: urlParams.category || 'Practice',
+    tags: [urlParams.category || 'Algorithm'],
+    description: `Solve the "${urlParams.name || slugToName(slug)}" problem.\n\nThis is a classic ${urlParams.category || 'algorithm'} problem. Click "Generate Solution" to get a detailed solution with code.`,
+    examples: [],
+    constraints: [],
+    solutions: generatedSolution || {},
+    hints: ['Click "Generate Solution" to get hints and a complete solution.'],
+    approach: 'Click "Generate Solution" to see the approach.',
+    isDynamic: true, // Flag to indicate this is a dynamically created problem
+  };
 
   // Initialize code when problem or language changes
   useEffect(() => {
-    if (problem && problem.solutions[selectedLanguage]) {
+    if (problem && problem.solutions && problem.solutions[selectedLanguage]) {
       setUserCode(problem.solutions[selectedLanguage].code);
     } else {
       setUserCode(LANGUAGE_CONFIG[selectedLanguage]?.template || '');
     }
     setTestResults({});
     setOutput(null);
-  }, [slug, selectedLanguage, problem]);
+  }, [slug, selectedLanguage, problem?.solutions]);
 
   // Reset state when problem changes
   useEffect(() => {
     setActiveTab('description');
     setActiveTestCase(0);
     setBottomTab('testcase');
+    setGeneratedSolution(null);
   }, [slug]);
 
-  if (!problem) {
-    return (
-      <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center">
-        <div className="text-center">
-          <Icon name="alertTriangle" size={48} className="mx-auto mb-4 text-yellow-500" />
-          <h2 className="text-2xl font-bold text-white mb-2">Problem Not Found</h2>
-          <p className="text-gray-400 mb-6">The problem "{slug}" doesn't exist in our database.</p>
-          <button
-            onClick={onBack}
-            className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-medium transition-colors"
-          >
-            Go Back
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Generate solution using AI
+  const generateSolution = async () => {
+    if (isGenerating) return;
+    setIsGenerating(true);
+
+    try {
+      const problemStatement = `Solve the "${problem.name}" problem. This is a ${problem.difficulty} ${problem.category} problem.`;
+
+      const response = await fetch(`${API_URL}/api/solve/stream`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify({
+          problem: problemStatement,
+          provider: 'claude',
+          language: selectedLanguage,
+          detailLevel: 'detailed',
+        }),
+      });
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let fullResponse = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.chunk) {
+                fullResponse += data.chunk;
+              }
+              if (data.done && data.result) {
+                // Extract code from result
+                const code = data.result.code || data.result.solution || fullResponse;
+                setGeneratedSolution({
+                  [selectedLanguage]: {
+                    code: code,
+                    timeComplexity: data.result.timeComplexity || 'See solution',
+                    spaceComplexity: data.result.spaceComplexity || 'See solution',
+                  }
+                });
+                setUserCode(code);
+                setActiveTab('solution');
+              }
+            } catch (e) {
+              // Ignore parse errors
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to generate solution:', error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const difficultyColor = DIFFICULTY_COLORS[problem.difficulty] || DIFFICULTY_COLORS.Easy;
   const solution = problem.solutions[selectedLanguage];
@@ -363,6 +451,16 @@ export default function ProblemPage({ slug, onBack, onSolve }) {
                   LeetCode
                 </a>
               )}
+              {problem.isDynamic && (
+                <button
+                  onClick={generateSolution}
+                  disabled={isGenerating}
+                  className="px-4 py-1.5 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                >
+                  <Icon name={isGenerating ? 'loader' : 'sparkles'} size={14} className={isGenerating ? 'animate-spin' : ''} />
+                  {isGenerating ? 'Generating...' : 'Generate Solution'}
+                </button>
+              )}
               <button
                 onClick={handleSolveWithAI}
                 className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
@@ -439,11 +537,28 @@ export default function ProblemPage({ slug, onBack, onSolve }) {
                     </div>
 
                     {/* Examples */}
-                    <div className="space-y-4">
-                      {problem.examples.map((example, i) => (
-                        <ExampleBlock key={i} example={example} index={i} />
-                      ))}
-                    </div>
+                    {problem.examples && problem.examples.length > 0 ? (
+                      <div className="space-y-4">
+                        {problem.examples.map((example, i) => (
+                          <ExampleBlock key={i} example={example} index={i} />
+                        ))}
+                      </div>
+                    ) : problem.isDynamic ? (
+                      <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-5 text-center">
+                        <Icon name="sparkles" size={32} className="mx-auto mb-3 text-purple-400" />
+                        <p className="text-gray-300 mb-4">
+                          Click <strong className="text-purple-400">"Generate Solution"</strong> to get examples, constraints, and a complete solution for this problem.
+                        </p>
+                        <button
+                          onClick={generateSolution}
+                          disabled={isGenerating}
+                          className="px-5 py-2.5 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white rounded-xl font-medium transition-colors inline-flex items-center gap-2"
+                        >
+                          <Icon name={isGenerating ? 'loader' : 'sparkles'} size={16} className={isGenerating ? 'animate-spin' : ''} />
+                          {isGenerating ? 'Generating...' : 'Generate Solution'}
+                        </button>
+                      </div>
+                    ) : null}
 
                     {/* Constraints */}
                     {problem.constraints && problem.constraints.length > 0 && (
@@ -644,35 +759,45 @@ export default function ProblemPage({ slug, onBack, onSolve }) {
                   <div className="flex-1 overflow-y-auto p-3">
                     {bottomTab === 'testcase' && (
                       <div className="space-y-3">
-                        {/* Test Case Buttons */}
-                        <div className="flex gap-2 flex-wrap">
-                          {problem.examples.map((_, i) => (
-                            <TestCase
-                              key={i}
-                              testCase={problem.examples[i]}
-                              index={i}
-                              isActive={activeTestCase === i}
-                              onClick={() => setActiveTestCase(i)}
-                              result={testResults[i]}
-                            />
-                          ))}
-                        </div>
+                        {problem.examples && problem.examples.length > 0 ? (
+                          <>
+                            {/* Test Case Buttons */}
+                            <div className="flex gap-2 flex-wrap">
+                              {problem.examples.map((_, i) => (
+                                <TestCase
+                                  key={i}
+                                  testCase={problem.examples[i]}
+                                  index={i}
+                                  isActive={activeTestCase === i}
+                                  onClick={() => setActiveTestCase(i)}
+                                  result={testResults[i]}
+                                />
+                              ))}
+                            </div>
 
-                        {/* Current Test Case Details */}
-                        {problem.examples[activeTestCase] && (
-                          <div className="space-y-3">
-                            <div>
-                              <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">Input</span>
-                              <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-emerald-400 font-mono text-[13px] overflow-x-auto">
-                                {problem.examples[activeTestCase].input}
-                              </pre>
-                            </div>
-                            <div>
-                              <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">Expected Output</span>
-                              <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-yellow-400 font-mono text-[13px] overflow-x-auto">
-                                {problem.examples[activeTestCase].output}
-                              </pre>
-                            </div>
+                            {/* Current Test Case Details */}
+                            {problem.examples[activeTestCase] && (
+                              <div className="space-y-3">
+                                <div>
+                                  <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">Input</span>
+                                  <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-emerald-400 font-mono text-[13px] overflow-x-auto">
+                                    {problem.examples[activeTestCase].input}
+                                  </pre>
+                                </div>
+                                <div>
+                                  <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">Expected Output</span>
+                                  <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-yellow-400 font-mono text-[13px] overflow-x-auto">
+                                    {problem.examples[activeTestCase].output}
+                                  </pre>
+                                </div>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div className="text-center py-6 text-gray-500">
+                            <Icon name="fileText" size={32} className="mx-auto mb-3 opacity-50" />
+                            <p>No test cases available.</p>
+                            <p className="text-sm mt-1">Generate a solution to get test cases.</p>
                           </div>
                         )}
                       </div>
