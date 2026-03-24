@@ -11,6 +11,7 @@ import PricingPlans from './components/billing/PricingPlans';
 import CreditBalance from './components/billing/CreditBalance';
 import DownloadPage from './components/billing/DownloadPage';
 import DocsPage from './components/DocsPage';
+import ProblemPage from './components/ProblemPage';
 import OnboardingModal, { hasCompletedOnboarding } from './components/onboarding/OnboardingModal';
 import AdminPanel from './components/AdminPanel';
 import SettingsPanel from './components/settings/SettingsPanel';
@@ -101,9 +102,12 @@ export default function App() {
   const isLandingPage = !isElectron && (currentPath === '/' || currentPath === '/login');
   const isDownloadPage = !isElectron && currentPath === '/download';
   const isDocsPage = currentPath.startsWith('/docs');
+  const isProblemPage = currentPath.startsWith('/problems/');
+  const problemSlug = isProblemPage ? currentPath.replace('/problems/', '').split('?')[0] : null;
 
   // State for Electron docs page navigation
   const [showDocs, setShowDocs] = useState(isElectron && currentPath.startsWith('/docs'));
+  const [showProblem, setShowProblem] = useState(isProblemPage ? problemSlug : null);
 
   // ---------------------------------------------------------------------------
   // Provider State
@@ -758,6 +762,40 @@ export default function App() {
           </div>
         </div>
       </div>
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Render: Problem Page (LeetCode-style problem viewer)
+  // ---------------------------------------------------------------------------
+  if (isProblemPage || showProblem) {
+    const currentSlug = showProblem || problemSlug;
+    return (
+      <ProblemPage
+        slug={currentSlug}
+        onBack={() => {
+          if (isElectron) {
+            setShowProblem(null);
+            setShowDocs(true);
+          } else {
+            window.history.back();
+          }
+        }}
+        onSolve={(problemStatement) => {
+          // Navigate to main app and set the problem for solving
+          setExtractedText(problemStatement);
+          setAscendMode('coding');
+          if (isElectron) {
+            setShowProblem(null);
+          } else {
+            window.history.pushState({}, '', '/app');
+          }
+          // Auto-solve after a brief delay
+          setTimeout(() => {
+            handleSolve(problemStatement, 'auto', 'detailed');
+          }, 300);
+        }}
+      />
     );
   }
 

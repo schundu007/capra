@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Icon } from './Icons.jsx';
 import { getAuthHeaders } from '../utils/authHeaders.js';
 import DiagramSVG from './DiagramSVG.jsx';
+import { generateSlug, getProblemBySlug } from '../data/problems.js';
 
 // Unified card styling - clean, minimal design with larger fonts
 const CARD_STYLES = {
@@ -27351,25 +27352,34 @@ Best,
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {topicDetails.commonProblems.map((problem, i) => {
                       const problemName = typeof problem === 'string' ? problem : problem.name;
-                      const problemStatement = typeof problem === 'object' && problem.statement
-                        ? problem.statement
-                        : `Solve the "${problemName}" problem. This is a classic ${topicDetails.title} problem.`;
+                      const slug = generateSlug(problemName);
+                      const problemData = getProblemBySlug(slug);
+                      const difficulty = typeof problem === 'object' ? problem.difficulty : (problemData?.difficulty || null);
+
+                      // If problem exists in our database, link to problem page
+                      // Otherwise, fall back to auto-solve with problem name
+                      const href = problemData
+                        ? `/problems/${slug}`
+                        : `/?problem=${encodeURIComponent(`Solve the "${problemName}" problem. This is a classic ${topicDetails.title} problem.`)}&autosolve=true`;
 
                       return (
                         <a
                           key={i}
-                          href={`/?problem=${encodeURIComponent(problemStatement)}&autosolve=true`}
+                          href={href}
                           className="flex items-center gap-3 p-3 rounded-lg hover:bg-emerald-500/10 transition-colors cursor-pointer group border border-transparent hover:border-emerald-500/30"
                         >
                           <span className="w-7 h-7 rounded-lg flex items-center justify-center text-lg font-mono bg-emerald-500/15 text-emerald-400 group-hover:bg-emerald-500/25">{i + 1}</span>
                           <span className="text-gray-300 text-lg flex-1 truncate group-hover:text-emerald-300 transition-colors">{problemName}</span>
+                          {problemData && (
+                            <span className="px-2 py-0.5 bg-emerald-500/15 text-emerald-400 text-xs rounded flex-shrink-0">View</span>
+                          )}
                           <Icon name="arrowRight" size={16} className="text-gray-500 group-hover:text-emerald-400 transition-colors flex-shrink-0" />
-                          {typeof problem === 'object' && problem.difficulty && (
+                          {difficulty && (
                             <span className={`px-2 py-0.5 rounded text-sm flex-shrink-0 ${
-                              problem.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :
-                              problem.difficulty === 'Medium' ? 'bg-emerald-500/15 text-emerald-400' :
+                              difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :
+                              difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-400' :
                               'bg-red-500/20 text-red-400'
-                            }`}>{problem.difficulty.charAt(0)}</span>
+                            }`}>{difficulty.charAt(0)}</span>
                           )}
                         </a>
                       );
