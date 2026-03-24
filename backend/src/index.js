@@ -30,6 +30,10 @@ import voiceRouter from './routes/voice.js';
 import { authenticate } from './middleware/authenticate.js';
 import { isDatabaseConfigured } from './config/database.js';
 import { isStripeConfigured } from './config/stripe.js';
+import { initRedis } from './services/redis.js';
+
+// Initialize Redis for problem caching
+initRedis();
 
 const app = express();
 const PORT = config.PORT;
