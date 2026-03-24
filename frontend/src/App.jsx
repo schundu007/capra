@@ -258,6 +258,42 @@ export default function App() {
   }, [isAuthenticated, authChecked]);
 
   // ---------------------------------------------------------------------------
+  // Handle incoming problem from docs page (Practice Problems click)
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const problemParam = urlParams.get('problem');
+    const autosolve = urlParams.get('autosolve') === 'true';
+    const modeParam = urlParams.get('mode');
+
+    if (problemParam) {
+      const decodedProblem = decodeURIComponent(problemParam);
+
+      // Set the mode if specified (coding or system-design)
+      if (modeParam === 'system-design') {
+        setAscendMode('system-design');
+      } else {
+        setAscendMode('coding');
+      }
+
+      // Set the problem text
+      setCurrentProblem(decodedProblem);
+      setExtractedText('');
+
+      // Clear URL params to avoid re-triggering on refresh
+      window.history.replaceState({}, '', window.location.pathname);
+
+      // Auto-solve if requested
+      if (autosolve) {
+        // Small delay to ensure state is updated
+        setTimeout(() => {
+          handleSolve(decodedProblem, 'auto', 'detailed');
+        }, 100);
+      }
+    }
+  }, []);
+
+  // ---------------------------------------------------------------------------
   // Electron Event Listeners
   // ---------------------------------------------------------------------------
   useEffect(() => {

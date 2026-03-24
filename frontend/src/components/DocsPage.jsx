@@ -27337,31 +27337,43 @@ Best,
               )}
             </div>
 
-            {/* Common Problems - Compact Table Layout */}
+            {/* Common Problems - Clickable to solve */}
             {topicDetails.commonProblems && (
-              <div id="practice" className="rounded-lg overflow-hidden scroll-mt-24" style={CARD_STYLES.card}>
-                <div className="px-3 py-2 border-b border-yellow-500/20 flex items-center gap-3" style={{ background: 'rgba(234,179,8,0.05)' }}>
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
-                    <Icon name="star" size={16} className="text-emerald-400" />
+              <div id="practice" className="rounded-xl overflow-hidden scroll-mt-24" style={CARD_STYLES.card}>
+                <div className="px-5 py-4 flex items-center gap-3" style={CARD_STYLES.header}>
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/15">
+                    <Icon name="star" size={18} className="text-emerald-400" />
                   </div>
-                  <h3 className="text-3xl font-bold text-white">Practice Problems</h3>
-                  <span className="text-sm text-gray-500 ml-auto">{topicDetails.commonProblems.length} problems</span>
+                  <h3 className="text-2xl font-bold text-white">Practice Problems</h3>
+                  <span className="text-lg text-gray-500 ml-auto">{topicDetails.commonProblems.length} problems</span>
                 </div>
-                <div className="p-3">
-                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
-                    {topicDetails.commonProblems.map((problem, i) => (
-                      <div key={i} className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 transition-colors">
-                        <span className="w-5 h-5 rounded flex items-center justify-center text-sm font-mono bg-white/10 text-gray-400">{i + 1}</span>
-                        <span className="text-gray-300 text-lg flex-1 truncate">{typeof problem === 'string' ? problem : problem.name}</span>
-                        {typeof problem === 'object' && problem.difficulty && (
-                          <span className={`px-1.5 py-0.5 rounded text-sm flex-shrink-0 ${
-                            problem.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :
-                            problem.difficulty === 'Medium' ? 'bg-emerald-500/15 text-emerald-400' :
-                            'bg-red-500/20 text-red-400'
-                          }`}>{problem.difficulty.charAt(0)}</span>
-                        )}
-                      </div>
-                    ))}
+                <div className="p-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {topicDetails.commonProblems.map((problem, i) => {
+                      const problemName = typeof problem === 'string' ? problem : problem.name;
+                      const problemStatement = typeof problem === 'object' && problem.statement
+                        ? problem.statement
+                        : `Solve the "${problemName}" problem. This is a classic ${topicDetails.title} problem.`;
+
+                      return (
+                        <a
+                          key={i}
+                          href={`/?problem=${encodeURIComponent(problemStatement)}&autosolve=true`}
+                          className="flex items-center gap-3 p-3 rounded-lg hover:bg-emerald-500/10 transition-colors cursor-pointer group border border-transparent hover:border-emerald-500/30"
+                        >
+                          <span className="w-7 h-7 rounded-lg flex items-center justify-center text-lg font-mono bg-emerald-500/15 text-emerald-400 group-hover:bg-emerald-500/25">{i + 1}</span>
+                          <span className="text-gray-300 text-lg flex-1 truncate group-hover:text-emerald-300 transition-colors">{problemName}</span>
+                          <Icon name="arrowRight" size={16} className="text-gray-500 group-hover:text-emerald-400 transition-colors flex-shrink-0" />
+                          {typeof problem === 'object' && problem.difficulty && (
+                            <span className={`px-2 py-0.5 rounded text-sm flex-shrink-0 ${
+                              problem.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :
+                              problem.difficulty === 'Medium' ? 'bg-emerald-500/15 text-emerald-400' :
+                              'bg-red-500/20 text-red-400'
+                            }`}>{problem.difficulty.charAt(0)}</span>
+                          )}
+                        </a>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -28788,24 +28800,37 @@ Best,
                           <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
                             {categoryDesigns.map((design) => {
                               const diffColor = difficultyColors[design.difficulty] || difficultyColors['Medium'];
+                              const designProblem = `Design ${design.title}. ${design.description || design.subtitle || ''}`;
                               return (
                                 <div
                                   key={design.id}
-                                  onClick={() => setSelectedTopic(design.id)}
-                                  className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
+                                  className="px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors group"
                                 >
-                                  <div className="flex items-center gap-3">
-                                    <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${design.color}15` }}>
-                                      <Icon name={design.icon} size={12} style={{ color: design.color }} />
+                                  <div
+                                    onClick={() => setSelectedTopic(design.id)}
+                                    className="flex items-center gap-4 flex-1 cursor-pointer"
+                                  >
+                                    <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${design.color}15` }}>
+                                      <Icon name={design.icon} size={20} style={{ color: design.color }} />
                                     </div>
                                     <div>
-                                      <span className="text-white text-sm font-medium group-hover:text-emerald-400 transition-colors">{design.title}</span>
-                                      <span className="text-gray-500 text-sm ml-2 hidden md:inline">{design.subtitle}</span>
+                                      <span className="text-white text-xl font-medium group-hover:text-emerald-400 transition-colors">{design.title}</span>
+                                      <span className="text-gray-500 text-lg ml-3 hidden md:inline">{design.subtitle}</span>
                                     </div>
                                   </div>
-                                  <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: diffColor.bg, color: diffColor.text }}>
-                                    {design.difficulty}
-                                  </span>
+                                  <div className="flex items-center gap-3">
+                                    <span className="px-3 py-1 rounded-lg text-lg font-medium" style={{ background: diffColor.bg, color: diffColor.text }}>
+                                      {design.difficulty}
+                                    </span>
+                                    <a
+                                      href={`/?problem=${encodeURIComponent(designProblem)}&mode=system-design&autosolve=true`}
+                                      className="px-4 py-2 rounded-lg text-lg font-medium bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 transition-colors flex items-center gap-2"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <Icon name="zap" size={16} />
+                                      Design
+                                    </a>
+                                  </div>
                                 </div>
                               );
                             })}
