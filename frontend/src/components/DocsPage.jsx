@@ -9028,6 +9028,7 @@ http_requests_total{endpoint="/api/orders", status="200"}
 
       advancedImplementation: {
         title: 'Enterprise Observability Platform',
+        svgTemplate: 'observabilityAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                            Services                                          │
@@ -9973,6 +9974,7 @@ Quick quality first: 360p available in minutes, 4K later`
 
       advancedImplementation: {
         title: 'Production Architecture',
+        svgTemplate: 'youtubeAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │                           YOUTUBE PRODUCTION                                     │
@@ -10276,6 +10278,7 @@ Sticky sessions ensure reconnection goes to same server.`
       advancedImplementation: {
         title: 'Distributed Chat System',
         description: 'Multiple chat servers with message broker for cross-server communication and persistent message queue for offline delivery.',
+        svgTemplate: 'whatsappAdvanced',
         architecture: `
 ┌────────┐    ┌──────────────┐    ┌─────────────┐
 │ Client │◀══▶│   Gateway    │───▶│ Chat Server │
@@ -10591,6 +10594,7 @@ Ring buffer pattern: Stories are circular, auto-evict after 24h`
 
       advancedImplementation: {
         title: 'Production Architecture',
+        svgTemplate: 'instagramAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │                           INSTAGRAM PRODUCTION                                   │
@@ -10963,6 +10967,7 @@ Changes are pushed through notification service, client then fetches full delta.
 
       advancedImplementation: {
         title: 'Production Architecture',
+        svgTemplate: 'dropboxAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │                           DROPBOX PRODUCTION                                     │
@@ -11358,6 +11363,7 @@ Personalization touches:
 
       advancedImplementation: {
         title: 'Production Architecture',
+        svgTemplate: 'netflixAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │                           NETFLIX PRODUCTION                                     │
@@ -11722,6 +11728,7 @@ ML-Enhanced:
 
       advancedImplementation: {
         title: 'Production Architecture',
+        svgTemplate: 'ecommerceAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │                           AMAZON PRODUCTION                                      │
@@ -12094,6 +12101,7 @@ For offline-first/P2P: CRDT`
 
       advancedImplementation: {
         title: 'Production Architecture',
+        svgTemplate: 'googleDocsAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │                           GOOGLE DOCS PRODUCTION                                 │
@@ -12480,6 +12488,7 @@ Benefits:
 
       advancedImplementation: {
         title: 'Production Architecture',
+        svgTemplate: 'paymentAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │                           PAYMENT SYSTEM PRODUCTION                              │
@@ -12850,6 +12859,7 @@ PR(A) = (1-d)/N + d × Σ(PR(Ti)/C(Ti))
 
       advancedImplementation: {
         title: 'Production Search Architecture',
+        svgTemplate: 'searchEngineAdvanced',
         architecture: `
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                    Google-Scale Search Architecture                           │
@@ -13205,6 +13215,7 @@ function shouldDelay(user, notification) {
 
       advancedImplementation: {
         title: 'Production Notification Architecture',
+        svgTemplate: 'notificationAdvanced',
         architecture: `
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                    Production Notification System                             │
@@ -13589,6 +13600,7 @@ return {0, tokens}  -- denied
 
       advancedImplementation: {
         title: 'Production Distributed Rate Limiter',
+        svgTemplate: 'rateLimiterDistributed',
         architecture: `
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                    Production Rate Limiter Architecture                       │
@@ -13986,6 +13998,7 @@ queue_positions {
 
       advancedImplementation: {
         title: 'Production Architecture',
+        svgTemplate: 'ticketmasterAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │                           TICKETMASTER PRODUCTION                                │
@@ -14374,6 +14387,7 @@ Search Logs → Kafka → Flink → Aggregator → Trie Updater
 
       advancedImplementation: {
         title: 'Production Typeahead Architecture',
+        svgTemplate: 'typeaheadAdvanced',
         architecture: `
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                    Production Typeahead System                                │
@@ -15079,6 +15093,7 @@ Return aggregations for filters:
 
       advancedImplementation: {
         title: 'Production Yelp Architecture',
+        svgTemplate: 'yelpAdvanced',
         architecture: `
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                        Production Yelp Architecture                           │
@@ -15423,6 +15438,7 @@ Optimization:
 
       advancedImplementation: {
         title: 'Production Architecture',
+        svgTemplate: 'tinderAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │                           TINDER PRODUCTION                                      │
@@ -15864,6 +15880,7 @@ Returns decryption key (valid for 30 days)
 
       advancedImplementation: {
         title: 'Production Spotify Architecture',
+        svgTemplate: 'spotifyAdvanced',
         architecture: `
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                       Production Spotify Architecture                         │
@@ -16215,6 +16232,7 @@ Optimization:
 
       advancedImplementation: {
         title: 'Production Architecture',
+        svgTemplate: 'airbnbAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │                           AIRBNB PRODUCTION                                      │
@@ -16658,6 +16676,7 @@ If demand > supply by X%:
 
       advancedImplementation: {
         title: 'Production Food Delivery Architecture',
+        svgTemplate: 'doordashAdvanced',
         architecture: `
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                    Production DoorDash Architecture                           │
@@ -17046,6 +17065,7 @@ Where credibility considers:
 
       advancedImplementation: {
         title: 'Global Multi-Region Architecture',
+        svgTemplate: 'twitterTrendsAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           Global Trends Platform                            │
@@ -17487,6 +17507,7 @@ Read: API → Lookup metadata → Redirect to S3 (or proxy)`,
 
       advancedImplementation: {
         title: 'Production Architecture',
+        svgTemplate: 'pastebinAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                      Production Pastebin                                │
@@ -17692,6 +17713,7 @@ Bloom filter for fast "definitely not seen" checks before expensive hash lookups
 
       advancedImplementation: {
         title: 'Production Architecture',
+        svgTemplate: 'webCrawlerAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │                           WEB CRAWLER PRODUCTION                                 │
@@ -18048,6 +18070,7 @@ Instead:
 
       advancedImplementation: {
         title: 'Hybrid Fan-out Architecture',
+        svgTemplate: 'facebookFeedAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                      Facebook News Feed Architecture                        │
@@ -18462,6 +18485,7 @@ Merkle Tree sync:
 
       advancedImplementation: {
         title: 'Distributed Key-Value Store',
+        svgTemplate: 'keyValueAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                      Distributed Key-Value Store                            │
@@ -18848,6 +18872,7 @@ No coordination, but:
 
       advancedImplementation: {
         title: 'Distributed Snowflake Service',
+        svgTemplate: 'distributedIdAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                      Distributed ID Generation                              │
@@ -19245,6 +19270,7 @@ if story involves major entity (president, CEO):
 
       advancedImplementation: {
         title: 'Production News Platform',
+        svgTemplate: 'googleNewsAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                      Google News Architecture                               │
@@ -19661,6 +19687,7 @@ Shard by leaderboard key:
 
       advancedImplementation: {
         title: 'Production Leaderboard System',
+        svgTemplate: 'leaderboardAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                      Production Leaderboard                                 │
@@ -20072,6 +20099,7 @@ Search results: Cache by query hash
 
       advancedImplementation: {
         title: 'Production Booking Platform',
+        svgTemplate: 'hotelBookingAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                      Hotel Booking Platform                                 │
@@ -20492,6 +20520,7 @@ Confidence interval:
 
       advancedImplementation: {
         title: 'Production Maps Platform',
+        svgTemplate: 'googleMapsAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                      Google Maps Architecture                               │
@@ -20902,6 +20931,7 @@ For very large meetings (webinars):
 
       advancedImplementation: {
         title: 'Production Video Conferencing',
+        svgTemplate: 'zoomAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                      Video Conferencing Platform                            │
@@ -21342,6 +21372,7 @@ Privacy: Option to view anonymously (hides viewer)
 
       advancedImplementation: {
         title: 'Production LinkedIn Architecture',
+        svgTemplate: 'linkedinAdvanced',
         architecture: `
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                      LinkedIn Platform                                      │

@@ -191,7 +191,11 @@ async function createWindow() {
 
   // Create the browser window on SECONDARY monitor (for stealth during screen share)
   // User shares primary monitor, Ascend stays on secondary
-  const windowBounds = getSecondaryDisplayBounds(1400, 900);
+  // Use 80% of screen dimensions
+  const display = getSecondaryDisplay();
+  const screenWidth = Math.floor(display.workArea.width * 0.8);
+  const screenHeight = Math.floor(display.workArea.height * 0.8);
+  const windowBounds = getSecondaryDisplayBounds(screenWidth, screenHeight);
   safeLog('[Stealth] Opening on secondary display at:', windowBounds.x, windowBounds.y);
 
   mainWindow = new BrowserWindow({
