@@ -3,6 +3,41 @@ import { Icon } from './Icons.jsx';
 import { getAuthHeaders } from '../utils/authHeaders.js';
 import DiagramSVG from './DiagramSVG.jsx';
 
+// Unified card styling - clean, minimal design
+const CARD_STYLES = {
+  // Standard card with subtle border
+  card: {
+    background: '#111318',
+    border: '1px solid rgba(255,255,255,0.06)',
+    borderRadius: '12px',
+  },
+  // Card header - uses Ascend emerald accent
+  header: {
+    background: 'rgba(16, 185, 129, 0.05)',
+    borderBottom: '1px solid rgba(16, 185, 129, 0.15)',
+    padding: '14px 20px',
+  },
+  // Card body
+  body: {
+    padding: '20px',
+  },
+  // Code block
+  code: {
+    background: '#0d1117',
+    border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: '8px',
+  },
+};
+
+// Ascend brand colors - emerald green
+const ASCEND_COLORS = {
+  primary: '#10b981',
+  primaryHover: '#059669',
+  primaryLight: 'rgba(16, 185, 129, 0.15)',
+  primaryBorder: 'rgba(16, 185, 129, 0.25)',
+  gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+};
+
 // Get API URL based on environment (Electron vs Web)
 const getApiUrl = () => {
   if (window.electronAPI?.isElectron) {
@@ -81,27 +116,19 @@ function CloudArchitectureDiagram({ imageUrl, loading = false, error = null, clo
 function FormattedContent({ content, color = 'emerald' }) {
   if (!content) return null;
 
-  const colorClasses = {
-    emerald: { heading: 'text-emerald-400', bullet: 'text-emerald-400', highlight: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20', diagram: 'bg-emerald-950/50 border-emerald-500/20 text-emerald-400' },
-    blue: { heading: 'text-blue-400', bullet: 'text-blue-400', highlight: 'bg-blue-500/10 text-blue-300 border-blue-500/20', diagram: 'bg-blue-950/50 border-blue-500/20 text-blue-400' },
-    purple: { heading: 'text-purple-400', bullet: 'text-purple-400', highlight: 'bg-purple-500/10 text-purple-300 border-purple-500/20', diagram: 'bg-purple-950/50 border-purple-500/20 text-purple-400' },
-    amber: { heading: 'text-amber-400', bullet: 'text-amber-400', highlight: 'bg-amber-500/10 text-amber-300 border-amber-500/20', diagram: 'bg-amber-950/50 border-amber-500/20 text-amber-400' },
-    cyan: { heading: 'text-cyan-400', bullet: 'text-cyan-400', highlight: 'bg-cyan-500/10 text-cyan-300 border-cyan-500/20', diagram: 'bg-cyan-950/50 border-cyan-500/20 text-cyan-400' },
+  // Use Ascend brand emerald colors
+  const colors = {
+    heading: 'text-emerald-400',
+    bullet: 'text-emerald-400',
+    highlight: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20',
   };
-
-  const colors = colorClasses[color] || colorClasses.emerald;
 
   // Check if line looks like ASCII diagram (box drawing, arrows, pipes)
   const isDiagramLine = (line) => {
-    // Box drawing and arrow characters
     if (/[─│┌┐└┘├┤┬┴┼═║╔╗╚╝╠╣╦╩╬▶▼◀▲→←↑↓►◄]/.test(line)) return true;
-    // Lines with multiple dashes or pipes (ASCII art)
     if (/[|]{2,}|[-]{3,}|[─]{2,}|[=]{3,}/.test(line)) return true;
-    // Lines starting with pipe or box char
     if (/^\s*[|│┃├└┌╔╚╠]/.test(line)) return true;
-    // Lines with arrow patterns
     if (/──+[>▶►]|[<◀◄]──+|->|<-/.test(line)) return true;
-    // Lines that are mostly whitespace with some box chars (diagram continuation)
     if (line.length > 10 && /^\s{4,}[│|├└┌]/.test(line)) return true;
     return false;
   };
@@ -115,7 +142,6 @@ function FormattedContent({ content, color = 'emerald' }) {
     while (remaining.length > 0) {
       const boldMatch = remaining.match(/\*\*([^*]+)\*\*/);
       const codeMatch = remaining.match(/`([^`]+)`/);
-      // Match quoted text like "example text" - but only if it looks like speech/example
       const quoteMatch = remaining.match(/"([^"]{10,})"/);
 
       let nextMatch = null;
@@ -147,7 +173,6 @@ function FormattedContent({ content, color = 'emerald' }) {
         } else if (matchType === 'code') {
           parts.push(<code key={keyCounter++} className={`${colors.highlight} px-1.5 py-0.5 rounded text-sm font-mono border`}>{nextMatch[1]}</code>);
         } else if (matchType === 'quote') {
-          // Render quoted text as styled italic without quote marks
           parts.push(<em key={keyCounter++} className="text-gray-200 italic">{nextMatch[1]}</em>);
         }
         remaining = remaining.substring(nextMatch.index + nextMatch[0].length);
@@ -160,12 +185,39 @@ function FormattedContent({ content, color = 'emerald' }) {
     return parts.length > 0 ? parts : text;
   };
 
-  // Split content into blocks first (diagrams vs text)
+  // Split content into blocks: code blocks, diagrams, and text
   const blocks = [];
-  let currentBlock = { type: 'text', lines: [] };
+  let currentBlock = { type: 'text', lines: [], lang: null };
   const lines = content.split('\n');
+  let inCodeBlock = false;
+  let codeBlockLang = null;
 
   lines.forEach((line) => {
+    // Check for code block start/end
+    if (line.trim().startsWith('```')) {
+      if (!inCodeBlock) {
+        // Starting a code block
+        if (currentBlock.lines.length > 0) {
+          blocks.push(currentBlock);
+        }
+        codeBlockLang = line.trim().slice(3).trim() || 'code';
+        currentBlock = { type: 'code', lines: [], lang: codeBlockLang };
+        inCodeBlock = true;
+      } else {
+        // Ending a code block
+        blocks.push(currentBlock);
+        currentBlock = { type: 'text', lines: [], lang: null };
+        inCodeBlock = false;
+        codeBlockLang = null;
+      }
+      return;
+    }
+
+    if (inCodeBlock) {
+      currentBlock.lines.push(line);
+      return;
+    }
+
     const isDiagram = isDiagramLine(line);
 
     if (isDiagram) {
@@ -173,15 +225,15 @@ function FormattedContent({ content, color = 'emerald' }) {
         if (currentBlock.lines.length > 0) {
           blocks.push(currentBlock);
         }
-        currentBlock = { type: 'diagram', lines: [] };
+        currentBlock = { type: 'diagram', lines: [], lang: null };
       }
-      currentBlock.lines.push(line); // Keep original line with spacing
+      currentBlock.lines.push(line);
     } else {
       if (currentBlock.type !== 'text') {
         if (currentBlock.lines.length > 0) {
           blocks.push(currentBlock);
         }
-        currentBlock = { type: 'text', lines: [] };
+        currentBlock = { type: 'text', lines: [], lang: null };
       }
       currentBlock.lines.push(line);
     }
@@ -195,17 +247,40 @@ function FormattedContent({ content, color = 'emerald' }) {
   const elements = [];
 
   blocks.forEach((block, blockIdx) => {
-    if (block.type === 'diagram') {
-      // Render diagram with preserved spacing - use inline styles to guarantee monospace
+    if (block.type === 'code') {
+      // Render code block with proper formatting
       elements.push(
-        <div key={`diagram-${blockIdx}`} className="my-4 rounded-xl border overflow-x-auto" style={{ background: 'rgba(0,0,0,0.4)', borderColor: 'rgba(255,255,255,0.1)' }}>
+        <div key={`code-${blockIdx}`} className="my-4 rounded-lg border overflow-hidden" style={{ background: '#0d1117', borderColor: 'rgba(255,255,255,0.1)' }}>
+          {block.lang && block.lang !== 'code' && (
+            <div className="px-4 py-2 text-xs text-gray-400 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.02)' }}>
+              {block.lang}
+            </div>
+          )}
           <pre
-            className="p-4 text-sm leading-6"
+            className="p-4 text-base leading-7 overflow-x-auto"
+            style={{
+              fontFamily: '"SF Mono", "Monaco", "Inconsolata", "Fira Mono", "Droid Sans Mono", "Source Code Pro", "Courier New", monospace',
+              whiteSpace: 'pre',
+              tabSize: 2,
+              color: '#e6edf3',
+              margin: 0,
+            }}
+          >
+            {block.lines.join('\n')}
+          </pre>
+        </div>
+      );
+    } else if (block.type === 'diagram') {
+      // Render diagram with preserved spacing
+      elements.push(
+        <div key={`diagram-${blockIdx}`} className="my-4 rounded-lg border overflow-x-auto" style={{ background: '#0d1117', borderColor: 'rgba(255,255,255,0.1)' }}>
+          <pre
+            className="p-4 text-base leading-7"
             style={{
               fontFamily: '"SF Mono", "Monaco", "Inconsolata", "Fira Mono", "Droid Sans Mono", "Source Code Pro", "Courier New", monospace',
               whiteSpace: 'pre',
               tabSize: 4,
-              color: '#a5f3fc',
+              color: '#7dd3fc',
               margin: 0,
               overflow: 'visible'
             }}
@@ -224,8 +299,8 @@ function FormattedContent({ content, color = 'emerald' }) {
             <ul key={`list-${elements.length}`} className="space-y-1.5 my-3 ml-2">
               {currentList.map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <span className={`w-1.5 h-1.5 rounded-full ${colors.bullet.replace('text-', 'bg-')} mt-2 flex-shrink-0`} />
-                  <span className="text-gray-300 text-base leading-relaxed">{formatInlineText(item)}</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 flex-shrink-0" />
+                  <span className="text-gray-300 text-lg leading-relaxed">{formatInlineText(item)}</span>
                 </li>
               ))}
             </ul>
@@ -237,20 +312,30 @@ function FormattedContent({ content, color = 'emerald' }) {
       block.lines.forEach((line, lineIdx) => {
         const trimmed = line.trim();
 
-        // Skip empty lines and code fence markers
-        if (!trimmed || trimmed === '```' || trimmed === '...') {
+        // Skip empty lines
+        if (!trimmed) {
           flushList();
           return;
         }
 
-        // Bold section headers
+        // Bold section headers (with colon at end or space after)
         if (trimmed.match(/^\*\*[^*]+\*\*[:\s(]/) || (trimmed.startsWith('**') && trimmed.endsWith(':'))) {
           flushList();
           const headerText = trimmed.replace(/\*\*/g, '');
           elements.push(
-            <div key={`h-${blockIdx}-${lineIdx}`} className={`${colors.heading} font-semibold text-sm mt-5 mb-2 first:mt-0 flex items-center gap-2`}>
-              <span className={`w-2 h-2 rounded-sm ${colors.heading.replace('text-', 'bg-')}`} />
+            <div key={`h-${blockIdx}-${lineIdx}`} className="text-emerald-400 font-semibold text-base mt-5 mb-3 first:mt-0">
               {headerText}
+            </div>
+          );
+          return;
+        }
+
+        // Section headers without bold (ending with colon)
+        if (trimmed.endsWith(':') && trimmed.length < 50 && !trimmed.includes('.')) {
+          flushList();
+          elements.push(
+            <div key={`h-${blockIdx}-${lineIdx}`} className="text-emerald-400 font-semibold text-base mt-5 mb-3 first:mt-0">
+              {trimmed}
             </div>
           );
           return;
@@ -265,7 +350,7 @@ function FormattedContent({ content, color = 'emerald' }) {
         // Regular paragraph
         flushList();
         elements.push(
-          <p key={`p-${blockIdx}-${lineIdx}`} className="text-gray-300 text-base leading-relaxed my-2">
+          <p key={`p-${blockIdx}-${lineIdx}`} className="text-gray-300 text-lg leading-relaxed my-3">
             {formatInlineText(trimmed)}
           </p>
         );
@@ -27083,34 +27168,34 @@ Best,
           <span>Back to {pageConfig.title}</span>
         </button>
 
-        {/* Topic Header - Enhanced */}
-        <div className="rounded-2xl p-6 mb-8" style={{ background: `linear-gradient(135deg, ${topicDetails.color}10, ${topicDetails.color}05)`, border: `1px solid ${topicDetails.color}20` }}>
+        {/* Topic Header - Clean minimal design */}
+        <div className="rounded-xl p-6 mb-8" style={CARD_STYLES.card}>
           <div className="flex items-start gap-5">
             <div
-              className="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform hover:scale-105"
-              style={{ background: `${topicDetails.color}20` }}
+              className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: 'rgba(20, 184, 166, 0.15)' }}
             >
-              <Icon name={topicDetails.icon} size={32} style={{ color: topicDetails.color }} />
+              <Icon name={topicDetails.icon} size={28} className="text-teal-400" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-2 flex-wrap">
-                <h1 className="text-3xl font-bold text-white">{topicDetails.title}</h1>
+                <h1 className="text-2xl font-bold text-white">{topicDetails.title}</h1>
                 {topicDetails.difficulty && (
-                  <span className={`px-3 py-1 rounded-lg text-sm font-medium ${
-                    topicDetails.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
-                    topicDetails.difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
-                    'bg-red-500/20 text-red-400 border border-red-500/30'
+                  <span className={`px-2.5 py-0.5 rounded text-xs font-medium ${
+                    topicDetails.difficulty === 'Easy' ? 'bg-green-500/15 text-green-400' :
+                    topicDetails.difficulty === 'Medium' ? 'bg-yellow-500/15 text-emerald-400' :
+                    'bg-red-500/15 text-red-400'
                   }`}>
                     {topicDetails.difficulty}
                   </span>
                 )}
                 {topicDetails.questions && (
-                  <span className="px-3 py-1 rounded-lg text-sm font-medium bg-white/5 text-gray-400 border border-white/10">
+                  <span className="px-2.5 py-0.5 rounded text-xs font-medium bg-white/5 text-gray-500">
                     {topicDetails.questions} problems
                   </span>
                 )}
               </div>
-              <p className="text-gray-400 text-lg">{topicDetails.description}</p>
+              <p className="text-gray-400 text-base leading-relaxed">{topicDetails.description}</p>
               {topicDetails.subtitle && !topicDetails.difficulty && (
                 <p className="text-gray-500 text-sm mt-1">{topicDetails.subtitle}</p>
               )}
@@ -27123,7 +27208,7 @@ Best,
           <div className="space-y-6">
             {/* Introduction - Comprehensive Overview */}
             {topicDetails.introduction && (
-              <div id="overview" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+              <div id="overview" className="rounded-lg overflow-hidden scroll-mt-24" style={CARD_STYLES.card}>
                 <div className="px-3 py-2 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
                     <Icon name="book" size={16} className="text-emerald-400" />
@@ -27143,7 +27228,7 @@ Best,
                 <div className="text-white font-mono">{topicDetails.timeComplexity}</div>
               </div>
               <div className="p-4 rounded-xl" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                <div className="text-blue-400 text-sm font-medium mb-1">Space Complexity</div>
+                <div className="text-emerald-400 text-sm font-medium mb-1">Space Complexity</div>
                 <div className="text-white font-mono">{topicDetails.spaceComplexity}</div>
               </div>
             </div>
@@ -27152,10 +27237,10 @@ Best,
             <div id="when-to-use" className={`grid gap-4 scroll-mt-24 ${topicDetails.whenToUse && topicDetails.keyPatterns ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
               {/* When to Use */}
               {topicDetails.whenToUse && (
-                <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
+                <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
                   <div className="px-3 py-2 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-500/20">
-                      <Icon name="target" size={16} className="text-purple-400" />
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
+                      <Icon name="target" size={16} className="text-emerald-400" />
                     </div>
                     <h3 className="text-xl font-bold text-white">When to Use</h3>
                   </div>
@@ -27163,7 +27248,7 @@ Best,
                     <ul className="space-y-2">
                       {topicDetails.whenToUse.map((item, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm">
-                          <span className="text-purple-400 mt-0.5">→</span>
+                          <span className="text-emerald-400 mt-0.5">→</span>
                           <span className="text-gray-300">{item}</span>
                         </li>
                       ))}
@@ -27198,10 +27283,10 @@ Best,
             <div id="approach" className={`grid gap-4 scroll-mt-24 ${topicDetails.approach && topicDetails.commonMistakes ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
               {/* Approach - Step by Step */}
               {topicDetails.approach && (
-                <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
                   <div className="px-3 py-2 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-500/20">
-                      <Icon name="list" size={16} className="text-blue-400" />
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
+                      <Icon name="list" size={16} className="text-emerald-400" />
                     </div>
                     <h3 className="text-xl font-bold text-white">Step-by-Step Approach</h3>
                   </div>
@@ -27209,7 +27294,7 @@ Best,
                     <ol className="space-y-2">
                       {topicDetails.approach.map((step, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm">
-                          <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-blue-500/20 text-blue-400">{i + 1}</span>
+                          <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-emerald-500/15 text-emerald-400">{i + 1}</span>
                           <span className="text-gray-300">{step}</span>
                         </li>
                       ))}
@@ -27220,7 +27305,7 @@ Best,
 
               {/* Common Mistakes */}
               {topicDetails.commonMistakes && (
-                <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(239,68,68,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
                   <div className="px-3 py-2 border-b border-red-500/20 flex items-center gap-3" style={{ background: 'rgba(239,68,68,0.05)' }}>
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-red-500/20">
                       <Icon name="alertTriangle" size={16} className="text-red-400" />
@@ -27243,10 +27328,10 @@ Best,
 
             {/* Common Problems - Compact Table Layout */}
             {topicDetails.commonProblems && (
-              <div id="practice" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
+              <div id="practice" className="rounded-lg overflow-hidden scroll-mt-24" style={CARD_STYLES.card}>
                 <div className="px-3 py-2 border-b border-yellow-500/20 flex items-center gap-3" style={{ background: 'rgba(234,179,8,0.05)' }}>
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-yellow-500/20">
-                    <Icon name="star" size={16} className="text-yellow-400" />
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
+                    <Icon name="star" size={16} className="text-emerald-400" />
                   </div>
                   <h3 className="text-xl font-bold text-white">Practice Problems</h3>
                   <span className="text-xs text-gray-500 ml-auto">{topicDetails.commonProblems.length} problems</span>
@@ -27260,7 +27345,7 @@ Best,
                         {typeof problem === 'object' && problem.difficulty && (
                           <span className={`px-1.5 py-0.5 rounded text-xs flex-shrink-0 ${
                             problem.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :
-                            problem.difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-400' :
+                            problem.difficulty === 'Medium' ? 'bg-emerald-500/15 text-emerald-400' :
                             'bg-red-500/20 text-red-400'
                           }`}>{problem.difficulty.charAt(0)}</span>
                         )}
@@ -27275,8 +27360,8 @@ Best,
             {topicDetails.theoryQuestions && topicDetails.theoryQuestions.length > 0 && (
               <div id="theory" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(147,51,234,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(147,51,234,0.2)' }}>
                 <div className="px-3 py-2 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(147,51,234,0.05)' }}>
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-500/20">
-                    <Icon name="bookOpen" size={16} className="text-purple-400" />
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
+                    <Icon name="bookOpen" size={16} className="text-emerald-400" />
                   </div>
                   <h3 className="text-xl font-bold text-white">Theory Questions</h3>
                   <span className="text-xs text-gray-500 ml-auto">{topicDetails.theoryQuestions.length} questions</span>
@@ -27292,12 +27377,12 @@ Best,
                             onClick={() => setExpandedTheoryQuestions(prev => ({ ...prev, [questionKey]: !prev[questionKey] }))}
                             className="w-full flex items-center gap-2 p-3 hover:bg-white/5 transition-colors text-left"
                           >
-                            <span className="w-6 h-6 rounded flex items-center justify-center text-xs font-mono bg-purple-500/20 text-purple-400 flex-shrink-0">{i + 1}</span>
+                            <span className="w-6 h-6 rounded flex items-center justify-center text-xs font-mono bg-emerald-500/15 text-emerald-400 flex-shrink-0">{i + 1}</span>
                             <span className="text-gray-200 text-base flex-1">{q.question}</span>
                             {q.difficulty && (
                               <span className={`px-2 py-0.5 rounded text-xs flex-shrink-0 ${
                                 q.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :
-                                q.difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-400' :
+                                q.difficulty === 'Medium' ? 'bg-emerald-500/15 text-emerald-400' :
                                 'bg-red-500/20 text-red-400'
                               }`}>{q.difficulty}</span>
                             )}
@@ -27324,7 +27409,7 @@ Best,
             <div id="tips" className="space-y-4 scroll-mt-24">
               {/* Tips */}
               {topicDetails.tips && (
-                <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
                   <div className="px-3 py-2 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
                       <Icon name="lightbulb" size={16} className="text-emerald-400" />
@@ -27422,11 +27507,11 @@ Best,
               <>
                 {/* Introduction (Comprehensive) */}
                 {topicDetails.introduction && (
-                  <div id="overview" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                  <div id="overview" className="rounded-lg overflow-hidden scroll-mt-24" style={CARD_STYLES.card}>
                     <div className="px-6 py-4 border-b border-blue-500/20" style={{ background: 'rgba(59,130,246,0.05)' }}>
                       <h2 className="text-xl font-bold text-white flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-500/20">
-                          <Icon name="book" size={18} className="text-blue-400" />
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/15">
+                          <Icon name="book" size={18} className="text-emerald-400" />
                         </div>
                         Introduction
                       </h2>
@@ -27442,7 +27527,7 @@ Best,
                 <div id="requirements" className="grid md:grid-cols-2 gap-4 scroll-mt-24">
                   {/* Functional Requirements */}
                   {(topicDetails.functionalRequirements || topicDetails.requirements) && (
-                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                  <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
                     <div className="px-3 py-2 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
                         <Icon name="check" size={16} className="text-emerald-400" />
@@ -27464,10 +27549,10 @@ Best,
 
                   {/* Non-Functional Requirements */}
                   {topicDetails.nonFunctionalRequirements && (
-                    <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                    <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
                       <div className="px-3 py-2 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-500/20">
-                          <Icon name="zap" size={16} className="text-blue-400" />
+                        <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
+                          <Icon name="zap" size={16} className="text-emerald-400" />
                         </div>
                         <h3 className="text-xl font-bold text-white">Non-Functional Requirements</h3>
                       </div>
@@ -27475,7 +27560,7 @@ Best,
                         <ul className="space-y-2">
                           {topicDetails.nonFunctionalRequirements.map((req, i) => (
                             <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
-                              <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0 bg-blue-500/20 text-blue-400 mt-0.5">•</span>
+                              <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0 bg-emerald-500/15 text-emerald-400 mt-0.5">•</span>
                               <span className="text-gray-300 text-base">{req}</span>
                             </li>
                           ))}
@@ -27491,7 +27576,7 @@ Best,
                   <div className={`grid gap-4 scroll-mt-24 ${topicDetails.apiDesign?.endpoints && topicDetails.dataModel ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
                     {/* API Design */}
                     {topicDetails.apiDesign && topicDetails.apiDesign.endpoints && (
-                      <div id="api-design" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                      <div id="api-design" className="rounded-lg overflow-hidden scroll-mt-24" style={CARD_STYLES.card}>
                         <div className="px-3 py-2 border-b border-green-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-green-500/20">
                             <Icon name="code" size={16} className="text-green-400" />
@@ -27504,9 +27589,9 @@ Best,
                               <div key={i} className="rounded-lg p-3" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
                                 <div className="flex items-center gap-2 mb-2">
                                   <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${
-                                    endpoint.method === 'GET' ? 'bg-blue-500/20 text-blue-400' :
+                                    endpoint.method === 'GET' ? 'bg-emerald-500/15 text-emerald-400' :
                                     endpoint.method === 'POST' || endpoint.method === 'INSERT' ? 'bg-green-500/20 text-green-400' :
-                                    endpoint.method === 'PUT' || endpoint.method === 'UPDATE' ? 'bg-yellow-500/20 text-yellow-400' :
+                                    endpoint.method === 'PUT' || endpoint.method === 'UPDATE' ? 'bg-emerald-500/15 text-emerald-400' :
                                     'bg-red-500/20 text-red-400'
                                   }`}>
                                     {endpoint.method}
@@ -27523,16 +27608,16 @@ Best,
 
                     {/* Data Model */}
                     {topicDetails.dataModel && (
-                      <div id="data-model" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
-                        <div className="px-3 py-2 border-b border-yellow-500/20 flex items-center gap-3" style={{ background: 'rgba(234,179,8,0.05)' }}>
-                          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-yellow-500/20">
-                            <Icon name="database" size={16} className="text-yellow-400" />
+                      <div id="data-model" className="rounded-xl overflow-hidden scroll-mt-24" style={CARD_STYLES.card}>
+                        <div className="px-5 py-4 flex items-center gap-3" style={CARD_STYLES.header}>
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/15">
+                            <Icon name="database" size={18} className="text-emerald-400" />
                           </div>
                           <h3 className="text-xl font-bold text-white">Data Model</h3>
                         </div>
-                        <div className="overflow-x-auto" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                        <div className="overflow-x-auto" style={CARD_STYLES.code}>
                           <pre
-                            className="p-3 text-xs leading-5 text-yellow-300"
+                            className="p-5 text-base leading-7 text-emerald-300"
                             style={{
                               fontFamily: '"SF Mono", Monaco, "Cascadia Code", Consolas, "Courier New", monospace',
                               whiteSpace: 'pre',
@@ -27548,25 +27633,25 @@ Best,
                   </div>
                 )}
 
-                {/* Key Questions - Row Mode Layout */}
+                {/* Key Questions */}
                 {topicDetails.keyQuestions && (
-                  <div id="key-questions" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
-                    <div className="px-3 py-2 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-500/20">
-                        <Icon name="messageSquare" size={16} className="text-purple-400" />
+                  <div id="key-questions" className="rounded-xl overflow-hidden scroll-mt-24" style={CARD_STYLES.card}>
+                    <div className="px-5 py-4 flex items-center gap-3" style={CARD_STYLES.header}>
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/15">
+                        <Icon name="messageSquare" size={18} className="text-emerald-400" />
                       </div>
                       <h3 className="text-xl font-bold text-white">Key Questions</h3>
                       <span className="text-base text-gray-500 ml-auto">{topicDetails.keyQuestions.length} topics</span>
                     </div>
-                    <div className="divide-y divide-purple-500/10">
+                    <div className="divide-y divide-white/5">
                       {topicDetails.keyQuestions.map((q, i) => (
-                        <div key={i} className="px-3 py-2 hover:bg-white/5 transition-colors">
+                        <div key={i} className="px-5 py-5 hover:bg-white/[0.02] transition-colors">
                           <div className="flex items-start gap-4">
-                            <span className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-sm text-purple-400 font-bold flex-shrink-0">{i + 1}</span>
+                            <span className="w-9 h-9 rounded-lg bg-emerald-500/15 flex items-center justify-center text-base text-emerald-400 font-bold flex-shrink-0">{i + 1}</span>
                             <div className="flex-1 min-w-0">
-                              <h4 className="text-purple-300 font-semibold text-base mb-2">{q.question}</h4>
+                              <h4 className="text-emerald-300 font-semibold text-lg mb-3">{q.question}</h4>
                               <div className="text-gray-300">
-                                <FormattedContent content={q.answer} color="purple" />
+                                <FormattedContent content={q.answer} color="emerald" />
                               </div>
                             </div>
                           </div>
@@ -27576,20 +27661,20 @@ Best,
                   </div>
                 )}
 
-                {/* Basic + Advanced Implementation - Row Mode */}
+                {/* Basic + Advanced Implementation */}
                 {(topicDetails.basicImplementation || topicDetails.advancedImplementation) && (
-                  <div id="architecture" className="space-y-4 scroll-mt-24">
+                  <div id="architecture" className="space-y-5 scroll-mt-24">
                     {/* Basic Implementation */}
                     {topicDetails.basicImplementation && (
-                      <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(249,115,22,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(249,115,22,0.2)' }}>
-                        <div className="px-3 py-2 border-b border-orange-500/20 flex items-center gap-3" style={{ background: 'rgba(249,115,22,0.05)' }}>
-                          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-orange-500/20">
-                            <Icon name="layers" size={16} className="text-orange-400" />
+                      <div className="rounded-xl overflow-hidden" style={CARD_STYLES.card}>
+                        <div className="px-5 py-4 flex items-center gap-3" style={CARD_STYLES.header}>
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/15">
+                            <Icon name="layers" size={18} className="text-emerald-400" />
                           </div>
                           <h3 className="text-xl font-bold text-white">{topicDetails.basicImplementation.title || 'Basic Approach'}</h3>
                         </div>
-                        <div className="p-5">
-                          <p className="text-gray-300 text-base mb-4">{topicDetails.basicImplementation.description}</p>
+                        <div className="p-6">
+                          <p className="text-gray-300 text-lg mb-5 leading-relaxed">{topicDetails.basicImplementation.description}</p>
                           {topicDetails.basicImplementation.svgTemplate && (
                             <DiagramSVG
                               template={topicDetails.basicImplementation.svgTemplate}
@@ -27633,25 +27718,25 @@ Best,
 
                     {/* Advanced Implementation */}
                     {topicDetails.advancedImplementation && (
-                      <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
-                        <div className="px-3 py-2 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
-                          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
-                            <Icon name="zap" size={16} className="text-emerald-400" />
+                      <div className="rounded-xl overflow-hidden" style={CARD_STYLES.card}>
+                        <div className="px-5 py-4 flex items-center gap-3" style={CARD_STYLES.header}>
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/15">
+                            <Icon name="zap" size={18} className="text-emerald-400" />
                           </div>
                           <h3 className="text-xl font-bold text-white">{topicDetails.advancedImplementation.title || 'Scalable Solution'}</h3>
                         </div>
-                        <div className="p-4">
-                          <p className="text-gray-300 text-base mb-3">{topicDetails.advancedImplementation.description}</p>
+                        <div className="p-6">
+                          <p className="text-gray-300 text-lg mb-5 leading-relaxed">{topicDetails.advancedImplementation.description}</p>
                           {topicDetails.advancedImplementation.svgTemplate && (
                             <DiagramSVG
                               template={topicDetails.advancedImplementation.svgTemplate}
-                              className="mb-3"
+                              className="mb-5"
                             />
                           )}
                           {topicDetails.advancedImplementation.architecture && !topicDetails.advancedImplementation.svgTemplate && (
-                            <div className="rounded-lg overflow-x-auto mb-3" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                            <div className="rounded-lg overflow-x-auto mb-5" style={CARD_STYLES.code}>
                               <pre
-                                className="p-3 text-xs leading-5 text-emerald-400"
+                                className="p-5 text-base leading-7 text-emerald-400"
                                 style={{
                                   fontFamily: '"SF Mono", Monaco, "Cascadia Code", Consolas, "Courier New", monospace',
                                   whiteSpace: 'pre',
@@ -27664,11 +27749,11 @@ Best,
                             </div>
                           )}
                           {topicDetails.advancedImplementation.keyPoints && (
-                            <div className="mb-3">
-                              <h4 className="text-emerald-400 text-xs font-semibold mb-2">Key Points:</h4>
-                              <ul className="space-y-1">
+                            <div className="mb-5">
+                              <h4 className="text-emerald-400 text-base font-semibold mb-3">Key Points:</h4>
+                              <ul className="space-y-2">
                                 {topicDetails.advancedImplementation.keyPoints.map((point, i) => (
-                                  <li key={i} className="flex items-start gap-2 text-gray-400 text-xs">
+                                  <li key={i} className="flex items-start gap-3 text-gray-300 text-base">
                                     <span className="text-emerald-400 mt-0.5">✓</span>
                                     <span>{point}</span>
                                   </li>
@@ -27677,14 +27762,14 @@ Best,
                             </div>
                           )}
                           {(topicDetails.advancedImplementation.databaseChoice || topicDetails.advancedImplementation.caching) && (
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-3">
                               {topicDetails.advancedImplementation.databaseChoice && (
-                                <span className="px-2 py-1 rounded-lg text-xs bg-yellow-500/10 text-yellow-400">
+                                <span className="px-3 py-1.5 rounded-lg text-sm bg-emerald-500/10 text-emerald-400">
                                   DB: {topicDetails.advancedImplementation.databaseChoice}
                                 </span>
                               )}
                               {topicDetails.advancedImplementation.caching && (
-                                <span className="px-2 py-1 rounded-lg text-xs bg-blue-500/10 text-blue-400">
+                                <span className="px-3 py-1.5 rounded-lg text-sm bg-emerald-500/10 text-emerald-400">
                                   Cache: {topicDetails.advancedImplementation.caching}
                                 </span>
                               )}
@@ -27696,15 +27781,15 @@ Best,
                   </div>
                 )}
 
-                {/* Cloud Architecture Diagram + Tips - Row Mode */}
-                <div className="space-y-4">
+                {/* Cloud Architecture Diagram + Tips */}
+                <div className="space-y-5">
                   {/* Cloud Architecture Diagram */}
                   {activePage === 'system-design' && topicDetails && (
-                    <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
-                      <div className="px-3 py-2 border-b border-emerald-500/20 flex items-center justify-between" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                    <div className="rounded-xl overflow-hidden" style={CARD_STYLES.card}>
+                      <div className="px-5 py-4 flex items-center justify-between" style={CARD_STYLES.header}>
                         <div className="flex items-center gap-3">
-                          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
-                            <Icon name="layers" size={16} className="text-emerald-400" />
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/15">
+                            <Icon name="layers" size={18} className="text-emerald-400" />
                           </div>
                           <h3 className="text-xl font-bold text-white">Architecture Diagram</h3>
                         </div>
@@ -27755,17 +27840,17 @@ Best,
 
                   {/* Tips */}
                   {topicDetails.tips && (
-                    <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(234,179,8,0.2)' }}>
+                    <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
                       <div className="px-3 py-2 border-b border-yellow-500/20 flex items-center gap-3" style={{ background: 'rgba(234,179,8,0.05)' }}>
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-yellow-500/20">
-                          <Icon name="star" size={16} className="text-yellow-400" />
+                        <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
+                          <Icon name="star" size={16} className="text-emerald-400" />
                         </div>
                         <h3 className="text-xl font-bold text-white">Interview Tips</h3>
                       </div>
                       <div className="divide-y divide-yellow-500/10">
                         {topicDetails.tips.map((tip, i) => (
                           <div key={i} className="px-3 py-2 flex items-center gap-4 hover:bg-white/5 transition-colors">
-                            <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0 bg-yellow-500/20 text-yellow-400">★</span>
+                            <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0 bg-emerald-500/15 text-emerald-400">★</span>
                             <span className="text-gray-300 text-base">{tip}</span>
                           </div>
                         ))}
@@ -27779,10 +27864,10 @@ Best,
                   <div className="space-y-4">
                     {/* Create Flow */}
                     {topicDetails.createFlow && (
-                      <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                      <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
                         <div className="px-3 py-2 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
-                          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-500/20">
-                            <Icon name="arrowRight" size={16} className="text-blue-400" />
+                          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
+                            <Icon name="arrowRight" size={16} className="text-emerald-400" />
                           </div>
                           <h3 className="text-xl font-bold text-white">{topicDetails.createFlow.title}</h3>
                         </div>
@@ -27790,7 +27875,7 @@ Best,
                           <ol className="space-y-2">
                             {topicDetails.createFlow.steps.map((step, i) => (
                               <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
-                                <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                                <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-emerald-500/15 text-emerald-400 border border-blue-500/30">
                                   {i + 1}
                                 </span>
                                 <span className="text-gray-300 text-base">{step}</span>
@@ -27803,10 +27888,10 @@ Best,
 
                     {/* Redirect Flow */}
                     {topicDetails.redirectFlow && (
-                      <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
+                      <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
                         <div className="px-3 py-2 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
-                          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-500/20">
-                            <Icon name="arrowLeft" size={16} className="text-purple-400" />
+                          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
+                            <Icon name="arrowLeft" size={16} className="text-emerald-400" />
                           </div>
                           <h3 className="text-xl font-bold text-white">{topicDetails.redirectFlow.title}</h3>
                         </div>
@@ -27814,7 +27899,7 @@ Best,
                           <ol className="space-y-2">
                             {topicDetails.redirectFlow.steps.map((step, i) => (
                               <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
-                                <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                                <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-emerald-500/15 text-emerald-400 border border-purple-500/30">
                                   {i + 1}
                                 </span>
                                 <span className="text-gray-300 text-base">{step}</span>
@@ -27864,17 +27949,17 @@ Best,
                   <div className={`grid gap-4 ${(!topicDetails.introduction && topicDetails.components) && topicDetails.keyDecisions ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
                     {/* System Components */}
                     {!topicDetails.introduction && topicDetails.components && (
-                      <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(168,85,247,0.2)' }}>
+                      <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
                         <div className="px-3 py-2 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
-                          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-500/20">
-                            <Icon name="layers" size={16} className="text-purple-400" />
+                          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
+                            <Icon name="layers" size={16} className="text-emerald-400" />
                           </div>
                           <h3 className="text-xl font-bold text-white">System Components</h3>
                         </div>
                         <div className="p-4">
                           <div className="flex flex-wrap gap-2">
                             {topicDetails.components.map((comp, i) => (
-                              <span key={i} className="px-3 py-1.5 rounded-lg text-sm bg-purple-500/15 text-purple-400 border border-purple-500/20">
+                              <span key={i} className="px-3 py-1.5 rounded-lg text-sm bg-purple-500/15 text-emerald-400 border border-purple-500/20">
                                 {comp}
                               </span>
                             ))}
@@ -27998,10 +28083,10 @@ Best,
 
                 {/* Concurrency Primitives */}
                 {topicDetails.primitives && (
-                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                  <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
                     <div className="px-3 py-2 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-500/20">
-                        <Icon name="lock" size={16} className="text-blue-400" />
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
+                        <Icon name="lock" size={16} className="text-emerald-400" />
                       </div>
                       <h3 className="text-xl font-bold text-white">Synchronization Primitives</h3>
                     </div>
@@ -28009,7 +28094,7 @@ Best,
                       {topicDetails.primitives.map((prim, i) => (
                         <div key={i} className="p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(59,130,246,0.1)' }}>
                           <div className="flex items-center gap-2 mb-1">
-                            <code className="text-blue-400 font-mono text-sm font-semibold">{prim.name}</code>
+                            <code className="text-emerald-400 font-mono text-sm font-semibold">{prim.name}</code>
                             {prim.example && <code className="text-gray-500 text-xs">{prim.example}</code>}
                           </div>
                           <span className="text-gray-400 text-sm">{prim.description}</span>
@@ -28021,7 +28106,7 @@ Best,
 
                 {/* Concurrency Classic Problems */}
                 {topicDetails.problems && topicDetails.problems[0]?.solution && (
-                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(239,68,68,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                  <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
                     <div className="px-3 py-2 border-b border-red-500/20 flex items-center gap-3" style={{ background: 'rgba(239,68,68,0.05)' }}>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-red-500/20">
                         <Icon name="alertTriangle" size={16} className="text-red-400" />
@@ -28179,8 +28264,8 @@ Best,
             {topicDetails.starExample && (
               <div id="star-example" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(168, 85, 247, 0.08) 0%, rgba(0,0,0,0.3) 100%)', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
                 <div className="px-3 py-2 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168, 85, 247, 0.05)' }}>
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-500/20">
-                    <Icon name="target" size={16} className="text-purple-400" />
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
+                    <Icon name="target" size={16} className="text-emerald-400" />
                   </div>
                   <h3 className="text-xl font-bold text-white">STAR Framework Example</h3>
                 </div>
@@ -28204,8 +28289,8 @@ Best,
             {topicDetails.sampleQuestions && !topicDetails.keyQuestions && (
               <div id="sample-questions" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(59, 130, 246, 0.08) 0%, rgba(0,0,0,0.3) 100%)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
                 <div className="px-3 py-2 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59, 130, 246, 0.05)' }}>
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-500/20">
-                    <Icon name="helpCircle" size={16} className="text-blue-400" />
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
+                    <Icon name="helpCircle" size={16} className="text-emerald-400" />
                   </div>
                   <h3 className="text-xl font-bold text-white">Sample Questions</h3>
                 </div>
@@ -28380,7 +28465,7 @@ Best,
           {/* Pro Badge */}
           <div className="p-4 m-4 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(59,130,246,0.15))', border: '1px solid rgba(168,85,247,0.2)' }}>
             <div className="flex items-center gap-2 mb-2">
-              <Icon name="crown" size={16} className="text-purple-400" />
+              <Icon name="crown" size={16} className="text-emerald-400" />
               <span className="text-sm font-semibold text-white">Ascend Pro</span>
             </div>
             <p className="text-xs text-gray-400 mb-3">Get AI-powered practice with real-time feedback</p>
@@ -28392,8 +28477,8 @@ Best,
 
         {/* Main Content Area */}
         <div className="flex-1 min-h-screen flex justify-center">
-          {/* Center Content - 80% width */}
-          <div className="w-full" style={{ maxWidth: '80vw' }}>
+          {/* Center Content - max-width for readability */}
+          <div className="w-full mx-auto" style={{ maxWidth: '1100px', padding: '0 32px' }}>
             {/* Top Bar */}
             <div className="sticky top-0 z-20 px-8 py-4 flex items-center justify-between" style={{ background: 'rgba(10, 10, 15, 0.9)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
               {/* Breadcrumb */}
@@ -28540,7 +28625,7 @@ Best,
                     </div>
                     <div className="grid md:grid-cols-2 gap-6">
                       {/* Time Complexity Card */}
-                      <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                      <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
                         <div className="px-6 py-4 border-b border-emerald-500/20" style={{ background: 'rgba(16,185,129,0.05)' }}>
                           <h3 className="text-white font-semibold flex items-center gap-2">
                             <Icon name="clock" size={18} className="text-emerald-400" />
@@ -28573,10 +28658,10 @@ Best,
                         </div>
                       </div>
                       {/* Data Structure Selection Card */}
-                      <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                      <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
                         <div className="px-6 py-4 border-b border-blue-500/20" style={{ background: 'rgba(59,130,246,0.05)' }}>
                           <h3 className="text-white font-semibold flex items-center gap-2">
-                            <Icon name="database" size={18} className="text-blue-400" />
+                            <Icon name="database" size={18} className="text-emerald-400" />
                             When to Use What
                           </h3>
                         </div>
@@ -28594,7 +28679,7 @@ Best,
                                 <tr key={i} className="border-b border-white/5 last:border-0">
                                   <td className="py-2.5 text-gray-400">{item.need}</td>
                                   <td className="py-2.5 text-right">
-                                    <span className="px-3 py-1 rounded-lg text-xs font-medium bg-blue-500/10 text-blue-400">
+                                    <span className="px-3 py-1 rounded-lg text-xs font-medium bg-blue-500/10 text-emerald-400">
                                       {item.solution}
                                     </span>
                                   </td>
@@ -28642,7 +28727,7 @@ Best,
                                     <Icon name={topic.icon} size={12} style={{ color: topic.color }} />
                                   </div>
                                   <div>
-                                    <span className="text-white text-sm font-medium group-hover:text-blue-400 transition-colors">{topic.title}</span>
+                                    <span className="text-white text-sm font-medium group-hover:text-emerald-400 transition-colors">{topic.title}</span>
                                     <span className="text-gray-500 text-xs ml-2 hidden md:inline">{topic.description}</span>
                                   </div>
                                 </div>
@@ -28661,7 +28746,7 @@ Best,
                   <div className="space-y-6 mb-8">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-500/10">
-                        <Icon name="systemDesign" size={16} className="text-purple-400" />
+                        <Icon name="systemDesign" size={16} className="text-emerald-400" />
                       </div>
                       <div>
                         <h2 className="text-xl font-bold text-white">Common System Designs</h2>
@@ -28703,7 +28788,7 @@ Best,
                                       <Icon name={design.icon} size={12} style={{ color: design.color }} />
                                     </div>
                                     <div>
-                                      <span className="text-white text-sm font-medium group-hover:text-purple-400 transition-colors">{design.title}</span>
+                                      <span className="text-white text-sm font-medium group-hover:text-emerald-400 transition-colors">{design.title}</span>
                                       <span className="text-gray-500 text-xs ml-2 hidden md:inline">{design.subtitle}</span>
                                     </div>
                                   </div>
@@ -28819,8 +28904,8 @@ Best,
                   {/* Interview Framework - Compact */}
                   <div className="rounded-xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.02))', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
                     <div className="px-4 py-3 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-500/20">
-                        <Icon name="target" size={14} className="text-blue-400" />
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
+                        <Icon name="target" size={14} className="text-emerald-400" />
                       </div>
                       <div>
                         <h3 className="text-xl font-bold text-white">Interview Framework</h3>
@@ -28861,8 +28946,8 @@ Best,
                   <div className="rounded-lg overflow-hidden mb-10" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
                     <div className="px-6 py-4 border-b border-purple-500/20" style={{ background: 'rgba(168,85,247,0.05)' }}>
                       <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-500/20">
-                          <Icon name="star" size={20} className="text-purple-400" />
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-500/15">
+                          <Icon name="star" size={20} className="text-emerald-400" />
                         </div>
                         The STAR Method
                       </h3>
@@ -28925,7 +29010,7 @@ Best,
                                     <Icon name={topic.icon} size={12} style={{ color: topic.color }} />
                                   </div>
                                   <div>
-                                    <span className="text-white text-sm font-medium group-hover:text-purple-400 transition-colors">{topic.title}</span>
+                                    <span className="text-white text-sm font-medium group-hover:text-emerald-400 transition-colors">{topic.title}</span>
                                     <span className="text-gray-500 text-xs ml-2 hidden md:inline">{topic.description}</span>
                                   </div>
                                 </div>
