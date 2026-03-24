@@ -271,7 +271,10 @@ Please provide:
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         if (response.status === 401) {
-          setGenerationError('Please log in to generate solutions.');
+          // Redirect to login page with return URL
+          const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+          window.location.href = `/login?returnUrl=${returnUrl}`;
+          return;
         } else if (response.status === 403 || errorData.subscriptionRequired) {
           setGenerationError('Subscription required. Please upgrade to generate solutions.');
         } else {
