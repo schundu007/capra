@@ -22223,7 +22223,7 @@ class Game:
       id: 'logging-framework',
       title: 'Logging Framework',
       subtitle: 'Customizable Logger',
-      icon: 'fileText',
+      icon: 'document',
       color: '#06b6d4',
       difficulty: 'Medium',
       description: 'Design a logging framework with multiple log levels, appenders, and formatters.',

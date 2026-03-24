@@ -720,7 +720,7 @@ export default function ProblemPage({ slug, onBack, onSolve }) {
                           </>
                         ) : (
                           <div className="text-center py-6 text-gray-500">
-                            <Icon name="fileText" size={32} className="mx-auto mb-3 opacity-50" />
+                            <Icon name="document" size={32} className="mx-auto mb-3 opacity-50" />
                             <p>No test cases available.</p>
                             <p className="text-sm mt-1">Generate a solution to get test cases.</p>
                           </div>
