@@ -781,19 +781,25 @@ export default function App() {
             window.history.back();
           }
         }}
-        onSolve={(problemStatement) => {
+        onSolve={(problemStatement, isDynamic) => {
           // Navigate to main app and set the problem for solving
-          setExtractedText(problemStatement);
           setAscendMode('coding');
           if (isElectron) {
             setShowProblem(null);
           } else {
             window.history.pushState({}, '', '/app');
           }
-          // Auto-solve after a brief delay
-          setTimeout(() => {
-            handleSolve(problemStatement, 'auto', 'detailed');
-          }, 300);
+          // For dynamic problems, just show placeholder text prompting user to paste
+          // For known problems, auto-solve with full statement
+          if (isDynamic) {
+            setExtractedText(`Paste the problem statement here for: ${problemStatement}`);
+          } else {
+            setExtractedText(problemStatement);
+            // Auto-solve after a brief delay for known problems
+            setTimeout(() => {
+              handleSolve(problemStatement, 'auto', 'detailed');
+            }, 300);
+          }
         }}
       />
     );

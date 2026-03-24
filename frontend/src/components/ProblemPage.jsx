@@ -261,9 +261,15 @@ export default function ProblemPage({ slug, onBack, onSolve }) {
   };
 
   const handleSolveWithAI = () => {
-    const statement = buildProblemStatement();
     if (onSolve) {
-      onSolve(statement);
+      if (problem.isDynamic) {
+        // For dynamic problems, just pass the name to prompt user to paste actual statement
+        onSolve(problem.name, true);
+      } else {
+        // For known problems, build full statement and auto-solve
+        const statement = buildProblemStatement();
+        onSolve(statement, false);
+      }
     }
   };
 
