@@ -3,6 +3,7 @@ import { Icon } from './Icons.jsx';
 import { getAuthHeaders } from '../utils/authHeaders.js';
 import DiagramSVG from './DiagramSVG.jsx';
 import { generateSlug, getProblemBySlug } from '../data/problems.js';
+import { getLeetCodeUrl } from '../data/leetcodeUrls.js';
 
 // Unified card styling - clean, minimal design with larger fonts
 const CARD_STYLES = {
@@ -27359,7 +27360,7 @@ Best,
                       // Link to internal page if we have the problem, otherwise direct to LeetCode
                       const href = problemData
                         ? `/problems/${slug}`
-                        : `https://leetcode.com/problems/${slug}/`;
+                        : getLeetCodeUrl(problemName);
                       const isExternal = !problemData;
 
                       return (
