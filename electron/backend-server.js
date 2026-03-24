@@ -195,16 +195,21 @@ function createApp() {
     next();
   });
 
-  // Explicit CORS for extension SSE (must be before route registration)
-  app.use('/api/extension/events', (req, res, next) => {
-    const origin = req.headers.origin || 'http://localhost:5173';
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    if (req.method === 'OPTIONS') {
-      return res.status(200).end();
-    }
-    next();
+  // Explicit CORS for SSE endpoints (must be before route registration)
+  // EventSource doesn't support custom headers, so we need permissive CORS
+  const sseEndpoints = ['/api/extension/events', '/api/voice/events'];
+  sseEndpoints.forEach(endpoint => {
+    app.use(endpoint, (req, res, next) => {
+      const origin = req.headers.origin || 'http://localhost:5173';
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+      }
+      next();
+    });
   });
 
   return app;
