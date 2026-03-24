@@ -27356,28 +27356,24 @@ Best,
                       const slug = generateSlug(problemName);
                       const problemData = getProblemBySlug(slug);
                       const difficulty = typeof problem === 'object' ? problem.difficulty : (problemData?.difficulty || null);
+                      const leetCodeUrl = getLeetCodeUrl(problemName);
 
-                      // Link to internal page if we have the problem, otherwise direct to LeetCode
+                      // Link to internal page if we have the problem, otherwise fetch from LeetCode in main page
                       const href = problemData
                         ? `/problems/${slug}`
-                        : getLeetCodeUrl(problemName);
-                      const isExternal = !problemData;
+                        : `/?fetchUrl=${encodeURIComponent(leetCodeUrl)}`;
 
                       return (
                         <a
                           key={i}
                           href={href}
-                          target={isExternal ? '_blank' : undefined}
-                          rel={isExternal ? 'noopener noreferrer' : undefined}
                           className="flex items-center gap-3 p-3 rounded-lg hover:bg-emerald-500/10 transition-colors cursor-pointer group border border-transparent hover:border-emerald-500/30"
                         >
                           <span className="w-7 h-7 rounded-lg flex items-center justify-center text-lg font-mono bg-emerald-500/15 text-emerald-400 group-hover:bg-emerald-500/25">{i + 1}</span>
                           <span className="text-gray-300 text-lg flex-1 truncate group-hover:text-emerald-300 transition-colors">{problemName}</span>
-                          {isExternal ? (
-                            <Icon name="externalLink" size={14} className="text-gray-500 group-hover:text-emerald-400 flex-shrink-0" />
-                          ) : (
-                            <span className="px-2 py-0.5 bg-emerald-500/15 text-emerald-400 text-xs rounded flex-shrink-0">View</span>
-                          )}
+                          <span className="px-2 py-0.5 bg-emerald-500/15 text-emerald-400 text-xs rounded flex-shrink-0">
+                            {problemData ? 'View' : 'Solve'}
+                          </span>
                           {difficulty && (
                             <span className={`px-2 py-0.5 rounded text-sm flex-shrink-0 ${
                               difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :

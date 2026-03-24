@@ -267,9 +267,11 @@ export default function App() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const problemParam = urlParams.get('problem');
+    const fetchUrlParam = urlParams.get('fetchUrl');
     const autosolve = urlParams.get('autosolve') === 'true';
     const modeParam = urlParams.get('mode');
 
+    // Handle direct problem text
     if (problemParam) {
       const decodedProblem = decodeURIComponent(problemParam);
 
@@ -293,6 +295,41 @@ export default function App() {
           handleSolve(decodedProblem, 'auto', 'detailed');
         }, 300);
       }
+    }
+
+    // Handle LeetCode URL fetch - fetch problem and populate text area (no auto-solve)
+    if (fetchUrlParam) {
+      const decodedUrl = decodeURIComponent(fetchUrlParam);
+
+      // Clear URL params immediately
+      window.history.replaceState({}, '', window.location.pathname);
+
+      // Set mode to coding for LeetCode problems
+      setAscendMode('coding');
+
+      // Fetch the problem from LeetCode (without auto-solving)
+      (async () => {
+        setLoadingType('fetch');
+        try {
+          const response = await fetch(API_URL + '/api/fetch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+            body: JSON.stringify({ url: decodedUrl }),
+          });
+
+          if (!response.ok) throw new Error('Failed to fetch problem from LeetCode');
+
+          const data = await response.json();
+          setCurrentProblem(data.problemText);
+          setExtractedText(data.problemText);
+          setProblemExpanded(true);
+          setLoadingType(null);
+        } catch (err) {
+          setError(err.message);
+          setErrorType('fetch');
+          setLoadingType(null);
+        }
+      })();
     }
   }, []);
 
