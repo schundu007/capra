@@ -210,25 +210,26 @@ export default function ProblemPage({ slug, onBack }) {
     difficulty: urlParams.difficulty || 'Medium',
     category: problemCategory,
     tags: [problemCategory],
-    description: `**${problemName}** - ${problemCategory}\n\nThis problem is not yet in our practice database. Use "Solve with Ascend" to get a complete solution by pasting the problem statement from LeetCode/TechPrep.`,
+    description: `**${problemName}** - ${problemCategory}\n\nThis problem is not yet in our practice database. Click "Find on LeetCode" below to look it up.`,
     examples: [],
     constraints: [],
     solutions: {},
-    hints: ['Use "Solve with Ascend" button to get the full solution.'],
-    approach: 'Use "Solve with Ascend" to see the approach and solution.',
+    hints: ['Look up this problem on LeetCode for examples and constraints.'],
+    approach: 'Find this problem on LeetCode for the full approach.',
     isDynamic: true, // Flag to indicate this is a dynamically created problem
   };
 
   // Initialize code when problem or language changes
   useEffect(() => {
-    if (problem && problem.solutions && problem.solutions[selectedLanguage]) {
-      setUserCode(problem.solutions[selectedLanguage].code);
+    // Use dbProblem directly to avoid dependency on recreated problem object
+    if (dbProblem?.solutions?.[selectedLanguage]) {
+      setUserCode(dbProblem.solutions[selectedLanguage].code);
     } else {
       setUserCode(LANGUAGE_CONFIG[selectedLanguage]?.template || '');
     }
     setTestResults({});
     setOutput(null);
-  }, [slug, selectedLanguage, problem?.solutions]);
+  }, [slug, selectedLanguage, dbProblem]);
 
   // Reset state when problem changes
   useEffect(() => {
