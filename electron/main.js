@@ -279,6 +279,8 @@ async function createWindow() {
 
   mainWindow.webContents.on('did-finish-load', () => {
     safeLog('[Electron] Frontend loaded successfully');
+    // Set zoom to 125%
+    mainWindow.webContents.setZoomFactor(1.25);
   });
 
   mainWindow.webContents.on('console-message', (event, level, message) => {
