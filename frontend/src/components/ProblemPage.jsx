@@ -187,7 +187,7 @@ function slugToName(slug) {
 /**
  * Main ProblemPage Component - LeetCode/TechPrep style problem viewer with code editor
  */
-export default function ProblemPage({ slug, onBack, onSolve }) {
+export default function ProblemPage({ slug, onBack }) {
   // State
   const [activeTab, setActiveTab] = useState('description');
   const [selectedLanguage, setSelectedLanguage] = useState('python');
@@ -240,38 +240,6 @@ export default function ProblemPage({ slug, onBack, onSolve }) {
   const difficultyColor = DIFFICULTY_COLORS[problem.difficulty] || DIFFICULTY_COLORS.Easy;
   const solution = problem.solutions[selectedLanguage];
 
-  // Build problem statement for AI solving
-  const buildProblemStatement = () => {
-    let statement = `${problem.name}\n\n${problem.description}\n\n`;
-    if (problem.examples && problem.examples.length > 0) {
-      statement += 'Examples:\n';
-      problem.examples.forEach((ex, i) => {
-        statement += `\nExample ${i + 1}:\nInput: ${ex.input}\nOutput: ${ex.output}`;
-        if (ex.explanation) statement += `\nExplanation: ${ex.explanation}`;
-        statement += '\n';
-      });
-    }
-    if (problem.constraints && problem.constraints.length > 0) {
-      statement += '\nConstraints:\n';
-      problem.constraints.forEach(c => {
-        statement += `- ${c}\n`;
-      });
-    }
-    return statement;
-  };
-
-  const handleSolveWithAI = () => {
-    if (onSolve) {
-      if (problem.isDynamic) {
-        // For dynamic problems, just pass the name to prompt user to paste actual statement
-        onSolve(problem.name, true);
-      } else {
-        // For known problems, build full statement and auto-solve
-        const statement = buildProblemStatement();
-        onSolve(statement, false);
-      }
-    }
-  };
 
   // Run code against test cases
   const runCode = async () => {
@@ -393,13 +361,6 @@ export default function ProblemPage({ slug, onBack, onSolve }) {
                   LeetCode
                 </a>
               )}
-              <button
-                onClick={handleSolveWithAI}
-                className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-              >
-                <Icon name="zap" size={14} />
-                Solve with Ascend
-              </button>
             </div>
           </div>
         </div>
@@ -476,18 +437,20 @@ export default function ProblemPage({ slug, onBack, onSolve }) {
                         ))}
                       </div>
                     ) : problem.isDynamic ? (
-                      <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-5 text-center">
-                        <Icon name="zap" size={32} className="mx-auto mb-3 text-emerald-400" />
+                      <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-5 text-center">
+                        <Icon name="externalLink" size={32} className="mx-auto mb-3 text-gray-400" />
                         <p className="text-gray-300 mb-4">
-                          This problem is not in our database yet. Click <strong className="text-emerald-400">"Solve with Ascend"</strong> to paste the problem statement and get a complete solution.
+                          This problem is not in our practice database yet.
                         </p>
-                        <button
-                          onClick={handleSolveWithAI}
-                          className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-medium transition-colors inline-flex items-center gap-2"
+                        <a
+                          href={`https://leetcode.com/problemset/?search=${encodeURIComponent(problem.name)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-medium transition-colors inline-flex items-center gap-2"
                         >
-                          <Icon name="zap" size={16} />
-                          Solve with Ascend
-                        </button>
+                          <Icon name="externalLink" size={16} />
+                          Find on LeetCode
+                        </a>
                       </div>
                     ) : null}
 
