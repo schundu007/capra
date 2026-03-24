@@ -10,7 +10,7 @@ const API_URL = getApiUrl();
 
 // Language configurations for code execution
 const LANGUAGE_CONFIG = {
-  python: { name: 'Python', runtime: 'python', extension: 'py', template: 'class Solution:\n    def solve(self, input):\n        # Your code here\n        pass' },
+  python: { name: 'Python', runtime: 'python3', extension: 'py', template: 'class Solution:\n    def solve(self, input):\n        # Your code here\n        pass' },
   javascript: { name: 'JavaScript', runtime: 'javascript', extension: 'js', template: '/**\n * @param {any} input\n * @return {any}\n */\nfunction solve(input) {\n    // Your code here\n}' },
   java: { name: 'Java', runtime: 'java', extension: 'java', template: 'class Solution {\n    public Object solve(Object input) {\n        // Your code here\n        return null;\n    }\n}' },
   cpp: { name: 'C++', runtime: 'cpp', extension: 'cpp', template: '#include <bits/stdc++.h>\nusing namespace std;\n\nclass Solution {\npublic:\n    auto solve(auto input) {\n        // Your code here\n    }\n};' },
