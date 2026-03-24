@@ -7,9 +7,8 @@ const sseClients = new Set();
 
 // SSE endpoint for frontend to listen for problems
 router.get('/events', (req, res) => {
-  // Set CORS headers for SSE
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  // Note: CORS is handled by global middleware in index.js/backend-server.js
+  // Don't set conflicting CORS headers here (can't use * with credentials)
 
   // Set SSE headers
   res.setHeader('Content-Type', 'text/event-stream');
