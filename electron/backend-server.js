@@ -195,6 +195,18 @@ function createApp() {
     next();
   });
 
+  // Explicit CORS for extension SSE (must be before route registration)
+  app.use('/api/extension/events', (req, res, next) => {
+    const origin = req.headers.origin || 'http://localhost:5173';
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    if (req.method === 'OPTIONS') {
+      return res.status(200).end();
+    }
+    next();
+  });
+
   return app;
 }
 
