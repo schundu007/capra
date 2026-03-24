@@ -276,19 +276,18 @@ export default function App() {
         setAscendMode('coding');
       }
 
-      // Set the problem text
-      setCurrentProblem(decodedProblem);
-      setExtractedText('');
+      // Set the problem text - use extractedText which ProblemInput listens to
+      setExtractedText(decodedProblem);
 
       // Clear URL params to avoid re-triggering on refresh
       window.history.replaceState({}, '', window.location.pathname);
 
       // Auto-solve if requested
       if (autosolve) {
-        // Small delay to ensure state is updated
+        // Small delay to ensure state is updated and text is populated
         setTimeout(() => {
           handleSolve(decodedProblem, 'auto', 'detailed');
-        }, 100);
+        }, 300);
       }
     }
   }, []);
