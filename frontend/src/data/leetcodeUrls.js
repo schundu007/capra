@@ -1,353 +1,457 @@
 /**
- * LeetCode URL mappings scraped from AlgoMaster.io
- * Maps problem names to their LeetCode URLs
+ * LeetCode URL mappings from AlgoMaster.io
+ * Complete mapping of problem names to LeetCode URLs with categories and difficulty
  */
 
-export const LEETCODE_URLS = {
+export const LEETCODE_PROBLEMS = {
   // Arrays
-  'Move Zeroes': 'https://leetcode.com/problems/move-zeroes',
-  'Majority Element': 'https://leetcode.com/problems/majority-element',
-  'Remove Duplicates from Sorted Array': 'https://leetcode.com/problems/remove-duplicates-from-sorted-array',
-  'Best Time to Buy and Sell Stock': 'https://leetcode.com/problems/best-time-to-buy-and-sell-stock',
-  'Rotate Array': 'https://leetcode.com/problems/rotate-array',
-  'Product of Array Except Self': 'https://leetcode.com/problems/product-of-array-except-self',
-  'Best Time to Buy and Sell Stock II': 'https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii',
-  'Number of Zero-Filled Subarrays': 'https://leetcode.com/problems/number-of-zero-filled-subarrays',
-  'Increasing Triplet Subsequence': 'https://leetcode.com/problems/increasing-triplet-subsequence',
-  'First Missing Positive': 'https://leetcode.com/problems/first-missing-positive',
+  'Move Zeroes': { url: 'https://leetcode.com/problems/move-zeroes/', difficulty: 'Easy', category: 'Arrays' },
+  'Majority Element': { url: 'https://leetcode.com/problems/majority-element/', difficulty: 'Easy', category: 'Arrays' },
+  'Remove Duplicates from Sorted Array': { url: 'https://leetcode.com/problems/remove-duplicates-from-sorted-array/', difficulty: 'Easy', category: 'Arrays' },
+  'Best Time to Buy and Sell Stock': { url: 'https://leetcode.com/problems/best-time-to-buy-and-sell-stock/', difficulty: 'Easy', category: 'Arrays' },
+  'Rotate Array': { url: 'https://leetcode.com/problems/rotate-array/', difficulty: 'Medium', category: 'Arrays' },
+  'Product of Array Except Self': { url: 'https://leetcode.com/problems/product-of-array-except-self/', difficulty: 'Medium', category: 'Arrays' },
+  'Best Time to Buy and Sell Stock II': { url: 'https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/', difficulty: 'Medium', category: 'Arrays' },
+  'Number of Zero-Filled Subarrays': { url: 'https://leetcode.com/problems/number-of-zero-filled-subarrays/', difficulty: 'Medium', category: 'Arrays' },
+  'Increasing Triplet Subsequence': { url: 'https://leetcode.com/problems/increasing-triplet-subsequence/', difficulty: 'Medium', category: 'Arrays' },
+  'First Missing Positive': { url: 'https://leetcode.com/problems/first-missing-positive/', difficulty: 'Hard', category: 'Arrays' },
 
   // Strings
-  'Is Subsequence': 'https://leetcode.com/problems/is-subsequence',
-  'Valid Palindrome': 'https://leetcode.com/problems/valid-palindrome',
-  'Longest Common Prefix': 'https://leetcode.com/problems/longest-common-prefix',
-  'Zigzag Conversion': 'https://leetcode.com/problems/zigzag-conversion',
-  'Reverse Words in a String': 'https://leetcode.com/problems/reverse-words-in-a-string',
-  'Guess the Word': 'https://leetcode.com/problems/guess-the-word',
+  'Is Subsequence': { url: 'https://leetcode.com/problems/is-subsequence/', difficulty: 'Easy', category: 'Strings' },
+  'Valid Palindrome': { url: 'https://leetcode.com/problems/valid-palindrome/', difficulty: 'Easy', category: 'Strings' },
+  'Longest Common Prefix': { url: 'https://leetcode.com/problems/longest-common-prefix/', difficulty: 'Easy', category: 'Strings' },
+  'Zigzag Conversion': { url: 'https://leetcode.com/problems/zigzag-conversion/', difficulty: 'Medium', category: 'Strings' },
+  'Reverse Words in a String': { url: 'https://leetcode.com/problems/reverse-words-in-a-string/', difficulty: 'Medium', category: 'Strings' },
+  'Guess the Word': { url: 'https://leetcode.com/problems/guess-the-word/', difficulty: 'Hard', category: 'Strings' },
 
   // Bit Manipulation
-  'Single Number': 'https://leetcode.com/problems/single-number',
-  'Number of 1 Bits': 'https://leetcode.com/problems/number-of-1-bits',
-  'Counting Bits': 'https://leetcode.com/problems/counting-bits',
-  'Reverse Bits': 'https://leetcode.com/problems/reverse-bits',
-  'Bitwise AND of Numbers Range': 'https://leetcode.com/problems/bitwise-and-of-numbers-range',
-  'Single Number III': 'https://leetcode.com/problems/single-number-iii',
-  'Sum of Two Integers': 'https://leetcode.com/problems/sum-of-two-integers',
+  'Single Number': { url: 'https://leetcode.com/problems/single-number/', difficulty: 'Easy', category: 'Bit Manipulation' },
+  'Number of 1 Bits': { url: 'https://leetcode.com/problems/number-of-1-bits/', difficulty: 'Easy', category: 'Bit Manipulation' },
+  'Counting Bits': { url: 'https://leetcode.com/problems/counting-bits/', difficulty: 'Easy', category: 'Bit Manipulation' },
+  'Reverse Bits': { url: 'https://leetcode.com/problems/reverse-bits/', difficulty: 'Easy', category: 'Bit Manipulation' },
+  'Bitwise AND of Numbers Range': { url: 'https://leetcode.com/problems/bitwise-and-of-numbers-range/', difficulty: 'Medium', category: 'Bit Manipulation' },
+  'Single Number III': { url: 'https://leetcode.com/problems/single-number-iii/', difficulty: 'Medium', category: 'Bit Manipulation' },
+  'Sum of Two Integers': { url: 'https://leetcode.com/problems/sum-of-two-integers/', difficulty: 'Medium', category: 'Bit Manipulation' },
 
   // Hash Tables
-  'Two Sum': 'https://leetcode.com/problems/two-sum',
-  'Design HashMap': 'https://leetcode.com/problems/design-hashmap',
-  'Design HashSet': 'https://leetcode.com/problems/design-hashset',
-  'Maximum Number of Balloons': 'https://leetcode.com/problems/maximum-number-of-balloons',
-  'Number of Good Pairs': 'https://leetcode.com/problems/number-of-good-pairs',
-  'Isomorphic Strings': 'https://leetcode.com/problems/isomorphic-strings',
-  'Ransom Note': 'https://leetcode.com/problems/ransom-note',
-  'Contains Duplicate': 'https://leetcode.com/problems/contains-duplicate',
-  'Contains Duplicate II': 'https://leetcode.com/problems/contains-duplicate-ii',
-  'Valid Anagram': 'https://leetcode.com/problems/valid-anagram',
-  'Group Anagrams': 'https://leetcode.com/problems/group-anagrams',
-  'Encode and Decode TinyURL': 'https://leetcode.com/problems/encode-and-decode-tinyurl',
-  'Reorganize String': 'https://leetcode.com/problems/reorganize-string',
-  'Longest Consecutive Sequence': 'https://leetcode.com/problems/longest-consecutive-sequence',
-  'Split Array into Consecutive Subsequences': 'https://leetcode.com/problems/split-array-into-consecutive-subsequences',
-  'Number of Matching Subsequences': 'https://leetcode.com/problems/number-of-matching-subsequences',
-  'Number of Good Ways to Split a String': 'https://leetcode.com/problems/number-of-good-ways-to-split-a-string',
+  'Two Sum': { url: 'https://leetcode.com/problems/two-sum/', difficulty: 'Easy', category: 'Hash Tables' },
+  'Design HashMap': { url: 'https://leetcode.com/problems/design-hashmap/', difficulty: 'Easy', category: 'Hash Tables' },
+  'Design HashSet': { url: 'https://leetcode.com/problems/design-hashset/', difficulty: 'Easy', category: 'Hash Tables' },
+  'Maximum Number of Balloons': { url: 'https://leetcode.com/problems/maximum-number-of-balloons/', difficulty: 'Easy', category: 'Hash Tables' },
+  'Number of Good Pairs': { url: 'https://leetcode.com/problems/number-of-good-pairs/', difficulty: 'Easy', category: 'Hash Tables' },
+  'Isomorphic Strings': { url: 'https://leetcode.com/problems/isomorphic-strings/', difficulty: 'Easy', category: 'Hash Tables' },
+  'Ransom Note': { url: 'https://leetcode.com/problems/ransom-note/', difficulty: 'Easy', category: 'Hash Tables' },
+  'Contains Duplicate': { url: 'https://leetcode.com/problems/contains-duplicate/', difficulty: 'Easy', category: 'Hash Tables' },
+  'Contains Duplicate II': { url: 'https://leetcode.com/problems/contains-duplicate-ii/', difficulty: 'Easy', category: 'Hash Tables' },
+  'Valid Anagram': { url: 'https://leetcode.com/problems/valid-anagram/', difficulty: 'Easy', category: 'Hash Tables' },
+  'Group Anagrams': { url: 'https://leetcode.com/problems/group-anagrams/', difficulty: 'Medium', category: 'Hash Tables' },
+  'Encode and Decode TinyURL': { url: 'https://leetcode.com/problems/encode-and-decode-tinyurl/', difficulty: 'Medium', category: 'Hash Tables' },
+  'Reorganize String': { url: 'https://leetcode.com/problems/reorganize-string/', difficulty: 'Medium', category: 'Hash Tables' },
+  'Longest Consecutive Sequence': { url: 'https://leetcode.com/problems/longest-consecutive-sequence/', difficulty: 'Medium', category: 'Hash Tables' },
+  'Split Array into Consecutive Subsequences': { url: 'https://leetcode.com/problems/split-array-into-consecutive-subsequences/', difficulty: 'Medium', category: 'Hash Tables' },
+  'Number of Matching Subsequences': { url: 'https://leetcode.com/problems/number-of-matching-subsequences/', difficulty: 'Medium', category: 'Hash Tables' },
+  'Number of Good Ways to Split a String': { url: 'https://leetcode.com/problems/number-of-good-ways-to-split-a-string/', difficulty: 'Medium', category: 'Hash Tables' },
 
   // Two Pointers
-  'Merge Sorted Array': 'https://leetcode.com/problems/merge-sorted-array',
-  'Two Sum II - Input Array Is Sorted': 'https://leetcode.com/problems/two-sum-ii-input-array-is-sorted',
-  'Container With Most Water': 'https://leetcode.com/problems/container-with-most-water',
-  '3Sum': 'https://leetcode.com/problems/3sum',
-  'Trapping Rain Water': 'https://leetcode.com/problems/trapping-rain-water',
-  'Valid Palindrome II': 'https://leetcode.com/problems/valid-palindrome-ii',
-  'Squares of a Sorted Array': 'https://leetcode.com/problems/squares-of-a-sorted-array',
-  'Remove Element': 'https://leetcode.com/problems/remove-element',
-  'Backspace String Compare': 'https://leetcode.com/problems/backspace-string-compare',
-  'Reverse String': 'https://leetcode.com/problems/reverse-string',
-  'Reverse Vowels of a String': 'https://leetcode.com/problems/reverse-vowels-of-a-string',
+  'Merge Sorted Array': { url: 'https://leetcode.com/problems/merge-sorted-array/', difficulty: 'Easy', category: 'Two Pointers' },
+  'Two Sum II - Input Array Is Sorted': { url: 'https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/', difficulty: 'Medium', category: 'Two Pointers' },
+  'Container With Most Water': { url: 'https://leetcode.com/problems/container-with-most-water/', difficulty: 'Medium', category: 'Two Pointers' },
+  '3Sum': { url: 'https://leetcode.com/problems/3sum/', difficulty: 'Medium', category: 'Two Pointers' },
+  'Trapping Rain Water': { url: 'https://leetcode.com/problems/trapping-rain-water/', difficulty: 'Hard', category: 'Two Pointers' },
 
   // Prefix Sum
-  'Range Sum Query - Immutable': 'https://leetcode.com/problems/range-sum-query-immutable',
-  'Subarray Sum Equals K': 'https://leetcode.com/problems/subarray-sum-equals-k',
-  'Subarray Sums Divisible by K': 'https://leetcode.com/problems/subarray-sums-divisible-by-k',
-  'Continuous Subarray Sum': 'https://leetcode.com/problems/continuous-subarray-sum',
-  'Contiguous Array': 'https://leetcode.com/problems/contiguous-array',
+  'Range Sum Query - Immutable': { url: 'https://leetcode.com/problems/range-sum-query-immutable/', difficulty: 'Easy', category: 'Prefix Sum' },
+  'Subarray Sum Equals K': { url: 'https://leetcode.com/problems/subarray-sum-equals-k/', difficulty: 'Medium', category: 'Prefix Sum' },
+  'Subarray Sums Divisible by K': { url: 'https://leetcode.com/problems/subarray-sums-divisible-by-k/', difficulty: 'Medium', category: 'Prefix Sum' },
+  'Continuous Subarray Sum': { url: 'https://leetcode.com/problems/continuous-subarray-sum/', difficulty: 'Medium', category: 'Prefix Sum' },
+  'Contiguous Array': { url: 'https://leetcode.com/problems/contiguous-array/', difficulty: 'Medium', category: 'Prefix Sum' },
 
-  // Sliding Window
-  'Maximum Average Subarray I': 'https://leetcode.com/problems/maximum-average-subarray-i',
-  'Find All Anagrams in a String': 'https://leetcode.com/problems/find-all-anagrams-in-a-string',
-  'Permutation in String': 'https://leetcode.com/problems/permutation-in-string',
-  'Maximum Sum of Distinct Subarrays With Length K': 'https://leetcode.com/problems/maximum-sum-of-distinct-subarrays-with-length-k',
-  'Substring with Concatenation of All Words': 'https://leetcode.com/problems/substring-with-concatenation-of-all-words',
-  'Longest Substring Without Repeating Characters': 'https://leetcode.com/problems/longest-substring-without-repeating-characters',
-  'Longest Repeating Character Replacement': 'https://leetcode.com/problems/longest-repeating-character-replacement',
-  'Minimum Size Subarray Sum': 'https://leetcode.com/problems/minimum-size-subarray-sum',
-  'Max Consecutive Ones III': 'https://leetcode.com/problems/max-consecutive-ones-iii',
-  'Minimum Window Substring': 'https://leetcode.com/problems/minimum-window-substring',
+  // Sliding Window - Fixed Size
+  'Maximum Average Subarray I': { url: 'https://leetcode.com/problems/maximum-average-subarray-i/', difficulty: 'Easy', category: 'Sliding Window' },
+  'Find All Anagrams in a String': { url: 'https://leetcode.com/problems/find-all-anagrams-in-a-string/', difficulty: 'Medium', category: 'Sliding Window' },
+  'Permutation in String': { url: 'https://leetcode.com/problems/permutation-in-string/', difficulty: 'Medium', category: 'Sliding Window' },
+  'Maximum Sum of Distinct Subarrays With Length K': { url: 'https://leetcode.com/problems/maximum-sum-of-distinct-subarrays-with-length-k/', difficulty: 'Medium', category: 'Sliding Window' },
+  'Substring with Concatenation of All Words': { url: 'https://leetcode.com/problems/substring-with-concatenation-of-all-words/', difficulty: 'Hard', category: 'Sliding Window' },
+
+  // Sliding Window - Dynamic Size
+  'Longest Substring Without Repeating Characters': { url: 'https://leetcode.com/problems/longest-substring-without-repeating-characters/', difficulty: 'Medium', category: 'Sliding Window' },
+  'Longest Repeating Character Replacement': { url: 'https://leetcode.com/problems/longest-repeating-character-replacement/', difficulty: 'Medium', category: 'Sliding Window' },
+  'Minimum Size Subarray Sum': { url: 'https://leetcode.com/problems/minimum-size-subarray-sum/', difficulty: 'Medium', category: 'Sliding Window' },
+  'Max Consecutive Ones III': { url: 'https://leetcode.com/problems/max-consecutive-ones-iii/', difficulty: 'Medium', category: 'Sliding Window' },
+  'Minimum Window Substring': { url: 'https://leetcode.com/problems/minimum-window-substring/', difficulty: 'Hard', category: 'Sliding Window' },
 
   // Kadane's Algorithm
-  'Maximum Subarray': 'https://leetcode.com/problems/maximum-subarray',
-  'Maximum Sum Circular Subarray': 'https://leetcode.com/problems/maximum-sum-circular-subarray',
-  'Maximum Product Subarray': 'https://leetcode.com/problems/maximum-product-subarray',
-  'Best Sightseeing Pair': 'https://leetcode.com/problems/best-sightseeing-pair',
+  'Maximum Subarray': { url: 'https://leetcode.com/problems/maximum-subarray/', difficulty: 'Medium', category: "Kadane's Algorithm" },
+  'Maximum Sum Circular Subarray': { url: 'https://leetcode.com/problems/maximum-sum-circular-subarray/', difficulty: 'Medium', category: "Kadane's Algorithm" },
+  'Maximum Product Subarray': { url: 'https://leetcode.com/problems/maximum-product-subarray/', difficulty: 'Medium', category: "Kadane's Algorithm" },
+  'Best Sightseeing Pair': { url: 'https://leetcode.com/problems/best-sightseeing-pair/', difficulty: 'Medium', category: "Kadane's Algorithm" },
 
   // Matrix
-  'Spiral Matrix': 'https://leetcode.com/problems/spiral-matrix',
-  'Rotate Image': 'https://leetcode.com/problems/rotate-image',
-  'Set Matrix Zeroes': 'https://leetcode.com/problems/set-matrix-zeroes',
-  'Valid Sudoku': 'https://leetcode.com/problems/valid-sudoku',
-  'Game of Life': 'https://leetcode.com/problems/game-of-life',
+  'Spiral Matrix': { url: 'https://leetcode.com/problems/spiral-matrix/', difficulty: 'Medium', category: 'Matrix' },
+  'Rotate Image': { url: 'https://leetcode.com/problems/rotate-image/', difficulty: 'Medium', category: 'Matrix' },
+  'Set Matrix Zeroes': { url: 'https://leetcode.com/problems/set-matrix-zeroes/', difficulty: 'Medium', category: 'Matrix' },
+  'Valid Sudoku': { url: 'https://leetcode.com/problems/valid-sudoku/', difficulty: 'Medium', category: 'Matrix' },
+  'Game of Life': { url: 'https://leetcode.com/problems/game-of-life/', difficulty: 'Medium', category: 'Matrix' },
 
   // Linked List
-  'Intersection of Two Linked Lists': 'https://leetcode.com/problems/intersection-of-two-linked-lists',
-  'Design Linked List': 'https://leetcode.com/problems/design-linked-list',
-  'Remove Nth Node From End of List': 'https://leetcode.com/problems/remove-nth-node-from-end-of-list',
-  'Remove Duplicates from Sorted List II': 'https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii',
-  'Swap Nodes in Pairs': 'https://leetcode.com/problems/swap-nodes-in-pairs',
-  'Copy List with Random Pointer': 'https://leetcode.com/problems/copy-list-with-random-pointer',
-  'Partition List': 'https://leetcode.com/problems/partition-list',
-  'Rotate List': 'https://leetcode.com/problems/rotate-list',
-  'Add Two Numbers': 'https://leetcode.com/problems/add-two-numbers',
-  'Flatten a Multilevel Doubly Linked List': 'https://leetcode.com/problems/flatten-a-multilevel-doubly-linked-list',
-  'Palindrome Linked List': 'https://leetcode.com/problems/palindrome-linked-list',
-  'Reverse Linked List': 'https://leetcode.com/problems/reverse-linked-list',
-  'Reverse Linked List II': 'https://leetcode.com/problems/reverse-linked-list-ii',
-  'Reverse Nodes in k-Group': 'https://leetcode.com/problems/reverse-nodes-in-k-group',
-  'Middle of the Linked List': 'https://leetcode.com/problems/middle-of-the-linked-list',
-  'Linked List Cycle': 'https://leetcode.com/problems/linked-list-cycle',
-  'Linked List Cycle II': 'https://leetcode.com/problems/linked-list-cycle-ii',
-  'Happy Number': 'https://leetcode.com/problems/happy-number',
+  'Intersection of Two Linked Lists': { url: 'https://leetcode.com/problems/intersection-of-two-linked-lists/', difficulty: 'Easy', category: 'Linked List' },
+  'Design Linked List': { url: 'https://leetcode.com/problems/design-linked-list/', difficulty: 'Medium', category: 'Linked List' },
+  'Remove Nth Node From End of List': { url: 'https://leetcode.com/problems/remove-nth-node-from-end-of-list/', difficulty: 'Medium', category: 'Linked List' },
+  'Remove Duplicates from Sorted List II': { url: 'https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/', difficulty: 'Medium', category: 'Linked List' },
+  'Swap Nodes in Pairs': { url: 'https://leetcode.com/problems/swap-nodes-in-pairs/', difficulty: 'Medium', category: 'Linked List' },
+  'Copy List with Random Pointer': { url: 'https://leetcode.com/problems/copy-list-with-random-pointer/', difficulty: 'Medium', category: 'Linked List' },
+  'Partition List': { url: 'https://leetcode.com/problems/partition-list/', difficulty: 'Medium', category: 'Linked List' },
+  'Rotate List': { url: 'https://leetcode.com/problems/rotate-list/', difficulty: 'Medium', category: 'Linked List' },
+  'Add Two Numbers': { url: 'https://leetcode.com/problems/add-two-numbers/', difficulty: 'Medium', category: 'Linked List' },
+  'Flatten a Multilevel Doubly Linked List': { url: 'https://leetcode.com/problems/flatten-a-multilevel-doubly-linked-list/', difficulty: 'Medium', category: 'Linked List' },
 
-  // Stack
-  'Valid Parentheses': 'https://leetcode.com/problems/valid-parentheses',
-  'Remove All Adjacent Duplicates In String': 'https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string',
-  'Min Stack': 'https://leetcode.com/problems/min-stack',
-  'Remove Duplicate Letters': 'https://leetcode.com/problems/remove-duplicate-letters',
-  'Removing Stars From a String': 'https://leetcode.com/problems/removing-stars-from-a-string',
-  'Evaluate Reverse Polish Notation': 'https://leetcode.com/problems/evaluate-reverse-polish-notation',
-  'Basic Calculator II': 'https://leetcode.com/problems/basic-calculator-ii',
-  'Longest Valid Parentheses': 'https://leetcode.com/problems/longest-valid-parentheses',
+  // LinkedList In-place Reversal
+  'Palindrome Linked List': { url: 'https://leetcode.com/problems/palindrome-linked-list/', difficulty: 'Easy', category: 'Linked List' },
+  'Reverse Linked List': { url: 'https://leetcode.com/problems/reverse-linked-list/', difficulty: 'Easy', category: 'Linked List' },
+  'Reverse Linked List II': { url: 'https://leetcode.com/problems/reverse-linked-list-ii/', difficulty: 'Medium', category: 'Linked List' },
+  'Reverse Nodes in k-Group': { url: 'https://leetcode.com/problems/reverse-nodes-in-k-group/', difficulty: 'Hard', category: 'Linked List' },
+
+  // Fast and Slow Pointers
+  'Middle of the Linked List': { url: 'https://leetcode.com/problems/middle-of-the-linked-list/', difficulty: 'Easy', category: 'Fast and Slow Pointers' },
+  'Happy Number': { url: 'https://leetcode.com/problems/happy-number/', difficulty: 'Easy', category: 'Fast and Slow Pointers' },
+  'Linked List Cycle': { url: 'https://leetcode.com/problems/linked-list-cycle/', difficulty: 'Easy', category: 'Fast and Slow Pointers' },
+  'Linked List Cycle II': { url: 'https://leetcode.com/problems/linked-list-cycle-ii/', difficulty: 'Medium', category: 'Fast and Slow Pointers' },
+
+  // Stacks
+  'Valid Parentheses': { url: 'https://leetcode.com/problems/valid-parentheses/', difficulty: 'Easy', category: 'Stacks' },
+  'Remove All Adjacent Duplicates In String': { url: 'https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string/', difficulty: 'Easy', category: 'Stacks' },
+  'Min Stack': { url: 'https://leetcode.com/problems/min-stack/', difficulty: 'Medium', category: 'Stacks' },
+  'Remove Duplicate Letters': { url: 'https://leetcode.com/problems/remove-duplicate-letters/', difficulty: 'Medium', category: 'Stacks' },
+  'Removing Stars From a String': { url: 'https://leetcode.com/problems/removing-stars-from-a-string/', difficulty: 'Medium', category: 'Stacks' },
+  'Evaluate Reverse Polish Notation': { url: 'https://leetcode.com/problems/evaluate-reverse-polish-notation/', difficulty: 'Medium', category: 'Stacks' },
+  'Basic Calculator II': { url: 'https://leetcode.com/problems/basic-calculator-ii/', difficulty: 'Medium', category: 'Stacks' },
+  'Longest Valid Parentheses': { url: 'https://leetcode.com/problems/longest-valid-parentheses/', difficulty: 'Hard', category: 'Stacks' },
 
   // Monotonic Stack
-  'Next Greater Element I': 'https://leetcode.com/problems/next-greater-element-i',
-  'Daily Temperatures': 'https://leetcode.com/problems/daily-temperatures',
-  'Online Stock Span': 'https://leetcode.com/problems/online-stock-span',
-  '132 Pattern': 'https://leetcode.com/problems/132-pattern',
-  'Number of Visible People in a Queue': 'https://leetcode.com/problems/number-of-visible-people-in-a-queue',
-  'Largest Rectangle in Histogram': 'https://leetcode.com/problems/largest-rectangle-in-histogram',
+  'Next Greater Element I': { url: 'https://leetcode.com/problems/next-greater-element-i/', difficulty: 'Easy', category: 'Monotonic Stack' },
+  'Daily Temperatures': { url: 'https://leetcode.com/problems/daily-temperatures/', difficulty: 'Medium', category: 'Monotonic Stack' },
+  'Online Stock Span': { url: 'https://leetcode.com/problems/online-stock-span/', difficulty: 'Medium', category: 'Monotonic Stack' },
+  '132 Pattern': { url: 'https://leetcode.com/problems/132-pattern/', difficulty: 'Medium', category: 'Monotonic Stack' },
+  'Number of Visible People in a Queue': { url: 'https://leetcode.com/problems/number-of-visible-people-in-a-queue/', difficulty: 'Hard', category: 'Monotonic Stack' },
+  'Largest Rectangle in Histogram': { url: 'https://leetcode.com/problems/largest-rectangle-in-histogram/', difficulty: 'Hard', category: 'Monotonic Stack' },
 
-  // Queue
-  'Number of Recent Calls': 'https://leetcode.com/problems/number-of-recent-calls',
-  'Time Needed to Buy Tickets': 'https://leetcode.com/problems/time-needed-to-buy-tickets',
-  'Reveal Cards In Increasing Order': 'https://leetcode.com/problems/reveal-cards-in-increasing-order',
+  // Queues
+  'Number of Recent Calls': { url: 'https://leetcode.com/problems/number-of-recent-calls/', difficulty: 'Easy', category: 'Queues' },
+  'Time Needed to Buy Tickets': { url: 'https://leetcode.com/problems/time-needed-to-buy-tickets/', difficulty: 'Easy', category: 'Queues' },
+  'Reveal Cards In Increasing Order': { url: 'https://leetcode.com/problems/reveal-cards-in-increasing-order/', difficulty: 'Medium', category: 'Queues' },
 
-  // Monotonic Deque
-  'Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit': 'https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit',
-  'Jump Game VI': 'https://leetcode.com/problems/jump-game-vi',
-  'Sliding Window Maximum': 'https://leetcode.com/problems/sliding-window-maximum',
-  'Max Value of Equation': 'https://leetcode.com/problems/max-value-of-equation',
+  // Monotonic Queue
+  'Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit': { url: 'https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/', difficulty: 'Medium', category: 'Monotonic Queue' },
+  'Jump Game VI': { url: 'https://leetcode.com/problems/jump-game-vi/', difficulty: 'Medium', category: 'Monotonic Queue' },
+  'Sliding Window Maximum': { url: 'https://leetcode.com/problems/sliding-window-maximum/', difficulty: 'Hard', category: 'Monotonic Queue' },
+  'Max Value of Equation': { url: 'https://leetcode.com/problems/max-value-of-equation/', difficulty: 'Hard', category: 'Monotonic Queue' },
 
-  // Sorting
-  'Sort Characters By Frequency': 'https://leetcode.com/problems/sort-characters-by-frequency',
-  'Top K Frequent Words': 'https://leetcode.com/problems/top-k-frequent-words',
-  'Maximum Gap': 'https://leetcode.com/problems/maximum-gap',
+  // Bucket Sort
+  'Sort Characters By Frequency': { url: 'https://leetcode.com/problems/sort-characters-by-frequency/', difficulty: 'Medium', category: 'Sorting' },
+  'Top K Frequent Words': { url: 'https://leetcode.com/problems/top-k-frequent-words/', difficulty: 'Medium', category: 'Sorting' },
+  'Maximum Gap': { url: 'https://leetcode.com/problems/maximum-gap/', difficulty: 'Medium', category: 'Sorting' },
 
-  // Divide & Conquer
-  'Merge Two Sorted Lists': 'https://leetcode.com/problems/merge-two-sorted-lists',
-  'Pow(x, n)': 'https://leetcode.com/problems/powx-n',
-  'Decode String': 'https://leetcode.com/problems/decode-string',
-  'Convert Sorted List to Binary Search Tree': 'https://leetcode.com/problems/convert-sorted-list-to-binary-search-tree',
-  'Construct Quad Tree': 'https://leetcode.com/problems/construct-quad-tree',
-  'Maximum Binary Tree': 'https://leetcode.com/problems/maximum-binary-tree',
-  'Sort List': 'https://leetcode.com/problems/sort-list',
-  'Reverse Pairs': 'https://leetcode.com/problems/reverse-pairs',
+  // Recursion
+  'Merge Two Sorted Lists': { url: 'https://leetcode.com/problems/merge-two-sorted-lists/', difficulty: 'Easy', category: 'Recursion' },
+  'Pow(x, n)': { url: 'https://leetcode.com/problems/powx-n/', difficulty: 'Medium', category: 'Recursion' },
+  'Decode String': { url: 'https://leetcode.com/problems/decode-string/', difficulty: 'Medium', category: 'Recursion' },
 
-  // Quickselect
-  'Sort Colors': 'https://leetcode.com/problems/sort-colors',
-  'Kth Largest Element in an Array': 'https://leetcode.com/problems/kth-largest-element-in-an-array',
+  // Divide and Conquer
+  'Convert Sorted List to Binary Search Tree': { url: 'https://leetcode.com/problems/convert-sorted-list-to-binary-search-tree/', difficulty: 'Medium', category: 'Divide and Conquer' },
+  'Construct Quad Tree': { url: 'https://leetcode.com/problems/construct-quad-tree/', difficulty: 'Medium', category: 'Divide and Conquer' },
+  'Maximum Binary Tree': { url: 'https://leetcode.com/problems/maximum-binary-tree/', difficulty: 'Medium', category: 'Divide and Conquer' },
+  'Sort List': { url: 'https://leetcode.com/problems/sort-list/', difficulty: 'Medium', category: 'Divide and Conquer' },
+  'Reverse Pairs': { url: 'https://leetcode.com/problems/reverse-pairs/', difficulty: 'Hard', category: 'Divide and Conquer' },
+
+  // QuickSort / QuickSelect
+  'Sort Colors': { url: 'https://leetcode.com/problems/sort-colors/', difficulty: 'Medium', category: 'QuickSort' },
+  'Kth Largest Element in an Array': { url: 'https://leetcode.com/problems/kth-largest-element-in-an-array/', difficulty: 'Medium', category: 'QuickSort' },
 
   // Binary Search
-  'Binary Search': 'https://leetcode.com/problems/binary-search',
-  'First Bad Version': 'https://leetcode.com/problems/first-bad-version',
-  'Search Insert Position': 'https://leetcode.com/problems/search-insert-position',
-  'Guess Number Higher or Lower': 'https://leetcode.com/problems/guess-number-higher-or-lower',
-  'Valid Perfect Square': 'https://leetcode.com/problems/valid-perfect-square',
-  'Sqrt(x)': 'https://leetcode.com/problems/sqrtx',
-  'Arranging Coins': 'https://leetcode.com/problems/arranging-coins',
-  'Count Negative Numbers in a Sorted Matrix': 'https://leetcode.com/problems/count-negative-numbers-in-a-sorted-matrix',
-  'Intersection of Two Arrays': 'https://leetcode.com/problems/intersection-of-two-arrays',
-  'Intersection of Two Arrays II': 'https://leetcode.com/problems/intersection-of-two-arrays-ii',
-  'Find First and Last Position of Element in Sorted Array': 'https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array',
-  'Search in Rotated Sorted Array': 'https://leetcode.com/problems/search-in-rotated-sorted-array',
-  'Search in Rotated Sorted Array II': 'https://leetcode.com/problems/search-in-rotated-sorted-array-ii',
-  'Find Peak Element': 'https://leetcode.com/problems/find-peak-element',
-  'Random Pick with Weight': 'https://leetcode.com/problems/random-pick-with-weight',
-  'Koko Eating Bananas': 'https://leetcode.com/problems/koko-eating-bananas',
-  'Find Minimum in Rotated Sorted Array': 'https://leetcode.com/problems/find-minimum-in-rotated-sorted-array',
-  'Search a 2D Matrix': 'https://leetcode.com/problems/search-a-2d-matrix',
-  'Find in Mountain Array': 'https://leetcode.com/problems/find-in-mountain-array',
-  'Median of Two Sorted Arrays': 'https://leetcode.com/problems/median-of-two-sorted-arrays',
+  'Binary Search': { url: 'https://leetcode.com/problems/binary-search/', difficulty: 'Easy', category: 'Binary Search' },
+  'First Bad Version': { url: 'https://leetcode.com/problems/first-bad-version/', difficulty: 'Easy', category: 'Binary Search' },
+  'Search Insert Position': { url: 'https://leetcode.com/problems/search-insert-position/', difficulty: 'Easy', category: 'Binary Search' },
+  'Guess Number Higher or Lower': { url: 'https://leetcode.com/problems/guess-number-higher-or-lower/', difficulty: 'Easy', category: 'Binary Search' },
+  'Valid Perfect Square': { url: 'https://leetcode.com/problems/valid-perfect-square/', difficulty: 'Easy', category: 'Binary Search' },
+  'Sqrt(x)': { url: 'https://leetcode.com/problems/sqrtx/', difficulty: 'Easy', category: 'Binary Search' },
+  'Find First and Last Position of Element in Sorted Array': { url: 'https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/', difficulty: 'Medium', category: 'Binary Search' },
+  'Search in Rotated Sorted Array': { url: 'https://leetcode.com/problems/search-in-rotated-sorted-array/', difficulty: 'Medium', category: 'Binary Search' },
+  'Search in Rotated Sorted Array II': { url: 'https://leetcode.com/problems/search-in-rotated-sorted-array-ii/', difficulty: 'Medium', category: 'Binary Search' },
+  'Find Peak Element': { url: 'https://leetcode.com/problems/find-peak-element/', difficulty: 'Medium', category: 'Binary Search' },
+  'Random Pick with Weight': { url: 'https://leetcode.com/problems/random-pick-with-weight/', difficulty: 'Medium', category: 'Binary Search' },
+  'Koko Eating Bananas': { url: 'https://leetcode.com/problems/koko-eating-bananas/', difficulty: 'Medium', category: 'Binary Search' },
+  'Find Minimum in Rotated Sorted Array': { url: 'https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/', difficulty: 'Medium', category: 'Binary Search' },
+  'Search a 2D Matrix': { url: 'https://leetcode.com/problems/search-a-2d-matrix/', difficulty: 'Medium', category: 'Binary Search' },
+  'Find in Mountain Array': { url: 'https://leetcode.com/problems/find-in-mountain-array/', difficulty: 'Hard', category: 'Binary Search' },
+  'Median of Two Sorted Arrays': { url: 'https://leetcode.com/problems/median-of-two-sorted-arrays/', difficulty: 'Hard', category: 'Binary Search' },
 
   // Backtracking
-  'Generate Parentheses': 'https://leetcode.com/problems/generate-parentheses',
-  'Permutations': 'https://leetcode.com/problems/permutations',
-  'Subsets': 'https://leetcode.com/problems/subsets',
-  'Combination Sum': 'https://leetcode.com/problems/combination-sum',
-  'Combination Sum II': 'https://leetcode.com/problems/combination-sum-ii',
-  'Letter Combinations of a Phone Number': 'https://leetcode.com/problems/letter-combinations-of-a-phone-number',
-  'Palindrome Partitioning': 'https://leetcode.com/problems/palindrome-partitioning',
-  'N-Queens': 'https://leetcode.com/problems/n-queens',
-  'Word Search': 'https://leetcode.com/problems/word-search',
+  'Generate Parentheses': { url: 'https://leetcode.com/problems/generate-parentheses/', difficulty: 'Medium', category: 'Backtracking' },
+  'Permutations': { url: 'https://leetcode.com/problems/permutations/', difficulty: 'Medium', category: 'Backtracking' },
+  'Subsets': { url: 'https://leetcode.com/problems/subsets/', difficulty: 'Medium', category: 'Backtracking' },
+  'Combination Sum': { url: 'https://leetcode.com/problems/combination-sum/', difficulty: 'Medium', category: 'Backtracking' },
+  'Combination Sum II': { url: 'https://leetcode.com/problems/combination-sum-ii/', difficulty: 'Medium', category: 'Backtracking' },
+  'Letter Combinations of a Phone Number': { url: 'https://leetcode.com/problems/letter-combinations-of-a-phone-number/', difficulty: 'Medium', category: 'Backtracking' },
+  'Palindrome Partitioning': { url: 'https://leetcode.com/problems/palindrome-partitioning/', difficulty: 'Medium', category: 'Backtracking' },
+  'Word Search': { url: 'https://leetcode.com/problems/word-search/', difficulty: 'Medium', category: 'Backtracking' },
+  'N-Queens': { url: 'https://leetcode.com/problems/n-queens/', difficulty: 'Hard', category: 'Backtracking' },
 
-  // Trees - BFS
-  'Binary Tree Level Order Traversal': 'https://leetcode.com/problems/binary-tree-level-order-traversal',
-  'Binary Tree Right Side View': 'https://leetcode.com/problems/binary-tree-right-side-view',
-  'Binary Tree Zigzag Level Order Traversal': 'https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal',
-  'Populating Next Right Pointers in Each Node II': 'https://leetcode.com/problems/populating-next-right-pointers-in-each-node-ii',
-  'Maximum Width of Binary Tree': 'https://leetcode.com/problems/maximum-width-of-binary-tree',
+  // Trees - Level Order
+  'Binary Tree Level Order Traversal': { url: 'https://leetcode.com/problems/binary-tree-level-order-traversal/', difficulty: 'Medium', category: 'Trees' },
+  'Binary Tree Right Side View': { url: 'https://leetcode.com/problems/binary-tree-right-side-view/', difficulty: 'Medium', category: 'Trees' },
+  'Binary Tree Zigzag Level Order Traversal': { url: 'https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/', difficulty: 'Medium', category: 'Trees' },
+  'Populating Next Right Pointers in Each Node II': { url: 'https://leetcode.com/problems/populating-next-right-pointers-in-each-node-ii/', difficulty: 'Medium', category: 'Trees' },
+  'Maximum Width of Binary Tree': { url: 'https://leetcode.com/problems/maximum-width-of-binary-tree/', difficulty: 'Medium', category: 'Trees' },
 
-  // Trees - DFS
-  'Binary Tree Preorder Traversal': 'https://leetcode.com/problems/binary-tree-preorder-traversal',
-  'Binary Tree Inorder Traversal': 'https://leetcode.com/problems/binary-tree-inorder-traversal',
-  'Binary Tree Postorder Traversal': 'https://leetcode.com/problems/binary-tree-postorder-traversal',
-  'Same Tree': 'https://leetcode.com/problems/same-tree',
-  'Symmetric Tree': 'https://leetcode.com/problems/symmetric-tree',
-  'Binary Tree Paths': 'https://leetcode.com/problems/binary-tree-paths',
-  'Convert Sorted Array to Binary Search Tree': 'https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree',
-  'Count Complete Tree Nodes': 'https://leetcode.com/problems/count-complete-tree-nodes',
-  'Path Sum III': 'https://leetcode.com/problems/path-sum-iii',
-  'Maximum Difference Between Node and Ancestor': 'https://leetcode.com/problems/maximum-difference-between-node-and-ancestor',
-  'Construct Binary Tree from Preorder and Inorder Traversal': 'https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal',
-  'Construct Binary Tree from Inorder and Postorder Traversal': 'https://leetcode.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal',
-  'Serialize and Deserialize Binary Tree': 'https://leetcode.com/problems/serialize-and-deserialize-binary-tree',
-  'Invert Binary Tree': 'https://leetcode.com/problems/invert-binary-tree',
-  'Diameter of Binary Tree': 'https://leetcode.com/problems/diameter-of-binary-tree',
-  'Maximum Depth of Binary Tree': 'https://leetcode.com/problems/maximum-depth-of-binary-tree',
-  'Delete Nodes And Return Forest': 'https://leetcode.com/problems/delete-nodes-and-return-forest',
-  'Lowest Common Ancestor of a Binary Tree': 'https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree',
-  'Find Duplicate Subtrees': 'https://leetcode.com/problems/find-duplicate-subtrees',
-  'Flatten Binary Tree to Linked List': 'https://leetcode.com/problems/flatten-binary-tree-to-linked-list',
-  'Distribute Coins in Binary Tree': 'https://leetcode.com/problems/distribute-coins-in-binary-tree',
-  'Binary Tree Maximum Path Sum': 'https://leetcode.com/problems/binary-tree-maximum-path-sum',
+  // Trees - Pre Order
+  'Binary Tree Preorder Traversal': { url: 'https://leetcode.com/problems/binary-tree-preorder-traversal/', difficulty: 'Easy', category: 'Trees' },
+  'Same Tree': { url: 'https://leetcode.com/problems/same-tree/', difficulty: 'Easy', category: 'Trees' },
+  'Symmetric Tree': { url: 'https://leetcode.com/problems/symmetric-tree/', difficulty: 'Easy', category: 'Trees' },
+  'Binary Tree Paths': { url: 'https://leetcode.com/problems/binary-tree-paths/', difficulty: 'Easy', category: 'Trees' },
+  'Convert Sorted Array to Binary Search Tree': { url: 'https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/', difficulty: 'Easy', category: 'Trees' },
+  'Count Complete Tree Nodes': { url: 'https://leetcode.com/problems/count-complete-tree-nodes/', difficulty: 'Easy', category: 'Trees' },
+  'Maximum Depth of Binary Tree': { url: 'https://leetcode.com/problems/maximum-depth-of-binary-tree/', difficulty: 'Easy', category: 'Trees' },
+  'Path Sum III': { url: 'https://leetcode.com/problems/path-sum-iii/', difficulty: 'Medium', category: 'Trees' },
+  'Maximum Difference Between Node and Ancestor': { url: 'https://leetcode.com/problems/maximum-difference-between-node-and-ancestor/', difficulty: 'Medium', category: 'Trees' },
+  'Construct Binary Tree from Preorder and Inorder Traversal': { url: 'https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/', difficulty: 'Medium', category: 'Trees' },
+  'Construct Binary Tree from Inorder and Postorder Traversal': { url: 'https://leetcode.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/', difficulty: 'Medium', category: 'Trees' },
+  'Serialize and Deserialize Binary Tree': { url: 'https://leetcode.com/problems/serialize-and-deserialize-binary-tree/', difficulty: 'Hard', category: 'Trees' },
+
+  // Trees - In Order
+  'Binary Tree Inorder Traversal': { url: 'https://leetcode.com/problems/binary-tree-inorder-traversal/', difficulty: 'Easy', category: 'Trees' },
+  'Minimum Distance Between BST Nodes': { url: 'https://leetcode.com/problems/minimum-distance-between-bst-nodes/', difficulty: 'Easy', category: 'Trees' },
+  'Minimum Absolute Difference in BST': { url: 'https://leetcode.com/problems/minimum-absolute-difference-in-bst/', difficulty: 'Easy', category: 'Trees' },
+  'Validate Binary Search Tree': { url: 'https://leetcode.com/problems/validate-binary-search-tree/', difficulty: 'Medium', category: 'Trees' },
+  'Kth Smallest Element in a BST': { url: 'https://leetcode.com/problems/kth-smallest-element-in-a-bst/', difficulty: 'Medium', category: 'Trees' },
+  'Binary Search Tree Iterator': { url: 'https://leetcode.com/problems/binary-search-tree-iterator/', difficulty: 'Medium', category: 'Trees' },
+
+  // Trees - Post Order
+  'Binary Tree Postorder Traversal': { url: 'https://leetcode.com/problems/binary-tree-postorder-traversal/', difficulty: 'Easy', category: 'Trees' },
+  'Invert Binary Tree': { url: 'https://leetcode.com/problems/invert-binary-tree/', difficulty: 'Easy', category: 'Trees' },
+  'Diameter of Binary Tree': { url: 'https://leetcode.com/problems/diameter-of-binary-tree/', difficulty: 'Easy', category: 'Trees' },
+  'Delete Nodes And Return Forest': { url: 'https://leetcode.com/problems/delete-nodes-and-return-forest/', difficulty: 'Medium', category: 'Trees' },
+  'Lowest Common Ancestor of a Binary Tree': { url: 'https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/', difficulty: 'Medium', category: 'Trees' },
+  'Find Duplicate Subtrees': { url: 'https://leetcode.com/problems/find-duplicate-subtrees/', difficulty: 'Medium', category: 'Trees' },
+  'Flatten Binary Tree to Linked List': { url: 'https://leetcode.com/problems/flatten-binary-tree-to-linked-list/', difficulty: 'Medium', category: 'Trees' },
+  'Distribute Coins in Binary Tree': { url: 'https://leetcode.com/problems/distribute-coins-in-binary-tree/', difficulty: 'Medium', category: 'Trees' },
+  'Binary Tree Maximum Path Sum': { url: 'https://leetcode.com/problems/binary-tree-maximum-path-sum/', difficulty: 'Hard', category: 'Trees' },
 
   // BST
-  'Validate Binary Search Tree': 'https://leetcode.com/problems/validate-binary-search-tree',
-  'Minimum Distance Between BST Nodes': 'https://leetcode.com/problems/minimum-distance-between-bst-nodes',
-  'Minimum Absolute Difference in BST': 'https://leetcode.com/problems/minimum-absolute-difference-in-bst',
-  'Kth Smallest Element in a BST': 'https://leetcode.com/problems/kth-smallest-element-in-a-bst',
-  'Binary Search Tree Iterator': 'https://leetcode.com/problems/binary-search-tree-iterator',
-  'Trim a Binary Search Tree': 'https://leetcode.com/problems/trim-a-binary-search-tree',
-  'My Calendar I': 'https://leetcode.com/problems/my-calendar-i',
-  'My Calendar II': 'https://leetcode.com/problems/my-calendar-ii',
-  'Stock Price Fluctuation': 'https://leetcode.com/problems/stock-price-fluctuation',
+  'Trim a Binary Search Tree': { url: 'https://leetcode.com/problems/trim-a-binary-search-tree/', difficulty: 'Medium', category: 'BST' },
+  'My Calendar I': { url: 'https://leetcode.com/problems/my-calendar-i/', difficulty: 'Medium', category: 'BST' },
+  'My Calendar II': { url: 'https://leetcode.com/problems/my-calendar-ii/', difficulty: 'Medium', category: 'BST' },
+  'Stock Price Fluctuation': { url: 'https://leetcode.com/problems/stock-price-fluctuation/', difficulty: 'Medium', category: 'BST' },
 
-  // Trie
-  'Implement Trie (Prefix Tree)': 'https://leetcode.com/problems/implement-trie-prefix-tree',
-  'Design Add and Search Words Data Structure': 'https://leetcode.com/problems/design-add-and-search-words-data-structure',
-  'Search Suggestions System': 'https://leetcode.com/problems/search-suggestions-system',
-  'Longest Word in Dictionary': 'https://leetcode.com/problems/longest-word-in-dictionary',
-  'Maximum XOR of Two Numbers in an Array': 'https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array',
-  'Word Search II': 'https://leetcode.com/problems/word-search-ii',
+  // Tries
+  'Implement Trie (Prefix Tree)': { url: 'https://leetcode.com/problems/implement-trie-prefix-tree/', difficulty: 'Medium', category: 'Tries' },
+  'Design Add and Search Words Data Structure': { url: 'https://leetcode.com/problems/design-add-and-search-words-data-structure/', difficulty: 'Medium', category: 'Tries' },
+  'Search Suggestions System': { url: 'https://leetcode.com/problems/search-suggestions-system/', difficulty: 'Medium', category: 'Tries' },
+  'Longest Word in Dictionary': { url: 'https://leetcode.com/problems/longest-word-in-dictionary/', difficulty: 'Medium', category: 'Tries' },
+  'Maximum XOR of Two Numbers in an Array': { url: 'https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/', difficulty: 'Medium', category: 'Tries' },
+  'Word Search II': { url: 'https://leetcode.com/problems/word-search-ii/', difficulty: 'Hard', category: 'Tries' },
 
-  // Heap
-  'Furthest Building You Can Reach': 'https://leetcode.com/problems/furthest-building-you-can-reach',
-  'Single-Threaded CPU': 'https://leetcode.com/problems/single-threaded-cpu',
-  'Process Tasks Using Servers': 'https://leetcode.com/problems/process-tasks-using-servers',
-  'Find Median from Data Stream': 'https://leetcode.com/problems/find-median-from-data-stream',
-  'IPO': 'https://leetcode.com/problems/ipo',
-  'Sliding Window Median': 'https://leetcode.com/problems/sliding-window-median',
-  'Kth Largest Element in a Stream': 'https://leetcode.com/problems/kth-largest-element-in-a-stream',
-  'Top K Frequent Elements': 'https://leetcode.com/problems/top-k-frequent-elements',
-  'K Closest Points to Origin': 'https://leetcode.com/problems/k-closest-points-to-origin',
+  // Heaps
+  'Furthest Building You Can Reach': { url: 'https://leetcode.com/problems/furthest-building-you-can-reach/', difficulty: 'Medium', category: 'Heaps' },
+  'Single-Threaded CPU': { url: 'https://leetcode.com/problems/single-threaded-cpu/', difficulty: 'Medium', category: 'Heaps' },
+  'Process Tasks Using Servers': { url: 'https://leetcode.com/problems/process-tasks-using-servers/', difficulty: 'Medium', category: 'Heaps' },
+  'Find Median from Data Stream': { url: 'https://leetcode.com/problems/find-median-from-data-stream/', difficulty: 'Hard', category: 'Heaps' },
+  'IPO': { url: 'https://leetcode.com/problems/ipo/', difficulty: 'Hard', category: 'Heaps' },
+  'Sliding Window Median': { url: 'https://leetcode.com/problems/sliding-window-median/', difficulty: 'Hard', category: 'Heaps' },
+  'Kth Largest Element in a Stream': { url: 'https://leetcode.com/problems/kth-largest-element-in-a-stream/', difficulty: 'Easy', category: 'Heaps' },
+  'Top K Frequent Elements': { url: 'https://leetcode.com/problems/top-k-frequent-elements/', difficulty: 'Medium', category: 'Heaps' },
+  'K Closest Points to Origin': { url: 'https://leetcode.com/problems/k-closest-points-to-origin/', difficulty: 'Medium', category: 'Heaps' },
 
   // Intervals
-  'Merge Intervals': 'https://leetcode.com/problems/merge-intervals',
-  'Insert Interval': 'https://leetcode.com/problems/insert-interval',
-  'Minimum Number of Arrows to Burst Balloons': 'https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons',
-  'Maximum Number of Events That Can Be Attended': 'https://leetcode.com/problems/maximum-number-of-events-that-can-be-attended',
-  'Non-overlapping Intervals': 'https://leetcode.com/problems/non-overlapping-intervals',
+  'Merge Intervals': { url: 'https://leetcode.com/problems/merge-intervals/', difficulty: 'Medium', category: 'Intervals' },
+  'Insert Interval': { url: 'https://leetcode.com/problems/insert-interval/', difficulty: 'Medium', category: 'Intervals' },
+  'Minimum Number of Arrows to Burst Balloons': { url: 'https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/', difficulty: 'Medium', category: 'Intervals' },
+  'Maximum Number of Events That Can Be Attended': { url: 'https://leetcode.com/problems/maximum-number-of-events-that-can-be-attended/', difficulty: 'Medium', category: 'Intervals' },
+  'Non-overlapping Intervals': { url: 'https://leetcode.com/problems/non-overlapping-intervals/', difficulty: 'Medium', category: 'Intervals' },
 
-  // K-way Merge
-  'Find K Pairs with Smallest Sums': 'https://leetcode.com/problems/find-k-pairs-with-smallest-sums',
-  'Kth Smallest Element in a Sorted Matrix': 'https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix',
-  'Merge k Sorted Lists': 'https://leetcode.com/problems/merge-k-sorted-lists',
-  'Smallest Range Covering Elements from K Lists': 'https://leetcode.com/problems/smallest-range-covering-elements-from-k-lists',
+  // K-Way Merge
+  'Find K Pairs with Smallest Sums': { url: 'https://leetcode.com/problems/find-k-pairs-with-smallest-sums/', difficulty: 'Medium', category: 'K-Way Merge' },
+  'Kth Smallest Element in a Sorted Matrix': { url: 'https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/', difficulty: 'Medium', category: 'K-Way Merge' },
+  'Merge k Sorted Lists': { url: 'https://leetcode.com/problems/merge-k-sorted-lists/', difficulty: 'Hard', category: 'K-Way Merge' },
+  'Smallest Range Covering Elements from K Lists': { url: 'https://leetcode.com/problems/smallest-range-covering-elements-from-k-lists/', difficulty: 'Hard', category: 'K-Way Merge' },
 
-  // Design
-  'Design Browser History': 'https://leetcode.com/problems/design-browser-history',
-  'Time Based Key-Value Store': 'https://leetcode.com/problems/time-based-key-value-store',
-  'Snapshot Array': 'https://leetcode.com/problems/snapshot-array',
-  'Design Twitter': 'https://leetcode.com/problems/design-twitter',
-  'LRU Cache': 'https://leetcode.com/problems/lru-cache',
-  'Insert Delete GetRandom O(1)': 'https://leetcode.com/problems/insert-delete-getrandom-o1',
-  'Design a Food Rating System': 'https://leetcode.com/problems/design-a-food-rating-system',
-  'Maximum Frequency Stack': 'https://leetcode.com/problems/maximum-frequency-stack',
+  // Data Structure Design
+  'Design Browser History': { url: 'https://leetcode.com/problems/design-browser-history/', difficulty: 'Medium', category: 'Design' },
+  'Time Based Key-Value Store': { url: 'https://leetcode.com/problems/time-based-key-value-store/', difficulty: 'Medium', category: 'Design' },
+  'Snapshot Array': { url: 'https://leetcode.com/problems/snapshot-array/', difficulty: 'Medium', category: 'Design' },
+  'Design Twitter': { url: 'https://leetcode.com/problems/design-twitter/', difficulty: 'Medium', category: 'Design' },
+  'LRU Cache': { url: 'https://leetcode.com/problems/lru-cache/', difficulty: 'Medium', category: 'Design' },
+  'Insert Delete GetRandom O(1)': { url: 'https://leetcode.com/problems/insert-delete-getrandom-o1/', difficulty: 'Medium', category: 'Design' },
+  'Design a Food Rating System': { url: 'https://leetcode.com/problems/design-a-food-rating-system/', difficulty: 'Medium', category: 'Design' },
+  'Maximum Frequency Stack': { url: 'https://leetcode.com/problems/maximum-frequency-stack/', difficulty: 'Hard', category: 'Design' },
 
   // Greedy
-  'Jump Game': 'https://leetcode.com/problems/jump-game',
-  'Jump Game II': 'https://leetcode.com/problems/jump-game-ii',
-  'Minimum Add to Make Parentheses Valid': 'https://leetcode.com/problems/minimum-add-to-make-parentheses-valid',
-  'Gas Station': 'https://leetcode.com/problems/gas-station',
-  'Candy': 'https://leetcode.com/problems/candy',
+  'Jump Game': { url: 'https://leetcode.com/problems/jump-game/', difficulty: 'Medium', category: 'Greedy' },
+  'Jump Game II': { url: 'https://leetcode.com/problems/jump-game-ii/', difficulty: 'Medium', category: 'Greedy' },
+  'Minimum Add to Make Parentheses Valid': { url: 'https://leetcode.com/problems/minimum-add-to-make-parentheses-valid/', difficulty: 'Medium', category: 'Greedy' },
+  'Gas Station': { url: 'https://leetcode.com/problems/gas-station/', difficulty: 'Medium', category: 'Greedy' },
+  'Task Scheduler': { url: 'https://leetcode.com/problems/task-scheduler/', difficulty: 'Medium', category: 'Greedy' },
+  'Minimum Cost to Hire K Workers': { url: 'https://leetcode.com/problems/minimum-cost-to-hire-k-workers/', difficulty: 'Hard', category: 'Greedy' },
+  'Candy': { url: 'https://leetcode.com/problems/candy/', difficulty: 'Hard', category: 'Greedy' },
+  'Minimum Number of Refueling Stops': { url: 'https://leetcode.com/problems/minimum-number-of-refueling-stops/', difficulty: 'Hard', category: 'Greedy' },
 
-  // Dynamic Programming
-  'Climbing Stairs': 'https://leetcode.com/problems/climbing-stairs',
-  'House Robber': 'https://leetcode.com/problems/house-robber',
-  'House Robber II': 'https://leetcode.com/problems/house-robber-ii',
-  'Coin Change': 'https://leetcode.com/problems/coin-change',
-  'Coin Change II': 'https://leetcode.com/problems/coin-change-ii',
-  'Longest Increasing Subsequence': 'https://leetcode.com/problems/longest-increasing-subsequence',
-  'Longest Common Subsequence': 'https://leetcode.com/problems/longest-common-subsequence',
-  'Edit Distance': 'https://leetcode.com/problems/edit-distance',
-  'Unique Paths': 'https://leetcode.com/problems/unique-paths',
-  'Unique Paths II': 'https://leetcode.com/problems/unique-paths-ii',
-  'Minimum Path Sum': 'https://leetcode.com/problems/minimum-path-sum',
-  'Triangle': 'https://leetcode.com/problems/triangle',
-  'Word Break': 'https://leetcode.com/problems/word-break',
-  'Decode Ways': 'https://leetcode.com/problems/decode-ways',
-  'Partition Equal Subset Sum': 'https://leetcode.com/problems/partition-equal-subset-sum',
-  'Target Sum': 'https://leetcode.com/problems/target-sum',
-  'Longest Palindromic Substring': 'https://leetcode.com/problems/longest-palindromic-substring',
-  'Palindromic Substrings': 'https://leetcode.com/problems/palindromic-substrings',
-  'Interleaving String': 'https://leetcode.com/problems/interleaving-string',
-  'Regular Expression Matching': 'https://leetcode.com/problems/regular-expression-matching',
-  'Wildcard Matching': 'https://leetcode.com/problems/wildcard-matching',
+  // DFS
+  'Number of Islands': { url: 'https://leetcode.com/problems/number-of-islands/', difficulty: 'Medium', category: 'Graphs' },
+  'Time Needed to Inform All Employees': { url: 'https://leetcode.com/problems/time-needed-to-inform-all-employees/', difficulty: 'Medium', category: 'Graphs' },
+  'All Paths From Source to Target': { url: 'https://leetcode.com/problems/all-paths-from-source-to-target/', difficulty: 'Medium', category: 'Graphs' },
+  'Clone Graph': { url: 'https://leetcode.com/problems/clone-graph/', difficulty: 'Medium', category: 'Graphs' },
+  'Is Graph Bipartite?': { url: 'https://leetcode.com/problems/is-graph-bipartite/', difficulty: 'Medium', category: 'Graphs' },
+  'All Nodes Distance K in Binary Tree': { url: 'https://leetcode.com/problems/all-nodes-distance-k-in-binary-tree/', difficulty: 'Medium', category: 'Graphs' },
+  'Employee Importance': { url: 'https://leetcode.com/problems/employee-importance/', difficulty: 'Medium', category: 'Graphs' },
+  'Surrounded Regions': { url: 'https://leetcode.com/problems/surrounded-regions/', difficulty: 'Medium', category: 'Graphs' },
+  'Pacific Atlantic Water Flow': { url: 'https://leetcode.com/problems/pacific-atlantic-water-flow/', difficulty: 'Medium', category: 'Graphs' },
+  'Max Area of Island': { url: 'https://leetcode.com/problems/max-area-of-island/', difficulty: 'Medium', category: 'Graphs' },
+  'Making A Large Island': { url: 'https://leetcode.com/problems/making-a-large-island/', difficulty: 'Hard', category: 'Graphs' },
 
-  // Graphs - BFS
-  'Number of Islands': 'https://leetcode.com/problems/number-of-islands',
-  'Rotting Oranges': 'https://leetcode.com/problems/rotting-oranges',
-  'Clone Graph': 'https://leetcode.com/problems/clone-graph',
-  'Pacific Atlantic Water Flow': 'https://leetcode.com/problems/pacific-atlantic-water-flow',
-  'Course Schedule': 'https://leetcode.com/problems/course-schedule',
-  'Course Schedule II': 'https://leetcode.com/problems/course-schedule-ii',
-  'Surrounded Regions': 'https://leetcode.com/problems/surrounded-regions',
-  'Word Ladder': 'https://leetcode.com/problems/word-ladder',
+  // BFS
+  'Rotting Oranges': { url: 'https://leetcode.com/problems/rotting-oranges/', difficulty: 'Medium', category: 'Graphs' },
+  '01 Matrix': { url: 'https://leetcode.com/problems/01-matrix/', difficulty: 'Medium', category: 'Graphs' },
+  'Open the Lock': { url: 'https://leetcode.com/problems/open-the-lock/', difficulty: 'Medium', category: 'Graphs' },
+  'Shortest Path in a Grid with Obstacles Elimination': { url: 'https://leetcode.com/problems/shortest-path-in-a-grid-with-obstacles-elimination/', difficulty: 'Hard', category: 'Graphs' },
+  'Bus Routes': { url: 'https://leetcode.com/problems/bus-routes/', difficulty: 'Hard', category: 'Graphs' },
+  'Word Ladder': { url: 'https://leetcode.com/problems/word-ladder/', difficulty: 'Hard', category: 'Graphs' },
 
-  // Graphs - DFS
-  'Number of Provinces': 'https://leetcode.com/problems/number-of-provinces',
-  'Max Area of Island': 'https://leetcode.com/problems/max-area-of-island',
-  'Graph Valid Tree': 'https://leetcode.com/problems/graph-valid-tree',
-  'All Paths From Source to Target': 'https://leetcode.com/problems/all-paths-from-source-to-target',
+  // Topological Sort
+  'Course Schedule': { url: 'https://leetcode.com/problems/course-schedule/', difficulty: 'Medium', category: 'Graphs' },
+  'Course Schedule II': { url: 'https://leetcode.com/problems/course-schedule-ii/', difficulty: 'Medium', category: 'Graphs' },
+  'Find Eventual Safe States': { url: 'https://leetcode.com/problems/find-eventual-safe-states/', difficulty: 'Medium', category: 'Graphs' },
+  'Minimum Height Trees': { url: 'https://leetcode.com/problems/minimum-height-trees/', difficulty: 'Medium', category: 'Graphs' },
+  'Sort Items by Groups Respecting Dependencies': { url: 'https://leetcode.com/problems/sort-items-by-groups-respecting-dependencies/', difficulty: 'Hard', category: 'Graphs' },
 
   // Union Find
-  'Redundant Connection': 'https://leetcode.com/problems/redundant-connection',
-  'Accounts Merge': 'https://leetcode.com/problems/accounts-merge',
-  'Number of Connected Components in an Undirected Graph': 'https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph',
+  'Number of Provinces': { url: 'https://leetcode.com/problems/number-of-provinces/', difficulty: 'Medium', category: 'Union Find' },
+  'Redundant Connection': { url: 'https://leetcode.com/problems/redundant-connection/', difficulty: 'Medium', category: 'Union Find' },
+  'Accounts Merge': { url: 'https://leetcode.com/problems/accounts-merge/', difficulty: 'Medium', category: 'Union Find' },
+  'Minimize Malware Spread': { url: 'https://leetcode.com/problems/minimize-malware-spread/', difficulty: 'Hard', category: 'Union Find' },
 
   // Shortest Path
-  'Network Delay Time': 'https://leetcode.com/problems/network-delay-time',
-  'Cheapest Flights Within K Stops': 'https://leetcode.com/problems/cheapest-flights-within-k-stops',
-  'Path With Minimum Effort': 'https://leetcode.com/problems/path-with-minimum-effort',
+  'Min Cost to Connect All Points': { url: 'https://leetcode.com/problems/min-cost-to-connect-all-points/', difficulty: 'Medium', category: 'Graphs' },
+  'Network Delay Time': { url: 'https://leetcode.com/problems/network-delay-time/', difficulty: 'Medium', category: 'Graphs' },
+  'Cheapest Flights Within K Stops': { url: 'https://leetcode.com/problems/cheapest-flights-within-k-stops/', difficulty: 'Medium', category: 'Graphs' },
+  'Path with Maximum Probability': { url: 'https://leetcode.com/problems/path-with-maximum-probability/', difficulty: 'Medium', category: 'Graphs' },
+  'Path With Minimum Effort': { url: 'https://leetcode.com/problems/path-with-minimum-effort/', difficulty: 'Medium', category: 'Graphs' },
+  'Swim in Rising Water': { url: 'https://leetcode.com/problems/swim-in-rising-water/', difficulty: 'Hard', category: 'Graphs' },
+
+  // Eulerian Circuit
+  'Reconstruct Itinerary': { url: 'https://leetcode.com/problems/reconstruct-itinerary/', difficulty: 'Hard', category: 'Graphs' },
+  'Cracking the Safe': { url: 'https://leetcode.com/problems/cracking-the-safe/', difficulty: 'Hard', category: 'Graphs' },
+
+  // Dynamic Programming - 1D
+  'Climbing Stairs': { url: 'https://leetcode.com/problems/climbing-stairs/', difficulty: 'Easy', category: 'Dynamic Programming' },
+  'Min Cost Climbing Stairs': { url: 'https://leetcode.com/problems/min-cost-climbing-stairs/', difficulty: 'Easy', category: 'Dynamic Programming' },
+  'House Robber': { url: 'https://leetcode.com/problems/house-robber/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'House Robber II': { url: 'https://leetcode.com/problems/house-robber-ii/', difficulty: 'Medium', category: 'Dynamic Programming' },
+
+  // Knapsack DP
+  'Partition Equal Subset Sum': { url: 'https://leetcode.com/problems/partition-equal-subset-sum/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Target Sum': { url: 'https://leetcode.com/problems/target-sum/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Last Stone Weight II': { url: 'https://leetcode.com/problems/last-stone-weight-ii/', difficulty: 'Medium', category: 'Dynamic Programming' },
+
+  // Unbounded Knapsack
+  'Coin Change': { url: 'https://leetcode.com/problems/coin-change/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Coin Change II': { url: 'https://leetcode.com/problems/coin-change-ii/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Perfect Squares': { url: 'https://leetcode.com/problems/perfect-squares/', difficulty: 'Medium', category: 'Dynamic Programming' },
+
+  // LIS
+  'Longest Increasing Subsequence': { url: 'https://leetcode.com/problems/longest-increasing-subsequence/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Number of Longest Increasing Subsequence': { url: 'https://leetcode.com/problems/number-of-longest-increasing-subsequence/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Russian Doll Envelopes': { url: 'https://leetcode.com/problems/russian-doll-envelopes/', difficulty: 'Hard', category: 'Dynamic Programming' },
+
+  // 2D DP
+  'Unique Paths': { url: 'https://leetcode.com/problems/unique-paths/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Unique Paths II': { url: 'https://leetcode.com/problems/unique-paths-ii/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Minimum Path Sum': { url: 'https://leetcode.com/problems/minimum-path-sum/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Triangle': { url: 'https://leetcode.com/problems/triangle/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Count Square Submatrices with All Ones': { url: 'https://leetcode.com/problems/count-square-submatrices-with-all-ones/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Maximum Number of Points with Cost': { url: 'https://leetcode.com/problems/maximum-number-of-points-with-cost/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Burst Balloons': { url: 'https://leetcode.com/problems/burst-balloons/', difficulty: 'Hard', category: 'Dynamic Programming' },
+  'Maximum Profit in Job Scheduling': { url: 'https://leetcode.com/problems/maximum-profit-in-job-scheduling/', difficulty: 'Hard', category: 'Dynamic Programming' },
+  'Cherry Pickup': { url: 'https://leetcode.com/problems/cherry-pickup/', difficulty: 'Hard', category: 'Dynamic Programming' },
+  'Longest Increasing Path in a Matrix': { url: 'https://leetcode.com/problems/longest-increasing-path-in-a-matrix/', difficulty: 'Hard', category: 'Dynamic Programming' },
+
+  // String DP
+  'Longest Common Subsequence': { url: 'https://leetcode.com/problems/longest-common-subsequence/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Edit Distance': { url: 'https://leetcode.com/problems/edit-distance/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Longest Palindromic Subsequence': { url: 'https://leetcode.com/problems/longest-palindromic-subsequence/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Longest Palindromic Substring': { url: 'https://leetcode.com/problems/longest-palindromic-substring/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Decode Ways': { url: 'https://leetcode.com/problems/decode-ways/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Word Break': { url: 'https://leetcode.com/problems/word-break/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Interleaving String': { url: 'https://leetcode.com/problems/interleaving-string/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Wildcard Matching': { url: 'https://leetcode.com/problems/wildcard-matching/', difficulty: 'Hard', category: 'Dynamic Programming' },
+  'Distinct Subsequences': { url: 'https://leetcode.com/problems/distinct-subsequences/', difficulty: 'Hard', category: 'Dynamic Programming' },
+  'Palindrome Partitioning II': { url: 'https://leetcode.com/problems/palindrome-partitioning-ii/', difficulty: 'Hard', category: 'Dynamic Programming' },
+  'Regular Expression Matching': { url: 'https://leetcode.com/problems/regular-expression-matching/', difficulty: 'Hard', category: 'Dynamic Programming' },
+
+  // Tree/Graph DP
+  'House Robber III': { url: 'https://leetcode.com/problems/house-robber-iii/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Unique Binary Search Trees II': { url: 'https://leetcode.com/problems/unique-binary-search-trees-ii/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Number of Ways to Arrive at Destination': { url: 'https://leetcode.com/problems/number-of-ways-to-arrive-at-destination/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Binary Tree Cameras': { url: 'https://leetcode.com/problems/binary-tree-cameras/', difficulty: 'Hard', category: 'Dynamic Programming' },
+  'Sum of Distances in Tree': { url: 'https://leetcode.com/problems/sum-of-distances-in-tree/', difficulty: 'Hard', category: 'Dynamic Programming' },
+
+  // Bitmask DP
+  'Minimum Number of Work Sessions to Finish the Tasks': { url: 'https://leetcode.com/problems/minimum-number-of-work-sessions-to-finish-the-tasks/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Fair Distribution of Cookies': { url: 'https://leetcode.com/problems/fair-distribution-of-cookies/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Shortest Path Visiting All Nodes': { url: 'https://leetcode.com/problems/shortest-path-visiting-all-nodes/', difficulty: 'Hard', category: 'Dynamic Programming' },
+
+  // Digit DP
+  'Count Numbers with Unique Digits': { url: 'https://leetcode.com/problems/count-numbers-with-unique-digits/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Number of Digit One': { url: 'https://leetcode.com/problems/number-of-digit-one/', difficulty: 'Hard', category: 'Dynamic Programming' },
+  'Numbers At Most N Given Digit Set': { url: 'https://leetcode.com/problems/numbers-at-most-n-given-digit-set/', difficulty: 'Hard', category: 'Dynamic Programming' },
+
+  // Probability DP
+  'Knight Probability in Chessboard': { url: 'https://leetcode.com/problems/knight-probability-in-chessboard/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Soup Servings': { url: 'https://leetcode.com/problems/soup-servings/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'New 21 Game': { url: 'https://leetcode.com/problems/new-21-game/', difficulty: 'Medium', category: 'Dynamic Programming' },
+
+  // State Machine DP
+  'Best Time to Buy and Sell Stock with Cooldown': { url: 'https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/', difficulty: 'Medium', category: 'Dynamic Programming' },
+  'Best Time to Buy and Sell Stock III': { url: 'https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/', difficulty: 'Hard', category: 'Dynamic Programming' },
+
+  // String Matching
+  'Repeated String Match': { url: 'https://leetcode.com/problems/repeated-string-match/', difficulty: 'Medium', category: 'Strings' },
+  'Shortest Palindrome': { url: 'https://leetcode.com/problems/shortest-palindrome/', difficulty: 'Hard', category: 'Strings' },
+
+  // Binary Indexed Tree / Segment Tree
+  'Range Sum Query - Mutable': { url: 'https://leetcode.com/problems/range-sum-query-mutable/', difficulty: 'Medium', category: 'Advanced' },
+  'Count of Smaller Numbers After Self': { url: 'https://leetcode.com/problems/count-of-smaller-numbers-after-self/', difficulty: 'Hard', category: 'Advanced' },
+
+  // Maths / Geometry
+  'Palindrome Number': { url: 'https://leetcode.com/problems/palindrome-number/', difficulty: 'Easy', category: 'Math' },
+  'Reverse Integer': { url: 'https://leetcode.com/problems/reverse-integer/', difficulty: 'Medium', category: 'Math' },
+  'Factorial Trailing Zeroes': { url: 'https://leetcode.com/problems/factorial-trailing-zeroes/', difficulty: 'Medium', category: 'Math' },
+  'Valid Square': { url: 'https://leetcode.com/problems/valid-square/', difficulty: 'Medium', category: 'Math' },
+  'Minimum Area Rectangle II': { url: 'https://leetcode.com/problems/minimum-area-rectangle-ii/', difficulty: 'Medium', category: 'Math' },
+  'Max Points on a Line': { url: 'https://leetcode.com/problems/max-points-on-a-line/', difficulty: 'Hard', category: 'Math' },
+
+  // Line Sweep
+  'Minimum Interval to Include Each Query': { url: 'https://leetcode.com/problems/minimum-interval-to-include-each-query/', difficulty: 'Hard', category: 'Advanced' },
+  'The Skyline Problem': { url: 'https://leetcode.com/problems/the-skyline-problem/', difficulty: 'Hard', category: 'Advanced' },
+
+  // Suffix Array
+  'Longest Duplicate Substring': { url: 'https://leetcode.com/problems/longest-duplicate-substring/', difficulty: 'Hard', category: 'Advanced' },
 };
 
 /**
  * Get LeetCode URL for a problem name
- * Falls back to generating URL from slug if not found
  */
 export function getLeetCodeUrl(problemName) {
-  if (LEETCODE_URLS[problemName]) {
-    return LEETCODE_URLS[problemName];
+  const problem = LEETCODE_PROBLEMS[problemName];
+  if (problem) {
+    return problem.url;
   }
   // Fallback: generate URL from problem name
   const slug = problemName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  return `https://leetcode.com/problems/${slug}`;
+  return `https://leetcode.com/problems/${slug}/`;
+}
+
+/**
+ * Get problem info including URL, difficulty, and category
+ */
+export function getProblemInfo(problemName) {
+  return LEETCODE_PROBLEMS[problemName] || null;
 }
