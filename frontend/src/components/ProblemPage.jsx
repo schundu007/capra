@@ -10,7 +10,7 @@ const API_URL = getApiUrl();
 
 // Language configurations for code execution
 const LANGUAGE_CONFIG = {
-  python: { name: 'Python', runtime: 'python3', extension: 'py', template: 'class Solution:\n    def solve(self, input):\n        # Your code here\n        pass' },
+  python: { name: 'Python', runtime: 'python', extension: 'py', template: 'class Solution:\n    def solve(self, input):\n        # Your code here\n        pass' },
   javascript: { name: 'JavaScript', runtime: 'javascript', extension: 'js', template: '/**\n * @param {any} input\n * @return {any}\n */\nfunction solve(input) {\n    // Your code here\n}' },
   java: { name: 'Java', runtime: 'java', extension: 'java', template: 'class Solution {\n    public Object solve(Object input) {\n        // Your code here\n        return null;\n    }\n}' },
   cpp: { name: 'C++', runtime: 'cpp', extension: 'cpp', template: '#include <bits/stdc++.h>\nusing namespace std;\n\nclass Solution {\npublic:\n    auto solve(auto input) {\n        // Your code here\n    }\n};' },
@@ -197,26 +197,25 @@ export default function ProblemPage({ slug, onBack, onSolve }) {
   const [isRunning, setIsRunning] = useState(false);
   const [output, setOutput] = useState(null);
   const [bottomTab, setBottomTab] = useState('testcase');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedSolution, setGeneratedSolution] = useState(null);
-  const [generationError, setGenerationError] = useState(null);
 
   const dbProblem = getProblemBySlug(slug);
   const urlParams = getUrlParams();
 
   // Create a dynamic problem object for problems not in database
+  const problemName = urlParams.name || slugToName(slug);
+  const problemCategory = urlParams.category || 'Practice';
   const problem = dbProblem || {
     id: slug,
-    name: urlParams.name || slugToName(slug),
+    name: problemName,
     difficulty: urlParams.difficulty || 'Medium',
-    category: urlParams.category || 'Practice',
-    tags: [urlParams.category || 'Algorithm'],
-    description: `Solve the "${urlParams.name || slugToName(slug)}" problem.\n\nThis is a classic ${urlParams.category || 'algorithm'} problem. Click "Generate Solution" to get a detailed solution with code.`,
+    category: problemCategory,
+    tags: [problemCategory],
+    description: `**${problemName}** - ${problemCategory}\n\nThis problem is not yet in our practice database. Use "Solve with Ascend" to get a complete solution by pasting the problem statement from LeetCode/TechPrep.`,
     examples: [],
     constraints: [],
-    solutions: generatedSolution || {},
-    hints: ['Click "Generate Solution" to get hints and a complete solution.'],
-    approach: 'Click "Generate Solution" to see the approach.',
+    solutions: {},
+    hints: ['Use "Solve with Ascend" button to get the full solution.'],
+    approach: 'Use "Solve with Ascend" to see the approach and solution.',
     isDynamic: true, // Flag to indicate this is a dynamically created problem
   };
 
@@ -236,128 +235,7 @@ export default function ProblemPage({ slug, onBack, onSolve }) {
     setActiveTab('description');
     setActiveTestCase(0);
     setBottomTab('testcase');
-    setGeneratedSolution(null);
   }, [slug]);
-
-  // Generate solution using AI
-  const generateSolution = async () => {
-    if (isGenerating) return;
-    setIsGenerating(true);
-    setGenerationError(null);
-
-    try {
-      const problemStatement = `Solve the "${problem.name}" coding problem step by step.
-
-Problem Category: ${problem.category}
-Difficulty: ${problem.difficulty}
-
-Please provide:
-1. A clear explanation of the approach
-2. Complete working code in ${LANGUAGE_CONFIG[selectedLanguage]?.name || selectedLanguage}
-3. Time and space complexity analysis`;
-
-      const response = await fetch(`${API_URL}/api/solve/stream`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-        body: JSON.stringify({
-          problem: problemStatement,
-          provider: 'claude',
-          language: selectedLanguage,
-          detailLevel: 'detailed',
-        }),
-      });
-
-      // Check for auth/subscription errors
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        if (response.status === 401) {
-          // Redirect to login page with return URL
-          const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
-          window.location.href = `/login?returnUrl=${returnUrl}`;
-          return;
-        } else if (response.status === 403 || errorData.subscriptionRequired) {
-          setGenerationError('Subscription required. Please upgrade to generate solutions.');
-        } else {
-          setGenerationError(errorData.error || `Error: ${response.status}`);
-        }
-        setIsGenerating(false);
-        return;
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let fullResponse = '';
-      let codeExtracted = false;
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            try {
-              const data = JSON.parse(line.slice(6));
-
-              // Check for errors in stream
-              if (data.error) {
-                setGenerationError(data.error);
-                setIsGenerating(false);
-                return;
-              }
-
-              if (data.chunk) {
-                fullResponse += data.chunk;
-              }
-              if (data.done && data.result) {
-                // Extract code from result
-                const code = data.result.code || data.result.solution || '';
-                if (code) {
-                  setGeneratedSolution({
-                    [selectedLanguage]: {
-                      code: code,
-                      timeComplexity: data.result.timeComplexity || 'See solution',
-                      spaceComplexity: data.result.spaceComplexity || 'See solution',
-                    }
-                  });
-                  setUserCode(code);
-                  codeExtracted = true;
-                }
-                setActiveTab('solution');
-              }
-            } catch (e) {
-              // Ignore parse errors for partial chunks
-            }
-          }
-        }
-      }
-
-      // If no code was extracted from structured response, try to extract from raw response
-      if (!codeExtracted && fullResponse) {
-        // Try to extract code block from response
-        const codeMatch = fullResponse.match(/```(?:python|javascript|java|cpp|go)?\n([\s\S]*?)```/);
-        if (codeMatch) {
-          const code = codeMatch[1].trim();
-          setGeneratedSolution({
-            [selectedLanguage]: {
-              code: code,
-              timeComplexity: 'See solution',
-              spaceComplexity: 'See solution',
-            }
-          });
-          setUserCode(code);
-        }
-        setActiveTab('solution');
-      }
-    } catch (error) {
-      console.error('Failed to generate solution:', error);
-      setGenerationError('Failed to connect. Please check your internet connection.');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   const difficultyColor = DIFFICULTY_COLORS[problem.difficulty] || DIFFICULTY_COLORS.Easy;
   const solution = problem.solutions[selectedLanguage];
@@ -509,22 +387,12 @@ Please provide:
                   LeetCode
                 </a>
               )}
-              {problem.isDynamic && (
-                <button
-                  onClick={generateSolution}
-                  disabled={isGenerating}
-                  className="px-4 py-1.5 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-                >
-                  <Icon name={isGenerating ? 'loader' : 'sparkles'} size={14} className={isGenerating ? 'animate-spin' : ''} />
-                  {isGenerating ? 'Generating...' : 'Generate Solution'}
-                </button>
-              )}
               <button
                 onClick={handleSolveWithAI}
                 className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
               >
                 <Icon name="zap" size={14} />
-                AI Solve
+                Solve with Ascend
               </button>
             </div>
           </div>
@@ -602,23 +470,17 @@ Please provide:
                         ))}
                       </div>
                     ) : problem.isDynamic ? (
-                      <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-5 text-center">
-                        <Icon name="sparkles" size={32} className="mx-auto mb-3 text-purple-400" />
+                      <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-5 text-center">
+                        <Icon name="zap" size={32} className="mx-auto mb-3 text-emerald-400" />
                         <p className="text-gray-300 mb-4">
-                          Click <strong className="text-purple-400">"Generate Solution"</strong> to get examples, constraints, and a complete solution for this problem.
+                          This problem is not in our database yet. Click <strong className="text-emerald-400">"Solve with Ascend"</strong> to paste the problem statement and get a complete solution.
                         </p>
-                        {generationError && (
-                          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
-                            {generationError}
-                          </div>
-                        )}
                         <button
-                          onClick={generateSolution}
-                          disabled={isGenerating}
-                          className="px-5 py-2.5 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white rounded-xl font-medium transition-colors inline-flex items-center gap-2"
+                          onClick={handleSolveWithAI}
+                          className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-medium transition-colors inline-flex items-center gap-2"
                         >
-                          <Icon name={isGenerating ? 'loader' : 'sparkles'} size={16} className={isGenerating ? 'animate-spin' : ''} />
-                          {isGenerating ? 'Generating...' : 'Generate Solution'}
+                          <Icon name="zap" size={16} />
+                          Solve with Ascend
                         </button>
                       </div>
                     ) : null}

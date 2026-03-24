@@ -51,7 +51,7 @@ export const schemas = {
       'any.required': 'Code is required',
     }),
     language: Joi.string().valid(
-      'python', 'bash', 'javascript', 'typescript', 'sql'
+      'python', 'bash', 'javascript', 'typescript', 'sql', 'java', 'cpp', 'c', 'go', 'rust'
     ).required().messages({
       'any.only': 'Unsupported language',
       'any.required': 'Language is required',
