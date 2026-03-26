@@ -183,14 +183,14 @@ export default function OAuthLogin({ loginOnly = false }) {
 
         {/* ═══════════════ STICKY NAV ═══════════════ */}
         <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'py-2.5' : 'py-4'}`} style={{ background: scrolled ? 'rgba(9, 9, 11, 0.88)' : 'transparent', backdropFilter: scrolled ? 'blur(20px) saturate(180%)' : 'none', borderBottom: scrolled ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
-          <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                <Icon name="ascend" size={16} className="text-white" />
+          <div className="max-w-7xl mx-auto px-8 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                <Icon name="ascend" size={20} className="text-white" />
               </div>
-              <span className="text-lg font-bold text-white tracking-tight">Ascend</span>
+              <span className="text-xl font-bold text-white tracking-tight">Ascend</span>
             </div>
-            <div className="hidden md:flex items-center gap-0.5">
+            <div className="hidden md:flex items-center gap-1">
               {[
                 { label: 'How It Works', id: 'pipeline' },
                 { label: 'Features', id: 'features' },
@@ -198,74 +198,74 @@ export default function OAuthLogin({ loginOnly = false }) {
                 { label: 'Pricing', id: 'pricing' },
                 { label: 'Reviews', id: 'testimonials' },
               ].map((item) => (
-                <button key={item.id} onClick={() => scrollTo(item.id)} className="px-3 py-1.5 text-[13px] text-gray-400 hover:text-white rounded-md hover:bg-white/5 transition-all">{item.label}</button>
+                <button key={item.id} onClick={() => scrollTo(item.id)} className="px-4 py-2 text-base text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-all">{item.label}</button>
               ))}
-              <a href="/docs" className="px-3 py-1.5 text-[13px] text-gray-400 hover:text-white rounded-md hover:bg-white/5 transition-all">Docs</a>
+              <a href="/docs" className="px-4 py-2 text-base text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-all">Docs</a>
             </div>
-            <button onClick={() => handleOAuthLogin('google')} className="px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/20" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+            <button onClick={() => handleOAuthLogin('google')} className="px-6 py-2.5 rounded-xl text-base font-semibold text-white transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/20" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
               Get Started Free
             </button>
           </div>
         </nav>
 
         {/* ═══════════════ HERO ═══════════════ */}
-        <section className="pt-28 pb-12 max-w-6xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto">
+        <section className="pt-36 pb-16 max-w-7xl mx-auto px-8">
+          <div className="text-center max-w-4xl mx-auto">
             {/* AI-era trust badge with shimmer */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold mb-6 ai-shimmer" style={{ background: 'rgba(16, 185, 129, 0.06)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#34d399' }}>
-              <span className="relative flex h-2 w-2">
+            <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full text-sm font-semibold mb-8 ai-shimmer" style={{ background: 'rgba(16, 185, 129, 0.06)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#34d399' }}>
+              <span className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-400" />
               </span>
-              <Icon name="sparkles" size={12} className="text-green-400" />
+              <Icon name="sparkles" size={16} className="text-green-400" />
               #1 AI-Powered Interview Platform — 50,000+ Engineers
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-[3.75rem] font-black mb-5 leading-[1.06] tracking-tight">
+            <h1 className="text-5xl sm:text-6xl lg:text-[5.25rem] font-black mb-7 leading-[1.04] tracking-tight">
               <span className="text-white">From Job Search to</span>
               <br />
               <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #10b981 0%, #34d399 40%, #6ee7b7 70%, #a7f3d0 100%)', WebkitBackgroundClip: 'text' }}>Offer Letter</span>
             </h1>
 
-            <p className="text-base sm:text-lg text-gray-400 mb-7 max-w-xl mx-auto leading-relaxed">
+            <p className="text-xl sm:text-2xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
               The only platform that handles <span className="text-white font-medium">everything</span> — job discovery, resume generation, interview prep, live AI assistance, and offer negotiation. <span className="text-white font-medium">100% invisible.</span>
             </p>
 
             {/* Dual CTA */}
-            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
-              <button onClick={() => handleOAuthLogin('google')} disabled={loading} className="px-7 py-3 rounded-xl font-semibold text-white transition-all hover:scale-105 hover:shadow-xl hover:shadow-green-500/20" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                {loading === 'google' ? <Icon name="loader" size={18} className="animate-spin mx-auto" /> : 'Start Free — No Credit Card'}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
+              <button onClick={() => handleOAuthLogin('google')} disabled={loading} className="px-10 py-4 rounded-2xl font-bold text-lg text-white transition-all hover:scale-105 hover:shadow-xl hover:shadow-green-500/20" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                {loading === 'google' ? <Icon name="loader" size={22} className="animate-spin mx-auto" /> : 'Start Free — No Credit Card'}
               </button>
-              <button onClick={() => scrollTo('demo')} className="px-7 py-3 rounded-xl font-semibold text-white flex items-center justify-center gap-2 transition-all hover:bg-white/10" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                <Icon name="play" size={15} /> Watch Demo
+              <button onClick={() => scrollTo('demo')} className="px-10 py-4 rounded-2xl font-bold text-lg text-white flex items-center justify-center gap-3 transition-all hover:bg-white/10" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <Icon name="play" size={18} /> Watch Demo
               </button>
             </div>
 
             {/* AI model badges */}
-            <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
               {[
                 { label: 'Claude Opus / Sonnet', color: '#d97706', bg: 'rgba(217, 119, 6, 0.08)', border: 'rgba(217, 119, 6, 0.2)' },
                 { label: 'GPT-4o', color: '#10b981', bg: 'rgba(16, 185, 129, 0.08)', border: 'rgba(16, 185, 129, 0.2)' },
                 { label: 'Whisper + Deepgram', color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.08)', border: 'rgba(139, 92, 246, 0.2)' },
               ].map((m, i) => (
-                <div key={i} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium" style={{ background: m.bg, border: `1px solid ${m.border}`, color: m.color }}>
-                  <Icon name="brain" size={10} />
+                <div key={i} className="flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium" style={{ background: m.bg, border: `1px solid ${m.border}`, color: m.color }}>
+                  <Icon name="brain" size={14} />
                   {m.label}
                 </div>
               ))}
             </div>
 
             {/* Social proof */}
-            <div className="flex flex-wrap items-center justify-center gap-4 mb-12">
-              <div className="flex -space-x-2">
+            <div className="flex flex-wrap items-center justify-center gap-5 mb-14">
+              <div className="flex -space-x-2.5">
                 {['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899'].map((c, i) => (
-                  <div key={i} className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold ring-2 ring-[#09090b]" style={{ background: c }}>
+                  <div key={i} className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold ring-2 ring-[#09090b]" style={{ background: c }}>
                     {['S', 'J', 'P', 'M', 'E'][i]}
                   </div>
                 ))}
               </div>
-              <div className="flex items-center gap-1 text-sm">
-                <div className="flex">{[...Array(5)].map((_, i) => <Icon key={i} name="star5" size={13} className="text-yellow-400" />)}</div>
+              <div className="flex items-center gap-2 text-lg">
+                <div className="flex">{[...Array(5)].map((_, i) => <Icon key={i} name="star5" size={18} className="text-yellow-400" />)}</div>
                 <span className="text-gray-400"><span className="text-white font-semibold">4.9</span> from 2,000+ reviews</span>
               </div>
             </div>
@@ -403,121 +403,121 @@ export default function OAuthLogin({ loginOnly = false }) {
         </section>
 
         {/* ═══════════════ COMPANY LOGOS ═══════════════ */}
-        <section className="py-6 border-y" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
-          <div className="max-w-5xl mx-auto px-6">
-            <p className="text-center text-gray-600 text-xs mb-4 uppercase tracking-wider">Engineers using Ascend landed offers at</p>
-            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2">
+        <section className="py-10 border-y" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
+          <div className="max-w-6xl mx-auto px-8">
+            <p className="text-center text-gray-600 text-sm mb-5 uppercase tracking-wider">Engineers using Ascend landed offers at</p>
+            <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-3">
               {companies.map((name, i) => (
-                <span key={i} className="text-gray-500 font-semibold text-sm hover:text-gray-300 transition-colors cursor-default">{name}</span>
+                <span key={i} className="text-gray-500 font-semibold text-xl hover:text-gray-300 transition-colors cursor-default">{name}</span>
               ))}
             </div>
           </div>
         </section>
 
         {/* ═══════════════ END-TO-END PIPELINE ═══════════════ */}
-        <section id="pipeline" data-animate className={`py-16 ${anim('pipeline')}`}>
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center mb-10">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Your Complete Interview Pipeline</h2>
-              <p className="text-gray-400 max-w-lg mx-auto">No other platform covers the full journey. Ascend takes you from job search to signed offer.</p>
+        <section id="pipeline" data-animate className={`py-24 ${anim('pipeline')}`}>
+          <div className="max-w-7xl mx-auto px-8">
+            <div className="text-center mb-14">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">Your Complete Interview Pipeline</h2>
+              <p className="text-gray-400 text-xl max-w-2xl mx-auto">No other platform covers the full journey. Ascend takes you from job search to signed offer.</p>
             </div>
 
             {/* Pipeline steps */}
-            <div className="flex flex-col lg:flex-row items-stretch gap-3 mb-8">
+            <div className="flex flex-col lg:flex-row items-stretch gap-4 mb-10">
               {pipeline.map((step, i) => (
-                <button key={i} onClick={() => setActivePipeline(i)} className={`flex-1 p-4 rounded-xl text-left transition-all group ${activePipeline === i ? 'scale-[1.02]' : 'hover:scale-[1.01]'}`} style={{
+                <button key={i} onClick={() => setActivePipeline(i)} className={`flex-1 p-5 rounded-2xl text-left transition-all group ${activePipeline === i ? 'scale-[1.02]' : 'hover:scale-[1.01]'}`} style={{
                   background: activePipeline === i ? `${step.color}12` : 'rgba(255,255,255,0.02)',
                   border: `1px solid ${activePipeline === i ? step.color + '40' : 'rgba(255,255,255,0.05)'}`,
                   boxShadow: activePipeline === i ? `0 0 30px ${step.color}10` : 'none',
                 }}>
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: `${step.color}15` }}>
-                      <Icon name={step.icon} size={18} style={{ color: step.color }} />
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: `${step.color}15` }}>
+                      <Icon name={step.icon} size={22} style={{ color: step.color }} />
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: `${step.color}20`, color: step.color }}>{String(i + 1).padStart(2, '0')}</span>
-                      {i < 4 && <span className="hidden lg:inline text-gray-600 text-xs">→</span>}
+                      <span className="text-xs font-bold px-2 py-0.5 rounded" style={{ background: `${step.color}20`, color: step.color }}>{String(i + 1).padStart(2, '0')}</span>
+                      {i < 4 && <span className="hidden lg:inline text-gray-600 text-base">→</span>}
                     </div>
                   </div>
-                  <h3 className="text-white font-semibold text-sm mb-1">{step.label}</h3>
-                  <p className="text-gray-500 text-xs leading-relaxed">{step.desc}</p>
+                  <h3 className="text-white font-semibold text-lg mb-1">{step.label}</h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">{step.desc}</p>
                 </button>
               ))}
             </div>
 
             {/* Pipeline detail preview */}
-            <div className="p-6 rounded-2xl" style={{ background: 'linear-gradient(135deg, #0f172a, #1e293b)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="p-8 rounded-3xl" style={{ background: 'linear-gradient(135deg, #0f172a, #1e293b)', border: '1px solid rgba(255,255,255,0.06)' }}>
               {activePipeline === 0 && (
-                <div className="grid md:grid-cols-3 gap-4">
+                <div className="grid md:grid-cols-3 gap-5">
                   {[
                     { title: 'Smart Job Matching', desc: 'AI analyzes your resume and preferences to find the best-fit roles across top job boards', icon: 'search' },
                     { title: 'Company Research', desc: 'Auto-scrape Glassdoor, LinkedIn, and company pages for interview intel and culture insights', icon: 'building' },
                     { title: 'Application Tracking', desc: 'Track every application, interview stage, and follow-up in one unified dashboard', icon: 'chartBar' },
                   ].map((f, i) => (
-                    <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(6, 182, 212, 0.05)', border: '1px solid rgba(6, 182, 212, 0.1)' }}>
-                      <Icon name={f.icon} size={18} className="text-cyan-400 mb-2" />
-                      <h4 className="text-white text-sm font-semibold mb-1">{f.title}</h4>
-                      <p className="text-gray-400 text-xs leading-relaxed">{f.desc}</p>
+                    <div key={i} className="p-6 rounded-xl" style={{ background: 'rgba(6, 182, 212, 0.05)', border: '1px solid rgba(6, 182, 212, 0.1)' }}>
+                      <Icon name={f.icon} size={24} className="text-cyan-400 mb-3" />
+                      <h4 className="text-white text-lg font-semibold mb-2">{f.title}</h4>
+                      <p className="text-gray-400 text-base leading-relaxed">{f.desc}</p>
                     </div>
                   ))}
                 </div>
               )}
               {activePipeline === 1 && (
-                <div className="grid md:grid-cols-3 gap-4">
+                <div className="grid md:grid-cols-3 gap-5">
                   {[
                     { title: 'Tailored Resumes', desc: 'AI generates ATS-optimized resumes matched to each job description and company culture', icon: 'resume' },
                     { title: 'Cover Letters', desc: 'One-click cover letters that highlight relevant experience and align with role requirements', icon: 'coverLetter' },
                     { title: 'Export PDF/DOCX', desc: 'Professional formatting with export to PDF and DOCX. Ready to submit instantly', icon: 'download' },
                   ].map((f, i) => (
-                    <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
-                      <Icon name={f.icon} size={18} className="text-purple-400 mb-2" />
-                      <h4 className="text-white text-sm font-semibold mb-1">{f.title}</h4>
-                      <p className="text-gray-400 text-xs leading-relaxed">{f.desc}</p>
+                    <div key={i} className="p-6 rounded-xl" style={{ background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
+                      <Icon name={f.icon} size={24} className="text-purple-400 mb-3" />
+                      <h4 className="text-white text-lg font-semibold mb-2">{f.title}</h4>
+                      <p className="text-gray-400 text-base leading-relaxed">{f.desc}</p>
                     </div>
                   ))}
                 </div>
               )}
               {activePipeline === 2 && (
-                <div className="grid md:grid-cols-3 gap-4">
+                <div className="grid md:grid-cols-3 gap-5">
                   {[
                     { title: 'Company-Specific Prep', desc: 'Upload JD + resume and get tailored pitch, behavioral questions, and technical focus areas', icon: 'target' },
                     { title: 'STAR Responses', desc: 'AI generates structured behavioral answers using the STAR method for leadership and teamwork', icon: 'users' },
                     { title: 'System Design Prompts', desc: 'Practice with company-relevant design questions and auto-generated architecture diagrams', icon: 'systemDesign' },
                   ].map((f, i) => (
-                    <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.1)' }}>
-                      <Icon name={f.icon} size={18} className="text-amber-400 mb-2" />
-                      <h4 className="text-white text-sm font-semibold mb-1">{f.title}</h4>
-                      <p className="text-gray-400 text-xs leading-relaxed">{f.desc}</p>
+                    <div key={i} className="p-6 rounded-xl" style={{ background: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.1)' }}>
+                      <Icon name={f.icon} size={24} className="text-amber-400 mb-3" />
+                      <h4 className="text-white text-lg font-semibold mb-2">{f.title}</h4>
+                      <p className="text-gray-400 text-base leading-relaxed">{f.desc}</p>
                     </div>
                   ))}
                 </div>
               )}
               {activePipeline === 3 && (
-                <div className="grid md:grid-cols-3 gap-4">
+                <div className="grid md:grid-cols-3 gap-5">
                   {[
                     { title: 'Voice Transcription', desc: 'Real-time speech-to-text captures interviewer questions instantly using Whisper + Deepgram', icon: 'microphone' },
                     { title: 'Instant AI Answers', desc: 'Get staff-engineer-level responses in <2 seconds. Coding, system design, behavioral — all modes', icon: 'zap' },
                     { title: '100% Stealth Mode', desc: 'Invisible during screen sharing. Hidden from dock, taskbar, and task manager on all platforms', icon: 'eyeOff' },
                   ].map((f, i) => (
-                    <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.1)' }}>
-                      <Icon name={f.icon} size={18} className="text-green-400 mb-2" />
-                      <h4 className="text-white text-sm font-semibold mb-1">{f.title}</h4>
-                      <p className="text-gray-400 text-xs leading-relaxed">{f.desc}</p>
+                    <div key={i} className="p-6 rounded-xl" style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.1)' }}>
+                      <Icon name={f.icon} size={24} className="text-green-400 mb-3" />
+                      <h4 className="text-white text-lg font-semibold mb-2">{f.title}</h4>
+                      <p className="text-gray-400 text-base leading-relaxed">{f.desc}</p>
                     </div>
                   ))}
                 </div>
               )}
               {activePipeline === 4 && (
-                <div className="grid md:grid-cols-3 gap-4">
+                <div className="grid md:grid-cols-3 gap-5">
                   {[
                     { title: 'Multiple Offers', desc: 'Users report 3-5x higher offer rates. Practice and real-time assist combine for maximum success', icon: 'trophy' },
                     { title: '35% Salary Increase', desc: 'Average salary bump for Ascend users who switched jobs using our platform', icon: 'trendUp' },
                     { title: '500+ Companies', desc: 'Engineers have landed offers at 500+ companies worldwide including FAANG, unicorns, and startups', icon: 'globe' },
                   ].map((f, i) => (
-                    <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(236, 72, 153, 0.05)', border: '1px solid rgba(236, 72, 153, 0.1)' }}>
-                      <Icon name={f.icon} size={18} className="text-pink-400 mb-2" />
-                      <h4 className="text-white text-sm font-semibold mb-1">{f.title}</h4>
-                      <p className="text-gray-400 text-xs leading-relaxed">{f.desc}</p>
+                    <div key={i} className="p-6 rounded-xl" style={{ background: 'rgba(236, 72, 153, 0.05)', border: '1px solid rgba(236, 72, 153, 0.1)' }}>
+                      <Icon name={f.icon} size={24} className="text-pink-400 mb-3" />
+                      <h4 className="text-white text-lg font-semibold mb-2">{f.title}</h4>
+                      <p className="text-gray-400 text-base leading-relaxed">{f.desc}</p>
                     </div>
                   ))}
                 </div>
@@ -527,31 +527,31 @@ export default function OAuthLogin({ loginOnly = false }) {
         </section>
 
         {/* ═══════════════ BENTO FEATURE GRID ═══════════════ */}
-        <section id="features" data-animate className={`py-16 ${anim('features')}`}>
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center mb-10">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold mb-4" style={{ background: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.2)', color: '#60a5fa' }}>
+        <section id="features" data-animate className={`py-24 ${anim('features')}`}>
+          <div className="max-w-7xl mx-auto px-8">
+            <div className="text-center mb-14">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold mb-5" style={{ background: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.2)', color: '#60a5fa' }}>
                 <Icon name="sparkles" size={10} />
                 Powered by Claude & GPT-4
               </div>
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Built for Every Interview Type</h2>
-              <p className="text-gray-400 max-w-lg mx-auto">AI-powered tools for coding, system design, behavioral, and live interviews</p>
+              <p className="text-gray-400 text-xl max-w-2xl mx-auto">AI-powered tools for coding, system design, behavioral, and live interviews</p>
             </div>
 
             {/* Bento grid — 2 large + 4 medium */}
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-3 gap-5">
               {/* Large: Live Interview Assistant */}
-              <div className="md:col-span-2 p-6 rounded-2xl group hover:scale-[1.01] transition-all" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.02))', border: '1px solid rgba(16, 185, 129, 0.15)' }}>
+              <div className="md:col-span-2 p-8 rounded-3xl group hover:scale-[1.01] transition-all" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.02))', border: '1px solid rgba(16, 185, 129, 0.15)' }}>
                 <div className="flex items-start gap-4 mb-5">
-                  <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(16, 185, 129, 0.12)' }}>
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(16, 185, 129, 0.12)' }}>
                     <Icon name="microphone" size={22} className="text-green-400" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-lg font-bold text-white">Live Interview Assistant</h3>
+                      <h3 className="text-2xl font-bold text-white">Live Interview Assistant</h3>
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#34d399' }}>FLAGSHIP</span>
                     </div>
-                    <p className="text-gray-400 text-sm">Real-time voice transcription with instant AI-powered answers. Works with Zoom, Meet, Teams. Invisible during screen sharing.</p>
+                    <p className="text-gray-400 text-lg">Real-time voice transcription with instant AI-powered answers. Works with Zoom, Meet, Teams. Invisible during screen sharing.</p>
                   </div>
                 </div>
                 {/* Live waveform visualization */}
@@ -581,59 +581,59 @@ export default function OAuthLogin({ loginOnly = false }) {
               </div>
 
               {/* Medium: Code Execution */}
-              <div className="p-5 rounded-2xl group hover:scale-[1.01] transition-all" style={{ background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.08), rgba(6, 182, 212, 0.02))', border: '1px solid rgba(6, 182, 212, 0.15)' }}>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: 'rgba(6, 182, 212, 0.12)' }}>
+              <div className="p-7 rounded-2xl group hover:scale-[1.01] transition-all" style={{ background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.08), rgba(6, 182, 212, 0.02))', border: '1px solid rgba(6, 182, 212, 0.15)' }}>
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: 'rgba(6, 182, 212, 0.12)' }}>
                   <Icon name="terminal" size={20} className="text-cyan-400" />
                 </div>
-                <h3 className="text-white font-bold mb-1">Code Execution</h3>
-                <p className="text-gray-400 text-xs mb-3">Run code in 20+ languages with auto-fix. Test solutions instantly with a built-in sandbox.</p>
+                <h3 className="text-white font-bold text-xl mb-2">Code Execution</h3>
+                <p className="text-gray-400 text-base mb-4">Run code in 20+ languages with auto-fix. Test solutions instantly with a built-in sandbox.</p>
                 <div className="flex flex-wrap gap-1.5">
                   {['Python', 'JS', 'Java', 'C++', 'Go', 'Rust'].map((l, i) => (
-                    <span key={i} className="px-2 py-0.5 rounded text-[10px] font-medium" style={{ background: 'rgba(6, 182, 212, 0.1)', color: '#67e8f9' }}>{l}</span>
+                    <span key={i} className="px-3 py-1 rounded-md text-sm font-medium" style={{ background: 'rgba(6, 182, 212, 0.1)', color: '#67e8f9' }}>{l}</span>
                   ))}
                 </div>
               </div>
 
               {/* Medium: AI Coding Engine */}
-              <div className="p-5 rounded-2xl group hover:scale-[1.01] transition-all" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.02))', border: '1px solid rgba(59, 130, 246, 0.15)' }}>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: 'rgba(59, 130, 246, 0.12)' }}>
+              <div className="p-7 rounded-2xl group hover:scale-[1.01] transition-all" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.02))', border: '1px solid rgba(59, 130, 246, 0.15)' }}>
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: 'rgba(59, 130, 246, 0.12)' }}>
                   <Icon name="code" size={20} className="text-blue-400" />
                 </div>
-                <h3 className="text-white font-bold mb-1">AI Coding Engine</h3>
-                <p className="text-gray-400 text-xs mb-3">Instant solutions with line-by-line explanations, complexity analysis, and edge case identification.</p>
+                <h3 className="text-white font-bold text-xl mb-2">AI Coding Engine</h3>
+                <p className="text-gray-400 text-base mb-4">Instant solutions with line-by-line explanations, complexity analysis, and edge case identification.</p>
                 <div className="flex flex-wrap gap-1.5">
                   {['O(n) Analysis', 'Auto-Fix', 'Follow-up Q&A'].map((f, i) => (
-                    <span key={i} className="px-2 py-0.5 rounded text-[10px] font-medium" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#93c5fd' }}>{f}</span>
+                    <span key={i} className="px-3 py-1 rounded-md text-sm font-medium" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#93c5fd' }}>{f}</span>
                   ))}
                 </div>
               </div>
 
               {/* Medium: System Design */}
-              <div className="p-5 rounded-2xl group hover:scale-[1.01] transition-all" style={{ background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.02))', border: '1px solid rgba(245, 158, 11, 0.15)' }}>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: 'rgba(245, 158, 11, 0.12)' }}>
+              <div className="p-7 rounded-2xl group hover:scale-[1.01] transition-all" style={{ background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.02))', border: '1px solid rgba(245, 158, 11, 0.15)' }}>
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: 'rgba(245, 158, 11, 0.12)' }}>
                   <Icon name="systemDesign" size={20} className="text-amber-400" />
                 </div>
-                <h3 className="text-white font-bold mb-1">System Design</h3>
-                <p className="text-gray-400 text-xs mb-3">Auto-generated architecture diagrams for AWS, GCP, Azure. High-level and low-level deep dives.</p>
+                <h3 className="text-white font-bold text-xl mb-2">System Design</h3>
+                <p className="text-gray-400 text-base mb-4">Auto-generated architecture diagrams for AWS, GCP, Azure. High-level and low-level deep dives.</p>
                 <div className="flex flex-wrap gap-1.5">
                   {['Auto Diagrams', 'AWS/GCP/Azure', 'Scalability'].map((f, i) => (
-                    <span key={i} className="px-2 py-0.5 rounded text-[10px] font-medium" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#fcd34d' }}>{f}</span>
+                    <span key={i} className="px-3 py-1 rounded-md text-sm font-medium" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#fcd34d' }}>{f}</span>
                   ))}
                 </div>
               </div>
 
               {/* Large: Company-Specific Prep */}
-              <div className="md:col-span-2 p-6 rounded-2xl group hover:scale-[1.01] transition-all" style={{ background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(139, 92, 246, 0.02))', border: '1px solid rgba(139, 92, 246, 0.15)' }}>
+              <div className="md:col-span-2 p-8 rounded-3xl group hover:scale-[1.01] transition-all" style={{ background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(139, 92, 246, 0.02))', border: '1px solid rgba(139, 92, 246, 0.15)' }}>
                 <div className="flex items-start gap-4 mb-5">
-                  <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(139, 92, 246, 0.12)' }}>
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(139, 92, 246, 0.12)' }}>
                     <Icon name="briefcase" size={22} className="text-purple-400" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-lg font-bold text-white">Company-Specific Interview Prep</h3>
+                      <h3 className="text-2xl font-bold text-white">Company-Specific Interview Prep</h3>
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: 'rgba(139, 92, 246, 0.2)', color: '#c4b5fd' }}>AI GENERATED</span>
                     </div>
-                    <p className="text-gray-400 text-sm">Upload your JD + resume → get tailored pitch, behavioral questions, system design prompts, company culture insights, and technical focus areas.</p>
+                    <p className="text-gray-400 text-lg">Upload your JD + resume → get tailored pitch, behavioral questions, system design prompts, company culture insights, and technical focus areas.</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -647,22 +647,22 @@ export default function OAuthLogin({ loginOnly = false }) {
               </div>
 
               {/* Medium: Screenshot OCR */}
-              <div className="p-5 rounded-2xl group hover:scale-[1.01] transition-all" style={{ background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.08), rgba(236, 72, 153, 0.02))', border: '1px solid rgba(236, 72, 153, 0.15)' }}>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: 'rgba(236, 72, 153, 0.12)' }}>
+              <div className="p-7 rounded-2xl group hover:scale-[1.01] transition-all" style={{ background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.08), rgba(236, 72, 153, 0.02))', border: '1px solid rgba(236, 72, 153, 0.15)' }}>
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: 'rgba(236, 72, 153, 0.12)' }}>
                   <Icon name="camera" size={20} className="text-pink-400" />
                 </div>
-                <h3 className="text-white font-bold mb-1">Screenshot Solver</h3>
-                <p className="text-gray-400 text-xs mb-3">Snap a screenshot of any problem. AI extracts the text and generates a complete solution instantly.</p>
+                <h3 className="text-white font-bold text-xl mb-2">Screenshot Solver</h3>
+                <p className="text-gray-400 text-base mb-4">Snap a screenshot of any problem. AI extracts the text and generates a complete solution instantly.</p>
                 <div className="flex flex-wrap gap-1.5">
                   {['OCR Extraction', 'Instant Solve', 'Any Platform'].map((f, i) => (
-                    <span key={i} className="px-2 py-0.5 rounded text-[10px] font-medium" style={{ background: 'rgba(236, 72, 153, 0.1)', color: '#f9a8d4' }}>{f}</span>
+                    <span key={i} className="px-3 py-1 rounded-md text-sm font-medium" style={{ background: 'rgba(236, 72, 153, 0.1)', color: '#f9a8d4' }}>{f}</span>
                   ))}
                 </div>
               </div>
             </div>
 
             {/* Additional capabilities strip */}
-            <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <div className="mt-8 flex flex-wrap justify-center gap-4">
               {[
                 { icon: 'brain', label: 'Claude + GPT-4', color: '#10b981' },
                 { icon: 'globe', label: 'Web + Desktop + Extension', color: '#3b82f6' },
@@ -671,7 +671,7 @@ export default function OAuthLogin({ loginOnly = false }) {
                 { icon: 'users', label: 'Behavioral STAR', color: '#ec4899' },
                 { icon: 'compass', label: 'Roadmaps & Projects', color: '#06b6d4' },
               ].map((cap, i) => (
-                <div key={i} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div key={i} className="flex items-center gap-2 px-4 py-2 rounded-full text-base" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
                   <Icon name={cap.icon} size={12} style={{ color: cap.color }} />
                   <span className="text-gray-400">{cap.label}</span>
                 </div>
@@ -681,9 +681,9 @@ export default function OAuthLogin({ loginOnly = false }) {
         </section>
 
         {/* ═══════════════ BY THE NUMBERS ═══════════════ */}
-        <section ref={statsRef} data-animate id="stats" className={`py-14 ${anim('stats')}`}>
-          <div className="max-w-5xl mx-auto px-6">
-            <div className="relative grid grid-cols-2 md:grid-cols-4 gap-6 p-8 rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+        <section ref={statsRef} data-animate id="stats" className={`py-20 ${anim('stats')}`}>
+          <div className="max-w-6xl mx-auto px-8">
+            <div className="relative grid grid-cols-2 md:grid-cols-4 gap-8 p-10 rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
               {/* Animated gradient border */}
               <div className="absolute inset-0 rounded-2xl glow-border" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.05) 0%, rgba(59,130,246,0.05) 50%, rgba(139,92,246,0.05) 100%)' }} />
               {[
@@ -696,8 +696,8 @@ export default function OAuthLogin({ loginOnly = false }) {
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-3" style={{ background: `${stat.color}10` }}>
                     <Icon name={stat.icon} size={20} style={{ color: stat.color }} />
                   </div>
-                  <div className="text-3xl md:text-4xl font-black mb-1 tabular-nums" style={{ color: stat.color }}>{stat.value}</div>
-                  <div className="text-gray-500 text-[11px] font-medium">{stat.label}</div>
+                  <div className="text-4xl md:text-5xl font-black mb-2 tabular-nums" style={{ color: stat.color }}>{stat.value}</div>
+                  <div className="text-gray-500 text-sm font-medium">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -705,11 +705,11 @@ export default function OAuthLogin({ loginOnly = false }) {
         </section>
 
         {/* ═══════════════ LIVE DEMO ═══════════════ */}
-        <section id="demo" data-animate className={`py-14 ${anim('demo')}`}>
+        <section id="demo" data-animate className={`py-24 ${anim('demo')}`}>
           <div className="max-w-5xl mx-auto px-6">
             <div className="text-center mb-8">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">See It in Action</h2>
-              <p className="text-gray-400">Real-time AI solving interview problems</p>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3">See It in Action</h2>
+              <p className="text-gray-400 text-xl">Real-time AI solving interview problems</p>
             </div>
 
             <div className="flex justify-center gap-2 mb-5">
@@ -718,7 +718,7 @@ export default function OAuthLogin({ loginOnly = false }) {
                 { id: 1, label: 'System Design', icon: 'systemDesign', color: '#3b82f6' },
                 { id: 2, label: 'Behavioral', icon: 'users', color: '#8b5cf6' },
               ].map((tab) => (
-                <button key={tab.id} onClick={() => setActiveDemo(tab.id)} className="px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all" style={{
+                <button key={tab.id} onClick={() => setActiveDemo(tab.id)} className="px-5 py-2.5 rounded-xl text-base font-semibold flex items-center gap-2 transition-all" style={{
                   background: activeDemo === tab.id ? `${tab.color}15` : 'rgba(255,255,255,0.03)',
                   border: `1px solid ${activeDemo === tab.id ? tab.color : 'rgba(255,255,255,0.06)'}`,
                   color: activeDemo === tab.id ? tab.color : '#9ca3af',
@@ -828,15 +828,15 @@ export default function OAuthLogin({ loginOnly = false }) {
         </section>
 
         {/* ═══════════════ VIDEO SHOWCASE ═══════════════ */}
-        <section data-animate id="video" className={`py-14 ${anim('video')}`}>
+        <section data-animate id="video" className={`py-20 ${anim('video')}`}>
           <div className="max-w-4xl mx-auto px-6">
             <div className="text-center mb-8">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold mb-4" style={{ background: 'rgba(236, 72, 153, 0.08)', border: '1px solid rgba(236, 72, 153, 0.2)', color: '#f472b6' }}>
                 <Icon name="video" size={10} />
                 Watch it in action
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">See How Engineers Use Ascend</h2>
-              <p className="text-gray-400">From first login to landing an offer at a top tech company</p>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3">See How Engineers Use Ascend</h2>
+              <p className="text-gray-400 text-xl">From first login to landing an offer at a top tech company</p>
             </div>
             {/* Video embed container */}
             <div className="relative rounded-2xl overflow-hidden group" style={{ background: '#000', border: '1px solid rgba(255,255,255,0.08)', aspectRatio: '16/9' }}>
@@ -906,26 +906,26 @@ export default function OAuthLogin({ loginOnly = false }) {
         </section>
 
         {/* ═══════════════ COMPARISON TABLE ═══════════════ */}
-        <section data-animate id="comparison" className={`py-14 ${anim('comparison')}`}>
-          <div className="max-w-4xl mx-auto px-6">
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold mb-4" style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#34d399' }}>
+        <section data-animate id="comparison" className={`py-20 ${anim('comparison')}`}>
+          <div className="max-w-5xl mx-auto px-8">
+            <div className="text-center mb-10">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold mb-5" style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#34d399' }}>
                 <Icon name="chartBar" size={10} />
                 Feature comparison
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Why Engineers Choose Ascend</h2>
-              <p className="text-gray-400">The only all-in-one platform</p>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3">Why Engineers Choose Ascend</h2>
+              <p className="text-gray-400 text-xl">The only all-in-one platform</p>
             </div>
             <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-base">
                   <thead>
                     <tr style={{ background: 'rgba(16, 185, 129, 0.06)' }}>
-                      <th className="text-left p-3 text-gray-400 font-medium text-xs">Feature</th>
-                      <th className="p-3 text-green-400 font-bold text-xs">Ascend</th>
-                      <th className="p-3 text-gray-500 font-medium text-xs">LockedIn</th>
-                      <th className="p-3 text-gray-500 font-medium text-xs">OfferGoose</th>
-                      <th className="p-3 text-gray-500 font-medium text-xs">TechPrep</th>
+                      <th className="text-left p-4 text-gray-400 font-medium text-sm">Feature</th>
+                      <th className="p-4 text-green-400 font-bold text-sm">Ascend</th>
+                      <th className="p-4 text-gray-500 font-medium text-sm">LockedIn</th>
+                      <th className="p-4 text-gray-500 font-medium text-sm">OfferGoose</th>
+                      <th className="p-4 text-gray-500 font-medium text-sm">TechPrep</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -944,9 +944,9 @@ export default function OAuthLogin({ loginOnly = false }) {
                       { f: 'Problem Library & Docs', a: true, b: false, c: false, d: true },
                     ].map((row, i) => (
                       <tr key={i} style={{ background: i % 2 === 0 ? 'rgba(0,0,0,0.15)' : 'transparent' }}>
-                        <td className="p-3 text-gray-300 text-xs">{row.f}</td>
+                        <td className="p-4 text-gray-300 text-sm">{row.f}</td>
                         {['a', 'b', 'c', 'd'].map((k) => (
-                          <td key={k} className="p-3 text-center">
+                          <td key={k} className="p-4 text-center">
                             {row[k]
                               ? <Icon name="check" size={15} className={k === 'a' ? 'text-green-400 mx-auto' : 'text-gray-500 mx-auto'} />
                               : <Icon name="x" size={15} className="text-gray-700 mx-auto" />
@@ -963,26 +963,26 @@ export default function OAuthLogin({ loginOnly = false }) {
         </section>
 
         {/* ═══════════════ TESTIMONIALS ═══════════════ */}
-        <section id="testimonials" data-animate className={`py-14 ${anim('testimonials')}`}>
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="flex items-center justify-center gap-3 mb-8">
-              <h2 className="text-3xl md:text-4xl font-bold text-white">Loved by Engineers</h2>
+        <section id="testimonials" data-animate className={`py-20 ${anim('testimonials')}`}>
+          <div className="max-w-7xl mx-auto px-8">
+            <div className="flex items-center justify-center gap-4 mb-12">
+              <h2 className="text-4xl md:text-5xl font-bold text-white">Loved by Engineers</h2>
               <div className="flex items-center gap-0.5 px-2 py-1 rounded-full" style={{ background: 'rgba(250, 204, 21, 0.08)' }}>
                 {[...Array(5)].map((_, i) => <Icon key={i} name="star5" size={11} className="text-yellow-400" />)}
                 <span className="text-yellow-400 font-bold text-[11px] ml-1">4.9</span>
               </div>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {testimonials.map((t, i) => (
-                <div key={i} className="p-5 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <div key={i} className="p-7 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
                   <div className="flex items-center gap-2.5 mb-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ background: t.color }}>{t.avatar}</div>
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-base font-bold" style={{ background: t.color }}>{t.avatar}</div>
                     <div>
-                      <div className="text-white font-semibold text-sm">{t.name}</div>
-                      <div className="text-gray-500 text-[11px]">{t.role} @ {t.company}</div>
+                      <div className="text-white font-semibold text-lg">{t.name}</div>
+                      <div className="text-gray-500 text-sm">{t.role} @ {t.company}</div>
                     </div>
                   </div>
-                  <p className="text-gray-400 text-sm leading-relaxed">"{t.text}"</p>
+                  <p className="text-gray-400 text-base leading-relaxed">"{t.text}"</p>
                 </div>
               ))}
             </div>
@@ -990,83 +990,83 @@ export default function OAuthLogin({ loginOnly = false }) {
         </section>
 
         {/* ═══════════════ PRICING ═══════════════ */}
-        <section id="pricing" data-animate className={`py-16 ${anim('pricing')}`}>
-          <div className="max-w-5xl mx-auto px-6">
-            <div className="text-center mb-10">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Simple, Transparent Pricing</h2>
-              <p className="text-gray-400">Start free. Upgrade when ready. Cancel anytime.</p>
+        <section id="pricing" data-animate className={`py-24 ${anim('pricing')}`}>
+          <div className="max-w-6xl mx-auto px-8">
+            <div className="text-center mb-14">
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-3">Simple, Transparent Pricing</h2>
+              <p className="text-gray-400 text-xl">Start free. Upgrade when ready. Cancel anytime.</p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-3 gap-5">
               {/* Monthly */}
-              <div className="p-6 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className="p-8 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <div className="flex items-center gap-2 mb-1">
                   <Icon name="cloud" size={18} className="text-gray-400" />
-                  <h3 className="text-base font-bold text-white">Monthly</h3>
+                  <h3 className="text-xl font-bold text-white">Monthly</h3>
                 </div>
-                <p className="text-gray-500 text-xs mb-4">Perfect for trying it out</p>
+                <p className="text-gray-500 text-base mb-5">Perfect for trying it out</p>
                 <div className="flex items-baseline gap-1 mb-4">
-                  <span className="text-3xl font-bold text-white">$99</span>
+                  <span className="text-5xl font-bold text-white">$99</span>
                   <span className="text-gray-500 text-sm">/mo</span>
                 </div>
-                <ul className="space-y-2.5 mb-5">
+                <ul className="space-y-3 mb-6">
                   {['5 credits per month', '25 coding problems', 'System design basics', 'Email support'].map((item, j) => (
-                    <li key={j} className="flex items-center gap-2 text-gray-400 text-xs">
+                    <li key={j} className="flex items-center gap-2.5 text-gray-400 text-base">
                       <Icon name="check" size={13} className="text-green-400 flex-shrink-0" />{item}
                     </li>
                   ))}
                 </ul>
-                <button onClick={() => handlePricingClick('monthly')} className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all hover:bg-white/10" style={{ background: 'rgba(255,255,255,0.06)', color: '#fff' }}>
+                <button onClick={() => handlePricingClick('monthly')} className="w-full py-3.5 rounded-xl text-base font-semibold transition-all hover:bg-white/10" style={{ background: 'rgba(255,255,255,0.06)', color: '#fff' }}>
                   {loading === 'monthly' ? <Icon name="loader" size={15} className="animate-spin mx-auto" /> : 'Get Started'}
                 </button>
               </div>
 
               {/* Quarterly Pro */}
-              <div className="relative p-6 rounded-2xl" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.03))', border: '2px solid #10b981', boxShadow: '0 0 40px rgba(16, 185, 129, 0.08)' }}>
+              <div className="relative p-8 rounded-2xl" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.03))', border: '2px solid #10b981', boxShadow: '0 0 40px rgba(16, 185, 129, 0.08)' }}>
                 <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-bold" style={{ background: '#10b981', color: '#fff' }}>MOST POPULAR</div>
                 <div className="flex items-center gap-2 mb-1">
                   <Icon name="rocket" size={18} className="text-green-400" />
-                  <h3 className="text-base font-bold text-white">Quarterly Pro</h3>
+                  <h3 className="text-xl font-bold text-white">Quarterly Pro</h3>
                 </div>
-                <p className="text-gray-400 text-xs mb-4">Best value for serious prep</p>
+                <p className="text-gray-400 text-base mb-5">Best value for serious prep</p>
                 <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-3xl font-bold text-white">$300</span>
+                  <span className="text-5xl font-bold text-white">$300</span>
                   <span className="text-gray-400 text-sm">/quarter</span>
                 </div>
                 <div className="text-green-400 text-xs mb-4">$100/mo — Save $97 vs monthly</div>
-                <ul className="space-y-2.5 mb-5">
+                <ul className="space-y-3 mb-6">
                   {['Unlimited problems', 'Full system design + diagrams', 'Behavioral coaching', 'Company-specific prep', 'Voice assistant', 'Job Discovery Portal'].map((item, j) => (
-                    <li key={j} className="flex items-center gap-2 text-gray-300 text-xs">
+                    <li key={j} className="flex items-center gap-2.5 text-gray-300 text-base">
                       <Icon name="check" size={13} className="text-green-400 flex-shrink-0" />{item}
                     </li>
                   ))}
                 </ul>
-                <button onClick={() => handlePricingClick('quarterly_pro')} className="w-full py-2.5 rounded-xl text-sm font-bold transition-all hover:scale-105" style={{ background: '#10b981', color: '#fff' }}>
+                <button onClick={() => handlePricingClick('quarterly_pro')} className="w-full py-3.5 rounded-xl text-base font-bold transition-all hover:scale-105" style={{ background: '#10b981', color: '#fff' }}>
                   {loading === 'quarterly_pro' ? <Icon name="loader" size={15} className="animate-spin mx-auto" /> : 'Get Quarterly Pro'}
                 </button>
               </div>
 
               {/* Desktop */}
-              <div className="relative p-6 rounded-2xl" style={{ background: 'linear-gradient(180deg, rgba(139, 92, 246, 0.08), rgba(139, 92, 246, 0.02))', border: '1px solid rgba(139, 92, 246, 0.25)' }}>
+              <div className="relative p-8 rounded-2xl" style={{ background: 'linear-gradient(180deg, rgba(139, 92, 246, 0.08), rgba(139, 92, 246, 0.02))', border: '1px solid rgba(139, 92, 246, 0.25)' }}>
                 <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-bold" style={{ background: '#8b5cf6', color: '#fff' }}>LIFETIME</div>
                 <div className="flex items-center gap-2 mb-1">
                   <Icon name="terminal" size={18} className="text-purple-400" />
-                  <h3 className="text-base font-bold text-white">Desktop</h3>
+                  <h3 className="text-xl font-bold text-white">Desktop</h3>
                 </div>
-                <p className="text-gray-500 text-xs mb-4">One-time purchase, own forever</p>
+                <p className="text-gray-500 text-base mb-5">One-time purchase, own forever</p>
                 <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-3xl font-bold text-white">$300</span>
+                  <span className="text-5xl font-bold text-white">$300</span>
                   <span className="text-gray-500 text-sm">once</span>
                 </div>
                 <div className="text-purple-400 text-xs mb-4">No subscription, ever</div>
-                <ul className="space-y-2.5 mb-5">
+                <ul className="space-y-3 mb-6">
                   {['Unlimited forever', 'Use your own API keys', 'Offline mode', 'macOS, Windows, Linux', 'All future updates'].map((item, j) => (
-                    <li key={j} className="flex items-center gap-2 text-gray-400 text-xs">
+                    <li key={j} className="flex items-center gap-2.5 text-gray-400 text-base">
                       <Icon name="check" size={13} className="text-purple-400 flex-shrink-0" />{item}
                     </li>
                   ))}
                 </ul>
-                <button onClick={() => handlePricingClick('desktop_lifetime')} className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all hover:bg-purple-500/80" style={{ background: '#8b5cf6', color: '#fff' }}>
+                <button onClick={() => handlePricingClick('desktop_lifetime')} className="w-full py-3.5 rounded-xl text-base font-semibold transition-all hover:bg-purple-500/80" style={{ background: '#8b5cf6', color: '#fff' }}>
                   {loading === 'desktop_lifetime' ? <Icon name="loader" size={15} className="animate-spin mx-auto" /> : 'Buy Desktop'}
                 </button>
               </div>
@@ -1076,19 +1076,19 @@ export default function OAuthLogin({ loginOnly = false }) {
         </section>
 
         {/* ═══════════════ FAQ ═══════════════ */}
-        <section id="faq" data-animate className={`py-14 ${anim('faq')}`}>
-          <div className="max-w-2xl mx-auto px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-8">FAQ</h2>
-            <div className="space-y-2">
+        <section id="faq" data-animate className={`py-24 ${anim('faq')}`}>
+          <div className="max-w-3xl mx-auto px-8">
+            <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-12">FAQ</h2>
+            <div className="space-y-3">
               {faqItems.map((faq, i) => (
                 <div key={i} className="rounded-xl overflow-hidden transition-all" style={{ background: expandedFaq === i ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.02)', border: `1px solid ${expandedFaq === i ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)'}` }}>
-                  <button onClick={() => setExpandedFaq(expandedFaq === i ? null : i)} className="w-full px-4 py-3.5 flex items-center justify-between text-left">
-                    <span className="text-white font-medium text-sm pr-4">{faq.q}</span>
-                    <svg className={`w-4 h-4 text-gray-500 flex-shrink-0 transition-transform duration-200 ${expandedFaq === i ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                  <button onClick={() => setExpandedFaq(expandedFaq === i ? null : i)} className="w-full px-6 py-5 flex items-center justify-between text-left">
+                    <span className="text-white font-medium text-lg pr-4">{faq.q}</span>
+                    <svg className={`w-5 h-5 text-gray-500 flex-shrink-0 transition-transform duration-200 ${expandedFaq === i ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                   </button>
                   <div className={`overflow-hidden transition-all duration-200 ${expandedFaq === i ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'}`}>
-                    <div className="px-4 pb-3.5">
-                      <p className="text-gray-400 text-sm leading-relaxed">{faq.a}</p>
+                    <div className="px-6 pb-5">
+                      <p className="text-gray-400 text-base leading-relaxed">{faq.a}</p>
                     </div>
                   </div>
                 </div>
@@ -1098,12 +1098,12 @@ export default function OAuthLogin({ loginOnly = false }) {
         </section>
 
         {/* ═══════════════ FINAL CTA ═══════════════ */}
-        <section className="py-14">
-          <div className="max-w-2xl mx-auto px-6">
-            <div className="p-10 rounded-2xl text-center" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.03))', border: '1px solid rgba(16, 185, 129, 0.2)', boxShadow: '0 0 50px rgba(16, 185, 129, 0.06)' }}>
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">Ready to Land Your Dream Job?</h2>
-              <p className="text-gray-400 mb-6 max-w-md mx-auto text-sm">Join 50,000+ engineers who went from job search to offer letter with Ascend.</p>
-              <button onClick={() => handleOAuthLogin('google')} disabled={loading} className="px-8 py-3 rounded-xl font-bold text-white transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 0 25px rgba(16, 185, 129, 0.25)' }}>
+        <section className="py-24">
+          <div className="max-w-3xl mx-auto px-8">
+            <div className="p-14 rounded-3xl text-center" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.03))', border: '1px solid rgba(16, 185, 129, 0.2)', boxShadow: '0 0 50px rgba(16, 185, 129, 0.06)' }}>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Ready to Land Your Dream Job?</h2>
+              <p className="text-gray-400 mb-8 max-w-lg mx-auto text-lg">Join 50,000+ engineers who went from job search to offer letter with Ascend.</p>
+              <button onClick={() => handleOAuthLogin('google')} disabled={loading} className="px-10 py-4 rounded-2xl font-bold text-lg text-white transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 0 25px rgba(16, 185, 129, 0.25)' }}>
                 {loading === 'google' ? <Icon name="loader" size={18} className="animate-spin" /> : 'Start Free Trial — No Credit Card'}
               </button>
               {error && <p className="text-red-400 text-sm mt-3">{error}</p>}
@@ -1112,17 +1112,17 @@ export default function OAuthLogin({ loginOnly = false }) {
         </section>
 
         {/* ═══════════════ FOOTER ═══════════════ */}
-        <footer className="py-8 border-t" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+        <footer className="py-12 border-t" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
+          <div className="max-w-7xl mx-auto px-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
                   <Icon name="ascend" size={14} className="text-white" />
                 </div>
-                <span className="text-white font-bold text-sm">Ascend</span>
-                <span className="text-gray-600 text-xs">— From job search to offer letter</span>
+                <span className="text-white font-bold text-lg">Ascend</span>
+                <span className="text-gray-600 text-sm">— From job search to offer letter</span>
               </div>
-              <div className="flex items-center gap-5 text-xs text-gray-500">
+              <div className="flex items-center gap-6 text-base text-gray-500">
                 <a href="/docs" className="hover:text-white transition-colors">Docs</a>
                 <a href="/download" className="hover:text-white transition-colors">Download</a>
                 <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
@@ -1130,7 +1130,7 @@ export default function OAuthLogin({ loginOnly = false }) {
                 <a href="mailto:support@cariara.com" className="hover:text-white transition-colors">Support</a>
               </div>
             </div>
-            <div className="mt-5 pt-5 border-t text-center text-gray-600 text-[11px]" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
+            <div className="mt-5 pt-5 border-t text-center text-gray-600 text-sm" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
               © 2025 Ascend by Cariara. All rights reserved.
             </div>
           </div>
