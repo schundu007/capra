@@ -19428,5 +19428,1176 @@
       "Use a heap with the sliding window technique to optimize the dp."
     ],
     "source": "leetcode"
+  },
+  "pascal": {
+    "slug": "pascal",
+    "topic": "array",
+    "description": "Given an integer numRows, return the first numRows of Pascal's triangle.\n\nIn Pascal's triangle, each number is the sum of the two numbers directly above it.\n\nExample 1:\nInput: numRows = 5\nOutput: [[1],[1,1],[1,2,1],[1,3,3,1],[1,4,6,4,1]]\n\nExample 2:\nInput: numRows = 1\nOutput: [[1]]\n\nConstraints:\n- 1 <= numRows <= 30",
+    "meta": "Given an integer numRows, return the first numRows of Pascal's triangle.\n\nIn Pascal's triangle, each number is the sum of the two numbers directly above it.\n\nExample 1:\nInput: numRows = 5\nOutput: [[1]",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Easy",
+    "tags": [
+      "Array",
+      "Dynamic Programming"
+    ],
+    "source": "generated"
+  },
+  "two-sum-ii": {
+    "slug": "two-sum-ii",
+    "topic": "array",
+    "description": "Given a 1-indexed array of integers numbers that is already sorted in non-decreasing order, find two numbers such that they add up to a specific target number.\n\nReturn the indices of the two numbers (1-indexed) as an integer array [index1, index2].\n\nYou may not use the same element twice. There is exactly one solution.\n\nExample 1:\nInput: numbers = [2,7,11,15], target = 9\nOutput: [1,2]\nExplanation: 2 + 7 = 9, so index1 = 1, index2 = 2.\n\nExample 2:\nInput: numbers = [2,3,4], target = 6\nOutput: [1,3]\n\nConstraints:\n- 2 <= numbers.length <= 3 * 10^4\n- -1000 <= numbers[i] <= 1000\n- numbers is sorted in non-decreasing order\n- Exactly one solution exists",
+    "meta": "Given a 1-indexed array of integers numbers that is already sorted in non-decreasing order, find two numbers such that they add up to a specific target number.\n\nReturn the indices of the two numbers (",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Two Pointers",
+      "Binary Search"
+    ],
+    "source": "generated"
+  },
+  "maximum-consecutive-ones-iii": {
+    "slug": "maximum-consecutive-ones-iii",
+    "topic": "array",
+    "description": "Given a binary array nums and an integer k, return the maximum number of consecutive 1's in the array if you can flip at most k 0's.\n\nExample 1:\nInput: nums = [1,1,1,0,0,0,1,1,1,1,0], k = 2\nOutput: 6\nExplanation: Flip nums[5] and nums[10]. The longest subarray of 1's is [1,1,1,0,0,1,1,1,1,1,1] with length 6.\n\nExample 2:\nInput: nums = [0,0,1,1,0,0,1,1,1,0,1,1,0,0,0,1,1,1,1], k = 3\nOutput: 10\n\nConstraints:\n- 1 <= nums.length <= 10^5\n- nums[i] is either 0 or 1\n- 0 <= k <= nums.length",
+    "meta": "Given a binary array nums and an integer k, return the maximum number of consecutive 1's in the array if you can flip at most k 0's.\n\nExample 1:\nInput: nums = [1,1,1,0,0,0,1,1,1,1,0], k = 2\nOutput: 6\n",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Sliding Window"
+    ],
+    "source": "generated"
+  },
+  "merge-accounts": {
+    "slug": "merge-accounts",
+    "topic": "union find",
+    "description": "Given a list of accounts where each element accounts[i] is a list of strings, where the first element accounts[i][0] is a name, and the rest of the elements are emails representing emails of the account.\n\nMerge accounts that belong to the same person. Two accounts belong to the same person if there is some common email.\n\nReturn the accounts in any order after merging. Each account's emails must be sorted.\n\nExample 1:\nInput: accounts = [[\"John\",\"john@mail.com\",\"john_newyork@mail.com\"],[\"John\",\"john@mail.com\",\"john00@mail.com\"],[\"Mary\",\"mary@mail.com\"],[\"John\",\"johnnybravo@mail.com\"]]\nOutput: [[\"John\",\"john00@mail.com\",\"john@mail.com\",\"john_newyork@mail.com\"],[\"Mary\",\"mary@mail.com\"],[\"John\",\"johnnybravo@mail.com\"]]\n\nConstraints:\n- 1 <= accounts.length <= 1000\n- 2 <= accounts[i].length <= 10\n- 1 <= accounts[i][j].length <= 30",
+    "meta": "Given a list of accounts where each element accounts[i] is a list of strings, where the first element accounts[i][0] is a name, and the rest of the elements are emails representing emails of the accou",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Union Find",
+      "DFS",
+      "BFS"
+    ],
+    "source": "generated"
+  },
+  "insert-delete-getrandom-o-1": {
+    "slug": "insert-delete-getrandom-o-1",
+    "topic": "array",
+    "description": "Implement the RandomizedSet class:\n- RandomizedSet() Initializes the RandomizedSet object.\n- bool insert(int val) Inserts an item val into the set if not present. Returns true if the item was not present, false otherwise.\n- bool remove(int val) Removes an item val from the set if present. Returns true if the item was present, false otherwise.\n- int getRandom() Returns a random element from the current set of elements. Each element must have the same probability of being returned.\n\nYou must implement the functions of the class such that each function works in average O(1) time complexity.\n\nExample 1:\nInput: [\"RandomizedSet\",\"insert\",\"remove\",\"insert\",\"getRandom\",\"remove\",\"insert\",\"getRandom\"]\n       [[],[1],[2],[2],[],[1],[2],[]]\nOutput: [null,true,false,true,2,true,false,2]\n\nConstraints:\n- -2^31 <= val <= 2^31 - 1\n- At most 2 * 10^5 calls will be made to insert, remove, and getRandom",
+    "meta": "Implement the RandomizedSet class:\n- RandomizedSet() Initializes the RandomizedSet object.\n- bool insert(int val) Inserts an item val into the set if not present. Returns true if the item was not pres",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Hash Table",
+      "Design"
+    ],
+    "source": "generated"
+  },
+  "sqrt-x": {
+    "slug": "sqrt-x",
+    "topic": "math",
+    "description": "Given a non-negative integer x, return the square root of x rounded down to the nearest integer. The returned integer should be non-negative as well.\n\nYou must not use any built-in exponent function or operator (e.g., pow(x, 0.5) or x ** 0.5).\n\nExample 1:\nInput: x = 4\nOutput: 2\n\nExample 2:\nInput: x = 8\nOutput: 2\nExplanation: The square root of 8 is 2.82842..., and since we round it down to the nearest integer, 2 is returned.\n\nConstraints:\n- 0 <= x <= 2^31 - 1",
+    "meta": "Given a non-negative integer x, return the square root of x rounded down to the nearest integer. The returned integer should be non-negative as well.\n\nYou must not use any built-in exponent function o",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Easy",
+    "tags": [
+      "Math",
+      "Binary Search"
+    ],
+    "source": "generated"
+  },
+  "find-first-and-last-position-of-element": {
+    "slug": "find-first-and-last-position-of-element",
+    "topic": "array",
+    "description": "Given an array of integers nums sorted in non-decreasing order, find the starting and ending position of a given target value. If target is not found, return [-1, -1].\n\nYou must write an algorithm with O(log n) runtime complexity.\n\nExample 1:\nInput: nums = [5,7,7,8,8,10], target = 8\nOutput: [3,4]\n\nExample 2:\nInput: nums = [5,7,7,8,8,10], target = 6\nOutput: [-1,-1]\n\nConstraints:\n- 0 <= nums.length <= 10^5\n- -10^9 <= nums[i] <= 10^9\n- nums is a non-decreasing array",
+    "meta": "Given an array of integers nums sorted in non-decreasing order, find the starting and ending position of a given target value. If target is not found, return [-1, -1].\n\nYou must write an algorithm wit",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Binary Search"
+    ],
+    "source": "generated"
+  },
+  "book-allocation-problem": {
+    "slug": "book-allocation-problem",
+    "topic": "binary search",
+    "description": "Given an array arr[] of N integers where arr[i] represents the number of pages in the i-th book, and M students, allocate books such that:\n- Each student gets at least one book\n- Each book is allocated to only one student\n- Allocation is in contiguous order (a student can only get consecutive books)\n\nFind the minimum possible value of the maximum number of pages allocated to a student.\n\nExample 1:\nInput: arr = [12, 34, 67, 90], M = 2\nOutput: 113\nExplanation: Allocation: [12, 34, 67] and [90]. Maximum = 113.\n\nExample 2:\nInput: arr = [10, 20, 30, 40], M = 2\nOutput: 60\nExplanation: Allocation: [10, 20, 30] and [40]. Maximum = 60.\n\nConstraints:\n- 1 <= N <= 10^5\n- 1 <= arr[i] <= 10^6\n- 1 <= M <= N",
+    "meta": "Given an array arr[] of N integers where arr[i] represents the number of pages in the i-th book, and M students, allocate books such that:\n- Each student gets at least one book\n- Each book is allocate",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Hard",
+    "tags": [
+      "Binary Search",
+      "Greedy"
+    ],
+    "source": "generated"
+  },
+  "painters-partition-problem": {
+    "slug": "painters-partition-problem",
+    "topic": "binary search",
+    "description": "Given an array of board lengths and k painters, where each painter takes 1 unit of time to paint 1 unit of board length, find the minimum time to paint all boards.\n\nEach painter can only paint contiguous sections of boards.\n\nExample 1:\nInput: boards = [10, 20, 30, 40], k = 2\nOutput: 60\nExplanation: Painter 1 paints [10, 20, 30] (60 time), Painter 2 paints [40] (40 time). Minimum of max = 60.\n\nConstraints:\n- 1 <= k <= boards.length <= 10^5\n- 1 <= boards[i] <= 10^6",
+    "meta": "Given an array of board lengths and k painters, where each painter takes 1 unit of time to paint 1 unit of board length, find the minimum time to paint all boards.\n\nEach painter can only paint contigu",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Hard",
+    "tags": [
+      "Binary Search",
+      "Greedy"
+    ],
+    "source": "generated"
+  },
+  "minimize-max-distance-to-gas-station": {
+    "slug": "minimize-max-distance-to-gas-station",
+    "topic": "binary search",
+    "description": "You are given n gas stations along a road at positions stations[0], stations[1], ..., stations[n-1]. You need to add k more gas stations. Find the minimum possible value of the maximum distance between adjacent gas stations after adding k stations.\n\nExample 1:\nInput: stations = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], k = 9\nOutput: 0.5\n\nConstraints:\n- 2 <= stations.length <= 10^5\n- 0 <= stations[i] <= 10^8\n- stations is sorted in strictly increasing order\n- 1 <= k <= 10^6",
+    "meta": "You are given n gas stations along a road at positions stations[0], stations[1], ..., stations[n-1]. You need to add k more gas stations. Find the minimum possible value of the maximum distance betwee",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Hard",
+    "tags": [
+      "Binary Search",
+      "Greedy"
+    ],
+    "source": "generated"
+  },
+  "three-sum": {
+    "slug": "three-sum",
+    "topic": "array",
+    "description": "Given an integer array nums, return all the triplets [nums[i], nums[j], nums[k]] such that i != j, i != k, and j != k, and nums[i] + nums[j] + nums[k] == 0.\n\nNotice that the solution set must not contain duplicate triplets.\n\nExample 1:\nInput: nums = [-1,0,1,2,-1,-4]\nOutput: [[-1,-1,2],[-1,0,1]]\n\nExample 2:\nInput: nums = [0,1,1]\nOutput: []\n\nConstraints:\n- 3 <= nums.length <= 3000\n- -10^5 <= nums[i] <= 10^5",
+    "meta": "Given an integer array nums, return all the triplets [nums[i], nums[j], nums[k]] such that i != j, i != k, and j != k, and nums[i] + nums[j] + nums[k] == 0.\n\nNotice that the solution set must not cont",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Two Pointers",
+      "Sorting"
+    ],
+    "source": "generated"
+  },
+  "three-sum-closest": {
+    "slug": "three-sum-closest",
+    "topic": "array",
+    "description": "Given an integer array nums of length n and an integer target, find three integers in nums such that the sum is closest to target. Return the sum of the three integers.\n\nYou may assume that each input would have exactly one solution.\n\nExample 1:\nInput: nums = [-1,2,1,-4], target = 1\nOutput: 2\nExplanation: The sum that is closest to the target is 2. (-1 + 2 + 1 = 2).\n\nConstraints:\n- 3 <= nums.length <= 500\n- -1000 <= nums[i] <= 1000\n- -10^4 <= target <= 10^4",
+    "meta": "Given an integer array nums of length n and an integer target, find three integers in nums such that the sum is closest to target. Return the sum of the three integers.\n\nYou may assume that each input",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Two Pointers",
+      "Sorting"
+    ],
+    "source": "generated"
+  },
+  "four-sum": {
+    "slug": "four-sum",
+    "topic": "array",
+    "description": "Given an array nums of n integers, return an array of all the unique quadruplets [nums[a], nums[b], nums[c], nums[d]] such that a, b, c, d are distinct indices and nums[a] + nums[b] + nums[c] + nums[d] == target.\n\nExample 1:\nInput: nums = [1,0,-1,0,-2,2], target = 0\nOutput: [[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]]\n\nConstraints:\n- 1 <= nums.length <= 200\n- -10^9 <= nums[i] <= 10^9\n- -10^9 <= target <= 10^9",
+    "meta": "Given an array nums of n integers, return an array of all the unique quadruplets [nums[a], nums[b], nums[c], nums[d]] such that a, b, c, d are distinct indices and nums[a] + nums[b] + nums[c] + nums[d",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Two Pointers",
+      "Sorting"
+    ],
+    "source": "generated"
+  },
+  "sort-colors-dutch-national-flag": {
+    "slug": "sort-colors-dutch-national-flag",
+    "topic": "array",
+    "description": "Given an array nums with n objects colored red, white, or blue, sort them in-place so that objects of the same color are adjacent, with the colors in the order red (0), white (1), and blue (2).\n\nYou must solve this problem without using the library's sort function. Can you solve it in one pass using constant extra space?\n\nExample 1:\nInput: nums = [2,0,2,1,1,0]\nOutput: [0,0,1,1,2,2]\n\nExample 2:\nInput: nums = [2,0,1]\nOutput: [0,1,2]\n\nConstraints:\n- n == nums.length\n- 1 <= n <= 300\n- nums[i] is either 0, 1, or 2",
+    "meta": "Given an array nums with n objects colored red, white, or blue, sort them in-place so that objects of the same color are adjacent, with the colors in the order red (0), white (1), and blue (2).\n\nYou m",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Two Pointers",
+      "Sorting"
+    ],
+    "source": "generated"
+  },
+  "pair-with-target-sum": {
+    "slug": "pair-with-target-sum",
+    "topic": "array",
+    "description": "Given a sorted array of integers and a target sum, find a pair in the array whose sum is equal to the given target. Return the indices of the two numbers.\n\nExample 1:\nInput: arr = [1, 2, 3, 4, 6], target = 6\nOutput: [1, 3]\nExplanation: arr[1] + arr[3] = 2 + 4 = 6\n\nExample 2:\nInput: arr = [2, 5, 9, 11], target = 11\nOutput: [0, 2]\n\nConstraints:\n- Array is sorted in ascending order\n- Exactly one solution exists",
+    "meta": "Given a sorted array of integers and a target sum, find a pair in the array whose sum is equal to the given target. Return the indices of the two numbers.\n\nExample 1:\nInput: arr = [1, 2, 3, 4, 6], tar",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Easy",
+    "tags": [
+      "Array",
+      "Two Pointers"
+    ],
+    "source": "generated"
+  },
+  "triplet-sum-to-zero": {
+    "slug": "triplet-sum-to-zero",
+    "topic": "array",
+    "description": "Given an array of unsorted numbers, find all unique triplets in it that add up to zero.\n\nExample 1:\nInput: [-3, 0, 1, 2, -1, 1, -2]\nOutput: [[-3, 1, 2], [-2, 0, 2], [-2, 1, 1], [-1, 0, 1]]\n\nExample 2:\nInput: [-5, 2, -1, -2, 3]\nOutput: [[-5, 2, 3], [-2, -1, 3]]\n\nConstraints:\n- 3 <= arr.length <= 3000",
+    "meta": "Given an array of unsorted numbers, find all unique triplets in it that add up to zero.\n\nExample 1:\nInput: [-3, 0, 1, 2, -1, 1, -2]\nOutput: [[-3, 1, 2], [-2, 0, 2], [-2, 1, 1], [-1, 0, 1]]\n\nExample 2:",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Two Pointers"
+    ],
+    "source": "generated"
+  },
+  "triplet-sum-close-to-target": {
+    "slug": "triplet-sum-close-to-target",
+    "topic": "array",
+    "description": "Given an array of unsorted numbers and a target number, find a triplet in the array whose sum is as close to the target number as possible. Return the sum of the triplet.\n\nExample 1:\nInput: [-2, 0, 1, 2], target = 2\nOutput: 1\nExplanation: The triplet [-2, 1, 2] has the closest sum to the target.\n\nExample 2:\nInput: [-3, -1, 1, 2], target = 1\nOutput: 0\nExplanation: The triplet [-3, 1, 2] has the closest sum.\n\nConstraints:\n- 3 <= arr.length <= 500",
+    "meta": "Given an array of unsorted numbers and a target number, find a triplet in the array whose sum is as close to the target number as possible. Return the sum of the triplet.\n\nExample 1:\nInput: [-2, 0, 1,",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Two Pointers"
+    ],
+    "source": "generated"
+  },
+  "triplets-with-smaller-sum": {
+    "slug": "triplets-with-smaller-sum",
+    "topic": "array",
+    "description": "Given an array arr of unsorted numbers and a target sum, count all triplets in it such that arr[i] + arr[j] + arr[k] < target where i, j, and k are three different indices.\n\nExample 1:\nInput: [-1, 0, 2, 3], target = 3\nOutput: 2\nExplanation: [-1, 0, 3] and [-1, 0, 2] have sum less than 3.\n\nExample 2:\nInput: [-1, 4, 2, 1, 3], target = 5\nOutput: 4\n\nConstraints:\n- 3 <= arr.length <= 1000",
+    "meta": "Given an array arr of unsorted numbers and a target sum, count all triplets in it such that arr[i] + arr[j] + arr[k] < target where i, j, and k are three different indices.\n\nExample 1:\nInput: [-1, 0, ",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Two Pointers"
+    ],
+    "source": "generated"
+  },
+  "subarrays-with-product-less-than-k": {
+    "slug": "subarrays-with-product-less-than-k",
+    "topic": "array",
+    "description": "Given an array of positive integers nums and an integer k, return the number of contiguous subarrays where the product of all the elements in the subarray is strictly less than k.\n\nExample 1:\nInput: nums = [10, 5, 2, 6], k = 100\nOutput: 8\nExplanation: The 8 subarrays with product less than 100 are: [10], [5], [2], [6], [10,5], [5,2], [2,6], [5,2,6].\n\nExample 2:\nInput: nums = [1, 2, 3], k = 0\nOutput: 0\n\nConstraints:\n- 1 <= nums.length <= 3 * 10^4\n- 1 <= nums[i] <= 1000\n- 0 <= k <= 10^6",
+    "meta": "Given an array of positive integers nums and an integer k, return the number of contiguous subarrays where the product of all the elements in the subarray is strictly less than k.\n\nExample 1:\nInput: n",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Sliding Window"
+    ],
+    "source": "generated"
+  },
+  "comparing-strings-containing-backspaces": {
+    "slug": "comparing-strings-containing-backspaces",
+    "topic": "two pointers",
+    "description": "Given two strings s and t, return true if they are equal when both are typed into empty text editors. '#' means a backspace character.\n\nExample 1:\nInput: s = \"ab#c\", t = \"ad#c\"\nOutput: true\nExplanation: Both s and t become \"ac\".\n\nExample 2:\nInput: s = \"ab##\", t = \"c#d#\"\nOutput: true\nExplanation: Both s and t become \"\".\n\nExample 3:\nInput: s = \"a#c\", t = \"b\"\nOutput: false\n\nConstraints:\n- 1 <= s.length, t.length <= 200\n- s and t only contain lowercase letters and '#' characters",
+    "meta": "Given two strings s and t, return true if they are equal when both are typed into empty text editors. '#' means a backspace character.\n\nExample 1:\nInput: s = \"ab#c\", t = \"ad#c\"\nOutput: true\nExplanatio",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Easy",
+    "tags": [
+      "Two Pointers",
+      "String",
+      "Stack"
+    ],
+    "source": "generated"
+  },
+  "minimum-window-sort": {
+    "slug": "minimum-window-sort",
+    "topic": "array",
+    "description": "Given an array, find the length of the smallest subarray in it which when sorted will sort the whole array.\n\nExample 1:\nInput: [1, 2, 5, 3, 7, 10, 9, 12]\nOutput: 5\nExplanation: Sorting the subarray [5, 3, 7, 10, 9] makes the whole array sorted.\n\nExample 2:\nInput: [1, 3, 2, 0, -1, 7, 10]\nOutput: 5\nExplanation: Sorting [1, 3, 2, 0, -1] makes the whole array sorted.\n\nConstraints:\n- 1 <= arr.length <= 10^4",
+    "meta": "Given an array, find the length of the smallest subarray in it which when sorted will sort the whole array.\n\nExample 1:\nInput: [1, 2, 5, 3, 7, 10, 9, 12]\nOutput: 5\nExplanation: Sorting the subarray [5",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Two Pointers",
+      "Sorting"
+    ],
+    "source": "generated"
+  },
+  "maximum-points-from-cards": {
+    "slug": "maximum-points-from-cards",
+    "topic": "array",
+    "description": "Given an array of integers cardPoints and an integer k, you can take exactly k cards from the beginning or end of the row. Your score is the sum of the points of the cards you have taken. Return the maximum score you can obtain.\n\nExample 1:\nInput: cardPoints = [1,2,3,4,5,6,1], k = 3\nOutput: 12\nExplanation: Take the three cards on the right, getting 5 + 6 + 1 = 12.\n\nExample 2:\nInput: cardPoints = [9,7,7,9,7,7,9], k = 7\nOutput: 55\n\nConstraints:\n- 1 <= cardPoints.length <= 10^5\n- 1 <= cardPoints[i] <= 10^4\n- 1 <= k <= cardPoints.length",
+    "meta": "Given an array of integers cardPoints and an integer k, you can take exactly k cards from the beginning or end of the row. Your score is the sum of the points of the cards you have taken. Return the m",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Sliding Window"
+    ],
+    "source": "generated"
+  },
+  "maximum-number-of-vowels-in-a-substring": {
+    "slug": "maximum-number-of-vowels-in-a-substring",
+    "topic": "string",
+    "description": "Given a string s and an integer k, return the maximum number of vowel letters in any substring of s with length k.\n\nVowel letters are 'a', 'e', 'i', 'o', and 'u'.\n\nExample 1:\nInput: s = \"abciiidef\", k = 3\nOutput: 3\nExplanation: The substring \"iii\" contains 3 vowel letters.\n\nExample 2:\nInput: s = \"aeiou\", k = 2\nOutput: 2\n\nConstraints:\n- 1 <= s.length <= 10^5\n- s consists of lowercase English letters\n- 1 <= k <= s.length",
+    "meta": "Given a string s and an integer k, return the maximum number of vowel letters in any substring of s with length k.\n\nVowel letters are 'a', 'e', 'i', 'o', and 'u'.\n\nExample 1:\nInput: s = \"abciiidef\", k",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "String",
+      "Sliding Window"
+    ],
+    "source": "generated"
+  },
+  "longest-substring-with-at-most-k-distinct-characters": {
+    "slug": "longest-substring-with-at-most-k-distinct-characters",
+    "topic": "string",
+    "description": "Given a string s and an integer k, return the length of the longest substring that contains at most k distinct characters.\n\nExample 1:\nInput: s = \"araaci\", k = 2\nOutput: 4\nExplanation: The longest substring with at most 2 distinct characters is \"araa\".\n\nExample 2:\nInput: s = \"araaci\", k = 1\nOutput: 2\nExplanation: The longest substring with at most 1 distinct character is \"aa\".\n\nConstraints:\n- 1 <= s.length <= 5 * 10^4\n- 0 <= k <= 50",
+    "meta": "Given a string s and an integer k, return the length of the longest substring that contains at most k distinct characters.\n\nExample 1:\nInput: s = \"araaci\", k = 2\nOutput: 4\nExplanation: The longest sub",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "String",
+      "Sliding Window",
+      "Hash Table"
+    ],
+    "source": "generated"
+  },
+  "longest-substring-with-at-most-two-distinct-characters": {
+    "slug": "longest-substring-with-at-most-two-distinct-characters",
+    "topic": "string",
+    "description": "Given a string s, return the length of the longest substring that contains at most two distinct characters.\n\nExample 1:\nInput: s = \"eceba\"\nOutput: 3\nExplanation: The substring \"ece\" has 2 distinct characters and length 3.\n\nExample 2:\nInput: s = \"ccaabbb\"\nOutput: 5\nExplanation: The substring \"aabbb\" has 2 distinct characters and length 5.\n\nConstraints:\n- 1 <= s.length <= 10^5\n- s consists of English letters",
+    "meta": "Given a string s, return the length of the longest substring that contains at most two distinct characters.\n\nExample 1:\nInput: s = \"eceba\"\nOutput: 3\nExplanation: The substring \"ece\" has 2 distinct cha",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "String",
+      "Sliding Window",
+      "Hash Table"
+    ],
+    "source": "generated"
+  },
+  "minimum-window-subsequence": {
+    "slug": "minimum-window-subsequence",
+    "topic": "string",
+    "description": "Given strings s1 and s2, return the minimum contiguous substring of s1 such that s2 is a subsequence of the part. If there is no such window, return \"\".\n\nExample 1:\nInput: s1 = \"abcdebdde\", s2 = \"bde\"\nOutput: \"bcde\"\nExplanation: \"bcde\" is the shortest substring of s1 where \"bde\" is a subsequence.\n\nConstraints:\n- 1 <= s1.length <= 2 * 10^4\n- 1 <= s2.length <= 100\n- s1 and s2 consist of lowercase English letters",
+    "meta": "Given strings s1 and s2, return the minimum contiguous substring of s1 such that s2 is a subsequence of the part. If there is no such window, return \"\".\n\nExample 1:\nInput: s1 = \"abcdebdde\", s2 = \"bde\"",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Hard",
+    "tags": [
+      "String",
+      "Dynamic Programming",
+      "Sliding Window"
+    ],
+    "source": "generated"
+  },
+  "reverse-polish-notation": {
+    "slug": "reverse-polish-notation",
+    "topic": "array",
+    "description": "Evaluate the value of an arithmetic expression in Reverse Polish Notation. Valid operators are +, -, *, and /. Each operand may be an integer or another expression.\n\nDivision between two integers should truncate toward zero.\n\nExample 1:\nInput: tokens = [\"2\",\"1\",\"+\",\"3\",\"*\"]\nOutput: 9\nExplanation: ((2 + 1) * 3) = 9\n\nExample 2:\nInput: tokens = [\"4\",\"13\",\"5\",\"/\",\"+\"]\nOutput: 6\nExplanation: (4 + (13 / 5)) = 6\n\nConstraints:\n- 1 <= tokens.length <= 10^4\n- tokens[i] is an operator or an integer in range [-200, 200]",
+    "meta": "Evaluate the value of an arithmetic expression in Reverse Polish Notation. Valid operators are +, -, *, and /. Each operand may be an integer or another expression.\n\nDivision between two integers shou",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Stack",
+      "Math"
+    ],
+    "source": "generated"
+  },
+  "all-o": {
+    "slug": "all-o",
+    "topic": "array",
+    "description": "Design a data structure that supports all following operations in average O(1) time:\n- insert(val): Inserts an item val to the collection\n- remove(val): Removes an item val from the collection if present\n- getRandom: Returns a random element from the current collection. Each element should have equal probability.\n\nExample 1:\nInput: [\"RandomizedCollection\",\"insert\",\"insert\",\"insert\",\"getRandom\",\"remove\",\"getRandom\"]\n       [[],[1],[1],[2],[],[1],[]]\nOutput: [null,true,false,true,2,true,1]\n\nConstraints:\n- -2^31 <= val <= 2^31 - 1\n- At most 2 * 10^5 total calls",
+    "meta": "Design a data structure that supports all following operations in average O(1) time:\n- insert(val): Inserts an item val to the collection\n- remove(val): Removes an item val from the collection if pres",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Hard",
+    "tags": [
+      "Array",
+      "Hash Table",
+      "Design"
+    ],
+    "source": "generated"
+  },
+  "lowest-common-ancestor-of-a-bst": {
+    "slug": "lowest-common-ancestor-of-a-bst",
+    "topic": "tree",
+    "description": "Given a binary search tree (BST), find the lowest common ancestor (LCA) node of two given nodes in the BST. The lowest common ancestor is defined as the lowest node in T that has both p and q as descendants (a node can be a descendant of itself).\n\nExample 1:\nInput: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8\nOutput: 6\nExplanation: The LCA of nodes 2 and 8 is 6.\n\nExample 2:\nInput: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4\nOutput: 2\n\nConstraints:\n- All Node.val are unique\n- p != q\n- p and q will exist in the BST",
+    "meta": "Given a binary search tree (BST), find the lowest common ancestor (LCA) node of two given nodes in the BST. The lowest common ancestor is defined as the lowest node in T that has both p and q as desce",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Tree",
+      "BST",
+      "DFS"
+    ],
+    "source": "generated"
+  },
+  "construct-binary-tree-from-preorder-and-inorder": {
+    "slug": "construct-binary-tree-from-preorder-and-inorder",
+    "topic": "array",
+    "description": "Given two integer arrays preorder and inorder where preorder is the preorder traversal of a binary tree and inorder is the inorder traversal of the same tree, construct and return the binary tree.\n\nExample 1:\nInput: preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]\nOutput: [3,9,20,null,null,15,7]\n\nExample 2:\nInput: preorder = [-1], inorder = [-1]\nOutput: [-1]\n\nConstraints:\n- 1 <= preorder.length <= 3000\n- inorder.length == preorder.length\n- preorder and inorder consist of unique values",
+    "meta": "Given two integer arrays preorder and inorder where preorder is the preorder traversal of a binary tree and inorder is the inorder traversal of the same tree, construct and return the binary tree.\n\nEx",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Tree",
+      "Divide and Conquer"
+    ],
+    "source": "generated"
+  },
+  "construct-binary-tree-from-inorder-and-postorder": {
+    "slug": "construct-binary-tree-from-inorder-and-postorder",
+    "topic": "array",
+    "description": "Given two integer arrays inorder and postorder where inorder is the inorder traversal of a binary tree and postorder is the postorder traversal of the same tree, construct and return the binary tree.\n\nExample 1:\nInput: inorder = [9,3,15,20,7], postorder = [9,15,7,20,3]\nOutput: [3,9,20,null,null,15,7]\n\nConstraints:\n- 1 <= inorder.length <= 3000\n- postorder.length == inorder.length\n- Values are unique",
+    "meta": "Given two integer arrays inorder and postorder where inorder is the inorder traversal of a binary tree and postorder is the postorder traversal of the same tree, construct and return the binary tree.\n",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Tree",
+      "Divide and Conquer"
+    ],
+    "source": "generated"
+  },
+  "construct-binary-search-tree-from-preorder": {
+    "slug": "construct-binary-search-tree-from-preorder",
+    "topic": "array",
+    "description": "Given an array of integers preorder, which represents the preorder traversal of a BST, construct the tree and return its root.\n\nExample 1:\nInput: preorder = [8,5,1,7,10,12]\nOutput: [8,5,10,1,7,null,12]\n\nConstraints:\n- 1 <= preorder.length <= 100\n- 1 <= preorder[i] <= 10^8\n- All values are unique",
+    "meta": "Given an array of integers preorder, which represents the preorder traversal of a BST, construct the tree and return its root.\n\nExample 1:\nInput: preorder = [8,5,1,7,10,12]\nOutput: [8,5,10,1,7,null,12",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Tree",
+      "BST"
+    ],
+    "source": "generated"
+  },
+  "count-nodes-equal-to-sum-of-descendants": {
+    "slug": "count-nodes-equal-to-sum-of-descendants",
+    "topic": "tree",
+    "description": "Given the root of a binary tree, return the number of nodes where the value of the node is equal to the sum of the values of its descendants. A node's descendants include all nodes in the subtree rooted at that node, excluding the node itself.\n\nExample 1:\nInput: root = [10,3,4,2,1]\nOutput: 2\nExplanation: Node 10 (3+4+2+1=10) and Node 3 (2+1=3) satisfy the condition.\n\nConstraints:\n- Number of nodes in range [1, 10^5]\n- 0 <= Node.val <= 10^5",
+    "meta": "Given the root of a binary tree, return the number of nodes where the value of the node is equal to the sum of the values of its descendants. A node's descendants include all nodes in the subtree root",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Tree",
+      "DFS"
+    ],
+    "source": "generated"
+  },
+  "walls-and-gates": {
+    "slug": "walls-and-gates",
+    "topic": "array",
+    "description": "You are given an m x n grid rooms initialized with these three possible values:\n- -1: A wall or an obstacle\n- 0: A gate\n- INF (2147483647): An empty room\n\nFill each empty room with the distance to its nearest gate. If it is impossible to reach a gate, leave INF.\n\nExample 1:\nInput: rooms = [[INF,-1,0,INF],[INF,INF,INF,-1],[INF,-1,INF,-1],[0,-1,INF,INF]]\nOutput: [[3,-1,0,1],[2,2,1,-1],[1,-1,2,-1],[0,-1,3,4]]\n\nConstraints:\n- m == rooms.length\n- n == rooms[i].length\n- 1 <= m, n <= 250",
+    "meta": "You are given an m x n grid rooms initialized with these three possible values:\n- -1: A wall or an obstacle\n- 0: A gate\n- INF (2147483647): An empty room\n\nFill each empty room with the distance to its",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "BFS",
+      "Matrix"
+    ],
+    "source": "generated"
+  },
+  "parallel-courses": {
+    "slug": "parallel-courses",
+    "topic": "graph",
+    "description": "You are given an integer n and an array relations where relations[i] = [prevCoursei, nextCoursei], meaning course prevCoursei must be taken before course nextCoursei. Courses are numbered 1 to n.\n\nReturn the minimum number of semesters needed to take all courses. If it is impossible, return -1.\n\nExample 1:\nInput: n = 3, relations = [[1,3],[2,3]]\nOutput: 2\nExplanation: In semester 1, take courses 1 and 2. In semester 2, take course 3.\n\nConstraints:\n- 1 <= n <= 5000\n- 1 <= relations.length <= 5000",
+    "meta": "You are given an integer n and an array relations where relations[i] = [prevCoursei, nextCoursei], meaning course prevCoursei must be taken before course nextCoursei. Courses are numbered 1 to n.\n\nRet",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Graph",
+      "Topological Sort",
+      "BFS"
+    ],
+    "source": "generated"
+  },
+  "sequence-reconstruction": {
+    "slug": "sequence-reconstruction",
+    "topic": "graph",
+    "description": "Given an original sequence org and a list of sequences, determine whether org is the only sequence that can be reconstructed from sequences. Reconstruction means building a shortest common supersequence of the sequences.\n\nExample 1:\nInput: org = [1,2,3], sequences = [[1,2],[1,3]]\nOutput: false\nExplanation: [1,3,2] is also a valid sequence.\n\nExample 2:\nInput: org = [1,2,3], sequences = [[1,2],[1,3],[2,3]]\nOutput: true\n\nConstraints:\n- 1 <= org.length <= 10^4",
+    "meta": "Given an original sequence org and a list of sequences, determine whether org is the only sequence that can be reconstructed from sequences. Reconstruction means building a shortest common supersequen",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Graph",
+      "Topological Sort"
+    ],
+    "source": "generated"
+  },
+  "number-of-connected-components": {
+    "slug": "number-of-connected-components",
+    "topic": "graph",
+    "description": "You have a graph of n nodes. You are given an integer n and an array edges where edges[i] = [ai, bi] indicates that there is an edge between ai and bi in the graph. Return the number of connected components in the graph.\n\nExample 1:\nInput: n = 5, edges = [[0,1],[1,2],[3,4]]\nOutput: 2\n\nExample 2:\nInput: n = 5, edges = [[0,1],[1,2],[2,3],[3,4]]\nOutput: 1\n\nConstraints:\n- 1 <= n <= 2000\n- 0 <= edges.length <= 5000",
+    "meta": "You have a graph of n nodes. You are given an integer n and an array edges where edges[i] = [ai, bi] indicates that there is an edge between ai and bi in the graph. Return the number of connected comp",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Graph",
+      "Union Find",
+      "DFS"
+    ],
+    "source": "generated"
+  },
+  "find-the-city-with-the-smallest-number-of-neighbors": {
+    "slug": "find-the-city-with-the-smallest-number-of-neighbors",
+    "topic": "graph",
+    "description": "There are n cities numbered from 0 to n-1. Given edges where edges[i] = [fromi, toi, weighti] represents a bidirectional weighted edge, and an integer distanceThreshold.\n\nReturn the city with the smallest number of cities that are reachable through some path and whose distance is at most distanceThreshold. If there are multiple such cities, return the city with the greatest number.\n\nExample 1:\nInput: n = 4, edges = [[0,1,3],[1,2,1],[1,3,4],[2,3,1]], distanceThreshold = 4\nOutput: 3\n\nConstraints:\n- 2 <= n <= 100\n- 1 <= edges.length <= n * (n - 1) / 2",
+    "meta": "There are n cities numbered from 0 to n-1. Given edges where edges[i] = [fromi, toi, weighti] represents a bidirectional weighted edge, and an integer distanceThreshold.\n\nReturn the city with the smal",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Graph",
+      "Shortest Path"
+    ],
+    "source": "generated"
+  },
+  "reorder-routes-to-make-all-paths-lead-to-city-zero": {
+    "slug": "reorder-routes-to-make-all-paths-lead-to-city-zero",
+    "topic": "graph",
+    "description": "There are n cities numbered from 0 to n - 1 and n - 1 roads such that there is only one way to travel between two different cities. Roads are represented as connections[i] = [ai, bi] (one-way from ai to bi).\n\nReturn the minimum number of edges to change direction so that each city can reach city 0.\n\nExample 1:\nInput: n = 6, connections = [[0,1],[1,3],[2,3],[4,0],[4,5]]\nOutput: 3\n\nConstraints:\n- 2 <= n <= 5 * 10^4\n- connections.length == n - 1",
+    "meta": "There are n cities numbered from 0 to n - 1 and n - 1 roads such that there is only one way to travel between two different cities. Roads are represented as connections[i] = [ai, bi] (one-way from ai ",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Graph",
+      "DFS",
+      "BFS"
+    ],
+    "source": "generated"
+  },
+  "the-maze": {
+    "slug": "the-maze",
+    "topic": "graph",
+    "description": "There is a ball in a maze with empty spaces (0) and walls (1). The ball can go through empty spaces by rolling up, down, left or right, but it won't stop rolling until hitting a wall. Given the maze, the ball's start position and the destination, determine whether the ball can stop at the destination.\n\nExample 1:\nInput: maze = [[0,0,1,0,0],[0,0,0,0,0],[0,0,0,1,0],[1,1,0,1,1],[0,0,0,0,0]], start = [0,4], destination = [4,4]\nOutput: true\n\nConstraints:\n- m == maze.length\n- n == maze[i].length\n- 1 <= m, n <= 100",
+    "meta": "There is a ball in a maze with empty spaces (0) and walls (1). The ball can go through empty spaces by rolling up, down, left or right, but it won't stop rolling until hitting a wall. Given the maze, ",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Graph",
+      "BFS",
+      "DFS"
+    ],
+    "source": "generated"
+  },
+  "the-maze-iii": {
+    "slug": "the-maze-iii",
+    "topic": "graph",
+    "description": "There is a ball in a maze with empty spaces (0), walls (1), and a hole. The ball rolls until hitting a wall. When the ball passes through the hole, it falls in. Find the shortest path for the ball to reach the hole. If multiple paths have the same distance, return the lexicographically smallest instructions.\n\nReturn the instructions string (\"u\", \"d\", \"l\", \"r\"). If impossible, return \"impossible\".\n\nExample 1:\nInput: maze = [[0,0,0,0,0],[1,1,0,0,1],[0,0,0,0,0],[0,1,0,0,1],[0,1,0,0,0]], ball = [4,3], hole = [0,1]\nOutput: \"lul\"\n\nConstraints:\n- 1 <= m, n <= 100",
+    "meta": "There is a ball in a maze with empty spaces (0), walls (1), and a hole. The ball rolls until hitting a wall. When the ball passes through the hole, it falls in. Find the shortest path for the ball to ",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Hard",
+    "tags": [
+      "Graph",
+      "BFS",
+      "Shortest Path"
+    ],
+    "source": "generated"
+  },
+  "tribonacci-number": {
+    "slug": "tribonacci-number",
+    "topic": "dynamic programming",
+    "description": "The Tribonacci sequence Tn is defined as: T0 = 0, T1 = 1, T2 = 1, and Tn+3 = Tn + Tn+1 + Tn+2 for n >= 0.\n\nGiven n, return the value of Tn.\n\nExample 1:\nInput: n = 4\nOutput: 4\nExplanation: T3 = 0 + 1 + 1 = 2, T4 = 1 + 1 + 2 = 4.\n\nExample 2:\nInput: n = 25\nOutput: 1389537\n\nConstraints:\n- 0 <= n <= 37\n- The answer fits in a 32-bit integer",
+    "meta": "The Tribonacci sequence Tn is defined as: T0 = 0, T1 = 1, T2 = 1, and Tn+3 = Tn + Tn+1 + Tn+2 for n >= 0.\n\nGiven n, return the value of Tn.\n\nExample 1:\nInput: n = 4\nOutput: 4\nExplanation: T3 = 0 + 1 +",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Easy",
+    "tags": [
+      "Dynamic Programming",
+      "Math"
+    ],
+    "source": "generated"
+  },
+  "coin-change-2": {
+    "slug": "coin-change-2",
+    "topic": "array",
+    "description": "Given an integer array coins representing coins of different denominations and an integer amount representing a total amount of money, return the number of combinations that make up that amount. If that amount cannot be made up, return 0.\n\nYou may assume that you have an infinite number of each kind of coin.\n\nExample 1:\nInput: amount = 5, coins = [1, 2, 5]\nOutput: 4\nExplanation: Four ways: 5, 2+2+1, 2+1+1+1, 1+1+1+1+1.\n\nExample 2:\nInput: amount = 3, coins = [2]\nOutput: 0\n\nConstraints:\n- 1 <= coins.length <= 300\n- 1 <= coins[i] <= 5000\n- 0 <= amount <= 5000",
+    "meta": "Given an integer array coins representing coins of different denominations and an integer amount representing a total amount of money, return the number of combinations that make up that amount. If th",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Dynamic Programming"
+    ],
+    "source": "generated"
+  },
+  "minimum-insertions-to-make-string-palindrome": {
+    "slug": "minimum-insertions-to-make-string-palindrome",
+    "topic": "string",
+    "description": "Given a string s. In one step you can insert any character at any position of the string. Return the minimum number of steps to make s a palindrome.\n\nExample 1:\nInput: s = \"zzazz\"\nOutput: 0\n\nExample 2:\nInput: s = \"mbadm\"\nOutput: 2\nExplanation: \"mbdadbm\" or \"mdbabdm\".\n\nExample 3:\nInput: s = \"leetcode\"\nOutput: 5\n\nConstraints:\n- 1 <= s.length <= 500\n- s consists of lowercase English letters",
+    "meta": "Given a string s. In one step you can insert any character at any position of the string. Return the minimum number of steps to make s a palindrome.\n\nExample 1:\nInput: s = \"zzazz\"\nOutput: 0\n\nExample 2",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Hard",
+    "tags": [
+      "String",
+      "Dynamic Programming"
+    ],
+    "source": "generated"
+  },
+  "paint-house": {
+    "slug": "paint-house",
+    "topic": "array",
+    "description": "There is a row of n houses, where each house can be painted one of three colors: red, blue, or green. The cost of painting each house is given by a n x 3 cost matrix costs. No two adjacent houses can have the same color.\n\nReturn the minimum cost to paint all houses.\n\nExample 1:\nInput: costs = [[17,2,17],[16,16,5],[14,3,19]]\nOutput: 10\nExplanation: Paint house 0 blue, house 1 green, house 2 blue. Cost = 2 + 5 + 3 = 10.\n\nConstraints:\n- costs.length == n\n- costs[i].length == 3\n- 1 <= n <= 100\n- 1 <= costs[i][j] <= 20",
+    "meta": "There is a row of n houses, where each house can be painted one of three colors: red, blue, or green. The cost of painting each house is given by a n x 3 cost matrix costs. No two adjacent houses can ",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Dynamic Programming"
+    ],
+    "source": "generated"
+  },
+  "paint-house-ii": {
+    "slug": "paint-house-ii",
+    "topic": "array",
+    "description": "There are n houses and k colors. The cost of painting each house is given by an n x k cost matrix. No two adjacent houses have the same color.\n\nReturn the minimum cost to paint all houses.\n\nFollow up: Can you solve it in O(nk) time?\n\nExample 1:\nInput: costs = [[1,5,3],[2,9,4]]\nOutput: 5\nExplanation: Paint house 0 color 0, house 1 color 2. Cost = 1 + 4 = 5.\n\nConstraints:\n- costs.length == n\n- costs[i].length == k\n- 1 <= n <= 100\n- 2 <= k <= 20",
+    "meta": "There are n houses and k colors. The cost of painting each house is given by an n x k cost matrix. No two adjacent houses have the same color.\n\nReturn the minimum cost to paint all houses.\n\nFollow up:",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Hard",
+    "tags": [
+      "Array",
+      "Dynamic Programming"
+    ],
+    "source": "generated"
+  },
+  "paint-fence": {
+    "slug": "paint-fence",
+    "topic": "dynamic programming",
+    "description": "You are painting a fence of n posts with k different colors. You must paint the posts such that no more than two adjacent posts have the same color.\n\nReturn the total number of ways you can paint the fence.\n\nExample 1:\nInput: n = 3, k = 2\nOutput: 6\nExplanation: All valid combinations of colors for 3 posts with 2 colors.\n\nExample 2:\nInput: n = 1, k = 1\nOutput: 1\n\nConstraints:\n- 1 <= n <= 50\n- 1 <= k <= 10^5",
+    "meta": "You are painting a fence of n posts with k different colors. You must paint the posts such that no more than two adjacent posts have the same color.\n\nReturn the total number of ways you can paint the ",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "source": "generated"
+  },
+  "number-of-ways-to-rearrange-sticks": {
+    "slug": "number-of-ways-to-rearrange-sticks",
+    "topic": "math",
+    "description": "There are n uniquely-sized sticks (lengths 1 to n). You want to arrange them such that exactly k sticks are visible from the left. A stick is visible if there are no longer sticks to its left.\n\nReturn the number of such arrangements modulo 10^9 + 7.\n\nExample 1:\nInput: n = 3, k = 2\nOutput: 3\nExplanation: [1,3,2], [2,3,1], [2,1,3] — exactly 2 sticks visible from left in each.\n\nConstraints:\n- 1 <= n <= 1000\n- 1 <= k <= n",
+    "meta": "There are n uniquely-sized sticks (lengths 1 to n). You want to arrange them such that exactly k sticks are visible from the left. A stick is visible if there are no longer sticks to its left.\n\nReturn",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Hard",
+    "tags": [
+      "Math",
+      "Dynamic Programming"
+    ],
+    "source": "generated"
+  },
+  "minimum-cost-to-connect-sticks": {
+    "slug": "minimum-cost-to-connect-sticks",
+    "topic": "array",
+    "description": "You have some number of sticks with positive integer lengths given in an array sticks. You can connect any two sticks by paying a cost of x + y where x and y are the lengths of the two sticks. You perform this until there is one stick remaining.\n\nReturn the minimum cost of connecting all sticks.\n\nExample 1:\nInput: sticks = [2, 4, 3]\nOutput: 14\nExplanation: Connect 2+3=5 (cost 5), then 5+4=9 (cost 9). Total = 14.\n\nExample 2:\nInput: sticks = [1, 8, 3, 5]\nOutput: 30\n\nConstraints:\n- 1 <= sticks.length <= 10^4\n- 1 <= sticks[i] <= 10^4",
+    "meta": "You have some number of sticks with positive integer lengths given in an array sticks. You can connect any two sticks by paying a cost of x + y where x and y are the lengths of the two sticks. You per",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Greedy",
+      "Heap"
+    ],
+    "source": "generated"
+  },
+  "letter-combinations-of-phone-number": {
+    "slug": "letter-combinations-of-phone-number",
+    "topic": "string",
+    "description": "Given a string containing digits from 2-9 inclusive, return all possible letter combinations that the number could represent. Mapping is the same as telephone buttons.\n\nExample 1:\nInput: digits = \"23\"\nOutput: [\"ad\",\"ae\",\"af\",\"bd\",\"be\",\"bf\",\"cd\",\"ce\",\"cf\"]\n\nExample 2:\nInput: digits = \"\"\nOutput: []\n\nConstraints:\n- 0 <= digits.length <= 4\n- digits[i] is a digit in the range ['2', '9']",
+    "meta": "Given a string containing digits from 2-9 inclusive, return all possible letter combinations that the number could represent. Mapping is the same as telephone buttons.\n\nExample 1:\nInput: digits = \"23\"",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "String",
+      "Backtracking"
+    ],
+    "source": "generated"
+  },
+  "robot-room-cleaner": {
+    "slug": "robot-room-cleaner",
+    "topic": "backtracking",
+    "description": "You are given a robot cleaner in a room modeled as an m x n grid. The robot can move forward, turn left, turn right, or clean. Design an algorithm to clean the entire room using only the robot API.\n\nThe robot's API:\n- move(): Returns true if the cell in front is open and the robot moves into it.\n- turnLeft(): Robot turns 90 degrees left.\n- turnRight(): Robot turns 90 degrees right.\n- clean(): Cleans the current cell.\n\nThe robot starts at an unknown position facing up. All accessible cells are connected.\n\nConstraints:\n- m, n <= 100\n- All cells are accessible",
+    "meta": "You are given a robot cleaner in a room modeled as an m x n grid. The robot can move forward, turn left, turn right, or clean. Design an algorithm to clean the entire room using only the robot API.\n\nT",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Hard",
+    "tags": [
+      "Backtracking",
+      "DFS"
+    ],
+    "source": "generated"
+  },
+  "word-squares": {
+    "slug": "word-squares",
+    "topic": "array",
+    "description": "Given an array of unique strings words, return all the word squares you can build from words. A word square is a set of words written out in a square grid form such that reading the kth row and the kth column give the same string.\n\nExample 1:\nInput: words = [\"area\",\"lead\",\"wall\",\"lady\",\"ball\"]\nOutput: [[\"wall\",\"area\",\"lead\",\"lady\"],[\"ball\",\"area\",\"lead\",\"lady\"]]\n\nConstraints:\n- 1 <= words.length <= 1000\n- 1 <= words[i].length <= 4\n- All words[i] have the same length\n- words[i] consists of only lowercase English letters",
+    "meta": "Given an array of unique strings words, return all the word squares you can build from words. A word square is a set of words written out in a square grid form such that reading the kth row and the kt",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Hard",
+    "tags": [
+      "Array",
+      "Backtracking",
+      "Trie"
+    ],
+    "source": "generated"
+  },
+  "index-pairs-of-a-string": {
+    "slug": "index-pairs-of-a-string",
+    "topic": "array",
+    "description": "Given a string text and an array of strings words, return an array of all index pairs [i, j] so that the substring text[i...j] is in words. Return the pairs sorted by i, then by j.\n\nExample 1:\nInput: text = \"thestoryofleetcodeandme\", words = [\"story\",\"fleet\",\"leetcode\"]\nOutput: [[3,7],[9,13],[10,17]]\n\nConstraints:\n- 1 <= text.length <= 100\n- 1 <= words.length <= 20",
+    "meta": "Given a string text and an array of strings words, return an array of all index pairs [i, j] so that the substring text[i...j] is in words. Return the pairs sorted by i, then by j.\n\nExample 1:\nInput: ",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Easy",
+    "tags": [
+      "Array",
+      "String",
+      "Trie"
+    ],
+    "source": "generated"
+  },
+  "design-search-autocomplete-system": {
+    "slug": "design-search-autocomplete-system",
+    "topic": "design",
+    "description": "Design a search autocomplete system. Users may input a sentence (contains lowercase letters and '#'). For each character input, return the top 3 historical hot sentences that have the prefix the same as the part of the sentence already typed.\n\nAutocompleteSystem(String[] sentences, int[] times): Initialize with historical data.\nList<String> input(char c): Input a character and return top 3 suggestions. '#' means end of input.\n\nExample 1:\nInput: sentences = [\"i love you\",\"island\",\"iroman\",\"i love leetcode\"], times = [5,3,2,2]\ninput('i') -> [\"i love you\",\"island\",\"i love leetcode\"]\ninput(' ') -> [\"i love you\",\"i love leetcode\"]\n\nConstraints:\n- 1 <= sentences.length <= 100\n- 1 <= sentences[i].length <= 100",
+    "meta": "Design a search autocomplete system. Users may input a sentence (contains lowercase letters and '#'). For each character input, return the top 3 historical hot sentences that have the prefix the same ",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Hard",
+    "tags": [
+      "Design",
+      "Trie",
+      "String"
+    ],
+    "source": "generated"
+  },
+  "subsets-using-bits": {
+    "slug": "subsets-using-bits",
+    "topic": "array",
+    "description": "Given an integer array nums of unique elements, return all possible subsets (the power set). The solution set must not contain duplicate subsets. Return the subsets in any order.\n\nUse bit manipulation approach: for an array of n elements, there are 2^n subsets. Each number from 0 to 2^n-1 represents a subset using its binary representation.\n\nExample 1:\nInput: nums = [1,2,3]\nOutput: [[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]\n\nExample 2:\nInput: nums = [0]\nOutput: [[],[0]]\n\nConstraints:\n- 1 <= nums.length <= 10\n- -10 <= nums[i] <= 10\n- All elements are unique",
+    "meta": "Given an integer array nums of unique elements, return all possible subsets (the power set). The solution set must not contain duplicate subsets. Return the subsets in any order.\n\nUse bit manipulation",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Bit Manipulation",
+      "Backtracking"
+    ],
+    "source": "generated"
+  },
+  "pow-x-n": {
+    "slug": "pow-x-n",
+    "topic": "math",
+    "description": "Implement pow(x, n), which calculates x raised to the power n (x^n).\n\nExample 1:\nInput: x = 2.00000, n = 10\nOutput: 1024.00000\n\nExample 2:\nInput: x = 2.10000, n = 3\nOutput: 9.26100\n\nExample 3:\nInput: x = 2.00000, n = -2\nOutput: 0.25000\n\nConstraints:\n- -100.0 < x < 100.0\n- -2^31 <= n <= 2^31-1\n- n is an integer\n- x is not zero when n < 0",
+    "meta": "Implement pow(x, n), which calculates x raised to the power n (x^n).\n\nExample 1:\nInput: x = 2.00000, n = 10\nOutput: 1024.00000\n\nExample 2:\nInput: x = 2.10000, n = 3\nOutput: 9.26100\n\nExample 3:\nInput: ",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Math",
+      "Recursion"
+    ],
+    "source": "generated"
+  },
+  "add-two-numbers-linked-list": {
+    "slug": "add-two-numbers-linked-list",
+    "topic": "linked list",
+    "description": "You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order. Add the two numbers and return the sum as a linked list.\n\nExample 1:\nInput: l1 = [2,4,3], l2 = [5,6,4]\nOutput: [7,0,8]\nExplanation: 342 + 465 = 807.\n\nExample 2:\nInput: l1 = [9,9,9,9,9,9,9], l2 = [9,9,9,9]\nOutput: [8,9,9,9,0,0,0,1]\n\nConstraints:\n- Number of nodes in each list is in range [1, 100]\n- 0 <= Node.val <= 9\n- No leading zeros except number 0 itself",
+    "meta": "You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order. Add the two numbers and return the sum as a linked list.\n\nExample 1:\nInput: l1 ",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Linked List",
+      "Math",
+      "Recursion"
+    ],
+    "source": "generated"
+  },
+  "range-sum-query-2d-mutable": {
+    "slug": "range-sum-query-2d-mutable",
+    "topic": "array",
+    "description": "Given a 2D matrix, handle multiple queries: update the value of a cell and calculate the sum of elements inside a rectangle defined by its upper left corner (row1, col1) and lower right corner (row2, col2).\n\nImplement the NumMatrix class:\n- NumMatrix(int[][] matrix) Initializes the object\n- void update(int row, int col, int val) Updates the value\n- int sumRegion(int row1, int col1, int row2, int col2) Returns the sum\n\nExample 1:\nInput: matrix = [[3,0,1,4,2],[5,6,3,2,1],[1,2,0,1,5],[4,1,0,1,7],[1,0,3,0,5]]\nsumRegion(2,1,4,3) -> 8\nupdate(3,2,2)\nsumRegion(2,1,4,3) -> 10\n\nConstraints:\n- m == matrix.length, n == matrix[i].length\n- 1 <= m, n <= 200",
+    "meta": "Given a 2D matrix, handle multiple queries: update the value of a cell and calculate the sum of elements inside a rectangle defined by its upper left corner (row1, col1) and lower right corner (row2, ",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Hard",
+    "tags": [
+      "Array",
+      "Binary Indexed Tree",
+      "Matrix"
+    ],
+    "source": "generated"
+  },
+  "candy-crush": {
+    "slug": "candy-crush",
+    "topic": "array",
+    "description": "Given an m x n integer array board representing the grid of candy where board[i][j] represents the type of candy. Implement the candy crush game:\n\n1. Find all groups of 3+ identical candies horizontally or vertically, mark them.\n2. Remove all marked candies simultaneously.\n3. Drop remaining candies due to gravity.\n4. Repeat until no more candies can be crushed.\n\nReturn the final state of the board.\n\nConstraints:\n- m == board.length, n == board[i].length\n- 3 <= m, n <= 50\n- 1 <= board[i][j] <= 2000",
+    "meta": "Given an m x n integer array board representing the grid of candy where board[i][j] represents the type of candy. Implement the candy crush game:\n\n1. Find all groups of 3+ identical candies horizontal",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Matrix",
+      "Simulation"
+    ],
+    "source": "generated"
+  },
+  "shortest-distance-from-all-buildings": {
+    "slug": "shortest-distance-from-all-buildings",
+    "topic": "array",
+    "description": "Given an m x n grid with values: 0 (empty land), 1 (building), 2 (obstacle). Find the empty land with the smallest sum of distances to all buildings. Return the smallest distance sum, or -1 if not possible.\n\nExample 1:\nInput: grid = [[1,0,2,0,1],[0,0,0,0,0],[0,0,1,0,0]]\nOutput: 7\nExplanation: The point (1,2) has distance 3+3+1=7.\n\nConstraints:\n- m == grid.length, n == grid[i].length\n- 1 <= m, n <= 50",
+    "meta": "Given an m x n grid with values: 0 (empty land), 1 (building), 2 (obstacle). Find the empty land with the smallest sum of distances to all buildings. Return the smallest distance sum, or -1 if not pos",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Hard",
+    "tags": [
+      "Array",
+      "BFS",
+      "Matrix"
+    ],
+    "source": "generated"
+  },
+  "sort-list-merge-sort": {
+    "slug": "sort-list-merge-sort",
+    "topic": "linked list",
+    "description": "Given the head of a linked list, return the list after sorting it in ascending order.\n\nCan you sort it in O(n log n) time and O(1) memory (i.e., constant space)?\n\nExample 1:\nInput: head = [4,2,1,3]\nOutput: [1,2,3,4]\n\nExample 2:\nInput: head = [-1,5,3,4,0]\nOutput: [-1,0,3,4,5]\n\nConstraints:\n- Number of nodes in range [0, 5 * 10^4]\n- -10^5 <= Node.val <= 10^5",
+    "meta": "Given the head of a linked list, return the list after sorting it in ascending order.\n\nCan you sort it in O(n log n) time and O(1) memory (i.e., constant space)?\n\nExample 1:\nInput: head = [4,2,1,3]\nOu",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Linked List",
+      "Sorting",
+      "Merge Sort"
+    ],
+    "source": "generated"
+  },
+  "lowest-common-ancestor-of-binary-tree": {
+    "slug": "lowest-common-ancestor-of-binary-tree",
+    "topic": "tree",
+    "description": "Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in the tree. The LCA is defined as the lowest node that has both p and q as descendants (a node can be a descendant of itself).\n\nExample 1:\nInput: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1\nOutput: 3\n\nExample 2:\nInput: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4\nOutput: 5\n\nConstraints:\n- Number of nodes in range [2, 10^5]\n- All Node.val are unique\n- p != q",
+    "meta": "Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in the tree. The LCA is defined as the lowest node that has both p and q as descendants (a node can be a descendant of its",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Tree",
+      "DFS"
+    ],
+    "source": "generated"
+  },
+  "strobogrammatic-number-iii": {
+    "slug": "strobogrammatic-number-iii",
+    "topic": "math",
+    "description": "A strobogrammatic number is a number that looks the same when rotated 180 degrees (0, 1, 6, 8, 9 and pairs 0-0, 1-1, 6-9, 8-8, 9-6).\n\nGiven two strings low and high that represent two integers, return the count of strobogrammatic numbers in the range [low, high].\n\nExample 1:\nInput: low = \"50\", high = \"100\"\nOutput: 3 (69, 88, 96)\n\nConstraints:\n- 1 <= low.length, high.length <= 15\n- low and high consist of only digits\n- low <= high",
+    "meta": "A strobogrammatic number is a number that looks the same when rotated 180 degrees (0, 1, 6, 8, 9 and pairs 0-0, 1-1, 6-9, 8-8, 9-6).\n\nGiven two strings low and high that represent two integers, return",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Hard",
+    "tags": [
+      "Math",
+      "Recursion"
+    ],
+    "source": "generated"
+  },
+  "range-addition": {
+    "slug": "range-addition",
+    "topic": "array",
+    "description": "You are given an integer length and an array updates where updates[i] = [startIdxi, endIdxi, inci]. You have an array arr of length initialized to 0. For each update, increment arr[startIdx..endIdx] by inc.\n\nReturn the array after all updates. Use a difference array technique for O(n + k) time.\n\nExample 1:\nInput: length = 5, updates = [[1,3,2],[2,4,3],[0,2,-2]]\nOutput: [-2,0,3,5,3]\n\nConstraints:\n- 1 <= length <= 10^5\n- 0 <= updates.length <= 10^4",
+    "meta": "You are given an integer length and an array updates where updates[i] = [startIdxi, endIdxi, inci]. You have an array arr of length initialized to 0. For each update, increment arr[startIdx..endIdx] b",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Prefix Sum"
+    ],
+    "source": "generated"
+  },
+  "missing-ranges": {
+    "slug": "missing-ranges",
+    "topic": "array",
+    "description": "Given a sorted unique integer array nums and two integers lower and upper, return the smallest sorted list of ranges that cover every missing number in the inclusive range [lower, upper].\n\nExample 1:\nInput: nums = [0,1,3,50,75], lower = 0, upper = 99\nOutput: [[2,2],[4,49],[51,74],[76,99]]\n\nExample 2:\nInput: nums = [-1], lower = -1, upper = -1\nOutput: []\n\nConstraints:\n- -10^9 <= lower <= upper <= 10^9\n- 0 <= nums.length <= 100",
+    "meta": "Given a sorted unique integer array nums and two integers lower and upper, return the smallest sorted list of ranges that cover every missing number in the inclusive range [lower, upper].\n\nExample 1:\n",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Easy",
+    "tags": [
+      "Array"
+    ],
+    "source": "generated"
+  },
+  "add-bold-tag-in-string": {
+    "slug": "add-bold-tag-in-string",
+    "topic": "array",
+    "description": "You are given a string s and an array of string words. Return s with bold tags around all substrings that are present in words. If two such substrings overlap, merge them into one pair of bold tags. A bold tag pair is <b> and </b>.\n\nExample 1:\nInput: s = \"abcxyz123\", words = [\"abc\",\"123\"]\nOutput: \"<b>abc</b>xyz<b>123</b>\"\n\nExample 2:\nInput: s = \"aaabbb\", words = [\"aa\",\"b\"]\nOutput: \"<b>aaabbb</b>\"\n\nConstraints:\n- 1 <= s.length <= 1000\n- 0 <= words.length <= 100",
+    "meta": "You are given a string s and an array of string words. Return s with bold tags around all substrings that are present in words. If two such substrings overlap, merge them into one pair of bold tags. A",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "String",
+      "Trie"
+    ],
+    "source": "generated"
+  },
+  "employee-free-time": {
+    "slug": "employee-free-time",
+    "topic": "array",
+    "description": "Given a list of schedules for each employee (list of non-overlapping intervals sorted by start time), return a list of finite intervals representing common free time for all employees.\n\nExample 1:\nInput: schedule = [[[1,2],[5,6]],[[1,3]],[[4,10]]]\nOutput: [[3,4]]\nExplanation: All three employees are free during [3,4].\n\nExample 2:\nInput: schedule = [[[1,3],[6,7]],[[2,4]],[[2,5],[9,12]]]\nOutput: [[5,6],[7,9]]\n\nConstraints:\n- 1 <= schedule.length <= 50\n- 1 <= schedule[i].length <= 50",
+    "meta": "Given a list of schedules for each employee (list of non-overlapping intervals sorted by start time), return a list of finite intervals representing common free time for all employees.\n\nExample 1:\nInp",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Hard",
+    "tags": [
+      "Array",
+      "Sorting",
+      "Heap"
+    ],
+    "source": "generated"
+  },
+  "find-first-and-last-position": {
+    "slug": "find-first-and-last-position",
+    "topic": "array",
+    "description": "Given an array of integers nums sorted in non-decreasing order, find the starting and ending position of a given target value. If target is not found, return [-1, -1]. You must write an algorithm with O(log n) runtime.\n\nExample 1:\nInput: nums = [5,7,7,8,8,10], target = 8\nOutput: [3,4]\n\nExample 2:\nInput: nums = [], target = 0\nOutput: [-1,-1]\n\nConstraints:\n- 0 <= nums.length <= 10^5\n- -10^9 <= nums[i] <= 10^9",
+    "meta": "Given an array of integers nums sorted in non-decreasing order, find the starting and ending position of a given target value. If target is not found, return [-1, -1]. You must write an algorithm with",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Binary Search"
+    ],
+    "source": "generated"
+  },
+  "search-in-rotated-array": {
+    "slug": "search-in-rotated-array",
+    "topic": "array",
+    "description": "Given a rotated sorted array nums and a target value, return the index of target if it is in the array, or -1 if not. You must write an algorithm with O(log n) runtime.\n\nThe array was originally sorted in ascending order and then rotated at an unknown pivot.\n\nExample 1:\nInput: nums = [4,5,6,7,0,1,2], target = 0\nOutput: 4\n\nExample 2:\nInput: nums = [4,5,6,7,0,1,2], target = 3\nOutput: -1\n\nConstraints:\n- 1 <= nums.length <= 5000\n- -10^4 <= nums[i] <= 10^4\n- All values are unique",
+    "meta": "Given a rotated sorted array nums and a target value, return the index of target if it is in the array, or -1 if not. You must write an algorithm with O(log n) runtime.\n\nThe array was originally sorte",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Binary Search"
+    ],
+    "source": "generated"
+  },
+  "find-minimum-in-rotated-array": {
+    "slug": "find-minimum-in-rotated-array",
+    "topic": "array",
+    "description": "Given a sorted rotated array of unique elements, return the minimum element. You must write an algorithm that runs in O(log n) time.\n\nExample 1:\nInput: nums = [3,4,5,1,2]\nOutput: 1\n\nExample 2:\nInput: nums = [4,5,6,7,0,1,2]\nOutput: 0\n\nExample 3:\nInput: nums = [11,13,15,17]\nOutput: 11\n\nConstraints:\n- n == nums.length\n- 1 <= n <= 5000\n- All integers are unique",
+    "meta": "Given a sorted rotated array of unique elements, return the minimum element. You must write an algorithm that runs in O(log n) time.\n\nExample 1:\nInput: nums = [3,4,5,1,2]\nOutput: 1\n\nExample 2:\nInput: ",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Binary Search"
+    ],
+    "source": "generated"
+  },
+  "capacity-to-ship-packages": {
+    "slug": "capacity-to-ship-packages",
+    "topic": "array",
+    "description": "A conveyor belt has packages that must be shipped from one port to another within days days. The i-th package has a weight of weights[i]. Packages must be shipped in order. Return the least weight capacity of the ship that will result in all packages being shipped within days days.\n\nExample 1:\nInput: weights = [1,2,3,4,5,6,7,8,9,10], days = 5\nOutput: 15\nExplanation: Ship with capacity 15: [1,2,3,4,5], [6,7], [8], [9], [10].\n\nExample 2:\nInput: weights = [3,2,2,4,1,4], days = 3\nOutput: 6\n\nConstraints:\n- 1 <= days <= weights.length <= 5 * 10^4\n- 1 <= weights[i] <= 500",
+    "meta": "A conveyor belt has packages that must be shipped from one port to another within days days. The i-th package has a weight of weights[i]. Packages must be shipped in order. Return the least weight cap",
+    "testCases": [],
+    "paramTypes": {},
+    "solutions": {},
+    "boilerplate": {},
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Binary Search",
+      "Greedy"
+    ],
+    "source": "generated"
   }
 }
