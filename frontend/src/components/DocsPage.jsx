@@ -27368,9 +27368,9 @@ Best,
                       const difficulty = typeof problem === 'object' ? problem.difficulty : (problemData?.difficulty || null);
                       const leetCodeUrl = getLeetCodeUrl(problemName);
 
-                      // Always link to the main coding page to solve the problem
-                      const href = problemData?.leetcodeUrl
-                        ? `/app?fetchUrl=${encodeURIComponent(problemData.leetcodeUrl)}`
+                      // Use local problem data if available (no backend fetch needed), otherwise fetch from LeetCode
+                      const href = problemData?.description
+                        ? `/app?problem=${encodeURIComponent(problemData.description)}`
                         : leetCodeUrl
                           ? `/app?fetchUrl=${encodeURIComponent(leetCodeUrl)}`
                           : `/app?problem=${encodeURIComponent(problemName)}`;
