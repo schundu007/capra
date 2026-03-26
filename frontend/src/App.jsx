@@ -826,6 +826,11 @@ export default function App() {
     return <OAuthLogin />;
   }
 
+  // ---------------------------------------------------------------------------
+  // Render: Premium / Pricing Page (public — before auth check)
+  // ---------------------------------------------------------------------------
+  if (isPremiumPage) return <PremiumPage />;
+
   // Protected routes require auth — show login prompt and save intended URL
   if (authRequired && !isAuthenticated) {
     const intended = window.location.pathname + window.location.search;
@@ -834,11 +839,6 @@ export default function App() {
     }
     return <OAuthLogin loginOnly />;
   }
-
-  // ---------------------------------------------------------------------------
-  // Render: Premium / Pricing Page (public)
-  // ---------------------------------------------------------------------------
-  if (isPremiumPage) return <PremiumPage />;
 
   // ---------------------------------------------------------------------------
   // Render: Download Page
