@@ -31799,15 +31799,25 @@ Best,
 
             {/* Quick Links */}
             <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider px-3 mt-8 mb-3">Quick Links</div>
-            <a
-              href="/app"
-              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all text-amber-400 hover:bg-amber-400/10"
-            >
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-400/10">
-                <Icon name="zap" size={16} />
-              </div>
-              <span className="font-medium">Practice Mode</span>
-            </a>
+            {[
+              { href: '/app/coding', label: 'Coding', icon: 'code', color: '#10b981' },
+              { href: '/app/design', label: 'Design', icon: 'systemDesign', color: '#3b82f6' },
+              { href: '/app/prep', label: 'Prep', icon: 'users', color: '#a855f7' },
+            ].map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                target="_blank"
+                rel="noopener"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all hover:bg-white/5 mb-1"
+                style={{ color: link.color }}
+              >
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${link.color}15` }}>
+                  <Icon name={link.icon} size={16} />
+                </div>
+                <span className="font-medium">{link.label}</span>
+              </a>
+            ))}
           </nav>
 
           {/* Pro Badge */}
@@ -31817,7 +31827,7 @@ Best,
               <span className="text-sm font-semibold text-white">Ascend Pro</span>
             </div>
             <p className="text-sm text-gray-400 mb-3">Get AI-powered practice with real-time feedback</p>
-            <a href="/app" className="block text-center py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90" style={{ background: 'linear-gradient(135deg, #a855f7, #3b82f6)' }}>
+            <a href="/app/coding" target="_blank" rel="noopener" className="block text-center py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90" style={{ background: 'linear-gradient(135deg, #a855f7, #3b82f6)' }}>
               Try Free
             </a>
           </div>
