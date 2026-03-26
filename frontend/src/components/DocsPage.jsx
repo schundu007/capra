@@ -27207,6 +27207,16 @@ Best,
                     {topicDetails.questions} problems
                   </span>
                 )}
+                {/* Design in App button for system design topics */}
+                {activePage === 'system-design' && (
+                  <a
+                    href={`/app?problem=${encodeURIComponent(`Design ${topicDetails.title}. ${topicDetails.description || topicDetails.subtitle || ''}`)}&mode=system-design`}
+                    className="ml-auto px-4 py-1.5 rounded-lg text-sm font-medium bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 transition-colors flex items-center gap-2 flex-shrink-0"
+                  >
+                    <Icon name="zap" size={14} />
+                    Design
+                  </a>
+                )}
               </div>
               <p className="text-gray-400 text-sm leading-relaxed">{topicDetails.description}</p>
               {topicDetails.subtitle && !topicDetails.difficulty && (
