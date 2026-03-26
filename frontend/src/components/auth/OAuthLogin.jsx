@@ -177,39 +177,14 @@ export default function OAuthLogin({ loginOnly = false }) {
           </div>
         </section>
 
-        {/* ═══ PRICING — clean 3 columns ═══ */}
-        <section id="pricing" className="py-16 max-w-5xl mx-auto px-6">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Simple pricing</h2>
-            <p className="text-gray-400 text-lg">No surprises. <a href="/premium" className="text-green-400 hover:text-green-300 transition-colors">See full comparison →</a></p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-4">
-            {[
-              { id: 'monthly', name: 'Monthly', price: '$99', per: '/mo', color: '#6b7280', features: ['5 credits/month', 'Coding + System Design', 'Email support'], cta: 'Get Started', bg: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' },
-              { id: 'quarterly_pro', name: 'Quarterly Pro', price: '$300', per: '/qtr', color: '#10b981', badge: 'POPULAR', features: ['Unlimited everything', 'Voice + Stealth mode', 'Company prep + Resume/CL', 'Job Discovery Portal'], cta: 'Get Pro', bg: 'linear-gradient(180deg, rgba(16,185,129,0.08), rgba(16,185,129,0.02))', border: '2px solid #10b981' },
-              { id: 'desktop_lifetime', name: 'Desktop', price: '$300', per: 'once', color: '#8b5cf6', badge: 'LIFETIME', features: ['Unlimited forever', 'Your own API keys', 'Offline + All platforms'], cta: 'Buy Desktop', bg: 'linear-gradient(180deg, rgba(139,92,246,0.06), rgba(139,92,246,0.02))', border: '1px solid rgba(139,92,246,0.3)' },
-            ].map((plan) => (
-              <div key={plan.id} className="relative p-6 rounded-2xl" style={{ background: plan.bg, border: plan.border }}>
-                {plan.badge && <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-bold text-white" style={{ background: plan.color }}>{plan.badge}</div>}
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-bold text-white">{plan.name}</h3>
-                  <div><span className="text-3xl font-black text-white">{plan.price}</span><span className="text-gray-500 text-sm ml-1">{plan.per}</span></div>
-                </div>
-                <ul className="space-y-2.5 mb-5">
-                  {plan.features.map((f, j) => (
-                    <li key={j} className="flex items-center gap-2 text-gray-300 text-sm">
-                      <Icon name="check" size={14} style={{ color: plan.color === '#6b7280' ? '#10b981' : plan.color }} className="flex-shrink-0" />{f}
-                    </li>
-                  ))}
-                </ul>
-                <button onClick={() => handlePricingClick(plan.id)} disabled={!!loading} className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all hover:scale-[1.02]" style={{ background: plan.color === '#6b7280' ? 'rgba(255,255,255,0.08)' : plan.color }}>
-                  {loading === plan.id ? <Icon name="loader" size={14} className="animate-spin mx-auto" /> : plan.cta}
-                </button>
-              </div>
-            ))}
-          </div>
-          <p className="text-center text-gray-600 text-xs mt-4">30-day money-back guarantee · Stripe · No auto-renewal</p>
+        {/* ═══ PRICING LINK ═══ */}
+        <section className="py-12 max-w-3xl mx-auto px-6 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Simple, transparent pricing</h2>
+          <p className="text-gray-400 text-lg mb-6">Plans start at $99/mo. 30-day money-back guarantee.</p>
+          <a href="/premium" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-lg text-white transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 0 30px rgba(16,185,129,0.15)' }}>
+            View Plans & Pricing
+            <Icon name="arrowRight" size={18} />
+          </a>
         </section>
 
         {/* ═══ CTA ═══ */}
