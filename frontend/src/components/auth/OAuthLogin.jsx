@@ -74,7 +74,7 @@ export default function OAuthLogin({ loginOnly = false }) {
             </div>
             <div className="hidden md:flex items-center gap-6">
               <a href="https://jobs.cariara.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm transition-colors">Jobs</a>
-              <a href="/docs" target="_blank" rel="noopener" className="text-gray-400 hover:text-white text-sm transition-colors">Prep</a>
+              <a href="/prepare" target="_blank" rel="noopener" className="text-gray-400 hover:text-white text-sm transition-colors">Prep</a>
               <a href="/app/coding" target="_blank" rel="noopener" className="text-gray-400 hover:text-white text-sm transition-colors">Interview</a>
               <a href="/premium" target="_blank" rel="noopener" className="text-gray-400 hover:text-white text-sm transition-colors">Pricing</a>
             </div>
@@ -100,7 +100,7 @@ export default function OAuthLogin({ loginOnly = false }) {
             <button onClick={() => handleOAuthLogin('google')} disabled={loading} className="px-8 py-4 rounded-xl font-semibold text-lg text-white transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 0 30px rgba(16,185,129,0.2)' }}>
               {loading === 'google' ? <Icon name="loader" size={20} className="animate-spin mx-auto" /> : 'Start Free — No Credit Card'}
             </button>
-            <a href="/docs" target="_blank" rel="noopener" className="px-8 py-4 rounded-xl font-semibold text-lg text-white transition-all hover:bg-white/10" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+            <a href="/prepare" target="_blank" rel="noopener" className="px-8 py-4 rounded-xl font-semibold text-lg text-white transition-all hover:bg-white/10" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
               Explore Prep
             </a>
           </div>
@@ -163,7 +163,7 @@ export default function OAuthLogin({ loginOnly = false }) {
             </div>
             <div className="flex items-center gap-5 text-sm text-gray-500">
               <a href="https://jobs.cariara.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Jobs</a>
-              <a href="/docs" target="_blank" rel="noopener" className="hover:text-white transition-colors">Prep</a>
+              <a href="/prepare" target="_blank" rel="noopener" className="hover:text-white transition-colors">Prep</a>
               <a href="/app/coding" target="_blank" rel="noopener" className="hover:text-white transition-colors">Interview</a>
               <a href="/premium" target="_blank" rel="noopener" className="hover:text-white transition-colors">Pricing</a>
               <a href="/download" target="_blank" rel="noopener" className="hover:text-white transition-colors">Download</a>

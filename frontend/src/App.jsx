@@ -103,7 +103,7 @@ export default function App() {
   const isLandingPage = !isElectron && (currentPath === '/' || currentPath === '/login');
   const isDownloadPage = !isElectron && currentPath === '/download';
   const isPremiumPage = !isElectron && currentPath === '/premium';
-  const isDocsPage = currentPath.startsWith('/docs');
+  const isDocsPage = currentPath.startsWith('/prepare');
   const isProblemPage = currentPath.startsWith('/problems/');
   const problemSlug = isProblemPage ? currentPath.replace('/problems/', '').split('?')[0] : null;
 
@@ -113,7 +113,7 @@ export default function App() {
     : currentPath.startsWith('/app') ? 'coding' : null;
 
   // State for Electron docs page navigation
-  const [showDocs, setShowDocs] = useState(isElectron && currentPath.startsWith('/docs'));
+  const [showDocs, setShowDocs] = useState(isElectron && currentPath.startsWith('/prepare'));
   const [showProblem, setShowProblem] = useState(isProblemPage ? problemSlug : null);
 
   // ---------------------------------------------------------------------------
@@ -1195,7 +1195,7 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
           </button>
         ) : !isElectron && (
           <a
-            href="/docs"
+            href="/prepare"
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-neutral-400 hover:text-white bg-neutral-700/50 hover:bg-neutral-600/50 border border-neutral-600/50 transition-all duration-200"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

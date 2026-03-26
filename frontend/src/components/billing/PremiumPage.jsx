@@ -186,7 +186,7 @@ export default function PremiumPage() {
               <button onClick={() => scrollTo('plans')} className="px-4 py-2 text-base text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-all">Plans</button>
               <button onClick={() => scrollTo('features')} className="px-4 py-2 text-base text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-all">Features</button>
               <button onClick={() => scrollTo('faq')} className="px-4 py-2 text-base text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-all">FAQ</button>
-              <a href="/docs" target="_blank" rel="noopener" className="px-4 py-2 text-base text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-all">Prep</a>
+              <a href="/prepare" target="_blank" rel="noopener" className="px-4 py-2 text-base text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-all">Prep</a>
             </div>
             <a href="/" className="px-6 py-2.5 rounded-xl text-base font-semibold text-white transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/20" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
               Back to App
@@ -437,7 +437,7 @@ export default function PremiumPage() {
               <div className="flex items-center gap-6 text-base text-gray-500">
                 <a href="/" className="hover:text-white transition-colors">Home</a>
                 <a href="https://jobs.cariara.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Jobs</a>
-                <a href="/docs" target="_blank" rel="noopener" className="hover:text-white transition-colors">Prep</a>
+                <a href="/prepare" target="_blank" rel="noopener" className="hover:text-white transition-colors">Prep</a>
                 <a href="/app/coding" target="_blank" rel="noopener" className="hover:text-white transition-colors">Interview</a>
                 <a href="/download" target="_blank" rel="noopener" className="hover:text-white transition-colors">Download</a>
                 <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>

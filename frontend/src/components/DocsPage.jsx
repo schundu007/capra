@@ -408,7 +408,7 @@ export default function DocsPage({ onBack }) {
     if (activePage && activePage !== 'coding') params.set('page', activePage);
     if (selectedTopic) params.set('topic', selectedTopic);
     const queryString = params.toString();
-    const newURL = queryString ? `/docs?${queryString}` : '/docs';
+    const newURL = queryString ? `/prepare?${queryString}` : '/prepare';
     window.history.replaceState({}, '', newURL);
   }, [activePage, selectedTopic]);
 
@@ -31749,7 +31749,7 @@ Best,
         <div className="w-72 flex-shrink-0 h-screen sticky top-0 flex flex-col" style={{ background: 'linear-gradient(180deg, #0d0d12 0%, #0a0a0f 100%)', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
           {/* Logo */}
           <div className="p-6">
-            <a href="/docs" className="flex items-center gap-3 group">
+            <a href="/prepare" className="flex items-center gap-3 group">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
                 <Icon name="ascend" size={22} className="text-white" />
               </div>

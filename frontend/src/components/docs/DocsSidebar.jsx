@@ -6,13 +6,13 @@ import { Icon } from '../Icons.jsx';
  */
 export default function DocsSidebar({ activePage }) {
   const navItems = [
-    { id: 'coding', label: 'Data Structures & Algorithms', icon: 'code', href: '/docs/coding' },
-    { id: 'system-design', label: 'System Design', icon: 'systemDesign', href: '/docs/system-design' },
-    { id: 'low-level', label: 'Low Level Design', icon: 'layers', href: '/docs/low-level-design' },
-    { id: 'behavioral', label: 'Behavioral', icon: 'users', href: '/docs/behavioral' },
-    { id: 'projects', label: 'Projects', icon: 'briefcase', href: '/docs/projects' },
-    { id: 'companies', label: 'Companies', icon: 'building', href: '/docs/companies' },
-    { id: 'roadmaps', label: 'Roadmaps', icon: 'compass', href: '/docs/roadmaps' },
+    { id: 'coding', label: 'Data Structures & Algorithms', icon: 'code', href: '/prepare/coding' },
+    { id: 'system-design', label: 'System Design', icon: 'systemDesign', href: '/prepare/system-design' },
+    { id: 'low-level', label: 'Low Level Design', icon: 'layers', href: '/prepare/low-level-design' },
+    { id: 'behavioral', label: 'Behavioral', icon: 'users', href: '/prepare/behavioral' },
+    { id: 'projects', label: 'Projects', icon: 'briefcase', href: '/prepare/projects' },
+    { id: 'companies', label: 'Companies', icon: 'building', href: '/prepare/companies' },
+    { id: 'roadmaps', label: 'Roadmaps', icon: 'compass', href: '/prepare/roadmaps' },
   ];
 
   const bottomItems = [

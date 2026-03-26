@@ -118,7 +118,7 @@ export default function CodingDocsPage() {
             {filteredTopics.map((topic) => (
               <a
                 key={topic.id}
-                href={`/docs/coding/${topic.id}`}
+                href={`/prepare/coding/${topic.id}`}
                 className="group p-4 rounded-xl transition-all hover:scale-[1.02] hover:bg-white/5"
                 style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
               >
