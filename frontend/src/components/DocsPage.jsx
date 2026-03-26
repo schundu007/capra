@@ -27234,49 +27234,47 @@ Best,
 
         {/* DSA Topic Detail */}
         {activePage === 'coding' && topicDetails.keyPatterns && (
-          <div className="space-y-6">
-            {/* Introduction - Comprehensive Overview */}
-            {topicDetails.introduction && (
-              <div id="overview" className="rounded-lg overflow-hidden scroll-mt-24" style={CARD_STYLES.card}>
-                <div className="px-3 py-2 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
-                    <Icon name="book" size={16} className="text-emerald-400" />
+          <div className="space-y-3">
+            {/* Overview + Complexity in one row */}
+            <div className="grid lg:grid-cols-3 gap-3">
+              {/* Introduction - Comprehensive Overview */}
+              {topicDetails.introduction && (
+                <div id="overview" className="rounded-lg overflow-hidden scroll-mt-24 lg:col-span-2" style={CARD_STYLES.card}>
+                  <div className="px-3 py-1.5 border-b border-emerald-500/20 flex items-center gap-2" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                    <Icon name="book" size={14} className="text-emerald-400" />
+                    <h3 className="text-xs font-bold text-white">Overview</h3>
                   </div>
-                  <h3 className="text-sm font-bold text-white">Overview</h3>
+                  <div className="p-3">
+                    <FormattedContent content={topicDetails.introduction} color="emerald" />
+                  </div>
                 </div>
-                <div className="p-5">
-                  <FormattedContent content={topicDetails.introduction} color="emerald" />
+              )}
+              {/* Complexity */}
+              <div className="flex flex-col gap-2">
+                <div className="p-3 rounded-lg flex-1" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                  <div className="text-green-400 text-xs font-medium mb-1">Time Complexity</div>
+                  <div className="text-white font-mono text-sm">{topicDetails.timeComplexity}</div>
                 </div>
-              </div>
-            )}
-
-            {/* Complexity */}
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="p-4 rounded-xl" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                <div className="text-green-400 text-sm font-medium mb-1">Time Complexity</div>
-                <div className="text-white font-mono">{topicDetails.timeComplexity}</div>
-              </div>
-              <div className="p-4 rounded-xl" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                <div className="text-emerald-400 text-sm font-medium mb-1">Space Complexity</div>
-                <div className="text-white font-mono">{topicDetails.spaceComplexity}</div>
+                <div className="p-3 rounded-lg flex-1" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                  <div className="text-emerald-400 text-xs font-medium mb-1">Space Complexity</div>
+                  <div className="text-white font-mono text-sm">{topicDetails.spaceComplexity}</div>
+                </div>
               </div>
             </div>
 
             {/* When to Use + Key Patterns - Side by Side Row */}
-            <div id="when-to-use" className={`grid gap-4 scroll-mt-24 ${topicDetails.whenToUse && topicDetails.keyPatterns ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+            <div id="when-to-use" className={`grid gap-3 scroll-mt-24 ${topicDetails.whenToUse && topicDetails.keyPatterns ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
               {/* When to Use */}
               {topicDetails.whenToUse && (
                 <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
-                  <div className="px-3 py-2 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
-                      <Icon name="target" size={16} className="text-emerald-400" />
-                    </div>
-                    <h3 className="text-sm font-bold text-white">When to Use</h3>
+                  <div className="px-3 py-1.5 border-b border-purple-500/20 flex items-center gap-2" style={{ background: 'rgba(168,85,247,0.05)' }}>
+                    <Icon name="target" size={14} className="text-emerald-400" />
+                    <h3 className="text-xs font-bold text-white">When to Use</h3>
                   </div>
-                  <div className="p-4">
-                    <ul className="space-y-2">
+                  <div className="p-3">
+                    <ul className="space-y-1">
                       {topicDetails.whenToUse.map((item, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm">
+                        <li key={i} className="flex items-start gap-2 text-xs">
                           <span className="text-emerald-400 mt-0.5">→</span>
                           <span className="text-gray-300">{item}</span>
                         </li>
@@ -27289,16 +27287,14 @@ Best,
               {/* Key Patterns */}
               {topicDetails.keyPatterns && (
                 <div className="rounded-lg overflow-hidden" style={{ background: `linear-gradient(180deg, ${topicDetails.color}10 0%, rgba(0,0,0,0.4) 100%)`, border: `1px solid ${topicDetails.color}30` }}>
-                  <div className="px-3 py-2 border-b flex items-center gap-3" style={{ background: `${topicDetails.color}08`, borderColor: `${topicDetails.color}20` }}>
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${topicDetails.color}20` }}>
-                      <Icon name="puzzle" size={16} style={{ color: topicDetails.color }} />
-                    </div>
-                    <h3 className="text-sm font-bold text-white">Key Patterns</h3>
+                  <div className="px-3 py-1.5 border-b flex items-center gap-2" style={{ background: `${topicDetails.color}08`, borderColor: `${topicDetails.color}20` }}>
+                    <Icon name="puzzle" size={14} style={{ color: topicDetails.color }} />
+                    <h3 className="text-xs font-bold text-white">Key Patterns</h3>
                   </div>
-                  <div className="p-4">
-                    <div className="flex flex-wrap gap-2">
+                  <div className="p-3">
+                    <div className="flex flex-wrap gap-1.5">
                       {topicDetails.keyPatterns.map((pattern, i) => (
-                        <span key={i} className="px-3 py-1.5 rounded-lg text-sm" style={{ background: `${topicDetails.color}15`, color: topicDetails.color }}>
+                        <span key={i} className="px-2 py-1 rounded text-xs" style={{ background: `${topicDetails.color}15`, color: topicDetails.color }}>
                           {pattern}
                         </span>
                       ))}
@@ -27309,21 +27305,19 @@ Best,
             </div>
 
             {/* Approach + Common Mistakes - Side by Side Row */}
-            <div id="approach" className={`grid gap-4 scroll-mt-24 ${topicDetails.approach && topicDetails.commonMistakes ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+            <div id="approach" className={`grid gap-3 scroll-mt-24 ${topicDetails.approach && topicDetails.commonMistakes ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
               {/* Approach - Step by Step */}
               {topicDetails.approach && (
                 <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
-                  <div className="px-3 py-2 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
-                      <Icon name="list" size={16} className="text-emerald-400" />
-                    </div>
-                    <h3 className="text-sm font-bold text-white">Step-by-Step Approach</h3>
+                  <div className="px-3 py-1.5 border-b border-blue-500/20 flex items-center gap-2" style={{ background: 'rgba(59,130,246,0.05)' }}>
+                    <Icon name="list" size={14} className="text-emerald-400" />
+                    <h3 className="text-xs font-bold text-white">Step-by-Step Approach</h3>
                   </div>
-                  <div className="p-4">
-                    <ol className="space-y-2">
+                  <div className="p-3">
+                    <ol className="space-y-1">
                       {topicDetails.approach.map((step, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm">
-                          <span className="w-5 h-5 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-emerald-500/15 text-emerald-400">{i + 1}</span>
+                        <li key={i} className="flex items-start gap-2 text-xs">
+                          <span className="w-4 h-4 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-emerald-500/15 text-emerald-400">{i + 1}</span>
                           <span className="text-gray-300">{step}</span>
                         </li>
                       ))}
@@ -27335,16 +27329,14 @@ Best,
               {/* Common Mistakes */}
               {topicDetails.commonMistakes && (
                 <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
-                  <div className="px-3 py-2 border-b border-red-500/20 flex items-center gap-3" style={{ background: 'rgba(239,68,68,0.05)' }}>
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-red-500/20">
-                      <Icon name="alertTriangle" size={16} className="text-red-400" />
-                    </div>
-                    <h3 className="text-sm font-bold text-white">Common Mistakes</h3>
+                  <div className="px-3 py-1.5 border-b border-red-500/20 flex items-center gap-2" style={{ background: 'rgba(239,68,68,0.05)' }}>
+                    <Icon name="alertTriangle" size={14} className="text-red-400" />
+                    <h3 className="text-xs font-bold text-white">Common Mistakes</h3>
                   </div>
-                  <div className="p-4">
-                    <ul className="space-y-2">
+                  <div className="p-3">
+                    <ul className="space-y-1">
                       {topicDetails.commonMistakes.map((mistake, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm">
+                        <li key={i} className="flex items-start gap-2 text-xs">
                           <span className="text-red-400 mt-0.5">✗</span>
                           <span className="text-gray-300">{mistake}</span>
                         </li>
@@ -27357,25 +27349,22 @@ Best,
 
             {/* Common Problems - Clickable to solve */}
             {topicDetails.commonProblems && (
-              <div id="practice" className="rounded-xl overflow-hidden scroll-mt-24" style={CARD_STYLES.card}>
-                <div className="px-3 py-2 flex items-center gap-3" style={CARD_STYLES.header}>
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
-                    <Icon name="star" size={14} className="text-emerald-400" />
-                  </div>
-                  <h3 className="text-sm font-bold text-white">Practice Problems</h3>
-                  <span className="text-sm text-gray-500 ml-auto">{topicDetails.commonProblems.length} problems</span>
+              <div id="practice" className="rounded-lg overflow-hidden scroll-mt-24" style={CARD_STYLES.card}>
+                <div className="px-3 py-1.5 flex items-center gap-2" style={CARD_STYLES.header}>
+                  <Icon name="star" size={14} className="text-emerald-400" />
+                  <h3 className="text-xs font-bold text-white">Practice Problems</h3>
+                  <span className="text-xs text-gray-500 ml-auto">{topicDetails.commonProblems.length}</span>
                 </div>
-                <div className="p-5">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div className="p-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1">
                     {topicDetails.commonProblems.map((problem, i) => {
                       const problemName = typeof problem === 'string' ? problem : problem.name;
                       const slug = generateSlug(problemName);
                       const problemData = getProblemBySlug(slug);
                       const difficulty = typeof problem === 'object' ? problem.difficulty : (problemData?.difficulty || null);
-                      const leetCodeUrl = getLeetCodeUrl(problemName);
 
-                      // Use full problem description from scraped data, fallback to local data, then problem name
                       const fullProblem = problemsFull[slug];
+                      const hasDescription = !!(fullProblem?.description || problemData?.description);
                       const problemText = fullProblem?.description || problemData?.description || `Solve: ${problemName}`;
                       const href = `/app?problem=${encodeURIComponent(problemText)}&autosolve=true`;
 
@@ -27383,15 +27372,12 @@ Best,
                         <a
                           key={i}
                           href={href}
-                          className="flex items-center gap-3 p-3 rounded-lg hover:bg-emerald-500/10 transition-colors cursor-pointer group border border-transparent hover:border-emerald-500/30"
+                          className={`flex items-center gap-2 px-2 py-1.5 rounded hover:bg-emerald-500/10 transition-colors cursor-pointer group ${!hasDescription ? 'border border-amber-500/20' : 'border border-transparent hover:border-emerald-500/30'}`}
                         >
-                          <span className="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-mono bg-emerald-500/15 text-emerald-400 group-hover:bg-emerald-500/25">{i + 1}</span>
-                          <span className="text-gray-300 text-sm flex-1 truncate group-hover:text-emerald-300 transition-colors">{problemName}</span>
-                          <span className="px-2 py-0.5 bg-emerald-500/15 text-emerald-400 text-xs rounded flex-shrink-0">
-                            Solve
-                          </span>
+                          <span className="w-5 h-5 rounded flex items-center justify-center text-xs font-mono bg-emerald-500/15 text-emerald-400 flex-shrink-0">{i + 1}</span>
+                          <span className={`text-xs flex-1 truncate group-hover:text-emerald-300 transition-colors ${hasDescription ? 'text-gray-300' : 'text-amber-400'}`}>{problemName}</span>
                           {difficulty && (
-                            <span className={`px-2 py-0.5 rounded text-xs flex-shrink-0 ${
+                            <span className={`px-1.5 py-0.5 rounded text-xs flex-shrink-0 ${
                               difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :
                               difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-400' :
                               'bg-red-500/20 text-red-400'
@@ -27408,12 +27394,10 @@ Best,
             {/* Theory Questions - Expandable with Answers */}
             {topicDetails.theoryQuestions && topicDetails.theoryQuestions.length > 0 && (
               <div id="theory" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(147,51,234,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(147,51,234,0.2)' }}>
-                <div className="px-3 py-2 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(147,51,234,0.05)' }}>
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
-                    <Icon name="bookOpen" size={16} className="text-emerald-400" />
-                  </div>
-                  <h3 className="text-sm font-bold text-white">Theory Questions</h3>
-                  <span className="text-sm text-gray-500 ml-auto">{topicDetails.theoryQuestions.length} questions</span>
+                <div className="px-3 py-1.5 border-b border-purple-500/20 flex items-center gap-2" style={{ background: 'rgba(147,51,234,0.05)' }}>
+                  <Icon name="bookOpen" size={14} className="text-emerald-400" />
+                  <h3 className="text-xs font-bold text-white">Theory Questions</h3>
+                  <span className="text-xs text-gray-500 ml-auto">{topicDetails.theoryQuestions.length}</span>
                 </div>
                 <div className="p-3">
                   <div className="grid grid-cols-1 gap-2">
@@ -27454,22 +27438,20 @@ Best,
               </div>
             )}
 
-            {/* Tips + Interview Tips - Row Mode */}
-            <div id="tips" className="space-y-4 scroll-mt-24">
+            {/* Tips + Interview Tips - Side by Side */}
+            <div id="tips" className={`grid gap-3 scroll-mt-24 ${topicDetails.tips && topicDetails.interviewTips ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
               {/* Tips */}
               {topicDetails.tips && (
                 <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
-                  <div className="px-3 py-2 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
-                      <Icon name="lightbulb" size={16} className="text-emerald-400" />
-                    </div>
-                    <h3 className="text-sm font-bold text-white">Tips & Tricks</h3>
+                  <div className="px-3 py-1.5 border-b border-emerald-500/20 flex items-center gap-2" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                    <Icon name="lightbulb" size={14} className="text-emerald-400" />
+                    <h3 className="text-xs font-bold text-white">Tips & Tricks</h3>
                   </div>
                   <div className="divide-y divide-emerald-500/10">
                     {topicDetails.tips.map((tip, i) => (
-                      <div key={i} className="px-3 py-2 flex items-center gap-4 hover:bg-white/5 transition-colors">
-                        <span className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-emerald-500/20 text-emerald-400 text-sm">✓</span>
-                        <span className="text-gray-300 text-sm">{tip}</span>
+                      <div key={i} className="px-3 py-1.5 flex items-start gap-2">
+                        <span className="text-emerald-400 text-xs mt-0.5 flex-shrink-0">✓</span>
+                        <span className="text-gray-300 text-xs">{tip}</span>
                       </div>
                     ))}
                   </div>
@@ -27479,17 +27461,15 @@ Best,
               {/* Interview Tips */}
               {topicDetails.interviewTips && (
                 <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(245,158,11,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(245,158,11,0.2)' }}>
-                  <div className="px-3 py-2 border-b border-amber-500/20 flex items-center gap-3" style={{ background: 'rgba(245,158,11,0.05)' }}>
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-amber-500/20">
-                      <Icon name="briefcase" size={16} className="text-amber-400" />
-                    </div>
-                    <h3 className="text-sm font-bold text-white">Interview Tips</h3>
+                  <div className="px-3 py-1.5 border-b border-amber-500/20 flex items-center gap-2" style={{ background: 'rgba(245,158,11,0.05)' }}>
+                    <Icon name="briefcase" size={14} className="text-amber-400" />
+                    <h3 className="text-xs font-bold text-white">Interview Tips</h3>
                   </div>
                   <div className="divide-y divide-amber-500/10">
                     {topicDetails.interviewTips.map((tip, i) => (
-                      <div key={i} className="px-3 py-2 flex items-center gap-4 hover:bg-white/5 transition-colors">
-                        <span className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-500/20 text-amber-400 text-sm">★</span>
-                        <span className="text-gray-300 text-sm">{tip}</span>
+                      <div key={i} className="px-3 py-1.5 flex items-start gap-2">
+                        <span className="text-amber-400 text-xs mt-0.5 flex-shrink-0">★</span>
+                        <span className="text-gray-300 text-xs">{tip}</span>
                       </div>
                     ))}
                   </div>
@@ -27499,9 +27479,9 @@ Best,
 
             {/* Code Example */}
             {topicDetails.codeExample && (
-              <div className="p-6 rounded-xl" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                  <Icon name="code" size={18} className="text-green-400" />
+              <div className="p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <h3 className="text-white text-xs font-semibold mb-2 flex items-center gap-2">
+                  <Icon name="code" size={14} className="text-green-400" />
                   Code Example
                 </h3>
                 <pre className="text-sm font-mono text-green-400 overflow-x-auto whitespace-pre-wrap">
