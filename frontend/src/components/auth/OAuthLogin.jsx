@@ -73,10 +73,10 @@ export default function OAuthLogin({ loginOnly = false }) {
               <span className="text-xl font-bold text-white">Ascend</span>
             </div>
             <div className="hidden md:flex items-center gap-6">
-              <a href="https://jobs.cariara.com" className="text-gray-400 hover:text-white text-sm transition-colors">Jobs</a>
-              <a href="/docs" className="text-gray-400 hover:text-white text-sm transition-colors">Prep</a>
-              <a href="/app" className="text-gray-400 hover:text-white text-sm transition-colors">Interview</a>
-              <a href="/premium" className="text-gray-400 hover:text-white text-sm transition-colors">Pricing</a>
+              <a href="https://jobs.cariara.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm transition-colors">Jobs</a>
+              <a href="/docs" target="_blank" rel="noopener" className="text-gray-400 hover:text-white text-sm transition-colors">Prep</a>
+              <a href="/app" target="_blank" rel="noopener" className="text-gray-400 hover:text-white text-sm transition-colors">Interview</a>
+              <a href="/premium" target="_blank" rel="noopener" className="text-gray-400 hover:text-white text-sm transition-colors">Pricing</a>
             </div>
             <button onClick={() => handleOAuthLogin('google')} className="px-5 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:scale-105" style={{ background: '#10b981' }}>
               Get Started
@@ -100,7 +100,7 @@ export default function OAuthLogin({ loginOnly = false }) {
             <button onClick={() => handleOAuthLogin('google')} disabled={loading} className="px-8 py-4 rounded-xl font-semibold text-lg text-white transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 0 30px rgba(16,185,129,0.2)' }}>
               {loading === 'google' ? <Icon name="loader" size={20} className="animate-spin mx-auto" /> : 'Start Free — No Credit Card'}
             </button>
-            <a href="/docs" className="px-8 py-4 rounded-xl font-semibold text-lg text-white transition-all hover:bg-white/10" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+            <a href="/docs" target="_blank" rel="noopener" className="px-8 py-4 rounded-xl font-semibold text-lg text-white transition-all hover:bg-white/10" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
               Explore Prep
             </a>
           </div>
@@ -145,7 +145,7 @@ export default function OAuthLogin({ loginOnly = false }) {
         <section className="py-12 max-w-3xl mx-auto px-6 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Simple, transparent pricing</h2>
           <p className="text-gray-400 text-lg mb-6">Plans start at $99/mo. 30-day money-back guarantee.</p>
-          <a href="/premium" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-lg text-white transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 0 30px rgba(16,185,129,0.15)' }}>
+          <a href="/premium" target="_blank" rel="noopener" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-lg text-white transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 0 30px rgba(16,185,129,0.15)' }}>
             View Plans & Pricing
             <Icon name="arrowRight" size={18} />
           </a>
@@ -162,11 +162,11 @@ export default function OAuthLogin({ loginOnly = false }) {
               <span className="text-white font-bold text-sm">Ascend</span>
             </div>
             <div className="flex items-center gap-5 text-sm text-gray-500">
-              <a href="https://jobs.cariara.com" className="hover:text-white transition-colors">Jobs</a>
-              <a href="/docs" className="hover:text-white transition-colors">Prep</a>
-              <a href="/app" className="hover:text-white transition-colors">Interview</a>
-              <a href="/premium" className="hover:text-white transition-colors">Pricing</a>
-              <a href="/download" className="hover:text-white transition-colors">Download</a>
+              <a href="https://jobs.cariara.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Jobs</a>
+              <a href="/docs" target="_blank" rel="noopener" className="hover:text-white transition-colors">Prep</a>
+              <a href="/app" target="_blank" rel="noopener" className="hover:text-white transition-colors">Interview</a>
+              <a href="/premium" target="_blank" rel="noopener" className="hover:text-white transition-colors">Pricing</a>
+              <a href="/download" target="_blank" rel="noopener" className="hover:text-white transition-colors">Download</a>
               <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
               <a href="mailto:support@cariara.com" className="hover:text-white transition-colors">Support</a>
             </div>
