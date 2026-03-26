@@ -4,6 +4,7 @@ import { getAuthHeaders } from '../utils/authHeaders.js';
 import DiagramSVG from './DiagramSVG.jsx';
 import { generateSlug, getProblemBySlug } from '../data/problems.js';
 import { getLeetCodeUrl } from '../data/leetcodeUrls.js';
+import problemsFull from '../data/problems-full.json';
 
 // Unified card styling - clean, minimal design with larger fonts
 const CARD_STYLES = {
@@ -27368,8 +27369,9 @@ Best,
                       const difficulty = typeof problem === 'object' ? problem.difficulty : (problemData?.difficulty || null);
                       const leetCodeUrl = getLeetCodeUrl(problemName);
 
-                      // Pass problem directly - use local description if available, otherwise problem name
-                      const problemText = problemData?.description || `Solve: ${problemName}`;
+                      // Use full problem description from scraped data, fallback to local data, then problem name
+                      const fullProblem = problemsFull[slug];
+                      const problemText = fullProblem?.description || problemData?.description || `Solve: ${problemName}`;
                       const href = `/app?problem=${encodeURIComponent(problemText)}&autosolve=true`;
 
                       return (
