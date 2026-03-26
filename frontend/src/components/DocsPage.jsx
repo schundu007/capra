@@ -9280,6 +9280,19 @@ http_requests_total{endpoint="/api/orders", status="200"}
     'news-aggregator': 'storage',
     'search-engine': 'storage',
     'payment-system': 'storage',
+    // Additional Infrastructure & Tools
+    'ad-click-aggregation': 'infrastructure',
+    'autocomplete-system': 'infrastructure',
+    'metrics-monitoring': 'infrastructure',
+    'tiny-url': 'infrastructure',
+    'top-k-leaderboard': 'infrastructure',
+    // Additional E-commerce & Marketplace
+    'ecommerce-platform': 'ecommerce',
+    'proximity-service': 'ecommerce',
+    // Additional Communication & Messaging
+    'messaging-app': 'communication',
+    // Additional Storage & Data
+    'payment-gateway': 'storage',
   };
 
   // Common System Designs
@@ -21605,6 +21618,1089 @@ Privacy: Option to view anonymously (hides viewer)
         '"Who viewed your profile": Async processing of view events'
       ]
     },
+    {
+      id: 'ad-click-aggregation',
+      title: 'Ad Click Event Aggregation',
+      subtitle: 'Google Ads',
+      icon: 'barChart',
+      color: '#ef4444',
+      difficulty: 'Hard',
+      description: 'Design a system that aggregates billions of ad click events in real-time for billing, analytics, and fraud detection.',
+
+      introduction: `Ad click aggregation is a critical system at companies like Google, Facebook, and Amazon where advertising revenue depends on accurate click counting. The system must handle billions of events per day, aggregate them in near real-time, and ensure no click is lost or double-counted.
+
+The key challenges are: handling massive write throughput, ensuring exactly-once processing for billing accuracy, detecting click fraud in real-time, and providing low-latency query results for advertisers.`,
+
+      functionalRequirements: [
+        'Ingest ad click events in real-time (billions per day)',
+        'Aggregate clicks by ad_id, campaign_id, advertiser in time windows',
+        'Support multiple aggregation windows (1-min, 5-min, 1-hour, daily)',
+        'Provide real-time dashboard for advertisers',
+        'Detect and filter fraudulent clicks',
+        'Support billing reconciliation queries',
+        'Handle late-arriving events gracefully'
+      ],
+
+      nonFunctionalRequirements: [
+        'Handle 10K+ click events per second',
+        'Exactly-once processing for billing accuracy',
+        'Aggregation latency < 1 minute',
+        'Query latency < 500ms for dashboard',
+        '99.99% availability',
+        'No data loss (durability guarantee)'
+      ],
+
+      dataModel: {
+        description: 'Click events and aggregated results',
+        schema: `click_events (Kafka topic) {
+  click_id: uuid
+  ad_id: bigint
+  campaign_id: bigint
+  advertiser_id: bigint
+  user_id: bigint (hashed)
+  timestamp: bigint (epoch ms)
+  ip_address: varchar
+  user_agent: varchar
+  geo: varchar
+}
+
+aggregated_clicks (OLAP store) {
+  ad_id: bigint
+  window_start: timestamp
+  window_size: enum(1MIN, 5MIN, 1HR, 1DAY)
+  click_count: bigint
+  unique_users: bigint (HyperLogLog)
+  spend: decimal
+  filtered_count: bigint (fraud)
+}`
+      },
+
+      apiDesign: {
+        description: 'Click ingestion and aggregation query endpoints',
+        endpoints: [
+          { method: 'POST', path: '/api/clicks', params: '{ adId, userId, timestamp, metadata }', response: '202 Accepted' },
+          { method: 'GET', path: '/api/aggregation/:adId', params: 'windowSize, startTime, endTime', response: '{ windows: [{ start, clickCount, spend }] }' },
+          { method: 'GET', path: '/api/campaigns/:campaignId/stats', params: 'granularity, dateRange', response: '{ totalClicks, totalSpend, ctr, fraudRate }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How do we handle exactly-once processing?',
+          answer: `**The Challenge**: Clicks must be counted exactly once for accurate billing.
+
+**Solution: Kafka + Idempotent Consumers**:
+- Each click event has a unique click_id
+- Kafka provides at-least-once delivery
+- Consumer deduplicates using click_id in a Redis set (TTL 24h)
+- Flink/Spark Streaming with checkpointing for fault tolerance
+
+**Watermark Strategy for Late Events**:
+- Use event-time processing with watermarks
+- Allow up to 5 minutes of late data
+- Late events trigger incremental aggregation updates
+- Very late events (>5 min) go to a dead letter queue for manual reconciliation`
+        },
+        {
+          question: 'How do we detect click fraud?',
+          answer: `**Real-time Fraud Detection Pipeline**:
+
+**Rule-based filters** (inline, low latency):
+- Same user clicking same ad > 5 times in 1 minute
+- Click-through rate anomaly (>10x normal)
+- Known bot user-agents
+- Data center IP ranges
+
+**ML-based detection** (near real-time):
+- Feature extraction: click patterns, timing, device fingerprint
+- Trained model flags suspicious clicks with confidence score
+- Clicks below threshold are filtered before aggregation
+
+**Architecture**: Click -> Kafka -> Fraud Filter (rules) -> Clean Stream -> Aggregator
+                                   -> ML Pipeline (async) -> Flag retrospectively`
+        }
+      ],
+
+      requirements: ['Real-time click ingestion', 'Multi-window aggregation', 'Fraud detection', 'Billing reconciliation', 'Advertiser dashboard'],
+      components: ['Kafka', 'Flink/Spark Streaming', 'Redis (dedup)', 'ClickHouse/Druid (OLAP)', 'ML Fraud Service'],
+      keyDecisions: [
+        'Kafka for durable, ordered event streaming',
+        'Flink for exactly-once stream processing with watermarks',
+        'ClickHouse for fast OLAP aggregation queries',
+        'HyperLogLog for approximate unique user counts',
+        'Two-stage fraud detection: rules (inline) + ML (async)'
+      ]
+    },
+    {
+      id: 'autocomplete-system',
+      title: 'Autocomplete System',
+      subtitle: 'Google Search',
+      icon: 'search',
+      color: '#4285f4',
+      difficulty: 'Hard',
+      description: 'Design a typeahead/autocomplete system that suggests search queries as the user types.',
+
+      introduction: `Autocomplete (typeahead) is a core feature of search engines like Google. As the user types each character, the system must return the top suggestions within milliseconds. The system must handle billions of search queries to learn popular completions and update suggestions as trends change.
+
+The key data structure is a Trie (prefix tree) combined with frequency data. The challenge is serving suggestions with <100ms latency while the underlying data changes continuously.`,
+
+      functionalRequirements: [
+        'Return top-K suggestions for a given prefix',
+        'Suggestions ranked by popularity/relevance',
+        'Update suggestion rankings based on new searches',
+        'Support personalized suggestions per user',
+        'Handle multi-language input',
+        'Filter inappropriate suggestions'
+      ],
+
+      nonFunctionalRequirements: [
+        'Suggestion latency < 100ms (ideally < 50ms)',
+        'Handle 100K+ queries per second',
+        'Support 5 billion+ unique query strings',
+        'Suggestions updated within minutes of trending',
+        '99.99% availability'
+      ],
+
+      dataModel: {
+        description: 'Trie structure with aggregated query frequencies',
+        schema: `trie_nodes (distributed, in-memory) {
+  prefix: varchar
+  children: map<char, node_ref>
+  top_k: list<{query, score}> -- cached top suggestions at each node
+  is_terminal: boolean
+}
+
+query_frequencies (persistent) {
+  query: varchar PK
+  frequency: bigint
+  last_updated: timestamp
+  decay_score: float -- time-weighted popularity
+}
+
+trending_queries (real-time) {
+  query: varchar
+  window_count: bigint
+  window_start: timestamp
+}`
+      },
+
+      apiDesign: {
+        description: 'Prefix search and query logging endpoints',
+        endpoints: [
+          { method: 'GET', path: '/api/suggest', params: 'prefix, limit=10, userId?', response: '{ suggestions: [{ query, score }] }' },
+          { method: 'POST', path: '/api/queries', params: '{ query, userId }', response: '202 Accepted (async processing)' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How does the Trie work for autocomplete?',
+          answer: `**Trie with Cached Top-K**:
+- Each node stores a prefix and pointers to children
+- At each node, cache the top-K most popular completions
+- On query "goo", traverse to node 'g'->'o'->'o' and return cached top-K
+- This makes lookup O(prefix_length) regardless of total queries
+
+**Updating Top-K**:
+- When a search happens, increment frequency in a separate store
+- Periodically (every few minutes) rebuild top-K caches
+- Use a min-heap of size K at each node for efficient updates
+
+**Memory Optimization**:
+- Only cache top-K at popular prefix nodes (not every node)
+- Use compressed tries (merge single-child chains)
+- Shard trie by first 2 characters across servers`
+        },
+        {
+          question: 'How do we handle trending queries?',
+          answer: `**Time-Decay Scoring**:
+- score = frequency * decay_factor^(hours_since_event)
+- Recent searches weighted much higher than old ones
+- A query searched 1000 times today ranks above one searched 5000 times last month
+
+**Real-time Trending Pipeline**:
+1. Search logs -> Kafka topic
+2. Flink aggregates counts in sliding windows (5 min, 1 hour)
+3. If current_rate > 10x historical_average, mark as trending
+4. Trending queries get score boost in autocomplete
+5. Trie nodes updated incrementally (not full rebuild)`
+        }
+      ],
+
+      requirements: ['Prefix-based suggestions', 'Popularity ranking', 'Real-time trending', 'Personalization', 'Content filtering'],
+      components: ['Trie (distributed, in-memory)', 'Kafka', 'Flink', 'Redis', 'Zookeeper (sharding)'],
+      keyDecisions: [
+        'Trie with cached top-K at each node for O(prefix_length) lookup',
+        'Time-decay scoring to favor recent/trending queries',
+        'Shard trie by prefix for horizontal scaling',
+        'Separate read path (trie) from write path (log aggregation)',
+        'Periodic trie rebuild with incremental trending updates'
+      ]
+    },
+    {
+      id: 'ecommerce-platform',
+      title: 'E-Commerce Platform',
+      subtitle: 'Amazon',
+      icon: 'shoppingCart',
+      color: '#ff9900',
+      difficulty: 'Hard',
+      description: 'Design a large-scale e-commerce platform supporting product catalog, search, cart, checkout, and order management.',
+
+      introduction: `An e-commerce platform like Amazon handles millions of products, concurrent users, and transactions daily. The system must provide fast product search, reliable inventory management, seamless checkout, and real-time order tracking.
+
+The key challenges include: maintaining inventory consistency under high concurrency, handling flash sales without overselling, providing personalized recommendations, and ensuring payment reliability across distributed services.`,
+
+      functionalRequirements: [
+        'Product catalog with categories, search, and filtering',
+        'User accounts with addresses and payment methods',
+        'Shopping cart with persistent state',
+        'Checkout with inventory reservation and payment processing',
+        'Order management with status tracking',
+        'Product reviews and ratings',
+        'Personalized recommendations',
+        'Seller dashboard for inventory management'
+      ],
+
+      nonFunctionalRequirements: [
+        'Search latency < 200ms',
+        'Checkout completion < 3 seconds',
+        'Handle 100K+ concurrent users during flash sales',
+        'Zero overselling (inventory consistency)',
+        '99.99% availability for checkout flow',
+        'Support millions of products'
+      ],
+
+      dataModel: {
+        description: 'Products, users, orders, and inventory',
+        schema: `products {
+  id: uuid PK
+  seller_id: uuid FK
+  name: varchar(500)
+  description: text
+  category_id: uuid FK
+  price: decimal(10,2)
+  images: varchar[]
+  attributes: jsonb
+  avg_rating: decimal(2,1)
+  review_count: int
+}
+
+inventory {
+  product_id: uuid FK
+  warehouse_id: uuid FK
+  quantity: int
+  reserved: int -- held during checkout
+  version: bigint -- optimistic locking
+}
+
+orders {
+  id: uuid PK
+  user_id: uuid FK
+  status: enum(PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED)
+  items: jsonb
+  total: decimal(10,2)
+  payment_id: varchar
+  shipping_address: jsonb
+  created_at: timestamp
+}
+
+cart_items {
+  user_id: uuid FK
+  product_id: uuid FK
+  quantity: int
+  added_at: timestamp
+}`
+      },
+
+      apiDesign: {
+        description: 'Product, cart, and order endpoints',
+        endpoints: [
+          { method: 'GET', path: '/api/products/search', params: 'q, category, priceRange, rating, page', response: '{ products[], total, facets }' },
+          { method: 'POST', path: '/api/cart/items', params: '{ productId, quantity }', response: '{ cartItem }' },
+          { method: 'POST', path: '/api/checkout', params: '{ cartId, paymentMethod, shippingAddress }', response: '{ orderId, estimatedDelivery }' },
+          { method: 'GET', path: '/api/orders/:id', params: '-', response: '{ order, trackingInfo }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How do we prevent overselling during flash sales?',
+          answer: `**Inventory Reservation Pattern**:
+1. User clicks "Buy" -> Reserve inventory (decrement available, increment reserved)
+2. Reservation has TTL (e.g., 10 minutes)
+3. Payment succeeds -> Confirm reservation (decrement reserved)
+4. Payment fails or TTL expires -> Release reservation (decrement reserved, increment available)
+
+**Implementation with Optimistic Locking**:
+\`\`\`sql
+UPDATE inventory
+SET quantity = quantity - 1, version = version + 1
+WHERE product_id = ? AND quantity > 0 AND version = ?
+\`\`\`
+If version mismatch, retry. If quantity = 0, sold out.
+
+**For extreme flash sales (>10K TPS per item)**:
+- Pre-shard inventory tokens into Redis
+- Each token = right to purchase 1 unit
+- LPOP from token list (atomic, O(1))
+- Much faster than DB-level locking`
+        },
+        {
+          question: 'How is the checkout flow designed?',
+          answer: `**Saga Pattern for Distributed Checkout**:
+1. **Reserve Inventory** -> Success -> Continue
+2. **Process Payment** -> Success -> Continue
+3. **Create Order** -> Success -> Continue
+4. **Send Confirmation** -> Done
+
+**Compensating Transactions** (if any step fails):
+- Payment fails -> Release inventory reservation
+- Order creation fails -> Refund payment + release inventory
+
+**Why Saga over 2PC**:
+- No distributed locks (better performance)
+- Each service owns its data
+- Eventual consistency is acceptable (user sees "Processing...")
+- Compensating actions handle failures gracefully`
+        }
+      ],
+
+      requirements: ['Product catalog', 'Search', 'Cart', 'Checkout', 'Inventory management', 'Order tracking', 'Recommendations'],
+      components: ['Product Service', 'Search (Elasticsearch)', 'Cart Service (Redis)', 'Order Service', 'Payment Service', 'Inventory Service', 'Recommendation Engine'],
+      keyDecisions: [
+        'Microservices architecture with Saga pattern for checkout',
+        'Elasticsearch for product search with faceted filtering',
+        'Redis for cart persistence and inventory token pre-sharding',
+        'Optimistic locking for inventory consistency',
+        'Event-driven architecture for order status updates'
+      ]
+    },
+    {
+      id: 'messaging-app',
+      title: 'Messaging App',
+      subtitle: 'WhatsApp',
+      icon: 'messageSquare',
+      color: '#25d366',
+      difficulty: 'Hard',
+      description: 'Design a real-time messaging application supporting 1:1 chats, group messaging, read receipts, and end-to-end encryption.',
+
+      introduction: `A messaging app like WhatsApp serves billions of messages daily with real-time delivery, end-to-end encryption, and offline message queuing. The system must handle high concurrency, ensure message ordering, and provide reliable delivery even when recipients are offline.
+
+The key challenges are: maintaining persistent WebSocket connections at scale, ensuring message ordering and delivery guarantees, implementing efficient group messaging fan-out, and supporting media sharing with low latency.`,
+
+      functionalRequirements: [
+        'Send and receive text messages in real-time',
+        'One-on-one and group chats (up to 256 members)',
+        'Message delivery status (sent, delivered, read)',
+        'Share images, videos, and documents',
+        'Online/offline presence indicators',
+        'Push notifications for offline users',
+        'Message history and search',
+        'End-to-end encryption'
+      ],
+
+      nonFunctionalRequirements: [
+        'Message delivery latency < 500ms for online users',
+        'Support 1 billion+ connected users simultaneously',
+        'Handle 100 billion+ messages per day',
+        'Zero message loss (at-least-once delivery)',
+        'Message ordering guaranteed within a conversation',
+        '99.99% availability'
+      ],
+
+      dataModel: {
+        description: 'Users, conversations, and messages',
+        schema: `users {
+  user_id: uuid PK
+  phone: varchar(20) UNIQUE
+  display_name: varchar(100)
+  avatar_url: varchar
+  last_seen: timestamp
+  public_key: text -- for E2E encryption
+}
+
+conversations {
+  conversation_id: uuid PK
+  type: enum(ONE_TO_ONE, GROUP)
+  participants: uuid[]
+  group_name: varchar (nullable)
+  created_at: timestamp
+}
+
+messages {
+  message_id: uuid PK
+  conversation_id: uuid FK
+  sender_id: uuid FK
+  content: text (encrypted)
+  media_url: varchar (nullable)
+  type: enum(TEXT, IMAGE, VIDEO, DOCUMENT)
+  timestamp: bigint (epoch ms)
+  status: map<user_id, enum(SENT, DELIVERED, READ)>
+}
+
+-- Partitioned by conversation_id, sorted by timestamp`
+      },
+
+      apiDesign: {
+        description: 'WebSocket for real-time messaging, REST for history',
+        endpoints: [
+          { method: 'WS', path: '/ws/chat', params: 'auth_token', response: 'Bidirectional message stream' },
+          { method: 'POST', path: '/api/messages', params: '{ conversationId, content, type }', response: '{ messageId, timestamp }' },
+          { method: 'GET', path: '/api/conversations/:id/messages', params: 'before, limit', response: '{ messages[], hasMore }' },
+          { method: 'POST', path: '/api/groups', params: '{ name, participantIds }', response: '{ conversationId }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How do we handle message delivery for offline users?',
+          answer: `**Message Queue per User**:
+- Each user has a persistent message queue (Cassandra or Redis Streams)
+- When sender sends message:
+  1. Store in messages table
+  2. Check if recipient is online (presence service)
+  3. If online: push via WebSocket immediately
+  4. If offline: queue message + trigger push notification
+
+**On Reconnect**:
+- Client sends last_received_message_id
+- Server replays all queued messages since that ID
+- Client ACKs each message -> server updates delivery status
+
+**Why This Works**:
+- No message loss even during network partitions
+- Client-side dedup using message_id prevents duplicates
+- Push notifications ensure user opens app to receive`
+        },
+        {
+          question: 'How does group messaging scale?',
+          answer: `**Fan-out on Write (for groups < 256)**:
+- Sender sends message to group
+- Server writes message once to messages table
+- Server fans out to each participant:
+  - Online: WebSocket push
+  - Offline: Queue + push notification
+
+**Optimization for Large Groups**:
+- Don't fan-out immediately; use lazy delivery
+- Store message in group timeline
+- Each member pulls unread messages on connect
+- Reduces write amplification for large groups
+
+**Message Ordering**:
+- Each message gets monotonically increasing sequence_id per conversation
+- Client displays messages sorted by sequence_id
+- Server uses Lamport timestamps for distributed ordering`
+        }
+      ],
+
+      requirements: ['Real-time messaging', 'Group chats', 'Read receipts', 'Media sharing', 'Offline delivery', 'E2E encryption'],
+      components: ['WebSocket Gateway', 'Message Service', 'Presence Service', 'Queue (Kafka)', 'Cassandra (messages)', 'Redis (presence/sessions)', 'Push Notification Service', 'Media Service (S3)'],
+      keyDecisions: [
+        'WebSocket for real-time bidirectional communication',
+        'Cassandra for message storage (write-heavy, partitioned by conversation)',
+        'Per-user message queue for reliable offline delivery',
+        'Fan-out on write for small groups, lazy delivery for large groups',
+        'Lamport timestamps for distributed message ordering'
+      ]
+    },
+    {
+      id: 'metrics-monitoring',
+      title: 'Metrics Monitoring & Alerting',
+      subtitle: 'Datadog',
+      icon: 'activity',
+      color: '#632ca6',
+      difficulty: 'Medium',
+      description: 'Design a metrics monitoring and alerting system that collects, stores, queries, and alerts on time-series data.',
+
+      introduction: `A metrics monitoring system like Datadog or Prometheus collects time-series data from thousands of services, stores it efficiently, and enables real-time dashboards and alerting. The system must handle millions of data points per second while supporting flexible queries.
+
+The key challenges are: efficient time-series storage with compression, fast aggregation queries across many metrics, reliable alerting with minimal false positives, and handling the cardinality explosion from high-dimensional tags.`,
+
+      functionalRequirements: [
+        'Collect metrics from agents on thousands of hosts',
+        'Store time-series data with tags/labels',
+        'Query metrics with aggregation (avg, sum, max, percentiles)',
+        'Create dashboards with real-time updates',
+        'Define alert rules with thresholds and conditions',
+        'Send notifications via email, Slack, PagerDuty',
+        'Support custom metrics from application code',
+        'Metric retention policies (high-res recent, downsampled historical)'
+      ],
+
+      nonFunctionalRequirements: [
+        'Ingest 10M+ data points per second',
+        'Query latency < 1 second for dashboard queries',
+        'Alert evaluation latency < 30 seconds',
+        'Support 1M+ unique time series',
+        '99.9% availability for alerting pipeline',
+        'Store 13 months of data with downsampling'
+      ],
+
+      dataModel: {
+        description: 'Time-series data points with tags',
+        schema: `data_points {
+  metric_name: varchar
+  tags: map<string, string>  -- e.g. {host: web-01, region: us-east}
+  timestamp: bigint (epoch seconds)
+  value: double
+}
+
+-- Stored in time-series DB (InfluxDB/TimescaleDB/custom)
+-- Partitioned by metric_name + time range
+-- Compressed using delta-of-delta + XOR encoding
+
+alert_rules {
+  id: uuid PK
+  name: varchar
+  metric_query: varchar  -- e.g. "avg(cpu.usage){host:web-*} > 90"
+  condition: enum(ABOVE, BELOW, ANOMALY)
+  threshold: double
+  window: interval  -- e.g. "5 minutes"
+  severity: enum(WARNING, CRITICAL)
+  notification_channels: varchar[]
+  evaluation_interval: interval
+}`
+      },
+
+      apiDesign: {
+        description: 'Metric ingestion and query endpoints',
+        endpoints: [
+          { method: 'POST', path: '/api/metrics', params: '{ series: [{ metric, tags, points: [{ts, value}] }] }', response: '202 Accepted' },
+          { method: 'GET', path: '/api/query', params: 'query, from, to, granularity', response: '{ series: [{ tags, datapoints }] }' },
+          { method: 'POST', path: '/api/alerts', params: '{ name, query, condition, threshold, channels }', response: '{ alertId }' },
+          { method: 'GET', path: '/api/alerts/:id/history', params: 'from, to', response: '{ events: [{ triggeredAt, resolvedAt, value }] }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How is time-series data stored efficiently?',
+          answer: `**Time-Series Compression**:
+- Delta-of-delta encoding for timestamps (most intervals are regular)
+  - Raw: 1000, 1010, 1020, 1030
+  - Delta: 10, 10, 10 -> Delta-of-delta: 0, 0, 0 (1-2 bits each!)
+- XOR encoding for values (consecutive values often similar)
+  - If values change slowly, XOR of consecutive values has many leading zeros
+  - Store only the meaningful bits
+
+**Storage Layout**:
+- Data partitioned into time blocks (e.g., 2-hour chunks)
+- Each block: metric_name + tag_set -> compressed data points
+- Recent data in memory, older data on disk
+- Downsampling: 1s resolution for 48h, 1m for 30d, 1h for 13mo
+
+**Result**: 16 bytes/point raw -> ~1.4 bytes/point compressed (10x savings)`
+        },
+        {
+          question: 'How does the alerting pipeline work?',
+          answer: `**Alert Evaluation Flow**:
+1. Alert Manager reads rules from config store
+2. Every evaluation_interval, query the metrics store
+3. Apply condition (e.g., avg > threshold for window)
+4. State machine: OK -> PENDING -> FIRING -> RESOLVED
+
+**Avoiding Alert Storms**:
+- Evaluation window prevents single-spike alerts
+- Hysteresis: different thresholds for trigger vs resolve
+- Alert grouping: batch related alerts
+- Rate limiting on notifications
+
+**High Availability**:
+- Multiple alert evaluators with leader election
+- Only leader sends notifications (prevent duplicates)
+- If leader dies, follower takes over within seconds
+- All evaluators compute independently for consistency checking`
+        }
+      ],
+
+      requirements: ['Metric collection', 'Time-series storage', 'Dashboard queries', 'Alerting', 'Downsampling', 'Notifications'],
+      components: ['Collection Agents', 'Kafka (ingestion)', 'Time-Series DB', 'Query Engine', 'Alert Manager', 'Notification Service', 'Dashboard UI'],
+      keyDecisions: [
+        'Delta-of-delta + XOR compression for 10x storage savings',
+        'Kafka for buffering high-throughput metric ingestion',
+        'Partitioning by metric name + time range for query locality',
+        'Downsampling pipeline for cost-effective long-term retention',
+        'Leader-elected alert evaluators for exactly-once notifications'
+      ]
+    },
+    {
+      id: 'payment-gateway',
+      title: 'Payment Gateway',
+      subtitle: 'Stripe',
+      icon: 'creditCard',
+      color: '#635bff',
+      difficulty: 'Hard',
+      description: 'Design a payment gateway that processes credit card transactions, handles settlements, and ensures financial consistency.',
+
+      introduction: `A payment gateway like Stripe processes billions of dollars in transactions, connecting merchants to payment networks (Visa, Mastercard). The system must guarantee that money is never lost, double-charged, or incorrectly routed, even during failures.
+
+The key challenges are: ensuring exactly-once payment processing with idempotency, handling the complex authorization/capture/settlement flow, managing PCI-DSS compliance for sensitive card data, and providing real-time fraud detection.`,
+
+      functionalRequirements: [
+        'Process credit/debit card payments',
+        'Support authorization, capture, and refund flows',
+        'Idempotent payment requests (prevent double charges)',
+        'Multi-currency support with exchange rates',
+        'Merchant onboarding and account management',
+        'Transaction history and reporting',
+        'Webhook notifications for payment events',
+        'Support recurring payments and subscriptions'
+      ],
+
+      nonFunctionalRequirements: [
+        'Payment processing latency < 2 seconds',
+        'Zero financial discrepancies (strong consistency)',
+        'PCI-DSS Level 1 compliance',
+        '99.999% availability for payment processing',
+        'Handle 10K+ transactions per second',
+        'Full audit trail for all operations'
+      ],
+
+      dataModel: {
+        description: 'Payments, merchants, and ledger entries',
+        schema: `payments {
+  id: uuid PK
+  idempotency_key: varchar UNIQUE
+  merchant_id: uuid FK
+  amount: bigint (in cents)
+  currency: varchar(3)
+  status: enum(PENDING, AUTHORIZED, CAPTURED, SETTLED, REFUNDED, FAILED)
+  card_token: varchar -- tokenized, never store raw card
+  processor_ref: varchar -- payment network reference
+  created_at: timestamp
+  updated_at: timestamp
+}
+
+ledger_entries {
+  id: uuid PK
+  payment_id: uuid FK
+  type: enum(DEBIT, CREDIT)
+  account_id: uuid FK
+  amount: bigint
+  balance_after: bigint
+  created_at: timestamp
+}
+
+merchants {
+  id: uuid PK
+  name: varchar
+  settlement_account: varchar
+  fee_rate: decimal(4,4) -- e.g. 0.029 = 2.9%
+  webhook_url: varchar
+}`
+      },
+
+      apiDesign: {
+        description: 'Payment processing and merchant endpoints',
+        endpoints: [
+          { method: 'POST', path: '/api/payments', params: '{ amount, currency, cardToken, merchantId, idempotencyKey }', response: '{ paymentId, status, processorRef }' },
+          { method: 'POST', path: '/api/payments/:id/capture', params: '{ amount? }', response: '{ status }' },
+          { method: 'POST', path: '/api/payments/:id/refund', params: '{ amount? }', response: '{ refundId, status }' },
+          { method: 'GET', path: '/api/merchants/:id/transactions', params: 'from, to, status, page', response: '{ transactions[], balance }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How does idempotency prevent double charges?',
+          answer: `**Idempotency Key Pattern**:
+- Client includes unique idempotency_key with each request
+- Server checks if key exists in database before processing
+- If exists: return cached response (no reprocessing)
+- If new: process payment, store result keyed by idempotency_key
+
+**Implementation**:
+\`\`\`
+1. INSERT into idempotency_keys (key, status=PROCESSING)
+2. If INSERT fails (duplicate) -> return cached result
+3. Process payment with payment network
+4. UPDATE idempotency_keys SET status=COMPLETE, response={...}
+5. Return response to client
+\`\`\`
+
+**Edge Cases**:
+- Client timeout + retry: idempotency key catches duplicate
+- Server crash mid-processing: status=PROCESSING detected on retry, check with payment network
+- Network error to payment network: mark as UNKNOWN, reconcile later`
+        },
+        {
+          question: 'What is the payment processing flow?',
+          answer: `**Two-Phase Payment Flow**:
+
+**Phase 1: Authorization**
+1. Merchant sends payment request
+2. Gateway tokenizes card data (PCI compliance)
+3. Send auth request to card network (Visa/MC)
+4. Card network checks with issuing bank
+5. Bank approves/declines, places hold on funds
+6. Gateway returns auth result to merchant
+
+**Phase 2: Capture & Settlement**
+1. Merchant captures authorized payment (can be partial)
+2. Gateway batches captured payments
+3. Daily settlement: Gateway sends batch to acquirer
+4. Acquirer settles with card networks
+5. Funds transferred to merchant account (T+2 days)
+
+**Double-Entry Ledger**:
+Every payment creates balanced debit + credit entries:
+- Authorization: Hold on customer account
+- Capture: Debit customer, Credit merchant (pending)
+- Settlement: Move from pending to available balance`
+        }
+      ],
+
+      requirements: ['Card payment processing', 'Auth/capture/refund', 'Idempotency', 'Multi-currency', 'Fraud detection', 'Settlement'],
+      components: ['API Gateway', 'Payment Processor', 'Card Network Interface', 'Ledger Service', 'Fraud Detection', 'Settlement Engine', 'Webhook Dispatcher'],
+      keyDecisions: [
+        'Idempotency keys for exactly-once payment processing',
+        'Double-entry ledger for financial consistency',
+        'Card tokenization for PCI-DSS compliance',
+        'Two-phase auth/capture flow matching card network protocols',
+        'Batch settlement with T+2 disbursement cycle'
+      ]
+    },
+    {
+      id: 'proximity-service',
+      title: 'Proximity Service',
+      subtitle: 'Yelp',
+      icon: 'mapPin',
+      color: '#d32323',
+      difficulty: 'Medium',
+      description: 'Design a proximity service that finds nearby businesses and points of interest based on user location.',
+
+      introduction: `A proximity service powers the "find nearby" feature in apps like Yelp, Google Maps, and Uber. Given a user's location and a search radius, the system must efficiently return relevant nearby places from a database of hundreds of millions of businesses.
+
+The key challenge is spatial indexing: naive distance calculations against every business would be too slow. Solutions like Geohash, Quadtree, and R-tree enable efficient spatial queries.`,
+
+      functionalRequirements: [
+        'Search businesses within a given radius of user location',
+        'Return results sorted by distance or relevance',
+        'Filter by category, rating, price range',
+        'Add, update, and remove business locations',
+        'Support variable search radii (0.5km to 50km)',
+        'Return business details with distance from user'
+      ],
+
+      nonFunctionalRequirements: [
+        'Search latency < 200ms',
+        'Handle 100K+ proximity queries per second',
+        'Support 200M+ businesses worldwide',
+        'Business updates reflected within minutes',
+        '99.9% availability'
+      ],
+
+      dataModel: {
+        description: 'Business locations with geospatial indexing',
+        schema: `businesses {
+  id: uuid PK
+  name: varchar(200)
+  latitude: decimal(10,7)
+  longitude: decimal(10,7)
+  geohash: varchar(12) -- precomputed for fast lookup
+  category_id: uuid FK
+  avg_rating: decimal(2,1)
+  price_range: int
+}
+
+-- Geohash Index (primary approach)
+geohash_index {
+  geohash_prefix: varchar(6) -- ~1.2km precision
+  business_ids: uuid[] -- businesses in this cell
+}
+
+-- Alternative: Quadtree (in-memory)
+quadtree_node {
+  boundary: {lat_min, lat_max, lng_min, lng_max}
+  businesses: list (if leaf, max 100 items)
+  children: [NW, NE, SW, SE] (if internal node)
+}`
+      },
+
+      apiDesign: {
+        description: 'Proximity search endpoint',
+        endpoints: [
+          { method: 'GET', path: '/api/nearby', params: 'lat, lng, radius, category?, limit, page', response: '{ businesses: [{ id, name, distance, rating }], total }' },
+          { method: 'GET', path: '/api/businesses/:id', params: '-', response: '{ business details }' },
+          { method: 'PUT', path: '/api/businesses/:id/location', params: '{ latitude, longitude }', response: '{ updated geohash }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How does Geohash-based proximity search work?',
+          answer: `**Geohash Encoding**:
+- Divide world into grid cells, encode each cell as a string
+- Longer string = more precise location
+  - 4 chars: ~20km cell
+  - 5 chars: ~5km cell
+  - 6 chars: ~1.2km cell
+
+**Search Algorithm**:
+1. Compute geohash of user's location (e.g., "9q8yyk")
+2. For given radius, determine required precision level
+3. Find the user's cell + 8 neighboring cells (handles edge cases)
+4. Query: WHERE geohash LIKE '9q8yy%' (prefix match on index)
+5. Filter results by exact distance calculation
+6. Sort by distance and return top results
+
+**Why Neighbors Matter**:
+- A business 100m away might be in an adjacent geohash cell
+- Always query the 8 surrounding cells to avoid missing results
+- This is cheap: only 9 prefix queries vs millions of distance calculations`
+        },
+        {
+          question: 'Geohash vs Quadtree: which should we use?',
+          answer: `**Geohash** (database-friendly):
+- Pros: Works with standard DB indexes, easy to implement, cache-friendly
+- Cons: Fixed grid (ocean cells same size as city cells)
+- Best for: Read-heavy with database storage
+
+**Quadtree** (memory-efficient):
+- Pros: Adaptive density (more nodes where more businesses), efficient memory
+- Cons: Harder to distribute, requires in-memory structure
+- Best for: In-memory spatial index on single server
+
+**Recommendation**: Use Geohash for most cases
+- Store geohash in database, create B-tree index on prefix
+- Combine with in-memory cache of popular areas
+- Quadtree only if you need adaptive density and can fit data in memory`
+        }
+      ],
+
+      requirements: ['Proximity search', 'Geospatial indexing', 'Category filtering', 'Business CRUD', 'Distance sorting'],
+      components: ['Geohash Index', 'Business Service', 'Database (PostgreSQL + PostGIS)', 'Cache (Redis)', 'Load Balancer'],
+      keyDecisions: [
+        'Geohash for spatial indexing with standard database prefix queries',
+        'Query user cell + 8 neighbors to avoid missing nearby results',
+        'PostgreSQL with PostGIS for geospatial queries and indexing',
+        'Redis cache for popular area queries',
+        'Pre-computed geohash stored on business records for fast lookups'
+      ]
+    },
+    {
+      id: 'tiny-url',
+      title: 'Tiny URL',
+      subtitle: 'URL Shortener',
+      icon: 'link',
+      color: '#10b981',
+      difficulty: 'Easy',
+      description: 'Design a URL shortening service that creates compact aliases for long URLs and redirects users.',
+
+      introduction: `Tiny URL is one of the most commonly asked system design questions. The simplicity of the product makes it ideal for exploring scalability, collision handling, and database design. The core challenge is generating unique short codes efficiently at scale.
+
+Two main approaches exist: counter-based (using a distributed counter like ZooKeeper to assign ranges) and hash-based (MD5/SHA256 truncated). Each has trade-offs around collision probability, predictability, and coordination overhead.`,
+
+      functionalRequirements: [
+        'Given a long URL, generate a unique short URL',
+        'Redirect short URL to the original long URL',
+        'Optional custom aliases for short URLs',
+        'URL expiration with configurable TTL',
+        'Click analytics (count, geo, referrer)'
+      ],
+
+      nonFunctionalRequirements: [
+        'Redirect latency < 50ms',
+        'High availability (99.99%)',
+        'Short URLs should not be predictable',
+        'Scale to billions of URLs',
+        '100:1 read-to-write ratio'
+      ],
+
+      dataModel: {
+        description: 'URL mapping table',
+        schema: `urls {
+  short_code: varchar(7) PK
+  long_url: varchar(2048)
+  user_id: uuid (nullable)
+  created_at: timestamp
+  expires_at: timestamp (nullable)
+  click_count: bigint DEFAULT 0
+}`
+      },
+
+      apiDesign: {
+        description: 'Simple create and redirect API',
+        endpoints: [
+          { method: 'POST', path: '/api/shorten', params: '{ longUrl, customAlias?, expiresIn? }', response: '{ shortUrl }' },
+          { method: 'GET', path: '/:shortCode', params: '-', response: '301 Redirect to long URL' },
+          { method: 'GET', path: '/api/stats/:shortCode', params: '-', response: '{ clicks, createdAt, expiresAt }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'How do we generate unique short codes?',
+          answer: `**Approach 1: Counter + Base62 (Recommended)**
+- Use ZooKeeper/Redis to allocate ID ranges to each server
+- Each server independently converts counter to Base62
+- 7 chars of Base62 = 62^7 = 3.5 trillion unique URLs
+- No collisions, no coordination per request
+
+**Approach 2: Hash-based**
+- Hash long URL with MD5/SHA256, take first 7 chars (Base62)
+- Collision possible: check DB, rehash if collision
+- Simpler setup but collision handling adds complexity
+
+**Base62 Encoding**:
+- Characters: a-z (26) + A-Z (26) + 0-9 (10) = 62
+- Counter 12345 -> Base62 "3d7"
+- Avoids special characters that break URLs`
+        },
+        {
+          question: 'Should we use 301 or 302 redirect?',
+          answer: `**301 Permanent Redirect**:
+- Browser caches the redirect
+- Subsequent visits skip our server entirely
+- Better for user latency
+- Bad for analytics (can't count repeat visits)
+
+**302 Temporary Redirect**:
+- Browser always hits our server first
+- Every visit is tracked
+- Slightly more latency for users
+- Better for analytics and expiring URLs
+
+**Recommendation**: Use 302 if analytics matter, 301 if performance is priority. Many services use 302 by default for tracking.`
+        }
+      ],
+
+      requirements: ['URL shortening', '301/302 redirect', 'Custom aliases', 'Expiration', 'Analytics'],
+      components: ['API Servers', 'ZooKeeper (ID ranges)', 'Database (NoSQL)', 'Cache (Redis)', 'Analytics Service'],
+      keyDecisions: [
+        'Counter-based Base62 encoding with ZooKeeper range allocation',
+        '7-character short codes for 3.5 trillion unique URLs',
+        'NoSQL (Cassandra) for horizontal scaling of URL mappings',
+        'Redis cache with LRU for popular URL redirects',
+        '302 redirect for analytics tracking capability'
+      ]
+    },
+    {
+      id: 'top-k-leaderboard',
+      title: 'Top-K Leaderboard',
+      subtitle: 'Real-time Rankings',
+      icon: 'award',
+      color: '#f59e0b',
+      difficulty: 'Medium',
+      description: 'Design a system to compute and serve top-K rankings in real-time across large datasets.',
+
+      introduction: `Top-K leaderboards appear in gaming, social media (trending), e-commerce (best sellers), and analytics (top queries). The challenge is maintaining accurate top-K rankings when the underlying data changes at high velocity.
+
+The key insight is that you don't need to sort all items -- only maintain the top K. This enables efficient algorithms using min-heaps, approximate data structures (Count-Min Sketch), and Redis sorted sets.`,
+
+      functionalRequirements: [
+        'Update scores for items in real-time',
+        'Retrieve top K items (e.g., top 100)',
+        'Support multiple leaderboards (by category, time window)',
+        'Get rank and score for a specific item',
+        'Time-windowed leaderboards (hourly, daily, weekly)',
+        'Historical snapshots of rankings'
+      ],
+
+      nonFunctionalRequirements: [
+        'Score update throughput: 50K+ per second',
+        'Top-K query latency < 50ms',
+        'Individual rank lookup < 10ms',
+        'Support 100M+ items across all leaderboards',
+        'Leaderboard updates reflected within 1 second'
+      ],
+
+      dataModel: {
+        description: 'Redis sorted sets with persistent backup',
+        schema: `Redis Sorted Sets:
+  Key: topk:{category}:{timeframe}
+  Members: item_id
+  Score: item_score
+
+  ZADD topk:songs:daily 15000 song_123
+  ZREVRANGE topk:songs:daily 0 99 WITHSCORES  -- top 100
+
+PostgreSQL (persistent backup):
+rankings_history {
+  id: bigint PK
+  category: varchar
+  timeframe: varchar
+  item_id: varchar
+  score: bigint
+  rank: int
+  snapshot_at: timestamp
+}
+
+-- For approximate counting (streaming data):
+Count-Min Sketch {
+  width: 10000 (hash buckets)
+  depth: 7 (hash functions)
+  // Estimates frequency with known error bound
+}`
+      },
+
+      apiDesign: {
+        description: 'Score update and ranking query endpoints',
+        endpoints: [
+          { method: 'POST', path: '/api/scores', params: '{ itemId, category, scoreIncrement }', response: '{ newScore, newRank }' },
+          { method: 'GET', path: '/api/topk/:category', params: 'k=100, timeframe', response: '{ rankings: [{ itemId, score, rank }] }' },
+          { method: 'GET', path: '/api/rank/:category/:itemId', params: 'timeframe', response: '{ rank, score, percentile }' }
+        ]
+      },
+
+      keyQuestions: [
+        {
+          question: 'What data structure should we use for top-K?',
+          answer: `**Option 1: Redis Sorted Set (Recommended for exact)**
+- ZADD: O(log N) score update
+- ZREVRANGE 0 K: O(log N + K) top-K query
+- ZREVRANK: O(log N) individual rank
+- Memory: ~100M items * 30 bytes = ~3GB (fits in memory)
+
+**Option 2: Min-Heap of size K (for streaming)**
+- Maintain heap of K largest items
+- New item: compare with heap min, swap if larger
+- O(log K) per update, O(K log K) to get sorted top-K
+- Good when you only need top-K, not arbitrary ranks
+
+**Option 3: Count-Min Sketch + Heap (approximate)**
+- CMS estimates frequencies in constant space
+- Maintain min-heap of K items with highest CMS estimates
+- O(1) per update, slight overcount possible
+- Best for: trending topics, approximate counts at massive scale`
+        },
+        {
+          question: 'How do we handle time-windowed leaderboards?',
+          answer: `**Approach: Separate Sorted Sets per Window**
+\`\`\`
+topk:songs:alltime      -- never expires
+topk:songs:weekly:2024-W23  -- expires after 2 weeks
+topk:songs:daily:2024-06-05  -- expires after 7 days
+topk:songs:hourly:2024-06-05-14  -- expires after 48 hours
+\`\`\`
+
+**On Score Update**:
+1. ZADD to all active windows atomically (MULTI/EXEC)
+2. Set TTL on time-windowed keys
+
+**Window Rotation**:
+- New time window = new Redis key (empty)
+- Old window stops receiving writes
+- Old window kept for read access until TTL
+- No expensive "reset" operation needed
+
+**Combining Windows**:
+- "This week's top" = ZUNIONSTORE across 7 daily keys
+- Computed on-demand or pre-computed periodically`
+        }
+      ],
+
+      requirements: ['Real-time score updates', 'Top-K retrieval', 'Time-windowed rankings', 'Individual rank lookup', 'Historical snapshots'],
+      components: ['Redis (sorted sets)', 'Kafka (score events)', 'Score Aggregator Service', 'PostgreSQL (snapshots)', 'API Gateway'],
+      keyDecisions: [
+        'Redis Sorted Sets for O(log N) exact top-K with rank lookups',
+        'Separate sorted set per time window for efficient rotation',
+        'Count-Min Sketch for approximate streaming top-K at massive scale',
+        'Kafka for buffering score events during traffic spikes',
+        'Periodic snapshots to PostgreSQL for historical analytics'
+      ]
+    },
   ];
 
   // LLD Problem Categories
@@ -21631,6 +22727,28 @@ Privacy: Option to view anonymously (hides viewer)
     'hotel-booking-lld': 'systems',
     'movie-ticket-booking': 'systems',
     'car-rental': 'systems',
+    // New Data Structures
+    'design-hashmap': 'data-structures',
+    'circular-queue': 'data-structures',
+    'queue-using-array': 'data-structures',
+    '2d-vector': 'data-structures',
+    'account-balance-tracker': 'data-structures',
+    // New Games & Puzzles
+    'rock-paper-scissors': 'games',
+    'go-fish': 'games',
+    // New Real-World Systems
+    'splitwise': 'systems',
+    'library-management-lld': 'systems',
+    'locker-allocation': 'systems',
+    'notepad-system': 'systems',
+    'access-management': 'systems',
+    'gpu-credits': 'systems',
+    'disk-space-manager': 'systems',
+    'access-control-tree': 'systems',
+    // New Utilities & Tools
+    'memory-allocator': 'utilities',
+    'active-users': 'utilities',
+    'actor-component': 'utilities',
   };
 
   // Low-Level Design Problems
@@ -23113,6 +24231,1994 @@ class ATM:
     def enter_pin(self, pin: str): self.state.enter_pin(self, pin)
     def withdraw(self, amount: float): self.state.withdraw(self, amount)
     def eject_card(self): self.state.eject_card(self)`
+    },
+    {
+      id: 'design-hashmap',
+      title: 'Design HashMap',
+      subtitle: 'Hash Table Implementation',
+      icon: 'database',
+      color: '#10b981',
+      difficulty: 'Easy',
+      description: 'Design a HashMap from scratch with put, get, and remove operations using hashing and collision handling.',
+
+      introduction: `The HashMap is one of the most fundamental data structures in computer science. Designing one from scratch tests your understanding of hashing, collision resolution, and dynamic resizing. It's a common interview question at top tech companies.
+
+The key insight is using an array of buckets where each bucket handles collisions via chaining (linked lists) or open addressing. A good hash function distributes keys uniformly, and dynamic resizing maintains O(1) amortized performance.`,
+
+      coreEntities: [
+        { name: 'HashMap<K, V>', description: 'Main class with array of buckets, size tracking, and load factor threshold' },
+        { name: 'Entry<K, V>', description: 'Key-value pair node with next pointer for chaining' },
+        { name: 'Bucket', description: 'Linked list head for collision chaining at each array index' }
+      ],
+
+      designPatterns: [
+        'Hashing Pattern: Convert key to array index via hash function + modulo',
+        'Chaining Pattern: Linked list at each bucket for collision resolution',
+        'Amortized Resize: Double capacity when load factor exceeds threshold'
+      ],
+
+      implementation: `class Entry:
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+        self.next = None
+
+class HashMap:
+    def __init__(self, capacity=16, load_factor=0.75):
+        self.capacity = capacity
+        self.load_factor = load_factor
+        self.size = 0
+        self.buckets = [None] * self.capacity
+
+    def _hash(self, key) -> int:
+        return hash(key) % self.capacity
+
+    def put(self, key, value):
+        index = self._hash(key)
+        entry = self.buckets[index]
+
+        # Update existing key
+        while entry:
+            if entry.key == key:
+                entry.value = value
+                return
+            entry = entry.next
+
+        # Insert new entry at head
+        new_entry = Entry(key, value)
+        new_entry.next = self.buckets[index]
+        self.buckets[index] = new_entry
+        self.size += 1
+
+        # Resize if needed
+        if self.size / self.capacity > self.load_factor:
+            self._resize()
+
+    def get(self, key):
+        index = self._hash(key)
+        entry = self.buckets[index]
+        while entry:
+            if entry.key == key:
+                return entry.value
+            entry = entry.next
+        return None
+
+    def remove(self, key) -> bool:
+        index = self._hash(key)
+        entry = self.buckets[index]
+        prev = None
+        while entry:
+            if entry.key == key:
+                if prev:
+                    prev.next = entry.next
+                else:
+                    self.buckets[index] = entry.next
+                self.size -= 1
+                return True
+            prev = entry
+            entry = entry.next
+        return False
+
+    def _resize(self):
+        old_buckets = self.buckets
+        self.capacity *= 2
+        self.buckets = [None] * self.capacity
+        self.size = 0
+        for bucket in old_buckets:
+            entry = bucket
+            while entry:
+                self.put(entry.key, entry.value)
+                entry = entry.next`
+    },
+    {
+      id: 'splitwise',
+      title: 'Splitwise',
+      subtitle: 'Expense Sharing',
+      icon: 'dollarSign',
+      color: '#5bc5a7',
+      difficulty: 'Medium',
+      description: 'Design an expense sharing system where users can split bills and track balances with friends.',
+
+      introduction: `Splitwise is a popular expense-sharing app that simplifies splitting bills among groups of friends. The core challenge is maintaining a balance graph between users and implementing debt simplification to minimize the number of transactions needed to settle up.
+
+The key design decisions involve choosing between storing individual transactions vs. net balances, implementing the debt simplification algorithm, and handling different split types (equal, exact, percentage).`,
+
+      coreEntities: [
+        { name: 'User', description: 'Participant with ID, name, email, and balance map' },
+        { name: 'Group', description: 'Collection of users sharing expenses together' },
+        { name: 'Expense', description: 'A bill paid by one user, split among participants' },
+        { name: 'Split (Abstract)', description: 'Base class for EqualSplit, ExactSplit, PercentageSplit' },
+        { name: 'BalanceSheet', description: 'Tracks net amounts owed between pairs of users' },
+        { name: 'Transaction', description: 'Settlement payment from one user to another' }
+      ],
+
+      designPatterns: [
+        'Strategy Pattern: Different split calculation strategies (equal, exact, percentage)',
+        'Observer Pattern: Notify users when expenses are added or settled',
+        'Facade Pattern: ExpenseManager provides unified API for all operations'
+      ],
+
+      implementation: `from abc import ABC, abstractmethod
+from enum import Enum
+from typing import Dict, List
+from collections import defaultdict
+
+class SplitType(Enum):
+    EQUAL = 'equal'
+    EXACT = 'exact'
+    PERCENTAGE = 'percentage'
+
+class User:
+    def __init__(self, user_id: str, name: str):
+        self.user_id = user_id
+        self.name = name
+
+class Split(ABC):
+    def __init__(self, user: User):
+        self.user = user
+        self.amount = 0.0
+
+    @abstractmethod
+    def set_amount(self, total: float, **kwargs):
+        pass
+
+class EqualSplit(Split):
+    def set_amount(self, total: float, **kwargs):
+        num_users = kwargs.get('num_users', 1)
+        self.amount = round(total / num_users, 2)
+
+class ExactSplit(Split):
+    def set_amount(self, total: float, **kwargs):
+        self.amount = kwargs.get('exact_amount', 0.0)
+
+class Expense:
+    def __init__(self, expense_id: str, paid_by: User, amount: float, splits: List[Split]):
+        self.expense_id = expense_id
+        self.paid_by = paid_by
+        self.amount = amount
+        self.splits = splits
+
+class BalanceSheet:
+    def __init__(self):
+        # balance[A][B] > 0 means B owes A
+        self.balance: Dict[str, Dict[str, float]] = defaultdict(lambda: defaultdict(float))
+
+    def add_expense(self, expense: Expense):
+        for split in expense.splits:
+            if split.user.user_id == expense.paid_by.user_id:
+                continue
+            payer = expense.paid_by.user_id
+            debtor = split.user.user_id
+            self.balance[payer][debtor] += split.amount
+            self.balance[debtor][payer] -= split.amount
+
+    def get_balance(self, user_id: str) -> Dict[str, float]:
+        return {uid: amt for uid, amt in self.balance[user_id].items() if amt != 0}
+
+    def simplify_debts(self) -> List[tuple]:
+        """Minimize number of transactions to settle all debts"""
+        net = defaultdict(float)
+        for user, balances in self.balance.items():
+            for other, amount in balances.items():
+                net[user] += amount
+
+        creditors = [(amt, uid) for uid, amt in net.items() if amt > 0]
+        debtors = [(-amt, uid) for uid, amt in net.items() if amt < 0]
+        creditors.sort(reverse=True)
+        debtors.sort(reverse=True)
+
+        transactions = []
+        i, j = 0, 0
+        while i < len(creditors) and j < len(debtors):
+            credit_amt, creditor = creditors[i]
+            debt_amt, debtor = debtors[j]
+            settle = min(credit_amt, debt_amt)
+            transactions.append((debtor, creditor, round(settle, 2)))
+            creditors[i] = (credit_amt - settle, creditor)
+            debtors[j] = (debt_amt - settle, debtor)
+            if creditors[i][0] == 0: i += 1
+            if debtors[j][0] == 0: j += 1
+
+        return transactions`
+    },
+    {
+      id: 'circular-queue',
+      title: 'Design Circular Queue',
+      subtitle: 'Ring Buffer',
+      icon: 'refreshCw',
+      color: '#3b82f6',
+      difficulty: 'Easy',
+      description: 'Design a circular queue (ring buffer) with fixed capacity using an array.',
+
+      introduction: `A circular queue (ring buffer) is a fixed-size data structure that wraps around when the end is reached. It's widely used in operating systems (keyboard buffers), networking (packet queues), and producer-consumer patterns.
+
+The key insight is using modular arithmetic with front and rear pointers to efficiently reuse array space without shifting elements. The tricky part is distinguishing between full and empty states.`,
+
+      coreEntities: [
+        { name: 'CircularQueue<T>', description: 'Main class with fixed-size array, front pointer, rear pointer, and size counter' },
+        { name: 'Front Pointer', description: 'Index of the first element in the queue' },
+        { name: 'Rear Pointer', description: 'Index of the next insertion position' }
+      ],
+
+      designPatterns: [
+        'Ring Buffer Pattern: Modular arithmetic for index wrapping',
+        'Sentinel Pattern: Use size counter to distinguish full vs empty states'
+      ],
+
+      implementation: `class CircularQueue:
+    def __init__(self, capacity: int):
+        self.capacity = capacity
+        self.queue = [None] * capacity
+        self.front = 0
+        self.rear = 0
+        self.size = 0
+
+    def enqueue(self, value) -> bool:
+        if self.is_full():
+            return False
+        self.queue[self.rear] = value
+        self.rear = (self.rear + 1) % self.capacity
+        self.size += 1
+        return True
+
+    def dequeue(self):
+        if self.is_empty():
+            return None
+        value = self.queue[self.front]
+        self.queue[self.front] = None
+        self.front = (self.front + 1) % self.capacity
+        self.size -= 1
+        return value
+
+    def peek(self):
+        if self.is_empty():
+            return None
+        return self.queue[self.front]
+
+    def is_empty(self) -> bool:
+        return self.size == 0
+
+    def is_full(self) -> bool:
+        return self.size == self.capacity
+
+    def __len__(self) -> int:
+        return self.size`
+    },
+    {
+      id: 'library-management-lld',
+      title: 'Library Management System',
+      subtitle: 'Book Lending Platform',
+      icon: 'book',
+      color: '#8b5cf6',
+      difficulty: 'Medium',
+      description: 'Design a library management system for book catalog, member management, borrowing, and reservations.',
+
+      introduction: `A library management system handles book cataloging, member registration, borrowing/returning books, and reservation queues. It's a classic OOP design problem that tests your ability to model real-world entities and their relationships.
+
+The key design considerations are: handling concurrent book borrowing, managing reservation queues when books are unavailable, implementing fine calculation for overdue books, and supporting search by title, author, or ISBN.`,
+
+      coreEntities: [
+        { name: 'Library', description: 'Singleton managing all operations, holds catalogs and member lists' },
+        { name: 'Book', description: 'Book metadata: ISBN, title, author, category' },
+        { name: 'BookCopy', description: 'Physical copy of a book with availability status' },
+        { name: 'Member', description: 'Library member with borrowing history and active loans' },
+        { name: 'Loan', description: 'Tracks borrowed copy, member, dates, and fine' },
+        { name: 'Reservation', description: 'Queue entry when all copies are checked out' },
+        { name: 'FineCalculator', description: 'Strategy for computing overdue fines' }
+      ],
+
+      designPatterns: [
+        'Singleton Pattern: Single Library instance managing state',
+        'Strategy Pattern: Pluggable fine calculation policies',
+        'Observer Pattern: Notify members when reserved book becomes available',
+        'Factory Pattern: Create different member types (student, faculty)'
+      ],
+
+      implementation: `from datetime import datetime, timedelta
+from enum import Enum
+from typing import Dict, List, Optional
+from collections import deque
+
+class BookStatus(Enum):
+    AVAILABLE = 'available'
+    CHECKED_OUT = 'checked_out'
+    RESERVED = 'reserved'
+
+class Book:
+    def __init__(self, isbn: str, title: str, author: str):
+        self.isbn = isbn
+        self.title = title
+        self.author = author
+        self.copies: List['BookCopy'] = []
+
+class BookCopy:
+    def __init__(self, copy_id: str, book: Book):
+        self.copy_id = copy_id
+        self.book = book
+        self.status = BookStatus.AVAILABLE
+        self.current_loan: Optional['Loan'] = None
+
+class Member:
+    def __init__(self, member_id: str, name: str, max_books: int = 5):
+        self.member_id = member_id
+        self.name = name
+        self.max_books = max_books
+        self.active_loans: List['Loan'] = []
+
+    def can_borrow(self) -> bool:
+        return len(self.active_loans) < self.max_books
+
+class Loan:
+    def __init__(self, copy: BookCopy, member: Member, duration_days: int = 14):
+        self.copy = copy
+        self.member = member
+        self.checkout_date = datetime.now()
+        self.due_date = self.checkout_date + timedelta(days=duration_days)
+        self.return_date: Optional[datetime] = None
+
+    def calculate_fine(self, rate_per_day: float = 0.50) -> float:
+        if self.return_date and self.return_date > self.due_date:
+            overdue_days = (self.return_date - self.due_date).days
+            return overdue_days * rate_per_day
+        return 0.0
+
+class Library:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
+    def __init__(self):
+        if self._initialized:
+            return
+        self._initialized = True
+        self.books: Dict[str, Book] = {}
+        self.members: Dict[str, Member] = {}
+        self.reservations: Dict[str, deque] = {}  # isbn -> queue of member_ids
+
+    def checkout(self, isbn: str, member_id: str) -> Optional[Loan]:
+        book = self.books.get(isbn)
+        member = self.members.get(member_id)
+        if not book or not member or not member.can_borrow():
+            return None
+
+        for copy in book.copies:
+            if copy.status == BookStatus.AVAILABLE:
+                copy.status = BookStatus.CHECKED_OUT
+                loan = Loan(copy, member)
+                copy.current_loan = loan
+                member.active_loans.append(loan)
+                return loan
+        return None  # No copies available
+
+    def return_book(self, copy_id: str) -> float:
+        for book in self.books.values():
+            for copy in book.copies:
+                if copy.copy_id == copy_id and copy.current_loan:
+                    loan = copy.current_loan
+                    loan.return_date = datetime.now()
+                    fine = loan.calculate_fine()
+                    loan.member.active_loans.remove(loan)
+                    copy.status = BookStatus.AVAILABLE
+                    copy.current_loan = None
+                    # Check reservations
+                    isbn = copy.book.isbn
+                    if isbn in self.reservations and self.reservations[isbn]:
+                        next_member_id = self.reservations[isbn].popleft()
+                        self.checkout(isbn, next_member_id)
+                    return fine
+        return 0.0`
+    },
+    {
+      id: 'locker-allocation',
+      title: 'Locker Allocation System',
+      subtitle: 'Package Delivery Lockers',
+      icon: 'lock',
+      color: '#f97316',
+      difficulty: 'Medium',
+      description: 'Design a locker allocation system for package delivery with different locker sizes.',
+
+      introduction: `A locker allocation system (like Amazon Lockers) assigns available lockers to packages based on size compatibility. The system must efficiently match packages to the smallest available locker, handle timeouts for uncollected packages, and support concurrent access.
+
+The key challenge is the allocation strategy: always assign the smallest locker that fits the package to maximize utilization, and handle locker release when packages are picked up or time out.`,
+
+      coreEntities: [
+        { name: 'LockerSystem', description: 'Main controller managing all lockers and allocations' },
+        { name: 'Locker', description: 'Individual locker with size, status, and access code' },
+        { name: 'LockerSize (Enum)', description: 'SMALL, MEDIUM, LARGE, XLARGE' },
+        { name: 'Package', description: 'Package with dimensions and assigned locker' },
+        { name: 'Allocation', description: 'Tracks package-locker assignment with expiry time' },
+        { name: 'AllocationStrategy', description: 'Interface for different allocation algorithms' }
+      ],
+
+      designPatterns: [
+        'Strategy Pattern: Different allocation strategies (best-fit, first-fit)',
+        'Observer Pattern: Notify recipient when package is delivered',
+        'State Pattern: Locker states (EMPTY, OCCUPIED, EXPIRED)',
+        'Factory Pattern: Generate unique access codes'
+      ],
+
+      implementation: `from enum import Enum
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional
+from threading import Lock
+import random
+import string
+
+class LockerSize(Enum):
+    SMALL = 1
+    MEDIUM = 2
+    LARGE = 3
+    XLARGE = 4
+
+class LockerStatus(Enum):
+    EMPTY = 'empty'
+    OCCUPIED = 'occupied'
+    EXPIRED = 'expired'
+
+class Locker:
+    def __init__(self, locker_id: str, size: LockerSize):
+        self.locker_id = locker_id
+        self.size = size
+        self.status = LockerStatus.EMPTY
+        self.access_code: Optional[str] = None
+        self.lock = Lock()
+
+class Package:
+    def __init__(self, package_id: str, size: LockerSize):
+        self.package_id = package_id
+        self.size = size
+
+class Allocation:
+    def __init__(self, package: Package, locker: Locker, hours: int = 72):
+        self.package = package
+        self.locker = locker
+        self.access_code = ''.join(random.choices(string.digits, k=6))
+        self.created_at = datetime.now()
+        self.expires_at = self.created_at + timedelta(hours=hours)
+
+    def is_expired(self) -> bool:
+        return datetime.now() > self.expires_at
+
+class LockerSystem:
+    def __init__(self):
+        self.lockers: Dict[str, Locker] = {}
+        self.allocations: Dict[str, Allocation] = {}  # package_id -> Allocation
+        self.lock = Lock()
+
+    def add_locker(self, locker: Locker):
+        self.lockers[locker.locker_id] = locker
+
+    def allocate(self, package: Package) -> Optional[Allocation]:
+        with self.lock:
+            # Best-fit: find smallest available locker that fits
+            candidates = [
+                l for l in self.lockers.values()
+                if l.status == LockerStatus.EMPTY and l.size.value >= package.size.value
+            ]
+            candidates.sort(key=lambda l: l.size.value)
+
+            if not candidates:
+                return None
+
+            locker = candidates[0]
+            locker.status = LockerStatus.OCCUPIED
+            allocation = Allocation(package, locker)
+            locker.access_code = allocation.access_code
+            self.allocations[package.package_id] = allocation
+            return allocation
+
+    def pickup(self, package_id: str, code: str) -> bool:
+        allocation = self.allocations.get(package_id)
+        if not allocation or allocation.access_code != code:
+            return False
+        self._release_locker(allocation.locker)
+        del self.allocations[package_id]
+        return True
+
+    def _release_locker(self, locker: Locker):
+        locker.status = LockerStatus.EMPTY
+        locker.access_code = None
+
+    def cleanup_expired(self):
+        with self.lock:
+            expired = [pid for pid, a in self.allocations.items() if a.is_expired()]
+            for pid in expired:
+                self._release_locker(self.allocations[pid].locker)
+                del self.allocations[pid]`
+    },
+    {
+      id: 'queue-using-array',
+      title: 'Implement Queue using Array',
+      subtitle: 'Array-Based Queue',
+      icon: 'layers',
+      color: '#06b6d4',
+      difficulty: 'Easy',
+      description: 'Implement a queue data structure using a fixed-size array with enqueue, dequeue, and peek operations.',
+
+      introduction: `Implementing a queue using an array is a fundamental data structure exercise. The naive approach wastes space as elements are dequeued, so the circular array technique is essential for efficient space utilization.
+
+The key insight is using two pointers (front and rear) with modular arithmetic to wrap around the array, creating a ring buffer that reuses freed space.`,
+
+      coreEntities: [
+        { name: 'ArrayQueue<T>', description: 'Queue backed by fixed-size array with front and rear indices' },
+        { name: 'Front Index', description: 'Points to the first element to be dequeued' },
+        { name: 'Rear Index', description: 'Points to the next empty slot for enqueue' }
+      ],
+
+      designPatterns: [
+        'Ring Buffer Pattern: Circular index wrapping using modulo',
+        'Fixed Capacity Pattern: Bounded queue with overflow handling'
+      ],
+
+      implementation: `class ArrayQueue:
+    def __init__(self, capacity: int):
+        self.capacity = capacity
+        self.array = [None] * capacity
+        self.front = 0
+        self.rear = 0
+        self.size = 0
+
+    def enqueue(self, item) -> bool:
+        if self.is_full():
+            return False  # or raise exception
+        self.array[self.rear] = item
+        self.rear = (self.rear + 1) % self.capacity
+        self.size += 1
+        return True
+
+    def dequeue(self):
+        if self.is_empty():
+            raise IndexError("Queue is empty")
+        item = self.array[self.front]
+        self.array[self.front] = None
+        self.front = (self.front + 1) % self.capacity
+        self.size -= 1
+        return item
+
+    def peek(self):
+        if self.is_empty():
+            raise IndexError("Queue is empty")
+        return self.array[self.front]
+
+    def is_empty(self) -> bool:
+        return self.size == 0
+
+    def is_full(self) -> bool:
+        return self.size == self.capacity
+
+    def __len__(self) -> int:
+        return self.size
+
+    def __str__(self) -> str:
+        if self.is_empty():
+            return "[]"
+        items = []
+        idx = self.front
+        for _ in range(self.size):
+            items.append(str(self.array[idx]))
+            idx = (idx + 1) % self.capacity
+        return "[" + ", ".join(items) + "]"`
+    },
+    {
+      id: 'memory-allocator',
+      title: 'Memory Allocator',
+      subtitle: 'Dynamic Memory Management',
+      icon: 'cpu',
+      color: '#ef4444',
+      difficulty: 'Hard',
+      description: 'Design a memory allocator that manages a contiguous block of memory with malloc and free operations.',
+
+      introduction: `A memory allocator manages a contiguous block of memory, handling allocation and deallocation requests. This problem tests your understanding of memory management, fragmentation, and allocation strategies.
+
+The key challenges are: minimizing fragmentation (both internal and external), choosing an allocation strategy (first-fit, best-fit, worst-fit), and efficiently coalescing freed blocks. A free list tracks available memory blocks.`,
+
+      coreEntities: [
+        { name: 'MemoryAllocator', description: 'Main class managing memory pool and free list' },
+        { name: 'Block', description: 'Memory block with start address, size, and allocation status' },
+        { name: 'FreeList', description: 'Linked list of available memory blocks sorted by address' },
+        { name: 'AllocationStrategy', description: 'Interface for first-fit, best-fit, worst-fit algorithms' }
+      ],
+
+      designPatterns: [
+        'Strategy Pattern: Pluggable allocation algorithms (first-fit, best-fit)',
+        'Free List Pattern: Linked list of available blocks for O(n) allocation',
+        'Coalescing Pattern: Merge adjacent free blocks to reduce fragmentation'
+      ],
+
+      implementation: `class Block:
+    def __init__(self, start: int, size: int):
+        self.start = start
+        self.size = size
+        self.is_free = True
+        self.next = None
+        self.prev = None
+
+class MemoryAllocator:
+    def __init__(self, total_size: int):
+        self.total_size = total_size
+        self.head = Block(0, total_size)
+        self.allocated = {}  # start_address -> Block
+
+    def malloc(self, size: int) -> int:
+        """Allocate memory using first-fit strategy. Returns start address or -1."""
+        block = self.head
+        while block:
+            if block.is_free and block.size >= size:
+                return self._allocate(block, size)
+            block = block.next
+        return -1  # Out of memory
+
+    def _allocate(self, block: Block, size: int) -> int:
+        if block.size > size:
+            # Split block: allocate 'size' from start, remainder stays free
+            remainder = Block(block.start + size, block.size - size)
+            remainder.next = block.next
+            remainder.prev = block
+            if block.next:
+                block.next.prev = remainder
+            block.next = remainder
+            block.size = size
+
+        block.is_free = False
+        self.allocated[block.start] = block
+        return block.start
+
+    def free(self, address: int) -> bool:
+        """Free allocated memory at given address."""
+        block = self.allocated.get(address)
+        if not block:
+            return False
+
+        block.is_free = True
+        del self.allocated[address]
+        self._coalesce(block)
+        return True
+
+    def _coalesce(self, block: Block):
+        """Merge adjacent free blocks."""
+        # Merge with next block
+        if block.next and block.next.is_free:
+            next_block = block.next
+            block.size += next_block.size
+            block.next = next_block.next
+            if next_block.next:
+                next_block.next.prev = block
+
+        # Merge with previous block
+        if block.prev and block.prev.is_free:
+            prev_block = block.prev
+            prev_block.size += block.size
+            prev_block.next = block.next
+            if block.next:
+                block.next.prev = prev_block`
+    },
+    {
+      id: 'rock-paper-scissors',
+      title: 'Rock Paper Scissors',
+      subtitle: 'Hand Game',
+      icon: 'gamepad',
+      color: '#22c55e',
+      difficulty: 'Easy',
+      description: 'Design the Rock Paper Scissors game with player turns, win detection, and match scoring.',
+
+      introduction: `Rock Paper Scissors is a simple game that demonstrates clean OOP design with enums, strategy pattern for AI opponents, and game state management. The game supports player vs player and player vs computer modes.
+
+The win logic follows a circular pattern: Rock beats Scissors, Scissors beats Paper, Paper beats Rock. The design should be extensible to support variants like Rock-Paper-Scissors-Lizard-Spock.`,
+
+      coreEntities: [
+        { name: 'Move (Enum)', description: 'ROCK, PAPER, SCISSORS with beats() method' },
+        { name: 'Player (Abstract)', description: 'Base class for HumanPlayer and ComputerPlayer' },
+        { name: 'ComputerPlayer', description: 'AI opponent with random or strategic move selection' },
+        { name: 'Round', description: 'Single round result with both moves and outcome' },
+        { name: 'Game', description: 'Manages rounds, scoring, and best-of-N logic' }
+      ],
+
+      designPatterns: [
+        'Strategy Pattern: Different AI strategies (random, pattern-based)',
+        'Enum Pattern: Moves with built-in comparison logic',
+        'Template Method: Game loop with customizable rules'
+      ],
+
+      implementation: `from enum import Enum
+from abc import ABC, abstractmethod
+from random import choice
+from typing import List, Optional
+
+class Move(Enum):
+    ROCK = 'rock'
+    PAPER = 'paper'
+    SCISSORS = 'scissors'
+
+    def beats(self, other: 'Move') -> bool:
+        return (
+            (self == Move.ROCK and other == Move.SCISSORS) or
+            (self == Move.SCISSORS and other == Move.PAPER) or
+            (self == Move.PAPER and other == Move.ROCK)
+        )
+
+class Outcome(Enum):
+    WIN = 'win'
+    LOSE = 'lose'
+    DRAW = 'draw'
+
+class Player(ABC):
+    def __init__(self, name: str):
+        self.name = name
+        self.score = 0
+
+    @abstractmethod
+    def make_move(self) -> Move:
+        pass
+
+class ComputerPlayer(Player):
+    def make_move(self) -> Move:
+        return choice(list(Move))
+
+class HumanPlayer(Player):
+    def __init__(self, name: str):
+        super().__init__(name)
+        self._next_move: Optional[Move] = None
+
+    def set_move(self, move: Move):
+        self._next_move = move
+
+    def make_move(self) -> Move:
+        if self._next_move is None:
+            raise ValueError("No move set")
+        move = self._next_move
+        self._next_move = None
+        return move
+
+class Round:
+    def __init__(self, move1: Move, move2: Move):
+        self.move1 = move1
+        self.move2 = move2
+
+    def get_outcome(self) -> Outcome:
+        if self.move1 == self.move2:
+            return Outcome.DRAW
+        return Outcome.WIN if self.move1.beats(self.move2) else Outcome.LOSE
+
+class Game:
+    def __init__(self, player1: Player, player2: Player, best_of: int = 3):
+        self.player1 = player1
+        self.player2 = player2
+        self.best_of = best_of
+        self.rounds: List[Round] = []
+        self.wins_needed = best_of // 2 + 1
+
+    def play_round(self) -> Round:
+        m1 = self.player1.make_move()
+        m2 = self.player2.make_move()
+        round_result = Round(m1, m2)
+        outcome = round_result.get_outcome()
+        if outcome == Outcome.WIN:
+            self.player1.score += 1
+        elif outcome == Outcome.LOSE:
+            self.player2.score += 1
+        self.rounds.append(round_result)
+        return round_result
+
+    def is_over(self) -> bool:
+        return (self.player1.score >= self.wins_needed or
+                self.player2.score >= self.wins_needed)
+
+    def get_winner(self) -> Optional[Player]:
+        if not self.is_over():
+            return None
+        return self.player1 if self.player1.score > self.player2.score else self.player2`
+    },
+    {
+      id: 'notepad-system',
+      title: 'Notepad System',
+      subtitle: 'Text Editor',
+      icon: 'document',
+      color: '#f59e0b',
+      difficulty: 'Medium',
+      description: 'Design a notepad/text editor system with note creation, editing, search, and undo/redo support.',
+
+      introduction: `A notepad system models a simple text editor with CRUD operations on notes, undo/redo functionality, and search capabilities. This problem tests your understanding of the Command pattern for undo/redo and efficient text search.
+
+The key design challenge is implementing undo/redo using the Command pattern, where each operation is encapsulated as a reversible command object stored in a history stack.`,
+
+      coreEntities: [
+        { name: 'Notepad', description: 'Main application managing notes and command history' },
+        { name: 'Note', description: 'Individual note with title, content, timestamps, and tags' },
+        { name: 'Command (Abstract)', description: 'Base class for all operations with execute() and undo()' },
+        { name: 'InsertCommand', description: 'Inserts text at a position in a note' },
+        { name: 'DeleteCommand', description: 'Deletes text range from a note' },
+        { name: 'CommandHistory', description: 'Manages undo and redo stacks' }
+      ],
+
+      designPatterns: [
+        'Command Pattern: Encapsulate operations for undo/redo',
+        'Memento Pattern: Snapshot note state for complex undos',
+        'Observer Pattern: Auto-save when note content changes',
+        'Iterator Pattern: Browse through notes collection'
+      ],
+
+      implementation: `from abc import ABC, abstractmethod
+from datetime import datetime
+from typing import Dict, List, Optional
+
+class Note:
+    def __init__(self, note_id: str, title: str):
+        self.note_id = note_id
+        self.title = title
+        self.content = ""
+        self.tags: List[str] = []
+        self.created_at = datetime.now()
+        self.updated_at = self.created_at
+
+    def insert_text(self, position: int, text: str):
+        self.content = self.content[:position] + text + self.content[position:]
+        self.updated_at = datetime.now()
+
+    def delete_text(self, start: int, end: int) -> str:
+        deleted = self.content[start:end]
+        self.content = self.content[:start] + self.content[end:]
+        self.updated_at = datetime.now()
+        return deleted
+
+class Command(ABC):
+    @abstractmethod
+    def execute(self):
+        pass
+
+    @abstractmethod
+    def undo(self):
+        pass
+
+class InsertCommand(Command):
+    def __init__(self, note: Note, position: int, text: str):
+        self.note = note
+        self.position = position
+        self.text = text
+
+    def execute(self):
+        self.note.insert_text(self.position, self.text)
+
+    def undo(self):
+        self.note.delete_text(self.position, self.position + len(self.text))
+
+class DeleteCommand(Command):
+    def __init__(self, note: Note, start: int, end: int):
+        self.note = note
+        self.start = start
+        self.end = end
+        self.deleted_text = ""
+
+    def execute(self):
+        self.deleted_text = self.note.delete_text(self.start, self.end)
+
+    def undo(self):
+        self.note.insert_text(self.start, self.deleted_text)
+
+class CommandHistory:
+    def __init__(self):
+        self.undo_stack: List[Command] = []
+        self.redo_stack: List[Command] = []
+
+    def execute(self, command: Command):
+        command.execute()
+        self.undo_stack.append(command)
+        self.redo_stack.clear()
+
+    def undo(self) -> bool:
+        if not self.undo_stack:
+            return False
+        command = self.undo_stack.pop()
+        command.undo()
+        self.redo_stack.append(command)
+        return True
+
+    def redo(self) -> bool:
+        if not self.redo_stack:
+            return False
+        command = self.redo_stack.pop()
+        command.execute()
+        self.undo_stack.append(command)
+        return True
+
+class Notepad:
+    def __init__(self):
+        self.notes: Dict[str, Note] = {}
+        self.history = CommandHistory()
+        self._next_id = 1
+
+    def create_note(self, title: str) -> Note:
+        note_id = f"note_{self._next_id}"
+        self._next_id += 1
+        note = Note(note_id, title)
+        self.notes[note_id] = note
+        return note
+
+    def insert(self, note_id: str, position: int, text: str):
+        note = self.notes.get(note_id)
+        if note:
+            cmd = InsertCommand(note, position, text)
+            self.history.execute(cmd)
+
+    def delete(self, note_id: str, start: int, end: int):
+        note = self.notes.get(note_id)
+        if note:
+            cmd = DeleteCommand(note, start, end)
+            self.history.execute(cmd)
+
+    def search(self, query: str) -> List[Note]:
+        return [n for n in self.notes.values()
+                if query.lower() in n.title.lower() or query.lower() in n.content.lower()]`
+    },
+    {
+      id: '2d-vector',
+      title: '2D Vector Class',
+      subtitle: 'Mathematical Vector',
+      icon: 'arrowUpDown',
+      color: '#06b6d4',
+      difficulty: 'Easy',
+      description: 'Design a 2D vector class supporting arithmetic operations, dot product, cross product, and transformations.',
+
+      introduction: `A 2D vector class is a fundamental building block in game development, physics simulations, and computer graphics. The design tests your understanding of operator overloading, immutability, and mathematical operations.
+
+The class should support vector arithmetic (add, subtract, scale), dot/cross products, normalization, rotation, and common utility methods like magnitude and angle calculation.`,
+
+      coreEntities: [
+        { name: 'Vector2D', description: 'Immutable 2D vector with x, y components and arithmetic operations' },
+        { name: 'Magnitude', description: 'Length of the vector computed as sqrt(x^2 + y^2)' },
+        { name: 'Unit Vector', description: 'Normalized vector with magnitude 1, preserving direction' }
+      ],
+
+      designPatterns: [
+        'Immutable Object Pattern: Operations return new vectors instead of mutating',
+        'Operator Overloading: Natural mathematical syntax (+, -, *, ==)',
+        'Factory Method: Static methods for common vectors (zero, unit_x, unit_y)'
+      ],
+
+      implementation: `import math
+from typing import Tuple
+
+class Vector2D:
+    def __init__(self, x: float = 0.0, y: float = 0.0):
+        self._x = x
+        self._y = y
+
+    @property
+    def x(self) -> float:
+        return self._x
+
+    @property
+    def y(self) -> float:
+        return self._y
+
+    def __add__(self, other: 'Vector2D') -> 'Vector2D':
+        return Vector2D(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other: 'Vector2D') -> 'Vector2D':
+        return Vector2D(self.x - other.x, self.y - other.y)
+
+    def __mul__(self, scalar: float) -> 'Vector2D':
+        return Vector2D(self.x * scalar, self.y * scalar)
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Vector2D):
+            return False
+        return math.isclose(self.x, other.x) and math.isclose(self.y, other.y)
+
+    def magnitude(self) -> float:
+        return math.sqrt(self.x ** 2 + self.y ** 2)
+
+    def normalize(self) -> 'Vector2D':
+        mag = self.magnitude()
+        if mag == 0:
+            return Vector2D(0, 0)
+        return Vector2D(self.x / mag, self.y / mag)
+
+    def dot(self, other: 'Vector2D') -> float:
+        return self.x * other.x + self.y * other.y
+
+    def cross(self, other: 'Vector2D') -> float:
+        return self.x * other.y - self.y * other.x
+
+    def angle(self) -> float:
+        return math.atan2(self.y, self.x)
+
+    def angle_between(self, other: 'Vector2D') -> float:
+        cos_angle = self.dot(other) / (self.magnitude() * other.magnitude())
+        cos_angle = max(-1, min(1, cos_angle))  # clamp for floating point
+        return math.acos(cos_angle)
+
+    def rotate(self, radians: float) -> 'Vector2D':
+        cos_r = math.cos(radians)
+        sin_r = math.sin(radians)
+        return Vector2D(
+            self.x * cos_r - self.y * sin_r,
+            self.x * sin_r + self.y * cos_r
+        )
+
+    def distance_to(self, other: 'Vector2D') -> float:
+        return (self - other).magnitude()
+
+    @staticmethod
+    def zero() -> 'Vector2D':
+        return Vector2D(0, 0)
+
+    @staticmethod
+    def from_angle(radians: float, magnitude: float = 1.0) -> 'Vector2D':
+        return Vector2D(math.cos(radians) * magnitude, math.sin(radians) * magnitude)
+
+    def __repr__(self) -> str:
+        return f"Vector2D({self.x:.2f}, {self.y:.2f})"`
+    },
+    {
+      id: 'access-management',
+      title: 'Access Management System',
+      subtitle: 'Role-Based Access Control',
+      icon: 'shield',
+      color: '#8b5cf6',
+      difficulty: 'Medium',
+      description: 'Design a role-based access control (RBAC) system managing users, roles, and permissions.',
+
+      introduction: `An access management system controls who can access what resources in an application. RBAC (Role-Based Access Control) assigns permissions to roles, and roles to users, providing a scalable way to manage authorization.
+
+The key design decisions involve permission inheritance through role hierarchies, handling resource-level permissions, and efficiently checking access for deeply nested permission structures.`,
+
+      coreEntities: [
+        { name: 'User', description: 'System user with assigned roles' },
+        { name: 'Role', description: 'Named collection of permissions (e.g., Admin, Editor, Viewer)' },
+        { name: 'Permission', description: 'Specific action on a resource (e.g., READ:document)' },
+        { name: 'Resource', description: 'Protected entity (document, API endpoint, feature)' },
+        { name: 'AccessManager', description: 'Central authority for permission checks and role management' }
+      ],
+
+      designPatterns: [
+        'Composite Pattern: Role hierarchies with inherited permissions',
+        'Chain of Responsibility: Permission checks cascade through role hierarchy',
+        'Singleton Pattern: Single AccessManager instance',
+        'Observer Pattern: Notify dependent services when permissions change'
+      ],
+
+      implementation: `from typing import Dict, Set, List, Optional
+from enum import Enum
+from threading import Lock
+
+class Action(Enum):
+    READ = 'read'
+    WRITE = 'write'
+    DELETE = 'delete'
+    ADMIN = 'admin'
+
+class Permission:
+    def __init__(self, resource: str, action: Action):
+        self.resource = resource
+        self.action = action
+
+    def __hash__(self):
+        return hash((self.resource, self.action))
+
+    def __eq__(self, other):
+        return self.resource == other.resource and self.action == other.action
+
+class Role:
+    def __init__(self, name: str):
+        self.name = name
+        self.permissions: Set[Permission] = set()
+        self.parent_roles: List['Role'] = []  # role hierarchy
+
+    def add_permission(self, permission: Permission):
+        self.permissions.add(permission)
+
+    def add_parent(self, parent: 'Role'):
+        self.parent_roles.append(parent)
+
+    def get_all_permissions(self) -> Set[Permission]:
+        """Get permissions including inherited from parent roles."""
+        all_perms = set(self.permissions)
+        for parent in self.parent_roles:
+            all_perms.update(parent.get_all_permissions())
+        return all_perms
+
+class User:
+    def __init__(self, user_id: str, name: str):
+        self.user_id = user_id
+        self.name = name
+        self.roles: List[Role] = []
+
+    def get_all_permissions(self) -> Set[Permission]:
+        perms = set()
+        for role in self.roles:
+            perms.update(role.get_all_permissions())
+        return perms
+
+class AccessManager:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
+    def __init__(self):
+        if self._initialized:
+            return
+        self._initialized = True
+        self.users: Dict[str, User] = {}
+        self.roles: Dict[str, Role] = {}
+        self.lock = Lock()
+
+    def create_role(self, name: str, parent_name: str = None) -> Role:
+        with self.lock:
+            role = Role(name)
+            if parent_name and parent_name in self.roles:
+                role.add_parent(self.roles[parent_name])
+            self.roles[name] = role
+            return role
+
+    def assign_role(self, user_id: str, role_name: str) -> bool:
+        user = self.users.get(user_id)
+        role = self.roles.get(role_name)
+        if not user or not role:
+            return False
+        if role not in user.roles:
+            user.roles.append(role)
+        return True
+
+    def check_access(self, user_id: str, resource: str, action: Action) -> bool:
+        user = self.users.get(user_id)
+        if not user:
+            return False
+        required = Permission(resource, action)
+        return required in user.get_all_permissions()`
+    },
+    {
+      id: 'gpu-credits',
+      title: 'Design GPU Credits',
+      subtitle: 'Cloud GPU Billing',
+      icon: 'zap',
+      color: '#f97316',
+      difficulty: 'Medium',
+      description: 'Design a GPU credits system for cloud computing with usage tracking, billing, and quota management.',
+
+      introduction: `A GPU credits system manages the allocation and billing of GPU compute resources in a cloud platform. Users purchase credits and spend them based on GPU type, duration, and priority. The system must handle concurrent usage, prevent overspending, and provide real-time balance updates.
+
+The key challenges are: atomic credit deductions during concurrent GPU usage, handling preemptible vs dedicated instances, rate calculations for different GPU tiers, and graceful handling of credit exhaustion mid-job.`,
+
+      coreEntities: [
+        { name: 'Account', description: 'User account with credit balance and usage history' },
+        { name: 'CreditLedger', description: 'Double-entry ledger tracking all credit transactions' },
+        { name: 'GPUInstance', description: 'Running GPU instance consuming credits over time' },
+        { name: 'PricingTier', description: 'Rate card for different GPU types (T4, A100, H100)' },
+        { name: 'UsageTracker', description: 'Monitors running instances and deducts credits periodically' },
+        { name: 'QuotaManager', description: 'Enforces spending limits and instance quotas' }
+      ],
+
+      designPatterns: [
+        'Observer Pattern: Notify user when credit balance is low',
+        'Strategy Pattern: Different pricing strategies (on-demand, reserved, spot)',
+        'Scheduler Pattern: Periodic credit deduction for running instances',
+        'Double-Entry Ledger: Every credit movement has balanced debit/credit'
+      ],
+
+      implementation: `from enum import Enum
+from datetime import datetime
+from typing import Dict, List, Optional
+from threading import Lock
+from dataclasses import dataclass
+
+class GPUType(Enum):
+    T4 = ('t4', 0.5)       # $0.50/credit per hour
+    A100 = ('a100', 2.0)    # $2.00/credit per hour
+    H100 = ('h100', 4.0)    # $4.00/credit per hour
+
+    def __init__(self, gpu_name: str, rate: float):
+        self.gpu_name = gpu_name
+        self.rate = rate
+
+class InstanceStatus(Enum):
+    RUNNING = 'running'
+    STOPPED = 'stopped'
+    TERMINATED = 'terminated'
+
+@dataclass
+class LedgerEntry:
+    account_id: str
+    amount: float  # positive = credit, negative = debit
+    description: str
+    timestamp: datetime
+    balance_after: float
+
+class Account:
+    def __init__(self, account_id: str):
+        self.account_id = account_id
+        self.balance = 0.0
+        self.lock = Lock()
+        self.ledger: List[LedgerEntry] = []
+
+    def add_credits(self, amount: float, description: str = "Credit purchase"):
+        with self.lock:
+            self.balance += amount
+            self.ledger.append(LedgerEntry(
+                self.account_id, amount, description, datetime.now(), self.balance))
+
+    def deduct_credits(self, amount: float, description: str = "Usage") -> bool:
+        with self.lock:
+            if self.balance < amount:
+                return False
+            self.balance -= amount
+            self.ledger.append(LedgerEntry(
+                self.account_id, -amount, description, datetime.now(), self.balance))
+            return True
+
+class GPUInstance:
+    def __init__(self, instance_id: str, account: Account, gpu_type: GPUType):
+        self.instance_id = instance_id
+        self.account = account
+        self.gpu_type = gpu_type
+        self.status = InstanceStatus.RUNNING
+        self.started_at = datetime.now()
+        self.last_billed_at = self.started_at
+
+class GPUCreditsSystem:
+    def __init__(self):
+        self.accounts: Dict[str, Account] = {}
+        self.instances: Dict[str, GPUInstance] = {}
+        self.lock = Lock()
+
+    def launch_instance(self, account_id: str, gpu_type: GPUType) -> Optional[GPUInstance]:
+        account = self.accounts.get(account_id)
+        if not account or account.balance < gpu_type.rate:
+            return None  # Insufficient credits
+        instance = GPUInstance(f"gpu_{len(self.instances)}", account, gpu_type)
+        self.instances[instance.instance_id] = instance
+        return instance
+
+    def bill_usage(self):
+        """Called periodically (e.g., every minute) to deduct credits."""
+        now = datetime.now()
+        for instance in list(self.instances.values()):
+            if instance.status != InstanceStatus.RUNNING:
+                continue
+            hours = (now - instance.last_billed_at).total_seconds() / 3600
+            cost = hours * instance.gpu_type.rate
+            if not instance.account.deduct_credits(cost, f"GPU {instance.gpu_type.gpu_name}"):
+                instance.status = InstanceStatus.TERMINATED
+            else:
+                instance.last_billed_at = now`
+    },
+    {
+      id: 'disk-space-manager',
+      title: 'Disk Space Manager',
+      subtitle: 'Storage Block Allocator',
+      icon: 'hardDrive',
+      color: '#64748b',
+      difficulty: 'Medium',
+      description: 'Design a disk space manager that allocates and frees blocks of storage with defragmentation support.',
+
+      introduction: `A disk space manager handles the allocation and deallocation of storage blocks on a disk. It's similar to a memory allocator but operates at the block level, tracking which blocks are free and which are allocated to files.
+
+The key challenges are: minimizing fragmentation, efficiently finding contiguous free blocks for large files, and implementing defragmentation to compact allocated blocks.`,
+
+      coreEntities: [
+        { name: 'DiskManager', description: 'Central manager tracking block allocation across the disk' },
+        { name: 'Block', description: 'Fixed-size storage unit (e.g., 4KB) with allocation status' },
+        { name: 'FileEntry', description: 'Metadata mapping a file to its allocated blocks' },
+        { name: 'FreeBlockBitmap', description: 'Bitmap tracking free/used status of every block' },
+        { name: 'AllocationPolicy', description: 'Strategy for choosing blocks (contiguous, scattered)' }
+      ],
+
+      designPatterns: [
+        'Bitmap Pattern: Bit array for O(1) block status lookup',
+        'Strategy Pattern: Different allocation policies (first-fit, contiguous)',
+        'Facade Pattern: DiskManager hides complexity of block management'
+      ],
+
+      implementation: `from typing import Dict, List, Optional
+
+class DiskManager:
+    def __init__(self, total_blocks: int):
+        self.total_blocks = total_blocks
+        self.bitmap = [False] * total_blocks  # False = free, True = allocated
+        self.files: Dict[str, List[int]] = {}  # filename -> list of block indices
+        self.free_count = total_blocks
+
+    def allocate(self, filename: str, num_blocks: int) -> bool:
+        """Allocate blocks for a file using first-fit strategy."""
+        if num_blocks > self.free_count:
+            return False
+
+        allocated = []
+        for i in range(self.total_blocks):
+            if not self.bitmap[i]:
+                allocated.append(i)
+                if len(allocated) == num_blocks:
+                    break
+
+        if len(allocated) < num_blocks:
+            return False
+
+        for block_idx in allocated:
+            self.bitmap[block_idx] = True
+
+        self.files[filename] = allocated
+        self.free_count -= num_blocks
+        return True
+
+    def allocate_contiguous(self, filename: str, num_blocks: int) -> bool:
+        """Allocate contiguous blocks for a file."""
+        start = self._find_contiguous(num_blocks)
+        if start == -1:
+            return False
+
+        blocks = list(range(start, start + num_blocks))
+        for idx in blocks:
+            self.bitmap[idx] = True
+
+        self.files[filename] = blocks
+        self.free_count -= num_blocks
+        return True
+
+    def _find_contiguous(self, num_blocks: int) -> int:
+        """Find first contiguous run of free blocks."""
+        count = 0
+        start = -1
+        for i in range(self.total_blocks):
+            if not self.bitmap[i]:
+                if count == 0:
+                    start = i
+                count += 1
+                if count == num_blocks:
+                    return start
+            else:
+                count = 0
+                start = -1
+        return -1
+
+    def free(self, filename: str) -> bool:
+        if filename not in self.files:
+            return False
+        blocks = self.files.pop(filename)
+        for idx in blocks:
+            self.bitmap[idx] = False
+        self.free_count += len(blocks)
+        return True
+
+    def defragment(self):
+        """Move all allocated blocks to the front of the disk."""
+        write_pos = 0
+        new_files: Dict[str, List[int]] = {f: [] for f in self.files}
+
+        # Collect all allocated blocks in file order
+        for filename, blocks in self.files.items():
+            for _ in blocks:
+                while self.bitmap[write_pos] and write_pos not in blocks:
+                    write_pos += 1
+                new_files[filename].append(write_pos)
+                write_pos += 1
+
+        # Reset and reallocate
+        self.bitmap = [False] * self.total_blocks
+        for filename, blocks in new_files.items():
+            for idx in blocks:
+                self.bitmap[idx] = True
+        self.files = new_files
+
+    def get_fragmentation_ratio(self) -> float:
+        """Return ratio of fragmented files (non-contiguous blocks)."""
+        if not self.files:
+            return 0.0
+        fragmented = 0
+        for blocks in self.files.values():
+            if len(blocks) > 1:
+                for i in range(1, len(blocks)):
+                    if blocks[i] != blocks[i-1] + 1:
+                        fragmented += 1
+                        break
+        return fragmented / len(self.files)`
+    },
+    {
+      id: 'account-balance-tracker',
+      title: 'Account Balance Tracker',
+      subtitle: 'Financial Ledger',
+      icon: 'dollarSign',
+      color: '#10b981',
+      difficulty: 'Easy',
+      description: 'Design an account balance tracker with deposits, withdrawals, transfers, and transaction history.',
+
+      introduction: `An account balance tracker maintains financial account balances with thread-safe deposit, withdrawal, and transfer operations. This problem tests your understanding of thread safety, atomicity, and maintaining consistent state across concurrent operations.
+
+The key challenge is ensuring that transfers between accounts are atomic -- either both the debit and credit succeed, or neither does. This prevents money from being lost or created due to partial failures.`,
+
+      coreEntities: [
+        { name: 'Account', description: 'Individual account with balance and transaction history' },
+        { name: 'Transaction', description: 'Record of a deposit, withdrawal, or transfer' },
+        { name: 'BalanceTracker', description: 'Manages multiple accounts and cross-account transfers' },
+        { name: 'TransactionType (Enum)', description: 'DEPOSIT, WITHDRAWAL, TRANSFER' }
+      ],
+
+      designPatterns: [
+        'Thread Safety: Lock-based protection for balance modifications',
+        'Atomic Transfer: Lock ordering to prevent deadlocks during transfers',
+        'Immutable Transaction: Transaction records cannot be modified after creation'
+      ],
+
+      implementation: `from datetime import datetime
+from enum import Enum
+from typing import Dict, List, Optional
+from threading import Lock
+
+class TransactionType(Enum):
+    DEPOSIT = 'deposit'
+    WITHDRAWAL = 'withdrawal'
+    TRANSFER = 'transfer'
+
+class Transaction:
+    def __init__(self, tx_type: TransactionType, amount: float,
+                 from_account: str = None, to_account: str = None):
+        self.tx_type = tx_type
+        self.amount = amount
+        self.from_account = from_account
+        self.to_account = to_account
+        self.timestamp = datetime.now()
+
+class Account:
+    def __init__(self, account_id: str, initial_balance: float = 0.0):
+        self.account_id = account_id
+        self.balance = initial_balance
+        self.transactions: List[Transaction] = []
+        self.lock = Lock()
+
+    def deposit(self, amount: float) -> bool:
+        if amount <= 0:
+            return False
+        with self.lock:
+            self.balance += amount
+            self.transactions.append(
+                Transaction(TransactionType.DEPOSIT, amount, to_account=self.account_id))
+            return True
+
+    def withdraw(self, amount: float) -> bool:
+        if amount <= 0:
+            return False
+        with self.lock:
+            if self.balance < amount:
+                return False
+            self.balance -= amount
+            self.transactions.append(
+                Transaction(TransactionType.WITHDRAWAL, amount, from_account=self.account_id))
+            return True
+
+    def get_balance(self) -> float:
+        return self.balance
+
+class BalanceTracker:
+    def __init__(self):
+        self.accounts: Dict[str, Account] = {}
+
+    def create_account(self, account_id: str, initial_balance: float = 0.0) -> Account:
+        account = Account(account_id, initial_balance)
+        self.accounts[account_id] = account
+        return account
+
+    def transfer(self, from_id: str, to_id: str, amount: float) -> bool:
+        from_acc = self.accounts.get(from_id)
+        to_acc = self.accounts.get(to_id)
+        if not from_acc or not to_acc or amount <= 0:
+            return False
+
+        # Lock ordering by account_id to prevent deadlocks
+        first, second = sorted([from_acc, to_acc], key=lambda a: a.account_id)
+        with first.lock:
+            with second.lock:
+                if from_acc.balance < amount:
+                    return False
+                from_acc.balance -= amount
+                to_acc.balance += amount
+                tx = Transaction(TransactionType.TRANSFER, amount, from_id, to_id)
+                from_acc.transactions.append(tx)
+                to_acc.transactions.append(tx)
+                return True
+
+    def get_total_balance(self) -> float:
+        return sum(acc.balance for acc in self.accounts.values())`
+    },
+    {
+      id: 'go-fish',
+      title: 'Go Fish',
+      subtitle: 'Card Game',
+      icon: 'gamepad',
+      color: '#3b82f6',
+      difficulty: 'Medium',
+      description: 'Design the Go Fish card game with deck management, hand tracking, and book collection.',
+
+      introduction: `Go Fish is a classic card game where players collect sets of four matching cards (books) by asking opponents for specific ranks. The design involves deck management, hand tracking, turn logic, and win condition detection.
+
+The key OOP concepts demonstrated are: encapsulating game rules in a Game class, separating deck/hand/player concerns, and implementing turn-based logic with proper validation.`,
+
+      coreEntities: [
+        { name: 'Card', description: 'Playing card with rank and suit' },
+        { name: 'Deck', description: 'Standard 52-card deck with shuffle and draw' },
+        { name: 'Hand', description: 'Player hand with cards grouped by rank' },
+        { name: 'Player', description: 'Game participant with hand and collected books' },
+        { name: 'Game', description: 'Orchestrates turns, validates asks, and detects winner' }
+      ],
+
+      designPatterns: [
+        'Factory Pattern: Deck creates standard 52-card set',
+        'Iterator Pattern: Traverse cards in hand',
+        'Template Method: Turn sequence (ask, give/fish, check books)'
+      ],
+
+      implementation: `from enum import Enum
+from random import shuffle
+from typing import List, Optional
+from collections import defaultdict
+
+class Suit(Enum):
+    HEARTS = 'Hearts'
+    DIAMONDS = 'Diamonds'
+    CLUBS = 'Clubs'
+    SPADES = 'Spades'
+
+class Rank(Enum):
+    TWO = '2'; THREE = '3'; FOUR = '4'; FIVE = '5'
+    SIX = '6'; SEVEN = '7'; EIGHT = '8'; NINE = '9'
+    TEN = '10'; JACK = 'J'; QUEEN = 'Q'; KING = 'K'; ACE = 'A'
+
+class Card:
+    def __init__(self, rank: Rank, suit: Suit):
+        self.rank = rank
+        self.suit = suit
+
+    def __repr__(self):
+        return f"{self.rank.value}{self.suit.value[0]}"
+
+class Deck:
+    def __init__(self):
+        self.cards = [Card(r, s) for r in Rank for s in Suit]
+        shuffle(self.cards)
+
+    def draw(self) -> Optional[Card]:
+        return self.cards.pop() if self.cards else None
+
+    def is_empty(self) -> bool:
+        return len(self.cards) == 0
+
+class Player:
+    def __init__(self, name: str):
+        self.name = name
+        self.hand: List[Card] = []
+        self.books: List[Rank] = []
+
+    def has_rank(self, rank: Rank) -> bool:
+        return any(c.rank == rank for c in self.hand)
+
+    def give_cards(self, rank: Rank) -> List[Card]:
+        given = [c for c in self.hand if c.rank == rank]
+        self.hand = [c for c in self.hand if c.rank != rank]
+        return given
+
+    def receive_cards(self, cards: List[Card]):
+        self.hand.extend(cards)
+        self._check_books()
+
+    def _check_books(self):
+        counts = defaultdict(list)
+        for card in self.hand:
+            counts[card.rank].append(card)
+        for rank, cards in counts.items():
+            if len(cards) == 4:
+                self.books.append(rank)
+                self.hand = [c for c in self.hand if c.rank != rank]
+
+    def hand_size(self) -> int:
+        return len(self.hand)
+
+class GoFishGame:
+    def __init__(self, player_names: List[str]):
+        self.deck = Deck()
+        self.players = [Player(name) for name in player_names]
+        self.current_player_idx = 0
+        cards_per_player = 7 if len(player_names) <= 3 else 5
+        for player in self.players:
+            for _ in range(cards_per_player):
+                card = self.deck.draw()
+                if card:
+                    player.receive_cards([card])
+
+    def ask(self, asking_rank: Rank, target_idx: int) -> str:
+        asker = self.players[self.current_player_idx]
+        target = self.players[target_idx]
+
+        if not asker.has_rank(asking_rank):
+            return f"{asker.name} must hold the rank they ask for!"
+
+        if target.has_rank(asking_rank):
+            cards = target.give_cards(asking_rank)
+            asker.receive_cards(cards)
+            return f"{target.name} gave {len(cards)} {asking_rank.value}(s) to {asker.name}"
+        else:
+            # Go Fish
+            card = self.deck.draw()
+            if card:
+                asker.receive_cards([card])
+                got_asked = card.rank == asking_rank
+                self.current_player_idx = (self.current_player_idx + 1) % len(self.players)
+                return f"Go Fish! {asker.name} drew a card" + (" and got what they asked for!" if got_asked else "")
+            self.current_player_idx = (self.current_player_idx + 1) % len(self.players)
+            return "Go Fish! Deck is empty"
+
+    def is_over(self) -> bool:
+        return self.deck.is_empty() and all(p.hand_size() == 0 for p in self.players)
+
+    def get_winner(self) -> Optional[Player]:
+        if not self.is_over():
+            return None
+        return max(self.players, key=lambda p: len(p.books))`
+    },
+    {
+      id: 'access-control-tree',
+      title: 'Access Control Tree',
+      subtitle: 'Hierarchical Permissions',
+      icon: 'gitBranch',
+      color: '#8b5cf6',
+      difficulty: 'Medium',
+      description: 'Design a tree-based access control system where permissions inherit from parent to child nodes.',
+
+      introduction: `An access control tree represents a hierarchical permission structure, like a file system where folder permissions cascade to contained files. Children inherit parent permissions unless explicitly overridden.
+
+The key design challenge is efficient permission resolution: when checking if a user can access a resource, traverse up the tree until an explicit permission is found. This supports both inheritance and overrides.`,
+
+      coreEntities: [
+        { name: 'ACLNode', description: 'Tree node representing a resource with optional explicit permissions' },
+        { name: 'Permission (Enum)', description: 'READ, WRITE, DELETE, ADMIN with hierarchy' },
+        { name: 'ACLEntry', description: 'Maps a user/role to a permission level on a specific node' },
+        { name: 'ACLTree', description: 'Tree structure with permission resolution via ancestor traversal' }
+      ],
+
+      designPatterns: [
+        'Composite Pattern: Tree nodes contain children forming hierarchical structure',
+        'Chain of Responsibility: Permission check cascades up to ancestors',
+        'Inheritance Pattern: Child nodes inherit parent permissions unless overridden'
+      ],
+
+      implementation: `from enum import IntEnum
+from typing import Dict, List, Optional, Set
+
+class Permission(IntEnum):
+    NONE = 0
+    READ = 1
+    WRITE = 2
+    DELETE = 3
+    ADMIN = 4
+
+    def includes(self, other: 'Permission') -> bool:
+        return self.value >= other.value
+
+class ACLNode:
+    def __init__(self, name: str, parent: 'ACLNode' = None):
+        self.name = name
+        self.parent = parent
+        self.children: Dict[str, 'ACLNode'] = {}
+        # Explicit permissions: user_id -> Permission
+        self.permissions: Dict[str, Permission] = {}
+
+    def set_permission(self, user_id: str, permission: Permission):
+        self.permissions[user_id] = permission
+
+    def remove_permission(self, user_id: str):
+        self.permissions.pop(user_id, None)
+
+    def get_explicit_permission(self, user_id: str) -> Optional[Permission]:
+        return self.permissions.get(user_id)
+
+    def add_child(self, name: str) -> 'ACLNode':
+        child = ACLNode(name, parent=self)
+        self.children[name] = child
+        return child
+
+class ACLTree:
+    def __init__(self, root_name: str = "/"):
+        self.root = ACLNode(root_name)
+
+    def resolve_permission(self, node: ACLNode, user_id: str) -> Permission:
+        """Walk up the tree to find the effective permission for a user."""
+        current = node
+        while current is not None:
+            explicit = current.get_explicit_permission(user_id)
+            if explicit is not None:
+                return explicit
+            current = current.parent
+        return Permission.NONE  # No permission found
+
+    def check_access(self, node: ACLNode, user_id: str,
+                     required: Permission) -> bool:
+        effective = self.resolve_permission(node, user_id)
+        return effective.includes(required)
+
+    def get_node(self, path: str) -> Optional[ACLNode]:
+        """Get node by path like '/folder1/subfolder/file'."""
+        parts = [p for p in path.split('/') if p]
+        current = self.root
+        for part in parts:
+            if part not in current.children:
+                return None
+            current = current.children[part]
+        return current
+
+    def create_path(self, path: str) -> ACLNode:
+        """Create all nodes along the path if they don't exist."""
+        parts = [p for p in path.split('/') if p]
+        current = self.root
+        for part in parts:
+            if part not in current.children:
+                current.add_child(part)
+            current = current.children[part]
+        return current
+
+    def list_accessible(self, node: ACLNode, user_id: str,
+                        min_permission: Permission = Permission.READ) -> List[str]:
+        """List all children accessible by user with at least given permission."""
+        result = []
+        for name, child in node.children.items():
+            if self.check_access(child, user_id, min_permission):
+                result.append(name)
+        return result`
+    },
+    {
+      id: 'active-users',
+      title: 'Active Users in N Minutes',
+      subtitle: 'Sliding Window Counter',
+      icon: 'users',
+      color: '#3b82f6',
+      difficulty: 'Medium',
+      description: 'Design a system to track and query the number of active users within a sliding time window.',
+
+      introduction: `Tracking active users in a sliding time window is a common requirement for dashboards, rate limiting, and analytics. The challenge is efficiently counting unique users who were active in the last N minutes without storing every individual event.
+
+The key data structures are: a sliding window with time-bucketed sets for exact counts at moderate scale, and HyperLogLog for approximate unique counts at massive scale.`,
+
+      coreEntities: [
+        { name: 'ActivityTracker', description: 'Main class recording user activity and answering window queries' },
+        { name: 'TimeBucket', description: 'Set of user IDs active within a time granularity (e.g., 1 minute)' },
+        { name: 'SlidingWindow', description: 'Collection of time buckets spanning the query window' }
+      ],
+
+      designPatterns: [
+        'Sliding Window Pattern: Time-bucketed counters for efficient range queries',
+        'Strategy Pattern: Different counting strategies (exact set, HyperLogLog)',
+        'Cleanup Pattern: Periodic removal of expired time buckets'
+      ],
+
+      implementation: `from collections import defaultdict
+from datetime import datetime, timedelta
+from typing import Set, Dict
+from threading import Lock
+import time
+
+class ActivityTracker:
+    def __init__(self, bucket_size_seconds: int = 60):
+        self.bucket_size = bucket_size_seconds
+        self.buckets: Dict[int, Set[str]] = defaultdict(set)
+        self.lock = Lock()
+
+    def _get_bucket_key(self, timestamp: datetime = None) -> int:
+        if timestamp is None:
+            timestamp = datetime.now()
+        epoch = int(timestamp.timestamp())
+        return epoch - (epoch % self.bucket_size)
+
+    def record_activity(self, user_id: str, timestamp: datetime = None):
+        """Record that a user was active at the given time."""
+        with self.lock:
+            bucket_key = self._get_bucket_key(timestamp)
+            self.buckets[bucket_key].add(user_id)
+
+    def get_active_users(self, window_minutes: int) -> int:
+        """Count unique active users in the last N minutes."""
+        with self.lock:
+            now = datetime.now()
+            cutoff = now - timedelta(minutes=window_minutes)
+            cutoff_key = self._get_bucket_key(cutoff)
+
+            unique_users: Set[str] = set()
+            for bucket_key, users in self.buckets.items():
+                if bucket_key >= cutoff_key:
+                    unique_users.update(users)
+
+            return len(unique_users)
+
+    def get_active_user_ids(self, window_minutes: int) -> Set[str]:
+        """Get the set of unique active user IDs."""
+        with self.lock:
+            now = datetime.now()
+            cutoff = now - timedelta(minutes=window_minutes)
+            cutoff_key = self._get_bucket_key(cutoff)
+
+            unique_users: Set[str] = set()
+            for bucket_key, users in self.buckets.items():
+                if bucket_key >= cutoff_key:
+                    unique_users.update(users)
+
+            return unique_users
+
+    def cleanup(self, retain_minutes: int = 60):
+        """Remove buckets older than retain_minutes."""
+        with self.lock:
+            cutoff = datetime.now() - timedelta(minutes=retain_minutes)
+            cutoff_key = self._get_bucket_key(cutoff)
+            expired = [k for k in self.buckets if k < cutoff_key]
+            for k in expired:
+                del self.buckets[k]
+
+    def get_activity_histogram(self, window_minutes: int) -> Dict[int, int]:
+        """Get count of active users per bucket over the window."""
+        with self.lock:
+            now = datetime.now()
+            cutoff = now - timedelta(minutes=window_minutes)
+            cutoff_key = self._get_bucket_key(cutoff)
+
+            histogram = {}
+            for bucket_key, users in sorted(self.buckets.items()):
+                if bucket_key >= cutoff_key:
+                    histogram[bucket_key] = len(users)
+            return histogram`
+    },
+    {
+      id: 'actor-component',
+      title: 'Actor Component Model',
+      subtitle: 'Concurrent Message Passing',
+      icon: 'cpu',
+      color: '#ef4444',
+      difficulty: 'Hard',
+      description: 'Design an actor-based concurrency model where actors communicate via asynchronous message passing.',
+
+      introduction: `The Actor Model is a concurrency paradigm where independent actors communicate through asynchronous messages. Each actor has a mailbox (message queue), processes messages sequentially, and can create child actors. This eliminates shared mutable state and the need for locks.
+
+Used by frameworks like Akka (Scala/Java) and Erlang/OTP, the actor model is ideal for building fault-tolerant, distributed systems. The key challenges are: implementing the message dispatch loop, handling dead letters, and building supervision hierarchies for fault tolerance.`,
+
+      coreEntities: [
+        { name: 'Actor', description: 'Independent computation unit with mailbox and message handler' },
+        { name: 'ActorRef', description: 'Handle for sending messages to an actor (hides location)' },
+        { name: 'Message', description: 'Immutable data sent between actors' },
+        { name: 'Mailbox', description: 'Thread-safe message queue for each actor' },
+        { name: 'ActorSystem', description: 'Container managing actor lifecycle and thread pool' },
+        { name: 'Supervisor', description: 'Parent actor that handles child failures' }
+      ],
+
+      designPatterns: [
+        'Actor Pattern: Message-driven concurrency without shared state',
+        'Supervisor Pattern: Parent actors handle child failures (restart, stop, escalate)',
+        'Location Transparency: ActorRef hides whether actor is local or remote',
+        'Tell Pattern: Fire-and-forget async messaging (no blocking)'
+      ],
+
+      implementation: `from abc import ABC, abstractmethod
+from queue import Queue
+from threading import Thread, Event
+from typing import Any, Dict, Optional, Callable
+from dataclasses import dataclass
+import uuid
+
+@dataclass
+class Message:
+    content: Any
+    sender: Optional['ActorRef'] = None
+
+class ActorRef:
+    def __init__(self, actor_id: str, mailbox: Queue):
+        self.actor_id = actor_id
+        self._mailbox = mailbox
+
+    def tell(self, message: Any, sender: 'ActorRef' = None):
+        self._mailbox.put(Message(content=message, sender=sender))
+
+class Actor(ABC):
+    def __init__(self):
+        self.self_ref: Optional[ActorRef] = None
+        self.context: Optional['ActorContext'] = None
+
+    @abstractmethod
+    def receive(self, message: Message):
+        pass
+
+    def create_child(self, actor_class: type, name: str = None) -> ActorRef:
+        return self.context.create_actor(actor_class, name)
+
+class ActorContext:
+    def __init__(self, system: 'ActorSystem'):
+        self.system = system
+
+    def create_actor(self, actor_class: type, name: str = None) -> ActorRef:
+        return self.system.create_actor(actor_class, name)
+
+class ActorCell:
+    """Internal wrapper managing an actor's lifecycle."""
+    def __init__(self, actor: Actor, mailbox: Queue, actor_ref: ActorRef):
+        self.actor = actor
+        self.mailbox = mailbox
+        self.actor_ref = actor_ref
+        self._stop_event = Event()
+        self._thread: Optional[Thread] = None
+
+    def start(self):
+        self._thread = Thread(target=self._run, daemon=True)
+        self._thread.start()
+
+    def _run(self):
+        while not self._stop_event.is_set():
+            try:
+                message = self.mailbox.get(timeout=0.1)
+                try:
+                    self.actor.receive(message)
+                except Exception as e:
+                    print(f"Actor {self.actor_ref.actor_id} failed: {e}")
+            except Exception:
+                continue  # Queue timeout
+
+    def stop(self):
+        self._stop_event.set()
+        if self._thread:
+            self._thread.join(timeout=2)
+
+class ActorSystem:
+    def __init__(self, name: str = "default"):
+        self.name = name
+        self.actors: Dict[str, ActorCell] = {}
+        self._dead_letters: Queue = Queue()
+
+    def create_actor(self, actor_class: type, name: str = None) -> ActorRef:
+        actor_id = name or f"{actor_class.__name__}-{uuid.uuid4().hex[:8]}"
+        mailbox = Queue()
+        actor_ref = ActorRef(actor_id, mailbox)
+
+        actor = actor_class()
+        actor.self_ref = actor_ref
+        actor.context = ActorContext(self)
+
+        cell = ActorCell(actor, mailbox, actor_ref)
+        self.actors[actor_id] = cell
+        cell.start()
+        return actor_ref
+
+    def stop_actor(self, actor_id: str):
+        cell = self.actors.pop(actor_id, None)
+        if cell:
+            cell.stop()
+
+    def shutdown(self):
+        for actor_id in list(self.actors.keys()):
+            self.stop_actor(actor_id)
+
+# Example usage:
+class EchoActor(Actor):
+    def receive(self, message: Message):
+        print(f"Echo: {message.content}")
+        if message.sender:
+            message.sender.tell(f"Echo: {message.content}", self.self_ref)`
     },
   ];
 
