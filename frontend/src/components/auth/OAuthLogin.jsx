@@ -415,7 +415,7 @@ export default function OAuthLogin({ loginOnly = false }) {
         </section>
 
         {/* ═══════════════ END-TO-END PIPELINE ═══════════════ */}
-        <section id="pipeline" data-animate className={`py-24 ${anim('pipeline')}`}>
+        <section id="pipeline" data-animate className={`py-16 ${anim('pipeline')}`}>
           <div className="max-w-7xl mx-auto px-8">
             <div className="text-center mb-14">
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">Your Complete Interview Pipeline</h2>
@@ -527,7 +527,7 @@ export default function OAuthLogin({ loginOnly = false }) {
         </section>
 
         {/* ═══════════════ BENTO FEATURE GRID ═══════════════ */}
-        <section id="features" data-animate className={`py-24 ${anim('features')}`}>
+        <section id="features" data-animate className={`py-16 ${anim('features')}`}>
           <div className="max-w-7xl mx-auto px-8">
             <div className="text-center mb-14">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold mb-5" style={{ background: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.2)', color: '#60a5fa' }}>
@@ -719,7 +719,7 @@ export default function OAuthLogin({ loginOnly = false }) {
         </section>
 
         {/* ═══════════════ LIVE DEMO ═══════════════ */}
-        <section id="demo" data-animate className={`py-24 ${anim('demo')}`}>
+        <section id="demo" data-animate className={`py-14 ${anim('demo')}`}>
           <div className="max-w-5xl mx-auto px-6">
             <div className="text-center mb-8">
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3">See It in Action</h2>
@@ -841,285 +841,206 @@ export default function OAuthLogin({ loginOnly = false }) {
           </div>
         </section>
 
-        {/* ═══════════════ VIDEO SHOWCASE ═══════════════ */}
-        <section data-animate id="video" className={`py-20 ${anim('video')}`}>
-          <div className="max-w-4xl mx-auto px-6">
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold mb-4" style={{ background: 'rgba(236, 72, 153, 0.08)', border: '1px solid rgba(236, 72, 153, 0.2)', color: '#f472b6' }}>
-                <Icon name="video" size={10} />
-                Watch it in action
+        {/* ═══════════════ COMPARISON + FAQ (side-by-side) ═══════════════ */}
+        <section data-animate id="comparison" className={`py-16 ${anim('comparison')}`}>
+          <div className="max-w-7xl mx-auto px-8">
+            <div className="grid lg:grid-cols-2 gap-6">
+              {/* Left: Comparison Table */}
+              <div>
+                <div className="mb-6">
+                  <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Why Engineers Choose Ascend</h2>
+                  <p className="text-gray-400 text-lg">The only all-in-one platform</p>
+                </div>
+                <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr style={{ background: 'rgba(16, 185, 129, 0.06)' }}>
+                          <th className="text-left p-3 text-gray-400 font-medium text-xs">Feature</th>
+                          <th className="p-3 text-green-400 font-bold text-xs">Ascend</th>
+                          <th className="p-3 text-gray-500 font-medium text-xs">LockedIn</th>
+                          <th className="p-3 text-gray-500 font-medium text-xs">Others</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          { f: 'Live Interview Assistant', a: true, b: true, c: false },
+                          { f: 'AI Coding Solutions', a: true, b: true, c: false },
+                          { f: 'System Design Diagrams', a: true, b: false, c: false },
+                          { f: 'Behavioral STAR', a: true, b: false, c: false },
+                          { f: 'Company-Specific Prep', a: true, b: false, c: false },
+                          { f: 'Resume & CL Generation', a: true, b: true, c: false },
+                          { f: 'Code Execution', a: true, b: false, c: false },
+                          { f: 'Screenshot OCR', a: true, b: false, c: false },
+                          { f: 'Stealth Mode', a: true, b: true, c: false },
+                          { f: 'Desktop Lifetime', a: true, b: true, c: false },
+                          { f: 'Choose AI Provider', a: true, b: false, c: false },
+                        ].map((row, i) => (
+                          <tr key={i} style={{ background: i % 2 === 0 ? 'rgba(0,0,0,0.12)' : 'transparent' }}>
+                            <td className="p-2.5 text-gray-300 text-sm">{row.f}</td>
+                            {['a', 'b', 'c'].map((k) => (
+                              <td key={k} className="p-2.5 text-center">
+                                {row[k] ? <Icon name="check" size={14} className={k === 'a' ? 'text-green-400 mx-auto' : 'text-gray-500 mx-auto'} /> : <Icon name="x" size={14} className="text-gray-700 mx-auto" />}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3">See How Engineers Use Ascend</h2>
-              <p className="text-gray-400 text-xl">From first login to landing an offer at a top tech company</p>
-            </div>
-            {/* Video embed container */}
-            <div className="relative rounded-2xl overflow-hidden group" style={{ background: '#000', border: '1px solid rgba(255,255,255,0.08)', aspectRatio: '16/9' }}>
-              {/* Placeholder with play button - replace src with actual video */}
-              <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0c1220, #141c2e)' }}>
-                {/* Decorative grid */}
-                <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(16,185,129,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(16,185,129,0.03) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-                {/* Screenshots collage */}
-                <div className="relative flex items-center justify-center gap-4 p-8">
-                  {/* Coding mode */}
-                  <div className="relative -rotate-3 float-slow" style={{ width: '200px' }}>
-                    <div className="rounded-lg overflow-hidden shadow-2xl" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
-                      <div className="px-2 py-1 flex gap-1" style={{ background: 'rgba(0,0,0,0.6)' }}>
-                        <div className="w-1.5 h-1.5 rounded-full bg-red-500/60" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-yellow-500/60" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-500/60" />
-                      </div>
-                      <div className="p-3" style={{ background: '#0d1117' }}>
-                        <div className="text-green-400 text-[8px] font-code leading-relaxed">
-                          <div><span className="text-purple-400">def</span> <span className="text-blue-300">merge_sort</span>(arr):</div>
-                          <div>    <span className="text-purple-400">if</span> len(arr) {'<='} 1:</div>
-                          <div>        <span className="text-purple-400">return</span> arr</div>
-                          <div>    mid = len(arr) // 2</div>
-                          <div>    <span className="text-purple-400">return</span> merge(</div>
-                          <div>        merge_sort(arr[:mid]),</div>
-                          <div>        merge_sort(arr[mid:]))</div>
+
+              {/* Right: FAQ */}
+              <div id="faq">
+                <div className="mb-6">
+                  <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">FAQ</h2>
+                  <p className="text-gray-400 text-lg">Everything you need to know</p>
+                </div>
+                <div className="space-y-2">
+                  {faqItems.map((faq, i) => (
+                    <div key={i} className="rounded-xl overflow-hidden transition-all" style={{ background: expandedFaq === i ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.02)', border: `1px solid ${expandedFaq === i ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)'}` }}>
+                      <button onClick={() => setExpandedFaq(expandedFaq === i ? null : i)} className="w-full px-5 py-3.5 flex items-center justify-between text-left">
+                        <span className="text-white font-medium text-base pr-3">{faq.q}</span>
+                        <svg className={`w-4 h-4 text-gray-500 flex-shrink-0 transition-transform duration-200 ${expandedFaq === i ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                      </button>
+                      <div className={`overflow-hidden transition-all duration-200 ${expandedFaq === i ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'}`}>
+                        <div className="px-5 pb-3.5">
+                          <p className="text-gray-400 text-sm leading-relaxed">{faq.a}</p>
                         </div>
                       </div>
                     </div>
-                    <div className="absolute -bottom-2 -right-2 px-2 py-0.5 rounded text-[8px] font-bold text-green-400" style={{ background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.3)' }}>O(n log n)</div>
-                  </div>
-                  {/* Play button overlay */}
-                  <div className="relative z-10 w-16 h-16 rounded-full flex items-center justify-center cursor-pointer group-hover:scale-110 transition-transform" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 0 40px rgba(16, 185, 129, 0.4)' }}>
-                    <Icon name="play" size={24} className="text-white ml-1" />
-                  </div>
-                  {/* System design mode */}
-                  <div className="relative rotate-2 float-medium" style={{ width: '200px' }}>
-                    <div className="rounded-lg overflow-hidden shadow-2xl" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
-                      <div className="px-2 py-1 flex gap-1" style={{ background: 'rgba(0,0,0,0.6)' }}>
-                        <div className="w-1.5 h-1.5 rounded-full bg-red-500/60" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-yellow-500/60" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-500/60" />
-                      </div>
-                      <div className="p-3" style={{ background: '#0a0f1a' }}>
-                        <div className="text-blue-400 text-[8px] font-bold mb-2">URL Shortener</div>
-                        <div className="space-y-1.5">
-                          {[
-                            { n: 'API Gateway', c: '#3b82f6' },
-                            { n: 'Redis Cache', c: '#ef4444' },
-                            { n: 'PostgreSQL', c: '#22c55e' },
-                            { n: 'CDN', c: '#a855f7' },
-                          ].map((b, i) => (
-                            <div key={i} className="flex items-center gap-1.5 px-1.5 py-1 rounded" style={{ background: `${b.c}10`, border: `1px solid ${b.c}30` }}>
-                              <div className="w-1 h-1 rounded-full" style={{ background: b.c }} />
-                              <span className="text-[7px]" style={{ color: b.c }}>{b.n}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="absolute -bottom-2 -left-2 px-2 py-0.5 rounded text-[8px] font-bold text-blue-400" style={{ background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(59,130,246,0.3)' }}>AWS</div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ═══════════════ COMPARISON TABLE ═══════════════ */}
-        <section data-animate id="comparison" className={`py-20 ${anim('comparison')}`}>
-          <div className="max-w-5xl mx-auto px-8">
-            <div className="text-center mb-10">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold mb-5" style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#34d399' }}>
-                <Icon name="chartBar" size={10} />
-                Feature comparison
-              </div>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3">Why Engineers Choose Ascend</h2>
-              <p className="text-gray-400 text-xl">The only all-in-one platform</p>
-            </div>
-            <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
-              <div className="overflow-x-auto">
-                <table className="w-full text-base">
-                  <thead>
-                    <tr style={{ background: 'rgba(16, 185, 129, 0.06)' }}>
-                      <th className="text-left p-4 text-gray-400 font-medium text-sm">Feature</th>
-                      <th className="p-4 text-green-400 font-bold text-sm">Ascend</th>
-                      <th className="p-4 text-gray-500 font-medium text-sm">LockedIn</th>
-                      <th className="p-4 text-gray-500 font-medium text-sm">OfferGoose</th>
-                      <th className="p-4 text-gray-500 font-medium text-sm">TechPrep</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[
-                      { f: 'Real-time Live Assistant', a: true, b: true, c: true, d: false },
-                      { f: 'AI Coding Solutions', a: true, b: true, c: false, d: false },
-                      { f: 'System Design Diagrams', a: true, b: false, c: false, d: false },
-                      { f: 'Behavioral STAR Responses', a: true, b: false, c: false, d: true },
-                      { f: 'Company-Specific Prep', a: true, b: false, c: false, d: false },
-                      { f: 'Resume & CL Generation', a: true, b: true, c: false, d: false },
-                      { f: 'Code Execution Sandbox', a: true, b: false, c: false, d: false },
-                      { f: 'Screenshot OCR Solver', a: true, b: false, c: false, d: false },
-                      { f: '100% Stealth Mode', a: true, b: true, c: true, d: false },
-                      { f: 'Desktop App (Lifetime)', a: true, b: true, c: false, d: false },
-                      { f: 'Choose AI Provider', a: true, b: false, c: false, d: false },
-                      { f: 'Problem Library & Docs', a: true, b: false, c: false, d: true },
-                    ].map((row, i) => (
-                      <tr key={i} style={{ background: i % 2 === 0 ? 'rgba(0,0,0,0.15)' : 'transparent' }}>
-                        <td className="p-4 text-gray-300 text-sm">{row.f}</td>
-                        {['a', 'b', 'c', 'd'].map((k) => (
-                          <td key={k} className="p-4 text-center">
-                            {row[k]
-                              ? <Icon name="check" size={15} className={k === 'a' ? 'text-green-400 mx-auto' : 'text-gray-500 mx-auto'} />
-                              : <Icon name="x" size={15} className="text-gray-700 mx-auto" />
-                            }
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ═══════════════ TESTIMONIALS ═══════════════ */}
-        <section id="testimonials" data-animate className={`py-20 ${anim('testimonials')}`}>
+        {/* ═══════════════ TESTIMONIALS (compact single row) ═══════════════ */}
+        <section id="testimonials" data-animate className={`py-14 ${anim('testimonials')}`}>
           <div className="max-w-7xl mx-auto px-8">
-            <div className="flex items-center justify-center gap-4 mb-12">
-              <h2 className="text-4xl md:text-5xl font-bold text-white">Loved by Engineers</h2>
-              <div className="flex items-center gap-0.5 px-2 py-1 rounded-full" style={{ background: 'rgba(250, 204, 21, 0.08)' }}>
-                {[...Array(5)].map((_, i) => <Icon key={i} name="star5" size={11} className="text-yellow-400" />)}
-                <span className="text-yellow-400 font-bold text-[11px] ml-1">4.9</span>
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <h2 className="text-3xl md:text-4xl font-bold text-white">Loved by Engineers</h2>
+                <div className="flex items-center gap-0.5 px-2.5 py-1 rounded-full" style={{ background: 'rgba(250, 204, 21, 0.08)' }}>
+                  {[...Array(5)].map((_, i) => <Icon key={i} name="star5" size={12} className="text-yellow-400" />)}
+                  <span className="text-yellow-400 font-bold text-xs ml-1">4.9</span>
+                </div>
               </div>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
               {testimonials.map((t, i) => (
-                <div key={i} className="p-7 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div className="flex items-center gap-2.5 mb-3">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-base font-bold" style={{ background: t.color }}>{t.avatar}</div>
+                <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ background: t.color }}>{t.avatar}</div>
                     <div>
-                      <div className="text-white font-semibold text-lg">{t.name}</div>
-                      <div className="text-gray-500 text-sm">{t.role} @ {t.company}</div>
+                      <div className="text-white font-semibold text-sm">{t.name}</div>
+                      <div className="text-gray-500 text-[11px]">{t.role} @ {t.company}</div>
                     </div>
                   </div>
-                  <p className="text-gray-400 text-base leading-relaxed">"{t.text}"</p>
+                  <p className="text-gray-400 text-xs leading-relaxed">"{t.text}"</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ═══════════════ PRICING ═══════════════ */}
-        <section id="pricing" data-animate className={`py-24 ${anim('pricing')}`}>
+        {/* ═══════════════ PRICING (compact) ═══════════════ */}
+        <section id="pricing" data-animate className={`py-16 ${anim('pricing')}`}>
           <div className="max-w-6xl mx-auto px-8">
-            <div className="text-center mb-14">
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-3">Simple, Transparent Pricing</h2>
-              <p className="text-gray-400 text-xl mb-3">Start free. Upgrade when ready. Cancel anytime.</p>
-              <a href="/premium" className="text-green-400 text-base font-semibold hover:text-green-300 transition-colors">View full pricing details →</a>
+            <div className="text-center mb-10">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Simple, Transparent Pricing</h2>
+              <p className="text-gray-400 text-lg">Start free. Upgrade when ready. <a href="/premium" className="text-green-400 font-semibold hover:text-green-300 transition-colors">View full details →</a></p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-5">
+            <div className="grid md:grid-cols-3 gap-4">
               {/* Monthly */}
-              <div className="p-8 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <div className="flex items-center gap-2 mb-1">
-                  <Icon name="cloud" size={18} className="text-gray-400" />
-                  <h3 className="text-xl font-bold text-white">Monthly</h3>
+              <div className="p-6 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Icon name="cloud" size={16} className="text-gray-400" />
+                    <h3 className="text-lg font-bold text-white">Monthly</h3>
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-bold text-white">$99</span>
+                    <span className="text-gray-500 text-xs">/mo</span>
+                  </div>
                 </div>
-                <p className="text-gray-500 text-base mb-5">Perfect for trying it out</p>
-                <div className="flex items-baseline gap-1 mb-4">
-                  <span className="text-5xl font-bold text-white">$99</span>
-                  <span className="text-gray-500 text-sm">/mo</span>
-                </div>
-                <ul className="space-y-3 mb-6">
-                  {['5 credits per month', '25 coding problems', 'System design basics', 'Email support'].map((item, j) => (
-                    <li key={j} className="flex items-center gap-2.5 text-gray-400 text-base">
-                      <Icon name="check" size={13} className="text-green-400 flex-shrink-0" />{item}
+                <ul className="space-y-2 mb-4">
+                  {['5 credits/month', 'Coding + System Design', 'Email support'].map((item, j) => (
+                    <li key={j} className="flex items-center gap-2 text-gray-400 text-sm">
+                      <Icon name="check" size={12} className="text-green-400 flex-shrink-0" />{item}
                     </li>
                   ))}
                 </ul>
-                <button onClick={() => handlePricingClick('monthly')} className="w-full py-3.5 rounded-xl text-base font-semibold transition-all hover:bg-white/10" style={{ background: 'rgba(255,255,255,0.06)', color: '#fff' }}>
-                  {loading === 'monthly' ? <Icon name="loader" size={15} className="animate-spin mx-auto" /> : 'Get Started'}
+                <button onClick={() => handlePricingClick('monthly')} className="w-full py-3 rounded-xl text-sm font-semibold transition-all hover:bg-white/10" style={{ background: 'rgba(255,255,255,0.06)', color: '#fff' }}>
+                  {loading === 'monthly' ? <Icon name="loader" size={14} className="animate-spin mx-auto" /> : 'Get Started'}
                 </button>
               </div>
 
               {/* Quarterly Pro */}
-              <div className="relative p-8 rounded-2xl" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.03))', border: '2px solid #10b981', boxShadow: '0 0 40px rgba(16, 185, 129, 0.08)' }}>
-                <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-bold" style={{ background: '#10b981', color: '#fff' }}>MOST POPULAR</div>
-                <div className="flex items-center gap-2 mb-1">
-                  <Icon name="rocket" size={18} className="text-green-400" />
-                  <h3 className="text-xl font-bold text-white">Quarterly Pro</h3>
+              <div className="relative p-6 rounded-2xl" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.03))', border: '2px solid #10b981', boxShadow: '0 0 30px rgba(16, 185, 129, 0.06)' }}>
+                <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-bold" style={{ background: '#10b981', color: '#fff' }}>POPULAR</div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Icon name="rocket" size={16} className="text-green-400" />
+                    <h3 className="text-lg font-bold text-white">Quarterly Pro</h3>
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-bold text-white">$300</span>
+                    <span className="text-gray-400 text-xs">/qtr</span>
+                  </div>
                 </div>
-                <p className="text-gray-400 text-base mb-5">Best value for serious prep</p>
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-5xl font-bold text-white">$300</span>
-                  <span className="text-gray-400 text-sm">/quarter</span>
-                </div>
-                <div className="text-green-400 text-xs mb-4">$100/mo — Save $97 vs monthly</div>
-                <ul className="space-y-3 mb-6">
-                  {['Unlimited problems', 'Full system design + diagrams', 'Behavioral coaching', 'Company-specific prep', 'Voice assistant', 'Job Discovery Portal'].map((item, j) => (
-                    <li key={j} className="flex items-center gap-2.5 text-gray-300 text-base">
-                      <Icon name="check" size={13} className="text-green-400 flex-shrink-0" />{item}
+                <ul className="space-y-2 mb-4">
+                  {['Unlimited everything', 'Voice assistant + Stealth', 'Company prep + Resume/CL', 'Job Discovery Portal'].map((item, j) => (
+                    <li key={j} className="flex items-center gap-2 text-gray-300 text-sm">
+                      <Icon name="check" size={12} className="text-green-400 flex-shrink-0" />{item}
                     </li>
                   ))}
                 </ul>
-                <button onClick={() => handlePricingClick('quarterly_pro')} className="w-full py-3.5 rounded-xl text-base font-bold transition-all hover:scale-105" style={{ background: '#10b981', color: '#fff' }}>
-                  {loading === 'quarterly_pro' ? <Icon name="loader" size={15} className="animate-spin mx-auto" /> : 'Get Quarterly Pro'}
+                <button onClick={() => handlePricingClick('quarterly_pro')} className="w-full py-3 rounded-xl text-sm font-bold transition-all hover:scale-105" style={{ background: '#10b981', color: '#fff' }}>
+                  {loading === 'quarterly_pro' ? <Icon name="loader" size={14} className="animate-spin mx-auto" /> : 'Get Quarterly Pro'}
                 </button>
               </div>
 
               {/* Desktop */}
-              <div className="relative p-8 rounded-2xl" style={{ background: 'linear-gradient(180deg, rgba(139, 92, 246, 0.08), rgba(139, 92, 246, 0.02))', border: '1px solid rgba(139, 92, 246, 0.25)' }}>
+              <div className="relative p-6 rounded-2xl" style={{ background: 'linear-gradient(180deg, rgba(139, 92, 246, 0.08), rgba(139, 92, 246, 0.02))', border: '1px solid rgba(139, 92, 246, 0.25)' }}>
                 <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-bold" style={{ background: '#8b5cf6', color: '#fff' }}>LIFETIME</div>
-                <div className="flex items-center gap-2 mb-1">
-                  <Icon name="terminal" size={18} className="text-purple-400" />
-                  <h3 className="text-xl font-bold text-white">Desktop</h3>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Icon name="terminal" size={16} className="text-purple-400" />
+                    <h3 className="text-lg font-bold text-white">Desktop</h3>
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-bold text-white">$300</span>
+                    <span className="text-gray-500 text-xs">once</span>
+                  </div>
                 </div>
-                <p className="text-gray-500 text-base mb-5">One-time purchase, own forever</p>
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-5xl font-bold text-white">$300</span>
-                  <span className="text-gray-500 text-sm">once</span>
-                </div>
-                <div className="text-purple-400 text-xs mb-4">No subscription, ever</div>
-                <ul className="space-y-3 mb-6">
-                  {['Unlimited forever', 'Use your own API keys', 'Offline mode', 'macOS, Windows, Linux', 'All future updates'].map((item, j) => (
-                    <li key={j} className="flex items-center gap-2.5 text-gray-400 text-base">
-                      <Icon name="check" size={13} className="text-purple-400 flex-shrink-0" />{item}
+                <ul className="space-y-2 mb-4">
+                  {['Unlimited forever', 'Your own API keys', 'Offline + All platforms'].map((item, j) => (
+                    <li key={j} className="flex items-center gap-2 text-gray-400 text-sm">
+                      <Icon name="check" size={12} className="text-purple-400 flex-shrink-0" />{item}
                     </li>
                   ))}
                 </ul>
-                <button onClick={() => handlePricingClick('desktop_lifetime')} className="w-full py-3.5 rounded-xl text-base font-semibold transition-all hover:bg-purple-500/80" style={{ background: '#8b5cf6', color: '#fff' }}>
-                  {loading === 'desktop_lifetime' ? <Icon name="loader" size={15} className="animate-spin mx-auto" /> : 'Buy Desktop'}
+                <button onClick={() => handlePricingClick('desktop_lifetime')} className="w-full py-3 rounded-xl text-sm font-semibold transition-all hover:bg-purple-500/80" style={{ background: '#8b5cf6', color: '#fff' }}>
+                  {loading === 'desktop_lifetime' ? <Icon name="loader" size={14} className="animate-spin mx-auto" /> : 'Buy Desktop'}
                 </button>
               </div>
             </div>
-            <p className="text-center text-gray-600 text-[11px] mt-5">30-day money-back guarantee · Secure payment via Stripe</p>
-          </div>
-        </section>
-
-        {/* ═══════════════ FAQ ═══════════════ */}
-        <section id="faq" data-animate className={`py-24 ${anim('faq')}`}>
-          <div className="max-w-3xl mx-auto px-8">
-            <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-12">FAQ</h2>
-            <div className="space-y-3">
-              {faqItems.map((faq, i) => (
-                <div key={i} className="rounded-xl overflow-hidden transition-all" style={{ background: expandedFaq === i ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.02)', border: `1px solid ${expandedFaq === i ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)'}` }}>
-                  <button onClick={() => setExpandedFaq(expandedFaq === i ? null : i)} className="w-full px-6 py-5 flex items-center justify-between text-left">
-                    <span className="text-white font-medium text-lg pr-4">{faq.q}</span>
-                    <svg className={`w-5 h-5 text-gray-500 flex-shrink-0 transition-transform duration-200 ${expandedFaq === i ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                  </button>
-                  <div className={`overflow-hidden transition-all duration-200 ${expandedFaq === i ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'}`}>
-                    <div className="px-6 pb-5">
-                      <p className="text-gray-400 text-base leading-relaxed">{faq.a}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <p className="text-center text-gray-600 text-xs mt-4">30-day money-back guarantee · Secure payment via Stripe</p>
           </div>
         </section>
 
         {/* ═══════════════ FINAL CTA ═══════════════ */}
-        <section className="py-24">
+        <section className="py-14">
           <div className="max-w-3xl mx-auto px-8">
-            <div className="p-14 rounded-3xl text-center" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.03))', border: '1px solid rgba(16, 185, 129, 0.2)', boxShadow: '0 0 50px rgba(16, 185, 129, 0.06)' }}>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Ready to Land Your Dream Job?</h2>
-              <p className="text-gray-400 mb-8 max-w-lg mx-auto text-lg">Join 50,000+ engineers who went from job search to offer letter with Ascend.</p>
-              <button onClick={() => handleOAuthLogin('google')} disabled={loading} className="px-10 py-4 rounded-2xl font-bold text-lg text-white transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 0 25px rgba(16, 185, 129, 0.25)' }}>
-                {loading === 'google' ? <Icon name="loader" size={18} className="animate-spin" /> : 'Start Free Trial — No Credit Card'}
+            <div className="p-10 rounded-2xl text-center" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.03))', border: '1px solid rgba(16, 185, 129, 0.2)', boxShadow: '0 0 40px rgba(16, 185, 129, 0.05)' }}>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Ready to Land Your Dream Job?</h2>
+              <p className="text-gray-400 mb-6 max-w-lg mx-auto text-base">Join 50,000+ engineers who went from job search to offer letter with Ascend.</p>
+              <button onClick={() => handleOAuthLogin('google')} disabled={loading} className="px-8 py-3.5 rounded-xl font-bold text-base text-white transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 0 20px rgba(16, 185, 129, 0.2)' }}>
+                {loading === 'google' ? <Icon name="loader" size={16} className="animate-spin" /> : 'Start Free Trial — No Credit Card'}
               </button>
               {error && <p className="text-red-400 text-sm mt-3">{error}</p>}
             </div>
