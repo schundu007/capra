@@ -31755,7 +31755,7 @@ Best,
               </div>
               <div>
                 <span className="text-xl font-bold text-white">Ascend</span>
-                <span className="block text-sm text-gray-500">Prep</span>
+                <span className="block text-sm text-gray-500">Preparation</span>
               </div>
             </a>
           </div>
