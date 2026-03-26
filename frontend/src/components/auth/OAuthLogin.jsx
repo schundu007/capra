@@ -622,6 +622,20 @@ export default function OAuthLogin({ loginOnly = false }) {
                 </div>
               </div>
 
+              {/* Medium: Behavioral STAR */}
+              <div className="p-7 rounded-2xl group hover:scale-[1.01] transition-all" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.15)' }}>
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: 'rgba(168, 85, 247, 0.12)' }}>
+                  <Icon name="users" size={20} className="text-violet-400" />
+                </div>
+                <h3 className="text-white font-bold text-xl mb-2">Behavioral Coaching</h3>
+                <p className="text-gray-400 text-base mb-4">AI-generated STAR responses for leadership, teamwork, and conflict resolution interviews.</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {['STAR Method', 'Leadership', 'Follow-ups'].map((f, i) => (
+                    <span key={i} className="px-3 py-1 rounded-md text-sm font-medium" style={{ background: 'rgba(168, 85, 247, 0.1)', color: '#c4b5fd' }}>{f}</span>
+                  ))}
+                </div>
+              </div>
+
               {/* Large: Company-Specific Prep */}
               <div className="md:col-span-2 p-8 rounded-3xl group hover:scale-[1.01] transition-all" style={{ background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(139, 92, 246, 0.02))', border: '1px solid rgba(139, 92, 246, 0.15)' }}>
                 <div className="flex items-start gap-4 mb-5">
