@@ -50,7 +50,9 @@ const ALLOWED_ORIGINS = [
   'https://chundu.vercel.app',
   'https://ascend.vercel.app',
   'https://capra.cariara.com',
+  'https://www.capra.cariara.com',
   'https://cariara.com',
+  'https://www.cariara.com',
   // Development
   'http://localhost:5173',
   'http://localhost:3000',
@@ -61,7 +63,7 @@ const ALLOWED_ORIGINS = [
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
-app.use(cors({
+const corsOptions = {
   origin: (origin, callback) => {
     // Allow requests with no origin (Electron, mobile apps, curl)
     if (!origin) {
@@ -71,12 +73,16 @@ app.use(cors({
     if (origin.startsWith('chrome-extension://') || origin.startsWith('moz-extension://')) {
       return callback(null, true);
     }
-    // Check against whitelist
-    if (ALLOWED_ORIGINS.some(allowed => origin.includes(allowed.replace(/^https?:\/\//, '')))) {
+    // Check against whitelist (exact match)
+    if (ALLOWED_ORIGINS.includes(origin)) {
       return callback(null, true);
     }
     // Allow Railway and Vercel preview deployments
     if (origin.includes('railway.app') || origin.includes('vercel.app')) {
+      return callback(null, true);
+    }
+    // Allow subdomains of cariara.com
+    if (origin.endsWith('.cariara.com') || origin === 'https://cariara.com') {
       return callback(null, true);
     }
     // Reject unknown origins in production
@@ -90,10 +96,11 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id', 'X-Electron-App', 'X-Device-Id'],
-}));
+};
 
-// Handle preflight requests explicitly
-app.options('*', cors());
+// Use same CORS config for both preflight and actual requests
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
 
 // Request ID tracking
 app.use(requestId);
