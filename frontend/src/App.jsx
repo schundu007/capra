@@ -826,14 +826,7 @@ export default function App() {
   if (isDocsPage || showDocs) return <DocsPage onBack={isElectron ? () => setShowDocs(false) : null} />;
 
   // ---------------------------------------------------------------------------
-  // Render: Landing Page (/ and /login always show landing, regardless of auth)
-  // ---------------------------------------------------------------------------
-  if (isLandingPage) {
-    return <OAuthLogin />;
-  }
-
-  // ---------------------------------------------------------------------------
-  // Render: Auth Required (non-authenticated users on protected routes like /app)
+  // Render: Auth Required
   // ---------------------------------------------------------------------------
   if (authRequired && !isAuthenticated) {
     // Save intended destination for post-login redirect (e.g., /app?problem=...&mode=system-design)
@@ -841,8 +834,21 @@ export default function App() {
     if (currentUrl !== '/' && !currentUrl.startsWith('/docs') && currentUrl !== '/login') {
       sessionStorage.setItem('postLoginRedirect', currentUrl);
     }
-    window.history.replaceState({}, '', '/');
+    if (window.location.pathname !== '/' && window.location.pathname !== '/login') {
+      window.history.replaceState({}, '', '/');
+    }
     return <OAuthLogin />;
+  }
+
+  // Authenticated users at / or /login → redirect to /app (preserving query params for deep links)
+  if (authRequired && isAuthenticated && (currentPath === '/' || currentPath === '/login')) {
+    const savedRedirect = sessionStorage.getItem('postLoginRedirect');
+    if (savedRedirect) {
+      sessionStorage.removeItem('postLoginRedirect');
+      window.location.replace(savedRedirect);
+      return null;
+    }
+    window.history.replaceState({}, '', '/app');
   }
 
   // ---------------------------------------------------------------------------
