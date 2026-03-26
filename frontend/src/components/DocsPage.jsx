@@ -27370,7 +27370,7 @@ Best,
 
                       // Pass problem directly - use local description if available, otherwise problem name
                       const problemText = problemData?.description || `Solve: ${problemName}`;
-                      const href = `/app?problem=${encodeURIComponent(problemText)}`;
+                      const href = `/app?problem=${encodeURIComponent(problemText)}&autosolve=true`;
 
                       return (
                         <a
