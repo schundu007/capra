@@ -270,7 +270,7 @@ function FormattedContent({ content, color = 'emerald' }) {
             </div>
           )}
           <pre
-            className="p-4 text-lg leading-7 overflow-x-auto"
+            className="p-4 text-sm leading-6 overflow-x-auto"
             style={{
               fontFamily: '"SF Mono", "Monaco", "Inconsolata", "Fira Mono", "Droid Sans Mono", "Source Code Pro", "Courier New", monospace',
               whiteSpace: 'pre',
@@ -288,7 +288,7 @@ function FormattedContent({ content, color = 'emerald' }) {
       elements.push(
         <div key={`diagram-${blockIdx}`} className="my-4 rounded-lg border overflow-x-auto" style={{ background: '#0d1117', borderColor: 'rgba(255,255,255,0.1)' }}>
           <pre
-            className="p-4 text-lg leading-7"
+            className="p-4 text-sm leading-6"
             style={{
               fontFamily: '"SF Mono", "Monaco", "Inconsolata", "Fira Mono", "Droid Sans Mono", "Source Code Pro", "Courier New", monospace',
               whiteSpace: 'pre',
@@ -313,7 +313,7 @@ function FormattedContent({ content, color = 'emerald' }) {
               {currentList.map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 flex-shrink-0" />
-                  <span className="text-gray-300 text-lg leading-relaxed">{formatInlineText(item)}</span>
+                  <span className="text-gray-300 text-sm leading-relaxed">{formatInlineText(item)}</span>
                 </li>
               ))}
             </ul>
@@ -336,7 +336,7 @@ function FormattedContent({ content, color = 'emerald' }) {
           flushList();
           const headerText = trimmed.replace(/\*\*/g, '');
           elements.push(
-            <div key={`h-${blockIdx}-${lineIdx}`} className="text-emerald-400 font-semibold text-lg mt-5 mb-3 first:mt-0">
+            <div key={`h-${blockIdx}-${lineIdx}`} className="text-emerald-400 font-semibold text-sm mt-4 mb-2 first:mt-0">
               {headerText}
             </div>
           );
@@ -347,7 +347,7 @@ function FormattedContent({ content, color = 'emerald' }) {
         if (trimmed.endsWith(':') && trimmed.length < 50 && !trimmed.includes('.')) {
           flushList();
           elements.push(
-            <div key={`h-${blockIdx}-${lineIdx}`} className="text-emerald-400 font-semibold text-lg mt-5 mb-3 first:mt-0">
+            <div key={`h-${blockIdx}-${lineIdx}`} className="text-emerald-400 font-semibold text-sm mt-4 mb-2 first:mt-0">
               {trimmed}
             </div>
           );
@@ -363,7 +363,7 @@ function FormattedContent({ content, color = 'emerald' }) {
         // Regular paragraph
         flushList();
         elements.push(
-          <p key={`p-${blockIdx}-${lineIdx}`} className="text-gray-300 text-lg leading-relaxed my-3">
+          <p key={`p-${blockIdx}-${lineIdx}`} className="text-gray-300 text-sm leading-relaxed my-2">
             {formatInlineText(trimmed)}
           </p>
         );
@@ -385,8 +385,11 @@ export default function DocsPage({ onBack }) {
   // Initialize state from URL params for persistence on refresh
   const getInitialState = () => {
     const params = new URLSearchParams(window.location.search);
+    const rawPage = params.get('page') || 'coding';
+    // Support 'dsa' as alias for 'coding'
+    const page = rawPage === 'dsa' ? 'coding' : rawPage;
     return {
-      page: params.get('page') || 'coding',
+      page,
       topic: params.get('topic') || null,
     };
   };
@@ -397,27 +400,24 @@ export default function DocsPage({ onBack }) {
   const [sortOrder, setSortOrder] = useState('a-z');
   const [selectedTopic, setSelectedTopicState] = useState(initialState.topic);
 
-  // Update URL when state changes
-  const updateURL = (page, topic) => {
+  // Sync URL with state via useEffect (avoids stale closure issues)
+  useEffect(() => {
     const params = new URLSearchParams();
-    if (page && page !== 'coding') params.set('page', page);
-    if (topic) params.set('topic', topic);
+    if (activePage && activePage !== 'coding') params.set('page', activePage);
+    if (selectedTopic) params.set('topic', selectedTopic);
     const queryString = params.toString();
     const newURL = queryString ? `/docs?${queryString}` : '/docs';
     window.history.replaceState({}, '', newURL);
-  };
+  }, [activePage, selectedTopic]);
 
-  // Wrapped setters that also update URL
+  // Wrapped setters
   const setActivePage = (page) => {
     setActivePageState(page);
     setSelectedTopicState(null);
-    updateURL(page, null);
   };
 
   const setSelectedTopic = (topic) => {
     setSelectedTopicState(topic);
-    updateURL(activePage, topic);
-    // Scroll to top when selecting a topic
     if (topic) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -27192,7 +27192,7 @@ Best,
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-2 flex-wrap">
-                <h1 className="text-3xl font-bold text-white">{topicDetails.title}</h1>
+                <h1 className="text-xl font-bold text-white">{topicDetails.title}</h1>
                 {topicDetails.difficulty && (
                   <span className={`px-2.5 py-0.5 rounded text-sm font-medium ${
                     topicDetails.difficulty === 'Easy' ? 'bg-green-500/15 text-green-400' :
@@ -27208,7 +27208,7 @@ Best,
                   </span>
                 )}
               </div>
-              <p className="text-gray-400 text-lg leading-relaxed">{topicDetails.description}</p>
+              <p className="text-gray-400 text-sm leading-relaxed">{topicDetails.description}</p>
               {topicDetails.subtitle && !topicDetails.difficulty && (
                 <p className="text-gray-500 text-sm mt-1">{topicDetails.subtitle}</p>
               )}
@@ -27226,7 +27226,7 @@ Best,
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
                     <Icon name="book" size={16} className="text-emerald-400" />
                   </div>
-                  <h3 className="text-3xl font-bold text-white">Overview</h3>
+                  <h3 className="text-sm font-bold text-white">Overview</h3>
                 </div>
                 <div className="p-5">
                   <FormattedContent content={topicDetails.introduction} color="emerald" />
@@ -27255,7 +27255,7 @@ Best,
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
                       <Icon name="target" size={16} className="text-emerald-400" />
                     </div>
-                    <h3 className="text-3xl font-bold text-white">When to Use</h3>
+                    <h3 className="text-sm font-bold text-white">When to Use</h3>
                   </div>
                   <div className="p-4">
                     <ul className="space-y-2">
@@ -27277,7 +27277,7 @@ Best,
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${topicDetails.color}20` }}>
                       <Icon name="puzzle" size={16} style={{ color: topicDetails.color }} />
                     </div>
-                    <h3 className="text-3xl font-bold text-white">Key Patterns</h3>
+                    <h3 className="text-sm font-bold text-white">Key Patterns</h3>
                   </div>
                   <div className="p-4">
                     <div className="flex flex-wrap gap-2">
@@ -27301,7 +27301,7 @@ Best,
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
                       <Icon name="list" size={16} className="text-emerald-400" />
                     </div>
-                    <h3 className="text-3xl font-bold text-white">Step-by-Step Approach</h3>
+                    <h3 className="text-sm font-bold text-white">Step-by-Step Approach</h3>
                   </div>
                   <div className="p-4">
                     <ol className="space-y-2">
@@ -27323,7 +27323,7 @@ Best,
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-red-500/20">
                       <Icon name="alertTriangle" size={16} className="text-red-400" />
                     </div>
-                    <h3 className="text-3xl font-bold text-white">Common Mistakes</h3>
+                    <h3 className="text-sm font-bold text-white">Common Mistakes</h3>
                   </div>
                   <div className="p-4">
                     <ul className="space-y-2">
@@ -27342,12 +27342,12 @@ Best,
             {/* Common Problems - Clickable to solve */}
             {topicDetails.commonProblems && (
               <div id="practice" className="rounded-xl overflow-hidden scroll-mt-24" style={CARD_STYLES.card}>
-                <div className="px-5 py-4 flex items-center gap-3" style={CARD_STYLES.header}>
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/15">
-                    <Icon name="star" size={18} className="text-emerald-400" />
+                <div className="px-3 py-2 flex items-center gap-3" style={CARD_STYLES.header}>
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
+                    <Icon name="star" size={14} className="text-emerald-400" />
                   </div>
-                  <h3 className="text-2xl font-bold text-white">Practice Problems</h3>
-                  <span className="text-lg text-gray-500 ml-auto">{topicDetails.commonProblems.length} problems</span>
+                  <h3 className="text-sm font-bold text-white">Practice Problems</h3>
+                  <span className="text-sm text-gray-500 ml-auto">{topicDetails.commonProblems.length} problems</span>
                 </div>
                 <div className="p-5">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -27358,10 +27358,12 @@ Best,
                       const difficulty = typeof problem === 'object' ? problem.difficulty : (problemData?.difficulty || null);
                       const leetCodeUrl = getLeetCodeUrl(problemName);
 
-                      // Link to internal page if we have the problem, otherwise fetch from LeetCode in main page
-                      const href = problemData
-                        ? `/problems/${slug}`
-                        : `/?fetchUrl=${encodeURIComponent(leetCodeUrl)}`;
+                      // Always link to the main coding page to solve the problem
+                      const href = problemData?.leetcodeUrl
+                        ? `https://capra.cariara.com/app?fetchUrl=${encodeURIComponent(problemData.leetcodeUrl)}`
+                        : leetCodeUrl
+                          ? `https://capra.cariara.com/app?fetchUrl=${encodeURIComponent(leetCodeUrl)}`
+                          : `https://capra.cariara.com/app?problem=${encodeURIComponent(problemName)}`;
 
                       return (
                         <a
@@ -27369,13 +27371,13 @@ Best,
                           href={href}
                           className="flex items-center gap-3 p-3 rounded-lg hover:bg-emerald-500/10 transition-colors cursor-pointer group border border-transparent hover:border-emerald-500/30"
                         >
-                          <span className="w-7 h-7 rounded-lg flex items-center justify-center text-lg font-mono bg-emerald-500/15 text-emerald-400 group-hover:bg-emerald-500/25">{i + 1}</span>
-                          <span className="text-gray-300 text-lg flex-1 truncate group-hover:text-emerald-300 transition-colors">{problemName}</span>
+                          <span className="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-mono bg-emerald-500/15 text-emerald-400 group-hover:bg-emerald-500/25">{i + 1}</span>
+                          <span className="text-gray-300 text-sm flex-1 truncate group-hover:text-emerald-300 transition-colors">{problemName}</span>
                           <span className="px-2 py-0.5 bg-emerald-500/15 text-emerald-400 text-xs rounded flex-shrink-0">
-                            {problemData ? 'View' : 'Solve'}
+                            Solve
                           </span>
                           {difficulty && (
-                            <span className={`px-2 py-0.5 rounded text-sm flex-shrink-0 ${
+                            <span className={`px-2 py-0.5 rounded text-xs flex-shrink-0 ${
                               difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :
                               difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-400' :
                               'bg-red-500/20 text-red-400'
@@ -27396,7 +27398,7 @@ Best,
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
                     <Icon name="bookOpen" size={16} className="text-emerald-400" />
                   </div>
-                  <h3 className="text-3xl font-bold text-white">Theory Questions</h3>
+                  <h3 className="text-sm font-bold text-white">Theory Questions</h3>
                   <span className="text-sm text-gray-500 ml-auto">{topicDetails.theoryQuestions.length} questions</span>
                 </div>
                 <div className="p-3">
@@ -27411,9 +27413,9 @@ Best,
                             className="w-full flex items-center gap-2 p-3 hover:bg-white/5 transition-colors text-left"
                           >
                             <span className="w-6 h-6 rounded flex items-center justify-center text-sm font-mono bg-emerald-500/15 text-emerald-400 flex-shrink-0">{i + 1}</span>
-                            <span className="text-gray-200 text-lg flex-1">{q.question}</span>
+                            <span className="text-gray-200 text-sm flex-1">{q.question}</span>
                             {q.difficulty && (
-                              <span className={`px-2 py-0.5 rounded text-sm flex-shrink-0 ${
+                              <span className={`px-2 py-0.5 rounded text-xs flex-shrink-0 ${
                                 q.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :
                                 q.difficulty === 'Medium' ? 'bg-emerald-500/15 text-emerald-400' :
                                 'bg-red-500/20 text-red-400'
@@ -27447,13 +27449,13 @@ Best,
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
                       <Icon name="lightbulb" size={16} className="text-emerald-400" />
                     </div>
-                    <h3 className="text-3xl font-bold text-white">Tips & Tricks</h3>
+                    <h3 className="text-sm font-bold text-white">Tips & Tricks</h3>
                   </div>
                   <div className="divide-y divide-emerald-500/10">
                     {topicDetails.tips.map((tip, i) => (
                       <div key={i} className="px-3 py-2 flex items-center gap-4 hover:bg-white/5 transition-colors">
                         <span className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-emerald-500/20 text-emerald-400 text-sm">✓</span>
-                        <span className="text-gray-300 text-lg">{tip}</span>
+                        <span className="text-gray-300 text-sm">{tip}</span>
                       </div>
                     ))}
                   </div>
@@ -27467,13 +27469,13 @@ Best,
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-amber-500/20">
                       <Icon name="briefcase" size={16} className="text-amber-400" />
                     </div>
-                    <h3 className="text-3xl font-bold text-white">Interview Tips</h3>
+                    <h3 className="text-sm font-bold text-white">Interview Tips</h3>
                   </div>
                   <div className="divide-y divide-amber-500/10">
                     {topicDetails.interviewTips.map((tip, i) => (
                       <div key={i} className="px-3 py-2 flex items-center gap-4 hover:bg-white/5 transition-colors">
                         <span className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-500/20 text-amber-400 text-sm">★</span>
-                        <span className="text-gray-300 text-lg">{tip}</span>
+                        <span className="text-gray-300 text-sm">{tip}</span>
                       </div>
                     ))}
                   </div>
@@ -27497,8 +27499,8 @@ Best,
             {/* Multiple Code Examples */}
             {topicDetails.codeExamples && topicDetails.codeExamples.length > 0 && (
               <div id="code-examples" className="space-y-6 scroll-mt-24">
-                <h3 className="text-3xl font-bold text-white flex items-center gap-2">
-                  <Icon name="code" size={20} className="text-green-400" />
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Icon name="code" size={14} className="text-green-400" />
                   Code Examples
                 </h3>
                 {topicDetails.codeExamples.map((example, i) => (
@@ -28434,12 +28436,12 @@ Best,
         <div className="w-72 flex-shrink-0 h-screen sticky top-0 flex flex-col" style={{ background: 'linear-gradient(180deg, #0d0d12 0%, #0a0a0f 100%)', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
           {/* Logo */}
           <div className="p-6">
-            <a href="/" className="flex items-center gap-3 group">
+            <a href="/docs" className="flex items-center gap-3 group">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
                 <Icon name="ascend" size={22} className="text-white" />
               </div>
               <div>
-                <span className="text-3xl font-bold text-white">Ascend</span>
+                <span className="text-xl font-bold text-white">Ascend</span>
                 <span className="block text-sm text-gray-500">Interview Prep</span>
               </div>
             </a>
@@ -28454,7 +28456,7 @@ Best,
               return (
                 <button
                   key={item.id}
-                  onClick={() => { setActivePage(item.id); setSelectedTopic(null); }}
+                  onClick={() => { setActivePage(item.id); }}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all mb-1 ${
                     isActive ? 'text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'
                   }`}
@@ -28485,7 +28487,7 @@ Best,
             {/* Quick Links */}
             <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider px-3 mt-8 mb-3">Quick Links</div>
             <a
-              href="/"
+              href="https://capra.cariara.com/app"
               className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all text-amber-400 hover:bg-amber-400/10"
             >
               <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-400/10">
@@ -28502,7 +28504,7 @@ Best,
               <span className="text-sm font-semibold text-white">Ascend Pro</span>
             </div>
             <p className="text-sm text-gray-400 mb-3">Get AI-powered practice with real-time feedback</p>
-            <a href="/" className="block text-center py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90" style={{ background: 'linear-gradient(135deg, #a855f7, #3b82f6)' }}>
+            <a href="https://capra.cariara.com/app" className="block text-center py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90" style={{ background: 'linear-gradient(135deg, #a855f7, #3b82f6)' }}>
               Try Free
             </a>
           </div>
@@ -28537,7 +28539,7 @@ Best,
               </div>
               <div className="flex items-center gap-3">
                 <a
-                  href="/"
+                  href="https://capra.cariara.com/app"
                   className="px-4 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-90"
                   style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white' }}
                 >
@@ -28560,8 +28562,8 @@ Best,
                       <Icon name={activePage === 'coding' ? 'code' : activePage === 'system-design' ? 'systemDesign' : 'users'} size={12} />
                       {activePage === 'coding' ? 'Algorithms' : activePage === 'system-design' ? 'Architecture' : 'Soft Skills'}
                     </div>
-                    <h1 className="text-4xl font-bold text-white mb-3">{pageConfig.title}</h1>
-                    <p className="text-lg text-gray-400 max-w-2xl">
+                    <h1 className="text-2xl font-bold text-white mb-3">{pageConfig.title}</h1>
+                    <p className="text-sm text-gray-400 max-w-2xl">
                       {activePage === 'coding' && 'Master the fundamental data structures and algorithms needed to ace technical interviews at top tech companies.'}
                       {activePage === 'system-design' && 'Learn to design scalable, reliable systems that can handle millions of users. Essential for senior engineering roles.'}
                       {activePage === 'behavioral' && 'Prepare compelling stories and answers for behavioral interviews using proven frameworks like STAR.'}
@@ -28611,13 +28613,13 @@ Best,
                       return (
                         <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
                           {/* Category Header */}
-                          <div className="px-6 py-4 flex items-center gap-4" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
-                            <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: `${category.color}20` }}>
-                              <Icon name={category.icon} size={24} style={{ color: category.color }} />
+                          <div className="px-4 py-3 flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${category.color}20` }}>
+                              <Icon name={category.icon} size={16} style={{ color: category.color }} />
                             </div>
                             <div>
-                              <h3 className="text-2xl font-bold text-white">{category.name}</h3>
-                              <span className="text-lg text-gray-500">{categoryTopics.length} topics</span>
+                              <h3 className="text-lg font-bold text-white">{category.name}</h3>
+                              <span className="text-sm text-gray-500">{categoryTopics.length} topics</span>
                             </div>
                           </div>
                           {/* Topics in Category */}
@@ -28626,18 +28628,18 @@ Best,
                               <div
                                 key={topic.id}
                                 onClick={() => setSelectedTopic(topic.id)}
-                                className="px-6 py-4 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
+                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
                               >
-                                <div className="flex items-center gap-4">
-                                  <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}15` }}>
-                                    <Icon name={topic.icon} size={20} style={{ color: topic.color }} />
+                                <div className="flex items-center gap-3">
+                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}15` }}>
+                                    <Icon name={topic.icon} size={12} style={{ color: topic.color }} />
                                   </div>
                                   <div>
-                                    <span className="text-white text-xl font-medium group-hover:text-emerald-400 transition-colors">{topic.title}</span>
-                                    <span className="text-gray-500 text-lg ml-3 hidden md:inline">{topic.description}</span>
+                                    <span className="text-white text-sm font-medium group-hover:text-emerald-400 transition-colors">{topic.title}</span>
+                                    <span className="text-gray-500 text-sm ml-2 hidden md:inline">{topic.description}</span>
                                   </div>
                                 </div>
-                                <span className="px-3 py-1 rounded-lg text-lg font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
+                                <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
                                   {topic.commonProblems?.length || topic.keyQuestions?.length || 0}Q
                                 </span>
                               </div>
@@ -28650,23 +28652,23 @@ Best,
 
                   {/* Quick Reference - Enhanced */}
                   <div className="mb-10">
-                    <div className="flex items-center gap-4 mb-8">
-                      <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-emerald-500/10">
-                        <Icon name="book" size={28} className="text-emerald-400" />
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/10">
+                        <Icon name="book" size={16} className="text-emerald-400" />
                       </div>
-                      <h2 className="text-4xl font-bold text-white">Quick Reference</h2>
+                      <h2 className="text-base font-bold text-white">Quick Reference</h2>
                     </div>
-                    <div className="grid md:grid-cols-2 gap-8">
+                    <div className="grid md:grid-cols-2 gap-6">
                       {/* Time Complexity Card */}
                       <div className="rounded-xl overflow-hidden" style={CARD_STYLES.card}>
-                        <div className="px-6 py-5 border-b border-emerald-500/20" style={{ background: 'rgba(16,185,129,0.05)' }}>
-                          <h3 className="text-xl text-white font-semibold flex items-center gap-3">
-                            <Icon name="clock" size={24} className="text-emerald-400" />
+                        <div className="px-4 py-3 border-b border-emerald-500/20" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                          <h3 className="text-sm text-white font-semibold flex items-center gap-2">
+                            <Icon name="clock" size={16} className="text-emerald-400" />
                             Time Complexity Cheat Sheet
                           </h3>
                         </div>
-                        <div className="p-6">
-                          <table className="w-full text-lg">
+                        <div className="p-4">
+                          <table className="w-full text-sm">
                             <tbody>
                               {[
                                 { complexity: 'O(1)', desc: 'Constant', rating: 'Best', color: '#10b981' },
@@ -28677,10 +28679,10 @@ Best,
                                 { complexity: 'O(2ⁿ)', desc: 'Exponential', rating: 'Avoid', color: '#ef4444' },
                               ].map((item, i) => (
                                 <tr key={i} className="border-b border-white/5 last:border-0">
-                                  <td className="py-3 font-mono text-xl text-emerald-400">{item.complexity}</td>
-                                  <td className="py-3 text-gray-400">{item.desc}</td>
-                                  <td className="py-3 text-right">
-                                    <span className="px-3 py-1 rounded-lg text-lg font-medium" style={{ background: `${item.color}20`, color: item.color }}>
+                                  <td className="py-2 font-mono text-sm text-emerald-400">{item.complexity}</td>
+                                  <td className="py-2 text-gray-400">{item.desc}</td>
+                                  <td className="py-2 text-right">
+                                    <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${item.color}20`, color: item.color }}>
                                       {item.rating}
                                     </span>
                                   </td>
@@ -28692,14 +28694,14 @@ Best,
                       </div>
                       {/* Data Structure Selection Card */}
                       <div className="rounded-xl overflow-hidden" style={CARD_STYLES.card}>
-                        <div className="px-6 py-5 border-b border-emerald-500/20" style={{ background: 'rgba(16,185,129,0.05)' }}>
-                          <h3 className="text-xl text-white font-semibold flex items-center gap-3">
-                            <Icon name="database" size={24} className="text-emerald-400" />
+                        <div className="px-4 py-3 border-b border-emerald-500/20" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                          <h3 className="text-sm text-white font-semibold flex items-center gap-2">
+                            <Icon name="database" size={16} className="text-emerald-400" />
                             When to Use What
                           </h3>
                         </div>
-                        <div className="p-6">
-                          <table className="w-full text-lg">
+                        <div className="p-4">
+                          <table className="w-full text-sm">
                             <tbody>
                               {[
                                 { need: 'Fast lookup', solution: 'Hash Map', icon: 'hash' },
@@ -28710,9 +28712,9 @@ Best,
                                 { need: 'Prefix matching', solution: 'Trie', icon: 'search' },
                               ].map((item, i) => (
                                 <tr key={i} className="border-b border-white/5 last:border-0">
-                                  <td className="py-3 text-gray-400">{item.need}</td>
-                                  <td className="py-3 text-right">
-                                    <span className="px-4 py-1.5 rounded-lg text-lg font-medium bg-emerald-500/10 text-emerald-400">
+                                  <td className="py-2 text-gray-400">{item.need}</td>
+                                  <td className="py-2 text-right">
+                                    <span className="px-2 py-0.5 rounded text-sm font-medium bg-emerald-500/10 text-emerald-400">
                                       {item.solution}
                                     </span>
                                   </td>
@@ -28833,7 +28835,7 @@ Best,
                                       {design.difficulty}
                                     </span>
                                     <a
-                                      href={`/?problem=${encodeURIComponent(designProblem)}&mode=system-design&autosolve=true`}
+                                      href={`https://capra.cariara.com/app?problem=${encodeURIComponent(designProblem)}&mode=system-design&autosolve=true`}
                                       className="px-4 py-2 rounded-lg text-lg font-medium bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 transition-colors flex items-center gap-2"
                                       onClick={(e) => e.stopPropagation()}
                                     >
@@ -29141,7 +29143,7 @@ Best,
                     <a
                       key={item.id}
                       href={`#${item.id}`}
-                      className="block px-3 py-2 text-lg text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                      className="block px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                     >
                       {item.label}
                     </a>
@@ -29153,7 +29155,7 @@ Best,
                   <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Quick Actions</div>
                   <div className="space-y-2">
                     <a
-                      href="/"
+                      href="https://capra.cariara.com/app"
                       className="flex items-center gap-2 px-3 py-2 text-sm text-emerald-400 hover:bg-emerald-400/10 rounded-lg transition-colors"
                     >
                       <Icon name="play" size={14} />
@@ -29161,7 +29163,7 @@ Best,
                     </a>
                     <button
                       onClick={() => setSelectedTopic(null)}
-                      className="flex items-center gap-2 px-3 py-2 text-lg text-gray-400 hover:bg-white/5 rounded-lg transition-colors w-full text-left"
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:bg-white/5 rounded-lg transition-colors w-full text-left"
                     >
                       <Icon name="list" size={14} />
                       <span>All Topics</span>

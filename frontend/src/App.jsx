@@ -257,7 +257,7 @@ export default function App() {
     if (isElectron || !authChecked) return;
     const path = window.location.pathname;
     if (isAuthenticated && (path === '/login' || path === '/')) {
-      window.history.replaceState({}, '', '/app');
+      window.history.replaceState({}, '', '/app' + window.location.search);
     }
   }, [isAuthenticated, authChecked]);
 
@@ -837,9 +837,9 @@ export default function App() {
     return <OAuthLogin />;
   }
 
-  // Redirect authenticated users to /app
+  // Redirect authenticated users to /app (preserve query params for deep-links like ?fetchUrl=...)
   if (authRequired && isAuthenticated && (window.location.pathname === '/login' || window.location.pathname === '/')) {
-    window.history.replaceState({}, '', '/app');
+    window.history.replaceState({}, '', '/app' + window.location.search);
   }
 
   // ---------------------------------------------------------------------------
