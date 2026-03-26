@@ -27192,7 +27192,7 @@ Best,
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-2 flex-wrap">
-                <h1 className="text-xl font-bold text-white">{topicDetails.title}</h1>
+                <h1 className="text-base font-bold text-white">{topicDetails.title}</h1>
                 {topicDetails.difficulty && (
                   <span className={`px-2.5 py-0.5 rounded text-sm font-medium ${
                     topicDetails.difficulty === 'Easy' ? 'bg-green-500/15 text-green-400' :
@@ -28562,7 +28562,7 @@ Best,
                       <Icon name={activePage === 'coding' ? 'code' : activePage === 'system-design' ? 'systemDesign' : 'users'} size={12} />
                       {activePage === 'coding' ? 'Algorithms' : activePage === 'system-design' ? 'Architecture' : 'Soft Skills'}
                     </div>
-                    <h1 className="text-2xl font-bold text-white mb-3">{pageConfig.title}</h1>
+                    <h1 className="text-lg font-bold text-white mb-3">{pageConfig.title}</h1>
                     <p className="text-sm text-gray-400 max-w-2xl">
                       {activePage === 'coding' && 'Master the fundamental data structures and algorithms needed to ace technical interviews at top tech companies.'}
                       {activePage === 'system-design' && 'Learn to design scalable, reliable systems that can handle millions of users. Essential for senior engineering roles.'}
@@ -28584,11 +28584,11 @@ Best,
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-lg text-gray-500">Sort:</span>
+                      <span className="text-sm text-gray-500">Sort:</span>
                       <select
                         value={sortOrder}
                         onChange={(e) => setSortOrder(e.target.value)}
-                        className="px-4 py-3 rounded-xl text-lg text-gray-300 focus:outline-none cursor-pointer transition-all hover:bg-white/10"
+                        className="px-3 py-2 rounded-lg text-sm text-gray-300 focus:outline-none cursor-pointer transition-all hover:bg-white/10"
                         style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
                       >
                         <option value="a-z">A - Z</option>
@@ -28597,7 +28597,7 @@ Best,
                         <option value="least">Least Questions</option>
                       </select>
                     </div>
-                    <div className="text-lg text-gray-500">
+                    <div className="text-sm text-gray-500">
                       {filteredTopics.length} {filteredTopics.length === 1 ? 'topic' : 'topics'}
                     </div>
                   </div>
@@ -28618,7 +28618,7 @@ Best,
                               <Icon name={category.icon} size={16} style={{ color: category.color }} />
                             </div>
                             <div>
-                              <h3 className="text-lg font-bold text-white">{category.name}</h3>
+                              <h3 className="text-sm font-bold text-white">{category.name}</h3>
                               <span className="text-sm text-gray-500">{categoryTopics.length} topics</span>
                             </div>
                           </div>
@@ -28656,7 +28656,7 @@ Best,
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/10">
                         <Icon name="book" size={16} className="text-emerald-400" />
                       </div>
-                      <h2 className="text-base font-bold text-white">Quick Reference</h2>
+                      <h2 className="text-sm font-bold text-white">Quick Reference</h2>
                     </div>
                     <div className="grid md:grid-cols-2 gap-6">
                       {/* Time Complexity Card */}
@@ -28745,7 +28745,7 @@ Best,
                               <Icon name={category.icon} size={16} style={{ color: category.color }} />
                             </div>
                             <div>
-                              <h3 className="text-lg font-bold text-white">{category.name}</h3>
+                              <h3 className="text-sm font-bold text-white">{category.name}</h3>
                               <span className="text-sm text-gray-500">{categoryTopics.length} topics</span>
                             </div>
                           </div>
@@ -28804,7 +28804,7 @@ Best,
                               <Icon name={category.icon} size={16} style={{ color: category.color }} />
                             </div>
                             <div>
-                              <h3 className="text-lg font-bold text-white">{category.name}</h3>
+                              <h3 className="text-sm font-bold text-white">{category.name}</h3>
                               <span className="text-sm text-gray-500">{categoryDesigns.length} systems</span>
                             </div>
                           </div>
@@ -28878,7 +28878,7 @@ Best,
                               <Icon name={category.icon} size={16} style={{ color: category.color }} />
                             </div>
                             <div>
-                              <h3 className="text-lg font-bold text-white">{category.name}</h3>
+                              <h3 className="text-sm font-bold text-white">{category.name}</h3>
                               <span className="text-sm text-gray-500">{categoryProblems.length} problems</span>
                             </div>
                           </div>
@@ -29041,7 +29041,7 @@ Best,
                               <Icon name={category.icon} size={16} style={{ color: category.color }} />
                             </div>
                             <div>
-                              <h3 className="text-lg font-bold text-white">{category.name}</h3>
+                              <h3 className="text-sm font-bold text-white">{category.name}</h3>
                               <span className="text-sm text-gray-500">{categoryTopics.length} topics</span>
                             </div>
                           </div>
