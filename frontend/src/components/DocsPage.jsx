@@ -27360,10 +27360,10 @@ Best,
 
                       // Always link to the main coding page to solve the problem
                       const href = problemData?.leetcodeUrl
-                        ? `https://capra.cariara.com/app?fetchUrl=${encodeURIComponent(problemData.leetcodeUrl)}`
+                        ? `/app?fetchUrl=${encodeURIComponent(problemData.leetcodeUrl)}`
                         : leetCodeUrl
-                          ? `https://capra.cariara.com/app?fetchUrl=${encodeURIComponent(leetCodeUrl)}`
-                          : `https://capra.cariara.com/app?problem=${encodeURIComponent(problemName)}`;
+                          ? `/app?fetchUrl=${encodeURIComponent(leetCodeUrl)}`
+                          : `/app?problem=${encodeURIComponent(problemName)}`;
 
                       return (
                         <a
@@ -28487,7 +28487,7 @@ Best,
             {/* Quick Links */}
             <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider px-3 mt-8 mb-3">Quick Links</div>
             <a
-              href="https://capra.cariara.com/app"
+              href="/app"
               className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all text-amber-400 hover:bg-amber-400/10"
             >
               <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-400/10">
@@ -28504,7 +28504,7 @@ Best,
               <span className="text-sm font-semibold text-white">Ascend Pro</span>
             </div>
             <p className="text-sm text-gray-400 mb-3">Get AI-powered practice with real-time feedback</p>
-            <a href="https://capra.cariara.com/app" className="block text-center py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90" style={{ background: 'linear-gradient(135deg, #a855f7, #3b82f6)' }}>
+            <a href="/app" className="block text-center py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90" style={{ background: 'linear-gradient(135deg, #a855f7, #3b82f6)' }}>
               Try Free
             </a>
           </div>
@@ -28539,7 +28539,7 @@ Best,
               </div>
               <div className="flex items-center gap-3">
                 <a
-                  href="https://capra.cariara.com/app"
+                  href="/app"
                   className="px-4 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-90"
                   style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white' }}
                 >
@@ -28835,7 +28835,7 @@ Best,
                                       {design.difficulty}
                                     </span>
                                     <a
-                                      href={`https://capra.cariara.com/app?problem=${encodeURIComponent(designProblem)}&mode=system-design&autosolve=true`}
+                                      href={`/app?problem=${encodeURIComponent(designProblem)}&mode=system-design`}
                                       className="px-4 py-2 rounded-lg text-lg font-medium bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 transition-colors flex items-center gap-2"
                                       onClick={(e) => e.stopPropagation()}
                                     >
@@ -29155,7 +29155,7 @@ Best,
                   <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Quick Actions</div>
                   <div className="space-y-2">
                     <a
-                      href="https://capra.cariara.com/app"
+                      href="/app"
                       className="flex items-center gap-2 px-3 py-2 text-sm text-emerald-400 hover:bg-emerald-400/10 rounded-lg transition-colors"
                     >
                       <Icon name="play" size={14} />

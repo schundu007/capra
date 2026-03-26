@@ -251,21 +251,19 @@ export default function App() {
   }, [isAuthenticated, authChecked]);
 
   // ---------------------------------------------------------------------------
-  // URL-based routing for webapp
-  // ---------------------------------------------------------------------------
-  useEffect(() => {
-    if (isElectron || !authChecked) return;
-    const path = window.location.pathname;
-    if (isAuthenticated && (path === '/login' || path === '/')) {
-      window.history.replaceState({}, '', '/app' + window.location.search);
-    }
-  }, [isAuthenticated, authChecked]);
-
-  // ---------------------------------------------------------------------------
   // Handle incoming problem from docs page (Practice Problems click)
   // ---------------------------------------------------------------------------
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
+    // Check URL params first, then check sessionStorage for post-login redirect
+    let urlParams = new URLSearchParams(window.location.search);
+    if (!urlParams.get('problem') && !urlParams.get('fetchUrl')) {
+      const savedRedirect = sessionStorage.getItem('postLoginRedirect');
+      if (savedRedirect) {
+        sessionStorage.removeItem('postLoginRedirect');
+        const savedUrl = new URL(savedRedirect, window.location.origin);
+        urlParams = savedUrl.searchParams;
+      }
+    }
     const problemParam = urlParams.get('problem');
     const fetchUrlParam = urlParams.get('fetchUrl');
     const autosolve = urlParams.get('autosolve') === 'true';
@@ -831,15 +829,20 @@ export default function App() {
   // Render: Auth Required (Landing/Login)
   // ---------------------------------------------------------------------------
   if (authRequired && !isAuthenticated) {
-    if (window.location.pathname === '/login') {
+    // Save intended destination for post-login redirect (e.g., /app?problem=...&mode=system-design)
+    const currentUrl = window.location.pathname + window.location.search;
+    if (currentUrl !== '/' && !currentUrl.startsWith('/docs') && currentUrl !== '/login') {
+      sessionStorage.setItem('postLoginRedirect', currentUrl);
+    }
+    if (window.location.pathname !== '/') {
       window.history.replaceState({}, '', '/');
     }
     return <OAuthLogin />;
   }
 
-  // Redirect authenticated users to /app (preserve query params for deep-links like ?fetchUrl=...)
-  if (authRequired && isAuthenticated && (window.location.pathname === '/login' || window.location.pathname === '/')) {
-    window.history.replaceState({}, '', '/app' + window.location.search);
+  // Clean up /login path for authenticated users
+  if (authRequired && isAuthenticated && window.location.pathname === '/login') {
+    window.history.replaceState({}, '', '/');
   }
 
   // ---------------------------------------------------------------------------
