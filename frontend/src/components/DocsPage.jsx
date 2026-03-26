@@ -27368,12 +27368,9 @@ Best,
                       const difficulty = typeof problem === 'object' ? problem.difficulty : (problemData?.difficulty || null);
                       const leetCodeUrl = getLeetCodeUrl(problemName);
 
-                      // Use local problem data if available (no backend fetch needed), otherwise fetch from LeetCode
-                      const href = problemData?.description
-                        ? `/app?problem=${encodeURIComponent(problemData.description)}`
-                        : leetCodeUrl
-                          ? `/app?fetchUrl=${encodeURIComponent(leetCodeUrl)}`
-                          : `/app?problem=${encodeURIComponent(problemName)}`;
+                      // Pass problem directly - use local description if available, otherwise problem name
+                      const problemText = problemData?.description || `Solve: ${problemName}`;
+                      const href = `/app?problem=${encodeURIComponent(problemText)}`;
 
                       return (
                         <a
