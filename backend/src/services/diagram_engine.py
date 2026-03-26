@@ -48,8 +48,9 @@ CRITICAL LAYOUT RULES (MUST FOLLOW):
 3. Use `show=False` — diagrams will be rendered server-side.
 4. Use the provided `filename` variable: filename=DIAGRAM_FILENAME
 5. Use the provided format variable: outformat=DIAGRAM_FORMAT
-6. ALWAYS use direction="LR" for HORIZONTAL left-to-right flow. NEVER use "TB" (top-bottom).
-7. ALWAYS add graph_attr and node_attr for COMPACT sizing:
+6. ALWAYS use direction="LR" for HORIZONTAL left-to-right flow. NEVER EVER use "TB" (top-bottom). This is NON-NEGOTIABLE.
+7. The FIRST LINE of the Diagram() call MUST include direction="LR". Double-check your output.
+8. ALWAYS add graph_attr and node_attr for COMPACT sizing:
    graph_attr={
        "splines": "ortho",
        "nodesep": "0.4",
@@ -344,12 +345,12 @@ def detect_cloud_provider(question: str) -> str:
     elif azure_count > gcp_count and azure_count > aws_count:
         return 'azure'
     else:
-        # Default to GCP or multi-cloud
-        return 'gcp'
+        # Default to AWS (most common in interviews)
+        return 'aws'
 
 
 def sanitize_code(code: str) -> str:
-    """Security check - block dangerous patterns."""
+    """Security check and layout fixes."""
     for pattern in BLOCKED_PATTERNS:
         if re.search(pattern, code, re.IGNORECASE):
             raise SecurityError(f"Blocked dangerous pattern: {pattern}")
@@ -359,6 +360,13 @@ def sanitize_code(code: str) -> str:
     for imp in import_lines:
         if not imp.startswith('diagrams'):
             raise SecurityError(f"Blocked non-diagrams import: {imp}")
+
+    # Force direction="LR" — replace any "TB" with "LR"
+    code = re.sub(r'direction\s*=\s*["\']TB["\']', 'direction="LR"', code)
+
+    # Ensure direction="LR" exists in Diagram() call
+    if 'direction=' not in code and 'Diagram(' in code:
+        code = code.replace('show=False', 'show=False, direction="LR"')
 
     return code
 
