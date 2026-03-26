@@ -19,6 +19,24 @@ export default function OAuthLogin({ loginOnly = false }) {
   const statsRef = useRef(null);
   const [statsAnimated, setStatsAnimated] = useState(false);
   const [activePipeline, setActivePipeline] = useState(0);
+  const [typedCode, setTypedCode] = useState('');
+  const [cursorVisible, setCursorVisible] = useState(true);
+
+  // Typing animation for hero mockup
+  useEffect(() => {
+    const code = `def two_sum(nums, target):\n    seen = {}\n    for i, n in enumerate(nums):\n        if target - n in seen:\n            return [seen[target-n], i]\n        seen[n] = i\n    return []`;
+    let idx = 0;
+    const typeInterval = setInterval(() => {
+      if (idx <= code.length) {
+        setTypedCode(code.slice(0, idx));
+        idx++;
+      } else {
+        clearInterval(typeInterval);
+      }
+    }, 35);
+    const cursorInterval = setInterval(() => setCursorVisible(v => !v), 530);
+    return () => { clearInterval(typeInterval); clearInterval(cursorInterval); };
+  }, []);
 
   // Scroll-triggered animations
   useEffect(() => {
@@ -150,10 +168,15 @@ export default function OAuthLogin({ loginOnly = false }) {
   // ══════════════════════════════════════════════════════════════════════════════
   return (
     <div className="min-h-screen relative" style={{ background: '#09090b', fontFamily: "'Inter', sans-serif" }}>
-      {/* Ambient BG */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)', backgroundSize: '80px 80px' }} />
-        <div className="absolute w-[900px] h-[900px] rounded-full opacity-[0.12]" style={{ background: 'radial-gradient(circle, #10b98120 0%, transparent 55%)', top: '-350px', left: '50%', transform: 'translateX(-50%)' }} />
+      {/* Ambient BG with AI-era orbs */}
+      <div className="fixed inset-0 pointer-events-none noise-bg">
+        <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)', backgroundSize: '80px 80px' }} />
+        {/* Primary green orb */}
+        <div className="absolute w-[900px] h-[900px] rounded-full orb-pulse" style={{ background: 'radial-gradient(circle, #10b98118 0%, transparent 55%)', top: '-350px', left: '50%' }} />
+        {/* Secondary blue orb */}
+        <div className="absolute w-[600px] h-[600px] rounded-full" style={{ background: 'radial-gradient(circle, #3b82f610 0%, transparent 55%)', top: '40%', right: '-200px', opacity: 0.15, animation: 'orbPulse 10s ease-in-out infinite 2s' }} />
+        {/* Tertiary purple orb */}
+        <div className="absolute w-[500px] h-[500px] rounded-full" style={{ background: 'radial-gradient(circle, #8b5cf610 0%, transparent 55%)', bottom: '10%', left: '-150px', opacity: 0.1, animation: 'orbPulse 12s ease-in-out infinite 4s' }} />
       </div>
 
       <div className="relative z-10">
@@ -188,16 +211,20 @@ export default function OAuthLogin({ loginOnly = false }) {
         {/* ═══════════════ HERO ═══════════════ */}
         <section className="pt-28 pb-12 max-w-6xl mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto">
-            {/* Trust badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium mb-6" style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#34d399' }}>
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+            {/* AI-era trust badge with shimmer */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold mb-6 ai-shimmer" style={{ background: 'rgba(16, 185, 129, 0.06)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#34d399' }}>
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
+              </span>
+              <Icon name="sparkles" size={12} className="text-green-400" />
               #1 AI-Powered Interview Platform — 50,000+ Engineers
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold mb-4 leading-[1.08] tracking-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-[3.75rem] font-black mb-5 leading-[1.06] tracking-tight">
               <span className="text-white">From Job Search to</span>
               <br />
-              <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #10b981, #34d399, #6ee7b7)' }}>Offer Letter</span>
+              <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #10b981 0%, #34d399 40%, #6ee7b7 70%, #a7f3d0 100%)', WebkitBackgroundClip: 'text' }}>Offer Letter</span>
             </h1>
 
             <p className="text-base sm:text-lg text-gray-400 mb-7 max-w-xl mx-auto leading-relaxed">
@@ -214,8 +241,22 @@ export default function OAuthLogin({ loginOnly = false }) {
               </button>
             </div>
 
+            {/* AI model badges */}
+            <div className="flex items-center justify-center gap-3 mb-6">
+              {[
+                { label: 'Claude Opus / Sonnet', color: '#d97706', bg: 'rgba(217, 119, 6, 0.08)', border: 'rgba(217, 119, 6, 0.2)' },
+                { label: 'GPT-4o', color: '#10b981', bg: 'rgba(16, 185, 129, 0.08)', border: 'rgba(16, 185, 129, 0.2)' },
+                { label: 'Whisper + Deepgram', color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.08)', border: 'rgba(139, 92, 246, 0.2)' },
+              ].map((m, i) => (
+                <div key={i} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium" style={{ background: m.bg, border: `1px solid ${m.border}`, color: m.color }}>
+                  <Icon name="brain" size={10} />
+                  {m.label}
+                </div>
+              ))}
+            </div>
+
             {/* Social proof */}
-            <div className="flex flex-wrap items-center justify-center gap-4">
+            <div className="flex flex-wrap items-center justify-center gap-4 mb-12">
               <div className="flex -space-x-2">
                 {['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899'].map((c, i) => (
                   <div key={i} className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold ring-2 ring-[#09090b]" style={{ background: c }}>
@@ -227,6 +268,136 @@ export default function OAuthLogin({ loginOnly = false }) {
                 <div className="flex">{[...Array(5)].map((_, i) => <Icon key={i} name="star5" size={13} className="text-yellow-400" />)}</div>
                 <span className="text-gray-400"><span className="text-white font-semibold">4.9</span> from 2,000+ reviews</span>
               </div>
+            </div>
+          </div>
+
+          {/* ── Hero Product Mockup ── */}
+          <div className="max-w-5xl mx-auto">
+            <div className="relative rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #0c1220, #141c2e)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 25px 80px rgba(0,0,0,0.5), 0 0 60px rgba(16, 185, 129, 0.06)' }}>
+              {/* Browser chrome */}
+              <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: 'rgba(0,0,0,0.5)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <div className="flex gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
+                </div>
+                <div className="flex-1 flex justify-center">
+                  <div className="flex items-center gap-2 px-4 py-1 rounded-md text-xs" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                    <Icon name="lock" size={10} className="text-green-400" />
+                    <span className="text-gray-400">ascend.cariara.com</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-4 h-4 rounded flex items-center justify-center" style={{ background: 'rgba(16, 185, 129, 0.2)' }}>
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                  </div>
+                  <span className="text-green-400 text-[10px] font-medium">Stealth Active</span>
+                </div>
+              </div>
+
+              {/* App UI mockup */}
+              <div className="grid grid-cols-12 min-h-[340px]">
+                {/* Sidebar */}
+                <div className="col-span-2 p-3 hidden md:block" style={{ borderRight: '1px solid rgba(255,255,255,0.05)', background: 'rgba(0,0,0,0.2)' }}>
+                  <div className="flex items-center gap-2 mb-4 px-2">
+                    <img src={import.meta.env.BASE_URL + 'ascend-icon.png'} alt="Ascend" className="w-5 h-5" />
+                    <span className="text-white text-xs font-bold">Ascend</span>
+                  </div>
+                  {[
+                    { label: 'Coding', icon: 'code', active: true, color: '#10b981' },
+                    { label: 'System Design', icon: 'systemDesign', color: '#3b82f6' },
+                    { label: 'Behavioral', icon: 'users', color: '#8b5cf6' },
+                    { label: 'Prep', icon: 'briefcase', color: '#f59e0b' },
+                    { label: 'Voice', icon: 'microphone', color: '#ec4899' },
+                  ].map((item, i) => (
+                    <div key={i} className={`flex items-center gap-2 px-2 py-1.5 rounded-lg mb-1 text-[10px] ${item.active ? 'text-white' : 'text-gray-500'}`} style={item.active ? { background: `${item.color}15`, borderLeft: `2px solid ${item.color}` } : {}}>
+                      <Icon name={item.icon} size={12} style={item.active ? { color: item.color } : {}} />
+                      {item.label}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Problem panel */}
+                <div className="col-span-5 md:col-span-4 p-4" style={{ borderRight: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-gray-400 text-[10px] uppercase tracking-wider">Problem</span>
+                    <div className="flex gap-1">
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-medium" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24' }}>Medium</span>
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-medium" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa' }}>Arrays</span>
+                    </div>
+                  </div>
+                  <div className="p-3 rounded-lg mb-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                    <p className="text-gray-300 text-xs leading-relaxed">Given an array of integers <span className="text-green-400 font-mono">nums</span> and an integer <span className="text-green-400 font-mono">target</span>, return indices of the two numbers such that they add up to <span className="text-green-400 font-mono">target</span>.</p>
+                  </div>
+                  <div className="p-2.5 rounded-lg mb-3" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                    <div className="text-gray-500 text-[9px] uppercase mb-1">Example</div>
+                    <div className="font-mono text-[10px]">
+                      <div className="text-gray-400">Input: <span className="text-cyan-400">[2,7,11,15]</span>, target=<span className="text-amber-400">9</span></div>
+                      <div className="text-gray-400">Output: <span className="text-green-400">[0, 1]</span></div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="flex-1 py-1.5 rounded-lg text-center text-[10px] font-semibold text-white" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                      Solve
+                    </div>
+                    <div className="px-3 py-1.5 rounded-lg text-[10px] text-gray-400 flex items-center gap-1" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                      <Icon name="camera" size={10} /> Screenshot
+                    </div>
+                  </div>
+                </div>
+
+                {/* Solution panel */}
+                <div className="col-span-7 md:col-span-6 p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-400 text-[10px] uppercase tracking-wider">AI Solution</span>
+                      <span className="flex items-center gap-1 text-[9px] text-green-400"><span className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />Streaming</span>
+                    </div>
+                    <div className="flex gap-1">
+                      <span className="px-1.5 py-0.5 rounded text-[9px]" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#34d399' }}>O(n) time</span>
+                      <span className="px-1.5 py-0.5 rounded text-[9px]" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa' }}>O(n) space</span>
+                    </div>
+                  </div>
+                  {/* Animated code typing */}
+                  <div className="rounded-lg p-3 font-mono text-[11px] leading-relaxed mb-3" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                    <pre className="text-green-400 whitespace-pre-wrap">{typedCode}<span className={`inline-block w-[6px] h-[13px] ml-[1px] -mb-[2px] ${cursorVisible ? 'bg-green-400' : 'bg-transparent'}`} /></pre>
+                  </div>
+                  {/* Explanation cards */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="p-2 rounded-lg" style={{ background: 'rgba(16, 185, 129, 0.06)' }}>
+                      <div className="text-[9px] font-semibold text-green-400 mb-0.5">Approach</div>
+                      <div className="text-gray-300 text-[10px]">Hash map for O(1) complement lookups</div>
+                    </div>
+                    <div className="p-2 rounded-lg" style={{ background: 'rgba(139, 92, 246, 0.06)' }}>
+                      <div className="text-[9px] font-semibold text-purple-400 mb-0.5">Pattern</div>
+                      <div className="text-gray-300 text-[10px]">Two Sum → Hash Map</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom status bar */}
+              <div className="flex items-center justify-between px-4 py-2" style={{ background: 'rgba(0,0,0,0.3)', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                <div className="flex items-center gap-4 text-[10px] text-gray-500">
+                  <span className="flex items-center gap-1"><Icon name="brain" size={10} className="text-green-400" /> Claude Sonnet 4</span>
+                  <span>Python</span>
+                  <span>UTF-8</span>
+                </div>
+                <div className="flex items-center gap-3 text-[10px] text-gray-500">
+                  <span className="flex items-center gap-1"><kbd className="px-1 py-0.5 rounded text-[8px] bg-white/5 border border-white/10">Cmd</kbd><span>+</span><kbd className="px-1 py-0.5 rounded text-[8px] bg-white/5 border border-white/10">Enter</kbd> to solve</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Glow effect under mockup */}
+            <div className="h-px mx-12 mt-0" style={{ background: 'linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.3), transparent)' }} />
+
+            {/* Platform compatibility strip */}
+            <div className="flex items-center justify-center gap-6 mt-6">
+              <span className="text-gray-600 text-[10px] uppercase tracking-wider">Works with</span>
+              {['Zoom', 'Google Meet', 'Teams', 'HackerRank', 'LeetCode', 'CoderPad', 'CodeSignal'].map((p, i) => (
+                <span key={i} className="text-gray-500 text-[11px] font-medium hover:text-gray-300 transition-colors cursor-default">{p}</span>
+              ))}
             </div>
           </div>
         </section>
@@ -359,6 +530,10 @@ export default function OAuthLogin({ loginOnly = false }) {
         <section id="features" data-animate className={`py-16 ${anim('features')}`}>
           <div className="max-w-6xl mx-auto px-6">
             <div className="text-center mb-10">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold mb-4" style={{ background: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.2)', color: '#60a5fa' }}>
+                <Icon name="sparkles" size={10} />
+                Powered by Claude & GPT-4
+              </div>
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Built for Every Interview Type</h2>
               <p className="text-gray-400 max-w-lg mx-auto">AI-powered tools for coding, system design, behavioral, and live interviews</p>
             </div>
@@ -377,6 +552,22 @@ export default function OAuthLogin({ loginOnly = false }) {
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#34d399' }}>FLAGSHIP</span>
                     </div>
                     <p className="text-gray-400 text-sm">Real-time voice transcription with instant AI-powered answers. Works with Zoom, Meet, Teams. Invisible during screen sharing.</p>
+                  </div>
+                </div>
+                {/* Live waveform visualization */}
+                <div className="flex items-center gap-3 mb-4 p-3 rounded-xl" style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(16, 185, 129, 0.1)' }}>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                    <span className="text-red-400 text-[10px] font-medium font-code">LIVE</span>
+                  </div>
+                  <div className="flex items-end gap-[2px] h-5">
+                    {[3, 5, 8, 4, 7, 10, 6, 9, 3, 7, 5, 8, 4, 6, 9, 7, 5, 3, 8, 6, 10, 4, 7, 5].map((h, i) => (
+                      <div key={i} className="w-[3px] rounded-full bg-green-400" style={{ height: `${h * 2}px`, opacity: 0.4 + (h / 15), animation: `float ${1.5 + (i % 3) * 0.5}s ease-in-out infinite ${i * 0.1}s` }} />
+                    ))}
+                  </div>
+                  <div className="ml-auto flex items-center gap-1">
+                    <Icon name="eyeOff" size={11} className="text-gray-500" />
+                    <span className="text-gray-500 text-[10px] font-code">Invisible to screen share</span>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -492,17 +683,21 @@ export default function OAuthLogin({ loginOnly = false }) {
         {/* ═══════════════ BY THE NUMBERS ═══════════════ */}
         <section ref={statsRef} data-animate id="stats" className={`py-14 ${anim('stats')}`}>
           <div className="max-w-5xl mx-auto px-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-8 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="relative grid grid-cols-2 md:grid-cols-4 gap-6 p-8 rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              {/* Animated gradient border */}
+              <div className="absolute inset-0 rounded-2xl glow-border" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.05) 0%, rgba(59,130,246,0.05) 50%, rgba(139,92,246,0.05) 100%)' }} />
               {[
                 { value: `${counters.users.toLocaleString()}+`, label: 'Active Users', color: '#10b981', icon: 'users' },
                 { value: `${counters.offers.toLocaleString()}+`, label: 'Offers Secured', color: '#3b82f6', icon: 'trophy' },
                 { value: `${counters.salary}%`, label: 'Avg Salary Increase', color: '#8b5cf6', icon: 'trendUp' },
                 { value: `${counters.speed}s`, label: 'Avg Response Time', color: '#f59e0b', icon: 'zap' },
               ].map((stat, i) => (
-                <div key={i} className="text-center">
-                  <Icon name={stat.icon} size={20} style={{ color: stat.color }} className="mx-auto mb-2 opacity-60" />
-                  <div className="text-3xl md:text-4xl font-bold mb-1 tabular-nums" style={{ color: stat.color }}>{stat.value}</div>
-                  <div className="text-gray-500 text-xs">{stat.label}</div>
+                <div key={i} className="text-center relative z-10">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-3" style={{ background: `${stat.color}10` }}>
+                    <Icon name={stat.icon} size={20} style={{ color: stat.color }} />
+                  </div>
+                  <div className="text-3xl md:text-4xl font-black mb-1 tabular-nums" style={{ color: stat.color }}>{stat.value}</div>
+                  <div className="text-gray-500 text-[11px] font-medium">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -632,10 +827,92 @@ export default function OAuthLogin({ loginOnly = false }) {
           </div>
         </section>
 
+        {/* ═══════════════ VIDEO SHOWCASE ═══════════════ */}
+        <section data-animate id="video" className={`py-14 ${anim('video')}`}>
+          <div className="max-w-4xl mx-auto px-6">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold mb-4" style={{ background: 'rgba(236, 72, 153, 0.08)', border: '1px solid rgba(236, 72, 153, 0.2)', color: '#f472b6' }}>
+                <Icon name="video" size={10} />
+                Watch it in action
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">See How Engineers Use Ascend</h2>
+              <p className="text-gray-400">From first login to landing an offer at a top tech company</p>
+            </div>
+            {/* Video embed container */}
+            <div className="relative rounded-2xl overflow-hidden group" style={{ background: '#000', border: '1px solid rgba(255,255,255,0.08)', aspectRatio: '16/9' }}>
+              {/* Placeholder with play button - replace src with actual video */}
+              <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0c1220, #141c2e)' }}>
+                {/* Decorative grid */}
+                <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(16,185,129,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(16,185,129,0.03) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+                {/* Screenshots collage */}
+                <div className="relative flex items-center justify-center gap-4 p-8">
+                  {/* Coding mode */}
+                  <div className="relative -rotate-3 float-slow" style={{ width: '200px' }}>
+                    <div className="rounded-lg overflow-hidden shadow-2xl" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                      <div className="px-2 py-1 flex gap-1" style={{ background: 'rgba(0,0,0,0.6)' }}>
+                        <div className="w-1.5 h-1.5 rounded-full bg-red-500/60" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-yellow-500/60" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-500/60" />
+                      </div>
+                      <div className="p-3" style={{ background: '#0d1117' }}>
+                        <div className="text-green-400 text-[8px] font-code leading-relaxed">
+                          <div><span className="text-purple-400">def</span> <span className="text-blue-300">merge_sort</span>(arr):</div>
+                          <div>    <span className="text-purple-400">if</span> len(arr) {'<='} 1:</div>
+                          <div>        <span className="text-purple-400">return</span> arr</div>
+                          <div>    mid = len(arr) // 2</div>
+                          <div>    <span className="text-purple-400">return</span> merge(</div>
+                          <div>        merge_sort(arr[:mid]),</div>
+                          <div>        merge_sort(arr[mid:]))</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="absolute -bottom-2 -right-2 px-2 py-0.5 rounded text-[8px] font-bold text-green-400" style={{ background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.3)' }}>O(n log n)</div>
+                  </div>
+                  {/* Play button overlay */}
+                  <div className="relative z-10 w-16 h-16 rounded-full flex items-center justify-center cursor-pointer group-hover:scale-110 transition-transform" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 0 40px rgba(16, 185, 129, 0.4)' }}>
+                    <Icon name="play" size={24} className="text-white ml-1" />
+                  </div>
+                  {/* System design mode */}
+                  <div className="relative rotate-2 float-medium" style={{ width: '200px' }}>
+                    <div className="rounded-lg overflow-hidden shadow-2xl" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                      <div className="px-2 py-1 flex gap-1" style={{ background: 'rgba(0,0,0,0.6)' }}>
+                        <div className="w-1.5 h-1.5 rounded-full bg-red-500/60" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-yellow-500/60" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-500/60" />
+                      </div>
+                      <div className="p-3" style={{ background: '#0a0f1a' }}>
+                        <div className="text-blue-400 text-[8px] font-bold mb-2">URL Shortener</div>
+                        <div className="space-y-1.5">
+                          {[
+                            { n: 'API Gateway', c: '#3b82f6' },
+                            { n: 'Redis Cache', c: '#ef4444' },
+                            { n: 'PostgreSQL', c: '#22c55e' },
+                            { n: 'CDN', c: '#a855f7' },
+                          ].map((b, i) => (
+                            <div key={i} className="flex items-center gap-1.5 px-1.5 py-1 rounded" style={{ background: `${b.c}10`, border: `1px solid ${b.c}30` }}>
+                              <div className="w-1 h-1 rounded-full" style={{ background: b.c }} />
+                              <span className="text-[7px]" style={{ color: b.c }}>{b.n}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="absolute -bottom-2 -left-2 px-2 py-0.5 rounded text-[8px] font-bold text-blue-400" style={{ background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(59,130,246,0.3)' }}>AWS</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* ═══════════════ COMPARISON TABLE ═══════════════ */}
         <section data-animate id="comparison" className={`py-14 ${anim('comparison')}`}>
           <div className="max-w-4xl mx-auto px-6">
             <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold mb-4" style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#34d399' }}>
+                <Icon name="chartBar" size={10} />
+                Feature comparison
+              </div>
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Why Engineers Choose Ascend</h2>
               <p className="text-gray-400">The only all-in-one platform</p>
             </div>
@@ -860,7 +1137,75 @@ export default function OAuthLogin({ loginOnly = false }) {
         </footer>
       </div>
 
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');`}</style>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+        /* AI-era shimmer effect for badges and highlights */
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        .ai-shimmer {
+          background: linear-gradient(90deg, rgba(16,185,129,0) 0%, rgba(16,185,129,0.08) 50%, rgba(16,185,129,0) 100%);
+          background-size: 200% 100%;
+          animation: shimmer 3s ease-in-out infinite;
+        }
+
+        /* Gradient border glow for featured cards */
+        @keyframes borderGlow {
+          0%, 100% { opacity: 0.5; }
+          50% { opacity: 1; }
+        }
+        .glow-border { animation: borderGlow 3s ease-in-out infinite; }
+
+        /* Floating animation for hero mockup elements */
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-6px); }
+        }
+        .float-slow { animation: float 6s ease-in-out infinite; }
+        .float-medium { animation: float 4s ease-in-out infinite; }
+
+        /* Ambient orb pulse */
+        @keyframes orbPulse {
+          0%, 100% { opacity: 0.12; transform: translateX(-50%) scale(1); }
+          50% { opacity: 0.18; transform: translateX(-50%) scale(1.05); }
+        }
+        .orb-pulse { animation: orbPulse 8s ease-in-out infinite; }
+
+        /* AI sparkle dots */
+        @keyframes sparkleFade {
+          0%, 100% { opacity: 0; transform: scale(0); }
+          50% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Smooth reveal for sections */
+        @keyframes revealUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Monospace code font */
+        .font-code { font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; }
+
+        /* Glass card effect */
+        .glass-card {
+          background: rgba(255,255,255,0.02);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        /* Noise texture overlay */
+        .noise-bg::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          opacity: 0.015;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+          pointer-events: none;
+        }
+      `}</style>
     </div>
   );
 }
