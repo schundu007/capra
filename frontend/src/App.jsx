@@ -10,6 +10,7 @@ import OAuthLogin from './components/auth/OAuthLogin';
 import PricingPlans from './components/billing/PricingPlans';
 import CreditBalance from './components/billing/CreditBalance';
 import DownloadPage from './components/billing/DownloadPage';
+import PremiumPage from './components/billing/PremiumPage';
 import DocsPage from './components/DocsPage';
 import ProblemPage from './components/ProblemPage';
 import OnboardingModal, { hasCompletedOnboarding } from './components/onboarding/OnboardingModal';
@@ -101,6 +102,7 @@ export default function App() {
   const currentPath = window.location.pathname;
   const isLandingPage = !isElectron && (currentPath === '/' || currentPath === '/login');
   const isDownloadPage = !isElectron && currentPath === '/download';
+  const isPremiumPage = !isElectron && currentPath === '/premium';
   const isDocsPage = currentPath.startsWith('/docs');
   const isProblemPage = currentPath.startsWith('/problems/');
   const problemSlug = isProblemPage ? currentPath.replace('/problems/', '').split('?')[0] : null;
@@ -832,6 +834,11 @@ export default function App() {
     }
     return <OAuthLogin loginOnly />;
   }
+
+  // ---------------------------------------------------------------------------
+  // Render: Premium / Pricing Page (public)
+  // ---------------------------------------------------------------------------
+  if (isPremiumPage) return <PremiumPage />;
 
   // ---------------------------------------------------------------------------
   // Render: Download Page

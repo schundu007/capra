@@ -994,7 +994,8 @@ export default function OAuthLogin({ loginOnly = false }) {
           <div className="max-w-6xl mx-auto px-8">
             <div className="text-center mb-14">
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-3">Simple, Transparent Pricing</h2>
-              <p className="text-gray-400 text-xl">Start free. Upgrade when ready. Cancel anytime.</p>
+              <p className="text-gray-400 text-xl mb-3">Start free. Upgrade when ready. Cancel anytime.</p>
+              <a href="/premium" className="text-green-400 text-base font-semibold hover:text-green-300 transition-colors">View full pricing details →</a>
             </div>
 
             <div className="grid md:grid-cols-3 gap-5">
