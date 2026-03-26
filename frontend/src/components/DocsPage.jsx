@@ -28527,14 +28527,16 @@ Best,
                     <span>Back</span>
                   </button>
                 )}
-                <span className="text-gray-500">Learn</span>
+                <button onClick={() => setSelectedTopic(null)} className="text-gray-500 hover:text-white transition-colors cursor-pointer">Learn</button>
                 <Icon name="chevronRight" size={14} className="text-gray-600" />
-                <span className="text-gray-400">{pageConfig.title}</span>
-                {selectedTopic && topicDetails && (
+                {selectedTopic && topicDetails ? (
                   <>
+                    <button onClick={() => setSelectedTopic(null)} className="text-gray-400 hover:text-white transition-colors cursor-pointer">{pageConfig.title}</button>
                     <Icon name="chevronRight" size={14} className="text-gray-600" />
                     <span className="text-white">{topicDetails.title}</span>
                   </>
+                ) : (
+                  <span className="text-white">{pageConfig.title}</span>
                 )}
               </div>
               <div className="flex items-center gap-3">
