@@ -31802,7 +31802,7 @@ Best,
             {[
               { href: '/app/coding', label: 'Coding', icon: 'code', color: '#10b981' },
               { href: '/app/design', label: 'Design', icon: 'systemDesign', color: '#3b82f6' },
-              { href: '/app/prep', label: 'Behavioral', icon: 'users', color: '#a855f7' },
+              { href: '/app/prep', label: 'Interview Prep', icon: 'briefcase', color: '#a855f7' },
             ].map((link) => (
               <a
                 key={link.href}
