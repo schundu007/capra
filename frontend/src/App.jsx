@@ -817,23 +817,15 @@ export default function App() {
   if (isDocsPage || showDocs) return <DocsPage onBack={isElectron ? () => setShowDocs(false) : null} />;
 
   // ---------------------------------------------------------------------------
-  // Render: Auth Required
+  // Render: Landing / Auth
   // ---------------------------------------------------------------------------
-  if (authRequired && !isAuthenticated) {
-    // Save intended destination for post-login redirect (e.g., /app?problem=...&mode=system-design)
-    const currentUrl = window.location.pathname + window.location.search;
-    if (currentUrl !== '/' && !currentUrl.startsWith('/docs') && currentUrl !== '/login') {
-      sessionStorage.setItem('postLoginRedirect', currentUrl);
-    }
-    if (window.location.pathname !== '/' && window.location.pathname !== '/login') {
-      window.history.replaceState({}, '', '/');
-    }
+  // Show landing page at / and /login
+  if (!isElectron && (currentPath === '/' || currentPath === '/login')) {
     return <OAuthLogin />;
   }
 
-  // Show landing page at / for all users (authenticated users can browse landing page)
-  // After fresh login, AuthContext redirects directly to /app
-  if (!isElectron && (currentPath === '/' || currentPath === '/login')) {
+  // Protected routes require auth
+  if (authRequired && !isAuthenticated) {
     return <OAuthLogin />;
   }
 
