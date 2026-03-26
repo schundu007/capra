@@ -31797,8 +31797,8 @@ Best,
               );
             })}
 
-            {/* Quick Links */}
-            <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider px-3 mt-8 mb-3">Quick Links</div>
+            {/* Practice Links */}
+            <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider px-3 mt-8 mb-3">Practice Links</div>
             {[
               { href: '/app/coding', label: 'Coding', icon: 'code', color: '#10b981' },
               { href: '/app/design', label: 'Design', icon: 'systemDesign', color: '#3b82f6' },
