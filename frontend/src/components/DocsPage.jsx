@@ -28549,15 +28549,17 @@ Best,
                   <span className="text-white">{pageConfig.title}</span>
                 )}
               </div>
-              <div className="flex items-center gap-3">
-                <a
-                  href="/app"
-                  className="px-4 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-90"
-                  style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white' }}
-                >
-                  Start Practice
-                </a>
-              </div>
+              {!selectedTopic && (
+                <div className="flex items-center gap-3">
+                  <a
+                    href="/app"
+                    className="px-4 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-90"
+                    style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white' }}
+                  >
+                    Start Practice
+                  </a>
+                </div>
+              )}
             </div>
 
             {/* Content */}
