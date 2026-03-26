@@ -339,8 +339,23 @@ export default function PremiumPage() {
           </div>
         </section>
 
-        {/* ═══ TESTIMONIALS ═══ */}
+        {/* ═══ STATS + TESTIMONIALS ═══ */}
         <section className="py-20 max-w-6xl mx-auto px-8">
+          {/* Stats row */}
+          <div className="grid grid-cols-4 gap-4 mb-14 p-8 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+            {[
+              { value: '50,000+', label: 'Engineers', color: '#10b981' },
+              { value: '17,500+', label: 'Offers landed', color: '#3b82f6' },
+              { value: '35%', label: 'Avg salary increase', color: '#8b5cf6' },
+              { value: '4.9/5', label: 'Rating', color: '#f59e0b' },
+            ].map((s, i) => (
+              <div key={i} className="text-center">
+                <div className="text-3xl md:text-4xl font-black mb-1" style={{ color: s.color }}>{s.value}</div>
+                <div className="text-gray-500 text-sm">{s.label}</div>
+              </div>
+            ))}
+          </div>
+
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-4">
               <h2 className="text-4xl md:text-5xl font-bold text-white">What Engineers Say</h2>

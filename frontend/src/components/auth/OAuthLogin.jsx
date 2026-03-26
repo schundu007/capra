@@ -139,44 +139,6 @@ export default function OAuthLogin({ loginOnly = false }) {
           </div>
         </section>
 
-        {/* ═══ SOCIAL PROOF — stats + testimonials combined ═══ */}
-        <section className="py-16 max-w-6xl mx-auto px-6">
-          {/* Stats row */}
-          <div className="grid grid-cols-4 gap-4 mb-12 p-6 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-            {[
-              { value: '50,000+', label: 'Engineers', color: '#10b981' },
-              { value: '17,500+', label: 'Offers landed', color: '#3b82f6' },
-              { value: '35%', label: 'Avg salary increase', color: '#8b5cf6' },
-              { value: '4.9/5', label: 'Rating', color: '#f59e0b' },
-            ].map((s, i) => (
-              <div key={i} className="text-center">
-                <div className="text-2xl md:text-3xl font-black mb-1" style={{ color: s.color }}>{s.value}</div>
-                <div className="text-gray-500 text-xs">{s.label}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Testimonials — 3 compact cards */}
-          <div className="grid md:grid-cols-3 gap-4">
-            {[
-              { name: 'Sarah M.', role: 'Senior SWE @ Meta', text: 'Got offers from 3 FAANG companies. The live assistant was a game-changer.', avatar: 'S', color: '#10b981' },
-              { name: 'James K.', role: 'Staff Eng @ Google', text: 'System design diagrams alone are worth 10x the price. Interviewers were impressed.', avatar: 'J', color: '#3b82f6' },
-              { name: 'Michael T.', role: 'SDE II @ Amazon', text: 'Failed 5 interviews before Ascend. Got 3 offers in 2 months after.', avatar: 'M', color: '#f59e0b' },
-            ].map((t, i) => (
-              <div key={i} className="p-5 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold" style={{ background: t.color }}>{t.avatar}</div>
-                  <div>
-                    <div className="text-white font-semibold text-sm">{t.name}</div>
-                    <div className="text-gray-500 text-xs">{t.role}</div>
-                  </div>
-                </div>
-                <p className="text-gray-400 text-sm leading-relaxed">"{t.text}"</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* ═══ PRICING LINK ═══ */}
         <section className="py-12 max-w-3xl mx-auto px-6 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Simple, transparent pricing</h2>
