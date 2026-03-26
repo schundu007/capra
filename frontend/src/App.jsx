@@ -824,13 +824,13 @@ export default function App() {
     return <OAuthLogin />;
   }
 
-  // Protected routes require auth — save intended URL for post-login redirect
+  // Protected routes require auth — show login prompt and save intended URL
   if (authRequired && !isAuthenticated) {
     const intended = window.location.pathname + window.location.search;
     if (intended !== '/' && intended !== '/login') {
       sessionStorage.setItem('postLoginRedirect', intended);
     }
-    return <OAuthLogin />;
+    return <OAuthLogin loginOnly />;
   }
 
   // ---------------------------------------------------------------------------
