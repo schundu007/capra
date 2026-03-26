@@ -206,10 +206,18 @@ export function AuthProvider({ children }) {
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
-        // Clear invalid auth
-        storeAuth(null);
-        setUser(null);
-        setAccessToken(null);
+        // Only clear auth if we don't have a stored session (network errors shouldn't log out users)
+        const storedAuth = getStoredAuth();
+        if (storedAuth?.user) {
+          // Keep user logged in with stored data despite network error
+          setUser(storedAuth.user);
+          setAccessToken(storedAuth.accessToken);
+          setRefreshToken(storedAuth.refreshToken);
+        } else {
+          storeAuth(null);
+          setUser(null);
+          setAccessToken(null);
+        }
       } finally {
         setLoading(false);
       }
