@@ -113,11 +113,12 @@ function CloudArchitectureDiagram({ imageUrl, loading = false, error = null, clo
   }
 
   return (
-    <div className="rounded-lg overflow-hidden" style={{ background: 'rgba(255,255,255,0.95)' }}>
+    <div className="rounded-lg overflow-hidden flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.95)' }}>
       <img
         src={imageUrl}
         alt="System Architecture Diagram"
-        className="w-full h-auto"
+        className="max-w-full h-auto object-contain"
+        style={{ maxHeight: '600px' }}
         onError={() => setImageError(true)}
       />
     </div>
@@ -429,7 +430,8 @@ export default function DocsPage({ onBack }) {
   const [diagramData, setDiagramData] = useState(null);
   const [diagramError, setDiagramError] = useState(null);
   const [diagramDetailLevel, setDiagramDetailLevel] = useState('overview');
-  const [diagramCache, setDiagramCache] = useState({}); // Cache diagrams by topic+level
+  const [diagramCloudProvider, setDiagramCloudProvider] = useState('aws');
+  const [diagramCache, setDiagramCache] = useState({}); // Cache diagrams by topic+level+provider
 
   // Theory questions expanded state
   const [expandedTheoryQuestions, setExpandedTheoryQuestions] = useState({});
@@ -439,26 +441,29 @@ export default function DocsPage({ onBack }) {
     setDiagramData(null);
     setDiagramError(null);
     // Check cache for existing diagram
-    if (selectedTopic && diagramCache[`${selectedTopic}-${diagramDetailLevel}`]) {
-      setDiagramData(diagramCache[`${selectedTopic}-${diagramDetailLevel}`]);
+    const cacheKey = `${selectedTopic}-${diagramDetailLevel}-${diagramCloudProvider}`;
+    if (selectedTopic && diagramCache[cacheKey]) {
+      setDiagramData(diagramCache[cacheKey]);
     }
   }, [selectedTopic]);
 
   // Generate architecture diagram
-  const handleGenerateDiagram = async (topicTitle, detailLevel = 'overview') => {
+  const handleGenerateDiagram = async (topicTitle, detailLevel = 'overview', provider = diagramCloudProvider) => {
     if (!topicTitle) return;
 
     // Check cache first
-    const cacheKey = `${selectedTopic}-${detailLevel}`;
+    const cacheKey = `${selectedTopic}-${detailLevel}-${provider}`;
     if (diagramCache[cacheKey]) {
       setDiagramData(diagramCache[cacheKey]);
       setDiagramDetailLevel(detailLevel);
+      setDiagramCloudProvider(provider);
       return;
     }
 
     setGeneratingDiagram(true);
     setDiagramError(null);
     setDiagramDetailLevel(detailLevel);
+    setDiagramCloudProvider(provider);
 
     try {
       const API_URL = getApiUrl();
@@ -470,7 +475,7 @@ export default function DocsPage({ onBack }) {
         },
         body: JSON.stringify({
           question: `Design ${topicTitle}`,
-          cloudProvider: 'auto',
+          cloudProvider: provider,
           difficulty: 'medium',
           category: 'System Design',
           format: 'png',
@@ -27837,29 +27842,53 @@ Best,
                           </div>
                           <h3 className="text-3xl font-bold text-white">Architecture Diagram</h3>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => handleGenerateDiagram(topicDetails.title || selectedTopic, 'overview')}
-                            disabled={generatingDiagram}
-                            className="px-2 py-1 text-sm font-medium rounded transition-all"
-                            style={{
-                              background: diagramDetailLevel === 'overview' && diagramData ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.15)',
-                              color: '#34d399'
-                            }}
-                          >
-                            {generatingDiagram && diagramDetailLevel === 'overview' ? '...' : 'Quick'}
-                          </button>
-                          <button
-                            onClick={() => handleGenerateDiagram(topicDetails.title || selectedTopic, 'detailed')}
-                            disabled={generatingDiagram}
-                            className="px-2 py-1 text-sm font-medium rounded transition-all"
-                            style={{
-                              background: diagramDetailLevel === 'detailed' && diagramData ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.15)',
-                              color: '#60a5fa'
-                            }}
-                          >
-                            {generatingDiagram && diagramDetailLevel === 'detailed' ? '...' : 'Full'}
-                          </button>
+                        <div className="flex items-center gap-2">
+                          {/* Cloud Provider Selector */}
+                          <div className="flex items-center gap-1 mr-2 px-1 py-0.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                            {[
+                              { id: 'aws', label: 'AWS', color: '#ff9900' },
+                              { id: 'gcp', label: 'GCP', color: '#4285f4' },
+                              { id: 'azure', label: 'Azure', color: '#0078d4' },
+                            ].map(p => (
+                              <button
+                                key={p.id}
+                                onClick={() => setDiagramCloudProvider(p.id)}
+                                className="px-2 py-0.5 text-xs font-medium rounded transition-all"
+                                style={{
+                                  background: diagramCloudProvider === p.id ? `${p.color}30` : 'transparent',
+                                  color: diagramCloudProvider === p.id ? p.color : '#9ca3af',
+                                  border: diagramCloudProvider === p.id ? `1px solid ${p.color}50` : '1px solid transparent',
+                                }}
+                              >
+                                {p.label}
+                              </button>
+                            ))}
+                          </div>
+                          {/* Detail Level */}
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleGenerateDiagram(topicDetails.title || selectedTopic, 'overview', diagramCloudProvider)}
+                              disabled={generatingDiagram}
+                              className="px-2 py-1 text-sm font-medium rounded transition-all"
+                              style={{
+                                background: diagramDetailLevel === 'overview' && diagramData ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.15)',
+                                color: '#34d399'
+                              }}
+                            >
+                              {generatingDiagram && diagramDetailLevel === 'overview' ? '...' : 'Quick'}
+                            </button>
+                            <button
+                              onClick={() => handleGenerateDiagram(topicDetails.title || selectedTopic, 'detailed', diagramCloudProvider)}
+                              disabled={generatingDiagram}
+                              className="px-2 py-1 text-sm font-medium rounded transition-all"
+                              style={{
+                                background: diagramDetailLevel === 'detailed' && diagramData ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.15)',
+                                color: '#60a5fa'
+                              }}
+                            >
+                              {generatingDiagram && diagramDetailLevel === 'detailed' ? '...' : 'Full'}
+                            </button>
+                          </div>
                         </div>
                       </div>
                       <div className="p-3">
