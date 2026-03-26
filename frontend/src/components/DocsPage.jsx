@@ -21620,6 +21620,7 @@ Privacy: Option to view anonymously (hides viewer)
     },
     {
       id: 'ad-click-aggregation',
+      isNew: true,
       title: 'Ad Click Event Aggregation',
       subtitle: 'Google Ads',
       icon: 'barChart',
@@ -21733,6 +21734,7 @@ aggregated_clicks (OLAP store) {
     },
     {
       id: 'autocomplete-system',
+      isNew: true,
       title: 'Autocomplete System',
       subtitle: 'Google Search',
       icon: 'search',
@@ -21839,6 +21841,7 @@ trending_queries (real-time) {
     },
     {
       id: 'ecommerce-platform',
+      isNew: true,
       title: 'E-Commerce Platform',
       subtitle: 'Amazon',
       icon: 'shoppingCart',
@@ -21977,6 +21980,7 @@ If version mismatch, retry. If quantity = 0, sold out.
     },
     {
       id: 'messaging-app',
+      isNew: true,
       title: 'Messaging App',
       subtitle: 'WhatsApp',
       icon: 'messageSquare',
@@ -22106,6 +22110,7 @@ messages {
     },
     {
       id: 'metrics-monitoring',
+      isNew: true,
       title: 'Metrics Monitoring & Alerting',
       subtitle: 'Datadog',
       icon: 'activity',
@@ -22226,6 +22231,7 @@ alert_rules {
     },
     {
       id: 'payment-gateway',
+      isNew: true,
       title: 'Payment Gateway',
       subtitle: 'Stripe',
       icon: 'creditCard',
@@ -22363,6 +22369,7 @@ Every payment creates balanced debit + credit entries:
     },
     {
       id: 'proximity-service',
+      isNew: true,
       title: 'Proximity Service',
       subtitle: 'Yelp',
       icon: 'mapPin',
@@ -22481,6 +22488,7 @@ quadtree_node {
     },
     {
       id: 'tiny-url',
+      isNew: true,
       title: 'Tiny URL',
       subtitle: 'URL Shortener',
       icon: 'link',
@@ -22578,6 +22586,7 @@ Two main approaches exist: counter-based (using a distributed counter like ZooKe
     },
     {
       id: 'top-k-leaderboard',
+      isNew: true,
       title: 'Top-K Leaderboard',
       subtitle: 'Real-time Rankings',
       icon: 'award',
@@ -24234,6 +24243,7 @@ class ATM:
     },
     {
       id: 'design-hashmap',
+      isNew: true,
       title: 'Design HashMap',
       subtitle: 'Hash Table Implementation',
       icon: 'database',
@@ -24332,6 +24342,7 @@ class HashMap:
     },
     {
       id: 'splitwise',
+      isNew: true,
       title: 'Splitwise',
       subtitle: 'Expense Sharing',
       icon: 'dollarSign',
@@ -24443,6 +24454,7 @@ class BalanceSheet:
     },
     {
       id: 'circular-queue',
+      isNew: true,
       title: 'Design Circular Queue',
       subtitle: 'Ring Buffer',
       icon: 'refreshCw',
@@ -24506,6 +24518,7 @@ The key insight is using modular arithmetic with front and rear pointers to effi
     },
     {
       id: 'library-management-lld',
+      isNew: true,
       title: 'Library Management System',
       subtitle: 'Book Lending Platform',
       icon: 'book',
@@ -24634,6 +24647,7 @@ class Library:
     },
     {
       id: 'locker-allocation',
+      isNew: true,
       title: 'Locker Allocation System',
       subtitle: 'Package Delivery Lockers',
       icon: 'lock',
@@ -24752,6 +24766,7 @@ class LockerSystem:
     },
     {
       id: 'queue-using-array',
+      isNew: true,
       title: 'Implement Queue using Array',
       subtitle: 'Array-Based Queue',
       icon: 'layers',
@@ -24825,6 +24840,7 @@ The key insight is using two pointers (front and rear) with modular arithmetic t
     },
     {
       id: 'memory-allocator',
+      isNew: true,
       title: 'Memory Allocator',
       subtitle: 'Dynamic Memory Management',
       icon: 'cpu',
@@ -24918,6 +24934,7 @@ class MemoryAllocator:
     },
     {
       id: 'rock-paper-scissors',
+      isNew: true,
       title: 'Rock Paper Scissors',
       subtitle: 'Hand Game',
       icon: 'gamepad',
@@ -25034,6 +25051,7 @@ class Game:
     },
     {
       id: 'notepad-system',
+      isNew: true,
       title: 'Notepad System',
       subtitle: 'Text Editor',
       icon: 'document',
@@ -25175,6 +25193,7 @@ class Notepad:
     },
     {
       id: '2d-vector',
+      isNew: true,
       title: '2D Vector Class',
       subtitle: 'Mathematical Vector',
       icon: 'arrowUpDown',
@@ -25275,6 +25294,7 @@ class Vector2D:
     },
     {
       id: 'access-management',
+      isNew: true,
       title: 'Access Management System',
       subtitle: 'Role-Based Access Control',
       icon: 'shield',
@@ -25396,6 +25416,7 @@ class AccessManager:
     },
     {
       id: 'gpu-credits',
+      isNew: true,
       title: 'Design GPU Credits',
       subtitle: 'Cloud GPU Billing',
       icon: 'zap',
@@ -25511,6 +25532,7 @@ class GPUCreditsSystem:
     },
     {
       id: 'disk-space-manager',
+      isNew: true,
       title: 'Disk Space Manager',
       subtitle: 'Storage Block Allocator',
       icon: 'hardDrive',
@@ -25641,6 +25663,7 @@ class DiskManager:
     },
     {
       id: 'account-balance-tracker',
+      isNew: true,
       title: 'Account Balance Tracker',
       subtitle: 'Financial Ledger',
       icon: 'dollarSign',
@@ -25747,6 +25770,7 @@ class BalanceTracker:
     },
     {
       id: 'go-fish',
+      isNew: true,
       title: 'Go Fish',
       subtitle: 'Card Game',
       icon: 'gamepad',
@@ -25881,6 +25905,7 @@ class GoFishGame:
     },
     {
       id: 'access-control-tree',
+      isNew: true,
       title: 'Access Control Tree',
       subtitle: 'Hierarchical Permissions',
       icon: 'gitBranch',
@@ -25990,6 +26015,7 @@ class ACLTree:
     },
     {
       id: 'active-users',
+      isNew: true,
       title: 'Active Users in N Minutes',
       subtitle: 'Sliding Window Counter',
       icon: 'users',
@@ -26089,6 +26115,7 @@ class ActivityTracker:
     },
     {
       id: 'actor-component',
+      isNew: true,
       title: 'Actor Component Model',
       subtitle: 'Concurrent Message Passing',
       icon: 'cpu',
@@ -30305,6 +30332,7 @@ Best,
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-2 flex-wrap">
                 <h1 className="text-base font-bold text-white">{topicDetails.title}</h1>
+                {topicDetails.isNew && <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30">NEW</span>}
                 {topicDetails.difficulty && (
                   <span className={`px-2.5 py-0.5 rounded text-sm font-medium ${
                     topicDetails.difficulty === 'Easy' ? 'bg-green-500/15 text-green-400' :
@@ -31955,6 +31983,7 @@ Best,
                                     </div>
                                     <div>
                                       <span className="text-white text-xl font-medium group-hover:text-emerald-400 transition-colors">{design.title}</span>
+                                      {design.isNew && <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30 ml-2">NEW</span>}
                                       <span className="text-gray-500 text-lg ml-3 hidden md:inline">{design.subtitle}</span>
                                     </div>
                                   </div>
@@ -32025,6 +32054,7 @@ Best,
                                     </div>
                                     <div>
                                       <span className="text-white text-sm font-medium group-hover:text-teal-400 transition-colors">{problem.title}</span>
+                                      {problem.isNew && <span className="px-1 py-0.5 rounded text-xs font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30 ml-1">NEW</span>}
                                       <span className="text-gray-500 text-sm ml-2 hidden md:inline">{problem.subtitle}</span>
                                     </div>
                                   </div>
