@@ -436,6 +436,69 @@ export default function DocsPage({ onBack }) {
   // Theory questions expanded state
   const [expandedTheoryQuestions, setExpandedTheoryQuestions] = useState({});
 
+  // ── Interactive features (AlgoMaster-inspired) ──
+  const [completedTopics, setCompletedTopics] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('ascend_completed_topics') || '{}'); } catch { return {}; }
+  });
+  const [starredTopics, setStarredTopics] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('ascend_starred_topics') || '{}'); } catch { return {}; }
+  });
+  const [showAskAI, setShowAskAI] = useState(false);
+  const [aiQuestion, setAiQuestion] = useState('');
+  const [aiAnswer, setAiAnswer] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [showRoadmap, setShowRoadmap] = useState(false);
+
+  const toggleComplete = (topicId) => {
+    setCompletedTopics(prev => {
+      const next = { ...prev, [topicId]: !prev[topicId] };
+      localStorage.setItem('ascend_completed_topics', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const toggleStar = (topicId) => {
+    setStarredTopics(prev => {
+      const next = { ...prev, [topicId]: !prev[topicId] };
+      localStorage.setItem('ascend_starred_topics', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const handleAskAI = async () => {
+    if (!aiQuestion.trim()) return;
+    setAiLoading(true);
+    setAiAnswer('');
+    try {
+      const res = await fetch(`${API_URL}/api/solve/followup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify({
+          question: aiQuestion,
+          context: topicDetails ? `Topic: ${topicDetails.title}. ${topicDetails.description || ''} ${topicDetails.introduction || ''}` : '',
+          problem: '',
+          code: '',
+        }),
+      });
+      const data = await res.json();
+      setAiAnswer(data.answer || data.result || 'No answer available.');
+    } catch (err) {
+      setAiAnswer('Failed to get AI response. Please try again.');
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  // Calculate progress
+  const getProgress = () => {
+    const topics = activePage === 'coding' ? codingTopics :
+      activePage === 'system-design' ? [...systemDesignTopics, ...systemDesigns, ...lldProblems, ...concurrencyTopics] :
+      [...behavioralTopics, ...companyPrep];
+    const total = topics.length;
+    const completed = topics.filter(t => completedTopics[t.id]).length;
+    return { total, completed, percent: total > 0 ? Math.round((completed / total) * 100) : 0 };
+  };
+
   // Reset diagram when topic changes
   useEffect(() => {
     setDiagramData(null);
@@ -30366,6 +30429,104 @@ Best,
           </div>
         </div>
 
+        {/* ── Interactive Toolbar (AlgoMaster-inspired) ── */}
+        <div className="flex items-center justify-between p-4 rounded-xl mb-6" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="flex items-center gap-3">
+            {/* Mark as Complete */}
+            <button
+              onClick={() => toggleComplete(selectedTopic)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${completedTopics[selectedTopic] ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-gray-400 hover:text-white hover:bg-white/5 border border-white/10'}`}
+            >
+              <Icon name={completedTopics[selectedTopic] ? 'checkCircle' : 'check'} size={16} />
+              {completedTopics[selectedTopic] ? 'Completed' : 'Mark as Complete'}
+            </button>
+            {/* Star */}
+            <button
+              onClick={() => toggleStar(selectedTopic)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${starredTopics[selectedTopic] ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`}
+            >
+              <Icon name={starredTopics[selectedTopic] ? 'star5' : 'star'} size={16} />
+            </button>
+          </div>
+          <div className="flex items-center gap-2">
+            {/* Ask AI */}
+            <button
+              onClick={() => setShowAskAI(!showAskAI)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${showAskAI ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'text-gray-400 hover:text-white hover:bg-white/5 border border-white/10'}`}
+            >
+              <Icon name="sparkles" size={16} />
+              Ask AI
+            </button>
+            {/* Course Roadmap */}
+            <button
+              onClick={() => setShowRoadmap(!showRoadmap)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 border border-white/10 transition-all"
+            >
+              <Icon name="compass" size={16} />
+              Roadmap
+            </button>
+          </div>
+        </div>
+
+        {/* Ask AI Panel */}
+        {showAskAI && (
+          <div className="p-5 rounded-xl mb-6" style={{ background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.15)' }}>
+            <div className="flex items-center gap-2 mb-3">
+              <Icon name="sparkles" size={16} className="text-purple-400" />
+              <span className="text-purple-400 font-semibold text-sm">Ask AI about {topicDetails.title}</span>
+            </div>
+            <div className="flex gap-2 mb-3">
+              <input
+                type="text"
+                value={aiQuestion}
+                onChange={(e) => setAiQuestion(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAskAI()}
+                placeholder={`Ask anything about ${topicDetails.title}...`}
+                className="flex-1 px-4 py-2.5 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+              />
+              <button
+                onClick={handleAskAI}
+                disabled={aiLoading || !aiQuestion.trim()}
+                className="px-5 py-2.5 rounded-lg text-sm font-medium text-white disabled:opacity-50 transition-all"
+                style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)' }}
+              >
+                {aiLoading ? <Icon name="loader" size={16} className="animate-spin" /> : 'Ask'}
+              </button>
+            </div>
+            {aiAnswer && (
+              <div className="p-4 rounded-lg" style={{ background: 'rgba(0,0,0,0.2)' }}>
+                <FormattedContent content={aiAnswer} color="purple" />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Course Roadmap Panel */}
+        {showRoadmap && (
+          <div className="p-5 rounded-xl mb-6" style={{ background: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.15)' }}>
+            <div className="flex items-center gap-2 mb-4">
+              <Icon name="compass" size={16} className="text-amber-400" />
+              <span className="text-amber-400 font-semibold text-sm">Course Roadmap — {pageConfig.title}</span>
+            </div>
+            <div className="space-y-1">
+              {(activePage === 'coding' ? codingTopics : activePage === 'system-design' ? [...systemDesignTopics, ...systemDesigns] : behavioralTopics).map((t, i) => (
+                <button
+                  key={t.id}
+                  onClick={() => { setSelectedTopic(t.id); setShowRoadmap(false); }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-left transition-all ${t.id === selectedTopic ? 'bg-amber-500/10 text-amber-400' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                >
+                  <span className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0 text-xs font-bold" style={{ background: completedTopics[t.id] ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.05)', color: completedTopics[t.id] ? '#10b981' : '#6b7280' }}>
+                    {completedTopics[t.id] ? '✓' : i + 1}
+                  </span>
+                  <span className="flex-1">{t.title}</span>
+                  {starredTopics[t.id] && <Icon name="star5" size={12} className="text-yellow-400" />}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* DSA Topic Detail */}
         {activePage === 'coding' && topicDetails.keyPatterns && (
           <div className="space-y-3">
@@ -31662,10 +31823,10 @@ Best,
           </div>
         </div>
 
-        {/* Main Content Area */}
-        <div className="flex-1 min-h-screen flex justify-center">
-          {/* Center Content - max-width for readability */}
-          <div className="w-full mx-auto" style={{ maxWidth: '1100px', padding: '0 32px' }}>
+        {/* Main Content Area + Right Sidebar */}
+        <div className="flex-1 min-h-screen flex">
+          {/* Center Content */}
+          <div className="flex-1 min-w-0 mx-auto" style={{ maxWidth: selectedTopic ? '900px' : '1100px', padding: '0 32px' }}>
             {/* Top Bar */}
             <div className="sticky top-0 z-20 px-8 py-4 flex items-center justify-between" style={{ background: 'rgba(10, 10, 15, 0.9)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
               {/* Breadcrumb */}
@@ -31787,11 +31948,12 @@ Best,
                                 className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
                               >
                                 <div className="flex items-center gap-3">
-                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}15` }}>
-                                    <Icon name={topic.icon} size={12} style={{ color: topic.color }} />
+                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? 'rgba(16,185,129,0.2)' : `${topic.color}15` }}>
+                                    {completedTopics[topic.id] ? <Icon name="check" size={12} className="text-emerald-400" /> : <Icon name={topic.icon} size={12} style={{ color: topic.color }} />}
                                   </div>
-                                  <div>
-                                    <span className="text-white text-sm font-medium group-hover:text-emerald-400 transition-colors">{topic.title}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className={`text-sm font-medium group-hover:text-emerald-400 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-white'}`}>{topic.title}</span>
+                                    {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-400" />}
                                     <span className="text-gray-500 text-sm ml-2 hidden md:inline">{topic.description}</span>
                                   </div>
                                 </div>
@@ -31914,11 +32076,12 @@ Best,
                                 className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
                               >
                                 <div className="flex items-center gap-3">
-                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}15` }}>
-                                    <Icon name={topic.icon} size={12} style={{ color: topic.color }} />
+                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? 'rgba(16,185,129,0.2)' : `${topic.color}15` }}>
+                                    {completedTopics[topic.id] ? <Icon name="check" size={12} className="text-emerald-400" /> : <Icon name={topic.icon} size={12} style={{ color: topic.color }} />}
                                   </div>
-                                  <div>
-                                    <span className="text-white text-sm font-medium group-hover:text-emerald-400 transition-colors">{topic.title}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className={`text-sm font-medium group-hover:text-emerald-400 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-white'}`}>{topic.title}</span>
+                                    {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-400" />}
                                     <span className="text-gray-500 text-sm ml-2 hidden md:inline">{topic.description}</span>
                                   </div>
                                 </div>
@@ -32212,11 +32375,12 @@ Best,
                                 className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
                               >
                                 <div className="flex items-center gap-3">
-                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}15` }}>
-                                    <Icon name={topic.icon} size={12} style={{ color: topic.color }} />
+                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? 'rgba(16,185,129,0.2)' : `${topic.color}15` }}>
+                                    {completedTopics[topic.id] ? <Icon name="check" size={12} className="text-emerald-400" /> : <Icon name={topic.icon} size={12} style={{ color: topic.color }} />}
                                   </div>
-                                  <div>
-                                    <span className="text-white text-sm font-medium group-hover:text-emerald-400 transition-colors">{topic.title}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className={`text-sm font-medium group-hover:text-emerald-400 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-white'}`}>{topic.title}</span>
+                                    {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-400" />}
                                     <span className="text-gray-500 text-sm ml-2 hidden md:inline">{topic.description}</span>
                                   </div>
                                 </div>
@@ -32332,6 +32496,96 @@ Best,
             </div>
           )}
         </div>
+
+        {/* ── Right Sidebar — Progress & TOC (visible when topic selected) ── */}
+        {selectedTopic && topicDetails && (
+          <div className="w-64 flex-shrink-0 h-screen sticky top-0 hidden xl:flex flex-col py-6 px-4 overflow-y-auto" style={{ borderLeft: '1px solid rgba(255,255,255,0.06)', background: 'rgba(10, 10, 15, 0.5)' }}>
+            {/* Progress Ring */}
+            <div className="text-center mb-6">
+              <div className="relative w-20 h-20 mx-auto mb-3">
+                <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
+                  <circle cx="40" cy="40" r="35" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
+                  <circle cx="40" cy="40" r="35" fill="none" stroke="#10b981" strokeWidth="6" strokeLinecap="round"
+                    strokeDasharray={`${2 * Math.PI * 35}`}
+                    strokeDashoffset={`${2 * Math.PI * 35 * (1 - getProgress().percent / 100)}`}
+                    style={{ transition: 'stroke-dashoffset 0.5s ease' }}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-xl font-bold text-white">{getProgress().percent}%</span>
+                </div>
+              </div>
+              <div className="text-sm text-gray-400">{getProgress().completed}/{getProgress().total} topics</div>
+              <div className="text-xs text-gray-600 mt-1">{pageConfig.title}</div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="space-y-1.5 mb-6">
+              <button
+                onClick={() => toggleComplete(selectedTopic)}
+                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${completedTopics[selectedTopic] ? 'bg-emerald-500/15 text-emerald-400' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+              >
+                <Icon name={completedTopics[selectedTopic] ? 'checkCircle' : 'check'} size={14} />
+                {completedTopics[selectedTopic] ? 'Completed' : 'Mark Complete'}
+              </button>
+              <button
+                onClick={() => toggleStar(selectedTopic)}
+                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${starredTopics[selectedTopic] ? 'text-yellow-400 bg-yellow-400/10' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+              >
+                <Icon name={starredTopics[selectedTopic] ? 'star5' : 'star'} size={14} />
+                {starredTopics[selectedTopic] ? 'Starred' : 'Add to Favorites'}
+              </button>
+              <button
+                onClick={() => setShowAskAI(!showAskAI)}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-gray-400 hover:text-purple-400 hover:bg-purple-400/10 transition-all"
+              >
+                <Icon name="sparkles" size={14} />
+                Ask AI
+              </button>
+            </div>
+
+            {/* Table of Contents */}
+            {tableOfContents.length > 0 && (
+              <div>
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">On This Page</div>
+                <div className="space-y-0.5">
+                  {tableOfContents.map((item, i) => (
+                    <a
+                      key={i}
+                      href={`#${item.id}`}
+                      className="block px-3 py-1.5 rounded text-xs text-gray-400 hover:text-white hover:bg-white/5 transition-all truncate"
+                    >
+                      {item.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Starred Topics */}
+            {Object.keys(starredTopics).filter(k => starredTopics[k]).length > 0 && (
+              <div className="mt-6 pt-6" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Favorites</div>
+                <div className="space-y-1">
+                  {Object.keys(starredTopics).filter(k => starredTopics[k]).map((topicId) => {
+                    const t = [...codingTopics, ...systemDesignTopics, ...systemDesigns, ...behavioralTopics].find(x => x.id === topicId);
+                    if (!t) return null;
+                    return (
+                      <button
+                        key={topicId}
+                        onClick={() => setSelectedTopic(topicId)}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 rounded text-xs text-left text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+                      >
+                        <Icon name="star5" size={10} className="text-yellow-400 flex-shrink-0" />
+                        <span className="truncate">{t.title}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <style>{`
