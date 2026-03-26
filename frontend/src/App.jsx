@@ -107,6 +107,11 @@ export default function App() {
   const isProblemPage = currentPath.startsWith('/problems/');
   const problemSlug = isProblemPage ? currentPath.replace('/problems/', '').split('?')[0] : null;
 
+  // App mode from URL path: /app/coding, /app/design, /app/prep
+  const appModeFromPath = currentPath === '/app/design' ? 'system-design'
+    : currentPath === '/app/prep' ? 'behavioral'
+    : currentPath.startsWith('/app') ? 'coding' : null;
+
   // State for Electron docs page navigation
   const [showDocs, setShowDocs] = useState(isElectron && currentPath.startsWith('/docs'));
   const [showProblem, setShowProblem] = useState(isProblemPage ? problemSlug : null);
@@ -121,7 +126,7 @@ export default function App() {
   // ---------------------------------------------------------------------------
   // Mode State
   // ---------------------------------------------------------------------------
-  const [ascendMode, setAscendMode] = useLocalStorage('ascend_mode', 'coding');
+  const [ascendMode, setAscendMode] = useLocalStorage('ascend_mode', appModeFromPath || 'coding');
   const [designDetailLevel, setDesignDetailLevel] = useLocalState('basic');
   const [codingDetailLevel, setCodingDetailLevel] = useLocalState('basic');
   const [codingLanguage, setCodingLanguage] = useLocalState('auto');
@@ -437,8 +442,20 @@ export default function App() {
       abortSolve();
       handleClearAll();
       setAscendMode(newMode);
+      // Update URL to reflect mode (webapp only)
+      if (!isElectron) {
+        const modePath = newMode === 'system-design' ? '/app/design' : newMode === 'behavioral' ? '/app/prep' : '/app/coding';
+        window.history.replaceState({}, '', modePath);
+      }
     }
   }, [ascendMode, abortSolve, handleClearAll]);
+
+  // Sync mode from URL path on mount
+  useEffect(() => {
+    if (appModeFromPath && appModeFromPath !== ascendMode) {
+      setAscendMode(appModeFromPath);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---------------------------------------------------------------------------
   // Main Solve Handler

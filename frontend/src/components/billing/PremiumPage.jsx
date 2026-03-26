@@ -438,7 +438,7 @@ export default function PremiumPage() {
                 <a href="/" className="hover:text-white transition-colors">Home</a>
                 <a href="https://jobs.cariara.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Jobs</a>
                 <a href="/docs" target="_blank" rel="noopener" className="hover:text-white transition-colors">Prep</a>
-                <a href="/app" target="_blank" rel="noopener" className="hover:text-white transition-colors">Interview</a>
+                <a href="/app/coding" target="_blank" rel="noopener" className="hover:text-white transition-colors">Interview</a>
                 <a href="/download" target="_blank" rel="noopener" className="hover:text-white transition-colors">Download</a>
                 <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
                 <a href="/terms" className="hover:text-white transition-colors">Terms</a>

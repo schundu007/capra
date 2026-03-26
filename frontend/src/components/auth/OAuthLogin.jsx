@@ -75,7 +75,7 @@ export default function OAuthLogin({ loginOnly = false }) {
             <div className="hidden md:flex items-center gap-6">
               <a href="https://jobs.cariara.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm transition-colors">Jobs</a>
               <a href="/docs" target="_blank" rel="noopener" className="text-gray-400 hover:text-white text-sm transition-colors">Prep</a>
-              <a href="/app" target="_blank" rel="noopener" className="text-gray-400 hover:text-white text-sm transition-colors">Interview</a>
+              <a href="/app/coding" target="_blank" rel="noopener" className="text-gray-400 hover:text-white text-sm transition-colors">Interview</a>
               <a href="/premium" target="_blank" rel="noopener" className="text-gray-400 hover:text-white text-sm transition-colors">Pricing</a>
             </div>
             <button onClick={() => handleOAuthLogin('google')} className="px-5 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:scale-105" style={{ background: '#10b981' }}>
@@ -164,7 +164,7 @@ export default function OAuthLogin({ loginOnly = false }) {
             <div className="flex items-center gap-5 text-sm text-gray-500">
               <a href="https://jobs.cariara.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Jobs</a>
               <a href="/docs" target="_blank" rel="noopener" className="hover:text-white transition-colors">Prep</a>
-              <a href="/app" target="_blank" rel="noopener" className="hover:text-white transition-colors">Interview</a>
+              <a href="/app/coding" target="_blank" rel="noopener" className="hover:text-white transition-colors">Interview</a>
               <a href="/premium" target="_blank" rel="noopener" className="hover:text-white transition-colors">Pricing</a>
               <a href="/download" target="_blank" rel="noopener" className="hover:text-white transition-colors">Download</a>
               <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
