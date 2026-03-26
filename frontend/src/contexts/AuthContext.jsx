@@ -149,7 +149,14 @@ export function AuthProvider({ children }) {
           // Fetch user data
           await fetchUserData(hashAuth.accessToken);
 
-          setLoading(false);
+          // Redirect to /app after fresh login (check for saved deep-link first)
+          const savedRedirect = sessionStorage.getItem('postLoginRedirect');
+          if (savedRedirect) {
+            sessionStorage.removeItem('postLoginRedirect');
+            window.location.replace(savedRedirect);
+          } else {
+            window.location.replace('/app');
+          }
           return;
         }
 

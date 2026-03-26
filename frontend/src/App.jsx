@@ -254,16 +254,7 @@ export default function App() {
   // Handle incoming problem from docs page (Practice Problems click)
   // ---------------------------------------------------------------------------
   useEffect(() => {
-    // Check URL params first, then check sessionStorage for post-login redirect
-    let urlParams = new URLSearchParams(window.location.search);
-    if (!urlParams.get('problem') && !urlParams.get('fetchUrl')) {
-      const savedRedirect = sessionStorage.getItem('postLoginRedirect');
-      if (savedRedirect) {
-        sessionStorage.removeItem('postLoginRedirect');
-        const savedUrl = new URL(savedRedirect, window.location.origin);
-        urlParams = savedUrl.searchParams;
-      }
-    }
+    const urlParams = new URLSearchParams(window.location.search);
     const problemParam = urlParams.get('problem');
     const fetchUrlParam = urlParams.get('fetchUrl');
     const autosolve = urlParams.get('autosolve') === 'true';
@@ -840,15 +831,10 @@ export default function App() {
     return <OAuthLogin />;
   }
 
-  // Authenticated users at / or /login → redirect to /app (preserving query params for deep links)
-  if (authRequired && isAuthenticated && (currentPath === '/' || currentPath === '/login')) {
-    const savedRedirect = sessionStorage.getItem('postLoginRedirect');
-    if (savedRedirect) {
-      sessionStorage.removeItem('postLoginRedirect');
-      window.location.replace(savedRedirect);
-      return null;
-    }
-    window.history.replaceState({}, '', '/app');
+  // Show landing page at / for all users (authenticated users can browse landing page)
+  // After fresh login, AuthContext redirects directly to /app
+  if (!isElectron && (currentPath === '/' || currentPath === '/login')) {
+    return <OAuthLogin />;
   }
 
   // ---------------------------------------------------------------------------
