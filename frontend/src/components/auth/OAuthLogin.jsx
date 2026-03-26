@@ -73,7 +73,9 @@ export default function OAuthLogin({ loginOnly = false }) {
               <span className="text-xl font-bold text-white">Ascend</span>
             </div>
             <div className="hidden md:flex items-center gap-6">
-              <a href="/docs" className="text-gray-400 hover:text-white text-sm transition-colors">Docs</a>
+              <a href="https://jobs.cariara.com" className="text-gray-400 hover:text-white text-sm transition-colors">Jobs</a>
+              <a href="/docs" className="text-gray-400 hover:text-white text-sm transition-colors">Prep</a>
+              <a href="/app" className="text-gray-400 hover:text-white text-sm transition-colors">Interview</a>
               <a href="/premium" className="text-gray-400 hover:text-white text-sm transition-colors">Pricing</a>
             </div>
             <button onClick={() => handleOAuthLogin('google')} className="px-5 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:scale-105" style={{ background: '#10b981' }}>
@@ -99,7 +101,7 @@ export default function OAuthLogin({ loginOnly = false }) {
               {loading === 'google' ? <Icon name="loader" size={20} className="animate-spin mx-auto" /> : 'Start Free — No Credit Card'}
             </button>
             <a href="/docs" className="px-8 py-4 rounded-xl font-semibold text-lg text-white transition-all hover:bg-white/10" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
-              Explore Docs
+              Explore Prep
             </a>
           </div>
 
@@ -160,7 +162,9 @@ export default function OAuthLogin({ loginOnly = false }) {
               <span className="text-white font-bold text-sm">Ascend</span>
             </div>
             <div className="flex items-center gap-5 text-sm text-gray-500">
-              <a href="/docs" className="hover:text-white transition-colors">Docs</a>
+              <a href="https://jobs.cariara.com" className="hover:text-white transition-colors">Jobs</a>
+              <a href="/docs" className="hover:text-white transition-colors">Prep</a>
+              <a href="/app" className="hover:text-white transition-colors">Interview</a>
               <a href="/premium" className="hover:text-white transition-colors">Pricing</a>
               <a href="/download" className="hover:text-white transition-colors">Download</a>
               <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
