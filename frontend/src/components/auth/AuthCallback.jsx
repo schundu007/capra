@@ -20,10 +20,16 @@ export default function AuthCallback() {
     }
   }, []);
 
-  // If authenticated, redirect to main app
+  // If authenticated, redirect to main app (or saved redirect from pre-login navigation)
   useEffect(() => {
     if (isAuthenticated && !loading) {
-      window.location.href = '/';
+      const savedRedirect = sessionStorage.getItem('postLoginRedirect');
+      if (savedRedirect) {
+        sessionStorage.removeItem('postLoginRedirect');
+        window.location.href = savedRedirect;
+      } else {
+        window.location.href = '/app';
+      }
     }
   }, [isAuthenticated, loading]);
 

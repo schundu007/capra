@@ -23,7 +23,7 @@ export default function DocsSidebar({ activePage }) {
     <div className="w-64 flex-shrink-0 h-screen sticky top-0 flex flex-col" style={{ background: '#0a0a0f', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
       {/* Logo */}
       <div className="p-5">
-        <a href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+        <a href="/app" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
             <Icon name="ascend" size={20} className="text-white" />
           </div>

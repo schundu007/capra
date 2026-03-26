@@ -56,7 +56,7 @@ export default function BehavioralDocsPage() {
         <div className="sticky top-0 z-20 px-8 py-4 flex items-center justify-between" style={{ background: 'rgba(9, 9, 11, 0.9)', backdropFilter: 'blur(8px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <div />
           <div className="flex items-center gap-4">
-            <a href="/" className="px-4 py-2 rounded-lg text-sm font-medium text-purple-400 hover:bg-purple-400/10 transition-colors" style={{ border: '1px solid rgba(168, 85, 247, 0.3)' }}>
+            <a href="/app" className="px-4 py-2 rounded-lg text-sm font-medium text-purple-400 hover:bg-purple-400/10 transition-colors" style={{ border: '1px solid rgba(168, 85, 247, 0.3)' }}>
               Getting started guide
             </a>
             <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white transition-colors" style={{ background: 'rgba(255,255,255,0.05)' }}>

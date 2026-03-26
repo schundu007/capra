@@ -83,7 +83,7 @@ export default function DownloadPage() {
           <h2 className="text-xl font-bold text-white mb-2">Error</h2>
           <p className="text-gray-400 mb-4">{error}</p>
           <button
-            onClick={() => window.location.href = '/'}
+            onClick={() => window.location.href = '/app'}
             className="px-6 py-2 rounded-lg font-medium"
             style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#fff' }}
           >
@@ -284,7 +284,7 @@ export default function DownloadPage() {
         {/* Back to Home */}
         <div className="mt-8 text-center">
           <button
-            onClick={() => window.location.href = '/'}
+            onClick={() => window.location.href = '/app'}
             className="text-gray-500 hover:text-white transition-colors"
           >
             ← Back to Home
