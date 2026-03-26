@@ -27210,7 +27210,7 @@ Best,
                 {/* Design in App button for system design topics */}
                 {activePage === 'system-design' && (
                   <a
-                    href={`/app?problem=${encodeURIComponent(`Design ${topicDetails.title}. ${topicDetails.description || topicDetails.subtitle || ''}`)}&mode=system-design`}
+                    href={`/app?problem=${encodeURIComponent(`Design ${topicDetails.title}. ${topicDetails.description || topicDetails.subtitle || ''}`)}&mode=system-design&autosolve=true`}
                     className="ml-auto px-4 py-1.5 rounded-lg text-sm font-medium bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 transition-colors flex items-center gap-2 flex-shrink-0"
                   >
                     <Icon name="zap" size={14} />
@@ -28846,7 +28846,7 @@ Best,
                                       {design.difficulty}
                                     </span>
                                     <a
-                                      href={`/app?problem=${encodeURIComponent(designProblem)}&mode=system-design`}
+                                      href={`/app?problem=${encodeURIComponent(designProblem)}&mode=system-design&autosolve=true`}
                                       className="px-4 py-2 rounded-lg text-lg font-medium bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 transition-colors flex items-center gap-2"
                                       onClick={(e) => e.stopPropagation()}
                                     >
