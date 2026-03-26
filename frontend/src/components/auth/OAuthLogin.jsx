@@ -149,17 +149,6 @@ export default function OAuthLogin({ loginOnly = false }) {
           </a>
         </section>
 
-        {/* ═══ CTA ═══ */}
-        <section className="py-16 max-w-3xl mx-auto px-6">
-          <div className="p-10 rounded-2xl text-center" style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.08), rgba(16,185,129,0.02))', border: '1px solid rgba(16,185,129,0.15)' }}>
-            <h2 className="text-3xl font-bold text-white mb-3">Ready to start?</h2>
-            <p className="text-gray-400 mb-6">Join 50,000+ engineers. Free to try.</p>
-            <button onClick={() => handleOAuthLogin('google')} disabled={loading} className="px-8 py-3.5 rounded-xl font-bold text-white transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-              {loading === 'google' ? <Icon name="loader" size={18} className="animate-spin" /> : 'Get Started Free'}
-            </button>
-            {error && <p className="text-red-400 text-sm mt-3">{error}</p>}
-          </div>
-        </section>
 
         {/* ═══ FOOTER ═══ */}
         <footer className="py-8 border-t" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
