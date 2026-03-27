@@ -31732,165 +31732,227 @@ Best,
         />
       )}
 
-      {/* Background grid pattern */}
+      {/* Subtle gradient ambient light */}
       <div
-        className="fixed inset-0 pointer-events-none opacity-30"
+        className="fixed inset-0 pointer-events-none"
         style={{
-          backgroundImage: `
-            linear-gradient(rgba(79, 79, 79, 0.08) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(79, 79, 79, 0.08) 1px, transparent 1px)
-          `,
-          backgroundSize: '60px 60px'
+          background: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16, 185, 129, 0.04), transparent)'
         }}
       />
 
       <div className="relative flex">
-        {/* Left Sidebar - Navigation */}
-        <div className="w-72 flex-shrink-0 h-screen sticky top-0 flex flex-col" style={{ background: 'linear-gradient(180deg, #0d0d12 0%, #0a0a0f 100%)', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+        {/* Left Sidebar - Checkov-style hierarchical navigation */}
+        <div className="w-[280px] flex-shrink-0 h-screen sticky top-0 flex flex-col" style={{ background: '#fafafa', borderRight: '1px solid #e5e7eb' }}>
           {/* Logo */}
-          <div className="p-6">
-            <a href="/prepare" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                <Icon name="ascend" size={22} className="text-white" />
+          <div className="px-5 py-4" style={{ borderBottom: '1px solid #e5e7eb' }}>
+            <a href="/prepare" className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                <Icon name="ascend" size={16} className="text-white" />
               </div>
-              <div>
-                <span className="text-xl font-bold text-white">Ascend</span>
-                <span className="block text-sm text-gray-500">Job Interview Preparation</span>
-              </div>
+              <span className="text-[17px] font-bold text-gray-900 tracking-tight">Ascend Docs</span>
             </a>
           </div>
 
-          {/* Category Navigation */}
-          <nav className="flex-1 px-4 py-2 overflow-y-auto">
-            <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider px-3 mb-3">Learning Tracks</div>
-            {navItems.map((item) => {
-              const isActive = activePage === item.id;
-              const accentColor = item.id === 'coding' ? '#10b981' : item.id === 'system-design' ? '#3b82f6' : '#a855f7';
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => { setActivePage(item.id); }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all mb-1 ${
-                    isActive ? 'text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'
-                  }`}
-                  style={isActive ? {
-                    background: `linear-gradient(135deg, ${accentColor}15, ${accentColor}05)`,
-                    border: `1px solid ${accentColor}30`
-                  } : {}}
-                >
-                  <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center transition-transform"
-                    style={{ background: isActive ? `${accentColor}20` : 'rgba(255,255,255,0.05)' }}
-                  >
-                    <Icon name={item.icon} size={16} style={{ color: isActive ? accentColor : '#9ca3af' }} />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <span className="font-medium block">{item.label}</span>
-                    <span className="text-sm text-gray-500">
-                      {item.id === 'coding' ? `${codingTopics.length} topics` :
-                       item.id === 'system-design' ? `${systemDesignTopics.length + systemDesigns.length + lldProblems.length + concurrencyTopics.length} topics` :
-                       `${behavioralTopics.length} topics`}
-                    </span>
-                  </div>
-                  {isActive && <div className="w-1.5 h-1.5 rounded-full" style={{ background: accentColor }} />}
-                </button>
-              );
-            })}
+          {/* Search */}
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid #e5e7eb' }}>
+            <div className="relative">
+              <Icon name="search" size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search topics..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 rounded-lg text-[13px] text-gray-700 placeholder-gray-400 bg-white border border-gray-200 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/30 transition-all"
+              />
+            </div>
+          </div>
+
+          {/* Hierarchical Navigation */}
+          <nav className="flex-1 overflow-y-auto py-3 docs-sidebar-scroll">
+            {/* DSA Section */}
+            <SidebarSection
+              title="Data Structures & Algorithms"
+              icon="code"
+              isExpanded={activePage === 'coding'}
+              onToggle={() => setActivePage('coding')}
+              count={codingTopics.length}
+              accentColor="#10b981"
+            >
+              {codingCategories.map((category) => {
+                const categoryTopics = codingTopics.filter(t => codingCategoryMap[t.id] === category.id);
+                if (categoryTopics.length === 0) return null;
+                return (
+                  <SidebarGroup key={category.id} title={category.name} count={categoryTopics.length}>
+                    {categoryTopics.map((topic) => (
+                      <SidebarItem
+                        key={topic.id}
+                        label={topic.title}
+                        isActive={selectedTopic === topic.id}
+                        isCompleted={completedTopics[topic.id]}
+                        onClick={() => { setActivePage('coding'); setSelectedTopic(topic.id); }}
+                      />
+                    ))}
+                  </SidebarGroup>
+                );
+              })}
+            </SidebarSection>
+
+            {/* System Design Section */}
+            <SidebarSection
+              title="System Design"
+              icon="systemDesign"
+              isExpanded={activePage === 'system-design'}
+              onToggle={() => setActivePage('system-design')}
+              count={systemDesignTopics.length + systemDesigns.length + lldProblems.length + concurrencyTopics.length}
+              accentColor="#3b82f6"
+            >
+              <SidebarGroup title="High-Level Design" count={systemDesignTopics.length}>
+                {systemDesignTopics.map((topic) => (
+                  <SidebarItem
+                    key={topic.id}
+                    label={topic.title}
+                    isActive={selectedTopic === topic.id}
+                    isCompleted={completedTopics[topic.id]}
+                    onClick={() => { setActivePage('system-design'); setSelectedTopic(topic.id); }}
+                  />
+                ))}
+              </SidebarGroup>
+              <SidebarGroup title="System Components" count={systemDesigns.length}>
+                {systemDesigns.map((topic) => (
+                  <SidebarItem
+                    key={topic.id}
+                    label={topic.title}
+                    isActive={selectedTopic === topic.id}
+                    isCompleted={completedTopics[topic.id]}
+                    onClick={() => { setActivePage('system-design'); setSelectedTopic(topic.id); }}
+                  />
+                ))}
+              </SidebarGroup>
+              {lldProblems.length > 0 && (
+                <SidebarGroup title="Low-Level Design" count={lldProblems.length}>
+                  {lldProblems.map((topic) => (
+                    <SidebarItem
+                      key={topic.id}
+                      label={topic.title}
+                      isActive={selectedTopic === topic.id}
+                      isCompleted={completedTopics[topic.id]}
+                      onClick={() => { setActivePage('system-design'); setSelectedTopic(topic.id); }}
+                    />
+                  ))}
+                </SidebarGroup>
+              )}
+              {concurrencyTopics.length > 0 && (
+                <SidebarGroup title="Concurrency" count={concurrencyTopics.length}>
+                  {concurrencyTopics.map((topic) => (
+                    <SidebarItem
+                      key={topic.id}
+                      label={topic.title}
+                      isActive={selectedTopic === topic.id}
+                      isCompleted={completedTopics[topic.id]}
+                      onClick={() => { setActivePage('system-design'); setSelectedTopic(topic.id); }}
+                    />
+                  ))}
+                </SidebarGroup>
+              )}
+            </SidebarSection>
+
+            {/* Behavioral Section */}
+            <SidebarSection
+              title="Behavioral"
+              icon="users"
+              isExpanded={activePage === 'behavioral'}
+              onToggle={() => setActivePage('behavioral')}
+              count={behavioralTopics.length}
+              accentColor="#a855f7"
+            >
+              {behavioralTopics.map((topic) => (
+                <SidebarItem
+                  key={topic.id}
+                  label={topic.title}
+                  isActive={selectedTopic === topic.id}
+                  isCompleted={completedTopics[topic.id]}
+                  onClick={() => { setActivePage('behavioral'); setSelectedTopic(topic.id); }}
+                />
+              ))}
+            </SidebarSection>
 
             {/* Practice Links */}
-            <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider px-3 mt-8 mb-3">Practice Links</div>
-            {[
-              { href: '/app/coding', label: 'Coding', icon: 'code', color: '#10b981' },
-              { href: '/app/design', label: 'Design', icon: 'systemDesign', color: '#3b82f6' },
-              { href: '/app/prep', label: 'Interview Prep', icon: 'briefcase', color: '#a855f7' },
-            ].map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                target="_blank"
-                rel="noopener"
-                className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all hover:bg-white/5 mb-1"
-                style={{ color: link.color }}
-              >
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${link.color}15` }}>
-                  <Icon name={link.icon} size={16} />
-                </div>
-                <span className="font-medium">{link.label}</span>
-              </a>
-            ))}
+            <div className="mt-4 pt-4 mx-4" style={{ borderTop: '1px solid #e5e7eb' }}>
+              <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider px-2 mb-2">Practice</div>
+              {[
+                { href: '/app/coding', label: 'Coding Interview', icon: 'code' },
+                { href: '/app/design', label: 'System Design', icon: 'systemDesign' },
+                { href: '/app/prep', label: 'Interview Prep', icon: 'briefcase' },
+              ].map((link) => (
+                <a key={link.href} href={link.href} target="_blank" rel="noopener" className="flex items-center gap-2 px-2 py-1.5 rounded-md text-[13px] text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all mb-0.5">
+                  <Icon name={link.icon} size={14} />
+                  <span>{link.label}</span>
+                  <svg className="w-3 h-3 ml-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                </a>
+              ))}
+            </div>
           </nav>
 
-          {/* Pro Badge */}
-          <div className="p-4 m-4 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(59,130,246,0.15))', border: '1px solid rgba(168,85,247,0.2)' }}>
-            <div className="flex items-center gap-2 mb-2">
-              <Icon name="crown" size={16} className="text-emerald-400" />
-              <span className="text-sm font-semibold text-white">Ascend Pro</span>
-            </div>
-            <p className="text-sm text-gray-400 mb-3">Get AI-powered practice with real-time feedback</p>
-            <a href="/app/coding" target="_blank" rel="noopener" className="block text-center py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90" style={{ background: 'linear-gradient(135deg, #a855f7, #3b82f6)' }}>
-              Try Free
+          {/* Bottom */}
+          <div className="px-4 py-3" style={{ borderTop: '1px solid #e5e7eb' }}>
+            <a href="/premium" className="flex items-center gap-2 px-2 py-2 rounded-lg text-[13px] font-medium text-emerald-600 hover:bg-emerald-50 transition-all">
+              <Icon name="zap" size={14} />
+              <span>Upgrade to Pro</span>
             </a>
           </div>
         </div>
 
-        {/* Main Content Area + Right Sidebar */}
-        <div className="flex-1 min-h-screen flex">
-          {/* Center Content */}
-          <div className="flex-1 min-w-0 mx-auto" style={{ maxWidth: selectedTopic ? '900px' : '1100px', padding: '0 32px' }}>
-            {/* Top Bar */}
-            <div className="sticky top-0 z-20 px-8 py-4 flex items-center justify-between" style={{ background: 'rgba(10, 10, 15, 0.9)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-              {/* Breadcrumb */}
-              <div className="flex items-center gap-2 text-sm">
+        {/* Main Content Area */}
+        <div className="flex-1 min-h-screen" style={{ background: '#ffffff' }}>
+          <div className="mx-auto" style={{ maxWidth: selectedTopic ? '860px' : '960px', padding: '0 48px' }}>
+            {/* Breadcrumb Bar */}
+            <div className="sticky top-0 z-20 py-3 flex items-center justify-between" style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #f0f0f0' }}>
+              <div className="flex items-center gap-1.5 text-[14px]">
                 {isElectron && onBack && (
-                  <button
-                    onClick={onBack}
-                    className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors mr-2"
-                  >
-                    <Icon name="arrowLeft" size={16} />
-                    <span>Back</span>
+                  <button onClick={onBack} className="flex items-center gap-1 text-gray-400 hover:text-gray-700 transition-colors mr-2" aria-label="Go back">
+                    <Icon name="arrowLeft" size={14} />
                   </button>
                 )}
-                <button onClick={() => setSelectedTopic(null)} className="text-gray-500 hover:text-white transition-colors cursor-pointer">Learn</button>
-                <Icon name="chevronRight" size={14} className="text-gray-600" />
+                <button onClick={() => setSelectedTopic(null)} className="text-gray-400 hover:text-emerald-600 transition-colors cursor-pointer">Docs</button>
+                <span className="text-gray-300">/</span>
                 {selectedTopic && topicDetails ? (
                   <>
-                    <button onClick={() => setSelectedTopic(null)} className="text-gray-400 hover:text-white transition-colors cursor-pointer">{pageConfig.title}</button>
-                    <Icon name="chevronRight" size={14} className="text-gray-600" />
-                    <span className="text-white">{topicDetails.title}</span>
+                    <button onClick={() => setSelectedTopic(null)} className="text-gray-400 hover:text-emerald-600 transition-colors cursor-pointer">{pageConfig.title}</button>
+                    <span className="text-gray-300">/</span>
+                    <span className="text-gray-700 font-medium">{topicDetails.title}</span>
                   </>
                 ) : (
-                  <span className="text-white">{pageConfig.title}</span>
+                  <span className="text-gray-700 font-medium">{pageConfig.title}</span>
                 )}
               </div>
               {!selectedTopic && (
-                <div className="flex items-center gap-3">
-                  <a
-                    href="/app"
-                    className="px-4 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-90"
-                    style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white' }}
-                  >
-                    Start Practice
-                  </a>
-                </div>
+                <a href="/app" className="px-4 py-1.5 rounded-lg text-[13px] font-medium text-white bg-emerald-500 hover:bg-emerald-600 transition-all shadow-sm">
+                  Open App
+                </a>
               )}
             </div>
 
             {/* Content */}
-            <div className="px-8 py-8">
+            <div className="py-8">
               {/* Show topic detail or list */}
               {selectedTopic ? renderTopicDetail() : (
                 <>
                   {/* Page Hero */}
-                  <div className="mb-10">
-                    <div
-                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium mb-4"
-                      style={{ background: `${pageConfig.color}15`, color: pageConfig.color }}
-                    >
-                      <Icon name={activePage === 'coding' ? 'code' : activePage === 'system-design' ? 'systemDesign' : 'users'} size={12} />
-                      {activePage === 'coding' ? 'Algorithms' : activePage === 'system-design' ? 'Architecture' : 'Soft Skills'}
+                  <div className="mb-10 pt-2">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${pageConfig.color}12`, border: `1px solid ${pageConfig.color}20` }}>
+                        <Icon name={activePage === 'coding' ? 'code' : activePage === 'system-design' ? 'systemDesign' : 'users'} size={20} style={{ color: pageConfig.color }} />
+                      </div>
+                      <div>
+                        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{pageConfig.title}</h1>
+                        <p className="text-sm text-gray-500 mt-0.5">
+                          {activePage === 'coding' && `${codingTopics.length} topics to master`}
+                          {activePage === 'system-design' && `${systemDesignTopics.length + systemDesigns.length} topics to master`}
+                          {activePage === 'behavioral' && `${behavioralTopics.length} topics to master`}
+                        </p>
+                      </div>
                     </div>
-                    <h1 className="text-lg font-bold text-white mb-3">{pageConfig.title}</h1>
-                    <p className="text-sm text-gray-400 max-w-2xl">
+                    <p className="text-base text-gray-400 max-w-2xl leading-relaxed">
                       {activePage === 'coding' && 'Master the fundamental data structures and algorithms needed to ace technical interviews at top tech companies.'}
                       {activePage === 'system-design' && 'Learn to design scalable, reliable systems that can handle millions of users. Essential for senior engineering roles.'}
                       {activePage === 'behavioral' && 'Prepare compelling stories and answers for behavioral interviews using proven frameworks like STAR.'}
@@ -31898,78 +31960,78 @@ Best,
                   </div>
 
                   {/* Search and Filters */}
-                  <div className="flex items-center gap-4 mb-8 p-4 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <div className="relative flex-1 max-w-md">
-                      <Icon name="search" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <div className="flex items-center gap-4 mb-10">
+                    <div className="relative flex-1 max-w-sm">
+                      <Icon name="search" size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500" />
                       <input
                         type="text"
                         placeholder="Search topics..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 transition-all"
-                        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', '--tw-ring-color': pageConfig.color }}
+                        className="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-1 transition-all"
+                        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', '--tw-ring-color': 'rgba(255,255,255,0.15)' }}
                       />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-500">Sort:</span>
-                      <select
-                        value={sortOrder}
-                        onChange={(e) => setSortOrder(e.target.value)}
-                        className="px-3 py-2 rounded-lg text-sm text-gray-300 focus:outline-none cursor-pointer transition-all hover:bg-white/10"
-                        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
-                      >
-                        <option value="a-z">A - Z</option>
-                        <option value="z-a">Z - A</option>
-                        <option value="most">Most Questions</option>
-                        <option value="least">Least Questions</option>
-                      </select>
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {filteredTopics.length} {filteredTopics.length === 1 ? 'topic' : 'topics'}
-                    </div>
+                    <select
+                      value={sortOrder}
+                      onChange={(e) => setSortOrder(e.target.value)}
+                      className="px-3 py-2.5 rounded-lg text-sm text-gray-400 focus:outline-none cursor-pointer transition-all hover:text-white"
+                      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+                    >
+                      <option value="a-z">A - Z</option>
+                      <option value="z-a">Z - A</option>
+                      <option value="most">Most Questions</option>
+                      <option value="least">Least Questions</option>
+                    </select>
+                    <span className="text-sm text-gray-600">{filteredTopics.length} topics</span>
                   </div>
 
               {/* DSA Content */}
               {activePage === 'coding' && (
                 <>
                   {/* Topic Cards - Grouped by Category */}
-                  <div className="space-y-6 mb-8">
+                  <div className="space-y-8 mb-12">
                     {codingCategories.map((category) => {
                       const categoryTopics = filteredTopics.filter(t => codingCategoryMap[t.id] === category.id);
                       if (categoryTopics.length === 0) return null;
                       return (
-                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+                        <div key={category.id}>
                           {/* Category Header */}
-                          <div className="px-4 py-3 flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
-                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${category.color}20` }}>
-                              <Icon name={category.icon} size={16} style={{ color: category.color }} />
-                            </div>
-                            <div>
-                              <h3 className="text-sm font-bold text-white">{category.name}</h3>
-                              <span className="text-sm text-gray-500">{categoryTopics.length} topics</span>
-                            </div>
+                          <div className="flex items-center gap-2.5 mb-3 px-1">
+                            <h3 className="text-sm font-semibold text-gray-400 tracking-wide">{category.name}</h3>
+                            <span className="text-xs text-gray-600">{categoryTopics.length}</span>
                           </div>
                           {/* Topics in Category */}
-                          <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-                            {categoryTopics.map((topic) => (
+                          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.015)' }}>
+                            {categoryTopics.map((topic, idx) => (
                               <div
                                 key={topic.id}
                                 onClick={() => setSelectedTopic(topic.id)}
-                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
+                                className="px-5 py-3.5 flex items-center justify-between cursor-pointer hover:bg-white/[0.04] transition-all group"
+                                style={idx < categoryTopics.length - 1 ? { borderBottom: '1px solid rgba(255,255,255,0.04)' } : {}}
                               >
-                                <div className="flex items-center gap-3">
-                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? 'rgba(16,185,129,0.2)' : `${topic.color}15` }}>
-                                    {completedTopics[topic.id] ? <Icon name="check" size={12} className="text-emerald-400" /> : <Icon name={topic.icon} size={12} style={{ color: topic.color }} />}
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <span className={`text-sm font-medium group-hover:text-emerald-400 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-white'}`}>{topic.title}</span>
-                                    {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-400" />}
-                                    <span className="text-gray-500 text-sm ml-2 hidden md:inline">{topic.description}</span>
+                                <div className="flex items-center gap-3.5 min-w-0">
+                                  {completedTopics[topic.id] ? (
+                                    <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 bg-emerald-500/20">
+                                      <Icon name="check" size={11} className="text-emerald-400" />
+                                    </div>
+                                  ) : (
+                                    <div className="w-5 h-5 rounded-full flex-shrink-0" style={{ border: '1.5px solid rgba(255,255,255,0.15)' }} />
+                                  )}
+                                  <div className="min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <span className={`text-sm font-medium group-hover:text-white transition-colors ${completedTopics[topic.id] ? 'text-gray-500 line-through' : 'text-gray-200'}`}>{topic.title}</span>
+                                      {starredTopics[topic.id] && <Icon name="star5" size={9} className="text-amber-400" />}
+                                    </div>
+                                    <span className="text-xs text-gray-600 hidden md:block mt-0.5 truncate">{topic.description}</span>
                                   </div>
                                 </div>
-                                <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
-                                  {topic.commonProblems?.length || topic.keyQuestions?.length || 0}Q
-                                </span>
+                                <div className="flex items-center gap-3 flex-shrink-0">
+                                  <span className="text-xs text-gray-600 font-medium tabular-nums">
+                                    {topic.commonProblems?.length || topic.keyQuestions?.length || 0} problems
+                                  </span>
+                                  <Icon name="chevronRight" size={14} className="text-gray-700 group-hover:text-gray-400 transition-colors" />
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -31978,25 +32040,17 @@ Best,
                     })}
                   </div>
 
-                  {/* Quick Reference - Enhanced */}
-                  <div className="mb-10">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/10">
-                        <Icon name="book" size={16} className="text-emerald-400" />
-                      </div>
-                      <h2 className="text-sm font-bold text-white">Quick Reference</h2>
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-6">
+                  {/* Quick Reference */}
+                  <div className="mb-12">
+                    <h2 className="text-sm font-semibold text-gray-400 tracking-wide mb-4 px-1">Quick Reference</h2>
+                    <div className="grid md:grid-cols-2 gap-4">
                       {/* Time Complexity Card */}
-                      <div className="rounded-xl overflow-hidden" style={CARD_STYLES.card}>
-                        <div className="px-4 py-3 border-b border-emerald-500/20" style={{ background: 'rgba(16,185,129,0.05)' }}>
-                          <h3 className="text-sm text-white font-semibold flex items-center gap-2">
-                            <Icon name="clock" size={16} className="text-emerald-400" />
-                            Time Complexity Cheat Sheet
-                          </h3>
+                      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.015)' }}>
+                        <div className="px-5 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Time Complexity</h3>
                         </div>
-                        <div className="p-4">
-                          <table className="w-full text-sm">
+                        <div className="px-5 py-3">
+                          <table className="w-full">
                             <tbody>
                               {[
                                 { complexity: 'O(1)', desc: 'Constant', rating: 'Best', color: '#10b981' },
@@ -32006,13 +32060,11 @@ Best,
                                 { complexity: 'O(n²)', desc: 'Quadratic', rating: 'Slow', color: '#f97316' },
                                 { complexity: 'O(2ⁿ)', desc: 'Exponential', rating: 'Avoid', color: '#ef4444' },
                               ].map((item, i) => (
-                                <tr key={i} className="border-b border-white/5 last:border-0">
-                                  <td className="py-2 font-mono text-sm text-emerald-400">{item.complexity}</td>
-                                  <td className="py-2 text-gray-400">{item.desc}</td>
+                                <tr key={i} style={i < 5 ? { borderBottom: '1px solid rgba(255,255,255,0.03)' } : {}}>
+                                  <td className="py-2 font-mono text-xs text-gray-300">{item.complexity}</td>
+                                  <td className="py-2 text-xs text-gray-500">{item.desc}</td>
                                   <td className="py-2 text-right">
-                                    <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${item.color}20`, color: item.color }}>
-                                      {item.rating}
-                                    </span>
+                                    <span className="text-xs font-medium" style={{ color: item.color }}>{item.rating}</span>
                                   </td>
                                 </tr>
                               ))}
@@ -32021,30 +32073,25 @@ Best,
                         </div>
                       </div>
                       {/* Data Structure Selection Card */}
-                      <div className="rounded-xl overflow-hidden" style={CARD_STYLES.card}>
-                        <div className="px-4 py-3 border-b border-emerald-500/20" style={{ background: 'rgba(16,185,129,0.05)' }}>
-                          <h3 className="text-sm text-white font-semibold flex items-center gap-2">
-                            <Icon name="database" size={16} className="text-emerald-400" />
-                            When to Use What
-                          </h3>
+                      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.015)' }}>
+                        <div className="px-5 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">When to Use What</h3>
                         </div>
-                        <div className="p-4">
-                          <table className="w-full text-sm">
+                        <div className="px-5 py-3">
+                          <table className="w-full">
                             <tbody>
                               {[
-                                { need: 'Fast lookup', solution: 'Hash Map', icon: 'hash' },
-                                { need: 'Sorted data', solution: 'BST / TreeMap', icon: 'tree' },
-                                { need: 'FIFO operations', solution: 'Queue', icon: 'list' },
-                                { need: 'LIFO operations', solution: 'Stack', icon: 'layers' },
-                                { need: 'Priority access', solution: 'Heap', icon: 'triangle' },
-                                { need: 'Prefix matching', solution: 'Trie', icon: 'search' },
+                                { need: 'Fast lookup', solution: 'Hash Map' },
+                                { need: 'Sorted data', solution: 'BST / TreeMap' },
+                                { need: 'FIFO operations', solution: 'Queue' },
+                                { need: 'LIFO operations', solution: 'Stack' },
+                                { need: 'Priority access', solution: 'Heap' },
+                                { need: 'Prefix matching', solution: 'Trie' },
                               ].map((item, i) => (
-                                <tr key={i} className="border-b border-white/5 last:border-0">
-                                  <td className="py-2 text-gray-400">{item.need}</td>
+                                <tr key={i} style={i < 5 ? { borderBottom: '1px solid rgba(255,255,255,0.03)' } : {}}>
+                                  <td className="py-2 text-xs text-gray-500">{item.need}</td>
                                   <td className="py-2 text-right">
-                                    <span className="px-2 py-0.5 rounded text-sm font-medium bg-emerald-500/10 text-emerald-400">
-                                      {item.solution}
-                                    </span>
+                                    <span className="text-xs font-medium text-gray-300 font-mono">{item.solution}</span>
                                   </td>
                                 </tr>
                               ))}
@@ -32061,43 +32108,48 @@ Best,
               {activePage === 'system-design' && (
                 <>
                   {/* Core Concepts Section - Grouped by Category */}
-                  <div className="space-y-6 mb-8">
+                  <div className="space-y-8 mb-12">
                     {systemDesignCategories.map((category) => {
                       const categoryTopics = filteredTopics.filter(t => systemDesignCategoryMap[t.id] === category.id);
                       if (categoryTopics.length === 0) return null;
                       return (
-                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+                        <div key={category.id}>
                           {/* Category Header */}
-                          <div className="px-4 py-3 flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
-                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${category.color}20` }}>
-                              <Icon name={category.icon} size={16} style={{ color: category.color }} />
-                            </div>
-                            <div>
-                              <h3 className="text-sm font-bold text-white">{category.name}</h3>
-                              <span className="text-sm text-gray-500">{categoryTopics.length} topics</span>
-                            </div>
+                          <div className="flex items-center gap-2.5 mb-3 px-1">
+                            <h3 className="text-sm font-semibold text-gray-400 tracking-wide">{category.name}</h3>
+                            <span className="text-xs text-gray-600">{categoryTopics.length}</span>
                           </div>
                           {/* Topics in Category */}
-                          <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-                            {categoryTopics.map((topic) => (
+                          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.015)' }}>
+                            {categoryTopics.map((topic, idx) => (
                               <div
                                 key={topic.id}
                                 onClick={() => setSelectedTopic(topic.id)}
-                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
+                                className="px-5 py-3.5 flex items-center justify-between cursor-pointer hover:bg-white/[0.04] transition-all group"
+                                style={idx < categoryTopics.length - 1 ? { borderBottom: '1px solid rgba(255,255,255,0.04)' } : {}}
                               >
-                                <div className="flex items-center gap-3">
-                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? 'rgba(16,185,129,0.2)' : `${topic.color}15` }}>
-                                    {completedTopics[topic.id] ? <Icon name="check" size={12} className="text-emerald-400" /> : <Icon name={topic.icon} size={12} style={{ color: topic.color }} />}
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <span className={`text-sm font-medium group-hover:text-emerald-400 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-white'}`}>{topic.title}</span>
-                                    {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-400" />}
-                                    <span className="text-gray-500 text-sm ml-2 hidden md:inline">{topic.description}</span>
+                                <div className="flex items-center gap-3.5 min-w-0">
+                                  {completedTopics[topic.id] ? (
+                                    <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 bg-emerald-500/20">
+                                      <Icon name="check" size={11} className="text-emerald-400" />
+                                    </div>
+                                  ) : (
+                                    <div className="w-5 h-5 rounded-full flex-shrink-0" style={{ border: '1.5px solid rgba(255,255,255,0.15)' }} />
+                                  )}
+                                  <div className="min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <span className={`text-sm font-medium group-hover:text-white transition-colors ${completedTopics[topic.id] ? 'text-gray-500 line-through' : 'text-gray-200'}`}>{topic.title}</span>
+                                      {starredTopics[topic.id] && <Icon name="star5" size={9} className="text-amber-400" />}
+                                    </div>
+                                    <span className="text-xs text-gray-600 hidden md:block mt-0.5 truncate">{topic.description}</span>
                                   </div>
                                 </div>
-                                <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
-                                  {topic.keyQuestions?.length || topic.questions || 0}Q
-                                </span>
+                                <div className="flex items-center gap-3 flex-shrink-0">
+                                  <span className="text-xs text-gray-600 font-medium tabular-nums">
+                                    {topic.keyQuestions?.length || topic.questions || 0} items
+                                  </span>
+                                  <Icon name="chevronRight" size={14} className="text-gray-700 group-hover:text-gray-400 transition-colors" />
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -32106,71 +32158,60 @@ Best,
                     })}
                   </div>
 
-                  {/* System Design Problems Section - Grouped by Category */}
-                  <div className="space-y-6 mb-8">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-500/10">
-                        <Icon name="systemDesign" size={16} className="text-emerald-400" />
-                      </div>
-                      <div>
-                        <h2 className="text-3xl font-bold text-white">Common System Designs</h2>
-                        <p className="text-sm text-gray-500">Real-world systems frequently asked in interviews</p>
-                      </div>
+                  {/* System Design Problems Section */}
+                  <div className="space-y-8 mb-12">
+                    <div className="px-1">
+                      <h2 className="text-lg font-semibold text-white mb-1">Common System Designs</h2>
+                      <p className="text-sm text-gray-500">Real-world systems frequently asked in interviews</p>
                     </div>
                     {systemDesignProblemCategories.map((category) => {
                       const categoryDesigns = systemDesigns.filter(d => systemDesignProblemCategoryMap[d.id] === category.id);
                       if (categoryDesigns.length === 0) return null;
                       const difficultyColors = {
-                        'Easy': { bg: 'rgba(16,185,129,0.15)', text: '#10b981' },
-                        'Medium': { bg: 'rgba(234,179,8,0.15)', text: '#eab308' },
-                        'Hard': { bg: 'rgba(239,68,68,0.15)', text: '#ef4444' }
+                        'Easy': '#10b981',
+                        'Medium': '#eab308',
+                        'Hard': '#ef4444'
                       };
                       return (
-                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-                          {/* Category Header */}
-                          <div className="px-4 py-3 flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
-                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${category.color}20` }}>
-                              <Icon name={category.icon} size={16} style={{ color: category.color }} />
-                            </div>
-                            <div>
-                              <h3 className="text-sm font-bold text-white">{category.name}</h3>
-                              <span className="text-sm text-gray-500">{categoryDesigns.length} systems</span>
-                            </div>
+                        <div key={category.id}>
+                          <div className="flex items-center gap-2.5 mb-3 px-1">
+                            <h3 className="text-sm font-semibold text-gray-400 tracking-wide">{category.name}</h3>
+                            <span className="text-xs text-gray-600">{categoryDesigns.length}</span>
                           </div>
-                          {/* Designs in Category */}
-                          <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-                            {categoryDesigns.map((design) => {
+                          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.015)' }}>
+                            {categoryDesigns.map((design, idx) => {
                               const diffColor = difficultyColors[design.difficulty] || difficultyColors['Medium'];
                               const designProblem = `Design ${design.title}. ${design.description || design.subtitle || ''}`;
                               return (
                                 <div
                                   key={design.id}
-                                  className="px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors group"
+                                  className="px-5 py-3.5 flex items-center justify-between hover:bg-white/[0.04] transition-all group"
+                                  style={idx < categoryDesigns.length - 1 ? { borderBottom: '1px solid rgba(255,255,255,0.04)' } : {}}
                                 >
                                   <div
                                     onClick={() => setSelectedTopic(design.id)}
-                                    className="flex items-center gap-4 flex-1 cursor-pointer"
+                                    className="flex items-center gap-3.5 flex-1 cursor-pointer min-w-0"
                                   >
-                                    <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${design.color}15` }}>
-                                      <Icon name={design.icon} size={20} style={{ color: design.color }} />
-                                    </div>
-                                    <div>
-                                      <span className="text-white text-xl font-medium group-hover:text-emerald-400 transition-colors">{design.title}</span>
-                                      {design.isNew && <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30 ml-2">NEW</span>}
-                                      <span className="text-gray-500 text-lg ml-3 hidden md:inline">{design.subtitle}</span>
+                                    <div className="w-5 h-5 rounded-full flex-shrink-0" style={{ border: '1.5px solid rgba(255,255,255,0.15)' }} />
+                                    <div className="min-w-0">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm font-medium text-gray-200 group-hover:text-white transition-colors">{design.title}</span>
+                                        {design.isNew && <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-violet-500/15 text-violet-400">NEW</span>}
+                                      </div>
+                                      <span className="text-xs text-gray-600 hidden md:block mt-0.5">{design.subtitle}</span>
                                     </div>
                                   </div>
-                                  <div className="flex items-center gap-3">
-                                    <span className="px-3 py-1 rounded-lg text-lg font-medium" style={{ background: diffColor.bg, color: diffColor.text }}>
+                                  <div className="flex items-center gap-3 flex-shrink-0">
+                                    <span className="text-xs font-medium" style={{ color: diffColor }}>
                                       {design.difficulty}
                                     </span>
                                     <a
                                       href={`/app?problem=${encodeURIComponent(designProblem)}&mode=system-design&autosolve=true`}
-                                      className="px-4 py-2 rounded-lg text-lg font-medium bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 transition-colors flex items-center gap-2"
+                                      className="px-3 py-1.5 rounded-lg text-xs font-medium text-emerald-400 hover:bg-emerald-500/10 transition-colors"
+                                      style={{ border: '1px solid rgba(16, 185, 129, 0.2)' }}
                                       onClick={(e) => e.stopPropagation()}
                                     >
-                                      <Icon name="zap" size={16} />
-                                      Design
+                                      Practice
                                     </a>
                                   </div>
                                 </div>
@@ -32183,55 +32224,46 @@ Best,
                   </div>
 
                   {/* Low-Level Design Problems Section */}
-                  <div className="space-y-6 mb-8">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-teal-500/10">
-                        <Icon name="code" size={16} className="text-teal-400" />
-                      </div>
-                      <div>
-                        <h2 className="text-3xl font-bold text-white">Low-Level Design (LLD)</h2>
-                        <p className="text-sm text-gray-500">Object-oriented design problems with class diagrams and implementations</p>
-                      </div>
+                  <div className="space-y-8 mb-12">
+                    <div className="px-1">
+                      <h2 className="text-lg font-semibold text-white mb-1">Low-Level Design (LLD)</h2>
+                      <p className="text-sm text-gray-500">Object-oriented design problems with class diagrams and implementations</p>
                     </div>
                     {lldProblemCategories.map((category) => {
                       const categoryProblems = lldProblems.filter(p => lldProblemCategoryMap[p.id] === category.id);
                       if (categoryProblems.length === 0) return null;
                       const difficultyColors = {
-                        'Easy': { bg: 'rgba(16,185,129,0.15)', text: '#10b981' },
-                        'Medium': { bg: 'rgba(234,179,8,0.15)', text: '#eab308' },
-                        'Hard': { bg: 'rgba(239,68,68,0.15)', text: '#ef4444' }
+                        'Easy': '#10b981',
+                        'Medium': '#eab308',
+                        'Hard': '#ef4444'
                       };
                       return (
-                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-                          <div className="px-4 py-3 flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
-                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${category.color}20` }}>
-                              <Icon name={category.icon} size={16} style={{ color: category.color }} />
-                            </div>
-                            <div>
-                              <h3 className="text-sm font-bold text-white">{category.name}</h3>
-                              <span className="text-sm text-gray-500">{categoryProblems.length} problems</span>
-                            </div>
+                        <div key={category.id}>
+                          <div className="flex items-center gap-2.5 mb-3 px-1">
+                            <h3 className="text-sm font-semibold text-gray-400 tracking-wide">{category.name}</h3>
+                            <span className="text-xs text-gray-600">{categoryProblems.length}</span>
                           </div>
-                          <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-                            {categoryProblems.map((problem) => {
+                          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.015)' }}>
+                            {categoryProblems.map((problem, idx) => {
                               const diffColor = difficultyColors[problem.difficulty] || difficultyColors['Medium'];
                               return (
                                 <div
                                   key={problem.id}
                                   onClick={() => setSelectedTopic(problem.id)}
-                                  className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
+                                  className="px-5 py-3.5 flex items-center justify-between cursor-pointer hover:bg-white/[0.04] transition-all group"
+                                  style={idx < categoryProblems.length - 1 ? { borderBottom: '1px solid rgba(255,255,255,0.04)' } : {}}
                                 >
-                                  <div className="flex items-center gap-3">
-                                    <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${problem.color}15` }}>
-                                      <Icon name={problem.icon} size={12} style={{ color: problem.color }} />
-                                    </div>
-                                    <div>
-                                      <span className="text-white text-sm font-medium group-hover:text-teal-400 transition-colors">{problem.title}</span>
-                                      {problem.isNew && <span className="px-1 py-0.5 rounded text-xs font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30 ml-1">NEW</span>}
-                                      <span className="text-gray-500 text-sm ml-2 hidden md:inline">{problem.subtitle}</span>
+                                  <div className="flex items-center gap-3.5 min-w-0">
+                                    <div className="w-5 h-5 rounded-full flex-shrink-0" style={{ border: '1.5px solid rgba(255,255,255,0.15)' }} />
+                                    <div className="min-w-0">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm font-medium text-gray-200 group-hover:text-white transition-colors">{problem.title}</span>
+                                        {problem.isNew && <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-violet-500/15 text-violet-400">NEW</span>}
+                                      </div>
+                                      <span className="text-xs text-gray-600 hidden md:block mt-0.5">{problem.subtitle}</span>
                                     </div>
                                   </div>
-                                  <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: diffColor.bg, color: diffColor.text }}>
+                                  <span className="text-xs font-medium" style={{ color: diffColor }}>
                                     {problem.difficulty}
                                   </span>
                                 </div>
@@ -32244,72 +32276,54 @@ Best,
                   </div>
 
                   {/* Concurrency Section */}
-                  <div className="space-y-6 mb-8">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-orange-500/10">
-                        <Icon name="cpu" size={16} className="text-orange-400" />
-                      </div>
-                      <div>
-                        <h2 className="text-3xl font-bold text-white">Concurrency & Multithreading</h2>
-                        <p className="text-sm text-gray-500">Thread-safe programming, synchronization, and classic problems</p>
-                      </div>
+                  <div className="space-y-4 mb-12">
+                    <div className="px-1">
+                      <h2 className="text-lg font-semibold text-white mb-1">Concurrency & Multithreading</h2>
+                      <p className="text-sm text-gray-500">Thread-safe programming, synchronization, and classic problems</p>
                     </div>
-                    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-                      <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-                        {concurrencyTopics.map((topic) => (
-                          <div
-                            key={topic.id}
-                            onClick={() => setSelectedTopic(topic.id)}
-                            className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}15` }}>
-                                <Icon name={topic.icon} size={12} style={{ color: topic.color }} />
-                              </div>
-                              <div>
-                                <span className="text-white text-sm font-medium group-hover:text-orange-400 transition-colors">{topic.title}</span>
-                                <span className="text-gray-500 text-sm ml-2 hidden md:inline">{topic.description}</span>
-                              </div>
+                    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.015)' }}>
+                      {concurrencyTopics.map((topic, idx) => (
+                        <div
+                          key={topic.id}
+                          onClick={() => setSelectedTopic(topic.id)}
+                          className="px-5 py-3.5 flex items-center justify-between cursor-pointer hover:bg-white/[0.04] transition-all group"
+                          style={idx < concurrencyTopics.length - 1 ? { borderBottom: '1px solid rgba(255,255,255,0.04)' } : {}}
+                        >
+                          <div className="flex items-center gap-3.5 min-w-0">
+                            <div className="w-5 h-5 rounded-full flex-shrink-0" style={{ border: '1.5px solid rgba(255,255,255,0.15)' }} />
+                            <div className="min-w-0">
+                              <span className="text-sm font-medium text-gray-200 group-hover:text-white transition-colors">{topic.title}</span>
+                              <span className="text-xs text-gray-600 hidden md:block mt-0.5">{topic.description}</span>
                             </div>
-                            <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
+                          </div>
+                          <div className="flex items-center gap-3 flex-shrink-0">
+                            <span className="text-xs text-gray-600 font-medium">
                               {topic.concepts?.length || topic.primitives?.length || topic.problems?.length || 0} items
                             </span>
+                            <Icon name="chevronRight" size={14} className="text-gray-700 group-hover:text-gray-400 transition-colors" />
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
-                  {/* Interview Framework - Compact */}
-                  <div className="rounded-xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.02))', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                    <div className="px-4 py-3 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
-                        <Icon name="target" size={14} className="text-emerald-400" />
-                      </div>
-                      <div>
-                        <h3 className="text-3xl font-bold text-white">Interview Framework</h3>
-                        <p className="text-gray-500 text-sm">45-minute breakdown</p>
-                      </div>
+                  {/* Interview Framework */}
+                  <div className="rounded-xl overflow-hidden mb-8" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.015)' }}>
+                    <div className="px-5 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                      <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Interview Framework — 45 min</h3>
                     </div>
-                    <div className="p-3">
-                      <div className="grid grid-cols-4 gap-2">
+                    <div className="p-4">
+                      <div className="grid grid-cols-4 gap-3">
                         {[
-                          { time: '5m', step: 'Requirements', desc: 'Functional & non-functional', icon: 'list', color: '#10b981' },
-                          { time: '5m', step: 'Estimations', desc: 'QPS, storage, bandwidth', icon: 'calculator', color: '#eab308' },
-                          { time: '20m', step: 'High-Level', desc: 'Components, data flow', icon: 'systemDesign', color: '#3b82f6' },
-                          { time: '15m', step: 'Deep Dive', desc: 'Schema, scaling', icon: 'database', color: '#a855f7' },
+                          { time: '5 min', step: 'Requirements', desc: 'Functional & non-functional' },
+                          { time: '5 min', step: 'Estimations', desc: 'QPS, storage, bandwidth' },
+                          { time: '20 min', step: 'High-Level Design', desc: 'Components, data flow' },
+                          { time: '15 min', step: 'Deep Dive', desc: 'Schema, scaling' },
                         ].map((phase, i) => (
-                          <div key={i} className="rounded-lg p-3" style={{ background: 'rgba(0,0,0,0.3)' }}>
-                            <div className="flex items-center gap-2 mb-2">
-                              <div className="w-6 h-6 rounded flex items-center justify-center" style={{ background: `${phase.color}20` }}>
-                                <Icon name={phase.icon} size={12} style={{ color: phase.color }} />
-                              </div>
-                              <span className="px-1.5 py-0.5 rounded text-sm font-bold" style={{ background: phase.color, color: '#0a0a0f' }}>
-                                {phase.time}
-                              </span>
-                            </div>
-                            <div className="text-white font-semibold text-sm mb-1">{phase.step}</div>
-                            <div className="text-gray-500 text-sm">{phase.desc}</div>
+                          <div key={i} className="rounded-lg p-3.5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                            <div className="text-xs text-gray-500 mb-1.5 font-mono">{phase.time}</div>
+                            <div className="text-sm text-gray-200 font-medium mb-1">{phase.step}</div>
+                            <div className="text-xs text-gray-600">{phase.desc}</div>
                           </div>
                         ))}
                       </div>
@@ -32321,82 +32335,71 @@ Best,
               {/* Behavioral Content */}
               {activePage === 'behavioral' && (
                 <>
-                  {/* STAR Method - Enhanced */}
-                  <div className="rounded-lg overflow-hidden mb-10" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
-                    <div className="px-6 py-4 border-b border-purple-500/20" style={{ background: 'rgba(168,85,247,0.05)' }}>
-                      <h3 className="text-3xl font-bold text-white flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-500/15">
-                          <Icon name="star" size={20} className="text-emerald-400" />
-                        </div>
-                        The STAR Method
-                      </h3>
-                      <p className="text-gray-400 text-sm mt-1 ml-13">The proven framework for behavioral interview answers</p>
+                  {/* STAR Method */}
+                  <div className="rounded-xl overflow-hidden mb-12" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.015)' }}>
+                    <div className="px-5 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                      <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">The STAR Method</h3>
                     </div>
-                    <div className="p-6">
-                      <div className="grid md:grid-cols-4 gap-4">
+                    <div className="p-5">
+                      <div className="grid md:grid-cols-4 gap-3">
                         {[
-                          { letter: 'S', title: 'Situation', desc: 'Set the scene and give context for your story', color: '#ef4444', tip: 'Be specific about when and where' },
-                          { letter: 'T', title: 'Task', desc: 'Describe your responsibility or challenge', color: '#f59e0b', tip: 'Focus on YOUR role' },
-                          { letter: 'A', title: 'Action', desc: 'Explain the specific steps you took', color: '#22c55e', tip: 'Use "I" not "we"' },
-                          { letter: 'R', title: 'Result', desc: 'Share the outcomes and what you learned', color: '#3b82f6', tip: 'Quantify when possible' },
+                          { letter: 'S', title: 'Situation', desc: 'Set the scene and give context', tip: 'Be specific about when and where' },
+                          { letter: 'T', title: 'Task', desc: 'Describe your responsibility', tip: 'Focus on YOUR role' },
+                          { letter: 'A', title: 'Action', desc: 'Explain the steps you took', tip: 'Use "I" not "we"' },
+                          { letter: 'R', title: 'Result', desc: 'Share outcomes and learnings', tip: 'Quantify when possible' },
                         ].map((step, i) => (
-                          <div key={i} className="relative rounded-xl p-5" style={{ background: 'rgba(0,0,0,0.3)' }}>
-                            <div
-                              className="w-14 h-14 rounded-xl flex items-center justify-center mb-4 text-2xl font-bold transition-transform hover:scale-110"
-                              style={{ background: `${step.color}20`, color: step.color }}
-                            >
-                              {step.letter}
-                            </div>
-                            <div className="text-white font-semibold text-lg mb-2">{step.title}</div>
-                            <div className="text-gray-400 text-sm mb-3">{step.desc}</div>
-                            <div className="flex items-center gap-2 text-sm" style={{ color: step.color }}>
-                              <Icon name="lightbulb" size={12} />
-                              <span>{step.tip}</span>
-                            </div>
+                          <div key={i} className="rounded-lg p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                            <div className="text-lg font-bold text-gray-300 mb-2 font-mono">{step.letter}</div>
+                            <div className="text-sm text-gray-200 font-medium mb-1">{step.title}</div>
+                            <div className="text-xs text-gray-500 mb-2">{step.desc}</div>
+                            <div className="text-xs text-gray-600 italic">{step.tip}</div>
                           </div>
                         ))}
                       </div>
                     </div>
                   </div>
 
-                  {/* Question Categories Section - Grouped by Category */}
-                  <div className="space-y-6 mb-8">
+                  {/* Question Categories Section */}
+                  <div className="space-y-8 mb-12">
                     {behavioralCategories.map((category) => {
                       const categoryTopics = filteredTopics.filter(t => topicCategoryMap[t.id] === category.id);
                       if (categoryTopics.length === 0) return null;
                       return (
-                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-                          {/* Category Header */}
-                          <div className="px-4 py-3 flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
-                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${category.color}20` }}>
-                              <Icon name={category.icon} size={16} style={{ color: category.color }} />
-                            </div>
-                            <div>
-                              <h3 className="text-sm font-bold text-white">{category.name}</h3>
-                              <span className="text-sm text-gray-500">{categoryTopics.length} topics</span>
-                            </div>
+                        <div key={category.id}>
+                          <div className="flex items-center gap-2.5 mb-3 px-1">
+                            <h3 className="text-sm font-semibold text-gray-400 tracking-wide">{category.name}</h3>
+                            <span className="text-xs text-gray-600">{categoryTopics.length}</span>
                           </div>
-                          {/* Topics in Category */}
-                          <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-                            {categoryTopics.map((topic) => (
+                          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.015)' }}>
+                            {categoryTopics.map((topic, idx) => (
                               <div
                                 key={topic.id}
                                 onClick={() => setSelectedTopic(topic.id)}
-                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
+                                className="px-5 py-3.5 flex items-center justify-between cursor-pointer hover:bg-white/[0.04] transition-all group"
+                                style={idx < categoryTopics.length - 1 ? { borderBottom: '1px solid rgba(255,255,255,0.04)' } : {}}
                               >
-                                <div className="flex items-center gap-3">
-                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? 'rgba(16,185,129,0.2)' : `${topic.color}15` }}>
-                                    {completedTopics[topic.id] ? <Icon name="check" size={12} className="text-emerald-400" /> : <Icon name={topic.icon} size={12} style={{ color: topic.color }} />}
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <span className={`text-sm font-medium group-hover:text-emerald-400 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-white'}`}>{topic.title}</span>
-                                    {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-400" />}
-                                    <span className="text-gray-500 text-sm ml-2 hidden md:inline">{topic.description}</span>
+                                <div className="flex items-center gap-3.5 min-w-0">
+                                  {completedTopics[topic.id] ? (
+                                    <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 bg-emerald-500/20">
+                                      <Icon name="check" size={11} className="text-emerald-400" />
+                                    </div>
+                                  ) : (
+                                    <div className="w-5 h-5 rounded-full flex-shrink-0" style={{ border: '1.5px solid rgba(255,255,255,0.15)' }} />
+                                  )}
+                                  <div className="min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <span className={`text-sm font-medium group-hover:text-white transition-colors ${completedTopics[topic.id] ? 'text-gray-500 line-through' : 'text-gray-200'}`}>{topic.title}</span>
+                                      {starredTopics[topic.id] && <Icon name="star5" size={9} className="text-amber-400" />}
+                                    </div>
+                                    <span className="text-xs text-gray-600 hidden md:block mt-0.5">{topic.description}</span>
                                   </div>
                                 </div>
-                                <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
-                                  {topic.keyQuestions?.length || topic.sampleQuestions?.length || 0}Q
-                                </span>
+                                <div className="flex items-center gap-3 flex-shrink-0">
+                                  <span className="text-xs text-gray-600 font-medium tabular-nums">
+                                    {topic.keyQuestions?.length || topic.sampleQuestions?.length || 0} questions
+                                  </span>
+                                  <Icon name="chevronRight" size={14} className="text-gray-700 group-hover:text-gray-400 transition-colors" />
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -32406,56 +32409,34 @@ Best,
                   </div>
 
                   {/* Company-Specific Section */}
-                  <div className="mb-6">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-500/10">
-                        <Icon name="briefcase" size={16} className="text-amber-400" />
-                      </div>
-                      <div>
-                        <h2 className="text-3xl font-bold text-white">Company-Specific Prep</h2>
-                        <p className="text-sm text-gray-500">Tailored guidance for top tech companies</p>
-                      </div>
+                  <div className="mb-12">
+                    <div className="px-1 mb-4">
+                      <h2 className="text-lg font-semibold text-white mb-1">Company-Specific Prep</h2>
+                      <p className="text-sm text-gray-500">Tailored guidance for top tech companies</p>
                     </div>
-                    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-                      <table className="w-full">
-                        <thead>
-                          <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
-                            <th className="text-left text-sm font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Company</th>
-                            <th className="text-left text-sm font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 hidden md:table-cell">Focus Areas</th>
-                            <th className="text-right text-sm font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 w-24">Topics</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {companyPrep.map((company) => (
-                            <tr
-                              key={company.id}
-                              onClick={() => setSelectedTopic(company.id)}
-                              className="group cursor-pointer transition-all hover:bg-white/5"
-                              style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
-                            >
-                              <td className="px-4 py-3">
-                                <div className="flex items-center gap-3">
-                                  <div
-                                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                                    style={{ background: `${company.color}15` }}
-                                  >
-                                    <Icon name={company.icon} size={16} style={{ color: company.color }} />
-                                  </div>
-                                  <span className="text-white font-medium group-hover:text-amber-400 transition-colors">{company.title}</span>
-                                </div>
-                              </td>
-                              <td className="px-4 py-3 hidden md:table-cell">
-                                <span className="text-gray-400 text-sm">{company.subtitle}</span>
-                              </td>
-                              <td className="px-4 py-3 text-right">
-                                <span className="px-2 py-1 rounded text-sm font-medium" style={{ background: `${company.color}15`, color: company.color }}>
-                                  {company.keyQuestions?.length || 0}
-                                </span>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.015)' }}>
+                      {companyPrep.map((company, idx) => (
+                        <div
+                          key={company.id}
+                          onClick={() => setSelectedTopic(company.id)}
+                          className="px-5 py-3.5 flex items-center justify-between cursor-pointer hover:bg-white/[0.04] transition-all group"
+                          style={idx < companyPrep.length - 1 ? { borderBottom: '1px solid rgba(255,255,255,0.04)' } : {}}
+                        >
+                          <div className="flex items-center gap-3.5 min-w-0">
+                            <div className="w-5 h-5 rounded-full flex-shrink-0" style={{ border: '1.5px solid rgba(255,255,255,0.15)' }} />
+                            <div className="min-w-0">
+                              <span className="text-sm font-medium text-gray-200 group-hover:text-white transition-colors">{company.title}</span>
+                              <span className="text-xs text-gray-600 hidden md:block mt-0.5">{company.subtitle}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 flex-shrink-0">
+                            <span className="text-xs text-gray-600 font-medium tabular-nums">
+                              {company.keyQuestions?.length || 0} topics
+                            </span>
+                            <Icon name="chevronRight" size={14} className="text-gray-700 group-hover:text-gray-400 transition-colors" />
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </>
@@ -32465,91 +32446,43 @@ Best,
         </div>
           </div>
 
-          {/* Right Sidebar - Table of Contents (only shown on topic detail) */}
-          {selectedTopic && topicDetails && tableOfContents.length > 0 && (
-            <div className="w-64 flex-shrink-0 hidden xl:block">
-              <div className="sticky top-24 p-6">
-                <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">On this page</div>
-                <nav className="space-y-1">
-                  {tableOfContents.map((item) => (
-                    <a
-                      key={item.id}
-                      href={`#${item.id}`}
-                      className="block px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                    >
-                      {item.label}
-                    </a>
-                  ))}
-                </nav>
-
-                {/* Quick Actions */}
-                <div className="mt-8 pt-6 border-t border-white/10">
-                  <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Quick Actions</div>
-                  <div className="space-y-2">
-                    <a
-                      href="/app"
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-emerald-400 hover:bg-emerald-400/10 rounded-lg transition-colors"
-                    >
-                      <Icon name="play" size={14} />
-                      <span>Practice Now</span>
-                    </a>
-                    <button
-                      onClick={() => setSelectedTopic(null)}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:bg-white/5 rounded-lg transition-colors w-full text-left"
-                    >
-                      <Icon name="list" size={14} />
-                      <span>All Topics</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
-        {/* ── Right Sidebar — Progress & TOC (visible when topic selected) ── */}
+        {/* ── Right Sidebar — TOC & Actions (visible when topic selected) ── */}
         {selectedTopic && topicDetails && (
-          <div className="w-64 flex-shrink-0 h-screen sticky top-0 hidden xl:flex flex-col py-6 px-4 overflow-y-auto" style={{ borderLeft: '1px solid rgba(255,255,255,0.06)', background: 'rgba(10, 10, 15, 0.5)' }}>
-            {/* Progress Ring */}
-            <div className="text-center mb-6">
-              <div className="relative w-20 h-20 mx-auto mb-3">
-                <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
-                  <circle cx="40" cy="40" r="35" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
-                  <circle cx="40" cy="40" r="35" fill="none" stroke="#10b981" strokeWidth="6" strokeLinecap="round"
-                    strokeDasharray={`${2 * Math.PI * 35}`}
-                    strokeDashoffset={`${2 * Math.PI * 35 * (1 - getProgress().percent / 100)}`}
-                    style={{ transition: 'stroke-dashoffset 0.5s ease' }}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xl font-bold text-white">{getProgress().percent}%</span>
-                </div>
+          <div className="w-56 flex-shrink-0 h-screen sticky top-0 hidden xl:flex flex-col py-6 px-4 overflow-y-auto" style={{ borderLeft: '1px solid rgba(255,255,255,0.04)' }}>
+            {/* Progress */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] text-gray-600 font-medium uppercase tracking-wider">Progress</span>
+                <span className="text-xs text-gray-400 font-mono">{getProgress().completed}/{getProgress().total}</span>
               </div>
-              <div className="text-sm text-gray-400">{getProgress().completed}/{getProgress().total} topics</div>
-              <div className="text-xs text-gray-600 mt-1">{pageConfig.title}</div>
+              <div className="w-full h-1 rounded-full bg-white/[0.04]">
+                <div className="h-1 rounded-full bg-emerald-500/60 transition-all duration-500" style={{ width: `${getProgress().percent}%` }} />
+              </div>
             </div>
 
             {/* Quick Actions */}
-            <div className="space-y-1.5 mb-6">
+            <div className="space-y-1 mb-6">
               <button
                 onClick={() => toggleComplete(selectedTopic)}
-                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${completedTopics[selectedTopic] ? 'bg-emerald-500/15 text-emerald-400' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${completedTopics[selectedTopic] ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300 hover:bg-white/[0.03]'}`}
               >
-                <Icon name={completedTopics[selectedTopic] ? 'checkCircle' : 'check'} size={14} />
+                <Icon name={completedTopics[selectedTopic] ? 'checkCircle' : 'check'} size={13} />
                 {completedTopics[selectedTopic] ? 'Completed' : 'Mark Complete'}
               </button>
               <button
                 onClick={() => toggleStar(selectedTopic)}
-                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${starredTopics[selectedTopic] ? 'text-yellow-400 bg-yellow-400/10' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${starredTopics[selectedTopic] ? 'text-amber-400' : 'text-gray-500 hover:text-gray-300 hover:bg-white/[0.03]'}`}
               >
-                <Icon name={starredTopics[selectedTopic] ? 'star5' : 'star'} size={14} />
+                <Icon name={starredTopics[selectedTopic] ? 'star5' : 'star'} size={13} />
                 {starredTopics[selectedTopic] ? 'Starred' : 'Add to Favorites'}
               </button>
               <button
                 onClick={() => setShowAskAI(!showAskAI)}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-gray-400 hover:text-purple-400 hover:bg-purple-400/10 transition-all"
+                className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium text-gray-500 hover:text-gray-300 hover:bg-white/[0.03] transition-all"
               >
-                <Icon name="sparkles" size={14} />
+                <Icon name="sparkles" size={13} />
                 Ask AI
               </button>
             </div>
@@ -32557,13 +32490,13 @@ Best,
             {/* Table of Contents */}
             {tableOfContents.length > 0 && (
               <div>
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">On This Page</div>
+                <div className="text-[11px] font-medium text-gray-600 uppercase tracking-widest mb-2">On this page</div>
                 <div className="space-y-0.5">
                   {tableOfContents.map((item, i) => (
                     <a
                       key={i}
                       href={`#${item.id}`}
-                      className="block px-3 py-1.5 rounded text-xs text-gray-400 hover:text-white hover:bg-white/5 transition-all truncate"
+                      className="block px-2.5 py-1.5 rounded-md text-xs text-gray-500 hover:text-gray-300 hover:bg-white/[0.03] transition-all truncate"
                     >
                       {item.label}
                     </a>
@@ -32574,9 +32507,9 @@ Best,
 
             {/* Starred Topics */}
             {Object.keys(starredTopics).filter(k => starredTopics[k]).length > 0 && (
-              <div className="mt-6 pt-6" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Favorites</div>
-                <div className="space-y-1">
+              <div className="mt-6 pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                <div className="text-[11px] font-medium text-gray-600 uppercase tracking-widest mb-2">Favorites</div>
+                <div className="space-y-0.5">
                   {Object.keys(starredTopics).filter(k => starredTopics[k]).map((topicId) => {
                     const t = [...codingTopics, ...systemDesignTopics, ...systemDesigns, ...behavioralTopics].find(x => x.id === topicId);
                     if (!t) return null;
@@ -32584,9 +32517,9 @@ Best,
                       <button
                         key={topicId}
                         onClick={() => setSelectedTopic(topicId)}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 rounded text-xs text-left text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+                        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs text-left text-gray-500 hover:text-gray-300 hover:bg-white/[0.03] transition-all"
                       >
-                        <Icon name="star5" size={10} className="text-yellow-400 flex-shrink-0" />
+                        <Icon name="star5" size={9} className="text-amber-400 flex-shrink-0" />
                         <span className="truncate">{t.title}</span>
                       </button>
                     );
@@ -32600,10 +32533,10 @@ Best,
 
       <style>{`
         .animate-fade-in {
-          animation: fadeIn 0.3s ease-out;
+          animation: fadeIn 0.2s ease-out;
         }
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
+          from { opacity: 0; transform: translateY(4px); }
           to { opacity: 1; transform: translateY(0); }
         }
         .line-clamp-2 {
@@ -32620,29 +32553,11 @@ Best,
           line-height: 1.4 !important;
           letter-spacing: 0 !important;
         }
-        /* Smooth scrolling for anchor links */
-        html {
-          scroll-behavior: smooth;
-        }
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-          background: rgba(255,255,255,0.02);
-        }
-        ::-webkit-scrollbar-thumb {
-          background: rgba(255,255,255,0.1);
-          border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background: rgba(255,255,255,0.2);
-        }
-        /* Card hover effects */
-        .group:hover .hover-glow {
-          opacity: 1;
-        }
+        html { scroll-behavior: smooth; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.14); }
       `}</style>
     </div>
   );
