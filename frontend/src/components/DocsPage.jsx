@@ -31778,14 +31778,8 @@ Best,
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all mb-1`}
                   style={{
                     color: isActive ? T.text.primary : T.text.secondary,
-                    ...(isActive ? {} : {}),
+                    ...(isActive ? { background: `linear-gradient(135deg, ${accentColor}15, ${accentColor}05)`, border: `1px solid ${accentColor}30` } : {}),
                   }}
-                  onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = T.text.primary; }}
-                  onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = T.text.secondary; }}
-                  style={isActive ? {
-                    background: `linear-gradient(135deg, ${accentColor}15, ${accentColor}05)`,
-                    border: `1px solid ${accentColor}30`
-                  } : {}}
                 >
                   <div
                     className="w-8 h-8 rounded-lg flex items-center justify-center transition-transform"
