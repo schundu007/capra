@@ -24,8 +24,45 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
   const [isDragging, setIsDragging] = useState(false);
   const [preview, setPreview] = useState(null);
   const [isSelectingFile, setIsSelectingFile] = useState(false);
+  const [draftSaved, setDraftSaved] = useState(false);
   const fileInputRef = useRef(null);
   const textareaRef = useRef(null);
+
+  // Restore draft on mount
+  useEffect(() => {
+    try {
+      const draft = JSON.parse(localStorage.getItem('ascend_draft_input'));
+      if (draft?.text && Date.now() - draft.timestamp < 24 * 60 * 60 * 1000) {
+        setProblemText(draft.text);
+      }
+    } catch {}
+  }, []);
+
+  // Autosave draft with debounce
+  useEffect(() => {
+    if (!problemText?.trim()) {
+      localStorage.removeItem('ascend_draft_input');
+      setDraftSaved(false);
+      return;
+    }
+    const timer = setTimeout(() => {
+      localStorage.setItem('ascend_draft_input', JSON.stringify({
+        text: problemText,
+        tab: activeTab,
+        timestamp: Date.now(),
+      }));
+      setDraftSaved(true);
+      setTimeout(() => setDraftSaved(false), 2000);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [problemText, activeTab]);
+
+  // Autofocus on desktop
+  useEffect(() => {
+    if (window.innerWidth > 768) {
+      textareaRef.current?.focus();
+    }
+  }, []);
 
   // Get first line for collapsed preview
   const getPreviewText = () => {
@@ -110,6 +147,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
   const handleTextSubmit = (e) => {
     e.preventDefault();
     if (problemText.trim() && !isLoading) {
+      localStorage.removeItem('ascend_draft_input');
       onSubmit(problemText, language, detailLevel);
     }
   };
@@ -279,8 +317,9 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               disabled={isLoading}
             />
             <div className="flex items-center justify-between mt-3 flex-shrink-0">
-              <span className="text-xs text-neutral-500">
+              <span className="text-xs text-neutral-500 flex items-center gap-2">
                 {problemText.length > 0 && `${problemText.length} chars`}
+                {draftSaved && <span className="text-brand-400 animate-fade-in">Draft saved</span>}
               </span>
               <button
                 type="submit"
