@@ -31857,7 +31857,7 @@ Best,
               title="Data Structures & Algorithms"
               icon="code"
               isExpanded={activePage === 'coding'}
-              onToggle={() => setActivePage('coding')}
+              onToggle={() => setActivePage(activePage === 'coding' ? null : 'coding')}
               count={codingTopics.length}
               accentColor="#10b981"
             >
@@ -31885,7 +31885,7 @@ Best,
               title="System Design"
               icon="systemDesign"
               isExpanded={activePage === 'system-design'}
-              onToggle={() => setActivePage('system-design')}
+              onToggle={() => setActivePage(activePage === 'system-design' ? null : 'system-design')}
               count={systemDesignTopics.length + systemDesigns.length + lldProblems.length + concurrencyTopics.length}
               accentColor="#3b82f6"
             >
@@ -31944,7 +31944,7 @@ Best,
               title="Behavioral"
               icon="users"
               isExpanded={activePage === 'behavioral'}
-              onToggle={() => setActivePage('behavioral')}
+              onToggle={() => setActivePage(activePage === 'behavioral' ? null : 'behavioral')}
               count={behavioralTopics.length}
               accentColor="#a855f7"
             >
@@ -31992,7 +31992,7 @@ Best,
 
         {/* Main Content Area */}
         <div className="flex-1 min-h-screen" style={{ background: '#ffffff' }}>
-          <div className="mx-auto" style={{ maxWidth: selectedTopic ? '860px' : '960px', padding: '0 48px' }}>
+          <div className="mx-auto" style={{ maxWidth: '1200px', padding: '0 40px' }}>
             {/* Breadcrumb — Checkov-style: indigo links, slash separators */}
             <div className="flex items-center justify-between" style={{ padding: '16px 0', borderBottom: '1px solid #e0e0e0', marginBottom: '24px' }}>
               <div className="flex items-center gap-1 text-[14px]">
