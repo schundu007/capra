@@ -121,7 +121,7 @@ function SidebarItem({ label, isActive, isCompleted, onClick }) {
       onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = '#4054b2'; }}
       onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = '#404040'; }}
     >
-      {isCompleted && <span style={{ color: '#10b981', marginRight: '4px' }}>&#10003;</span>}
+      {isCompleted && <span style={{ color: '#059669', marginRight: '4px' }}>&#10003;</span>}
       {label}
     </a>
   );
@@ -140,7 +140,7 @@ function CloudArchitectureDiagram({ imageUrl, loading = false, error = null, clo
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-8 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
+      <div className="flex items-center justify-center py-8 rounded-lg" style={{ background: '#eee' }}>
         <div className="flex items-center gap-3">
           <svg className="w-6 h-6 animate-spin text-emerald-500" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -158,10 +158,10 @@ function CloudArchitectureDiagram({ imageUrl, loading = false, error = null, clo
   if (error) {
     return (
       <div className="text-center py-6 rounded-lg" style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
-        <Icon name="alertTriangle" size={24} className="mx-auto mb-2 text-red-400" />
-        <p className="text-sm text-red-400">{error}</p>
+        <Icon name="alertTriangle" size={24} className="mx-auto mb-2 text-red-600" />
+        <p className="text-sm text-red-600">{error}</p>
         {onRetry && (
-          <button onClick={onRetry} className="mt-3 px-4 py-2 text-sm bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-colors">
+          <button onClick={onRetry} className="mt-3 px-4 py-2 text-sm bg-red-500/20 text-red-600 rounded-lg hover:bg-red-500/30 transition-colors">
             Try Again
           </button>
         )}
@@ -171,7 +171,7 @@ function CloudArchitectureDiagram({ imageUrl, loading = false, error = null, clo
 
   if (!imageUrl || imageError) {
     return (
-      <div className="text-center py-8 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
+      <div className="text-center py-8 rounded-lg" style={{ background: '#eee' }}>
         <Icon name="image" size={32} className="mx-auto mb-3 text-gray-500" />
         <p className="text-lg text-gray-400">Click "Generate Diagram" to create a visual architecture</p>
         <p className="text-sm text-gray-500 mt-1">Real AWS/GCP/Azure cloud icons</p>
@@ -180,7 +180,7 @@ function CloudArchitectureDiagram({ imageUrl, loading = false, error = null, clo
   }
 
   return (
-    <div className="rounded-lg overflow-hidden flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.95)' }}>
+    <div className="rounded-lg overflow-hidden flex items-center justify-center" style={{ background: '#fff' }}>
       <img
         src={imageUrl}
         alt="System Architecture Diagram"
@@ -202,7 +202,7 @@ function FormattedContent({ content, color = 'emerald' }) {
   const colors = {
     heading: 'text-emerald-600',
     bullet: 'text-emerald-600',
-    highlight: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20',
+    highlight: 'bg-emerald-50 text-emerald-300 border-emerald-200',
   };
 
   // Check if line looks like ASCII diagram (box drawing, arrows, pipes)
@@ -332,9 +332,9 @@ function FormattedContent({ content, color = 'emerald' }) {
     if (block.type === 'code') {
       // Render code block with proper formatting
       elements.push(
-        <div key={`code-${blockIdx}`} className="my-4 rounded-lg border overflow-hidden" style={{ background: '#f5f5f5', borderColor: 'rgba(255,255,255,0.1)' }}>
+        <div key={`code-${blockIdx}`} className="my-4 rounded-lg border overflow-hidden" style={{ background: '#f5f5f5', borderColor: '#ddd' }}>
           {block.lang && block.lang !== 'code' && (
-            <div className="px-4 py-2 text-sm text-gray-400 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.02)' }}>
+            <div className="px-4 py-2 text-sm text-gray-400 border-b" style={{ borderColor: '#ddd', background: '#fafafa' }}>
               {block.lang}
             </div>
           )}
@@ -355,7 +355,7 @@ function FormattedContent({ content, color = 'emerald' }) {
     } else if (block.type === 'diagram') {
       // Render diagram with preserved spacing
       elements.push(
-        <div key={`diagram-${blockIdx}`} className="my-4 rounded-lg border overflow-x-auto" style={{ background: '#f5f5f5', borderColor: 'rgba(255,255,255,0.1)' }}>
+        <div key={`diagram-${blockIdx}`} className="my-4 rounded-lg border overflow-x-auto" style={{ background: '#f5f5f5', borderColor: '#ddd' }}>
           <pre
             className="p-4 text-sm leading-6"
             style={{
@@ -3062,7 +3062,7 @@ class MedianFinder:
       id: 'backtracking',
       title: 'Backtracking',
       icon: 'refresh',
-      color: '#10b981',
+      color: '#059669',
       questions: 25,
       description: 'Explore all possibilities with pruning. Generate permutations, combinations, subsets.',
 
@@ -4782,7 +4782,7 @@ The key insight: matrices are just indexed by (row, col) pairs. Master the index
       id: 'recursion',
       title: 'Recursion',
       icon: 'refresh',
-      color: '#10b981',
+      color: '#059669',
       questions: 15,
       description: 'Self-referential problem solving. Foundation for trees, graphs, and DP.',
 
@@ -5999,7 +5999,7 @@ def max_sliding_window(nums, k):
       id: 'ascend-100',
       title: 'Ascend 100',
       icon: 'ascend',
-      color: '#10b981',
+      color: '#059669',
       questions: 100,
       description: 'Our curated list of 100 must-solve problems for interview success.',
       keyPatterns: ['All major patterns', 'Company favorites', 'Difficulty progression', 'Pattern mastery'],
@@ -6027,7 +6027,7 @@ def max_sliding_window(nums, k):
 
   // System Design topic categories
   const systemDesignCategories = [
-    { id: 'fundamentals', name: 'Core Fundamentals', icon: 'lightbulb', color: '#10b981' },
+    { id: 'fundamentals', name: 'Core Fundamentals', icon: 'lightbulb', color: '#059669' },
     { id: 'storage', name: 'Storage & Databases', icon: 'database', color: '#3b82f6' },
     { id: 'communication', name: 'Communication & APIs', icon: 'globe', color: '#8b5cf6' },
     { id: 'scalability', name: 'Scalability & Performance', icon: 'trendingUp', color: '#f59e0b' },
@@ -6053,7 +6053,7 @@ def max_sliding_window(nums, k):
       id: 'fundamentals',
       title: 'Fundamentals',
       icon: 'lightbulb',
-      color: '#10b981',
+      color: '#059669',
       questions: 12,
       description: 'Core concepts every system design interview requires.',
       concepts: ['Scalability', 'Latency vs Throughput', 'Availability vs Consistency', 'DNS', 'CDN', 'Load Balancing'],
@@ -9365,7 +9365,7 @@ http_requests_total{endpoint="/api/orders", status="200"}
     { id: 'streaming', name: 'Streaming & Media', icon: 'play', color: '#ef4444' },
     { id: 'communication', name: 'Communication & Messaging', icon: 'messageSquare', color: '#8b5cf6' },
     { id: 'ecommerce', name: 'E-commerce & Marketplace', icon: 'shoppingCart', color: '#f59e0b' },
-    { id: 'infrastructure', name: 'Infrastructure & Tools', icon: 'server', color: '#10b981' },
+    { id: 'infrastructure', name: 'Infrastructure & Tools', icon: 'server', color: '#059669' },
     { id: 'storage', name: 'Storage & Data', icon: 'database', color: '#06b6d4' },
   ];
 
@@ -9432,7 +9432,7 @@ http_requests_total{endpoint="/api/orders", status="200"}
       title: 'URL Shortener',
       subtitle: 'TinyURL / Bit.ly',
       icon: 'link',
-      color: '#10b981',
+      color: '#059669',
       difficulty: 'Easy',
       description: 'Design a service that creates short aliases for long URLs and redirects users to the original URL.',
 
@@ -22622,7 +22622,7 @@ quadtree_node {
       title: 'Tiny URL',
       subtitle: 'URL Shortener',
       icon: 'link',
-      color: '#10b981',
+      color: '#059669',
       difficulty: 'Easy',
       description: 'Design a URL shortening service that creates compact aliases for long URLs and redirects users.',
 
@@ -22844,7 +22844,7 @@ topk:songs:hourly:2024-06-05-14  -- expires after 48 hours
 
   // LLD Problem Categories
   const lldProblemCategories = [
-    { id: 'data-structures', name: 'Data Structures', icon: 'database', color: '#10b981' },
+    { id: 'data-structures', name: 'Data Structures', icon: 'database', color: '#059669' },
     { id: 'games', name: 'Games & Puzzles', icon: 'gamepad', color: '#8b5cf6' },
     { id: 'systems', name: 'Real-World Systems', icon: 'server', color: '#3b82f6' },
     { id: 'utilities', name: 'Utilities & Tools', icon: 'tool', color: '#f59e0b' },
@@ -22897,7 +22897,7 @@ topk:songs:hourly:2024-06-05-14  -- expires after 48 hours
       title: 'LRU Cache',
       subtitle: 'Least Recently Used Cache',
       icon: 'database',
-      color: '#10b981',
+      color: '#059669',
       difficulty: 'Medium',
       description: 'Design a data structure that stores key-value pairs with automatic eviction of least recently accessed items.',
 
@@ -24377,7 +24377,7 @@ class ATM:
       title: 'Design HashMap',
       subtitle: 'Hash Table Implementation',
       icon: 'database',
-      color: '#10b981',
+      color: '#059669',
       difficulty: 'Easy',
       description: 'Design a HashMap from scratch with put, get, and remove operations using hashing and collision handling.',
 
@@ -25797,7 +25797,7 @@ class DiskManager:
       title: 'Account Balance Tracker',
       subtitle: 'Financial Ledger',
       icon: 'dollarSign',
-      color: '#10b981',
+      color: '#059669',
       difficulty: 'Easy',
       description: 'Design an account balance tracker with deposits, withdrawals, transfers, and transaction history.',
 
@@ -26385,7 +26385,7 @@ class EchoActor(Actor):
       id: 'concurrency-fundamentals',
       title: 'Concurrency Fundamentals',
       icon: 'cpu',
-      color: '#10b981',
+      color: '#059669',
       description: 'Core concepts of concurrent programming',
 
       introduction: `Concurrency is the ability of a system to handle multiple tasks simultaneously. Understanding concurrency is essential for building efficient, scalable software systems.
@@ -26552,7 +26552,7 @@ with ThreadPoolExecutor(max_workers=4) as executor:
   // Behavioral Topics
   // Behavioral topic categories for organized display
   const behavioralCategories = [
-    { id: 'career', name: 'Career & Self-Presentation', icon: 'user', color: '#10b981' },
+    { id: 'career', name: 'Career & Self-Presentation', icon: 'user', color: '#059669' },
     { id: 'leadership', name: 'Leadership & Influence', icon: 'users', color: '#3b82f6' },
     { id: 'teamwork', name: 'Teamwork & Collaboration', icon: 'gitMerge', color: '#8b5cf6' },
     { id: 'conflict', name: 'Conflict & Challenges', icon: 'alertTriangle', color: '#ef4444' },
@@ -26631,7 +26631,7 @@ with ThreadPoolExecutor(max_workers=4) as executor:
       id: 'tell-me-about-yourself',
       title: 'Tell Me About Yourself',
       icon: 'user',
-      color: '#10b981',
+      color: '#059669',
       questions: 5,
       description: 'Your 60-90 second elevator pitch.',
 
@@ -28648,7 +28648,7 @@ My manager appreciated the early communication—she said it's worse to find out
       id: 'above-and-beyond',
       title: 'Going Above and Beyond',
       icon: 'rocket',
-      color: '#10b981',
+      color: '#059669',
       questions: 3,
       description: 'Demonstrate initiative and exceeding expectations.',
 
@@ -29108,7 +29108,7 @@ My manager has noticed the improvement, and it's helped our planning become more
       id: 'building-trust',
       title: 'Building Trust with Skeptics',
       icon: 'shield',
-      color: '#10b981',
+      color: '#059669',
       questions: 3,
       description: 'Win over skeptical stakeholders through consistency.',
 
@@ -29193,7 +29193,7 @@ My manager has noticed the improvement, and it's helped our planning become more
       id: 'raising-quality-bar',
       title: 'Raising the Quality Bar',
       icon: 'trendingUp',
-      color: '#10b981',
+      color: '#059669',
       questions: 3,
       description: 'Improve engineering standards measurably.',
 
@@ -29363,7 +29363,7 @@ My manager has noticed the improvement, and it's helped our planning become more
       id: 'disagree-and-commit',
       title: 'Disagree and Commit',
       icon: 'checkCircle',
-      color: '#10b981',
+      color: '#059669',
       questions: 3,
       description: 'Fully commit after decisions are made.',
 
@@ -29619,7 +29619,7 @@ My manager has noticed the improvement, and it's helped our planning become more
       id: 'negotiation',
       title: 'Negotiation Best Practices',
       icon: 'dollarSign',
-      color: '#10b981',
+      color: '#059669',
       questions: 5,
       description: 'Negotiate offers confidently and professionally.',
 
@@ -30407,10 +30407,10 @@ Best,
   // Get page title and color
   const getPageConfig = () => {
     switch (activePage) {
-      case 'coding': return { title: 'Data Structures & Algorithms', color: '#10b981' };
+      case 'coding': return { title: 'Data Structures & Algorithms', color: '#059669' };
       case 'system-design': return { title: 'System Design', color: '#3b82f6' };
       case 'behavioral': return { title: 'Behavioral Interviews', color: '#a855f7' };
-      default: return { title: 'Documentation', color: '#10b981' };
+      default: return { title: 'Documentation', color: '#059669' };
     }
   };
 
@@ -30444,7 +30444,7 @@ Best,
         {/* Back button */}
         <button
           onClick={() => setSelectedTopic(null)}
-          className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-all hover:gap-3 group"
+          className="inline-flex items-center gap-2 text-gray-400 hover:text-gray-900 mb-6 transition-all hover:gap-3 group"
         >
           <Icon name="chevronLeft" size={18} className="transition-transform group-hover:-translate-x-0.5" />
           <span>Back to {pageConfig.title}</span>
@@ -30455,25 +30455,25 @@ Best,
           <div className="flex items-start gap-5">
             <div
               className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: 'rgba(20, 184, 166, 0.15)' }}
+              style={{ background: 'rgba(20, 184, 166, 0.08)' }}
             >
-              <Icon name={topicDetails.icon} size={28} className="text-teal-400" />
+              <Icon name={topicDetails.icon} size={28} className="text-teal-600" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-2 flex-wrap">
-                <h1 className="text-base font-bold text-white">{topicDetails.title}</h1>
-                {topicDetails.isNew && <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30">NEW</span>}
+                <h1 className="text-base font-bold text-gray-900">{topicDetails.title}</h1>
+                {topicDetails.isNew && <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-violet-100 text-violet-600 border border-violet-200">NEW</span>}
                 {topicDetails.difficulty && (
                   <span className={`px-2.5 py-0.5 rounded text-sm font-medium ${
-                    topicDetails.difficulty === 'Easy' ? 'bg-green-500/15 text-green-400' :
-                    topicDetails.difficulty === 'Medium' ? 'bg-yellow-500/15 text-emerald-600' :
-                    'bg-red-500/15 text-red-400'
+                    topicDetails.difficulty === 'Easy' ? 'bg-green-100 text-green-600' :
+                    topicDetails.difficulty === 'Medium' ? 'bg-yellow-100 text-emerald-600' :
+                    'bg-red-100 text-red-600'
                   }`}>
                     {topicDetails.difficulty}
                   </span>
                 )}
                 {topicDetails.questions && (
-                  <span className="px-2.5 py-0.5 rounded text-sm font-medium bg-white/5 text-gray-500">
+                  <span className="px-2.5 py-0.5 rounded text-sm font-medium bg-gray-100 text-gray-500">
                     {topicDetails.questions} problems
                   </span>
                 )}
@@ -30497,12 +30497,12 @@ Best,
         </div>
 
         {/* ── Interactive Toolbar (AlgoMaster-inspired) ── */}
-        <div className="flex items-center justify-between p-4 rounded-xl mb-6" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid #e0e0e0' }}>
+        <div className="flex items-center justify-between p-4 rounded-xl mb-6" style={{ background: '#fafafa', border: '1px solid #e0e0e0' }}>
           <div className="flex items-center gap-3">
             {/* Mark as Complete */}
             <button
               onClick={() => toggleComplete(selectedTopic)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${completedTopics[selectedTopic] ? 'bg-emerald-100 text-emerald-600 border border-emerald-500/30' : 'text-gray-400 hover:text-white hover:bg-white/5 border border-white/10'}`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${completedTopics[selectedTopic] ? 'bg-emerald-100 text-emerald-600 border border-emerald-500/30' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-50 border border-gray-200'}`}
             >
               <Icon name={completedTopics[selectedTopic] ? 'checkCircle' : 'check'} size={16} />
               {completedTopics[selectedTopic] ? 'Completed' : 'Mark as Complete'}
@@ -30510,7 +30510,7 @@ Best,
             {/* Star */}
             <button
               onClick={() => toggleStar(selectedTopic)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${starredTopics[selectedTopic] ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${starredTopics[selectedTopic] ? 'text-yellow-600' : 'text-gray-400 hover:text-yellow-600'}`}
             >
               <Icon name={starredTopics[selectedTopic] ? 'star5' : 'star'} size={16} />
             </button>
@@ -30519,7 +30519,7 @@ Best,
             {/* Ask AI */}
             <button
               onClick={() => setShowAskAI(!showAskAI)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${showAskAI ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'text-gray-400 hover:text-white hover:bg-white/5 border border-white/10'}`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${showAskAI ? 'bg-purple-500/20 text-purple-600 border border-purple-500/30' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-50 border border-gray-200'}`}
             >
               <Icon name="sparkles" size={16} />
               Ask AI
@@ -30527,7 +30527,7 @@ Best,
             {/* Course Roadmap */}
             <button
               onClick={() => setShowRoadmap(!showRoadmap)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 border border-white/10 transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-gray-700 hover:bg-gray-50 border border-gray-200 transition-all"
             >
               <Icon name="compass" size={16} />
               Roadmap
@@ -30537,10 +30537,10 @@ Best,
 
         {/* Ask AI Panel */}
         {showAskAI && (
-          <div className="p-5 rounded-xl mb-6" style={{ background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.15)' }}>
+          <div className="p-5 rounded-xl mb-6" style={{ background: 'rgba(139, 92, 246, 0.06)', border: '1px solid rgba(139, 92, 246, 0.15)' }}>
             <div className="flex items-center gap-2 mb-3">
-              <Icon name="sparkles" size={16} className="text-purple-400" />
-              <span className="text-purple-400 font-semibold text-sm">Ask AI about {topicDetails.title}</span>
+              <Icon name="sparkles" size={16} className="text-purple-600" />
+              <span className="text-purple-600 font-semibold text-sm">Ask AI about {topicDetails.title}</span>
             </div>
             <div className="flex gap-2 mb-3">
               <input
@@ -30562,7 +30562,7 @@ Best,
               </button>
             </div>
             {aiAnswer && (
-              <div className="p-4 rounded-lg" style={{ background: 'rgba(0,0,0,0.2)' }}>
+              <div className="p-4 rounded-lg" style={{ background: '#f0f0f0' }}>
                 <FormattedContent content={aiAnswer} color="purple" />
               </div>
             )}
@@ -30573,21 +30573,21 @@ Best,
         {showRoadmap && (
           <div className="p-5 rounded-xl mb-6" style={{ background: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.15)' }}>
             <div className="flex items-center gap-2 mb-4">
-              <Icon name="compass" size={16} className="text-amber-400" />
-              <span className="text-amber-400 font-semibold text-sm">Course Roadmap — {pageConfig.title}</span>
+              <Icon name="compass" size={16} className="text-amber-600" />
+              <span className="text-amber-600 font-semibold text-sm">Course Roadmap — {pageConfig.title}</span>
             </div>
             <div className="space-y-1">
               {(activePage === 'coding' ? codingTopics : activePage === 'system-design' ? [...systemDesignTopics, ...systemDesigns] : behavioralTopics).map((t, i) => (
                 <button
                   key={t.id}
                   onClick={() => { setSelectedTopic(t.id); setShowRoadmap(false); }}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-left transition-all ${t.id === selectedTopic ? 'bg-amber-500/10 text-amber-400' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-left transition-all ${t.id === selectedTopic ? 'bg-amber-500/10 text-amber-600' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-50'}`}
                 >
                   <span className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0 text-xs font-bold" style={{ background: completedTopics[t.id] ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.05)', color: completedTopics[t.id] ? '#10b981' : '#6b7280' }}>
                     {completedTopics[t.id] ? '✓' : i + 1}
                   </span>
                   <span className="flex-1">{t.title}</span>
-                  {starredTopics[t.id] && <Icon name="star5" size={12} className="text-yellow-400" />}
+                  {starredTopics[t.id] && <Icon name="star5" size={12} className="text-yellow-600" />}
                 </button>
               ))}
             </div>
@@ -30602,9 +30602,9 @@ Best,
               {/* Introduction - Comprehensive Overview */}
               {topicDetails.introduction && (
                 <div id="overview" className="rounded-lg overflow-hidden scroll-mt-24 lg:col-span-2" style={CARD_STYLES.card}>
-                  <div className="px-3 py-1.5 border-b border-emerald-500/20 flex items-center gap-2" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                  <div className="px-3 py-1.5 border-b border-emerald-200 flex items-center gap-2" style={{ background: 'rgba(16,185,129,0.06)' }}>
                     <Icon name="book" size={14} className="text-emerald-600" />
-                    <h3 className="text-xs font-bold text-white">Overview</h3>
+                    <h3 className="text-xs font-bold text-gray-900">Overview</h3>
                   </div>
                   <div className="p-3">
                     <FormattedContent content={topicDetails.introduction} color="emerald" />
@@ -30614,10 +30614,10 @@ Best,
               {/* Complexity */}
               <div className="flex flex-col gap-2">
                 <div className="p-3 rounded-lg flex-1" style={{ background: '#e8f5ef', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                  <div className="text-green-400 text-xs font-medium mb-1">Time Complexity</div>
+                  <div className="text-green-600 text-xs font-medium mb-1">Time Complexity</div>
                   <div className="text-gray-900 font-mono text-sm">{topicDetails.timeComplexity}</div>
                 </div>
-                <div className="p-3 rounded-lg flex-1" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                <div className="p-3 rounded-lg flex-1" style={{ background: 'rgba(59, 130, 246, 0.06)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
                   <div className="text-emerald-600 text-xs font-medium mb-1">Space Complexity</div>
                   <div className="text-gray-900 font-mono text-sm">{topicDetails.spaceComplexity}</div>
                 </div>
@@ -30629,9 +30629,9 @@ Best,
               {/* When to Use */}
               {topicDetails.whenToUse && (
                 <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
-                  <div className="px-3 py-1.5 border-b border-purple-500/20 flex items-center gap-2" style={{ background: 'rgba(168,85,247,0.05)' }}>
+                  <div className="px-3 py-1.5 border-b border-purple-200 flex items-center gap-2" style={{ background: 'rgba(168,85,247,0.06)' }}>
                     <Icon name="target" size={14} className="text-emerald-600" />
-                    <h3 className="text-xs font-bold text-white">When to Use</h3>
+                    <h3 className="text-xs font-bold text-gray-900">When to Use</h3>
                   </div>
                   <div className="p-3">
                     <ul className="space-y-1">
@@ -30648,10 +30648,10 @@ Best,
 
               {/* Key Patterns */}
               {topicDetails.keyPatterns && (
-                <div className="rounded-lg overflow-hidden" style={{ background: `linear-gradient(180deg, ${topicDetails.color}10 0%, rgba(0,0,0,0.4) 100%)`, border: `1px solid ${topicDetails.color}30` }}>
+                <div className="rounded-lg overflow-hidden" style={{ background: `linear-gradient(180deg, ${topicDetails.color}10 0%, transparent 100%)`, border: `1px solid ${topicDetails.color}30` }}>
                   <div className="px-3 py-1.5 border-b flex items-center gap-2" style={{ background: `${topicDetails.color}08`, borderColor: `${topicDetails.color}20` }}>
                     <Icon name="puzzle" size={14} style={{ color: topicDetails.color }} />
-                    <h3 className="text-xs font-bold text-white">Key Patterns</h3>
+                    <h3 className="text-xs font-bold text-gray-900">Key Patterns</h3>
                   </div>
                   <div className="p-3">
                     <div className="flex flex-wrap gap-1.5">
@@ -30671,9 +30671,9 @@ Best,
               {/* Approach - Step by Step */}
               {topicDetails.approach && (
                 <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
-                  <div className="px-3 py-1.5 border-b border-blue-500/20 flex items-center gap-2" style={{ background: 'rgba(59,130,246,0.05)' }}>
+                  <div className="px-3 py-1.5 border-b border-blue-200 flex items-center gap-2" style={{ background: 'rgba(59,130,246,0.06)' }}>
                     <Icon name="list" size={14} className="text-emerald-600" />
-                    <h3 className="text-xs font-bold text-white">Step-by-Step Approach</h3>
+                    <h3 className="text-xs font-bold text-gray-900">Step-by-Step Approach</h3>
                   </div>
                   <div className="p-3">
                     <ol className="space-y-1">
@@ -30691,15 +30691,15 @@ Best,
               {/* Common Mistakes */}
               {topicDetails.commonMistakes && (
                 <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
-                  <div className="px-3 py-1.5 border-b border-red-500/20 flex items-center gap-2" style={{ background: 'rgba(239,68,68,0.05)' }}>
-                    <Icon name="alertTriangle" size={14} className="text-red-400" />
-                    <h3 className="text-xs font-bold text-white">Common Mistakes</h3>
+                  <div className="px-3 py-1.5 border-b border-red-200 flex items-center gap-2" style={{ background: 'rgba(239,68,68,0.06)' }}>
+                    <Icon name="alertTriangle" size={14} className="text-red-600" />
+                    <h3 className="text-xs font-bold text-gray-900">Common Mistakes</h3>
                   </div>
                   <div className="p-3">
                     <ul className="space-y-1">
                       {topicDetails.commonMistakes.map((mistake, i) => (
                         <li key={i} className="flex items-start gap-2 text-xs">
-                          <span className="text-red-400 mt-0.5">✗</span>
+                          <span className="text-red-600 mt-0.5">✗</span>
                           <span className="text-gray-600">{mistake}</span>
                         </li>
                       ))}
@@ -30714,7 +30714,7 @@ Best,
               <div id="practice" className="rounded-lg overflow-hidden scroll-mt-24" style={CARD_STYLES.card}>
                 <div className="px-3 py-1.5 flex items-center gap-2" style={CARD_STYLES.header}>
                   <Icon name="star" size={14} className="text-emerald-600" />
-                  <h3 className="text-xs font-bold text-white">Practice Problems</h3>
+                  <h3 className="text-xs font-bold text-gray-900">Practice Problems</h3>
                   <span className="text-xs text-gray-500 ml-auto">{topicDetails.commonProblems.length}</span>
                 </div>
                 <div className="p-2">
@@ -30734,15 +30734,15 @@ Best,
                         <a
                           key={i}
                           href={href}
-                          className={`flex items-center gap-2 px-2 py-1.5 rounded hover:bg-emerald-500/10 transition-colors cursor-pointer group ${!hasDescription ? 'border border-amber-500/20' : 'border border-transparent hover:border-emerald-500/30'}`}
+                          className={`flex items-center gap-2 px-2 py-1.5 rounded hover:bg-emerald-50 transition-colors cursor-pointer group ${!hasDescription ? 'border border-amber-200' : 'border border-transparent hover:border-emerald-500/30'}`}
                         >
                           <span className="w-5 h-5 rounded flex items-center justify-center text-xs font-mono bg-emerald-500/15 text-emerald-600 flex-shrink-0">{i + 1}</span>
-                          <span className={`text-xs flex-1 truncate group-hover:text-emerald-300 transition-colors ${hasDescription ? 'text-gray-600' : 'text-amber-400'}`}>{problemName}</span>
+                          <span className={`text-xs flex-1 truncate group-hover:text-emerald-300 transition-colors ${hasDescription ? 'text-gray-600' : 'text-amber-600'}`}>{problemName}</span>
                           {difficulty && (
                             <span className={`px-1.5 py-0.5 rounded text-xs flex-shrink-0 ${
-                              difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :
-                              difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-400' :
-                              'bg-red-500/20 text-red-400'
+                              difficulty === 'Easy' ? 'bg-green-500/20 text-green-600' :
+                              difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-600' :
+                              'bg-red-500/20 text-red-600'
                             }`}>{difficulty.charAt(0)}</span>
                           )}
                         </a>
@@ -30755,10 +30755,10 @@ Best,
 
             {/* Theory Questions - Expandable with Answers */}
             {topicDetails.theoryQuestions && topicDetails.theoryQuestions.length > 0 && (
-              <div id="theory" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(147,51,234,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(147,51,234,0.2)' }}>
-                <div className="px-3 py-1.5 border-b border-purple-500/20 flex items-center gap-2" style={{ background: 'rgba(147,51,234,0.05)' }}>
+              <div id="theory" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(147,51,234,0.08) 0%, transparent 100%)', border: '1px solid rgba(147,51,234,0.2)' }}>
+                <div className="px-3 py-1.5 border-b border-purple-200 flex items-center gap-2" style={{ background: 'rgba(147,51,234,0.06)' }}>
                   <Icon name="bookOpen" size={14} className="text-emerald-600" />
-                  <h3 className="text-xs font-bold text-white">Theory Questions</h3>
+                  <h3 className="text-xs font-bold text-gray-900">Theory Questions</h3>
                   <span className="text-xs text-gray-500 ml-auto">{topicDetails.theoryQuestions.length}</span>
                 </div>
                 <div className="p-3">
@@ -30767,18 +30767,18 @@ Best,
                       const questionKey = `${selectedTopic}-${i}`;
                       const isExpanded = expandedTheoryQuestions[questionKey];
                       return (
-                        <div key={i} className="rounded-lg overflow-hidden" style={{ background: 'rgba(0,0,0,0.2)' }}>
+                        <div key={i} className="rounded-lg overflow-hidden" style={{ background: '#f0f0f0' }}>
                           <button
                             onClick={() => setExpandedTheoryQuestions(prev => ({ ...prev, [questionKey]: !prev[questionKey] }))}
-                            className="w-full flex items-center gap-2 p-3 hover:bg-white/5 transition-colors text-left"
+                            className="w-full flex items-center gap-2 p-3 hover:bg-gray-100 transition-colors text-left"
                           >
                             <span className="w-6 h-6 rounded flex items-center justify-center text-sm font-mono bg-emerald-500/15 text-emerald-600 flex-shrink-0">{i + 1}</span>
                             <span className="text-gray-700 text-sm flex-1">{q.question}</span>
                             {q.difficulty && (
                               <span className={`px-2 py-0.5 rounded text-xs flex-shrink-0 ${
-                                q.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :
+                                q.difficulty === 'Easy' ? 'bg-green-500/20 text-green-600' :
                                 q.difficulty === 'Medium' ? 'bg-emerald-500/15 text-emerald-600' :
-                                'bg-red-500/20 text-red-400'
+                                'bg-red-500/20 text-red-600'
                               }`}>{q.difficulty}</span>
                             )}
                             <svg className={`w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -30787,7 +30787,7 @@ Best,
                           </button>
                           {isExpanded && q.answer && (
                             <div className="px-4 pb-3 pt-1 border-t border-purple-500/10">
-                              <div className="pl-8 text-gray-600 text-sm leading-relaxed" style={{ background: 'rgba(147,51,234,0.05)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid rgba(147,51,234,0.4)' }}>
+                              <div className="pl-8 text-gray-600 text-sm leading-relaxed" style={{ background: 'rgba(147,51,234,0.06)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid rgba(147,51,234,0.4)' }}>
                                 {q.answer}
                               </div>
                             </div>
@@ -30805,9 +30805,9 @@ Best,
               {/* Tips */}
               {topicDetails.tips && (
                 <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
-                  <div className="px-3 py-1.5 border-b border-emerald-500/20 flex items-center gap-2" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                  <div className="px-3 py-1.5 border-b border-emerald-200 flex items-center gap-2" style={{ background: 'rgba(16,185,129,0.06)' }}>
                     <Icon name="lightbulb" size={14} className="text-emerald-600" />
-                    <h3 className="text-xs font-bold text-white">Tips & Tricks</h3>
+                    <h3 className="text-xs font-bold text-gray-900">Tips & Tricks</h3>
                   </div>
                   <div className="divide-y divide-emerald-500/10">
                     {topicDetails.tips.map((tip, i) => (
@@ -30822,15 +30822,15 @@ Best,
 
               {/* Interview Tips */}
               {topicDetails.interviewTips && (
-                <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(245,158,11,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(245,158,11,0.2)' }}>
-                  <div className="px-3 py-1.5 border-b border-amber-500/20 flex items-center gap-2" style={{ background: 'rgba(245,158,11,0.05)' }}>
-                    <Icon name="briefcase" size={14} className="text-amber-400" />
-                    <h3 className="text-xs font-bold text-white">Interview Tips</h3>
+                <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(245,158,11,0.08) 0%, transparent 100%)', border: '1px solid rgba(245,158,11,0.2)' }}>
+                  <div className="px-3 py-1.5 border-b border-amber-200 flex items-center gap-2" style={{ background: 'rgba(245,158,11,0.06)' }}>
+                    <Icon name="briefcase" size={14} className="text-amber-600" />
+                    <h3 className="text-xs font-bold text-gray-900">Interview Tips</h3>
                   </div>
                   <div className="divide-y divide-amber-500/10">
                     {topicDetails.interviewTips.map((tip, i) => (
                       <div key={i} className="px-3 py-1.5 flex items-start gap-2">
-                        <span className="text-amber-400 text-xs mt-0.5 flex-shrink-0">★</span>
+                        <span className="text-amber-600 text-xs mt-0.5 flex-shrink-0">★</span>
                         <span className="text-gray-600 text-xs">{tip}</span>
                       </div>
                     ))}
@@ -30841,12 +30841,12 @@ Best,
 
             {/* Code Example */}
             {topicDetails.codeExample && (
-              <div className="p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid #e0e0e0' }}>
+              <div className="p-3 rounded-lg" style={{ background: 'transparent', border: '1px solid #e0e0e0' }}>
                 <h3 className="text-gray-900 text-xs font-semibold mb-2 flex items-center gap-2">
-                  <Icon name="code" size={14} className="text-green-400" />
+                  <Icon name="code" size={14} className="text-green-600" />
                   Code Example
                 </h3>
-                <pre className="text-sm font-mono text-green-400 overflow-x-auto whitespace-pre-wrap">
+                <pre className="text-sm font-mono text-green-600 overflow-x-auto whitespace-pre-wrap">
                   {topicDetails.codeExample}
                 </pre>
               </div>
@@ -30856,14 +30856,14 @@ Best,
             {topicDetails.codeExamples && topicDetails.codeExamples.length > 0 && (
               <div id="code-examples" className="space-y-6 scroll-mt-24">
                 <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                  <Icon name="code" size={14} className="text-green-400" />
+                  <Icon name="code" size={14} className="text-green-600" />
                   Code Examples
                 </h3>
                 {topicDetails.codeExamples.map((example, i) => (
-                  <div key={i} className="p-6 rounded-xl" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid #e0e0e0' }}>
+                  <div key={i} className="p-6 rounded-xl" style={{ background: 'transparent', border: '1px solid #e0e0e0' }}>
                     <h4 className="text-gray-900 font-semibold mb-3">{example.title}</h4>
                     {example.description && <p className="text-gray-400 text-sm mb-4">{example.description}</p>}
-                    <pre className="text-sm font-mono text-green-400 overflow-x-auto whitespace-pre-wrap">
+                    <pre className="text-sm font-mono text-green-600 overflow-x-auto whitespace-pre-wrap">
                       {example.code}
                     </pre>
                   </div>
@@ -30878,7 +30878,7 @@ Best,
           <div className="space-y-5">
             {/* Core Concept Topics - Key Concepts badges */}
             {topicDetails.concepts && !topicDetails.introduction && (
-              <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid #e0e0e0' }}>
+              <div className="p-6 rounded-xl" style={{ background: '#fafafa', border: '1px solid #e0e0e0' }}>
                 <h3 className="text-gray-900 font-semibold mb-4 flex items-center gap-2">
                   <Icon name="puzzle" size={18} style={{ color: topicDetails.color }} />
                   Key Concepts
@@ -30899,7 +30899,7 @@ Best,
                 {/* Introduction (Comprehensive) */}
                 {topicDetails.introduction && (
                   <div id="overview" className="rounded-lg overflow-hidden scroll-mt-24" style={CARD_STYLES.card}>
-                    <div className="px-6 py-4 border-b border-blue-500/20" style={{ background: 'rgba(59,130,246,0.05)' }}>
+                    <div className="px-6 py-4 border-b border-blue-200" style={{ background: 'rgba(59,130,246,0.06)' }}>
                       <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/15">
                           <Icon name="book" size={18} className="text-emerald-600" />
@@ -30919,16 +30919,16 @@ Best,
                   {/* Functional Requirements */}
                   {(topicDetails.functionalRequirements || topicDetails.requirements) && (
                   <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
-                    <div className="px-3 py-2 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                    <div className="px-3 py-2 border-b border-emerald-200 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.06)' }}>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-100">
                         <Icon name="check" size={16} className="text-emerald-600" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">Functional Requirements</h3>
+                      <h3 className="text-3xl font-bold text-gray-900">Functional Requirements</h3>
                     </div>
                     <div className="p-4">
                       <ul className="space-y-2">
                         {(topicDetails.functionalRequirements || topicDetails.requirements).map((req, i) => (
-                          <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
+                          <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors">
                             <span className="w-5 h-5 rounded-full flex items-center justify-center text-sm flex-shrink-0 bg-emerald-100 text-emerald-600 mt-0.5">✓</span>
                             <span className="text-gray-600 text-lg">{req}</span>
                           </li>
@@ -30941,16 +30941,16 @@ Best,
                   {/* Non-Functional Requirements */}
                   {topicDetails.nonFunctionalRequirements && (
                     <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
-                      <div className="px-3 py-2 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
+                      <div className="px-3 py-2 border-b border-blue-200 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.06)' }}>
                         <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
                           <Icon name="zap" size={16} className="text-emerald-600" />
                         </div>
-                        <h3 className="text-3xl font-bold text-white">Non-Functional Requirements</h3>
+                        <h3 className="text-3xl font-bold text-gray-900">Non-Functional Requirements</h3>
                       </div>
                       <div className="p-4">
                         <ul className="space-y-2">
                           {topicDetails.nonFunctionalRequirements.map((req, i) => (
-                            <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
+                            <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors">
                               <span className="w-5 h-5 rounded-full flex items-center justify-center text-sm flex-shrink-0 bg-emerald-500/15 text-emerald-600 mt-0.5">•</span>
                               <span className="text-gray-600 text-lg">{req}</span>
                             </li>
@@ -30968,22 +30968,22 @@ Best,
                     {/* API Design */}
                     {topicDetails.apiDesign && topicDetails.apiDesign.endpoints && (
                       <div id="api-design" className="rounded-lg overflow-hidden scroll-mt-24" style={CARD_STYLES.card}>
-                        <div className="px-3 py-2 border-b border-green-500/20 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                        <div className="px-3 py-2 border-b border-green-200 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.06)' }}>
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-green-500/20">
-                            <Icon name="code" size={16} className="text-green-400" />
+                            <Icon name="code" size={16} className="text-green-600" />
                           </div>
-                          <h3 className="text-3xl font-bold text-white">API Design</h3>
+                          <h3 className="text-3xl font-bold text-gray-900">API Design</h3>
                         </div>
                         <div className="p-3">
                           <div className="space-y-2">
                             {topicDetails.apiDesign.endpoints.map((endpoint, i) => (
-                              <div key={i} className="rounded-lg p-3" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                              <div key={i} className="rounded-lg p-3" style={{ background: '#eee', border: '1px solid #ddd' }}>
                                 <div className="flex items-center gap-2 mb-2">
                                   <span className={`px-2 py-0.5 rounded text-sm font-bold uppercase ${
                                     endpoint.method === 'GET' ? 'bg-emerald-500/15 text-emerald-600' :
-                                    endpoint.method === 'POST' || endpoint.method === 'INSERT' ? 'bg-green-500/20 text-green-400' :
+                                    endpoint.method === 'POST' || endpoint.method === 'INSERT' ? 'bg-green-500/20 text-green-600' :
                                     endpoint.method === 'PUT' || endpoint.method === 'UPDATE' ? 'bg-emerald-500/15 text-emerald-600' :
-                                    'bg-red-500/20 text-red-400'
+                                    'bg-red-500/20 text-red-600'
                                   }`}>
                                     {endpoint.method}
                                   </span>
@@ -31004,7 +31004,7 @@ Best,
                           <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/15">
                             <Icon name="database" size={18} className="text-emerald-600" />
                           </div>
-                          <h3 className="text-3xl font-bold text-white">Data Model</h3>
+                          <h3 className="text-3xl font-bold text-gray-900">Data Model</h3>
                         </div>
                         <div className="overflow-x-auto" style={CARD_STYLES.code}>
                           <pre
@@ -31031,7 +31031,7 @@ Best,
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/15">
                         <Icon name="messageSquare" size={18} className="text-emerald-600" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">Key Questions</h3>
+                      <h3 className="text-3xl font-bold text-gray-900">Key Questions</h3>
                       <span className="text-lg text-gray-500 ml-auto">{topicDetails.keyQuestions.length} topics</span>
                     </div>
                     <div className="divide-y divide-white/5">
@@ -31062,7 +31062,7 @@ Best,
                           <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/15">
                             <Icon name="layers" size={18} className="text-emerald-600" />
                           </div>
-                          <h3 className="text-3xl font-bold text-white">{topicDetails.basicImplementation.title || 'Basic Approach'}</h3>
+                          <h3 className="text-3xl font-bold text-gray-900">{topicDetails.basicImplementation.title || 'Basic Approach'}</h3>
                         </div>
                         <div className="p-6">
                           <p className="text-gray-600 text-lg mb-5 leading-relaxed">{topicDetails.basicImplementation.description}</p>
@@ -31073,9 +31073,9 @@ Best,
                             />
                           )}
                           {topicDetails.basicImplementation.architecture && !topicDetails.basicImplementation.svgTemplate && (
-                            <div className="rounded-lg overflow-x-auto mb-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                            <div className="rounded-lg overflow-x-auto mb-4" style={{ background: '#e8e8e8' }}>
                               <pre
-                                className="p-4 text-sm leading-6 text-cyan-400"
+                                className="p-4 text-sm leading-6 text-cyan-600"
                                 style={{
                                   fontFamily: '"SF Mono", Monaco, "Cascadia Code", Consolas, "Courier New", monospace',
                                   whiteSpace: 'pre',
@@ -31089,14 +31089,14 @@ Best,
                           )}
                           {topicDetails.basicImplementation.problems && (
                             <div>
-                              <h4 className="text-red-400 text-sm font-semibold mb-3 flex items-center gap-2">
+                              <h4 className="text-red-600 text-sm font-semibold mb-3 flex items-center gap-2">
                                 <Icon name="alertTriangle" size={14} />
                                 Issues:
                               </h4>
                               <ul className="space-y-2">
                                 {topicDetails.basicImplementation.problems.map((problem, i) => (
                                   <li key={i} className="flex items-start gap-3 text-gray-400 text-lg">
-                                    <span className="text-red-400 mt-0.5">✗</span>
+                                    <span className="text-red-600 mt-0.5">✗</span>
                                     <span>{problem}</span>
                                   </li>
                                 ))}
@@ -31114,7 +31114,7 @@ Best,
                           <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/15">
                             <Icon name="zap" size={18} className="text-emerald-600" />
                           </div>
-                          <h3 className="text-3xl font-bold text-white">{topicDetails.advancedImplementation.title || 'Scalable Solution'}</h3>
+                          <h3 className="text-3xl font-bold text-gray-900">{topicDetails.advancedImplementation.title || 'Scalable Solution'}</h3>
                         </div>
                         <div className="p-6">
                           <p className="text-gray-600 text-lg mb-5 leading-relaxed">{topicDetails.advancedImplementation.description}</p>
@@ -31155,12 +31155,12 @@ Best,
                           {(topicDetails.advancedImplementation.databaseChoice || topicDetails.advancedImplementation.caching) && (
                             <div className="flex flex-wrap gap-3">
                               {topicDetails.advancedImplementation.databaseChoice && (
-                                <span className="px-3 py-1.5 rounded-lg text-sm bg-emerald-500/10 text-emerald-600">
+                                <span className="px-3 py-1.5 rounded-lg text-sm bg-emerald-50 text-emerald-600">
                                   DB: {topicDetails.advancedImplementation.databaseChoice}
                                 </span>
                               )}
                               {topicDetails.advancedImplementation.caching && (
-                                <span className="px-3 py-1.5 rounded-lg text-sm bg-emerald-500/10 text-emerald-600">
+                                <span className="px-3 py-1.5 rounded-lg text-sm bg-emerald-50 text-emerald-600">
                                   Cache: {topicDetails.advancedImplementation.caching}
                                 </span>
                               )}
@@ -31182,7 +31182,7 @@ Best,
                           <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/15">
                             <Icon name="layers" size={18} className="text-emerald-600" />
                           </div>
-                          <h3 className="text-3xl font-bold text-white">Architecture Diagram</h3>
+                          <h3 className="text-3xl font-bold text-gray-900">Architecture Diagram</h3>
                         </div>
                         <div className="flex items-center gap-2">
                           {/* Cloud Provider Selector */}
@@ -31260,11 +31260,11 @@ Best,
                         <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
                           <Icon name="star" size={16} className="text-emerald-600" />
                         </div>
-                        <h3 className="text-3xl font-bold text-white">Interview Tips</h3>
+                        <h3 className="text-3xl font-bold text-gray-900">Interview Tips</h3>
                       </div>
                       <div className="divide-y divide-yellow-500/10">
                         {topicDetails.tips.map((tip, i) => (
-                          <div key={i} className="px-3 py-2 flex items-center gap-4 hover:bg-white/5 transition-colors">
+                          <div key={i} className="px-3 py-2 flex items-center gap-4 hover:bg-gray-100 transition-colors">
                             <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0 bg-emerald-500/15 text-emerald-600">★</span>
                             <span className="text-gray-600 text-lg">{tip}</span>
                           </div>
@@ -31280,16 +31280,16 @@ Best,
                     {/* Create Flow */}
                     {topicDetails.createFlow && (
                       <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
-                        <div className="px-3 py-2 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
+                        <div className="px-3 py-2 border-b border-blue-200 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.06)' }}>
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
                             <Icon name="arrowRight" size={16} className="text-emerald-600" />
                           </div>
-                          <h3 className="text-3xl font-bold text-white">{topicDetails.createFlow.title}</h3>
+                          <h3 className="text-3xl font-bold text-gray-900">{topicDetails.createFlow.title}</h3>
                         </div>
                         <div className="p-4">
                           <ol className="space-y-2">
                             {topicDetails.createFlow.steps.map((step, i) => (
-                              <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
+                              <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors">
                                 <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-emerald-500/15 text-emerald-600 border border-blue-500/30">
                                   {i + 1}
                                 </span>
@@ -31304,16 +31304,16 @@ Best,
                     {/* Redirect Flow */}
                     {topicDetails.redirectFlow && (
                       <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
-                        <div className="px-3 py-2 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
+                        <div className="px-3 py-2 border-b border-purple-200 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.06)' }}>
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
                             <Icon name="arrowLeft" size={16} className="text-emerald-600" />
                           </div>
-                          <h3 className="text-3xl font-bold text-white">{topicDetails.redirectFlow.title}</h3>
+                          <h3 className="text-3xl font-bold text-gray-900">{topicDetails.redirectFlow.title}</h3>
                         </div>
                         <div className="p-4">
                           <ol className="space-y-2">
                             {topicDetails.redirectFlow.steps.map((step, i) => (
-                              <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
+                              <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors">
                                 <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-emerald-500/15 text-emerald-600 border border-purple-500/30">
                                   {i + 1}
                                 </span>
@@ -31329,22 +31329,22 @@ Best,
 
                 {/* Discussion Points - Compact Grid */}
                 {topicDetails.discussionPoints && (
-                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(6,182,212,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(6,182,212,0.2)' }}>
+                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(6,182,212,0.08) 0%, transparent 100%)', border: '1px solid rgba(6,182,212,0.2)' }}>
                     <div className="px-3 py-2 border-b border-cyan-500/20 flex items-center gap-3" style={{ background: 'rgba(6,182,212,0.05)' }}>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-cyan-500/20">
-                        <Icon name="messageCircle" size={16} className="text-cyan-400" />
+                        <Icon name="messageCircle" size={16} className="text-cyan-600" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">Discussion Points</h3>
+                      <h3 className="text-3xl font-bold text-gray-900">Discussion Points</h3>
                     </div>
                     <div className="p-3">
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
                         {topicDetails.discussionPoints.map((point, i) => (
-                          <div key={i} className="p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(6,182,212,0.1)' }}>
-                            <h4 className="text-cyan-400 font-semibold mb-1.5 text-sm">{point.topic}</h4>
+                          <div key={i} className="p-3 rounded-lg" style={{ background: '#eee', border: '1px solid rgba(6,182,212,0.1)' }}>
+                            <h4 className="text-cyan-600 font-semibold mb-1.5 text-sm">{point.topic}</h4>
                             <ul className="space-y-0.5">
                               {point.points.slice(0, 3).map((p, j) => (
                                 <li key={j} className="flex items-start gap-1 text-gray-400 text-sm">
-                                  <span className="text-cyan-400 mt-0.5">•</span>
+                                  <span className="text-cyan-600 mt-0.5">•</span>
                                   <span className="truncate">{p}</span>
                                 </li>
                               ))}
@@ -31365,16 +31365,16 @@ Best,
                     {/* System Components */}
                     {!topicDetails.introduction && topicDetails.components && (
                       <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
-                        <div className="px-3 py-2 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.05)' }}>
+                        <div className="px-3 py-2 border-b border-purple-200 flex items-center gap-3" style={{ background: 'rgba(168,85,247,0.06)' }}>
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
                             <Icon name="layers" size={16} className="text-emerald-600" />
                           </div>
-                          <h3 className="text-3xl font-bold text-white">System Components</h3>
+                          <h3 className="text-3xl font-bold text-gray-900">System Components</h3>
                         </div>
                         <div className="p-4">
                           <div className="flex flex-wrap gap-2">
                             {topicDetails.components.map((comp, i) => (
-                              <span key={i} className="px-3 py-1.5 rounded-lg text-sm bg-purple-500/15 text-emerald-600 border border-purple-500/20">
+                              <span key={i} className="px-3 py-1.5 rounded-lg text-sm bg-purple-500/15 text-emerald-600 border border-purple-200">
                                 {comp}
                               </span>
                             ))}
@@ -31385,18 +31385,18 @@ Best,
 
                     {/* Key Design Decisions */}
                     {topicDetails.keyDecisions && (
-                      <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(245,158,11,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(245,158,11,0.2)' }}>
-                        <div className="px-3 py-2 border-b border-amber-500/20 flex items-center gap-3" style={{ background: 'rgba(245,158,11,0.05)' }}>
+                      <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(245,158,11,0.08) 0%, transparent 100%)', border: '1px solid rgba(245,158,11,0.2)' }}>
+                        <div className="px-3 py-2 border-b border-amber-200 flex items-center gap-3" style={{ background: 'rgba(245,158,11,0.06)' }}>
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-amber-500/20">
-                            <Icon name="lightbulb" size={16} className="text-amber-400" />
+                            <Icon name="lightbulb" size={16} className="text-amber-600" />
                           </div>
-                          <h3 className="text-3xl font-bold text-white">Key Design Decisions</h3>
+                          <h3 className="text-3xl font-bold text-gray-900">Key Design Decisions</h3>
                         </div>
                         <div className="p-4">
                           <ol className="space-y-2">
                             {topicDetails.keyDecisions.map((decision, i) => (
-                              <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
-                                <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                              <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                                <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-amber-500/20 text-amber-600 border border-amber-500/30">
                                   {i + 1}
                                 </span>
                                 <span className="text-gray-600 text-lg">{decision}</span>
@@ -31411,17 +31411,17 @@ Best,
 
                 {/* LLD Core Entities */}
                 {topicDetails.coreEntities && (
-                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(20,184,166,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(20,184,166,0.2)' }}>
+                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(20,184,166,0.08) 0%, transparent 100%)', border: '1px solid rgba(20,184,166,0.2)' }}>
                     <div className="px-3 py-2 border-b border-teal-500/20 flex items-center gap-3" style={{ background: 'rgba(20,184,166,0.05)' }}>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-teal-500/20">
-                        <Icon name="box" size={16} className="text-teal-400" />
+                        <Icon name="box" size={16} className="text-teal-600" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">Core Entities</h3>
+                      <h3 className="text-3xl font-bold text-gray-900">Core Entities</h3>
                     </div>
                     <div className="p-4 space-y-2">
                       {topicDetails.coreEntities.map((entity, i) => (
-                        <div key={i} className="flex items-start gap-3 p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(20,184,166,0.1)' }}>
-                          <code className="text-teal-400 font-mono text-sm font-semibold whitespace-nowrap">{entity.name}</code>
+                        <div key={i} className="flex items-start gap-3 p-3 rounded-lg" style={{ background: '#eee', border: '1px solid rgba(20,184,166,0.1)' }}>
+                          <code className="text-teal-600 font-mono text-sm font-semibold whitespace-nowrap">{entity.name}</code>
                           <span className="text-gray-400 text-sm">{entity.description}</span>
                         </div>
                       ))}
@@ -31431,18 +31431,18 @@ Best,
 
                 {/* LLD Design Patterns */}
                 {topicDetails.designPatterns && (
-                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(139,92,246,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(139,92,246,0.2)' }}>
+                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(139,92,246,0.08) 0%, transparent 100%)', border: '1px solid rgba(139,92,246,0.2)' }}>
                     <div className="px-3 py-2 border-b border-violet-500/20 flex items-center gap-3" style={{ background: 'rgba(139,92,246,0.05)' }}>
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-violet-500/20">
-                        <Icon name="puzzle" size={16} className="text-violet-400" />
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-violet-100">
+                        <Icon name="puzzle" size={16} className="text-violet-600" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">Design Patterns</h3>
+                      <h3 className="text-3xl font-bold text-gray-900">Design Patterns</h3>
                     </div>
                     <div className="p-4">
                       <ul className="space-y-2">
                         {topicDetails.designPatterns.map((pattern, i) => (
-                          <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
-                            <span className="w-5 h-5 rounded-full flex items-center justify-center text-sm flex-shrink-0 bg-violet-500/20 text-violet-400 mt-0.5">✦</span>
+                          <li key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                            <span className="w-5 h-5 rounded-full flex items-center justify-center text-sm flex-shrink-0 bg-violet-100 text-violet-600 mt-0.5">✦</span>
                             <span className="text-gray-600 text-sm">{pattern}</span>
                           </li>
                         ))}
@@ -31453,14 +31453,14 @@ Best,
 
                 {/* LLD Implementation Code */}
                 {topicDetails.implementation && (
-                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(34,197,94,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(34,197,94,0.2)' }}>
-                    <div className="px-3 py-2 border-b border-green-500/20 flex items-center gap-3" style={{ background: 'rgba(34,197,94,0.05)' }}>
+                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(34,197,94,0.08) 0%, transparent 100%)', border: '1px solid rgba(34,197,94,0.2)' }}>
+                    <div className="px-3 py-2 border-b border-green-200 flex items-center gap-3" style={{ background: 'rgba(34,197,94,0.05)' }}>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-green-500/20">
-                        <Icon name="code" size={16} className="text-green-400" />
+                        <Icon name="code" size={16} className="text-green-600" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">Implementation</h3>
+                      <h3 className="text-3xl font-bold text-gray-900">Implementation</h3>
                     </div>
-                    <div className="overflow-x-auto" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                    <div className="overflow-x-auto" style={{ background: '#e8e8e8' }}>
                       <pre
                         className="p-4 text-sm leading-6 text-green-300"
                         style={{
@@ -31478,17 +31478,17 @@ Best,
 
                 {/* Concurrency Concepts */}
                 {topicDetails.concepts && Array.isArray(topicDetails.concepts) && topicDetails.concepts[0]?.name && (
-                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(249,115,22,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(249,115,22,0.2)' }}>
+                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(249,115,22,0.08) 0%, transparent 100%)', border: '1px solid rgba(249,115,22,0.2)' }}>
                     <div className="px-3 py-2 border-b border-orange-500/20 flex items-center gap-3" style={{ background: 'rgba(249,115,22,0.05)' }}>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-orange-500/20">
-                        <Icon name="cpu" size={16} className="text-orange-400" />
+                        <Icon name="cpu" size={16} className="text-orange-600" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">Core Concepts</h3>
+                      <h3 className="text-3xl font-bold text-gray-900">Core Concepts</h3>
                     </div>
                     <div className="p-4 space-y-2">
                       {topicDetails.concepts.map((concept, i) => (
-                        <div key={i} className="flex items-start gap-3 p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(249,115,22,0.1)' }}>
-                          <code className="text-orange-400 font-mono text-sm font-semibold whitespace-nowrap">{concept.name}</code>
+                        <div key={i} className="flex items-start gap-3 p-3 rounded-lg" style={{ background: '#eee', border: '1px solid rgba(249,115,22,0.1)' }}>
+                          <code className="text-orange-600 font-mono text-sm font-semibold whitespace-nowrap">{concept.name}</code>
                           <span className="text-gray-400 text-sm">{concept.description}</span>
                         </div>
                       ))}
@@ -31499,15 +31499,15 @@ Best,
                 {/* Concurrency Primitives */}
                 {topicDetails.primitives && (
                   <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
-                    <div className="px-3 py-2 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
+                    <div className="px-3 py-2 border-b border-blue-200 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.06)' }}>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
                         <Icon name="lock" size={16} className="text-emerald-600" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">Synchronization Primitives</h3>
+                      <h3 className="text-3xl font-bold text-gray-900">Synchronization Primitives</h3>
                     </div>
                     <div className="p-4 space-y-2">
                       {topicDetails.primitives.map((prim, i) => (
-                        <div key={i} className="p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(59,130,246,0.1)' }}>
+                        <div key={i} className="p-3 rounded-lg" style={{ background: '#eee', border: '1px solid rgba(59,130,246,0.1)' }}>
                           <div className="flex items-center gap-2 mb-1">
                             <code className="text-emerald-600 font-mono text-sm font-semibold">{prim.name}</code>
                             {prim.example && <code className="text-gray-500 text-sm">{prim.example}</code>}
@@ -31522,19 +31522,19 @@ Best,
                 {/* Concurrency Classic Problems */}
                 {topicDetails.problems && topicDetails.problems[0]?.solution && (
                   <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
-                    <div className="px-3 py-2 border-b border-red-500/20 flex items-center gap-3" style={{ background: 'rgba(239,68,68,0.05)' }}>
+                    <div className="px-3 py-2 border-b border-red-200 flex items-center gap-3" style={{ background: 'rgba(239,68,68,0.06)' }}>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-red-500/20">
-                        <Icon name="alertTriangle" size={16} className="text-red-400" />
+                        <Icon name="alertTriangle" size={16} className="text-red-600" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">Classic Problems</h3>
+                      <h3 className="text-3xl font-bold text-gray-900">Classic Problems</h3>
                     </div>
                     <div className="divide-y divide-red-500/10">
                       {topicDetails.problems.map((problem, i) => (
                         <div key={i} className="p-4">
-                          <h4 className="text-red-400 font-semibold text-lg mb-2">{problem.name}</h4>
+                          <h4 className="text-red-600 font-semibold text-lg mb-2">{problem.name}</h4>
                           <p className="text-gray-400 text-sm mb-2">{problem.description}</p>
                           <div className="flex items-start gap-2">
-                            <span className="text-green-400 text-sm font-semibold">Solution:</span>
+                            <span className="text-green-600 text-sm font-semibold">Solution:</span>
                             <span className="text-gray-600 text-sm">{problem.solution}</span>
                           </div>
                         </div>
@@ -31545,17 +31545,17 @@ Best,
 
                 {/* Concurrency Data Structures */}
                 {topicDetails.structures && (
-                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(6,182,212,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(6,182,212,0.2)' }}>
+                  <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(6,182,212,0.08) 0%, transparent 100%)', border: '1px solid rgba(6,182,212,0.2)' }}>
                     <div className="px-3 py-2 border-b border-cyan-500/20 flex items-center gap-3" style={{ background: 'rgba(6,182,212,0.05)' }}>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-cyan-500/20">
-                        <Icon name="database" size={16} className="text-cyan-400" />
+                        <Icon name="database" size={16} className="text-cyan-600" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">Concurrent Data Structures</h3>
+                      <h3 className="text-3xl font-bold text-gray-900">Concurrent Data Structures</h3>
                     </div>
                     <div className="p-4 space-y-2">
                       {topicDetails.structures.map((struct, i) => (
-                        <div key={i} className="flex items-start gap-3 p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(6,182,212,0.1)' }}>
-                          <code className="text-cyan-400 font-mono text-sm font-semibold whitespace-nowrap">{struct.name}</code>
+                        <div key={i} className="flex items-start gap-3 p-3 rounded-lg" style={{ background: '#eee', border: '1px solid rgba(6,182,212,0.1)' }}>
+                          <code className="text-cyan-600 font-mono text-sm font-semibold whitespace-nowrap">{struct.name}</code>
                           <span className="text-gray-400 text-sm">{struct.description}</span>
                         </div>
                       ))}
@@ -31600,17 +31600,17 @@ Best,
 
             {/* Key Questions - Row Mode Layout */}
             {topicDetails.keyQuestions && topicDetails.keyQuestions.length > 0 && (
-              <div id="key-questions" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.2) 100%)', border: '1px solid #d4d4d4' }}>
+              <div id="key-questions" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)', border: '1px solid #d4d4d4' }}>
                 <div className="px-3 py-2 border-b flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${topicDetails.color}10, transparent)`, borderColor: `${topicDetails.color}20` }}>
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${topicDetails.color}20` }}>
                     <Icon name="messageSquare" size={16} style={{ color: topicDetails.color }} />
                   </div>
-                  <h3 className="text-3xl font-bold text-white">Key Questions & Answers</h3>
+                  <h3 className="text-3xl font-bold text-gray-900">Key Questions & Answers</h3>
                   <span className="text-lg text-gray-500 ml-auto">{topicDetails.keyQuestions.length} questions</span>
                 </div>
                 <div className="divide-y" style={{ borderColor: `${topicDetails.color}10` }}>
                   {topicDetails.keyQuestions.map((item, index) => (
-                    <div key={index} className="px-3 py-2 hover:bg-white/5 transition-colors">
+                    <div key={index} className="px-3 py-2 hover:bg-gray-100 transition-colors">
                       <div className="flex items-start gap-4">
                         <span className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ background: `${topicDetails.color}25`, color: topicDetails.color }}>
                           Q{index + 1}
@@ -31677,19 +31677,19 @@ Best,
             )}
 
             {topicDetails.starExample && (
-              <div id="star-example" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(168, 85, 247, 0.08) 0%, rgba(0,0,0,0.3) 100%)', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
-                <div className="px-3 py-2 border-b border-purple-500/20 flex items-center gap-3" style={{ background: 'rgba(168, 85, 247, 0.05)' }}>
+              <div id="star-example" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(168, 85, 247, 0.08) 0%, transparent 100%)', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+                <div className="px-3 py-2 border-b border-purple-200 flex items-center gap-3" style={{ background: 'rgba(168, 85, 247, 0.05)' }}>
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
                     <Icon name="target" size={16} className="text-emerald-600" />
                   </div>
-                  <h3 className="text-3xl font-bold text-white">STAR Framework Example</h3>
+                  <h3 className="text-3xl font-bold text-gray-900">STAR Framework Example</h3>
                 </div>
                 <div className="divide-y divide-purple-500/10">
                   {Object.entries(topicDetails.starExample).map(([key, value]) => {
                     const colors = { situation: '#3b82f6', task: '#f59e0b', action: '#10b981', result: '#ef4444' };
                     const color = colors[key.toLowerCase()] || '#a855f7';
                     return (
-                      <div key={key} className="px-3 py-2 flex items-start gap-4 hover:bg-white/5 transition-colors">
+                      <div key={key} className="px-3 py-2 flex items-start gap-4 hover:bg-gray-100 transition-colors">
                         <div className="w-24 flex-shrink-0">
                           <div className="text-lg font-bold uppercase tracking-wide" style={{ color }}>{key}</div>
                         </div>
@@ -31702,16 +31702,16 @@ Best,
             )}
 
             {topicDetails.sampleQuestions && !topicDetails.keyQuestions && (
-              <div id="sample-questions" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(59, 130, 246, 0.08) 0%, rgba(0,0,0,0.3) 100%)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                <div className="px-3 py-2 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59, 130, 246, 0.05)' }}>
+              <div id="sample-questions" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(59, 130, 246, 0.08) 0%, transparent 100%)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                <div className="px-3 py-2 border-b border-blue-200 flex items-center gap-3" style={{ background: 'rgba(59, 130, 246, 0.05)' }}>
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
                     <Icon name="helpCircle" size={16} className="text-emerald-600" />
                   </div>
-                  <h3 className="text-3xl font-bold text-white">Sample Questions</h3>
+                  <h3 className="text-3xl font-bold text-gray-900">Sample Questions</h3>
                 </div>
                 <div className="divide-y divide-blue-500/10">
                   {topicDetails.sampleQuestions.map((q, i) => (
-                    <div key={i} className="px-3 py-2 flex items-center gap-4 hover:bg-white/5 transition-colors">
+                    <div key={i} className="px-3 py-2 flex items-center gap-4 hover:bg-gray-100 transition-colors">
                       <span className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>{i + 1}</span>
                       <span className="text-gray-600 text-lg">{q}</span>
                     </div>
@@ -31721,16 +31721,16 @@ Best,
             )}
 
             {topicDetails.tips && (
-              <div id="tips" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(0,0,0,0.3) 100%)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                <div className="px-3 py-2 border-b border-emerald-500/20 flex items-center gap-3" style={{ background: '#f0f7f4' }}>
+              <div id="tips" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, transparent 100%)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                <div className="px-3 py-2 border-b border-emerald-200 flex items-center gap-3" style={{ background: '#f0f7f4' }}>
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-100">
                     <Icon name="checkCircle" size={16} className="text-emerald-600" />
                   </div>
-                  <h3 className="text-3xl font-bold text-white">Tips for Success</h3>
+                  <h3 className="text-3xl font-bold text-gray-900">Tips for Success</h3>
                 </div>
                 <div className="divide-y divide-emerald-500/10">
                   {topicDetails.tips.map((tip, i) => (
-                    <div key={i} className="px-3 py-2 flex items-center gap-4 hover:bg-white/5 transition-colors">
+                    <div key={i} className="px-3 py-2 flex items-center gap-4 hover:bg-gray-100 transition-colors">
                       <span className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-emerald-100 text-emerald-600 text-sm">✓</span>
                       <span className="text-gray-600 text-lg">{tip}</span>
                     </div>
@@ -31740,7 +31740,7 @@ Best,
             )}
 
             {topicDetails.principles && !topicDetails.keyQuestions && (
-              <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid #e0e0e0' }}>
+              <div className="p-6 rounded-xl" style={{ background: '#fafafa', border: '1px solid #e0e0e0' }}>
                 <h3 className="text-gray-900 font-semibold mb-4">Key Principles</h3>
                 <div className="flex flex-wrap gap-2">
                   {topicDetails.principles.map((principle, i) => (
@@ -32098,7 +32098,7 @@ Best,
                                   <div className="min-w-0">
                                     <div className="flex items-center gap-2">
                                       <span className={`text-sm font-medium group-hover:text-emerald-600 transition-colors ${completedTopics[topic.id] ? 'text-gray-400 line-through' : 'text-gray-800'}`}>{topic.title}</span>
-                                      {starredTopics[topic.id] && <Icon name="star5" size={9} className="text-amber-400" />}
+                                      {starredTopics[topic.id] && <Icon name="star5" size={9} className="text-amber-600" />}
                                     </div>
                                     <span className="text-xs text-gray-600 hidden md:block mt-0.5 truncate">{topic.description}</span>
                                   </div>
@@ -32130,8 +32130,8 @@ Best,
                           <table className="w-full">
                             <tbody>
                               {[
-                                { complexity: 'O(1)', desc: 'Constant', rating: 'Best', color: '#10b981' },
-                                { complexity: 'O(log n)', desc: 'Logarithmic', rating: 'Great', color: '#10b981' },
+                                { complexity: 'O(1)', desc: 'Constant', rating: 'Best', color: '#059669' },
+                                { complexity: 'O(log n)', desc: 'Logarithmic', rating: 'Great', color: '#059669' },
                                 { complexity: 'O(n)', desc: 'Linear', rating: 'Good', color: '#eab308' },
                                 { complexity: 'O(n log n)', desc: 'Linearithmic', rating: 'Fair', color: '#eab308' },
                                 { complexity: 'O(n²)', desc: 'Quadratic', rating: 'Slow', color: '#f97316' },
@@ -32216,7 +32216,7 @@ Best,
                                   <div className="min-w-0">
                                     <div className="flex items-center gap-2">
                                       <span className={`text-sm font-medium group-hover:text-emerald-600 transition-colors ${completedTopics[topic.id] ? 'text-gray-400 line-through' : 'text-gray-800'}`}>{topic.title}</span>
-                                      {starredTopics[topic.id] && <Icon name="star5" size={9} className="text-amber-400" />}
+                                      {starredTopics[topic.id] && <Icon name="star5" size={9} className="text-amber-600" />}
                                     </div>
                                     <span className="text-xs text-gray-600 hidden md:block mt-0.5 truncate">{topic.description}</span>
                                   </div>
@@ -32273,7 +32273,7 @@ Best,
                                     <div className="min-w-0">
                                       <div className="flex items-center gap-2">
                                         <span className="text-sm font-medium text-gray-700 group-hover:text-emerald-600 transition-colors">{design.title}</span>
-                                        {design.isNew && <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-violet-500/15 text-violet-400">NEW</span>}
+                                        {design.isNew && <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-violet-500/15 text-violet-600">NEW</span>}
                                       </div>
                                       <span className="text-xs text-gray-600 hidden md:block mt-0.5">{design.subtitle}</span>
                                     </div>
@@ -32284,7 +32284,7 @@ Best,
                                     </span>
                                     <a
                                       href={`/app?problem=${encodeURIComponent(designProblem)}&mode=system-design&autosolve=true`}
-                                      className="px-3 py-1.5 rounded-lg text-xs font-medium text-emerald-600 hover:bg-emerald-500/10 transition-colors"
+                                      className="px-3 py-1.5 rounded-lg text-xs font-medium text-emerald-600 hover:bg-emerald-50 transition-colors"
                                       style={{ border: '1px solid rgba(16, 185, 129, 0.2)' }}
                                       onClick={(e) => e.stopPropagation()}
                                     >
@@ -32335,7 +32335,7 @@ Best,
                                     <div className="min-w-0">
                                       <div className="flex items-center gap-2">
                                         <span className="text-sm font-medium text-gray-700 group-hover:text-emerald-600 transition-colors">{problem.title}</span>
-                                        {problem.isNew && <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-violet-500/15 text-violet-400">NEW</span>}
+                                        {problem.isNew && <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-violet-500/15 text-violet-600">NEW</span>}
                                       </div>
                                       <span className="text-xs text-gray-600 hidden md:block mt-0.5">{problem.subtitle}</span>
                                     </div>
@@ -32466,7 +32466,7 @@ Best,
                                   <div className="min-w-0">
                                     <div className="flex items-center gap-2">
                                       <span className={`text-sm font-medium group-hover:text-emerald-600 transition-colors ${completedTopics[topic.id] ? 'text-gray-400 line-through' : 'text-gray-800'}`}>{topic.title}</span>
-                                      {starredTopics[topic.id] && <Icon name="star5" size={9} className="text-amber-400" />}
+                                      {starredTopics[topic.id] && <Icon name="star5" size={9} className="text-amber-600" />}
                                     </div>
                                     <span className="text-xs text-gray-600 hidden md:block mt-0.5">{topic.description}</span>
                                   </div>
@@ -32550,7 +32550,7 @@ Best,
               </button>
               <button
                 onClick={() => toggleStar(selectedTopic)}
-                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${starredTopics[selectedTopic] ? 'text-amber-400' : 'text-gray-500 hover:text-gray-600 hover:bg-white/[0.03]'}`}
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${starredTopics[selectedTopic] ? 'text-amber-600' : 'text-gray-500 hover:text-gray-600 hover:bg-white/[0.03]'}`}
               >
                 <Icon name={starredTopics[selectedTopic] ? 'star5' : 'star'} size={13} />
                 {starredTopics[selectedTopic] ? 'Starred' : 'Add to Favorites'}
@@ -32596,7 +32596,7 @@ Best,
                         onClick={() => setSelectedTopic(topicId)}
                         className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs text-left text-gray-500 hover:text-gray-600 hover:bg-white/[0.03] transition-all"
                       >
-                        <Icon name="star5" size={9} className="text-amber-400 flex-shrink-0" />
+                        <Icon name="star5" size={9} className="text-amber-600 flex-shrink-0" />
                         <span className="truncate">{t.title}</span>
                       </button>
                     );
