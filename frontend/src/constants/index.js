@@ -53,15 +53,15 @@ export const OPENAI_MODELS = [
 // Auto-fix settings
 export const MAX_AUTO_FIX_ATTEMPTS = 1;
 
-// Storage keys (migrated from ascend_* to chundu_*)
+// Storage keys
 export const STORAGE_KEYS = {
-  token: 'chundu_token',
+  token: 'ascend_token',
   auth: 'ascend_auth',
-  codingHistory: 'chundu_coding_history',
-  systemDesignSessions: 'chundu_system_design_sessions',
-  autoSwitch: 'chundu_auto_switch',
-  sidebarCollapsed: 'chundu_sidebar_collapsed',
-  editorSettings: 'chundu_editor_settings',
+  codingHistory: 'ascend_coding_history',
+  systemDesignSessions: 'ascend_system_design_sessions',
+  autoSwitch: 'ascend_auto_switch',
+  sidebarCollapsed: 'ascend_sidebar_collapsed',
+  editorSettings: 'ascend_editor_settings',
 };
 
 // Detect Electron environment

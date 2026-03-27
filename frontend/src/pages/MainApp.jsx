@@ -86,7 +86,7 @@ function getToken() {
       if (parsed.accessToken) return parsed.accessToken;
     }
   } catch {}
-  return localStorage.getItem('chundu_token');
+  return localStorage.getItem('ascend_token');
 }
 
 function buildEraserDescription(sd) {
@@ -142,9 +142,9 @@ export default function MainApp() {
   // ---------------------------------------------------------------------------
   // Provider State
   // ---------------------------------------------------------------------------
-  const [provider, setProvider] = useLocalStorage('chundu_provider', 'claude');
-  const [model, setModel] = useLocalStorage('chundu_model', 'claude-sonnet-4-20250514');
-  const [autoSwitch, setAutoSwitch] = useLocalStorage('chundu_auto_switch', false);
+  const [provider, setProvider] = useLocalStorage('ascend_provider', 'claude');
+  const [model, setModel] = useLocalStorage('ascend_model', 'claude-sonnet-4-20250514');
+  const [autoSwitch, setAutoSwitch] = useLocalStorage('ascend_auto_switch', false);
 
   // ---------------------------------------------------------------------------
   // Mode State

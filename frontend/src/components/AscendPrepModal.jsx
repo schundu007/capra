@@ -226,7 +226,7 @@ async function getAuthToken() {
     }
   }
   // Webapp: get token from localStorage
-  return localStorage.getItem('chundu_token');
+  return localStorage.getItem('ascend_token');
 }
 
 // Check if user is authenticated for cloud sync (async version)

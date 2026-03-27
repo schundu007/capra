@@ -421,7 +421,7 @@ export function useCompanyPreps() {
       const token = await getAccessToken();
       return token ? { Authorization: `Bearer ${token}` } : {};
     }
-    const token = localStorage.getItem('chundu_token');
+    const token = localStorage.getItem('ascend_token');
     return token ? { Authorization: `Bearer ${token}` } : {};
   }, [useCloudStorage, getAccessToken]);
 

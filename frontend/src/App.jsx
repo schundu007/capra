@@ -10,18 +10,22 @@ export { getAuthHeaders };
 // Storage Migration (runs once on load)
 // ============================================================================
 function migrateStorageKeys() {
+  // Migrate FROM chundu_* TO ascend_* (old → new)
   const migrations = [
-    ['ascend_token', 'chundu_token'],
-    ['ascend_coding_history', 'chundu_coding_history'],
-    ['ascend_system_design_sessions', 'chundu_system_design_sessions'],
-    ['ascend_auto_switch', 'chundu_auto_switch'],
-    ['ascend_sidebar_collapsed', 'chundu_sidebar_collapsed'],
+    ['chundu_token', 'ascend_token'],
+    ['chundu_provider', 'ascend_provider'],
+    ['chundu_model', 'ascend_model'],
+    ['chundu_auto_switch', 'ascend_auto_switch'],
+    ['chundu_coding_history', 'ascend_coding_history'],
+    ['chundu_system_design_sessions', 'ascend_system_design_sessions'],
+    ['chundu_sidebar_collapsed', 'ascend_sidebar_collapsed'],
   ];
 
   for (const [oldKey, newKey] of migrations) {
     const oldValue = localStorage.getItem(oldKey);
     if (oldValue && !localStorage.getItem(newKey)) {
       localStorage.setItem(newKey, oldValue);
+      localStorage.removeItem(oldKey);
     }
   }
 }
