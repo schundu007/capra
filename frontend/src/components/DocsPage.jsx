@@ -7,30 +7,40 @@ import { getLeetCodeUrl } from '../data/leetcodeUrls.js';
 import problemsFull from '../data/problems-full.json';
 
 // Unified card styling - clean, minimal design with larger fonts
-const CARD_STYLES = {
-  // Standard card with subtle border
-  card: {
-    background: '#111318',
-    border: '1px solid rgba(255,255,255,0.06)',
-    borderRadius: '16px',
+// Theme-aware styles — resolved at render time via getCardStyles(theme)
+const THEMES = {
+  dark: {
+    card: { background: '#111318', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px' },
+    header: { background: 'rgba(16, 185, 129, 0.05)', borderBottom: '1px solid rgba(16, 185, 129, 0.15)', padding: '18px 24px' },
+    body: { padding: '24px' },
+    code: { background: '#0d1117', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px' },
+    page: { background: '#0a0a0f', color: '#e5e7eb' },
+    sidebar: { background: 'linear-gradient(180deg, #0d0d12 0%, #0a0a0f 100%)', borderRight: '1px solid rgba(255,255,255,0.06)' },
+    topBar: { background: 'rgba(10, 10, 15, 0.9)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.06)' },
+    text: { primary: '#fff', secondary: '#9ca3af', muted: '#6b7280' },
+    input: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' },
+    divider: 'rgba(255,255,255,0.05)',
+    hoverBg: 'rgba(255,255,255,0.05)',
+    cardBorder: 'rgba(255,255,255,0.08)',
   },
-  // Card header - uses Ascend emerald accent
-  header: {
-    background: 'rgba(16, 185, 129, 0.05)',
-    borderBottom: '1px solid rgba(16, 185, 129, 0.15)',
-    padding: '18px 24px',
-  },
-  // Card body
-  body: {
-    padding: '24px',
-  },
-  // Code block
-  code: {
-    background: '#0d1117',
-    border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: '10px',
+  light: {
+    card: { background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '16px' },
+    header: { background: '#f0fdf4', borderBottom: '1px solid #d1fae5', padding: '18px 24px' },
+    body: { padding: '24px' },
+    code: { background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px' },
+    page: { background: '#f9fafb', color: '#1f2937' },
+    sidebar: { background: '#ffffff', borderRight: '1px solid #e5e7eb' },
+    topBar: { background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #e5e7eb' },
+    text: { primary: '#111827', secondary: '#4b5563', muted: '#9ca3af' },
+    input: { background: '#ffffff', border: '1px solid #d1d5db', color: '#111827' },
+    divider: '#f3f4f6',
+    hoverBg: '#f9fafb',
+    cardBorder: '#e5e7eb',
   },
 };
+
+// Legacy compat — components that import CARD_STYLES directly get dark theme
+const CARD_STYLES = THEMES.dark;
 
 // Font size scale - increased for better readability
 const FONT_SIZES = {
@@ -401,6 +411,18 @@ export default function DocsPage({ onBack }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState('a-z');
   const [selectedTopic, setSelectedTopicState] = useState(initialState.topic);
+
+  // Theme state — persisted to localStorage
+  const [docsTheme, setDocsTheme] = useState(() => {
+    try { return localStorage.getItem('ascend_docs_theme') || 'dark'; } catch { return 'dark'; }
+  });
+  const toggleDocsTheme = () => {
+    const next = docsTheme === 'dark' ? 'light' : 'dark';
+    setDocsTheme(next);
+    localStorage.setItem('ascend_docs_theme', next);
+  };
+  const T = THEMES[docsTheme] || THEMES.dark;
+  const isDark = docsTheme === 'dark';
 
   // Sync URL with state via useEffect (avoids stale closure issues)
   useEffect(() => {
@@ -30394,7 +30416,7 @@ Best,
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-2 flex-wrap">
-                <h1 className="text-base font-bold text-white">{topicDetails.title}</h1>
+                <h1 className="text-lg font-bold text-white">{topicDetails.title}</h1>
                 {topicDetails.isNew && <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30">NEW</span>}
                 {topicDetails.difficulty && (
                   <span className={`px-2.5 py-0.5 rounded text-sm font-medium ${
@@ -30833,7 +30855,7 @@ Best,
                 {topicDetails.introduction && (
                   <div id="overview" className="rounded-lg overflow-hidden scroll-mt-24" style={CARD_STYLES.card}>
                     <div className="px-6 py-4 border-b border-blue-500/20" style={{ background: 'rgba(59,130,246,0.05)' }}>
-                      <h2 className="text-3xl font-bold text-white flex items-center gap-3">
+                      <h2 className="text-lg font-bold text-white flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/15">
                           <Icon name="book" size={18} className="text-emerald-400" />
                         </div>
@@ -31723,7 +31745,7 @@ Best,
   const tableOfContents = getTableOfContents();
 
   return (
-    <div className="min-h-screen" style={{ background: '#0a0a0f', fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen" style={{ ...T.page, fontFamily: "'DM Sans', sans-serif" }}>
       {/* Electron drag region */}
       {isElectron && (
         <div
@@ -31746,7 +31768,7 @@ Best,
 
       <div className="relative flex">
         {/* Left Sidebar - Navigation */}
-        <div className="w-72 flex-shrink-0 h-screen sticky top-0 flex flex-col" style={{ background: 'linear-gradient(180deg, #0d0d12 0%, #0a0a0f 100%)', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="w-72 flex-shrink-0 h-screen sticky top-0 flex flex-col" style={T.sidebar}>
           {/* Logo */}
           <div className="p-6">
             <a href="/prepare" className="flex items-center gap-3 group">
@@ -31770,9 +31792,13 @@ Best,
                 <button
                   key={item.id}
                   onClick={() => { setActivePage(item.id); }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base transition-all mb-1 ${
-                    isActive ? 'text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'
-                  }`}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base transition-all mb-1`}
+                  style={{
+                    color: isActive ? T.text.primary : T.text.secondary,
+                    ...(isActive ? {} : {}),
+                  }}
+                  onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = T.text.primary; }}
+                  onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = T.text.secondary; }}
                   style={isActive ? {
                     background: `linear-gradient(135deg, ${accentColor}15, ${accentColor}05)`,
                     border: `1px solid ${accentColor}30`
@@ -31838,7 +31864,7 @@ Best,
           {/* Center Content */}
           <div className="flex-1 min-w-0 mx-auto" style={{ maxWidth: '100%', padding: '0 40px' }}>
             {/* Top Bar */}
-            <div className="sticky top-0 z-20 px-8 py-4 flex items-center justify-between" style={{ background: 'rgba(10, 10, 15, 0.9)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="sticky top-0 z-20 px-8 py-4 flex items-center justify-between" style={T.topBar}>
               {/* Breadcrumb */}
               <div className="flex items-center gap-2 text-sm">
                 {isElectron && onBack && (
@@ -31850,20 +31876,40 @@ Best,
                     <span>Back</span>
                   </button>
                 )}
-                <button onClick={() => setSelectedTopic(null)} className="text-gray-500 hover:text-white transition-colors cursor-pointer">Learn</button>
-                <Icon name="chevronRight" size={14} className="text-gray-600" />
+                <button onClick={() => setSelectedTopic(null)} className="transition-colors cursor-pointer" style={{ color: T.text.muted }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = T.text.primary}
+                  onMouseLeave={(e) => e.currentTarget.style.color = T.text.muted}
+                >Learn</button>
+                <Icon name="chevronRight" size={14} style={{ color: T.text.muted }} />
                 {selectedTopic && topicDetails ? (
                   <>
-                    <button onClick={() => setSelectedTopic(null)} className="text-gray-400 hover:text-white transition-colors cursor-pointer">{pageConfig.title}</button>
-                    <Icon name="chevronRight" size={14} className="text-gray-600" />
-                    <span className="text-white">{topicDetails.title}</span>
+                    <button onClick={() => setSelectedTopic(null)} className="transition-colors cursor-pointer" style={{ color: T.text.secondary }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = T.text.primary}
+                      onMouseLeave={(e) => e.currentTarget.style.color = T.text.secondary}
+                    >{pageConfig.title}</button>
+                    <Icon name="chevronRight" size={14} style={{ color: T.text.muted }} />
+                    <span style={{ color: T.text.primary }}>{topicDetails.title}</span>
                   </>
                 ) : (
-                  <span className="text-white">{pageConfig.title}</span>
+                  <span style={{ color: T.text.primary }}>{pageConfig.title}</span>
                 )}
               </div>
-              {!selectedTopic && (
-                <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3">
+                {/* Theme toggle */}
+                <button
+                  onClick={toggleDocsTheme}
+                  className="p-2 rounded-lg transition-all"
+                  style={{ background: isDark ? 'rgba(255,255,255,0.06)' : '#f3f4f6', color: T.text.secondary }}
+                  aria-label={`Switch to ${isDark ? 'light' : 'dark'} theme`}
+                  title={`Switch to ${isDark ? 'light' : 'dark'} theme`}
+                >
+                  {isDark ? (
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                  )}
+                </button>
+                {!selectedTopic && (
                   <a
                     href="/app"
                     className="px-4 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-90"
@@ -31871,8 +31917,8 @@ Best,
                   >
                     Start Practice
                   </a>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             {/* Content */}
@@ -31889,7 +31935,7 @@ Best,
                       <Icon name={activePage === 'coding' ? 'code' : activePage === 'system-design' ? 'systemDesign' : 'users'} size={12} />
                       {activePage === 'coding' ? 'Algorithms' : activePage === 'system-design' ? 'Architecture' : 'Soft Skills'}
                     </div>
-                    <h1 className="text-2xl font-bold text-white mb-3">{pageConfig.title}</h1>
+                    <h1 className="text-xl font-bold text-white mb-3">{pageConfig.title}</h1>
                     <p className="text-sm text-gray-400 max-w-2xl">
                       {activePage === 'coding' && 'Master the fundamental data structures and algorithms needed to ace technical interviews at top tech companies.'}
                       {activePage === 'system-design' && 'Learn to design scalable, reliable systems that can handle millions of users. Essential for senior engineering roles.'}
@@ -31945,8 +31991,8 @@ Best,
                               <Icon name={category.icon} size={16} style={{ color: category.color }} />
                             </div>
                             <div>
-                              <h3 className="text-sm font-bold text-white">{category.name}</h3>
-                              <span className="text-sm text-gray-500">{categoryTopics.length} topics</span>
+                              <h3 className="text-base font-bold text-white">{category.name}</h3>
+                              <span className="text-sm text-gray-400">{categoryTopics.length} topics</span>
                             </div>
                           </div>
                           {/* Topics in Category - 2 column grid */}
@@ -31962,10 +32008,10 @@ Best,
                                   <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? 'rgba(16,185,129,0.2)' : `${topic.color}15` }}>
                                     {completedTopics[topic.id] ? <Icon name="check" size={12} className="text-emerald-400" /> : <Icon name={topic.icon} size={12} style={{ color: topic.color }} />}
                                   </div>
-                                  <span className={`text-sm font-medium group-hover:text-emerald-400 transition-colors truncate ${completedTopics[topic.id] ? 'text-gray-400' : 'text-white'}`}>{topic.title}</span>
+                                  <span className={`text-base font-medium group-hover:text-emerald-400 transition-colors truncate ${completedTopics[topic.id] ? 'text-gray-400' : 'text-white'}`}>{topic.title}</span>
                                   {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-400 flex-shrink-0" />}
                                 </div>
-                                <span className="px-2 py-0.5 rounded text-sm font-medium flex-shrink-0 ml-2" style={{ background: `${topic.color}15`, color: topic.color }}>
+                                <span className="px-2 py-0.5 rounded text-xs font-semibold flex-shrink-0 ml-2" style={{ background: `${topic.color}15`, color: topic.color }}>
                                   {topic.commonProblems?.length || topic.keyQuestions?.length || 0}Q
                                 </span>
                               </div>
@@ -31982,7 +32028,7 @@ Best,
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/10">
                         <Icon name="book" size={16} className="text-emerald-400" />
                       </div>
-                      <h2 className="text-sm font-bold text-white">Quick Reference</h2>
+                      <h2 className="text-base font-bold text-white">Quick Reference</h2>
                     </div>
                     <div className="grid md:grid-cols-2 gap-6">
                       {/* Time Complexity Card */}
@@ -32008,7 +32054,7 @@ Best,
                                   <td className="py-2 font-mono text-sm text-emerald-400">{item.complexity}</td>
                                   <td className="py-2 text-gray-400">{item.desc}</td>
                                   <td className="py-2 text-right">
-                                    <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${item.color}20`, color: item.color }}>
+                                    <span className="px-2 py-0.5 rounded text-xs font-semibold" style={{ background: `${item.color}20`, color: item.color }}>
                                       {item.rating}
                                     </span>
                                   </td>
@@ -32071,8 +32117,8 @@ Best,
                               <Icon name={category.icon} size={16} style={{ color: category.color }} />
                             </div>
                             <div>
-                              <h3 className="text-sm font-bold text-white">{category.name}</h3>
-                              <span className="text-sm text-gray-500">{categoryTopics.length} topics</span>
+                              <h3 className="text-base font-bold text-white">{category.name}</h3>
+                              <span className="text-sm text-gray-400">{categoryTopics.length} topics</span>
                             </div>
                           </div>
                           {/* Topics in Category */}
@@ -32088,10 +32134,10 @@ Best,
                                   <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? 'rgba(16,185,129,0.2)' : `${topic.color}15` }}>
                                     {completedTopics[topic.id] ? <Icon name="check" size={12} className="text-emerald-400" /> : <Icon name={topic.icon} size={12} style={{ color: topic.color }} />}
                                   </div>
-                                  <span className={`text-sm font-medium group-hover:text-emerald-400 transition-colors truncate ${completedTopics[topic.id] ? 'text-gray-400' : 'text-white'}`}>{topic.title}</span>
+                                  <span className={`text-base font-medium group-hover:text-emerald-400 transition-colors truncate ${completedTopics[topic.id] ? 'text-gray-400' : 'text-white'}`}>{topic.title}</span>
                                   {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-400 flex-shrink-0" />}
                                 </div>
-                                <span className="px-2 py-0.5 rounded text-sm font-medium flex-shrink-0 ml-2" style={{ background: `${topic.color}15`, color: topic.color }}>
+                                <span className="px-2 py-0.5 rounded text-xs font-semibold flex-shrink-0 ml-2" style={{ background: `${topic.color}15`, color: topic.color }}>
                                   {topic.keyQuestions?.length || topic.questions || 0}Q
                                 </span>
                               </div>
@@ -32129,8 +32175,8 @@ Best,
                               <Icon name={category.icon} size={16} style={{ color: category.color }} />
                             </div>
                             <div>
-                              <h3 className="text-sm font-bold text-white">{category.name}</h3>
-                              <span className="text-sm text-gray-500">{categoryDesigns.length} systems</span>
+                              <h3 className="text-base font-bold text-white">{category.name}</h3>
+                              <span className="text-sm text-gray-400">{categoryDesigns.length} systems</span>
                             </div>
                           </div>
                           {/* Designs in Category */}
@@ -32204,7 +32250,7 @@ Best,
                               <Icon name={category.icon} size={16} style={{ color: category.color }} />
                             </div>
                             <div>
-                              <h3 className="text-sm font-bold text-white">{category.name}</h3>
+                              <h3 className="text-base font-bold text-white">{category.name}</h3>
                               <span className="text-sm text-gray-500">{categoryProblems.length} problems</span>
                             </div>
                           </div>
@@ -32222,12 +32268,12 @@ Best,
                                       <Icon name={problem.icon} size={12} style={{ color: problem.color }} />
                                     </div>
                                     <div>
-                                      <span className="text-white text-sm font-medium group-hover:text-teal-400 transition-colors">{problem.title}</span>
+                                      <span className="text-white text-base font-medium group-hover:text-teal-400 transition-colors">{problem.title}</span>
                                       {problem.isNew && <span className="px-1 py-0.5 rounded text-xs font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30 ml-1">NEW</span>}
-                                      <span className="text-gray-500 text-sm ml-2 hidden md:inline">{problem.subtitle}</span>
+                                      <span className="text-gray-400 text-sm ml-2 hidden md:inline">{problem.subtitle}</span>
                                     </div>
                                   </div>
-                                  <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: diffColor.bg, color: diffColor.text }}>
+                                  <span className="px-2 py-0.5 rounded text-xs font-semibold" style={{ background: diffColor.bg, color: diffColor.text }}>
                                     {problem.difficulty}
                                   </span>
                                 </div>
@@ -32263,11 +32309,11 @@ Best,
                                 <Icon name={topic.icon} size={12} style={{ color: topic.color }} />
                               </div>
                               <div>
-                                <span className="text-white text-sm font-medium group-hover:text-orange-400 transition-colors">{topic.title}</span>
-                                <span className="text-gray-500 text-sm ml-2 hidden md:inline">{topic.description}</span>
+                                <span className="text-white text-base font-medium group-hover:text-orange-400 transition-colors">{topic.title}</span>
+                                <span className="text-gray-400 text-sm ml-2 hidden md:inline">{topic.description}</span>
                               </div>
                             </div>
-                            <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
+                            <span className="px-2 py-0.5 rounded text-xs font-semibold" style={{ background: `${topic.color}15`, color: topic.color }}>
                               {topic.concepts?.length || topic.primitives?.length || topic.problems?.length || 0} items
                             </span>
                           </div>
@@ -32320,7 +32366,7 @@ Best,
                   {/* STAR Method - Enhanced */}
                   <div className="rounded-lg overflow-hidden mb-10" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
                     <div className="px-6 py-4 border-b border-purple-500/20" style={{ background: 'rgba(168,85,247,0.05)' }}>
-                      <h3 className="text-3xl font-bold text-white flex items-center gap-3">
+                      <h3 className="text-lg font-bold text-white flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-500/15">
                           <Icon name="star" size={20} className="text-emerald-400" />
                         </div>
@@ -32368,8 +32414,8 @@ Best,
                               <Icon name={category.icon} size={16} style={{ color: category.color }} />
                             </div>
                             <div>
-                              <h3 className="text-sm font-bold text-white">{category.name}</h3>
-                              <span className="text-sm text-gray-500">{categoryTopics.length} topics</span>
+                              <h3 className="text-base font-bold text-white">{category.name}</h3>
+                              <span className="text-sm text-gray-400">{categoryTopics.length} topics</span>
                             </div>
                           </div>
                           {/* Topics in Category */}
@@ -32385,12 +32431,12 @@ Best,
                                     {completedTopics[topic.id] ? <Icon name="check" size={12} className="text-emerald-400" /> : <Icon name={topic.icon} size={12} style={{ color: topic.color }} />}
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <span className={`text-sm font-medium group-hover:text-emerald-400 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-white'}`}>{topic.title}</span>
+                                    <span className={`text-base font-medium group-hover:text-emerald-400 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-white'}`}>{topic.title}</span>
                                     {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-400" />}
-                                    <span className="text-gray-500 text-sm ml-2 hidden md:inline">{topic.description}</span>
+                                    <span className="text-gray-400 text-sm ml-2 hidden md:inline">{topic.description}</span>
                                   </div>
                                 </div>
-                                <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
+                                <span className="px-2 py-0.5 rounded text-xs font-semibold" style={{ background: `${topic.color}15`, color: topic.color }}>
                                   {topic.keyQuestions?.length || topic.sampleQuestions?.length || 0}Q
                                 </span>
                               </div>
