@@ -4,7 +4,10 @@ import { getApiUrl } from '../hooks/useElectron.js';
 const AuthContext = createContext(null);
 
 const API_URL = getApiUrl();
-const CARIARA_OAUTH_URL = 'https://cariara-backend.up.railway.app';
+// Use same-domain proxy to avoid Chrome bounce tracking blocks
+const CARIARA_OAUTH_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+  ? 'https://cariara-backend.up.railway.app'  // Dev: direct
+  : '';  // Prod: same-domain via Vercel rewrite (/auth/* → backend)
 const STORAGE_KEY = 'ascend_auth';
 
 /**

@@ -18,6 +18,7 @@
     }
   ],
   "rewrites": [
+    { "source": "/auth/:path*", "destination": "https://cariara-backend.up.railway.app/auth/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

@@ -21,9 +21,9 @@ export default function OAuthLogin({ loginOnly = false }) {
     try {
       await signIn(provider);
     } catch (err) {
-      // Fallback: navigate directly if signIn fails
+      // Fallback: navigate directly via same-domain proxy
       const urls = { google: 'google', github: 'github' };
-      window.location.href = `https://cariara-backend.up.railway.app/auth/${urls[provider] || provider}/login?redirect=ascend`;
+      window.location.href = `/auth/${urls[provider] || provider}/login?redirect=ascend`;
     }
   };
 
