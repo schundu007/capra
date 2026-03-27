@@ -31755,14 +31755,14 @@ Best,
               </div>
               <div>
                 <span className="text-xl font-bold text-white">Ascend</span>
-                <span className="block text-sm text-gray-500">Job Interview Preparation</span>
+                <span className="block text-base text-gray-500">Job Interview Preparation</span>
               </div>
             </a>
           </div>
 
           {/* Category Navigation */}
           <nav className="flex-1 px-4 py-2 overflow-y-auto">
-            <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider px-3 mb-3">Learning Tracks</div>
+            <div className="text-base font-semibold text-gray-500 uppercase tracking-wider px-3 mb-3">Learning Tracks</div>
             {navItems.map((item) => {
               const isActive = activePage === item.id;
               const accentColor = item.id === 'coding' ? '#10b981' : item.id === 'system-design' ? '#3b82f6' : '#a855f7';
@@ -31770,7 +31770,7 @@ Best,
                 <button
                   key={item.id}
                   onClick={() => { setActivePage(item.id); }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all mb-1 ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base transition-all mb-1 ${
                     isActive ? 'text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'
                   }`}
                   style={isActive ? {
@@ -31786,7 +31786,7 @@ Best,
                   </div>
                   <div className="flex-1 text-left">
                     <span className="font-medium block">{item.label}</span>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-400">
                       {item.id === 'coding' ? `${codingTopics.length} topics` :
                        item.id === 'system-design' ? `${systemDesignTopics.length + systemDesigns.length + lldProblems.length + concurrencyTopics.length} topics` :
                        `${behavioralTopics.length} topics`}
@@ -31798,7 +31798,7 @@ Best,
             })}
 
             {/* Practice Links */}
-            <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider px-3 mt-8 mb-3">Practice Links</div>
+            <div className="text-base font-semibold text-gray-500 uppercase tracking-wider px-3 mt-8 mb-3">Practice Links</div>
             {[
               { href: '/app/coding', label: 'Coding', icon: 'code', color: '#10b981' },
               { href: '/app/design', label: 'Design', icon: 'systemDesign', color: '#3b82f6' },
@@ -31809,7 +31809,7 @@ Best,
                 href={link.href}
                 target="_blank"
                 rel="noopener"
-                className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all hover:bg-white/5 mb-1"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-base transition-all hover:bg-white/5 mb-1"
                 style={{ color: link.color }}
               >
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${link.color}15` }}>
@@ -31824,7 +31824,7 @@ Best,
           <div className="p-4 m-4 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(59,130,246,0.15))', border: '1px solid rgba(168,85,247,0.2)' }}>
             <div className="flex items-center gap-2 mb-2">
               <Icon name="crown" size={16} className="text-emerald-400" />
-              <span className="text-sm font-semibold text-white">Ascend Pro</span>
+              <span className="text-base font-semibold text-white">Ascend Pro</span>
             </div>
             <p className="text-sm text-gray-400 mb-3">Get AI-powered practice with real-time feedback</p>
             <a href="/app/coding" target="_blank" rel="noopener" className="block text-center py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90" style={{ background: 'linear-gradient(135deg, #a855f7, #3b82f6)' }}>
