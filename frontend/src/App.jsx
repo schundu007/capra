@@ -1,11 +1,6 @@
 import { isElectron } from './constants';
 import AppRouter from './router';
 import MainApp from './pages/MainApp';
-import { getAuthHeaders } from './utils/authHeaders.js';
-
-// Re-export for backward compatibility
-export { getAuthHeaders };
-
 // ============================================================================
 // Storage Migration (runs once on load)
 // ============================================================================
