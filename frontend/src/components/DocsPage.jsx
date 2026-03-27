@@ -31816,8 +31816,6 @@ Best,
               <a
                 key={link.href}
                 href={link.href}
-                target="_blank"
-                rel="noopener"
                 className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all hover:bg-white/5 mb-1"
                 style={{ color: link.color }}
               >
@@ -31836,7 +31834,7 @@ Best,
               <span className="text-sm font-semibold text-white">Ascend Pro</span>
             </div>
             <p className="text-sm text-gray-400 mb-3">Get AI-powered practice with real-time feedback</p>
-            <a href="/app/coding" target="_blank" rel="noopener" className="block text-center py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90" style={{ background: 'linear-gradient(135deg, #a855f7, #3b82f6)' }}>
+            <a href="/app/coding" className="block text-center py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90" style={{ background: 'linear-gradient(135deg, #a855f7, #3b82f6)' }}>
               Try Free
             </a>
           </div>
