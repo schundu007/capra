@@ -154,12 +154,6 @@ export default function PremiumPage() {
     { q: 'What AI models power Ascend?', a: 'Ascend uses Claude (Opus & Sonnet) and GPT-4o for coding and reasoning, Whisper + Deepgram for voice transcription, and specialized models for diagram generation. Desktop users can choose their preferred AI provider.' },
   ];
 
-  const testimonials = [
-    { name: 'Sarah M.', role: 'Senior SWE @ Meta', text: 'Got offers from 3 FAANG companies. The prep generation and live assistant were game-changers.', avatar: 'S', color: '#10b981' },
-    { name: 'James K.', role: 'Staff Engineer @ Google', text: 'The system design diagrams alone are worth 10x the price. Auto-generated architecture diagrams blew my interviewers away.', avatar: 'J', color: '#3b82f6' },
-    { name: 'Michael T.', role: 'SDE II @ Amazon', text: 'Failed 5 interviews before Ascend. Company-specific prep changed everything. 3 offers in 2 months.', avatar: 'M', color: '#f59e0b' },
-  ];
-
   const hasActiveSubscription = subscription?.status === 'active';
 
   return (
@@ -198,7 +192,7 @@ export default function PremiumPage() {
         <section className="pt-36 pb-10 max-w-4xl mx-auto px-8 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold mb-8" style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#34d399' }}>
             <Icon name="sparkles" size={16} className="text-green-400" />
-            Trusted by 50,000+ engineers worldwide
+            AI-powered interview preparation
           </div>
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black mb-6 leading-[1.04] tracking-tight text-white">
             Ace Your Next<br />
@@ -339,45 +333,16 @@ export default function PremiumPage() {
           </div>
         </section>
 
-        {/* ═══ STATS + TESTIMONIALS ═══ */}
-        <section className="py-20 max-w-6xl mx-auto px-8">
-          {/* Stats row */}
-          <div className="grid grid-cols-4 gap-4 mb-14 p-8 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-            {[
-              { value: '50,000+', label: 'Engineers', color: '#10b981' },
-              { value: '17,500+', label: 'Offers landed', color: '#3b82f6' },
-              { value: '35%', label: 'Avg salary increase', color: '#8b5cf6' },
-              { value: '4.9/5', label: 'Rating', color: '#f59e0b' },
-            ].map((s, i) => (
-              <div key={i} className="text-center">
-                <div className="text-3xl md:text-4xl font-black mb-1" style={{ color: s.color }}>{s.value}</div>
-                <div className="text-gray-500 text-sm">{s.label}</div>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center mb-12">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <h2 className="text-4xl md:text-5xl font-bold text-white">What Engineers Say</h2>
-              <div className="flex items-center gap-1 px-3 py-1.5 rounded-full" style={{ background: 'rgba(250, 204, 21, 0.08)' }}>
-                {[...Array(5)].map((_, j) => <Icon key={j} name="star5" size={16} className="text-yellow-400" />)}
-                <span className="text-yellow-400 font-bold text-sm ml-1">4.9</span>
-              </div>
+        {/* ═══ GUARANTEE ═══ */}
+        <section className="py-20 max-w-3xl mx-auto px-8 text-center">
+          <div className="p-8 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-5" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+              <Icon name="sre" size={28} style={{ color: '#10b981' }} />
             </div>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.map((t, i) => (
-              <div key={i} className="p-7 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-bold" style={{ background: t.color }}>{t.avatar}</div>
-                  <div>
-                    <div className="text-white font-semibold text-lg">{t.name}</div>
-                    <div className="text-gray-500 text-sm">{t.role}</div>
-                  </div>
-                </div>
-                <p className="text-gray-400 text-base leading-relaxed">"{t.text}"</p>
-              </div>
-            ))}
+            <h3 className="text-2xl font-bold text-white mb-3">30-Day Money-Back Guarantee</h3>
+            <p className="text-gray-400 text-lg leading-relaxed max-w-lg mx-auto">
+              Try Ascend risk-free. If it's not for you, contact us within 30 days for a full refund — no questions asked.
+            </p>
           </div>
         </section>
 
@@ -405,21 +370,9 @@ export default function PremiumPage() {
         <section className="py-20 max-w-3xl mx-auto px-8">
           <div className="p-14 rounded-3xl text-center" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.03))', border: '1px solid rgba(16, 185, 129, 0.2)', boxShadow: '0 0 50px rgba(16, 185, 129, 0.06)' }}>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Ready to Land Your Dream Job?</h2>
-            <p className="text-gray-400 mb-8 max-w-lg mx-auto text-lg">Join 50,000+ engineers who aced their interviews with Ascend.</p>
+            <p className="text-gray-400 mb-8 max-w-lg mx-auto text-lg">Start preparing with AI-powered tools for coding, system design, and behavioral interviews.</p>
             <button onClick={() => scrollTo('plans')} className="px-10 py-4 rounded-2xl font-bold text-lg text-white transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 0 30px rgba(16, 185, 129, 0.25)' }}>
               Get Started Now
-            </button>
-          </div>
-        </section>
-
-        {/* ═══ NEWSLETTER ═══ */}
-        <section className="py-16 max-w-2xl mx-auto px-8 text-center">
-          <h3 className="text-2xl font-bold text-white mb-3">Stay Updated</h3>
-          <p className="text-gray-400 text-lg mb-6">Get weekly interview tips, new features, and success stories from engineers at top companies.</p>
-          <div className="flex gap-3 max-w-md mx-auto">
-            <input type="email" placeholder="your@email.com" className="flex-1 px-5 py-3 rounded-xl text-base bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-green-500/50 focus:ring-1 focus:ring-green-500/20 transition-all" />
-            <button className="px-6 py-3 rounded-xl text-base font-semibold text-white transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-              Subscribe
             </button>
           </div>
         </section>
