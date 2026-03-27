@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Icon } from './Icons';
 
 // Check if running on macOS in Electron
@@ -7,7 +7,7 @@ const isMacElectron = window.electronAPI?.isElectron && navigator.platform.toLow
 /**
  * Sidebar - Enterprise premium design with modern styling
  */
-export default function Sidebar({
+export default memo(function Sidebar({
   savedDesigns = [],
   codingHistory = [],
   onLoadDesign,
@@ -280,4 +280,4 @@ export default function Sidebar({
       )}
     </div>
   );
-}
+});

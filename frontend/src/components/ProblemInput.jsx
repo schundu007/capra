@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, memo } from 'react';
 
 const LANGUAGES = [
   { value: 'auto', label: 'Auto' },
@@ -17,7 +17,7 @@ const LANGUAGES = [
   { value: 'yaml', label: 'YAML' },
 ];
 
-export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onClear, isLoading, extractedText, onExtractedTextClear, shouldClear, hasSolution, expanded, onToggleExpand, ascendMode, loadedProblem, detailLevel = 'basic', language = 'auto' }) {
+export default memo(function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onClear, isLoading, extractedText, onExtractedTextClear, shouldClear, hasSolution, expanded, onToggleExpand, ascendMode, loadedProblem, detailLevel = 'basic', language = 'auto' }) {
   const [problemText, setProblemText] = useState('');
   const [url, setUrl] = useState('');
   const [activeTab, setActiveTab] = useState('text');
@@ -424,7 +424,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
       </div>
     </div>
   );
-}
+});
 
 // Icons
 function TextIcon({ className }) {
