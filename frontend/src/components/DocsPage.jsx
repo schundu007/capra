@@ -30856,7 +30856,7 @@ Best,
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
                         <Icon name="check" size={16} className="text-emerald-400" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">Functional Requirements</h3>
+                      <h3 className="text-lg font-bold text-white">Functional Requirements</h3>
                     </div>
                     <div className="p-4">
                       <ul className="space-y-2">
@@ -30878,7 +30878,7 @@ Best,
                         <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
                           <Icon name="zap" size={16} className="text-emerald-400" />
                         </div>
-                        <h3 className="text-3xl font-bold text-white">Non-Functional Requirements</h3>
+                        <h3 className="text-lg font-bold text-white">Non-Functional Requirements</h3>
                       </div>
                       <div className="p-4">
                         <ul className="space-y-2">
@@ -30905,7 +30905,7 @@ Best,
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-green-500/20">
                             <Icon name="code" size={16} className="text-green-400" />
                           </div>
-                          <h3 className="text-3xl font-bold text-white">API Design</h3>
+                          <h3 className="text-lg font-bold text-white">API Design</h3>
                         </div>
                         <div className="p-3">
                           <div className="space-y-2">
@@ -30937,7 +30937,7 @@ Best,
                           <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/15">
                             <Icon name="database" size={18} className="text-emerald-400" />
                           </div>
-                          <h3 className="text-3xl font-bold text-white">Data Model</h3>
+                          <h3 className="text-lg font-bold text-white">Data Model</h3>
                         </div>
                         <div className="overflow-x-auto" style={CARD_STYLES.code}>
                           <pre
@@ -30964,7 +30964,7 @@ Best,
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/15">
                         <Icon name="messageSquare" size={18} className="text-emerald-400" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">Key Questions</h3>
+                      <h3 className="text-lg font-bold text-white">Key Questions</h3>
                       <span className="text-lg text-gray-500 ml-auto">{topicDetails.keyQuestions.length} topics</span>
                     </div>
                     <div className="divide-y divide-white/5">
@@ -30995,7 +30995,7 @@ Best,
                           <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/15">
                             <Icon name="layers" size={18} className="text-emerald-400" />
                           </div>
-                          <h3 className="text-3xl font-bold text-white">{topicDetails.basicImplementation.title || 'Basic Approach'}</h3>
+                          <h3 className="text-lg font-bold text-white">{topicDetails.basicImplementation.title || 'Basic Approach'}</h3>
                         </div>
                         <div className="p-6">
                           <p className="text-gray-300 text-lg mb-5 leading-relaxed">{topicDetails.basicImplementation.description}</p>
@@ -31047,7 +31047,7 @@ Best,
                           <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/15">
                             <Icon name="zap" size={18} className="text-emerald-400" />
                           </div>
-                          <h3 className="text-3xl font-bold text-white">{topicDetails.advancedImplementation.title || 'Scalable Solution'}</h3>
+                          <h3 className="text-lg font-bold text-white">{topicDetails.advancedImplementation.title || 'Scalable Solution'}</h3>
                         </div>
                         <div className="p-6">
                           <p className="text-gray-300 text-lg mb-5 leading-relaxed">{topicDetails.advancedImplementation.description}</p>
@@ -31115,7 +31115,7 @@ Best,
                           <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/15">
                             <Icon name="layers" size={18} className="text-emerald-400" />
                           </div>
-                          <h3 className="text-3xl font-bold text-white">Architecture Diagram</h3>
+                          <h3 className="text-lg font-bold text-white">Architecture Diagram</h3>
                         </div>
                         <div className="flex items-center gap-2">
                           {/* Cloud Provider Selector */}
@@ -31193,7 +31193,7 @@ Best,
                         <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
                           <Icon name="star" size={16} className="text-emerald-400" />
                         </div>
-                        <h3 className="text-3xl font-bold text-white">Interview Tips</h3>
+                        <h3 className="text-lg font-bold text-white">Interview Tips</h3>
                       </div>
                       <div className="divide-y divide-yellow-500/10">
                         {topicDetails.tips.map((tip, i) => (
@@ -31217,7 +31217,7 @@ Best,
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
                             <Icon name="arrowRight" size={16} className="text-emerald-400" />
                           </div>
-                          <h3 className="text-3xl font-bold text-white">{topicDetails.createFlow.title}</h3>
+                          <h3 className="text-lg font-bold text-white">{topicDetails.createFlow.title}</h3>
                         </div>
                         <div className="p-4">
                           <ol className="space-y-2">
@@ -31241,7 +31241,7 @@ Best,
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
                             <Icon name="arrowLeft" size={16} className="text-emerald-400" />
                           </div>
-                          <h3 className="text-3xl font-bold text-white">{topicDetails.redirectFlow.title}</h3>
+                          <h3 className="text-lg font-bold text-white">{topicDetails.redirectFlow.title}</h3>
                         </div>
                         <div className="p-4">
                           <ol className="space-y-2">
@@ -31267,7 +31267,7 @@ Best,
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-cyan-500/20">
                         <Icon name="messageCircle" size={16} className="text-cyan-400" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">Discussion Points</h3>
+                      <h3 className="text-lg font-bold text-white">Discussion Points</h3>
                     </div>
                     <div className="p-3">
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
@@ -31302,7 +31302,7 @@ Best,
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
                             <Icon name="layers" size={16} className="text-emerald-400" />
                           </div>
-                          <h3 className="text-3xl font-bold text-white">System Components</h3>
+                          <h3 className="text-lg font-bold text-white">System Components</h3>
                         </div>
                         <div className="p-4">
                           <div className="flex flex-wrap gap-2">
@@ -31323,7 +31323,7 @@ Best,
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-amber-500/20">
                             <Icon name="lightbulb" size={16} className="text-amber-400" />
                           </div>
-                          <h3 className="text-3xl font-bold text-white">Key Design Decisions</h3>
+                          <h3 className="text-lg font-bold text-white">Key Design Decisions</h3>
                         </div>
                         <div className="p-4">
                           <ol className="space-y-2">
@@ -31349,7 +31349,7 @@ Best,
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-teal-500/20">
                         <Icon name="box" size={16} className="text-teal-400" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">Core Entities</h3>
+                      <h3 className="text-lg font-bold text-white">Core Entities</h3>
                     </div>
                     <div className="p-4 space-y-2">
                       {topicDetails.coreEntities.map((entity, i) => (
@@ -31369,7 +31369,7 @@ Best,
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-violet-500/20">
                         <Icon name="puzzle" size={16} className="text-violet-400" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">Design Patterns</h3>
+                      <h3 className="text-lg font-bold text-white">Design Patterns</h3>
                     </div>
                     <div className="p-4">
                       <ul className="space-y-2">
@@ -31391,7 +31391,7 @@ Best,
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-green-500/20">
                         <Icon name="code" size={16} className="text-green-400" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">Implementation</h3>
+                      <h3 className="text-lg font-bold text-white">Implementation</h3>
                     </div>
                     <div className="overflow-x-auto" style={{ background: 'rgba(0,0,0,0.5)' }}>
                       <pre
@@ -31416,7 +31416,7 @@ Best,
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-orange-500/20">
                         <Icon name="cpu" size={16} className="text-orange-400" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">Core Concepts</h3>
+                      <h3 className="text-lg font-bold text-white">Core Concepts</h3>
                     </div>
                     <div className="p-4 space-y-2">
                       {topicDetails.concepts.map((concept, i) => (
@@ -31436,7 +31436,7 @@ Best,
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
                         <Icon name="lock" size={16} className="text-emerald-400" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">Synchronization Primitives</h3>
+                      <h3 className="text-lg font-bold text-white">Synchronization Primitives</h3>
                     </div>
                     <div className="p-4 space-y-2">
                       {topicDetails.primitives.map((prim, i) => (
@@ -31459,7 +31459,7 @@ Best,
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-red-500/20">
                         <Icon name="alertTriangle" size={16} className="text-red-400" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">Classic Problems</h3>
+                      <h3 className="text-lg font-bold text-white">Classic Problems</h3>
                     </div>
                     <div className="divide-y divide-red-500/10">
                       {topicDetails.problems.map((problem, i) => (
@@ -31483,7 +31483,7 @@ Best,
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-cyan-500/20">
                         <Icon name="database" size={16} className="text-cyan-400" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">Concurrent Data Structures</h3>
+                      <h3 className="text-lg font-bold text-white">Concurrent Data Structures</h3>
                     </div>
                     <div className="p-4 space-y-2">
                       {topicDetails.structures.map((struct, i) => (
@@ -31538,7 +31538,7 @@ Best,
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${topicDetails.color}20` }}>
                     <Icon name="messageSquare" size={16} style={{ color: topicDetails.color }} />
                   </div>
-                  <h3 className="text-3xl font-bold text-white">Key Questions & Answers</h3>
+                  <h3 className="text-lg font-bold text-white">Key Questions & Answers</h3>
                   <span className="text-lg text-gray-500 ml-auto">{topicDetails.keyQuestions.length} questions</span>
                 </div>
                 <div className="divide-y" style={{ borderColor: `${topicDetails.color}10` }}>
@@ -31615,7 +31615,7 @@ Best,
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
                     <Icon name="target" size={16} className="text-emerald-400" />
                   </div>
-                  <h3 className="text-3xl font-bold text-white">STAR Framework Example</h3>
+                  <h3 className="text-lg font-bold text-white">STAR Framework Example</h3>
                 </div>
                 <div className="divide-y divide-purple-500/10">
                   {Object.entries(topicDetails.starExample).map(([key, value]) => {
@@ -31640,7 +31640,7 @@ Best,
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
                     <Icon name="helpCircle" size={16} className="text-emerald-400" />
                   </div>
-                  <h3 className="text-3xl font-bold text-white">Sample Questions</h3>
+                  <h3 className="text-lg font-bold text-white">Sample Questions</h3>
                 </div>
                 <div className="divide-y divide-blue-500/10">
                   {topicDetails.sampleQuestions.map((q, i) => (
@@ -31659,7 +31659,7 @@ Best,
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
                     <Icon name="checkCircle" size={16} className="text-emerald-400" />
                   </div>
-                  <h3 className="text-3xl font-bold text-white">Tips for Success</h3>
+                  <h3 className="text-lg font-bold text-white">Tips for Success</h3>
                 </div>
                 <div className="divide-y divide-emerald-500/10">
                   {topicDetails.tips.map((tip, i) => (
@@ -31889,7 +31889,7 @@ Best,
                       <Icon name={activePage === 'coding' ? 'code' : activePage === 'system-design' ? 'systemDesign' : 'users'} size={12} />
                       {activePage === 'coding' ? 'Algorithms' : activePage === 'system-design' ? 'Architecture' : 'Soft Skills'}
                     </div>
-                    <h1 className="text-lg font-bold text-white mb-3">{pageConfig.title}</h1>
+                    <h1 className="text-2xl font-bold text-white mb-3">{pageConfig.title}</h1>
                     <p className="text-sm text-gray-400 max-w-2xl">
                       {activePage === 'coding' && 'Master the fundamental data structures and algorithms needed to ace technical interviews at top tech companies.'}
                       {activePage === 'system-design' && 'Learn to design scalable, reliable systems that can handle millions of users. Essential for senior engineering roles.'}
@@ -31949,25 +31949,23 @@ Best,
                               <span className="text-sm text-gray-500">{categoryTopics.length} topics</span>
                             </div>
                           </div>
-                          {/* Topics in Category */}
-                          <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-                            {categoryTopics.map((topic) => (
+                          {/* Topics in Category - 2 column grid */}
+                          <div className="grid grid-cols-1 md:grid-cols-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                            {categoryTopics.map((topic, idx) => (
                               <div
                                 key={topic.id}
                                 onClick={() => setSelectedTopic(topic.id)}
                                 className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
+                                style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', borderRight: idx % 2 === 0 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}
                               >
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-3 min-w-0">
                                   <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? 'rgba(16,185,129,0.2)' : `${topic.color}15` }}>
                                     {completedTopics[topic.id] ? <Icon name="check" size={12} className="text-emerald-400" /> : <Icon name={topic.icon} size={12} style={{ color: topic.color }} />}
                                   </div>
-                                  <div className="flex items-center gap-2">
-                                    <span className={`text-sm font-medium group-hover:text-emerald-400 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-white'}`}>{topic.title}</span>
-                                    {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-400" />}
-                                    <span className="text-gray-500 text-sm ml-2 hidden md:inline">{topic.description}</span>
-                                  </div>
+                                  <span className={`text-sm font-medium group-hover:text-emerald-400 transition-colors truncate ${completedTopics[topic.id] ? 'text-gray-400' : 'text-white'}`}>{topic.title}</span>
+                                  {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-400 flex-shrink-0" />}
                                 </div>
-                                <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
+                                <span className="px-2 py-0.5 rounded text-sm font-medium flex-shrink-0 ml-2" style={{ background: `${topic.color}15`, color: topic.color }}>
                                   {topic.commonProblems?.length || topic.keyQuestions?.length || 0}Q
                                 </span>
                               </div>
@@ -32078,24 +32076,22 @@ Best,
                             </div>
                           </div>
                           {/* Topics in Category */}
-                          <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-                            {categoryTopics.map((topic) => (
+                          <div className="grid grid-cols-1 md:grid-cols-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                            {categoryTopics.map((topic, idx) => (
                               <div
                                 key={topic.id}
                                 onClick={() => setSelectedTopic(topic.id)}
                                 className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
+                                style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', borderRight: idx % 2 === 0 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}
                               >
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-3 min-w-0">
                                   <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? 'rgba(16,185,129,0.2)' : `${topic.color}15` }}>
                                     {completedTopics[topic.id] ? <Icon name="check" size={12} className="text-emerald-400" /> : <Icon name={topic.icon} size={12} style={{ color: topic.color }} />}
                                   </div>
-                                  <div className="flex items-center gap-2">
-                                    <span className={`text-sm font-medium group-hover:text-emerald-400 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-white'}`}>{topic.title}</span>
-                                    {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-400" />}
-                                    <span className="text-gray-500 text-sm ml-2 hidden md:inline">{topic.description}</span>
-                                  </div>
+                                  <span className={`text-sm font-medium group-hover:text-emerald-400 transition-colors truncate ${completedTopics[topic.id] ? 'text-gray-400' : 'text-white'}`}>{topic.title}</span>
+                                  {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-400 flex-shrink-0" />}
                                 </div>
-                                <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
+                                <span className="px-2 py-0.5 rounded text-sm font-medium flex-shrink-0 ml-2" style={{ background: `${topic.color}15`, color: topic.color }}>
                                   {topic.keyQuestions?.length || topic.questions || 0}Q
                                 </span>
                               </div>
@@ -32113,7 +32109,7 @@ Best,
                         <Icon name="systemDesign" size={16} className="text-emerald-400" />
                       </div>
                       <div>
-                        <h2 className="text-3xl font-bold text-white">Common System Designs</h2>
+                        <h2 className="text-lg font-bold text-white">Common System Designs</h2>
                         <p className="text-sm text-gray-500">Real-world systems frequently asked in interviews</p>
                       </div>
                     </div>
@@ -32138,7 +32134,7 @@ Best,
                             </div>
                           </div>
                           {/* Designs in Category */}
-                          <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                          <div className="grid grid-cols-1 md:grid-cols-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                             {categoryDesigns.map((design) => {
                               const diffColor = difficultyColors[design.difficulty] || difficultyColors['Medium'];
                               const designProblem = `Design ${design.title}. ${design.description || design.subtitle || ''}`;
@@ -32189,7 +32185,7 @@ Best,
                         <Icon name="code" size={16} className="text-teal-400" />
                       </div>
                       <div>
-                        <h2 className="text-3xl font-bold text-white">Low-Level Design (LLD)</h2>
+                        <h2 className="text-lg font-bold text-white">Low-Level Design (LLD)</h2>
                         <p className="text-sm text-gray-500">Object-oriented design problems with class diagrams and implementations</p>
                       </div>
                     </div>
@@ -32212,7 +32208,7 @@ Best,
                               <span className="text-sm text-gray-500">{categoryProblems.length} problems</span>
                             </div>
                           </div>
-                          <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                          <div className="grid grid-cols-1 md:grid-cols-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                             {categoryProblems.map((problem) => {
                               const diffColor = difficultyColors[problem.difficulty] || difficultyColors['Medium'];
                               return (
@@ -32250,12 +32246,12 @@ Best,
                         <Icon name="cpu" size={16} className="text-orange-400" />
                       </div>
                       <div>
-                        <h2 className="text-3xl font-bold text-white">Concurrency & Multithreading</h2>
+                        <h2 className="text-lg font-bold text-white">Concurrency & Multithreading</h2>
                         <p className="text-sm text-gray-500">Thread-safe programming, synchronization, and classic problems</p>
                       </div>
                     </div>
                     <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-                      <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                      <div className="grid grid-cols-1 md:grid-cols-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                         {concurrencyTopics.map((topic) => (
                           <div
                             key={topic.id}
@@ -32287,7 +32283,7 @@ Best,
                         <Icon name="target" size={14} className="text-emerald-400" />
                       </div>
                       <div>
-                        <h3 className="text-3xl font-bold text-white">Interview Framework</h3>
+                        <h3 className="text-lg font-bold text-white">Interview Framework</h3>
                         <p className="text-gray-500 text-sm">45-minute breakdown</p>
                       </div>
                     </div>
@@ -32377,7 +32373,7 @@ Best,
                             </div>
                           </div>
                           {/* Topics in Category */}
-                          <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                          <div className="grid grid-cols-1 md:grid-cols-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                             {categoryTopics.map((topic) => (
                               <div
                                 key={topic.id}
@@ -32412,7 +32408,7 @@ Best,
                         <Icon name="briefcase" size={16} className="text-amber-400" />
                       </div>
                       <div>
-                        <h2 className="text-3xl font-bold text-white">Company-Specific Prep</h2>
+                        <h2 className="text-lg font-bold text-white">Company-Specific Prep</h2>
                         <p className="text-sm text-gray-500">Tailored guidance for top tech companies</p>
                       </div>
                     </div>
