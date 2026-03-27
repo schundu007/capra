@@ -34,13 +34,13 @@ const CARD_STYLES = {
 
 // Font size scale - increased for better readability
 const FONT_SIZES = {
-  xs: '14px',
-  sm: '16px',
-  base: '18px',
-  lg: '20px',
-  xl: '24px',
-  '2xl': '28px',
-  '3xl': '32px',
+  xs: '15px',
+  sm: '17px',
+  base: '19px',
+  lg: '22px',
+  xl: '26px',
+  '2xl': '32px',
+  '3xl': '40px',
 };
 
 // Ascend brand colors - emerald green
@@ -31836,7 +31836,7 @@ Best,
         {/* Main Content Area + Right Sidebar */}
         <div className="flex-1 min-h-screen flex">
           {/* Center Content */}
-          <div className="flex-1 min-w-0 mx-auto" style={{ maxWidth: selectedTopic ? '900px' : '1100px', padding: '0 32px' }}>
+          <div className="flex-1 min-w-0 mx-auto" style={{ maxWidth: '100%', padding: '0 40px' }}>
             {/* Top Bar */}
             <div className="sticky top-0 z-20 px-8 py-4 flex items-center justify-between" style={{ background: 'rgba(10, 10, 15, 0.9)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
               {/* Breadcrumb */}
