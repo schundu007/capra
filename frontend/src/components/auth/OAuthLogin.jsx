@@ -115,45 +115,42 @@ export default function OAuthLogin({ loginOnly = false }) {
         </nav>
 
         {/* ═══ HERO ═══ */}
-        <section className="pt-40 sm:pt-48 pb-32 max-w-[1200px] mx-auto px-8">
-          <div className="max-w-[900px]">
-            <h1 className="text-[clamp(48px,8vw,96px)] font-bold leading-[0.95] tracking-[-0.03em] mb-8 landing-display">
-              <span className="text-white">Your unfair</span>
-              <br />
-              <span className="text-white">advantage in</span>
-              <br />
+        <section className="pt-32 sm:pt-40 pb-20 max-w-[1200px] mx-auto px-8">
+          <div className="max-w-[700px] mx-auto text-center">
+            <h1 className="text-[clamp(36px,6vw,64px)] font-bold leading-[1] tracking-[-0.03em] mb-6 landing-display">
+              <span className="text-white">Your unfair advantage in </span>
               <span className="landing-gradient-text">every interview.</span>
             </h1>
 
-            <p className="text-[20px] sm:text-[22px] text-gray-400 mb-12 max-w-[560px] leading-[1.6] landing-body">
+            <p className="text-[17px] sm:text-[19px] text-gray-400 mb-8 max-w-[500px] mx-auto leading-[1.6] landing-body">
               AI-powered coding solutions, system design, and live interview assistance. Completely invisible to screen share.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-20">
-              <button onClick={() => handleOAuthLogin('google')} disabled={loading} className="group px-8 py-4.5 rounded-2xl font-semibold text-[18px] text-white transition-all duration-300 hover:shadow-[0_8px_40px_rgba(16,185,129,0.25)] active:scale-[0.98] landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', padding: '18px 32px' }}>
-                {loading === 'google' ? <Icon name="loader" size={20} className="animate-spin mx-auto" /> : (
-                  <span className="flex items-center justify-center gap-3">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-10">
+              <button onClick={() => handleOAuthLogin('google')} disabled={loading} className="group px-7 py-3.5 rounded-2xl font-semibold text-[16px] text-white transition-all duration-300 hover:shadow-[0_8px_40px_rgba(16,185,129,0.25)] active:scale-[0.98] landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                {loading === 'google' ? <Icon name="loader" size={18} className="animate-spin mx-auto" /> : (
+                  <span className="flex items-center justify-center gap-2">
                     Start for free
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-1"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-1"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                   </span>
                 )}
               </button>
-              <a href="/prepare" className="px-8 py-4.5 rounded-2xl font-semibold text-[18px] text-gray-300 transition-all duration-300 hover:text-white hover:bg-white/[0.05] landing-body" style={{ padding: '18px 32px', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <a href="/prepare" className="px-7 py-3.5 rounded-2xl font-semibold text-[16px] text-gray-300 transition-all duration-300 hover:text-white hover:bg-white/[0.05] landing-body" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
                 Explore prep guides
               </a>
             </div>
 
-            {/* Capabilities - not fake stats, real product highlights */}
-            <div className="flex flex-wrap gap-3">
+            {/* Capabilities */}
+            <div className="flex flex-wrap gap-2 justify-center">
               {[
                 { label: 'Live voice transcription', icon: 'microphone' },
                 { label: '20+ programming languages', icon: 'code' },
                 { label: 'Architecture diagrams', icon: 'systemDesign' },
                 { label: 'Stealth mode', icon: 'eyeOff' },
               ].map((cap, i) => (
-                <div key={i} className="flex items-center gap-2.5 px-4 py-2.5 rounded-full landing-body" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <Icon name={cap.icon} size={16} className="text-emerald-400" />
-                  <span className="text-[14px] text-gray-400 font-medium">{cap.label}</span>
+                <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-full landing-body" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <Icon name={cap.icon} size={14} className="text-emerald-400" />
+                  <span className="text-[13px] text-gray-400 font-medium">{cap.label}</span>
                 </div>
               ))}
             </div>
