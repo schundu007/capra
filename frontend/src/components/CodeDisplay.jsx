@@ -1,4 +1,4 @@
-import { useState, useEffect, forwardRef, useImperativeHandle, memo } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { getApiUrl } from '../hooks/useElectron';
@@ -743,4 +743,4 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
   );
 });
 
-export default memo(CodeDisplay);
+export default CodeDisplay;

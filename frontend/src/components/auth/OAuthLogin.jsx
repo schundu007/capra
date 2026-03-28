@@ -18,13 +18,7 @@ export default function OAuthLogin({ loginOnly = false }) {
   const handleOAuthLogin = async (provider) => {
     setLoading(provider);
     setError('');
-    try {
-      await signIn(provider);
-    } catch (err) {
-      // Fallback: navigate directly
-      const urls = { google: 'google', github: 'github' };
-      window.location.href = `https://cariara-backend.up.railway.app/auth/${urls[provider] || provider}/login?redirect=ascend`;
-    }
+    try { await signIn(provider); } catch (err) { setError(err.message || 'Failed to sign in'); setLoading(null); }
   };
 
   const handlePricingClick = async (planId) => {

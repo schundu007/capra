@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, memo } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { getApiUrl } from '../hooks/useElectron';
 
 const API_URL = getApiUrl();
@@ -67,7 +67,7 @@ function FormattedText({ text }) {
   );
 }
 
-export default memo(function ExplanationPanel({ explanations, highlightedLine, pitch, systemDesign, isStreaming, onExpandSystemDesign, canExpandSystemDesign, onFollowUpQuestion, isProcessingFollowUp }) {
+export default function ExplanationPanel({ explanations, highlightedLine, pitch, systemDesign, isStreaming, onExpandSystemDesign, canExpandSystemDesign, onFollowUpQuestion, isProcessingFollowUp }) {
   const hasSystemDesign = systemDesign && systemDesign.included;
   const hasSolution = pitch || (explanations && explanations.length > 0) || hasSystemDesign;
 
@@ -822,4 +822,4 @@ export default memo(function ExplanationPanel({ explanations, highlightedLine, p
       </div>
     </div>
   );
-});
+}
