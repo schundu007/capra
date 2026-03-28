@@ -108,109 +108,92 @@ export default function OAuthLogin({ loginOnly = false }) {
         </nav>
 
         {/* ═══ HERO ═══ */}
-        <section className="pt-24 sm:pt-28 pb-8 max-w-[1400px] mx-auto px-8">
-          <div className="max-w-[900px] mx-auto text-center">
-            <h1 className="text-[clamp(28px,4.5vw,48px)] font-bold leading-[1.1] tracking-[-0.03em] mb-3 landing-display whitespace-nowrap">
+        <section className="pt-28 sm:pt-32 pb-10 max-w-[1440px] mx-auto px-8">
+          <div className="max-w-[800px] mx-auto text-center">
+            <h1 className="text-[clamp(28px,4.5vw,44px)] font-bold leading-[1.08] tracking-[-0.03em] mb-3 landing-display whitespace-nowrap">
               <span className="text-gray-900">Your unfair advantage in </span>
               <span className="landing-gradient-text">every interview.</span>
             </h1>
-
-            <p className="text-[16px] text-gray-500 mb-6 landing-body">
-              AI-powered coding solutions, system design, and live interview assistance. Completely invisible to screen share.
-            </p>
-
-            {/* Capabilities */}
-            <div className="flex flex-wrap gap-2 justify-center">
+            <p className="text-[16px] text-gray-500 mb-6 leading-[1.6] landing-body">AI-powered coding solutions, system design, and live interview assistance — completely invisible to screen share.</p>
+            <div className="flex flex-wrap gap-3 justify-center">
               {[
-                { label: '20+ programming languages', icon: 'code' },
-                { label: 'Architecture diagrams', icon: 'systemDesign' },
+                { label: '20+ languages', icon: 'code' },
+                { label: 'System design', icon: 'systemDesign' },
                 { label: 'Stealth mode', icon: 'eyeOff' },
+                { label: 'Company prep', icon: 'briefcase' },
               ].map((cap, i) => (
-                <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-full landing-body" style={{ background: '#f3f4f6', border: '1px solid #e5e7eb' }}>
+                <div key={i} className="flex items-center gap-2 px-4 py-2 rounded-full landing-body" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}>
                   <Icon name={cap.icon} size={14} className="text-emerald-600" />
-                  <span className="text-[14px] text-gray-600 font-medium">{cap.label}</span>
+                  <span className="text-[14px] text-gray-700 font-medium">{cap.label}</span>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ═══ WHAT YOU GET ═══ */}
-        <section className="py-6 max-w-[1440px] mx-auto px-8">
-          <div className="mb-3 text-center">
-            <h2 className="text-[clamp(20px,3vw,28px)] font-bold leading-[1.1] tracking-[-0.02em] text-gray-900 mb-1 landing-display">
-              Built for engineers who take interviews seriously.
-            </h2>
-            <p className="text-[15px] text-gray-500 landing-body">
-              Six tools. One platform. From problem to offer letter.
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px rounded-2xl overflow-hidden" style={{ background: '#f3f4f6' }}>
+        {/* ═══ FEATURES ═══ */}
+        <section className="py-8 max-w-[1440px] mx-auto px-8">
+          <h2 className="text-[28px] font-bold text-center mb-6 landing-display"><span className="text-gray-900">Everything you need to </span><span style={{color:'#10b981'}}>land the job.</span></h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
-              { icon: 'microphone', title: 'Live Interview Mode', desc: 'Real-time AI answers during interviews. Invisible during screen share.', accent: '#10b981' },
-              { icon: 'code', title: 'Coding Engine', desc: 'Solutions in 20+ languages with explanations, complexity analysis, and auto-fix.', accent: '#3b82f6' },
-              { icon: 'systemDesign', title: 'System Design', desc: 'Architecture diagrams for AWS, GCP, Azure with scalability patterns.', accent: '#f59e0b' },
-              { icon: 'briefcase', title: 'Company Prep', desc: 'Upload JD + resume. Get tailored pitch, questions, and focus areas.', accent: '#8b5cf6' },
-              { icon: 'resume', title: 'Resume Builder', desc: 'ATS-optimized resume and cover letter. PDF and DOCX export.', accent: '#06b6d4' },
+              { icon: 'microphone', title: 'Live Interview', desc: 'Real-time AI answers. Invisible to screen share.', accent: '#10b981' },
+              { icon: 'code', title: 'Coding Engine', desc: '20+ languages with explanations and auto-fix.', accent: '#3b82f6' },
+              { icon: 'systemDesign', title: 'System Design', desc: 'Architecture diagrams with scalability analysis.', accent: '#f59e0b' },
+              { icon: 'briefcase', title: 'Company Prep', desc: 'Tailored pitch from your JD + resume.', accent: '#8b5cf6' },
+              { icon: 'resume', title: 'Resume Builder', desc: 'ATS-optimized with PDF and DOCX export.', accent: '#06b6d4' },
               { icon: 'eyeOff', title: 'Stealth Mode', desc: 'Hidden from screen share, dock, and task manager.', accent: '#ec4899' },
             ].map((f, i) => (
-              <div key={i} className="group p-4 transition-colors duration-300 hover:bg-gray-50" style={{ background: '#f9fafb', border: '1px solid #f3f4f6' }}>
-                <div className="flex items-center gap-2.5 mb-1.5">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${f.accent}0d`, border: `1px solid ${f.accent}18` }}>
-                    <Icon name={f.icon} size={16} style={{ color: f.accent }} />
-                  </div>
-                  <h3 className="text-[16px] font-bold text-gray-900">{f.title}</h3>
+              <div key={i} className="flex items-center gap-3 p-4 rounded-xl hover:shadow-md transition-all duration-200" style={{ background: '#fff', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${f.accent}10` }}>
+                  <Icon name={f.icon} size={18} style={{ color: f.accent }} />
                 </div>
-                <p className="text-[13px] text-gray-500 leading-[1.5] pl-[42px]">{f.desc}</p>
+                <div className="min-w-0">
+                  <div className="text-[15px] font-semibold text-gray-900">{f.title}</div>
+                  <div className="text-[13px] text-gray-500">{f.desc}</div>
+                </div>
               </div>
             ))}
           </div>
         </section>
 
         {/* ═══ HOW IT WORKS ═══ */}
-        <section className="py-6 max-w-[1440px] mx-auto px-8">
-          <div className="mb-2 text-center">
-            <h2 className="text-[clamp(20px,3vw,28px)] font-bold leading-[1.1] tracking-[-0.02em] text-gray-900 landing-display">
-              Three steps. That's it.
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
+        <section className="py-8 max-w-[1440px] mx-auto px-8">
+          <h2 className="text-[28px] font-bold text-center mb-6 landing-display"><span className="text-gray-900">Three steps. </span><span style={{color:'#10b981'}}>That's it.</span></h2>
+          <div className="grid md:grid-cols-3 gap-4">
             {[
-              { num: '1', title: 'Drop your problem in', desc: 'Paste text, upload a screenshot, or enter a LeetCode / HackerRank URL.' },
-              { num: '2', title: 'Get the solution', desc: 'AI generates code with explanations, complexity, and architecture diagrams in seconds.' },
-              { num: '3', title: 'Practice and refine', desc: 'Walk through step-by-step. Ask follow-up questions. Run code. Build confidence.' },
+              { num: '01', title: 'Drop your problem in', desc: 'Text, screenshot, or LeetCode URL.' },
+              { num: '02', title: 'Get the solution', desc: 'Code, explanations, and diagrams in seconds.' },
+              { num: '03', title: 'Practice and refine', desc: 'Step-by-step walkthrough with follow-up Q&A.' },
             ].map((step, i) => (
-              <div key={i} className="relative">
-                <span className="text-[60px] sm:text-[72px] font-black leading-none landing-display" style={{ color: 'rgba(0,0,0,0.04)' }}>{step.num}</span>
-                <div className="mt-[-16px] sm:mt-[-20px] relative z-10">
-                  <h3 className="text-[20px] sm:text-[22px] font-bold text-gray-900 mb-3 landing-display">{step.title}</h3>
-                  <p className="text-[15px] text-gray-500 leading-[1.5] landing-body">{step.desc}</p>
-                </div>
+              <div key={i} className="p-5 rounded-xl text-center" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                <div className="text-[32px] font-black text-emerald-500 mb-2 landing-display">{step.num}</div>
+                <div className="text-[15px] font-semibold text-gray-900 mb-1 landing-display">{step.title}</div>
+                <div className="text-[13px] text-gray-500 landing-body">{step.desc}</div>
               </div>
             ))}
           </div>
         </section>
 
         {/* ═══ FOOTER ═══ */}
-        <footer className="py-6 max-w-[1440px] mx-auto px-8">
-          <div className="flex items-center justify-between py-4" style={{ borderTop: '1px solid #e5e7eb' }}>
+        <footer className="py-6 max-w-[1440px] mx-auto px-8 mt-4">
+          <div className="flex items-center justify-between py-4" style={{ borderTop: '1px solid #e2e8f0' }}>
             <div className="flex items-center gap-3">
               <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
                 <Icon name="ascend" size={14} className="text-white" />
               </div>
-              <span className="text-[16px] font-bold text-gray-900 landing-display">Ascend</span>
-              <span className="text-[14px] text-gray-400 landing-body ml-2">&copy; {new Date().getFullYear()} Cariara</span>
+              <span className="text-[13px] text-gray-500 landing-body">&copy; 2025 Ascend by Cariara. All rights reserved.</span>
             </div>
             <div className="flex items-center gap-5">
-              <a href="/app/coding" className="text-[14px] text-gray-500 hover:text-gray-900 transition-colors landing-body">Interview</a>
-              <a href="/prepare" className="text-[14px] text-gray-500 hover:text-gray-900 transition-colors landing-body">Prep</a>
-              <a href="/premium" className="text-[14px] text-gray-500 hover:text-gray-900 transition-colors landing-body">Pricing</a>
-              <a href="/download" className="text-[14px] text-gray-500 hover:text-gray-900 transition-colors landing-body">Download</a>
-              <a href="https://jobs.cariara.com" target="_blank" rel="noopener noreferrer" className="text-[14px] text-gray-500 hover:text-gray-900 transition-colors landing-body">Careers</a>
-              <a href="/privacy" className="text-[14px] text-gray-500 hover:text-gray-900 transition-colors landing-body">Privacy</a>
-              <a href="mailto:support@cariara.com" className="text-[14px] text-gray-500 hover:text-gray-900 transition-colors landing-body">Support</a>
+              {[
+                { label: 'Interview', href: '/app/coding' },
+                { label: 'Prep', href: '/prepare' },
+                { label: 'Pricing', href: '/premium' },
+                { label: 'Download', href: '/download' },
+                { label: 'Privacy', href: '/privacy' },
+                { label: 'Support', href: 'mailto:support@cariara.com' },
+              ].map((link) => (
+                <a key={link.label} href={link.href} className="text-[13px] text-gray-500 hover:text-gray-900 transition-colors landing-body">{link.label}</a>
+              ))}
             </div>
           </div>
         </footer>

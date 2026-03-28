@@ -69,23 +69,21 @@ export default function PremiumPage() {
       period: '1 month access',
       periodShort: '/mo',
       icon: 'cloud',
-      color: '#6b7280',
+      color: '#3b82f6',
       badge: null,
       features: [
-        'Full access to AI Coding Engine',
-        'Full access to System Design mode',
-        '5 credits per month (25 coding problems)',
-        'Screenshot OCR problem solving',
-        'Follow-up Q&A with AI',
-        'One-time payment (no auto-renewal)',
+        'AI Coding + System Design',
+        '5 credits/mo (25 problems)',
+        'Screenshot OCR solver',
+        'No auto-renewal',
       ],
       cta: 'Get Monthly',
     },
     {
       id: 'quarterly_pro',
       name: 'Quarterly Pro',
-      price: 300,
-      originalPrice: 397,
+      price: 249,
+      originalPrice: 297,
       period: '3 months access',
       periodShort: '/quarter',
       icon: 'rocket',
@@ -94,17 +92,13 @@ export default function PremiumPage() {
       badgeColor: '#10b981',
       features: [
         'Everything in Monthly',
-        'Unlimited coding + system design',
-        'Company-specific interview prep',
-        'Behavioral coaching (STAR method)',
-        'Live interview assistant with stealth mode',
-        'Resume & cover letter generation',
-        'Job Discovery Portal access',
-        'Export prep materials to PDF/DOCX',
-        'Priority support',
+        'Unlimited usage',
+        'Company prep + behavioral coaching',
+        'Live assistant + stealth mode',
+        'Resume & cover letter export',
       ],
       cta: 'Get Quarterly Pro',
-      savings: 'Save $97 vs Monthly',
+      savings: 'Save $48 vs Monthly',
     },
     {
       id: 'desktop_lifetime',
@@ -119,13 +113,10 @@ export default function PremiumPage() {
       badgeColor: '#8b5cf6',
       features: [
         'Everything in Quarterly Pro',
-        'Pay once, access forever',
-        'Use your own API keys (Claude/GPT-4)',
-        'Desktop app for macOS, Windows, Linux',
-        'Offline mode — no internet required',
-        'All future updates included',
-        'Highest priority support',
-        'No recurring fees, ever',
+        'Pay once, own forever',
+        'Your own API keys',
+        'Desktop app (Mac/Win/Linux)',
+        'Offline mode + free updates',
       ],
       cta: 'Get Lifetime',
       savings: '40% OFF',
@@ -157,115 +148,103 @@ export default function PremiumPage() {
   const hasActiveSubscription = subscription?.status === 'active';
 
   return (
-    <div className="min-h-screen relative" style={{ background: '#09090b', fontFamily: "'Inter', sans-serif" }}>
-      {/* Ambient BG */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)', backgroundSize: '80px 80px' }} />
-        <div className="absolute w-[900px] h-[900px] rounded-full" style={{ background: 'radial-gradient(circle, #10b98115 0%, transparent 55%)', top: '-350px', left: '50%', transform: 'translateX(-50%)', opacity: 0.15 }} />
-        <div className="absolute w-[600px] h-[600px] rounded-full" style={{ background: 'radial-gradient(circle, #8b5cf610 0%, transparent 55%)', bottom: '10%', right: '-150px', opacity: 0.12 }} />
-      </div>
-
-      <div className="relative z-10">
+    <div className="min-h-screen relative" style={{ background: '#ffffff', fontFamily: "'Source Sans 3', sans-serif", color: '#1a1a1a' }}>
+      <div className="relative">
 
         {/* ═══ NAV ═══ */}
-        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'py-3' : 'py-5'}`} style={{ background: scrolled ? 'rgba(9, 9, 11, 0.88)' : 'transparent', backdropFilter: scrolled ? 'blur(20px) saturate(180%)' : 'none', borderBottom: scrolled ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
-          <div className="max-w-7xl mx-auto px-8 flex items-center justify-between">
+        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'py-3' : 'py-5'}`} style={{ background: scrolled ? 'rgba(255,255,255,0.95)' : 'transparent', backdropFilter: scrolled ? 'blur(20px)' : 'none', borderBottom: scrolled ? '1px solid #e5e7eb' : '1px solid transparent' }}>
+          <div className="max-w-[1440px] mx-auto px-8 flex items-center justify-between">
             <a href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
                 <Icon name="ascend" size={20} className="text-white" />
               </div>
-              <span className="text-xl font-bold text-white tracking-tight">Ascend</span>
+              <span className="text-[26px] font-bold text-gray-900 premium-heading">Ascend</span>
             </a>
-            <div className="hidden md:flex items-center gap-1">
-              <button onClick={() => scrollTo('plans')} className="px-4 py-2 text-base text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-all">Plans</button>
-              <button onClick={() => scrollTo('features')} className="px-4 py-2 text-base text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-all">Features</button>
-              <button onClick={() => scrollTo('faq')} className="px-4 py-2 text-base text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-all">FAQ</button>
-              <a href="/prepare" target="_blank" rel="noopener" className="px-4 py-2 text-base text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-all">Prep</a>
+            <div className="hidden md:flex items-center gap-2">
+              <button onClick={() => scrollTo('plans')} className="px-5 py-2.5 rounded-xl text-[16px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200">Plans</button>
+              <button onClick={() => scrollTo('features')} className="px-5 py-2.5 rounded-xl text-[16px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200">Features</button>
+              <button onClick={() => scrollTo('faq')} className="px-5 py-2.5 rounded-xl text-[16px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200">FAQ</button>
             </div>
-            <a href="/" className="px-6 py-2.5 rounded-xl text-base font-semibold text-white transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/20" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+            <a href="/" className="hidden sm:flex items-center gap-2 px-6 py-3 rounded-xl text-[16px] font-semibold text-white transition-all duration-300 hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)]" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
               Back to App
             </a>
           </div>
         </nav>
 
         {/* ═══ HERO ═══ */}
-        <section className="pt-36 pb-10 max-w-4xl mx-auto px-8 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold mb-8" style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#34d399' }}>
-            <Icon name="sparkles" size={16} className="text-green-400" />
-            AI-powered interview preparation
+        <section className="pt-28 sm:pt-32 pb-8 max-w-[1440px] mx-auto px-8">
+          <div className="max-w-[800px] mx-auto text-center">
+            <h1 className="text-[clamp(32px,5vw,52px)] font-bold leading-[1.08] tracking-[-0.03em] mb-3 premium-heading">
+              <span className="text-gray-900">Ace Your Next </span>
+              <span className="landing-gradient-text">Technical Interview</span>
+            </h1>
+            <p className="text-[16px] text-gray-500 mb-6 leading-[1.6]">Choose a plan and start preparing with AI-powered tools for coding, system design, and behavioral interviews.</p>
+            <button onClick={() => scrollTo('plans')} className="px-6 py-3 rounded-xl font-semibold text-[16px] text-white transition-all hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)]" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+              View Plans & Pricing
+            </button>
           </div>
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black mb-6 leading-[1.04] tracking-tight text-white">
-            Ace Your Next<br />
-            <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #10b981 0%, #34d399 40%, #6ee7b7 70%, #a7f3d0 100%)' }}>Technical Interview</span>
-          </h1>
-          <p className="text-xl sm:text-2xl text-gray-400 mb-8 max-w-2xl mx-auto leading-relaxed">
-            Get unlimited access to AI-powered coding solutions, system design diagrams, behavioral coaching, live interview assistance, and company-specific prep.
-          </p>
-          <button onClick={() => scrollTo('plans')} className="px-8 py-4 rounded-2xl font-bold text-lg text-white transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 0 40px rgba(16, 185, 129, 0.2)' }}>
-            View Plans & Pricing
-          </button>
         </section>
 
         {/* ═══ PRICING CARDS ═══ */}
-        <section id="plans" className="py-20 max-w-6xl mx-auto px-8">
+        <section id="plans" className="py-6 max-w-[1440px] mx-auto px-8">
           {hasActiveSubscription && (
-            <div className="mb-10 p-5 rounded-2xl text-center" style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-              <div className="flex items-center justify-center gap-2 text-green-400 text-lg font-semibold mb-1">
+            <div className="mb-4 p-3 rounded-2xl text-center" style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid #a7f3d0' }}>
+              <div className="flex items-center justify-center gap-2 text-emerald-600 text-lg font-semibold mb-1">
                 <Icon name="checkCircle" size={22} />
                 You have an active {subscription?.planType?.replace('_', ' ')} subscription
               </div>
-              <p className="text-gray-400">Manage your subscription in the app settings.</p>
+              <p className="text-gray-600">Manage your subscription in the app settings.</p>
             </div>
           )}
 
           {error && (
-            <div className="mb-8 p-4 rounded-xl text-center" style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-              <p className="text-red-400 text-base">{error}</p>
+            <div className="mb-4 p-4 rounded-xl text-center" style={{ background: '#fef2f2', border: '1px solid #fecaca' }}>
+              <p className="text-red-600 text-base">{error}</p>
             </div>
           )}
 
-          <div className="grid md:grid-cols-3 gap-6 items-start">
+          <div className="grid md:grid-cols-3 gap-4 items-stretch">
             {plans.map((plan, i) => {
               const isFeatured = plan.id === 'quarterly_pro';
               const isLifetime = plan.id === 'desktop_lifetime';
               return (
-                <div key={plan.id} className={`relative rounded-3xl overflow-hidden transition-all hover:scale-[1.02] ${isFeatured ? 'md:-mt-4 md:mb-4' : ''}`} style={{
+                <div key={plan.id} className={`relative rounded-xl overflow-hidden transition-all hover:scale-[1.02] flex flex-col `} style={{
                   background: isFeatured
-                    ? 'linear-gradient(180deg, rgba(16, 185, 129, 0.12), rgba(16, 185, 129, 0.03))'
+                    ? '#f0fdf4'
                     : isLifetime
-                    ? 'linear-gradient(180deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.02))'
-                    : 'rgba(255,255,255,0.02)',
-                  border: isFeatured ? '2px solid #10b981' : isLifetime ? '2px solid rgba(139, 92, 246, 0.4)' : '1px solid rgba(255,255,255,0.06)',
-                  boxShadow: isFeatured ? '0 0 60px rgba(16, 185, 129, 0.1)' : isLifetime ? '0 0 40px rgba(139, 92, 246, 0.08)' : 'none',
+                    ? '#f5f3ff'
+                    : '#eff6ff',
+                  border: isFeatured ? '2px solid #10b981' : isLifetime ? '2px solid #8b5cf6' : '1px solid #bfdbfe',
+                  boxShadow: isFeatured ? '0 4px 24px rgba(16, 185, 129, 0.12)' : isLifetime ? '0 4px 24px rgba(139, 92, 246, 0.1)' : '0 1px 3px rgba(0,0,0,0.06)',
                 }}>
                   {plan.badge && (
-                    <div className="absolute top-0 left-0 right-0 py-2 text-center text-sm font-bold text-white" style={{ background: plan.badgeColor }}>
+                    <div className="absolute top-0 left-0 right-0 py-2 text-center text-sm font-bold text-gray-900" style={{ background: plan.badgeColor }}>
                       {plan.badge}
                     </div>
                   )}
 
-                  <div className={`p-8 ${plan.badge ? 'pt-14' : ''}`}>
+                  <div className={`p-4 text-center flex-1 flex flex-col ${plan.badge ? 'pt-10' : ''}`}>
                     {/* Plan header */}
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: `${plan.color}15` }}>
+                    <div className="flex flex-col items-center text-center gap-1 mb-2">
+                      <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: `${plan.color}15` }}>
                         <Icon name={plan.icon} size={24} style={{ color: plan.color }} />
                       </div>
                       <div>
-                        <h3 className="text-2xl font-bold text-white">{plan.name}</h3>
-                        <p className="text-gray-500 text-sm">{plan.period}</p>
+                        <h3 className="text-lg font-bold text-gray-900 premium-heading">{plan.name}</h3>
+                        <p className="text-gray-700 text-sm">{plan.period}</p>
                       </div>
                     </div>
 
                     {/* Price */}
-                    <div className="my-6">
-                      <div className="flex items-baseline gap-2">
+                    <div className="my-3">
+                      <div className="flex items-baseline gap-2 justify-center">
                         {plan.originalPrice && (
                           <span className="text-2xl text-gray-600 line-through font-medium">${plan.originalPrice}</span>
                         )}
-                        <span className="text-6xl font-black text-white">${plan.price}</span>
+                        <span className="text-4xl font-black text-gray-900">${plan.price}</span>
                       </div>
-                      <div className="flex items-center gap-3 mt-2">
-                        <span className="text-gray-500 text-base">One-time payment</span>
+                      <div className="flex items-center gap-3 mt-2 justify-center">
+                        <span className="text-gray-700 text-sm">One-time payment</span>
                         {plan.savings && (
                           <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: `${plan.color}20`, color: plan.color }}>
                             {plan.savings}
@@ -278,11 +257,11 @@ export default function PremiumPage() {
                     <button
                       onClick={() => handleSubscribe(plan.id)}
                       disabled={!!loading}
-                      className="w-full py-4 rounded-2xl text-lg font-bold transition-all hover:scale-[1.02] mb-8"
+                      className="w-full py-2.5 rounded-xl text-sm font-bold transition-all hover:scale-[1.02] mb-4"
                       style={{
-                        background: isFeatured ? '#10b981' : isLifetime ? '#8b5cf6' : 'rgba(255,255,255,0.08)',
+                        background: isFeatured ? '#10b981' : isLifetime ? '#8b5cf6' : '#3b82f6',
                         color: '#fff',
-                        boxShadow: isFeatured ? '0 0 30px rgba(16, 185, 129, 0.2)' : isLifetime ? '0 0 30px rgba(139, 92, 246, 0.15)' : 'none',
+                        boxShadow: isFeatured ? '0 4px 16px rgba(16,185,129,0.15)' : isLifetime ? '0 4px 16px rgba(139,92,246,0.15)' : '0 4px 16px rgba(59,130,246,0.15)',
                       }}
                     >
                       {loading === plan.id ? (
@@ -291,11 +270,11 @@ export default function PremiumPage() {
                     </button>
 
                     {/* Features */}
-                    <ul className="space-y-4">
+                    <ul className="grid grid-cols-2 gap-x-2 gap-y-1 justify-items-start mx-auto mt-auto">
                       {plan.features.map((feature, j) => (
-                        <li key={j} className="flex items-start gap-3">
-                          <Icon name="check" size={18} className="flex-shrink-0 mt-0.5" style={{ color: plan.color === '#6b7280' ? '#10b981' : plan.color }} />
-                          <span className="text-gray-300 text-base leading-relaxed">{feature}</span>
+                        <li key={j} className="flex items-center gap-1.5">
+                          <Icon name="check" size={14} className="flex-shrink-0" style={{ color: plan.color }} />
+                          <span className="text-gray-800 text-[12px]">{feature}</span>
                         </li>
                       ))}
                     </ul>
@@ -305,60 +284,42 @@ export default function PremiumPage() {
             })}
           </div>
 
-          <p className="text-center text-gray-500 text-base mt-8">
-            All plans include access to premium content, priority support, and regular updates.
-          </p>
-          <p className="text-center text-gray-600 text-sm mt-2">
+          <p className="text-center text-gray-900 text-[15px] mt-3 font-semibold">
             30-day money-back guarantee · Secure payment via Stripe · No auto-renewal
           </p>
         </section>
 
         {/* ═══ WHAT'S INCLUDED ═══ */}
-        <section id="features" className="py-24 max-w-7xl mx-auto px-8">
-          <div className="text-center mb-14">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">What's Included</h2>
-            <p className="text-gray-400 text-xl max-w-2xl mx-auto">Every tool you need to go from job search to signed offer letter</p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <section id="features" className="py-8 max-w-[1440px] mx-auto px-8">
+          <h2 className="text-[24px] font-bold text-gray-900 text-center mb-6">What's Included</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {whatsIncluded.map((item, i) => (
-              <div key={i} className="p-7 rounded-2xl transition-all hover:scale-[1.02]" style={{ background: `${item.color}06`, border: `1px solid ${item.color}18` }}>
-                <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-5" style={{ background: `${item.color}12` }}>
-                  <Icon name={item.icon} size={28} style={{ color: item.color }} />
+              <div key={i} className="flex items-center gap-3 p-4 rounded-xl hover:shadow-md transition-all duration-200" style={{ background: '#fff', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${item.color}10` }}>
+                  <Icon name={item.icon} size={18} style={{ color: item.color }} />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
-                <p className="text-gray-400 text-base leading-relaxed">{item.desc}</p>
+                <div className="min-w-0">
+                  <div className="text-[14px] font-semibold text-gray-900">{item.title}</div>
+                  <div className="text-[12px] text-gray-500">{item.desc}</div>
+                </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* ═══ GUARANTEE ═══ */}
-        <section className="py-20 max-w-3xl mx-auto px-8 text-center">
-          <div className="p-8 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-5" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
-              <Icon name="sre" size={28} style={{ color: '#10b981' }} />
-            </div>
-            <h3 className="text-2xl font-bold text-white mb-3">30-Day Money-Back Guarantee</h3>
-            <p className="text-gray-400 text-lg leading-relaxed max-w-lg mx-auto">
-              Try Ascend risk-free. If it's not for you, contact us within 30 days for a full refund — no questions asked.
-            </p>
-          </div>
-        </section>
-
         {/* ═══ FAQ ═══ */}
-        <section id="faq" className="py-24 max-w-3xl mx-auto px-8">
-          <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-14">Frequently Asked Questions</h2>
-          <div className="space-y-3">
+        <section id="faq" className="py-8 max-w-[1440px] mx-auto px-8">
+          <h2 className="text-[24px] font-bold text-gray-900 text-center mb-6 premium-heading">Frequently Asked Questions</h2>
+          <div className="max-w-[900px] mx-auto space-y-2">
             {faqItems.map((faq, i) => (
-              <div key={i} className="rounded-2xl overflow-hidden transition-all" style={{ background: expandedFaq === i ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.02)', border: `1px solid ${expandedFaq === i ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)'}` }}>
-                <button onClick={() => setExpandedFaq(expandedFaq === i ? null : i)} className="w-full px-7 py-5 flex items-center justify-between text-left">
-                  <span className="text-white font-semibold text-lg pr-4">{faq.q}</span>
-                  <svg className={`w-5 h-5 text-gray-500 flex-shrink-0 transition-transform duration-200 ${expandedFaq === i ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              <div key={i} className="rounded-xl overflow-hidden transition-all" style={{ background: '#fff', border: `1px solid ${expandedFaq === i ? '#d1d5db' : '#e2e8f0'}`, boxShadow: expandedFaq === i ? '0 2px 8px rgba(0,0,0,0.06)' : '0 1px 2px rgba(0,0,0,0.03)' }}>
+                <button onClick={() => setExpandedFaq(expandedFaq === i ? null : i)} className="w-full px-5 py-3.5 flex items-center justify-between text-left">
+                  <span className="text-gray-900 font-semibold text-[14px] pr-4">{faq.q}</span>
+                  <svg className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform duration-200 ${expandedFaq === i ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                 </button>
                 <div className={`overflow-hidden transition-all duration-200 ${expandedFaq === i ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'}`}>
-                  <div className="px-7 pb-5">
-                    <p className="text-gray-400 text-base leading-relaxed">{faq.a}</p>
+                  <div className="px-5 pb-4">
+                    <p className="text-gray-600 text-[13px] leading-relaxed">{faq.a}</p>
                   </div>
                 </div>
               </div>
@@ -366,47 +327,57 @@ export default function PremiumPage() {
           </div>
         </section>
 
-        {/* ═══ FINAL CTA ═══ */}
-        <section className="py-20 max-w-3xl mx-auto px-8">
-          <div className="p-14 rounded-3xl text-center" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.03))', border: '1px solid rgba(16, 185, 129, 0.2)', boxShadow: '0 0 50px rgba(16, 185, 129, 0.06)' }}>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Ready to Land Your Dream Job?</h2>
-            <p className="text-gray-400 mb-8 max-w-lg mx-auto text-lg">Start preparing with AI-powered tools for coding, system design, and behavioral interviews.</p>
-            <button onClick={() => scrollTo('plans')} className="px-10 py-4 rounded-2xl font-bold text-lg text-white transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 0 30px rgba(16, 185, 129, 0.25)' }}>
-              Get Started Now
-            </button>
-          </div>
-        </section>
-
         {/* ═══ FOOTER ═══ */}
-        <footer className="py-12 border-t" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
-          <div className="max-w-7xl mx-auto px-8">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                  <Icon name="ascend" size={18} className="text-white" />
-                </div>
-                <span className="text-white font-bold text-lg">Ascend</span>
+        <footer className="py-6 max-w-[1440px] mx-auto px-8 mt-4">
+          <div className="flex items-center justify-between py-4" style={{ borderTop: '1px solid #e2e8f0' }}>
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                <Icon name="ascend" size={14} className="text-white" />
               </div>
-              <div className="flex items-center gap-6 text-base text-gray-500">
-                <a href="/" className="hover:text-white transition-colors">Home</a>
-                <a href="https://jobs.cariara.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Jobs</a>
-                <a href="/prepare" target="_blank" rel="noopener" className="hover:text-white transition-colors">Prep</a>
-                <a href="/app/coding" target="_blank" rel="noopener" className="hover:text-white transition-colors">Interview</a>
-                <a href="/download" target="_blank" rel="noopener" className="hover:text-white transition-colors">Download</a>
-                <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
-                <a href="/terms" className="hover:text-white transition-colors">Terms</a>
-                <a href="mailto:support@cariara.com" className="hover:text-white transition-colors">Contact</a>
-              </div>
+              <span className="text-[13px] text-gray-500">&copy; 2025 Ascend by Cariara. All rights reserved.</span>
             </div>
-            <div className="mt-6 pt-6 border-t text-center text-gray-600 text-sm" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
-              © 2025 Ascend by Cariara. All rights reserved.
+            <div className="flex items-center gap-5">
+              {[
+                { label: 'Home', href: '/' },
+                { label: 'Interview', href: '/app/coding' },
+                { label: 'Download', href: '/download' },
+                { label: 'Privacy', href: '/privacy' },
+                { label: 'Support', href: 'mailto:support@cariara.com' },
+              ].map((link) => (
+                <a key={link.label} href={link.href} className="text-[13px] text-gray-500 hover:text-gray-900 transition-colors">{link.label}</a>
+              ))}
             </div>
           </div>
         </footer>
       </div>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800&family=Source+Serif+4:wght@600;700;800&display=swap');
+
+        .min-h-screen h1,
+        .min-h-screen h2,
+        .min-h-screen h3,
+        .min-h-screen h4,
+        .premium-heading {
+          font-family: 'Source Serif 4', Georgia, serif;
+        }
+
+        .min-h-screen p,
+        .min-h-screen a,
+        .min-h-screen button,
+        .min-h-screen span,
+        .min-h-screen li,
+        .min-h-screen div,
+        .premium-body {
+          font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .landing-gradient-text {
+          background: linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
       `}</style>
     </div>
   );
