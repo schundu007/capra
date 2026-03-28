@@ -137,7 +137,7 @@ export default function FormattedContent({ content, color = 'emerald' }) {
     if (block.type === 'code') {
       // Render code block with proper formatting
       elements.push(
-        <div key={`code-${blockIdx}`} className="my-4 rounded-lg border overflow-hidden" style={{ background: '#f1f5f9', borderColor: '#e5e7eb' }}>
+        <div key={`code-${blockIdx}`} className="my-1 rounded-lg border overflow-hidden" style={{ background: '#f1f5f9', borderColor: '#e5e7eb' }}>
           {block.lang && block.lang !== 'code' && (
             <div className="px-4 py-2 text-sm text-gray-700 border-b" style={{ borderColor: '#e5e7eb', background: '#fafafa' }}>
               {block.lang}
@@ -160,7 +160,7 @@ export default function FormattedContent({ content, color = 'emerald' }) {
     } else if (block.type === 'diagram') {
       // Render diagram with preserved spacing
       elements.push(
-        <div key={`diagram-${blockIdx}`} className="my-4 rounded-lg border overflow-x-auto" style={{ background: '#f1f5f9', borderColor: '#e5e7eb' }}>
+        <div key={`diagram-${blockIdx}`} className="my-1 rounded-lg border overflow-x-auto" style={{ background: '#f1f5f9', borderColor: '#e5e7eb' }}>
           <pre
             className="p-4 text-sm leading-6"
             style={{
@@ -183,7 +183,7 @@ export default function FormattedContent({ content, color = 'emerald' }) {
       const flushList = () => {
         if (currentList.length > 0) {
           elements.push(
-            <ul key={`list-${elements.length}`} className="space-y-1.5 my-3 ml-2">
+            <ul key={`list-${elements.length}`} className="space-y-1.5 my-1 ml-2">
               {currentList.map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 flex-shrink-0" />
@@ -210,7 +210,7 @@ export default function FormattedContent({ content, color = 'emerald' }) {
           flushList();
           const headerText = trimmed.replace(/\*\*/g, '');
           elements.push(
-            <div key={`h-${blockIdx}-${lineIdx}`} className="text-gray-900 font-semibold text-sm mt-4 mb-2 first:mt-0">
+            <div key={`h-${blockIdx}-${lineIdx}`} className="text-gray-900 font-semibold text-sm mt-2 mb-1 first:mt-0">
               {headerText}
             </div>
           );
@@ -221,7 +221,7 @@ export default function FormattedContent({ content, color = 'emerald' }) {
         if (trimmed.endsWith(':') && trimmed.length < 50 && !trimmed.includes('.')) {
           flushList();
           elements.push(
-            <div key={`h-${blockIdx}-${lineIdx}`} className="text-gray-900 font-semibold text-sm mt-4 mb-2 first:mt-0">
+            <div key={`h-${blockIdx}-${lineIdx}`} className="text-gray-900 font-semibold text-sm mt-2 mb-1 first:mt-0">
               {trimmed}
             </div>
           );
@@ -237,7 +237,7 @@ export default function FormattedContent({ content, color = 'emerald' }) {
         // Regular paragraph
         flushList();
         elements.push(
-          <p key={`p-${blockIdx}-${lineIdx}`} className="text-gray-900 text-sm leading-relaxed my-2">
+          <p key={`p-${blockIdx}-${lineIdx}`} className="text-gray-900 text-sm leading-relaxed my-1">
             {formatInlineText(trimmed)}
           </p>
         );

@@ -484,7 +484,7 @@ export default function DocsPage({ onBack }) {
           {/* Center Content */}
           <div className="flex-1 min-w-0 mx-auto" style={{ maxWidth: '100%', padding: '0 40px' }}>
             {/* Top Bar */}
-            <div className="sticky top-0 z-20 px-8 py-4 flex items-center justify-between" style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #e2e8f0' }}>
+            <div className="sticky top-0 z-20 px-4 py-4 flex items-center justify-between" style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #e2e8f0' }}>
               {/* Breadcrumb */}
               <div className="flex items-center gap-2 text-sm">
                 {isElectron && onBack && (
@@ -522,12 +522,12 @@ export default function DocsPage({ onBack }) {
             </div>
 
             {/* Content */}
-            <div className="px-8 py-8">
+            <div className="px-4 py-4">
               {/* Show topic detail or list */}
               {selectedTopic ? <TopicDetail activePage={activePage} selectedTopic={selectedTopic} topicDetails={topicDetails} pageConfig={pageConfig} completedTopics={completedTopics} starredTopics={starredTopics} toggleComplete={toggleComplete} toggleStar={toggleStar} showAskAI={showAskAI} setShowAskAI={setShowAskAI} aiQuestion={aiQuestion} setAiQuestion={setAiQuestion} aiAnswer={aiAnswer} aiLoading={aiLoading} handleAskAI={handleAskAI} showRoadmap={showRoadmap} setShowRoadmap={setShowRoadmap} expandedTheoryQuestions={expandedTheoryQuestions} setExpandedTheoryQuestions={setExpandedTheoryQuestions} setSelectedTopic={setSelectedTopic} generatingDiagram={generatingDiagram} diagramData={diagramData} diagramError={diagramError} diagramDetailLevel={diagramDetailLevel} setDiagramDetailLevel={setDiagramDetailLevel} diagramCloudProvider={diagramCloudProvider} setDiagramCloudProvider={setDiagramCloudProvider} generateDiagram={handleGenerateDiagram} codingTopics={codingTopics} systemDesignTopics={systemDesignTopics} systemDesigns={systemDesigns} behavioralTopics={behavioralTopics} filteredTopics={filteredTopics} /> : (
                 <>
                   {/* Page Hero */}
-                  <div className="mb-10">
+                  <div className="mb-4">
                     <div
                       className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium mb-4"
                       style={{ background: `${pageConfig.color}15`, color: pageConfig.color }}
@@ -544,7 +544,7 @@ export default function DocsPage({ onBack }) {
                   </div>
 
                   {/* Search and Filters */}
-                  <div className="flex items-center gap-4 mb-8 p-4 rounded-2xl" style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
+                  <div className="flex items-center gap-4 mb-4 p-4 rounded-2xl" style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
                     <div className="relative flex-1 max-w-md">
                       <Icon name="search" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
                       <input
@@ -579,7 +579,7 @@ export default function DocsPage({ onBack }) {
               {activePage === 'coding' && (
                 <>
                   {/* Topic Cards - Grouped by Category */}
-                  <div className="space-y-6 mb-8">
+                  <div className="space-y-3 mb-4">
                     {codingCategories.map((category) => {
                       const categoryTopics = filteredTopics.filter(t => codingCategoryMap[t.id] === category.id);
                       if (categoryTopics.length === 0) return null;
@@ -625,7 +625,7 @@ export default function DocsPage({ onBack }) {
                   </div>
 
                   {/* Quick Reference - Enhanced */}
-                  <div className="mb-10">
+                  <div className="mb-4">
                     <div className="flex items-center gap-3 mb-6">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-50">
                         <Icon name="book" size={16} className="text-emerald-600" />
@@ -707,7 +707,7 @@ export default function DocsPage({ onBack }) {
               {activePage === 'system-design' && (
                 <>
                   {/* Core Concepts Section - Grouped by Category */}
-                  <div className="space-y-6 mb-8">
+                  <div className="space-y-3 mb-4">
                     {systemDesignCategories.map((category) => {
                       const categoryTopics = filteredTopics.filter(t => systemDesignCategoryMap[t.id] === category.id);
                       if (categoryTopics.length === 0) return null;
@@ -753,7 +753,7 @@ export default function DocsPage({ onBack }) {
                   </div>
 
                   {/* System Design Problems Section - Grouped by Category */}
-                  <div className="space-y-6 mb-8">
+                  <div className="space-y-3 mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-50">
                         <Icon name="systemDesign" size={16} className="text-emerald-600" />
@@ -829,7 +829,7 @@ export default function DocsPage({ onBack }) {
                   </div>
 
                   {/* Low-Level Design Problems Section */}
-                  <div className="space-y-6 mb-8">
+                  <div className="space-y-3 mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-teal-500/10">
                         <Icon name="code" size={16} className="text-teal-400" />
@@ -890,7 +890,7 @@ export default function DocsPage({ onBack }) {
                   </div>
 
                   {/* Concurrency Section */}
-                  <div className="space-y-6 mb-8">
+                  <div className="space-y-3 mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-orange-500/10">
                         <Icon name="cpu" size={16} className="text-orange-400" />
@@ -968,7 +968,7 @@ export default function DocsPage({ onBack }) {
               {activePage === 'behavioral' && (
                 <>
                   {/* STAR Method - Enhanced */}
-                  <div className="rounded-lg overflow-hidden mb-10" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+                  <div className="rounded-lg overflow-hidden mb-4" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
                     <div className="px-6 py-4 border-b border-purple-500/20" style={{ background: 'rgba(168,85,247,0.05)' }}>
                       <h3 className="text-sm font-bold text-gray-900 flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-500/15">
@@ -1006,7 +1006,7 @@ export default function DocsPage({ onBack }) {
                   </div>
 
                   {/* Question Categories Section - Grouped by Category */}
-                  <div className="space-y-6 mb-8">
+                  <div className="space-y-3 mb-4">
                     {behavioralCategories.map((category) => {
                       const categoryTopics = filteredTopics.filter(t => topicCategoryMap[t.id] === category.id);
                       if (categoryTopics.length === 0) return null;

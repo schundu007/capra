@@ -55,7 +55,7 @@ export default function CloudArchitectureDiagram({ imageUrl, loading = false, er
         src={imageUrl}
         alt="System Architecture Diagram"
         className="max-w-full h-auto object-contain"
-        style={{ maxHeight: '250px', maxWidth: '500px' }}
+        style={{ maxHeight: '350px' }}
         onError={() => setImageError(true)}
       />
     </div>
