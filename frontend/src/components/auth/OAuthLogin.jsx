@@ -157,7 +157,7 @@ export default function OAuthLogin({ loginOnly = false }) {
         </section>
 
         {/* ═══ PRODUCT SHOWCASE ═══ */}
-        <section className="pb-32 max-w-[1200px] mx-auto px-8">
+        <section className="pb-12 max-w-[1200px] mx-auto px-8">
           <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)' }}>
             {/* Window chrome */}
             <div className="px-5 py-3.5 flex items-center" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
@@ -170,7 +170,7 @@ export default function OAuthLogin({ loginOnly = false }) {
 
             <div className="grid md:grid-cols-5">
               {/* Left panel: problem */}
-              <div className="md:col-span-2 p-8 sm:p-10" style={{ borderRight: '1px solid rgba(255,255,255,0.04)' }}>
+              <div className="md:col-span-2 p-6 sm:p-7" style={{ borderRight: '1px solid rgba(255,255,255,0.04)' }}>
                 <div className="flex items-center gap-2.5 mb-6">
                   <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider landing-body" style={{ background: 'rgba(249,115,22,0.1)', color: '#fb923c' }}>Medium</span>
                   <span className="text-gray-500 text-[13px] landing-body">Two Sum</span>
@@ -189,7 +189,7 @@ target = 9
               </div>
 
               {/* Right panel: AI solution */}
-              <div className="md:col-span-3 p-8 sm:p-10">
+              <div className="md:col-span-3 p-6 sm:p-7">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-2.5">
                     <div className="w-2 h-2 rounded-full bg-emerald-400" />
@@ -220,12 +220,12 @@ target = 9
         </section>
 
         {/* ═══ WHAT YOU GET ═══ */}
-        <section className="py-32 max-w-[1200px] mx-auto px-8">
-          <div className="mb-16">
-            <h2 className="text-[clamp(32px,5vw,56px)] font-bold leading-[1.05] tracking-[-0.025em] text-white mb-5 landing-display">
+        <section className="py-12 max-w-[1200px] mx-auto px-8">
+          <div className="mb-6">
+            <h2 className="text-[clamp(24px,4vw,36px)] font-bold leading-[1.05] tracking-[-0.025em] text-white mb-3 landing-display">
               Built for engineers who<br className="hidden sm:block" /> take interviews seriously.
             </h2>
-            <p className="text-[18px] sm:text-[20px] text-gray-500 max-w-[520px] leading-[1.6] landing-body">
+            <p className="text-[15px] sm:text-[16px] text-gray-500 max-w-[520px] leading-[1.6] landing-body">
               Six tools. One platform. From problem to offer letter.
             </p>
           </div>
@@ -239,36 +239,36 @@ target = 9
               { icon: 'resume', title: 'Resume Builder', desc: 'ATS-optimized resume and cover letter generation tailored to each role. PDF and DOCX export.', accent: '#06b6d4' },
               { icon: 'eyeOff', title: 'Stealth Mode', desc: 'Hidden from screen share, dock, and task manager. Undetectable on Zoom, Meet, and Teams.', accent: '#ec4899' },
             ].map((f, i) => (
-              <div key={i} className="group p-8 sm:p-10 transition-colors duration-300 hover:bg-white/[0.02]" style={{ background: '#0b0b10' }}>
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110" style={{ background: `${f.accent}0d`, border: `1px solid ${f.accent}18` }}>
+              <div key={i} className="group p-5 sm:p-6 transition-colors duration-300 hover:bg-white/[0.02]" style={{ background: '#0b0b10' }}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-all duration-300 group-hover:scale-110" style={{ background: `${f.accent}0d`, border: `1px solid ${f.accent}18` }}>
                   <Icon name={f.icon} size={22} style={{ color: f.accent }} />
                 </div>
-                <h3 className="text-[20px] font-bold text-white mb-3 landing-display">{f.title}</h3>
-                <p className="text-[15px] text-gray-500 leading-[1.7] landing-body">{f.desc}</p>
+                <h3 className="text-[16px] font-bold text-white mb-1.5 landing-display">{f.title}</h3>
+                <p className="text-[13px] text-gray-500 leading-[1.5] landing-body">{f.desc}</p>
               </div>
             ))}
           </div>
         </section>
 
         {/* ═══ HOW IT WORKS ═══ */}
-        <section className="py-32 max-w-[1200px] mx-auto px-8">
-          <div className="mb-16">
-            <h2 className="text-[clamp(32px,5vw,56px)] font-bold leading-[1.05] tracking-[-0.025em] text-white mb-5 landing-display">
+        <section className="py-12 max-w-[1200px] mx-auto px-8">
+          <div className="mb-6">
+            <h2 className="text-[clamp(24px,4vw,36px)] font-bold leading-[1.05] tracking-[-0.025em] text-white mb-3 landing-display">
               Three steps.<br />That's it.
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-12 md:gap-8">
+          <div className="grid md:grid-cols-3 gap-6">
             {[
               { num: '1', title: 'Drop your problem in', desc: 'Paste text, upload a screenshot, or enter a LeetCode / HackerRank URL.' },
               { num: '2', title: 'Get the solution', desc: 'AI generates code with explanations, complexity, and architecture diagrams in seconds.' },
               { num: '3', title: 'Practice and refine', desc: 'Walk through step-by-step. Ask follow-up questions. Run code. Build confidence.' },
             ].map((step, i) => (
               <div key={i} className="relative">
-                <span className="text-[100px] sm:text-[120px] font-black leading-none landing-display" style={{ color: 'rgba(255,255,255,0.03)' }}>{step.num}</span>
-                <div className="mt-[-30px] sm:mt-[-40px] relative z-10">
-                  <h3 className="text-[22px] sm:text-[24px] font-bold text-white mb-3 landing-display">{step.title}</h3>
-                  <p className="text-[16px] text-gray-500 leading-[1.7] landing-body">{step.desc}</p>
+                <span className="text-[60px] sm:text-[72px] font-black leading-none landing-display" style={{ color: 'rgba(255,255,255,0.03)' }}>{step.num}</span>
+                <div className="mt-[-16px] sm:mt-[-20px] relative z-10">
+                  <h3 className="text-[18px] sm:text-[20px] font-bold text-white mb-3 landing-display">{step.title}</h3>
+                  <p className="text-[14px] text-gray-500 leading-[1.5] landing-body">{step.desc}</p>
                 </div>
               </div>
             ))}
@@ -276,16 +276,16 @@ target = 9
         </section>
 
         {/* ═══ CTA ═══ */}
-        <section className="py-32 max-w-[1200px] mx-auto px-8">
+        <section className="py-12 max-w-[1200px] mx-auto px-8">
           <div className="relative rounded-3xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(16,185,129,0.02) 100%)', border: '1px solid rgba(16,185,129,0.1)' }}>
             {/* Glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px]" style={{ background: 'radial-gradient(ellipse, rgba(16,185,129,0.12) 0%, transparent 70%)' }} />
 
-            <div className="relative px-8 sm:px-16 py-16 sm:py-20 text-center">
-              <h2 className="text-[clamp(32px,5vw,56px)] font-bold leading-[1.05] tracking-[-0.025em] text-white mb-6 landing-display">
+            <div className="relative px-8 sm:px-10 py-10 sm:py-12 text-center">
+              <h2 className="text-[clamp(24px,4vw,36px)] font-bold leading-[1.05] tracking-[-0.025em] text-white mb-6 landing-display">
                 Start preparing today.
               </h2>
-              <p className="text-[18px] sm:text-[20px] text-gray-400 mb-12 max-w-[480px] mx-auto leading-[1.6] landing-body">
+              <p className="text-[15px] sm:text-[16px] text-gray-400 mb-6 max-w-[480px] mx-auto leading-[1.6] landing-body">
                 Free to start. Plans from $99/mo.<br />30-day money-back guarantee.
               </p>
 
@@ -308,9 +308,9 @@ target = 9
 
 
         {/* ═══ FOOTER ═══ */}
-        <footer className="py-16 max-w-[1200px] mx-auto px-8">
-          <div className="pt-10" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-            <div className="flex flex-col md:flex-row items-start justify-between gap-12 mb-12">
+        <footer className="py-10 max-w-[1200px] mx-auto px-8">
+          <div className="pt-6" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+            <div className="flex flex-col md:flex-row items-start justify-between gap-6 mb-6">
               <div>
                 <a href="/" className="flex items-center gap-3 mb-4">
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
@@ -344,7 +344,7 @@ target = 9
               </div>
             </div>
 
-            <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
               <span className="text-[13px] text-gray-600 landing-body">&copy; {new Date().getFullYear()} Cariara</span>
             </div>
           </div>
