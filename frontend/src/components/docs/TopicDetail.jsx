@@ -82,7 +82,7 @@ export default function TopicDetail({
       </div>
 
       {/* ── Interactive Toolbar (AlgoMaster-inspired) ── */}
-      <div className="flex items-center justify-between p-4 rounded-xl mb-2" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid #e2e8f0' }}>
+      <div className="flex items-center justify-between p-4 rounded-xl mb-2" style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
         <div className="flex items-center gap-2">
           {/* Mark as Complete */}
           <button
@@ -147,7 +147,7 @@ export default function TopicDetail({
             </button>
           </div>
           {aiAnswer && (
-            <div className="p-4 rounded-lg" style={{ background: 'rgba(0,0,0,0.02)' }}>
+            <div className="p-4 rounded-lg" style={{ background: '#f9fafb' }}>
               <FormattedContent content={aiAnswer} color="purple" />
             </div>
           )}
@@ -168,7 +168,7 @@ export default function TopicDetail({
                 onClick={() => { setSelectedTopic(t.id); setShowRoadmap(false); }}
                 className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-left transition-all ${t.id === selectedTopic ? 'bg-amber-500/10 text-amber-700' : 'text-gray-900 hover:text-gray-900 hover:bg-gray-50'}`}
               >
-                <span className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0 text-sm font-bold" style={{ background: completedTopics[t.id] ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.05)', color: completedTopics[t.id] ? '#10b981' : '#6b7280' }}>
+                <span className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0 text-sm font-bold" style={{ background: completedTopics[t.id] ? 'rgba(16,185,129,0.1)' : '#f3f4f6', color: completedTopics[t.id] ? '#10b981' : '#6b7280' }}>
                   {completedTopics[t.id] ? '✓' : i + 1}
                 </span>
                 <span className="flex-1">{t.title}</span>
@@ -352,7 +352,7 @@ export default function TopicDetail({
                     const questionKey = `${selectedTopic}-${i}`;
                     const isExpanded = expandedTheoryQuestions[questionKey];
                     return (
-                      <div key={i} className="rounded-lg overflow-hidden" style={{ background: 'rgba(0,0,0,0.02)' }}>
+                      <div key={i} className="rounded-lg overflow-hidden" style={{ background: '#f9fafb' }}>
                         <button
                           onClick={() => setExpandedTheoryQuestions(prev => ({ ...prev, [questionKey]: !prev[questionKey] }))}
                           className="w-full flex items-center gap-2 p-3 hover:bg-gray-50 transition-colors text-left"
@@ -463,7 +463,7 @@ export default function TopicDetail({
         <div className="space-y-2">
           {/* Core Concept Topics - Key Concepts badges */}
           {topicDetails.concepts && !topicDetails.introduction && (
-            <div className="p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid #e2e8f0' }}>
+            <div className="p-3 rounded-xl" style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
               <h3 className="text-gray-900 font-semibold mb-2 flex items-center gap-2">
                 <Icon name="puzzle" size={18} style={{ color: topicDetails.color }} />
                 Key Concepts
@@ -515,7 +515,7 @@ export default function TopicDetail({
                       {(topicDetails.functionalRequirements || topicDetails.requirements).map((req, i) => (
                         <li key={i} className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                           <span className="w-5 h-5 rounded-full flex items-center justify-center text-sm flex-shrink-0 bg-emerald-100 text-emerald-700 mt-0.5">✓</span>
-                          <span className="text-gray-900 text-lg">{req}</span>
+                          <span className="text-gray-900 text-sm">{req}</span>
                         </li>
                       ))}
                     </ul>
@@ -537,7 +537,7 @@ export default function TopicDetail({
                         {topicDetails.nonFunctionalRequirements.map((req, i) => (
                           <li key={i} className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                             <span className="w-5 h-5 rounded-full flex items-center justify-center text-sm flex-shrink-0 bg-emerald-50 text-emerald-700 mt-0.5">•</span>
-                            <span className="text-gray-900 text-lg">{req}</span>
+                            <span className="text-gray-900 text-sm">{req}</span>
                           </li>
                         ))}
                       </ul>
@@ -593,7 +593,7 @@ export default function TopicDetail({
                       </div>
                       <div className="overflow-x-auto" style={CARD_STYLES.code}>
                         <pre
-                          className="p-3 text-lg leading-7 text-emerald-700"
+                          className="p-3 text-sm leading-7 text-emerald-700"
                           style={{
                             fontFamily: '"SF Mono", Monaco, "Cascadia Code", Consolas, "Courier New", monospace',
                             whiteSpace: 'pre',
@@ -617,15 +617,15 @@ export default function TopicDetail({
                       <Icon name="messageSquare" size={18} className="text-emerald-700" />
                     </div>
                     <h3 className="text-sm font-bold text-gray-900">Key Questions</h3>
-                    <span className="text-lg text-gray-900 ml-auto">{topicDetails.keyQuestions.length} topics</span>
+                    <span className="text-sm text-gray-900 ml-auto">{topicDetails.keyQuestions.length} topics</span>
                   </div>
                   <div className="divide-y divide-white/5">
                     {topicDetails.keyQuestions.map((q, i) => (
                       <div key={i} className="px-3 py-2 hover:bg-white/[0.02] transition-colors">
                         <div className="flex items-start gap-2">
-                          <span className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center text-lg text-gray-900 font-bold flex-shrink-0">{i + 1}</span>
+                          <span className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center text-sm text-gray-900 font-bold flex-shrink-0">{i + 1}</span>
                           <div className="flex-1 min-w-0">
-                            <h4 className="text-gray-900 font-semibold text-lg mb-2">{q.question}</h4>
+                            <h4 className="text-gray-900 font-semibold text-sm mb-2">{q.question}</h4>
                             <div className="text-gray-900">
                               <FormattedContent content={q.answer} color="emerald" />
                             </div>
@@ -650,7 +650,7 @@ export default function TopicDetail({
                         <h3 className="text-sm font-bold text-gray-900">{topicDetails.basicImplementation.title || 'Basic Approach'}</h3>
                       </div>
                       <div className="p-3">
-                        <p className="text-gray-900 text-lg mb-2 leading-relaxed">{topicDetails.basicImplementation.description}</p>
+                        <p className="text-gray-900 text-sm mb-2 leading-relaxed">{topicDetails.basicImplementation.description}</p>
                         {topicDetails.basicImplementation.svgTemplate && (
                           <DiagramSVG
                             template={topicDetails.basicImplementation.svgTemplate}
@@ -680,7 +680,7 @@ export default function TopicDetail({
                             </h4>
                             <ul className="space-y-2">
                               {topicDetails.basicImplementation.problems.map((problem, i) => (
-                                <li key={i} className="flex items-start gap-2 text-gray-900 text-lg">
+                                <li key={i} className="flex items-start gap-2 text-gray-900 text-sm">
                                   <span className="text-red-700 mt-0.5">✗</span>
                                   <span>{problem}</span>
                                 </li>
@@ -702,7 +702,7 @@ export default function TopicDetail({
                         <h3 className="text-sm font-bold text-gray-900">{topicDetails.advancedImplementation.title || 'Scalable Solution'}</h3>
                       </div>
                       <div className="p-3">
-                        <p className="text-gray-900 text-lg mb-2 leading-relaxed">{topicDetails.advancedImplementation.description}</p>
+                        <p className="text-gray-900 text-sm mb-2 leading-relaxed">{topicDetails.advancedImplementation.description}</p>
                         {topicDetails.advancedImplementation.svgTemplate && (
                           <DiagramSVG
                             template={topicDetails.advancedImplementation.svgTemplate}
@@ -712,7 +712,7 @@ export default function TopicDetail({
                         {topicDetails.advancedImplementation.architecture && !topicDetails.advancedImplementation.svgTemplate && (
                           <div className="rounded-lg overflow-x-auto mb-2" style={CARD_STYLES.code}>
                             <pre
-                              className="p-3 text-lg leading-7 text-emerald-700"
+                              className="p-3 text-sm leading-7 text-emerald-700"
                               style={{
                                 fontFamily: '"SF Mono", Monaco, "Cascadia Code", Consolas, "Courier New", monospace',
                                 whiteSpace: 'pre',
@@ -729,7 +729,7 @@ export default function TopicDetail({
                             <h4 className="text-gray-900 text-sm font-semibold mb-2">Key Points:</h4>
                             <ul className="space-y-2">
                               {topicDetails.advancedImplementation.keyPoints.map((point, i) => (
-                                <li key={i} className="flex items-start gap-2 text-gray-900 text-lg">
+                                <li key={i} className="flex items-start gap-2 text-gray-900 text-sm">
                                   <span className="text-emerald-700 mt-0.5">✓</span>
                                   <span>{point}</span>
                                 </li>
@@ -851,7 +851,7 @@ export default function TopicDetail({
                       {topicDetails.tips.map((tip, i) => (
                         <div key={i} className="px-3 py-2 flex items-center gap-2 hover:bg-gray-50 transition-colors">
                           <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0 bg-emerald-50 text-emerald-700">★</span>
-                          <span className="text-gray-900 text-lg">{tip}</span>
+                          <span className="text-gray-900 text-sm">{tip}</span>
                         </div>
                       ))}
                     </div>
@@ -878,7 +878,7 @@ export default function TopicDetail({
                               <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-emerald-50 text-emerald-700 border border-blue-200">
                                 {i + 1}
                               </span>
-                              <span className="text-gray-900 text-lg">{step}</span>
+                              <span className="text-gray-900 text-sm">{step}</span>
                             </li>
                           ))}
                         </ol>
@@ -902,7 +902,7 @@ export default function TopicDetail({
                               <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-emerald-50 text-emerald-700 border border-purple-200">
                                 {i + 1}
                               </span>
-                              <span className="text-gray-900 text-lg">{step}</span>
+                              <span className="text-gray-900 text-sm">{step}</span>
                             </li>
                           ))}
                         </ol>
@@ -984,7 +984,7 @@ export default function TopicDetail({
                               <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-amber-100 text-amber-700 border border-amber-500/30">
                                 {i + 1}
                               </span>
-                              <span className="text-gray-900 text-lg">{decision}</span>
+                              <span className="text-gray-900 text-sm">{decision}</span>
                             </li>
                           ))}
                         </ol>
@@ -1116,7 +1116,7 @@ export default function TopicDetail({
                   <div className="divide-y divide-red-500/10">
                     {topicDetails.problems.map((problem, i) => (
                       <div key={i} className="p-4">
-                        <h4 className="text-gray-900 font-semibold text-lg mb-2">{problem.name}</h4>
+                        <h4 className="text-gray-900 font-semibold text-sm mb-2">{problem.name}</h4>
                         <p className="text-gray-900 text-sm mb-2">{problem.description}</p>
                         <div className="flex items-start gap-2">
                           <span className="text-green-700 text-sm font-semibold">Solution:</span>
@@ -1170,7 +1170,7 @@ export default function TopicDetail({
                   </div>
                   {/* Overview Content */}
                   <div className="px-1">
-                    <p className="text-gray-900 text-lg leading-relaxed">{restOfText.trim()}</p>
+                    <p className="text-gray-900 text-sm leading-relaxed">{restOfText.trim()}</p>
                   </div>
                 </div>
               );
@@ -1178,20 +1178,20 @@ export default function TopicDetail({
             // Regular introduction without leading quote
             return (
               <div id="overview" className="scroll-mt-24">
-                <p className="text-gray-900 text-lg leading-relaxed">{topicDetails.introduction}</p>
+                <p className="text-gray-900 text-sm leading-relaxed">{topicDetails.introduction}</p>
               </div>
             );
           })()}
 
           {/* Key Questions - Row Mode Layout */}
           {topicDetails.keyQuestions && topicDetails.keyQuestions.length > 0 && (
-            <div id="key-questions" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.02) 100%)', border: '1px solid #e2e8f0' }}>
+            <div id="key-questions" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, #f9fafb 0%, #f9fafb 100%)', border: '1px solid #e2e8f0' }}>
               <div className="px-3 py-2 border-b flex items-center gap-2" style={{ background: `linear-gradient(135deg, ${topicDetails.color}10, transparent)`, borderColor: `${topicDetails.color}20` }}>
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${topicDetails.color}20` }}>
                   <Icon name="messageSquare" size={16} style={{ color: topicDetails.color }} />
                 </div>
                 <h3 className="text-sm font-bold text-gray-900">Key Questions & Answers</h3>
-                <span className="text-lg text-gray-900 ml-auto">{topicDetails.keyQuestions.length} questions</span>
+                <span className="text-sm text-gray-900 ml-auto">{topicDetails.keyQuestions.length} questions</span>
               </div>
               <div className="divide-y" style={{ borderColor: `${topicDetails.color}10` }}>
                 {topicDetails.keyQuestions.map((item, index) => (
@@ -1201,19 +1201,19 @@ export default function TopicDetail({
                         Q{index + 1}
                       </span>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-gray-900 font-semibold text-lg mb-2">{item.question}</h4>
+                        <h4 className="text-gray-900 font-semibold text-sm mb-2">{item.question}</h4>
                         <div className="text-gray-900 leading-relaxed">
                           {item.answer.split('\n').map((line, i) => {
                             const trimmedLine = line.trim();
                             // Section headers like **Present**:
                             if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**')) {
-                              return <h5 key={i} className="text-gray-900 font-semibold mt-2 mb-2 text-lg flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full" style={{ background: topicDetails.color }}></span>{trimmedLine.replace(/\*\*/g, '')}</h5>;
+                              return <h5 key={i} className="text-gray-900 font-semibold mt-2 mb-2 text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full" style={{ background: topicDetails.color }}></span>{trimmedLine.replace(/\*\*/g, '')}</h5>;
                             }
                             // Lines with bold text
                             else if (trimmedLine.includes('**')) {
                               const parts = trimmedLine.split('**');
                               return (
-                                <p key={i} className="mb-2 text-lg leading-relaxed">
+                                <p key={i} className="mb-2 text-sm leading-relaxed">
                                   {parts.map((part, j) => j % 2 === 1 ? <strong key={j} className="text-gray-900 font-medium">{part}</strong> : <span key={j}>{part}</span>)}
                                 </p>
                               );
@@ -1222,7 +1222,7 @@ export default function TopicDetail({
                             else if (trimmedLine.startsWith('"') && trimmedLine.endsWith('"')) {
                               const quoteContent = trimmedLine.slice(1, -1);
                               return (
-                                <div key={i} className="my-3 pl-4 py-2 text-lg italic text-gray-900" style={{ borderLeft: `3px solid ${topicDetails.color}40` }}>
+                                <div key={i} className="my-3 pl-4 py-2 text-sm italic text-gray-900" style={{ borderLeft: `3px solid ${topicDetails.color}40` }}>
                                   {quoteContent}
                                 </div>
                               );
@@ -1231,26 +1231,26 @@ export default function TopicDetail({
                             else if (trimmedLine.includes('"') && /^[^"]*"[^"]{10,}"/.test(trimmedLine)) {
                               const rendered = trimmedLine.replace(/"([^"]{10,})"/g, (_, content) => `<em>${content}</em>`);
                               return (
-                                <p key={i} className="mb-2 text-lg leading-relaxed" dangerouslySetInnerHTML={{ __html: rendered.replace(/<em>/g, '<em class="text-gray-900 italic">') }} />
+                                <p key={i} className="mb-2 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: rendered.replace(/<em>/g, '<em class="text-gray-900 italic">') }} />
                               );
                             }
                             else if (trimmedLine.startsWith('✅') || trimmedLine.startsWith('❌')) {
-                              return <p key={i} className="mb-2 text-lg flex items-start gap-2"><span className="flex-shrink-0">{trimmedLine.substring(0, 2)}</span><span>{trimmedLine.substring(2)}</span></p>;
+                              return <p key={i} className="mb-2 text-sm flex items-start gap-2"><span className="flex-shrink-0">{trimmedLine.substring(0, 2)}</span><span>{trimmedLine.substring(2)}</span></p>;
                             }
                             else if (/^\d+\./.test(trimmedLine)) {
                               const num = trimmedLine.match(/^(\d+)\./)[1];
-                              return <p key={i} className="mb-2 text-lg flex items-start gap-2"><span className="w-5 h-5 rounded-full flex items-center justify-center text-sm flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>{num}</span><span>{trimmedLine.replace(/^\d+\.\s*/, '')}</span></p>;
+                              return <p key={i} className="mb-2 text-sm flex items-start gap-2"><span className="w-5 h-5 rounded-full flex items-center justify-center text-sm flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>{num}</span><span>{trimmedLine.replace(/^\d+\.\s*/, '')}</span></p>;
                             }
                             else if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('• ')) {
-                              return <p key={i} className="mb-1.5 text-lg flex items-start gap-2 ml-1"><span className="w-1 h-1 rounded-full mt-2 flex-shrink-0" style={{ background: topicDetails.color }}></span><span>{trimmedLine.substring(2)}</span></p>;
+                              return <p key={i} className="mb-1.5 text-sm flex items-start gap-2 ml-1"><span className="w-1 h-1 rounded-full mt-2 flex-shrink-0" style={{ background: topicDetails.color }}></span><span>{trimmedLine.substring(2)}</span></p>;
                             }
                             else if (trimmedLine.toLowerCase().startsWith('example:')) {
-                              return <div key={i} className="mt-2 mb-2 p-4 rounded-lg text-lg italic" style={{ background: '#f9fafb', borderLeft: `3px solid ${topicDetails.color}` }}>{trimmedLine}</div>;
+                              return <div key={i} className="mt-2 mb-2 p-4 rounded-lg text-sm italic" style={{ background: '#f9fafb', borderLeft: `3px solid ${topicDetails.color}` }}>{trimmedLine}</div>;
                             }
                             else if (trimmedLine === '') {
                               return <div key={i} className="h-2"></div>;
                             }
-                            return <p key={i} className="mb-2 text-lg leading-relaxed">{trimmedLine}</p>;
+                            return <p key={i} className="mb-2 text-sm leading-relaxed">{trimmedLine}</p>;
                           })}
                         </div>
                       </div>
@@ -1262,7 +1262,7 @@ export default function TopicDetail({
           )}
 
           {topicDetails.starExample && (
-            <div id="star-example" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(168, 85, 247, 0.08) 0%, rgba(0,0,0,0.02) 100%)', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+            <div id="star-example" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(168, 85, 247, 0.08) 0%, #f9fafb 100%)', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
               <div className="px-3 py-2 border-b border-purple-200 flex items-center gap-2" style={{ background: 'rgba(168, 85, 247, 0.05)' }}>
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
                   <Icon name="target" size={16} className="text-emerald-700" />
@@ -1278,7 +1278,7 @@ export default function TopicDetail({
                       <div className="w-24 flex-shrink-0">
                         <div className="text-sm font-bold uppercase tracking-wide" style={{ color }}>{key}</div>
                       </div>
-                      <div className="flex-1 text-gray-900 text-lg leading-relaxed">{value}</div>
+                      <div className="flex-1 text-gray-900 text-sm leading-relaxed">{value}</div>
                     </div>
                   );
                 })}
@@ -1287,7 +1287,7 @@ export default function TopicDetail({
           )}
 
           {topicDetails.sampleQuestions && !topicDetails.keyQuestions && (
-            <div id="sample-questions" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(59, 130, 246, 0.08) 0%, rgba(0,0,0,0.02) 100%)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+            <div id="sample-questions" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(59, 130, 246, 0.08) 0%, #f9fafb 100%)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
               <div className="px-3 py-2 border-b border-blue-200 flex items-center gap-2" style={{ background: 'rgba(59, 130, 246, 0.05)' }}>
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
                   <Icon name="helpCircle" size={16} className="text-emerald-700" />
@@ -1298,7 +1298,7 @@ export default function TopicDetail({
                 {topicDetails.sampleQuestions.map((q, i) => (
                   <div key={i} className="px-3 py-2 flex items-center gap-2 hover:bg-gray-50 transition-colors">
                     <span className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>{i + 1}</span>
-                    <span className="text-gray-900 text-lg">{q}</span>
+                    <span className="text-gray-900 text-sm">{q}</span>
                   </div>
                 ))}
               </div>
@@ -1306,7 +1306,7 @@ export default function TopicDetail({
           )}
 
           {topicDetails.tips && (
-            <div id="tips" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(0,0,0,0.02) 100%)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+            <div id="tips" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, #f9fafb 100%)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
               <div className="px-3 py-2 border-b border-emerald-200 flex items-center gap-2" style={{ background: '#f0fdf4' }}>
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-100">
                   <Icon name="checkCircle" size={16} className="text-emerald-700" />
@@ -1317,7 +1317,7 @@ export default function TopicDetail({
                 {topicDetails.tips.map((tip, i) => (
                   <div key={i} className="px-3 py-2 flex items-center gap-2 hover:bg-gray-50 transition-colors">
                     <span className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-emerald-100 text-gray-900 text-sm">✓</span>
-                    <span className="text-gray-900 text-lg">{tip}</span>
+                    <span className="text-gray-900 text-sm">{tip}</span>
                   </div>
                 ))}
               </div>
@@ -1325,7 +1325,7 @@ export default function TopicDetail({
           )}
 
           {topicDetails.principles && !topicDetails.keyQuestions && (
-            <div className="p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid #e2e8f0' }}>
+            <div className="p-3 rounded-xl" style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
               <h3 className="text-gray-900 font-semibold mb-2">Key Principles</h3>
               <div className="flex flex-wrap gap-2">
                 {topicDetails.principles.map((principle, i) => (
