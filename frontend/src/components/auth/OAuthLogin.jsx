@@ -37,7 +37,7 @@ export default function OAuthLogin({ loginOnly = false }) {
             <Icon name="ascend" size={28} className="text-white" />
           </div>
           <h2 className="text-2xl font-bold text-white mb-2">Sign in to Ascend</h2>
-          <p className="text-gray-400 mb-8" style={{ fontFamily: "'Source Sans 3', sans-serif" }}>Access your interview toolkit.</p>
+          <p className="text-gray-500 mb-8" style={{ fontFamily: "'Source Sans 3', sans-serif" }}>Access your interview toolkit.</p>
           {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
           <button onClick={() => handleOAuthLogin('google')} disabled={!!loading} className="w-full flex items-center justify-center gap-3 px-6 py-3.5 rounded-xl text-sm font-semibold transition-all hover:scale-[1.02] mb-3" style={{ background: '#fff', color: '#000' }}>
             {loading === 'google' ? <Icon name="loader" size={18} className="animate-spin" /> : <><GoogleIcon /> Continue with Google</>}
@@ -63,51 +63,44 @@ export default function OAuthLogin({ loginOnly = false }) {
   ];
 
   return (
-    <div className="landing-root min-h-screen overflow-x-hidden" style={{ background: '#08080c' }}>
-
-      {/* ═══ BACKGROUND ═══ */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1400px] h-[900px]" style={{ background: 'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(16,185,129,0.06) 0%, transparent 100%)' }} />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px]" style={{ background: 'radial-gradient(circle, rgba(59,130,246,0.03) 0%, transparent 70%)' }} />
-        <div className="absolute bottom-0 right-0 w-[600px] h-[600px]" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.03) 0%, transparent 70%)' }} />
-      </div>
+    <div className="landing-root min-h-screen overflow-x-hidden" style={{ background: '#ffffff', color: '#1a1a1a' }}>
 
       <div className="relative z-10">
 
         {/* ═══ NAV ═══ */}
-        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'py-4' : 'py-6'}`} style={{ background: scrolled ? 'rgba(8,8,12,0.8)' : 'transparent', backdropFilter: scrolled ? 'blur(20px) saturate(1.2)' : 'none', borderBottom: scrolled ? '1px solid rgba(255,255,255,0.05)' : '1px solid transparent' }}>
-          <div className="max-w-[1200px] mx-auto px-8 flex items-center justify-between">
+        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'py-3' : 'py-5'}`} style={{ background: scrolled ? 'rgba(255,255,255,0.95)' : 'transparent', backdropFilter: scrolled ? 'blur(20px)' : 'none', borderBottom: scrolled ? '1px solid #e5e7eb' : '1px solid transparent' }}>
+          <div className="max-w-[1440px] mx-auto px-8 flex items-center justify-between">
             <a href="/" className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
                 <Icon name="ascend" size={20} className="text-white" />
               </div>
-              <span className="text-[22px] font-bold text-white landing-display">Ascend</span>
+              <span className="text-[26px] font-bold text-gray-900 landing-display">Ascend</span>
             </a>
 
             <div className="hidden md:flex items-center gap-2">
               {navLinks.map((link) => (
-                <a key={link.label} href={link.href} className="px-5 py-2.5 rounded-xl text-[16px] font-medium text-gray-300 hover:text-white hover:bg-white/[0.05] transition-all duration-200 landing-body">
+                <a key={link.label} href={link.href} className="px-5 py-2.5 rounded-xl text-[16px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200 landing-body">
                   {link.label}
                 </a>
               ))}
             </div>
 
             <div className="flex items-center gap-4">
-              <button onClick={() => handleOAuthLogin('google')} disabled={!!loading} className="hidden sm:flex items-center gap-2 px-6 py-3 rounded-xl text-[15px] font-semibold text-white transition-all duration-300 hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)] landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+              <button onClick={() => handleOAuthLogin('google')} disabled={!!loading} className="hidden sm:flex items-center gap-2 px-6 py-3 rounded-xl text-[16px] font-semibold text-white transition-all duration-300 hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)] landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
                 {loading === 'google' ? <Icon name="loader" size={16} className="animate-spin" /> : 'Get Started'}
               </button>
-              <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/[0.06] transition-colors">
+              <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors">
                 <Icon name={mobileMenuOpen ? 'close' : 'menu'} size={22} />
               </button>
             </div>
           </div>
 
           {mobileMenuOpen && (
-            <div className="md:hidden mt-3 mx-6 p-5 rounded-2xl" style={{ background: 'rgba(14,14,20,0.98)', border: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)' }}>
+            <div className="md:hidden mt-3 mx-6 p-5 rounded-2xl" style={{ background: '#fff', border: '1px solid #e5e7eb', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
               {navLinks.map((link) => (
-                <a key={link.label} href={link.href} className="block px-4 py-3.5 text-[16px] font-medium text-gray-300 hover:text-white hover:bg-white/[0.04] rounded-xl transition-colors landing-body">{link.label}</a>
+                <a key={link.label} href={link.href} className="block px-4 py-3 text-[16px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-colors landing-body">{link.label}</a>
               ))}
-              <button onClick={() => handleOAuthLogin('google')} className="w-full mt-3 px-4 py-3.5 rounded-xl text-[15px] font-semibold text-white landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+              <button onClick={() => handleOAuthLogin('google')} className="w-full mt-3 px-4 py-3 rounded-xl text-[16px] font-semibold text-white landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
                 Get Started Free
               </button>
             </div>
@@ -115,30 +108,16 @@ export default function OAuthLogin({ loginOnly = false }) {
         </nav>
 
         {/* ═══ HERO ═══ */}
-        <section className="pt-32 sm:pt-40 pb-20 max-w-[1200px] mx-auto px-8">
-          <div className="max-w-[700px] mx-auto text-center">
-            <h1 className="text-[clamp(36px,6vw,64px)] font-bold leading-[1] tracking-[-0.03em] mb-6 landing-display">
-              <span className="text-white">Your unfair advantage in </span>
+        <section className="pt-24 sm:pt-28 pb-8 max-w-[1400px] mx-auto px-8">
+          <div className="max-w-[900px] mx-auto text-center">
+            <h1 className="text-[clamp(28px,4.5vw,48px)] font-bold leading-[1.1] tracking-[-0.03em] mb-3 landing-display whitespace-nowrap">
+              <span className="text-gray-900">Your unfair advantage in </span>
               <span className="landing-gradient-text">every interview.</span>
             </h1>
 
-            <p className="text-[17px] sm:text-[19px] text-gray-400 mb-8 max-w-[500px] mx-auto leading-[1.6] landing-body">
+            <p className="text-[16px] text-gray-500 mb-6 landing-body">
               AI-powered coding solutions, system design, and live interview assistance. Completely invisible to screen share.
             </p>
-
-            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-10">
-              <button onClick={() => handleOAuthLogin('google')} disabled={loading} className="group px-7 py-3.5 rounded-2xl font-semibold text-[16px] text-white transition-all duration-300 hover:shadow-[0_8px_40px_rgba(16,185,129,0.25)] active:scale-[0.98] landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                {loading === 'google' ? <Icon name="loader" size={18} className="animate-spin mx-auto" /> : (
-                  <span className="flex items-center justify-center gap-2">
-                    Start for free
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-1"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                  </span>
-                )}
-              </button>
-              <a href="/prepare" className="px-7 py-3.5 rounded-2xl font-semibold text-[16px] text-gray-300 transition-all duration-300 hover:text-white hover:bg-white/[0.05] landing-body" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
-                Explore prep guides
-              </a>
-            </div>
 
             {/* Capabilities */}
             <div className="flex flex-wrap gap-2 justify-center">
@@ -147,9 +126,9 @@ export default function OAuthLogin({ loginOnly = false }) {
                 { label: 'Architecture diagrams', icon: 'systemDesign' },
                 { label: 'Stealth mode', icon: 'eyeOff' },
               ].map((cap, i) => (
-                <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-full landing-body" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <Icon name={cap.icon} size={14} className="text-emerald-400" />
-                  <span className="text-[13px] text-gray-400 font-medium">{cap.label}</span>
+                <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-full landing-body" style={{ background: '#f3f4f6', border: '1px solid #e5e7eb' }}>
+                  <Icon name={cap.icon} size={14} className="text-emerald-600" />
+                  <span className="text-[14px] text-gray-600 font-medium">{cap.label}</span>
                 </div>
               ))}
             </div>
@@ -157,17 +136,17 @@ export default function OAuthLogin({ loginOnly = false }) {
         </section>
 
         {/* ═══ WHAT YOU GET ═══ */}
-        <section className="py-12 max-w-[1200px] mx-auto px-8">
-          <div className="mb-6">
-            <h2 className="text-[clamp(20px,3vw,28px)] font-bold leading-[1.1] tracking-[-0.02em] text-white mb-1 landing-display">
+        <section className="py-6 max-w-[1440px] mx-auto px-8">
+          <div className="mb-3 text-center">
+            <h2 className="text-[clamp(20px,3vw,28px)] font-bold leading-[1.1] tracking-[-0.02em] text-gray-900 mb-1 landing-display">
               Built for engineers who take interviews seriously.
             </h2>
-            <p className="text-[14px] text-gray-500 landing-body">
+            <p className="text-[15px] text-gray-500 landing-body">
               Six tools. One platform. From problem to offer letter.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)' }}>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px rounded-2xl overflow-hidden" style={{ background: '#f3f4f6' }}>
             {[
               { icon: 'microphone', title: 'Live Interview Mode', desc: 'Real-time AI answers during interviews. Invisible during screen share.', accent: '#10b981' },
               { icon: 'code', title: 'Coding Engine', desc: 'Solutions in 20+ languages with explanations, complexity analysis, and auto-fix.', accent: '#3b82f6' },
@@ -176,23 +155,23 @@ export default function OAuthLogin({ loginOnly = false }) {
               { icon: 'resume', title: 'Resume Builder', desc: 'ATS-optimized resume and cover letter. PDF and DOCX export.', accent: '#06b6d4' },
               { icon: 'eyeOff', title: 'Stealth Mode', desc: 'Hidden from screen share, dock, and task manager.', accent: '#ec4899' },
             ].map((f, i) => (
-              <div key={i} className="group p-4 transition-colors duration-300 hover:bg-white/[0.02]" style={{ background: '#0b0b10' }}>
+              <div key={i} className="group p-4 transition-colors duration-300 hover:bg-gray-50" style={{ background: '#f9fafb', border: '1px solid #f3f4f6' }}>
                 <div className="flex items-center gap-2.5 mb-1.5">
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${f.accent}0d`, border: `1px solid ${f.accent}18` }}>
                     <Icon name={f.icon} size={16} style={{ color: f.accent }} />
                   </div>
-                  <h3 className="text-[15px] font-bold text-white">{f.title}</h3>
+                  <h3 className="text-[16px] font-bold text-gray-900">{f.title}</h3>
                 </div>
-                <p className="text-[12px] text-gray-500 leading-[1.5] pl-[42px]">{f.desc}</p>
+                <p className="text-[13px] text-gray-500 leading-[1.5] pl-[42px]">{f.desc}</p>
               </div>
             ))}
           </div>
         </section>
 
         {/* ═══ HOW IT WORKS ═══ */}
-        <section className="py-12 max-w-[1200px] mx-auto px-8">
-          <div className="mb-4">
-            <h2 className="text-[clamp(20px,3vw,28px)] font-bold leading-[1.1] tracking-[-0.02em] text-white landing-display">
+        <section className="py-6 max-w-[1440px] mx-auto px-8">
+          <div className="mb-2 text-center">
+            <h2 className="text-[clamp(20px,3vw,28px)] font-bold leading-[1.1] tracking-[-0.02em] text-gray-900 landing-display">
               Three steps. That's it.
             </h2>
           </div>
@@ -204,87 +183,34 @@ export default function OAuthLogin({ loginOnly = false }) {
               { num: '3', title: 'Practice and refine', desc: 'Walk through step-by-step. Ask follow-up questions. Run code. Build confidence.' },
             ].map((step, i) => (
               <div key={i} className="relative">
-                <span className="text-[60px] sm:text-[72px] font-black leading-none landing-display" style={{ color: 'rgba(255,255,255,0.03)' }}>{step.num}</span>
+                <span className="text-[60px] sm:text-[72px] font-black leading-none landing-display" style={{ color: 'rgba(0,0,0,0.04)' }}>{step.num}</span>
                 <div className="mt-[-16px] sm:mt-[-20px] relative z-10">
-                  <h3 className="text-[18px] sm:text-[20px] font-bold text-white mb-3 landing-display">{step.title}</h3>
-                  <p className="text-[14px] text-gray-500 leading-[1.5] landing-body">{step.desc}</p>
+                  <h3 className="text-[20px] sm:text-[22px] font-bold text-gray-900 mb-3 landing-display">{step.title}</h3>
+                  <p className="text-[15px] text-gray-500 leading-[1.5] landing-body">{step.desc}</p>
                 </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* ═══ CTA ═══ */}
-        <section className="py-12 max-w-[1200px] mx-auto px-8">
-          <div className="relative rounded-3xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(16,185,129,0.02) 100%)', border: '1px solid rgba(16,185,129,0.1)' }}>
-            {/* Glow */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px]" style={{ background: 'radial-gradient(ellipse, rgba(16,185,129,0.12) 0%, transparent 70%)' }} />
-
-            <div className="relative px-8 sm:px-10 py-8 sm:py-10 text-center">
-              <h2 className="text-[clamp(20px,3vw,28px)] font-bold leading-[1.1] tracking-[-0.02em] text-white mb-3 landing-display">
-                Start preparing today.
-              </h2>
-              <p className="text-[14px] text-gray-400 mb-5 max-w-[400px] mx-auto leading-[1.5] landing-body">
-                Free to start. Plans from $99/mo. 30-day money-back guarantee.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button onClick={() => handleOAuthLogin('google')} disabled={loading} className="group px-8 rounded-2xl font-semibold text-[18px] text-white transition-all duration-300 hover:shadow-[0_8px_40px_rgba(16,185,129,0.3)] active:scale-[0.98] landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', padding: '18px 36px' }}>
-                  {loading === 'google' ? <Icon name="loader" size={20} className="animate-spin mx-auto" /> : (
-                    <span className="flex items-center justify-center gap-3">
-                      Get started free
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-1"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                    </span>
-                  )}
-                </button>
-                <a href="/premium" className="px-8 rounded-2xl font-semibold text-[18px] text-gray-300 hover:text-white transition-all duration-300 hover:bg-white/[0.05] landing-body" style={{ padding: '18px 36px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                  View pricing
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
-
-
         {/* ═══ FOOTER ═══ */}
-        <footer className="py-10 max-w-[1200px] mx-auto px-8">
-          <div className="pt-6" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-            <div className="flex flex-col md:flex-row items-start justify-between gap-6 mb-6">
-              <div>
-                <a href="/" className="flex items-center gap-3 mb-4">
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                    <Icon name="ascend" size={18} className="text-white" />
-                  </div>
-                  <span className="text-[20px] font-bold text-white landing-display">Ascend</span>
-                </a>
-                <p className="text-[15px] text-gray-600 max-w-[280px] leading-[1.6] landing-body">
-                  AI-powered interview preparation.<br />From application to offer.
-                </p>
+        <footer className="py-6 max-w-[1440px] mx-auto px-8">
+          <div className="flex items-center justify-between py-4" style={{ borderTop: '1px solid #e5e7eb' }}>
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                <Icon name="ascend" size={14} className="text-white" />
               </div>
-
-              <div className="grid grid-cols-2 gap-x-20 gap-y-8">
-                <div>
-                  <h4 className="text-[13px] font-semibold text-gray-400 mb-4 uppercase tracking-wider landing-body">Product</h4>
-                  <div className="flex flex-col gap-3">
-                    <a href="/app/coding" className="text-[15px] text-gray-500 hover:text-white transition-colors landing-body">Interview</a>
-                    <a href="/prepare" className="text-[15px] text-gray-500 hover:text-white transition-colors landing-body">Prep Guides</a>
-                    <a href="/premium" className="text-[15px] text-gray-500 hover:text-white transition-colors landing-body">Pricing</a>
-                    <a href="/download" className="text-[15px] text-gray-500 hover:text-white transition-colors landing-body">Desktop App</a>
-                  </div>
-                </div>
-                <div>
-                  <h4 className="text-[13px] font-semibold text-gray-400 mb-4 uppercase tracking-wider landing-body">Company</h4>
-                  <div className="flex flex-col gap-3">
-                    <a href="https://jobs.cariara.com" target="_blank" rel="noopener noreferrer" className="text-[15px] text-gray-500 hover:text-white transition-colors landing-body">Careers</a>
-                    <a href="/privacy" className="text-[15px] text-gray-500 hover:text-white transition-colors landing-body">Privacy</a>
-                    <a href="mailto:support@cariara.com" className="text-[15px] text-gray-500 hover:text-white transition-colors landing-body">Support</a>
-                  </div>
-                </div>
-              </div>
+              <span className="text-[16px] font-bold text-gray-900 landing-display">Ascend</span>
+              <span className="text-[14px] text-gray-400 landing-body ml-2">&copy; {new Date().getFullYear()} Cariara</span>
             </div>
-
-            <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-              <span className="text-[13px] text-gray-600 landing-body">&copy; {new Date().getFullYear()} Cariara</span>
+            <div className="flex items-center gap-5">
+              <a href="/app/coding" className="text-[14px] text-gray-500 hover:text-gray-900 transition-colors landing-body">Interview</a>
+              <a href="/prepare" className="text-[14px] text-gray-500 hover:text-gray-900 transition-colors landing-body">Prep</a>
+              <a href="/premium" className="text-[14px] text-gray-500 hover:text-gray-900 transition-colors landing-body">Pricing</a>
+              <a href="/download" className="text-[14px] text-gray-500 hover:text-gray-900 transition-colors landing-body">Download</a>
+              <a href="https://jobs.cariara.com" target="_blank" rel="noopener noreferrer" className="text-[14px] text-gray-500 hover:text-gray-900 transition-colors landing-body">Careers</a>
+              <a href="/privacy" className="text-[14px] text-gray-500 hover:text-gray-900 transition-colors landing-body">Privacy</a>
+              <a href="mailto:support@cariara.com" className="text-[14px] text-gray-500 hover:text-gray-900 transition-colors landing-body">Support</a>
             </div>
           </div>
         </footer>
