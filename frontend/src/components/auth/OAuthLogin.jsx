@@ -115,9 +115,9 @@ export default function OAuthLogin({ loginOnly = false }) {
         </nav>
 
         {/* ═══ HERO ═══ */}
-        <section className="pt-40 sm:pt-48 pb-32 max-w-[1200px] mx-auto px-8">
+        <section className="pt-28 sm:pt-32 pb-16 max-w-[1200px] mx-auto px-8">
           <div className="max-w-[900px]">
-            <h1 className="text-[clamp(48px,8vw,96px)] font-bold leading-[0.95] tracking-[-0.03em] mb-8 landing-display">
+            <h1 className="text-[clamp(40px,7vw,80px)] font-bold leading-[0.95] tracking-[-0.03em] mb-5 landing-display">
               <span className="text-white">Your unfair</span>
               <br />
               <span className="text-white">advantage in</span>
@@ -125,11 +125,11 @@ export default function OAuthLogin({ loginOnly = false }) {
               <span className="landing-gradient-text">every interview.</span>
             </h1>
 
-            <p className="text-[20px] sm:text-[22px] text-gray-400 mb-12 max-w-[560px] leading-[1.6] landing-body">
+            <p className="text-[18px] sm:text-[20px] text-gray-400 mb-8 max-w-[560px] leading-[1.6] landing-body">
               AI-powered coding solutions, system design, and live interview assistance. Completely invisible to screen share.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-20">
+            <div className="flex flex-col sm:flex-row gap-3 mb-10">
               <button onClick={() => handleOAuthLogin('google')} disabled={loading} className="group px-8 py-4.5 rounded-2xl font-semibold text-[18px] text-white transition-all duration-300 hover:shadow-[0_8px_40px_rgba(16,185,129,0.25)] active:scale-[0.98] landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', padding: '18px 32px' }}>
                 {loading === 'google' ? <Icon name="loader" size={20} className="animate-spin mx-auto" /> : (
                   <span className="flex items-center justify-center gap-3">
@@ -161,7 +161,7 @@ export default function OAuthLogin({ loginOnly = false }) {
         </section>
 
         {/* ═══ PRODUCT SHOWCASE ═══ */}
-        <section className="pb-32 max-w-[1200px] mx-auto px-8">
+        <section className="pb-16 max-w-[1200px] mx-auto px-8">
           <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)' }}>
             {/* Window chrome */}
             <div className="px-5 py-3.5 flex items-center" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
@@ -224,12 +224,12 @@ target = 9
         </section>
 
         {/* ═══ WHAT YOU GET ═══ */}
-        <section className="py-32 max-w-[1200px] mx-auto px-8">
-          <div className="mb-16">
-            <h2 className="text-[clamp(32px,5vw,56px)] font-bold leading-[1.05] tracking-[-0.025em] text-white mb-5 landing-display">
-              Built for engineers who<br className="hidden sm:block" /> take interviews seriously.
+        <section className="py-16 max-w-[1200px] mx-auto px-8">
+          <div className="mb-8">
+            <h2 className="text-[clamp(28px,4vw,44px)] font-bold leading-[1.1] tracking-[-0.025em] text-white mb-3 landing-display">
+              Built for engineers who take interviews seriously.
             </h2>
-            <p className="text-[18px] sm:text-[20px] text-gray-500 max-w-[520px] leading-[1.6] landing-body">
+            <p className="text-[16px] sm:text-[17px] text-gray-500 max-w-[520px] leading-[1.6] landing-body">
               Six tools. One platform. From problem to offer letter.
             </p>
           </div>
@@ -243,36 +243,36 @@ target = 9
               { icon: 'resume', title: 'Resume Builder', desc: 'ATS-optimized resume and cover letter generation tailored to each role. PDF and DOCX export.', accent: '#06b6d4' },
               { icon: 'eyeOff', title: 'Stealth Mode', desc: 'Hidden from screen share, dock, and task manager. Undetectable on Zoom, Meet, and Teams.', accent: '#ec4899' },
             ].map((f, i) => (
-              <div key={i} className="group p-8 sm:p-10 transition-colors duration-300 hover:bg-white/[0.02]" style={{ background: '#0b0b10' }}>
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110" style={{ background: `${f.accent}0d`, border: `1px solid ${f.accent}18` }}>
-                  <Icon name={f.icon} size={22} style={{ color: f.accent }} />
+              <div key={i} className="group p-5 sm:p-6 transition-colors duration-300 hover:bg-white/[0.02]" style={{ background: '#0b0b10' }}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-all duration-300 group-hover:scale-110" style={{ background: `${f.accent}0d`, border: `1px solid ${f.accent}18` }}>
+                  <Icon name={f.icon} size={20} style={{ color: f.accent }} />
                 </div>
-                <h3 className="text-[20px] font-bold text-white mb-3 landing-display">{f.title}</h3>
-                <p className="text-[15px] text-gray-500 leading-[1.7] landing-body">{f.desc}</p>
+                <h3 className="text-[17px] font-bold text-white mb-2 landing-display">{f.title}</h3>
+                <p className="text-[14px] text-gray-500 leading-[1.6] landing-body">{f.desc}</p>
               </div>
             ))}
           </div>
         </section>
 
         {/* ═══ HOW IT WORKS ═══ */}
-        <section className="py-32 max-w-[1200px] mx-auto px-8">
-          <div className="mb-16">
-            <h2 className="text-[clamp(32px,5vw,56px)] font-bold leading-[1.05] tracking-[-0.025em] text-white mb-5 landing-display">
-              Three steps.<br />That's it.
+        <section className="py-16 max-w-[1200px] mx-auto px-8">
+          <div className="mb-8">
+            <h2 className="text-[clamp(28px,4vw,44px)] font-bold leading-[1.1] tracking-[-0.025em] text-white mb-3 landing-display">
+              Three steps. That's it.
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-12 md:gap-8">
+          <div className="grid md:grid-cols-3 gap-6">
             {[
               { num: '1', title: 'Drop your problem in', desc: 'Paste text, upload a screenshot, or enter a LeetCode / HackerRank URL.' },
               { num: '2', title: 'Get the solution', desc: 'AI generates code with explanations, complexity, and architecture diagrams in seconds.' },
               { num: '3', title: 'Practice and refine', desc: 'Walk through step-by-step. Ask follow-up questions. Run code. Build confidence.' },
             ].map((step, i) => (
               <div key={i} className="relative">
-                <span className="text-[100px] sm:text-[120px] font-black leading-none landing-display" style={{ color: 'rgba(255,255,255,0.03)' }}>{step.num}</span>
-                <div className="mt-[-30px] sm:mt-[-40px] relative z-10">
-                  <h3 className="text-[22px] sm:text-[24px] font-bold text-white mb-3 landing-display">{step.title}</h3>
-                  <p className="text-[16px] text-gray-500 leading-[1.7] landing-body">{step.desc}</p>
+                <span className="text-[72px] sm:text-[80px] font-black leading-none landing-display" style={{ color: 'rgba(255,255,255,0.03)' }}>{step.num}</span>
+                <div className="mt-[-20px] sm:mt-[-24px] relative z-10">
+                  <h3 className="text-[18px] sm:text-[20px] font-bold text-white mb-2 landing-display">{step.title}</h3>
+                  <p className="text-[14px] text-gray-500 leading-[1.6] landing-body">{step.desc}</p>
                 </div>
               </div>
             ))}
@@ -280,17 +280,16 @@ target = 9
         </section>
 
         {/* ═══ CTA ═══ */}
-        <section className="py-32 max-w-[1200px] mx-auto px-8">
-          <div className="relative rounded-3xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(16,185,129,0.02) 100%)', border: '1px solid rgba(16,185,129,0.1)' }}>
-            {/* Glow */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px]" style={{ background: 'radial-gradient(ellipse, rgba(16,185,129,0.12) 0%, transparent 70%)' }} />
+        <section className="py-16 max-w-[1200px] mx-auto px-8">
+          <div className="relative rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(16,185,129,0.02) 100%)', border: '1px solid rgba(16,185,129,0.1)' }}>
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px]" style={{ background: 'radial-gradient(ellipse, rgba(16,185,129,0.12) 0%, transparent 70%)' }} />
 
-            <div className="relative px-8 sm:px-16 py-16 sm:py-20 text-center">
-              <h2 className="text-[clamp(32px,5vw,56px)] font-bold leading-[1.05] tracking-[-0.025em] text-white mb-6 landing-display">
+            <div className="relative px-8 sm:px-12 py-10 sm:py-14 text-center">
+              <h2 className="text-[clamp(26px,4vw,40px)] font-bold leading-[1.1] tracking-[-0.025em] text-white mb-4 landing-display">
                 Start preparing today.
               </h2>
-              <p className="text-[18px] sm:text-[20px] text-gray-400 mb-12 max-w-[480px] mx-auto leading-[1.6] landing-body">
-                Free to start. Plans from $99/mo.<br />30-day money-back guarantee.
+              <p className="text-[16px] sm:text-[17px] text-gray-400 mb-8 max-w-[480px] mx-auto leading-[1.6] landing-body">
+                Free to start. Plans from $99/mo. 30-day money-back guarantee.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -312,9 +311,9 @@ target = 9
 
 
         {/* ═══ FOOTER ═══ */}
-        <footer className="py-16 max-w-[1200px] mx-auto px-8">
-          <div className="pt-10" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-            <div className="flex flex-col md:flex-row items-start justify-between gap-12 mb-12">
+        <footer className="py-10 max-w-[1200px] mx-auto px-8">
+          <div className="pt-8" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+            <div className="flex flex-col md:flex-row items-start justify-between gap-8 mb-8">
               <div>
                 <a href="/" className="flex items-center gap-3 mb-4">
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
