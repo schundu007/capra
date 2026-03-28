@@ -11,9 +11,9 @@ export default {
          TYPOGRAPHY
          ======================================== */
       fontFamily: {
-        sans: ['Inter Tight', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Fira Code', 'SF Mono', 'Menlo', 'Monaco', 'monospace'],
-        display: ['Inter Tight', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['Source Sans 3', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+        mono: ['Source Code Pro', 'SF Mono', 'Menlo', 'Monaco', 'monospace'],
+        display: ['Source Serif 4', 'Georgia', 'serif'],
       },
       fontSize: {
         'xs': ['0.75rem', { lineHeight: '1rem' }],

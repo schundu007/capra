@@ -31,13 +31,13 @@ export default function OAuthLogin({ loginOnly = false }) {
   // ── Login-only (for protected routes) ──
   if (loginOnly) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#08080c', fontFamily: "'Space Grotesk', sans-serif" }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#08080c', fontFamily: "'Source Serif 4', Georgia, serif" }}>
         <div className="w-full max-w-md p-10 rounded-2xl text-center" style={{ background: 'linear-gradient(180deg, #111116 0%, #0d0d12 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
           <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-6" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
             <Icon name="ascend" size={28} className="text-white" />
           </div>
           <h2 className="text-2xl font-bold text-white mb-2">Sign in to Ascend</h2>
-          <p className="text-gray-400 mb-8" style={{ fontFamily: "'General Sans', 'Inter', sans-serif" }}>Access your interview toolkit.</p>
+          <p className="text-gray-400 mb-8" style={{ fontFamily: "'Source Sans 3', sans-serif" }}>Access your interview toolkit.</p>
           {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
           <button onClick={() => handleOAuthLogin('google')} disabled={!!loading} className="w-full flex items-center justify-center gap-3 px-6 py-3.5 rounded-xl text-sm font-semibold transition-all hover:scale-[1.02] mb-3" style={{ background: '#fff', color: '#000' }}>
             {loading === 'google' ? <Icon name="loader" size={18} className="animate-spin" /> : <><GoogleIcon /> Continue with Google</>}
@@ -156,95 +156,34 @@ export default function OAuthLogin({ loginOnly = false }) {
           </div>
         </section>
 
-        {/* ═══ PRODUCT SHOWCASE ═══ */}
-        <section className="pb-12 max-w-[1200px] mx-auto px-8">
-          <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)' }}>
-            {/* Window chrome */}
-            <div className="px-5 py-3.5 flex items-center" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-              <div className="flex gap-2">
-                <div className="w-3 h-3 rounded-full" style={{ background: '#ef444480' }} />
-                <div className="w-3 h-3 rounded-full" style={{ background: '#f59e0b80' }} />
-                <div className="w-3 h-3 rounded-full" style={{ background: '#22c55e80' }} />
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-5">
-              {/* Left panel: problem */}
-              <div className="md:col-span-2 p-6 sm:p-7" style={{ borderRight: '1px solid rgba(255,255,255,0.04)' }}>
-                <div className="flex items-center gap-2.5 mb-6">
-                  <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider landing-body" style={{ background: 'rgba(249,115,22,0.1)', color: '#fb923c' }}>Medium</span>
-                  <span className="text-gray-500 text-[13px] landing-body">Two Sum</span>
-                </div>
-                <p className="text-[15px] text-gray-300 leading-[1.7] mb-6 landing-body">
-                  Given an array of integers and a target, return indices of the two numbers that add up to the target.
-                </p>
-                <div className="rounded-xl p-5" style={{ background: 'rgba(0,0,0,0.4)' }}>
-                  <pre className="text-[13px] leading-[1.8] font-mono text-gray-400">
-{`nums = [2, 7, 11, 15]
-target = 9
-
-→ [0, 1]`}
-                  </pre>
-                </div>
-              </div>
-
-              {/* Right panel: AI solution */}
-              <div className="md:col-span-3 p-6 sm:p-7">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-2 h-2 rounded-full bg-emerald-400" />
-                    <span className="text-[14px] text-emerald-400 font-semibold landing-body">AI Solution</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-[12px] landing-body">
-                    <span className="px-2.5 py-1 rounded-lg text-gray-500" style={{ background: 'rgba(255,255,255,0.04)' }}>O(n) time</span>
-                    <span className="px-2.5 py-1 rounded-lg text-gray-500" style={{ background: 'rgba(255,255,255,0.04)' }}>Python</span>
-                  </div>
-                </div>
-                <div className="rounded-xl p-5 mb-5 font-mono text-[13px] leading-[2]" style={{ background: 'rgba(0,0,0,0.4)' }}>
-                  <span className="text-violet-400">def</span> <span className="text-sky-300">two_sum</span><span className="text-gray-500">(</span><span className="text-gray-300">nums, target</span><span className="text-gray-500">):</span>{'\n'}
-                  {'    '}<span className="text-gray-300">seen</span> <span className="text-gray-500">= {'{}'}</span>{'\n'}
-                  {'    '}<span className="text-violet-400">for</span> <span className="text-gray-300">i, num</span> <span className="text-violet-400">in</span> <span className="text-sky-300">enumerate</span><span className="text-gray-500">(</span><span className="text-gray-300">nums</span><span className="text-gray-500">):</span>{'\n'}
-                  {'        '}<span className="text-gray-300">diff</span> <span className="text-gray-500">=</span> <span className="text-gray-300">target - num</span>{'\n'}
-                  {'        '}<span className="text-violet-400">if</span> <span className="text-gray-300">diff</span> <span className="text-violet-400">in</span> <span className="text-gray-300">seen</span><span className="text-gray-500">:</span>{'\n'}
-                  {'            '}<span className="text-violet-400">return</span> <span className="text-gray-500">[</span><span className="text-gray-300">seen[diff], i</span><span className="text-gray-500">]</span>{'\n'}
-                  {'        '}<span className="text-gray-300">seen[num]</span> <span className="text-gray-500">=</span> <span className="text-gray-300">i</span>
-                </div>
-                <div className="p-4 rounded-xl landing-body" style={{ background: 'rgba(16,185,129,0.04)', border: '1px solid rgba(16,185,129,0.08)' }}>
-                  <p className="text-[13px] text-gray-400 leading-[1.7]">
-                    <span className="text-emerald-400 font-semibold">Line 3-7:</span> Hash map stores each number's index. For each element, check if its complement exists — giving O(n) time vs O(n&sup2;) brute force.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* ═══ WHAT YOU GET ═══ */}
         <section className="py-12 max-w-[1200px] mx-auto px-8">
           <div className="mb-6">
-            <h2 className="text-[clamp(24px,4vw,36px)] font-bold leading-[1.05] tracking-[-0.025em] text-white mb-3 landing-display">
-              Built for engineers who<br className="hidden sm:block" /> take interviews seriously.
+            <h2 className="text-[clamp(20px,3vw,28px)] font-bold leading-[1.1] tracking-[-0.02em] text-white mb-1 landing-display">
+              Built for engineers who take interviews seriously.
             </h2>
-            <p className="text-[15px] sm:text-[16px] text-gray-500 max-w-[520px] leading-[1.6] landing-body">
+            <p className="text-[14px] text-gray-500 landing-body">
               Six tools. One platform. From problem to offer letter.
             </p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)' }}>
             {[
-              { icon: 'microphone', title: 'Live Interview Mode', desc: 'Real-time AI answers during interviews. Invisible during any screen share or recording.', accent: '#10b981' },
-              { icon: 'code', title: 'Coding Engine', desc: 'Solutions in 20+ languages. Line-by-line explanations, complexity analysis, auto-fix, and live execution.', accent: '#3b82f6' },
-              { icon: 'systemDesign', title: 'System Design', desc: 'Architecture diagrams for AWS, GCP, and Azure. Trade-off analysis and scalability patterns.', accent: '#f59e0b' },
-              { icon: 'briefcase', title: 'Company Prep', desc: 'Upload a job description and resume. Get a tailored pitch, behavioral questions, and focus areas.', accent: '#8b5cf6' },
-              { icon: 'resume', title: 'Resume Builder', desc: 'ATS-optimized resume and cover letter generation tailored to each role. PDF and DOCX export.', accent: '#06b6d4' },
-              { icon: 'eyeOff', title: 'Stealth Mode', desc: 'Hidden from screen share, dock, and task manager. Undetectable on Zoom, Meet, and Teams.', accent: '#ec4899' },
+              { icon: 'microphone', title: 'Live Interview Mode', desc: 'Real-time AI answers during interviews. Invisible during screen share.', accent: '#10b981' },
+              { icon: 'code', title: 'Coding Engine', desc: 'Solutions in 20+ languages with explanations, complexity analysis, and auto-fix.', accent: '#3b82f6' },
+              { icon: 'systemDesign', title: 'System Design', desc: 'Architecture diagrams for AWS, GCP, Azure with scalability patterns.', accent: '#f59e0b' },
+              { icon: 'briefcase', title: 'Company Prep', desc: 'Upload JD + resume. Get tailored pitch, questions, and focus areas.', accent: '#8b5cf6' },
+              { icon: 'resume', title: 'Resume Builder', desc: 'ATS-optimized resume and cover letter. PDF and DOCX export.', accent: '#06b6d4' },
+              { icon: 'eyeOff', title: 'Stealth Mode', desc: 'Hidden from screen share, dock, and task manager.', accent: '#ec4899' },
             ].map((f, i) => (
-              <div key={i} className="group p-5 sm:p-6 transition-colors duration-300 hover:bg-white/[0.02]" style={{ background: '#0b0b10' }}>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-all duration-300 group-hover:scale-110" style={{ background: `${f.accent}0d`, border: `1px solid ${f.accent}18` }}>
-                  <Icon name={f.icon} size={22} style={{ color: f.accent }} />
+              <div key={i} className="group p-4 transition-colors duration-300 hover:bg-white/[0.02]" style={{ background: '#0b0b10' }}>
+                <div className="flex items-center gap-2.5 mb-1.5">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${f.accent}0d`, border: `1px solid ${f.accent}18` }}>
+                    <Icon name={f.icon} size={16} style={{ color: f.accent }} />
+                  </div>
+                  <h3 className="text-[15px] font-bold text-white">{f.title}</h3>
                 </div>
-                <h3 className="text-[16px] font-bold text-white mb-1.5 landing-display">{f.title}</h3>
-                <p className="text-[13px] text-gray-500 leading-[1.5] landing-body">{f.desc}</p>
+                <p className="text-[12px] text-gray-500 leading-[1.5] pl-[42px]">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -252,9 +191,9 @@ target = 9
 
         {/* ═══ HOW IT WORKS ═══ */}
         <section className="py-12 max-w-[1200px] mx-auto px-8">
-          <div className="mb-6">
-            <h2 className="text-[clamp(24px,4vw,36px)] font-bold leading-[1.05] tracking-[-0.025em] text-white mb-3 landing-display">
-              Three steps.<br />That's it.
+          <div className="mb-4">
+            <h2 className="text-[clamp(20px,3vw,28px)] font-bold leading-[1.1] tracking-[-0.02em] text-white landing-display">
+              Three steps. That's it.
             </h2>
           </div>
 
@@ -281,12 +220,12 @@ target = 9
             {/* Glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px]" style={{ background: 'radial-gradient(ellipse, rgba(16,185,129,0.12) 0%, transparent 70%)' }} />
 
-            <div className="relative px-8 sm:px-10 py-10 sm:py-12 text-center">
-              <h2 className="text-[clamp(24px,4vw,36px)] font-bold leading-[1.05] tracking-[-0.025em] text-white mb-6 landing-display">
+            <div className="relative px-8 sm:px-10 py-8 sm:py-10 text-center">
+              <h2 className="text-[clamp(20px,3vw,28px)] font-bold leading-[1.1] tracking-[-0.02em] text-white mb-3 landing-display">
                 Start preparing today.
               </h2>
-              <p className="text-[15px] sm:text-[16px] text-gray-400 mb-6 max-w-[480px] mx-auto leading-[1.6] landing-body">
-                Free to start. Plans from $99/mo.<br />30-day money-back guarantee.
+              <p className="text-[14px] text-gray-400 mb-5 max-w-[400px] mx-auto leading-[1.5] landing-body">
+                Free to start. Plans from $99/mo. 30-day money-back guarantee.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -352,7 +291,7 @@ target = 9
       </div>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=General+Sans:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800&family=Source+Serif+4:wght@600;700;800&display=swap');
 
         .landing-root {
           -webkit-font-smoothing: antialiased;
@@ -360,11 +299,11 @@ target = 9
         }
 
         .landing-display {
-          font-family: 'Space Grotesk', sans-serif;
+          font-family: 'Source Serif 4', Georgia, serif;
         }
 
         .landing-body {
-          font-family: 'General Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         .landing-gradient-text {
@@ -379,14 +318,14 @@ target = 9
         .landing-root h3,
         .landing-root nav span,
         .landing-root footer span.text-white {
-          font-family: 'Space Grotesk', sans-serif;
+          font-family: 'Source Serif 4', Georgia, serif;
         }
 
         .landing-root p,
         .landing-root a,
         .landing-root button,
         .landing-root span:not(.landing-display) {
-          font-family: 'General Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         html { scroll-behavior: smooth; }
