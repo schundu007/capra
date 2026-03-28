@@ -379,13 +379,13 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
     );
   }
 
-  // Streaming state for coding mode — skeleton loader
+  // Streaming state for coding mode
   if (isStreaming && !code) {
     return (
       <div className="h-full flex flex-col bg-neutral-750 rounded-xl border border-neutral-700/50">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700/50 bg-neutral-800/50" style={{ height: '44px', minHeight: '44px' }}>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700/50 bg-neutral-800/50">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" />
+            <div className="w-2 h-2 rounded-full bg-brand-400" />
             <span className="text-sm font-semibold text-neutral-300">Code</span>
             <div className="flex gap-0.5 ml-1.5">
               <span className="w-1 h-1 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -394,16 +394,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
             </div>
           </div>
         </div>
-        <div className="flex-1 p-4 bg-neutral-750">
-          <div className="space-y-2">
-            {Array.from({ length: 12 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-4 rounded animate-shimmer bg-gradient-to-r from-neutral-800 via-neutral-700 to-neutral-800 bg-[length:200%_100%]"
-                style={{ width: `${40 + ((i * 17) % 50)}%`, marginLeft: i % 3 === 0 ? 0 : '1.5rem' }}
-              />
-            ))}
-          </div>
+        <div className="flex-1 flex items-center justify-center bg-neutral-750">
           <div className="text-xs text-neutral-500">Generating code...</div>
         </div>
       </div>

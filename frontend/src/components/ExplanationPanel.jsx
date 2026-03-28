@@ -445,7 +445,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
     );
   }
 
-  // Streaming state — skeleton cards
+  // Streaming state
   if (isStreaming && !pitch && (!explanations || explanations.length === 0)) {
     return (
       <div className="h-full flex flex-col overflow-hidden bg-neutral-750 rounded-xl border border-neutral-700/50">
@@ -460,17 +460,8 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
             </div>
           </div>
         </div>
-        <div className="flex-1 p-4 space-y-4 overflow-hidden">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="p-5 bg-neutral-800/50 rounded-xl border border-neutral-700/30">
-              <div className="h-5 w-1/3 rounded mb-3 animate-shimmer bg-gradient-to-r from-neutral-800 via-neutral-700 to-neutral-800 bg-[length:200%_100%]" />
-              <div className="space-y-2.5">
-                <div className="h-3.5 rounded animate-shimmer bg-gradient-to-r from-neutral-800 via-neutral-700 to-neutral-800 bg-[length:200%_100%]" />
-                <div className="h-3.5 w-4/5 rounded animate-shimmer bg-gradient-to-r from-neutral-800 via-neutral-700 to-neutral-800 bg-[length:200%_100%]" />
-                <div className="h-3.5 w-3/5 rounded animate-shimmer bg-gradient-to-r from-neutral-800 via-neutral-700 to-neutral-800 bg-[length:200%_100%]" />
-              </div>
-            </div>
-          ))}
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-sm text-neutral-500">Generating...</p>
         </div>
       </div>
     );

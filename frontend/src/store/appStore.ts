@@ -218,17 +218,6 @@ export type AppStore = ProblemSlice & SolutionSlice & UISlice & ModeSlice & Prov
 };
 
 // ============================================================================
-// Migrate old store key → new store key (runs once)
-// ============================================================================
-if (typeof window !== 'undefined') {
-  const oldData = localStorage.getItem('chundu-app-store');
-  if (oldData && !localStorage.getItem('ascend-app-store')) {
-    localStorage.setItem('ascend-app-store', oldData);
-    localStorage.removeItem('chundu-app-store');
-  }
-}
-
-// ============================================================================
 // Initial State
 // ============================================================================
 
@@ -427,9 +416,7 @@ export const useAppStore = create<AppStore>()(
   persist(
     createStoreSlices,
     {
-      name: 'ascend-app-store',
-      // Migrate from old key
-      migrate: (persistedState: any) => persistedState,
+      name: 'chundu-app-store',
       storage: createJSONStorage(() => localStorage),
       // Only persist certain fields
       partialize: (state) => ({

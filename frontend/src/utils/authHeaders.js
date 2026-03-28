@@ -24,7 +24,7 @@ export async function initDeviceId() {
           cachedDeviceId = deviceInfo.deviceId;
           // Also store in sessionStorage for cross-component access
           try {
-            sessionStorage.setItem('ascend_device_id', cachedDeviceId);
+            sessionStorage.setItem('chundu_device_id', cachedDeviceId);
           } catch (e) {
             // Ignore storage errors
           }
@@ -46,7 +46,7 @@ export function getDeviceId() {
 
   // Try to get from sessionStorage (set by init)
   try {
-    const stored = sessionStorage.getItem('ascend_device_id');
+    const stored = sessionStorage.getItem('chundu_device_id');
     if (stored) {
       cachedDeviceId = stored;
       return stored;
@@ -60,13 +60,13 @@ export function getDeviceId() {
 
 /**
  * Get auth token from storage
- * Supports both legacy token format (ascend_token) and OAuth format (ascend_auth)
+ * Supports both old format (chundu_token) and new OAuth format (ascend_auth)
  */
 export function getToken() {
   // For Electron, try to get auth token from Electron API
   if (window.electronAPI?.isElectron && window.electronAPI.getAuthToken) {
     // Note: This is async, prefer using the cached token
-    return localStorage.getItem('ascend_token');
+    return localStorage.getItem('chundu_token');
   }
 
   // Try new OAuth format first (ascend_auth)
@@ -83,7 +83,7 @@ export function getToken() {
   }
 
   // Fall back to old format
-  return localStorage.getItem('ascend_token');
+  return localStorage.getItem('chundu_token');
 }
 
 /**
