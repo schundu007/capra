@@ -139,7 +139,7 @@ export default function FormattedContent({ content, color = 'emerald' }) {
       elements.push(
         <div key={`code-${blockIdx}`} className="my-1 rounded-lg border overflow-hidden" style={{ background: '#f1f5f9', borderColor: '#e5e7eb' }}>
           {block.lang && block.lang !== 'code' && (
-            <div className="px-4 py-2 text-sm text-gray-700 border-b" style={{ borderColor: '#e5e7eb', background: '#fafafa' }}>
+            <div className="px-4 py-2 text-sm text-gray-900 border-b" style={{ borderColor: '#e5e7eb', background: '#fafafa' }}>
               {block.lang}
             </div>
           )}
