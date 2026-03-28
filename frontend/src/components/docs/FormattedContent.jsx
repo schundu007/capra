@@ -7,7 +7,7 @@ export default function FormattedContent({ content, color = 'emerald' }) {
   const colors = {
     heading: 'text-emerald-400',
     bullet: 'text-emerald-400',
-    highlight: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20',
+    highlight: 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20',
   };
 
   // Check if line looks like ASCII diagram (box drawing, arrows, pipes)
@@ -56,11 +56,11 @@ export default function FormattedContent({ content, color = 'emerald' }) {
           parts.push(remaining.substring(0, nextMatch.index));
         }
         if (matchType === 'bold') {
-          parts.push(<strong key={keyCounter++} className="text-white font-semibold">{nextMatch[1]}</strong>);
+          parts.push(<strong key={keyCounter++} className="text-gray-900 font-semibold">{nextMatch[1]}</strong>);
         } else if (matchType === 'code') {
           parts.push(<code key={keyCounter++} className={`${colors.highlight} px-1.5 py-0.5 rounded text-sm font-mono border`}>{nextMatch[1]}</code>);
         } else if (matchType === 'quote') {
-          parts.push(<em key={keyCounter++} className="text-gray-200 italic">{nextMatch[1]}</em>);
+          parts.push(<em key={keyCounter++} className="text-gray-900 italic">{nextMatch[1]}</em>);
         }
         remaining = remaining.substring(nextMatch.index + nextMatch[0].length);
       } else {
@@ -137,9 +137,9 @@ export default function FormattedContent({ content, color = 'emerald' }) {
     if (block.type === 'code') {
       // Render code block with proper formatting
       elements.push(
-        <div key={`code-${blockIdx}`} className="my-4 rounded-lg border overflow-hidden" style={{ background: '#0d1117', borderColor: 'rgba(255,255,255,0.1)' }}>
+        <div key={`code-${blockIdx}`} className="my-4 rounded-lg border overflow-hidden" style={{ background: '#f1f5f9', borderColor: '#e5e7eb' }}>
           {block.lang && block.lang !== 'code' && (
-            <div className="px-4 py-2 text-sm text-gray-400 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.02)' }}>
+            <div className="px-4 py-2 text-sm text-gray-700 border-b" style={{ borderColor: '#e5e7eb', background: '#fafafa' }}>
               {block.lang}
             </div>
           )}
@@ -149,7 +149,7 @@ export default function FormattedContent({ content, color = 'emerald' }) {
               fontFamily: '"SF Mono", "Monaco", "Inconsolata", "Fira Mono", "Droid Sans Mono", "Source Code Pro", "Courier New", monospace',
               whiteSpace: 'pre',
               tabSize: 2,
-              color: '#e6edf3',
+              color: '#1e293b',
               margin: 0,
             }}
           >
@@ -160,14 +160,14 @@ export default function FormattedContent({ content, color = 'emerald' }) {
     } else if (block.type === 'diagram') {
       // Render diagram with preserved spacing
       elements.push(
-        <div key={`diagram-${blockIdx}`} className="my-4 rounded-lg border overflow-x-auto" style={{ background: '#0d1117', borderColor: 'rgba(255,255,255,0.1)' }}>
+        <div key={`diagram-${blockIdx}`} className="my-4 rounded-lg border overflow-x-auto" style={{ background: '#f1f5f9', borderColor: '#e5e7eb' }}>
           <pre
             className="p-4 text-sm leading-6"
             style={{
               fontFamily: '"SF Mono", "Monaco", "Inconsolata", "Fira Mono", "Droid Sans Mono", "Source Code Pro", "Courier New", monospace',
               whiteSpace: 'pre',
               tabSize: 4,
-              color: '#7dd3fc',
+              color: '#0c4a6e',
               margin: 0,
               overflow: 'visible'
             }}
@@ -187,7 +187,7 @@ export default function FormattedContent({ content, color = 'emerald' }) {
               {currentList.map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 flex-shrink-0" />
-                  <span className="text-gray-300 text-sm leading-relaxed">{formatInlineText(item)}</span>
+                  <span className="text-gray-900 text-sm leading-relaxed">{formatInlineText(item)}</span>
                 </li>
               ))}
             </ul>
@@ -210,7 +210,7 @@ export default function FormattedContent({ content, color = 'emerald' }) {
           flushList();
           const headerText = trimmed.replace(/\*\*/g, '');
           elements.push(
-            <div key={`h-${blockIdx}-${lineIdx}`} className="text-emerald-400 font-semibold text-sm mt-4 mb-2 first:mt-0">
+            <div key={`h-${blockIdx}-${lineIdx}`} className="text-gray-900 font-semibold text-sm mt-4 mb-2 first:mt-0">
               {headerText}
             </div>
           );
@@ -221,7 +221,7 @@ export default function FormattedContent({ content, color = 'emerald' }) {
         if (trimmed.endsWith(':') && trimmed.length < 50 && !trimmed.includes('.')) {
           flushList();
           elements.push(
-            <div key={`h-${blockIdx}-${lineIdx}`} className="text-emerald-400 font-semibold text-sm mt-4 mb-2 first:mt-0">
+            <div key={`h-${blockIdx}-${lineIdx}`} className="text-gray-900 font-semibold text-sm mt-4 mb-2 first:mt-0">
               {trimmed}
             </div>
           );
@@ -237,7 +237,7 @@ export default function FormattedContent({ content, color = 'emerald' }) {
         // Regular paragraph
         flushList();
         elements.push(
-          <p key={`p-${blockIdx}-${lineIdx}`} className="text-gray-300 text-sm leading-relaxed my-2">
+          <p key={`p-${blockIdx}-${lineIdx}`} className="text-gray-900 text-sm leading-relaxed my-2">
             {formatInlineText(trimmed)}
           </p>
         );

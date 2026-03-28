@@ -21,7 +21,7 @@ const CARD_STYLES = {
   // Standard card with subtle border
   card: {
     background: '#111318',
-    border: '1px solid rgba(255,255,255,0.06)',
+    border: '1px solid #e2e8f0',
     borderRadius: '16px',
   },
   // Card header - uses Ascend emerald accent
@@ -37,7 +37,7 @@ const CARD_STYLES = {
   // Code block
   code: {
     background: '#0d1117',
-    border: '1px solid rgba(255,255,255,0.08)',
+    border: '1px solid #e2e8f0',
     borderRadius: '10px',
   },
 };
@@ -371,7 +371,7 @@ export default function DocsPage({ onBack }) {
   const tableOfContents = getTableOfContents();
 
   return (
-    <div className="min-h-screen" style={{ background: '#0a0a0f', fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen" style={{ background: '#ffffff', fontFamily: "'Source Sans 3', sans-serif", color: '#1a1a1a' }}>
       {/* Electron drag region */}
       {isElectron && (
         <div
@@ -394,7 +394,7 @@ export default function DocsPage({ onBack }) {
 
       <div className="relative flex">
         {/* Left Sidebar - Navigation */}
-        <div className="w-72 flex-shrink-0 h-screen sticky top-0 flex flex-col" style={{ background: 'linear-gradient(180deg, #0d0d12 0%, #0a0a0f 100%)', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="w-72 flex-shrink-0 h-screen sticky top-0 flex flex-col" style={{ background: '#f8fafc', borderRight: '1px solid #e2e8f0' }}>
           {/* Logo */}
           <div className="p-6">
             <a href="/prepare" className="flex items-center gap-3 group">
@@ -402,8 +402,8 @@ export default function DocsPage({ onBack }) {
                 <Icon name="ascend" size={22} className="text-white" />
               </div>
               <div>
-                <span className="text-xl font-bold text-white">Ascend</span>
-                <span className="block text-sm text-gray-500">Job Interview Preparation</span>
+                <span className="text-sm font-bold text-gray-900">Ascend</span>
+                <span className="block text-sm text-gray-700">Job Interview Preparation</span>
               </div>
             </a>
           </div>
@@ -419,11 +419,11 @@ export default function DocsPage({ onBack }) {
                   key={item.id}
                   onClick={() => { setActivePage(item.id); }}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all mb-1 ${
-                    isActive ? 'text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    isActive ? 'text-gray-900 font-semibold' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                   style={isActive ? {
-                    background: `linear-gradient(135deg, ${accentColor}15, ${accentColor}05)`,
-                    border: `1px solid ${accentColor}30`
+                    background: `${accentColor}08`,
+                    border: `1px solid ${accentColor}25`
                   } : {}}
                 >
                   <div
@@ -434,7 +434,7 @@ export default function DocsPage({ onBack }) {
                   </div>
                   <div className="flex-1 text-left">
                     <span className="font-medium block">{item.label}</span>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-700">
                       {item.id === 'coding' ? `${codingTopics.length} topics` :
                        item.id === 'system-design' ? `${systemDesignTopics.length + systemDesigns.length + lldProblems.length + concurrencyTopics.length} topics` :
                        `${behavioralTopics.length} topics`}
@@ -455,7 +455,7 @@ export default function DocsPage({ onBack }) {
               <a
                 key={link.href}
                 href={link.href}
-                className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all hover:bg-white/5 mb-1"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all hover:bg-gray-50 mb-1"
                 style={{ color: link.color }}
               >
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${link.color}15` }}>
@@ -467,13 +467,13 @@ export default function DocsPage({ onBack }) {
           </nav>
 
           {/* Pro Badge */}
-          <div className="p-4 m-4 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(59,130,246,0.15))', border: '1px solid rgba(168,85,247,0.2)' }}>
+          <div className="p-4 m-4 rounded-xl" style={{ background: '#f5f3ff', border: '1px solid #ddd6fe' }}>
             <div className="flex items-center gap-2 mb-2">
-              <Icon name="crown" size={16} className="text-emerald-400" />
-              <span className="text-sm font-semibold text-white">Ascend Pro</span>
+              <Icon name="crown" size={16} className="text-emerald-600" />
+              <span className="text-sm font-semibold text-gray-900">Ascend Pro</span>
             </div>
             <p className="text-sm text-gray-400 mb-3">Get AI-powered practice with real-time feedback</p>
-            <a href="/app/coding" className="block text-center py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90" style={{ background: 'linear-gradient(135deg, #a855f7, #3b82f6)' }}>
+            <a href="/app/coding" className="block text-center py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
               Try Free
             </a>
           </div>
@@ -482,30 +482,30 @@ export default function DocsPage({ onBack }) {
         {/* Main Content Area + Right Sidebar */}
         <div className="flex-1 min-h-screen flex">
           {/* Center Content */}
-          <div className="flex-1 min-w-0 mx-auto" style={{ maxWidth: selectedTopic ? '900px' : '1100px', padding: '0 32px' }}>
+          <div className="flex-1 min-w-0 mx-auto" style={{ maxWidth: '100%', padding: '0 40px' }}>
             {/* Top Bar */}
-            <div className="sticky top-0 z-20 px-8 py-4 flex items-center justify-between" style={{ background: 'rgba(10, 10, 15, 0.9)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="sticky top-0 z-20 px-8 py-4 flex items-center justify-between" style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #e2e8f0' }}>
               {/* Breadcrumb */}
               <div className="flex items-center gap-2 text-sm">
                 {isElectron && onBack && (
                   <button
                     onClick={onBack}
-                    className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors mr-2"
+                    className="flex items-center gap-1 text-gray-700 hover:text-gray-900 transition-colors mr-2"
                   >
                     <Icon name="arrowLeft" size={16} />
                     <span>Back</span>
                   </button>
                 )}
-                <button onClick={() => setSelectedTopic(null)} className="text-gray-500 hover:text-white transition-colors cursor-pointer">Learn</button>
+                <button onClick={() => setSelectedTopic(null)} className="text-gray-700 hover:text-gray-900 transition-colors cursor-pointer">Learn</button>
                 <Icon name="chevronRight" size={14} className="text-gray-600" />
                 {selectedTopic && topicDetails ? (
                   <>
-                    <button onClick={() => setSelectedTopic(null)} className="text-gray-400 hover:text-white transition-colors cursor-pointer">{pageConfig.title}</button>
+                    <button onClick={() => setSelectedTopic(null)} className="text-gray-700 hover:text-gray-900 transition-colors cursor-pointer">{pageConfig.title}</button>
                     <Icon name="chevronRight" size={14} className="text-gray-600" />
-                    <span className="text-white">{topicDetails.title}</span>
+                    <span className="text-gray-900">{topicDetails.title}</span>
                   </>
                 ) : (
-                  <span className="text-white">{pageConfig.title}</span>
+                  <span className="text-gray-900">{pageConfig.title}</span>
                 )}
               </div>
               {!selectedTopic && (
@@ -513,7 +513,7 @@ export default function DocsPage({ onBack }) {
                   <a
                     href="/app"
                     className="px-4 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-90"
-                    style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white' }}
+                    style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff' }}
                   >
                     Start Practice
                   </a>
@@ -524,7 +524,7 @@ export default function DocsPage({ onBack }) {
             {/* Content */}
             <div className="px-8 py-8">
               {/* Show topic detail or list */}
-              {selectedTopic ? <TopicDetail activePage={activePage} selectedTopic={selectedTopic} topicDetails={topicDetails} pageConfig={pageConfig} completedTopics={completedTopics} starredTopics={starredTopics} toggleComplete={toggleComplete} toggleStar={toggleStar} showAskAI={showAskAI} setShowAskAI={setShowAskAI} aiQuestion={aiQuestion} setAiQuestion={setAiQuestion} aiAnswer={aiAnswer} aiLoading={aiLoading} handleAskAI={handleAskAI} showRoadmap={showRoadmap} setShowRoadmap={setShowRoadmap} expandedTheoryQuestions={expandedTheoryQuestions} setExpandedTheoryQuestions={setExpandedTheoryQuestions} setSelectedTopic={setSelectedTopic} generatingDiagram={generatingDiagram} diagramData={diagramData} diagramError={diagramError} diagramDetailLevel={diagramDetailLevel} setDiagramDetailLevel={setDiagramDetailLevel} diagramCloudProvider={diagramCloudProvider} setDiagramCloudProvider={setDiagramCloudProvider} generateDiagram={generateDiagram} codingTopics={codingTopics} systemDesignTopics={systemDesignTopics} systemDesigns={systemDesigns} behavioralTopics={behavioralTopics} filteredTopics={filteredTopics} /> : (
+              {selectedTopic ? <TopicDetail activePage={activePage} selectedTopic={selectedTopic} topicDetails={topicDetails} pageConfig={pageConfig} completedTopics={completedTopics} starredTopics={starredTopics} toggleComplete={toggleComplete} toggleStar={toggleStar} showAskAI={showAskAI} setShowAskAI={setShowAskAI} aiQuestion={aiQuestion} setAiQuestion={setAiQuestion} aiAnswer={aiAnswer} aiLoading={aiLoading} handleAskAI={handleAskAI} showRoadmap={showRoadmap} setShowRoadmap={setShowRoadmap} expandedTheoryQuestions={expandedTheoryQuestions} setExpandedTheoryQuestions={setExpandedTheoryQuestions} setSelectedTopic={setSelectedTopic} generatingDiagram={generatingDiagram} diagramData={diagramData} diagramError={diagramError} diagramDetailLevel={diagramDetailLevel} setDiagramDetailLevel={setDiagramDetailLevel} diagramCloudProvider={diagramCloudProvider} setDiagramCloudProvider={setDiagramCloudProvider} generateDiagram={handleGenerateDiagram} codingTopics={codingTopics} systemDesignTopics={systemDesignTopics} systemDesigns={systemDesigns} behavioralTopics={behavioralTopics} filteredTopics={filteredTopics} /> : (
                 <>
                   {/* Page Hero */}
                   <div className="mb-10">
@@ -535,7 +535,7 @@ export default function DocsPage({ onBack }) {
                       <Icon name={activePage === 'coding' ? 'code' : activePage === 'system-design' ? 'systemDesign' : 'users'} size={12} />
                       {activePage === 'coding' ? 'Algorithms' : activePage === 'system-design' ? 'Architecture' : 'Soft Skills'}
                     </div>
-                    <h1 className="text-lg font-bold text-white mb-3">{pageConfig.title}</h1>
+                    <h1 className="text-sm font-bold text-gray-900 mb-3">{pageConfig.title}</h1>
                     <p className="text-sm text-gray-400 max-w-2xl">
                       {activePage === 'coding' && 'Master the fundamental data structures and algorithms needed to ace technical interviews at top tech companies.'}
                       {activePage === 'system-design' && 'Learn to design scalable, reliable systems that can handle millions of users. Essential for senior engineering roles.'}
@@ -544,7 +544,7 @@ export default function DocsPage({ onBack }) {
                   </div>
 
                   {/* Search and Filters */}
-                  <div className="flex items-center gap-4 mb-8 p-4 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div className="flex items-center gap-4 mb-8 p-4 rounded-2xl" style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
                     <div className="relative flex-1 max-w-md">
                       <Icon name="search" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
                       <input
@@ -552,17 +552,17 @@ export default function DocsPage({ onBack }) {
                         placeholder="Search topics..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 transition-all"
-                        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', '--tw-ring-color': pageConfig.color }}
+                        className="w-full pl-11 pr-4 py-3 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all"
+                        style={{ background: '#ffffff', border: '1px solid #d1d5db', '--tw-ring-color': pageConfig.color }}
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-500">Sort:</span>
+                      <span className="text-sm text-gray-700">Sort:</span>
                       <select
                         value={sortOrder}
                         onChange={(e) => setSortOrder(e.target.value)}
-                        className="px-3 py-2 rounded-lg text-sm text-gray-300 focus:outline-none cursor-pointer transition-all hover:bg-white/10"
-                        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+                        className="px-3 py-2 rounded-lg text-sm text-gray-700 focus:outline-none cursor-pointer transition-all hover:bg-gray-100"
+                        style={{ background: '#ffffff', border: '1px solid #d1d5db' }}
                       >
                         <option value="a-z">A - Z</option>
                         <option value="z-a">Z - A</option>
@@ -570,7 +570,7 @@ export default function DocsPage({ onBack }) {
                         <option value="least">Least Questions</option>
                       </select>
                     </div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-gray-700">
                       {filteredTopics.length} {filteredTopics.length === 1 ? 'topic' : 'topics'}
                     </div>
                   </div>
@@ -584,32 +584,32 @@ export default function DocsPage({ onBack }) {
                       const categoryTopics = filteredTopics.filter(t => codingCategoryMap[t.id] === category.id);
                       if (categoryTopics.length === 0) return null;
                       return (
-                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid #e2e8f0' }}>
                           {/* Category Header */}
                           <div className="px-4 py-3 flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
                             <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${category.color}20` }}>
                               <Icon name={category.icon} size={16} style={{ color: category.color }} />
                             </div>
                             <div>
-                              <h3 className="text-sm font-bold text-white">{category.name}</h3>
-                              <span className="text-sm text-gray-500">{categoryTopics.length} topics</span>
+                              <h3 className="text-sm font-bold text-gray-900">{category.name}</h3>
+                              <span className="text-sm text-gray-700">{categoryTopics.length} topics</span>
                             </div>
                           </div>
                           {/* Topics in Category */}
-                          <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                          <div className="divide-y" style={{ borderColor: '#f0f0f0' }}>
                             {categoryTopics.map((topic) => (
                               <div
                                 key={topic.id}
                                 onClick={() => setSelectedTopic(topic.id)}
-                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
+                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group"
                               >
                                 <div className="flex items-center gap-3">
-                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? 'rgba(16,185,129,0.2)' : `${topic.color}15` }}>
-                                    {completedTopics[topic.id] ? <Icon name="check" size={12} className="text-emerald-400" /> : <Icon name={topic.icon} size={12} style={{ color: topic.color }} />}
+                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? '#d1fae5' : `${topic.color}15` }}>
+                                    {completedTopics[topic.id] ? <Icon name="check" size={12} className="text-emerald-600" /> : <Icon name={topic.icon} size={12} style={{ color: topic.color }} />}
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <span className={`text-sm font-medium group-hover:text-emerald-400 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-white'}`}>{topic.title}</span>
-                                    {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-400" />}
+                                    <span className={`text-sm font-medium group-hover:text-emerald-600 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-gray-900'}`}>{topic.title}</span>
+                                    {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-500" />}
                                     <span className="text-gray-500 text-sm ml-2 hidden md:inline">{topic.description}</span>
                                   </div>
                                 </div>
@@ -627,17 +627,17 @@ export default function DocsPage({ onBack }) {
                   {/* Quick Reference - Enhanced */}
                   <div className="mb-10">
                     <div className="flex items-center gap-3 mb-6">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/10">
-                        <Icon name="book" size={16} className="text-emerald-400" />
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-50">
+                        <Icon name="book" size={16} className="text-emerald-600" />
                       </div>
-                      <h2 className="text-sm font-bold text-white">Quick Reference</h2>
+                      <h2 className="text-sm font-bold text-gray-900">Quick Reference</h2>
                     </div>
                     <div className="grid md:grid-cols-2 gap-6">
                       {/* Time Complexity Card */}
                       <div className="rounded-xl overflow-hidden" style={CARD_STYLES.card}>
                         <div className="px-4 py-3 border-b border-emerald-500/20" style={{ background: 'rgba(16,185,129,0.05)' }}>
-                          <h3 className="text-sm text-white font-semibold flex items-center gap-2">
-                            <Icon name="clock" size={16} className="text-emerald-400" />
+                          <h3 className="text-sm text-gray-900 font-semibold flex items-center gap-2">
+                            <Icon name="clock" size={16} className="text-emerald-600" />
                             Time Complexity Cheat Sheet
                           </h3>
                         </div>
@@ -652,9 +652,9 @@ export default function DocsPage({ onBack }) {
                                 { complexity: 'O(n²)', desc: 'Quadratic', rating: 'Slow', color: '#f97316' },
                                 { complexity: 'O(2ⁿ)', desc: 'Exponential', rating: 'Avoid', color: '#ef4444' },
                               ].map((item, i) => (
-                                <tr key={i} className="border-b border-white/5 last:border-0">
-                                  <td className="py-2 font-mono text-sm text-emerald-400">{item.complexity}</td>
-                                  <td className="py-2 text-gray-400">{item.desc}</td>
+                                <tr key={i} className="border-b border-gray-200 last:border-0">
+                                  <td className="py-2 font-mono text-sm text-emerald-600">{item.complexity}</td>
+                                  <td className="py-2 text-gray-600">{item.desc}</td>
                                   <td className="py-2 text-right">
                                     <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${item.color}20`, color: item.color }}>
                                       {item.rating}
@@ -669,8 +669,8 @@ export default function DocsPage({ onBack }) {
                       {/* Data Structure Selection Card */}
                       <div className="rounded-xl overflow-hidden" style={CARD_STYLES.card}>
                         <div className="px-4 py-3 border-b border-emerald-500/20" style={{ background: 'rgba(16,185,129,0.05)' }}>
-                          <h3 className="text-sm text-white font-semibold flex items-center gap-2">
-                            <Icon name="database" size={16} className="text-emerald-400" />
+                          <h3 className="text-sm text-gray-900 font-semibold flex items-center gap-2">
+                            <Icon name="database" size={16} className="text-emerald-600" />
                             When to Use What
                           </h3>
                         </div>
@@ -685,10 +685,10 @@ export default function DocsPage({ onBack }) {
                                 { need: 'Priority access', solution: 'Heap', icon: 'triangle' },
                                 { need: 'Prefix matching', solution: 'Trie', icon: 'search' },
                               ].map((item, i) => (
-                                <tr key={i} className="border-b border-white/5 last:border-0">
-                                  <td className="py-2 text-gray-400">{item.need}</td>
+                                <tr key={i} className="border-b border-gray-200 last:border-0">
+                                  <td className="py-2 text-gray-600">{item.need}</td>
                                   <td className="py-2 text-right">
-                                    <span className="px-2 py-0.5 rounded text-sm font-medium bg-emerald-500/10 text-emerald-400">
+                                    <span className="px-2 py-0.5 rounded text-sm font-medium bg-emerald-50 text-emerald-600">
                                       {item.solution}
                                     </span>
                                   </td>
@@ -712,32 +712,32 @@ export default function DocsPage({ onBack }) {
                       const categoryTopics = filteredTopics.filter(t => systemDesignCategoryMap[t.id] === category.id);
                       if (categoryTopics.length === 0) return null;
                       return (
-                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid #e2e8f0' }}>
                           {/* Category Header */}
                           <div className="px-4 py-3 flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
                             <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${category.color}20` }}>
                               <Icon name={category.icon} size={16} style={{ color: category.color }} />
                             </div>
                             <div>
-                              <h3 className="text-sm font-bold text-white">{category.name}</h3>
-                              <span className="text-sm text-gray-500">{categoryTopics.length} topics</span>
+                              <h3 className="text-sm font-bold text-gray-900">{category.name}</h3>
+                              <span className="text-sm text-gray-700">{categoryTopics.length} topics</span>
                             </div>
                           </div>
                           {/* Topics in Category */}
-                          <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                          <div className="divide-y" style={{ borderColor: '#f0f0f0' }}>
                             {categoryTopics.map((topic) => (
                               <div
                                 key={topic.id}
                                 onClick={() => setSelectedTopic(topic.id)}
-                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
+                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group"
                               >
                                 <div className="flex items-center gap-3">
-                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? 'rgba(16,185,129,0.2)' : `${topic.color}15` }}>
-                                    {completedTopics[topic.id] ? <Icon name="check" size={12} className="text-emerald-400" /> : <Icon name={topic.icon} size={12} style={{ color: topic.color }} />}
+                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? '#d1fae5' : `${topic.color}15` }}>
+                                    {completedTopics[topic.id] ? <Icon name="check" size={12} className="text-emerald-600" /> : <Icon name={topic.icon} size={12} style={{ color: topic.color }} />}
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <span className={`text-sm font-medium group-hover:text-emerald-400 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-white'}`}>{topic.title}</span>
-                                    {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-400" />}
+                                    <span className={`text-sm font-medium group-hover:text-emerald-600 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-gray-900'}`}>{topic.title}</span>
+                                    {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-500" />}
                                     <span className="text-gray-500 text-sm ml-2 hidden md:inline">{topic.description}</span>
                                   </div>
                                 </div>
@@ -755,12 +755,12 @@ export default function DocsPage({ onBack }) {
                   {/* System Design Problems Section - Grouped by Category */}
                   <div className="space-y-6 mb-8">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-500/10">
-                        <Icon name="systemDesign" size={16} className="text-emerald-400" />
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-50">
+                        <Icon name="systemDesign" size={16} className="text-emerald-600" />
                       </div>
                       <div>
-                        <h2 className="text-3xl font-bold text-white">Common System Designs</h2>
-                        <p className="text-sm text-gray-500">Real-world systems frequently asked in interviews</p>
+                        <h2 className="text-sm font-bold text-gray-900">Common System Designs</h2>
+                        <p className="text-sm text-gray-700">Real-world systems frequently asked in interviews</p>
                       </div>
                     </div>
                     {systemDesignProblemCategories.map((category) => {
@@ -772,26 +772,26 @@ export default function DocsPage({ onBack }) {
                         'Hard': { bg: 'rgba(239,68,68,0.15)', text: '#ef4444' }
                       };
                       return (
-                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid #e2e8f0' }}>
                           {/* Category Header */}
                           <div className="px-4 py-3 flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
                             <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${category.color}20` }}>
                               <Icon name={category.icon} size={16} style={{ color: category.color }} />
                             </div>
                             <div>
-                              <h3 className="text-sm font-bold text-white">{category.name}</h3>
-                              <span className="text-sm text-gray-500">{categoryDesigns.length} systems</span>
+                              <h3 className="text-sm font-bold text-gray-900">{category.name}</h3>
+                              <span className="text-sm text-gray-700">{categoryDesigns.length} systems</span>
                             </div>
                           </div>
                           {/* Designs in Category */}
-                          <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                          <div className="divide-y" style={{ borderColor: '#f0f0f0' }}>
                             {categoryDesigns.map((design) => {
                               const diffColor = difficultyColors[design.difficulty] || difficultyColors['Medium'];
                               const designProblem = `Design ${design.title}. ${design.description || design.subtitle || ''}`;
                               return (
                                 <div
                                   key={design.id}
-                                  className="px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors group"
+                                  className="px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors group"
                                 >
                                   <div
                                     onClick={() => setSelectedTopic(design.id)}
@@ -801,7 +801,7 @@ export default function DocsPage({ onBack }) {
                                       <Icon name={design.icon} size={20} style={{ color: design.color }} />
                                     </div>
                                     <div>
-                                      <span className="text-white text-xl font-medium group-hover:text-emerald-400 transition-colors">{design.title}</span>
+                                      <span className="text-gray-900 text-base font-semibold group-hover:text-emerald-600 transition-colors">{design.title}</span>
                                       {design.isNew && <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30 ml-2">NEW</span>}
                                       <span className="text-gray-500 text-lg ml-3 hidden md:inline">{design.subtitle}</span>
                                     </div>
@@ -812,7 +812,7 @@ export default function DocsPage({ onBack }) {
                                     </span>
                                     <a
                                       href={`/app?problem=${encodeURIComponent(designProblem)}&mode=system-design&autosolve=true`}
-                                      className="px-4 py-2 rounded-lg text-lg font-medium bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 transition-colors flex items-center gap-2"
+                                      className="px-4 py-2 rounded-lg text-lg font-medium bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500/25 transition-colors flex items-center gap-2"
                                       onClick={(e) => e.stopPropagation()}
                                     >
                                       <Icon name="zap" size={16} />
@@ -835,8 +835,8 @@ export default function DocsPage({ onBack }) {
                         <Icon name="code" size={16} className="text-teal-400" />
                       </div>
                       <div>
-                        <h2 className="text-3xl font-bold text-white">Low-Level Design (LLD)</h2>
-                        <p className="text-sm text-gray-500">Object-oriented design problems with class diagrams and implementations</p>
+                        <h2 className="text-sm font-bold text-gray-900">Low-Level Design (LLD)</h2>
+                        <p className="text-sm text-gray-700">Object-oriented design problems with class diagrams and implementations</p>
                       </div>
                     </div>
                     {lldProblemCategories.map((category) => {
@@ -848,31 +848,31 @@ export default function DocsPage({ onBack }) {
                         'Hard': { bg: 'rgba(239,68,68,0.15)', text: '#ef4444' }
                       };
                       return (
-                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid #e2e8f0' }}>
                           <div className="px-4 py-3 flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
                             <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${category.color}20` }}>
                               <Icon name={category.icon} size={16} style={{ color: category.color }} />
                             </div>
                             <div>
-                              <h3 className="text-sm font-bold text-white">{category.name}</h3>
-                              <span className="text-sm text-gray-500">{categoryProblems.length} problems</span>
+                              <h3 className="text-sm font-bold text-gray-900">{category.name}</h3>
+                              <span className="text-sm text-gray-700">{categoryProblems.length} problems</span>
                             </div>
                           </div>
-                          <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                          <div className="divide-y" style={{ borderColor: '#f0f0f0' }}>
                             {categoryProblems.map((problem) => {
                               const diffColor = difficultyColors[problem.difficulty] || difficultyColors['Medium'];
                               return (
                                 <div
                                   key={problem.id}
                                   onClick={() => setSelectedTopic(problem.id)}
-                                  className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
+                                  className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group"
                                 >
                                   <div className="flex items-center gap-3">
                                     <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${problem.color}15` }}>
                                       <Icon name={problem.icon} size={12} style={{ color: problem.color }} />
                                     </div>
                                     <div>
-                                      <span className="text-white text-sm font-medium group-hover:text-teal-400 transition-colors">{problem.title}</span>
+                                      <span className="text-gray-900 text-sm font-medium group-hover:text-emerald-600 transition-colors">{problem.title}</span>
                                       {problem.isNew && <span className="px-1 py-0.5 rounded text-xs font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30 ml-1">NEW</span>}
                                       <span className="text-gray-500 text-sm ml-2 hidden md:inline">{problem.subtitle}</span>
                                     </div>
@@ -896,24 +896,24 @@ export default function DocsPage({ onBack }) {
                         <Icon name="cpu" size={16} className="text-orange-400" />
                       </div>
                       <div>
-                        <h2 className="text-3xl font-bold text-white">Concurrency & Multithreading</h2>
-                        <p className="text-sm text-gray-500">Thread-safe programming, synchronization, and classic problems</p>
+                        <h2 className="text-sm font-bold text-gray-900">Concurrency & Multithreading</h2>
+                        <p className="text-sm text-gray-700">Thread-safe programming, synchronization, and classic problems</p>
                       </div>
                     </div>
-                    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-                      <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #e2e8f0' }}>
+                      <div className="divide-y" style={{ borderColor: '#f0f0f0' }}>
                         {concurrencyTopics.map((topic) => (
                           <div
                             key={topic.id}
                             onClick={() => setSelectedTopic(topic.id)}
-                            className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
+                            className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group"
                           >
                             <div className="flex items-center gap-3">
                               <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}15` }}>
                                 <Icon name={topic.icon} size={12} style={{ color: topic.color }} />
                               </div>
                               <div>
-                                <span className="text-white text-sm font-medium group-hover:text-orange-400 transition-colors">{topic.title}</span>
+                                <span className="text-gray-900 text-sm font-medium group-hover:text-emerald-600 transition-colors">{topic.title}</span>
                                 <span className="text-gray-500 text-sm ml-2 hidden md:inline">{topic.description}</span>
                               </div>
                             </div>
@@ -930,10 +930,10 @@ export default function DocsPage({ onBack }) {
                   <div className="rounded-xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.02))', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
                     <div className="px-4 py-3 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
-                        <Icon name="target" size={14} className="text-emerald-400" />
+                        <Icon name="target" size={14} className="text-emerald-600" />
                       </div>
                       <div>
-                        <h3 className="text-3xl font-bold text-white">Interview Framework</h3>
+                        <h3 className="text-sm font-bold text-gray-900">Interview Framework</h3>
                         <p className="text-gray-500 text-sm">45-minute breakdown</p>
                       </div>
                     </div>
@@ -945,7 +945,7 @@ export default function DocsPage({ onBack }) {
                           { time: '20m', step: 'High-Level', desc: 'Components, data flow', icon: 'systemDesign', color: '#3b82f6' },
                           { time: '15m', step: 'Deep Dive', desc: 'Schema, scaling', icon: 'database', color: '#a855f7' },
                         ].map((phase, i) => (
-                          <div key={i} className="rounded-lg p-3" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                          <div key={i} className="rounded-lg p-3" style={{ background: '#f5f5f5' }}>
                             <div className="flex items-center gap-2 mb-2">
                               <div className="w-6 h-6 rounded flex items-center justify-center" style={{ background: `${phase.color}20` }}>
                                 <Icon name={phase.icon} size={12} style={{ color: phase.color }} />
@@ -954,7 +954,7 @@ export default function DocsPage({ onBack }) {
                                 {phase.time}
                               </span>
                             </div>
-                            <div className="text-white font-semibold text-sm mb-1">{phase.step}</div>
+                            <div className="text-gray-900 font-semibold text-sm mb-1">{phase.step}</div>
                             <div className="text-gray-500 text-sm">{phase.desc}</div>
                           </div>
                         ))}
@@ -970,9 +970,9 @@ export default function DocsPage({ onBack }) {
                   {/* STAR Method - Enhanced */}
                   <div className="rounded-lg overflow-hidden mb-10" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
                     <div className="px-6 py-4 border-b border-purple-500/20" style={{ background: 'rgba(168,85,247,0.05)' }}>
-                      <h3 className="text-3xl font-bold text-white flex items-center gap-3">
+                      <h3 className="text-sm font-bold text-gray-900 flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-500/15">
-                          <Icon name="star" size={20} className="text-emerald-400" />
+                          <Icon name="star" size={20} className="text-emerald-600" />
                         </div>
                         The STAR Method
                       </h3>
@@ -986,14 +986,14 @@ export default function DocsPage({ onBack }) {
                           { letter: 'A', title: 'Action', desc: 'Explain the specific steps you took', color: '#22c55e', tip: 'Use "I" not "we"' },
                           { letter: 'R', title: 'Result', desc: 'Share the outcomes and what you learned', color: '#3b82f6', tip: 'Quantify when possible' },
                         ].map((step, i) => (
-                          <div key={i} className="relative rounded-xl p-5" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                          <div key={i} className="relative rounded-xl p-5" style={{ background: '#f5f5f5' }}>
                             <div
-                              className="w-14 h-14 rounded-xl flex items-center justify-center mb-4 text-2xl font-bold transition-transform hover:scale-110"
+                              className="w-14 h-14 rounded-xl flex items-center justify-center mb-4 text-sm font-bold transition-transform hover:scale-110"
                               style={{ background: `${step.color}20`, color: step.color }}
                             >
                               {step.letter}
                             </div>
-                            <div className="text-white font-semibold text-lg mb-2">{step.title}</div>
+                            <div className="text-gray-900 font-semibold text-base mb-2">{step.title}</div>
                             <div className="text-gray-400 text-sm mb-3">{step.desc}</div>
                             <div className="flex items-center gap-2 text-sm" style={{ color: step.color }}>
                               <Icon name="lightbulb" size={12} />
@@ -1011,32 +1011,32 @@ export default function DocsPage({ onBack }) {
                       const categoryTopics = filteredTopics.filter(t => topicCategoryMap[t.id] === category.id);
                       if (categoryTopics.length === 0) return null;
                       return (
-                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid #e2e8f0' }}>
                           {/* Category Header */}
                           <div className="px-4 py-3 flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
                             <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${category.color}20` }}>
                               <Icon name={category.icon} size={16} style={{ color: category.color }} />
                             </div>
                             <div>
-                              <h3 className="text-sm font-bold text-white">{category.name}</h3>
-                              <span className="text-sm text-gray-500">{categoryTopics.length} topics</span>
+                              <h3 className="text-sm font-bold text-gray-900">{category.name}</h3>
+                              <span className="text-sm text-gray-700">{categoryTopics.length} topics</span>
                             </div>
                           </div>
                           {/* Topics in Category */}
-                          <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                          <div className="divide-y" style={{ borderColor: '#f0f0f0' }}>
                             {categoryTopics.map((topic) => (
                               <div
                                 key={topic.id}
                                 onClick={() => setSelectedTopic(topic.id)}
-                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors group"
+                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group"
                               >
                                 <div className="flex items-center gap-3">
-                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? 'rgba(16,185,129,0.2)' : `${topic.color}15` }}>
-                                    {completedTopics[topic.id] ? <Icon name="check" size={12} className="text-emerald-400" /> : <Icon name={topic.icon} size={12} style={{ color: topic.color }} />}
+                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? '#d1fae5' : `${topic.color}15` }}>
+                                    {completedTopics[topic.id] ? <Icon name="check" size={12} className="text-emerald-600" /> : <Icon name={topic.icon} size={12} style={{ color: topic.color }} />}
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <span className={`text-sm font-medium group-hover:text-emerald-400 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-white'}`}>{topic.title}</span>
-                                    {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-400" />}
+                                    <span className={`text-sm font-medium group-hover:text-emerald-600 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-gray-900'}`}>{topic.title}</span>
+                                    {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-500" />}
                                     <span className="text-gray-500 text-sm ml-2 hidden md:inline">{topic.description}</span>
                                   </div>
                                 </div>
@@ -1058,14 +1058,14 @@ export default function DocsPage({ onBack }) {
                         <Icon name="briefcase" size={16} className="text-amber-400" />
                       </div>
                       <div>
-                        <h2 className="text-3xl font-bold text-white">Company-Specific Prep</h2>
-                        <p className="text-sm text-gray-500">Tailored guidance for top tech companies</p>
+                        <h2 className="text-sm font-bold text-gray-900">Company-Specific Prep</h2>
+                        <p className="text-sm text-gray-700">Tailored guidance for top tech companies</p>
                       </div>
                     </div>
-                    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #e2e8f0' }}>
                       <table className="w-full">
                         <thead>
-                          <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
+                          <tr style={{ background: '#f8fafc' }}>
                             <th className="text-left text-sm font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Company</th>
                             <th className="text-left text-sm font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 hidden md:table-cell">Focus Areas</th>
                             <th className="text-right text-sm font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 w-24">Topics</th>
@@ -1076,7 +1076,7 @@ export default function DocsPage({ onBack }) {
                             <tr
                               key={company.id}
                               onClick={() => setSelectedTopic(company.id)}
-                              className="group cursor-pointer transition-all hover:bg-white/5"
+                              className="group cursor-pointer transition-all hover:bg-gray-50"
                               style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
                             >
                               <td className="px-4 py-3">
@@ -1087,7 +1087,7 @@ export default function DocsPage({ onBack }) {
                                   >
                                     <Icon name={company.icon} size={16} style={{ color: company.color }} />
                                   </div>
-                                  <span className="text-white font-medium group-hover:text-amber-400 transition-colors">{company.title}</span>
+                                  <span className="text-gray-900 font-medium group-hover:text-emerald-600 transition-colors">{company.title}</span>
                                 </div>
                               </td>
                               <td className="px-4 py-3 hidden md:table-cell">
@@ -1121,7 +1121,7 @@ export default function DocsPage({ onBack }) {
                     <a
                       key={item.id}
                       href={`#${item.id}`}
-                      className="block px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                      className="block px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
                     >
                       {item.label}
                     </a>
@@ -1134,14 +1134,14 @@ export default function DocsPage({ onBack }) {
                   <div className="space-y-2">
                     <a
                       href="/app"
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-emerald-400 hover:bg-emerald-400/10 rounded-lg transition-colors"
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-emerald-600 hover:bg-emerald-400/10 rounded-lg transition-colors"
                     >
                       <Icon name="play" size={14} />
                       <span>Practice Now</span>
                     </a>
                     <button
                       onClick={() => setSelectedTopic(null)}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:bg-white/5 rounded-lg transition-colors w-full text-left"
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:bg-gray-50 rounded-lg transition-colors w-full text-left"
                     >
                       <Icon name="list" size={14} />
                       <span>All Topics</span>
@@ -1155,7 +1155,7 @@ export default function DocsPage({ onBack }) {
 
         {/* ── Right Sidebar — Progress & TOC (visible when topic selected) ── */}
         {selectedTopic && topicDetails && (
-          <div className="w-64 flex-shrink-0 h-screen sticky top-0 hidden xl:flex flex-col py-6 px-4 overflow-y-auto" style={{ borderLeft: '1px solid rgba(255,255,255,0.06)', background: 'rgba(10, 10, 15, 0.5)' }}>
+          <div className="w-64 flex-shrink-0 h-screen sticky top-0 hidden xl:flex flex-col py-6 px-4 overflow-y-auto" style={{ borderLeft: '1px solid #e2e8f0', background: '#f8fafc' }}>
             {/* Progress Ring */}
             <div className="text-center mb-6">
               <div className="relative w-20 h-20 mx-auto mb-3">
@@ -1168,10 +1168,10 @@ export default function DocsPage({ onBack }) {
                   />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xl font-bold text-white">{getProgress().percent}%</span>
+                  <span className="text-sm font-bold text-gray-900">{getProgress().percent}%</span>
                 </div>
               </div>
-              <div className="text-sm text-gray-400">{getProgress().completed}/{getProgress().total} topics</div>
+              <div className="text-sm text-gray-600">{getProgress().completed}/{getProgress().total} topics</div>
               <div className="text-xs text-gray-600 mt-1">{pageConfig.title}</div>
             </div>
 
@@ -1179,14 +1179,14 @@ export default function DocsPage({ onBack }) {
             <div className="space-y-1.5 mb-6">
               <button
                 onClick={() => toggleComplete(selectedTopic)}
-                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${completedTopics[selectedTopic] ? 'bg-emerald-500/15 text-emerald-400' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${completedTopics[selectedTopic] ? 'bg-emerald-500/15 text-emerald-600' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
               >
                 <Icon name={completedTopics[selectedTopic] ? 'checkCircle' : 'check'} size={14} />
                 {completedTopics[selectedTopic] ? 'Completed' : 'Mark Complete'}
               </button>
               <button
                 onClick={() => toggleStar(selectedTopic)}
-                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${starredTopics[selectedTopic] ? 'text-yellow-400 bg-yellow-400/10' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${starredTopics[selectedTopic] ? 'text-yellow-500 bg-yellow-400/10' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
               >
                 <Icon name={starredTopics[selectedTopic] ? 'star5' : 'star'} size={14} />
                 {starredTopics[selectedTopic] ? 'Starred' : 'Add to Favorites'}
@@ -1209,7 +1209,7 @@ export default function DocsPage({ onBack }) {
                     <a
                       key={i}
                       href={`#${item.id}`}
-                      className="block px-3 py-1.5 rounded text-xs text-gray-400 hover:text-white hover:bg-white/5 transition-all truncate"
+                      className="block px-3 py-1.5 rounded text-xs text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-all truncate"
                     >
                       {item.label}
                     </a>
@@ -1230,9 +1230,9 @@ export default function DocsPage({ onBack }) {
                       <button
                         key={topicId}
                         onClick={() => setSelectedTopic(topicId)}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 rounded text-xs text-left text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+                        className="w-full flex items-center gap-2 px-3 py-1.5 rounded text-xs text-left text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-all"
                       >
-                        <Icon name="star5" size={10} className="text-yellow-400 flex-shrink-0" />
+                        <Icon name="star5" size={10} className="text-yellow-500 flex-shrink-0" />
                         <span className="truncate">{t.title}</span>
                       </button>
                     );
