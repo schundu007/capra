@@ -70,5 +70,3 @@ export const isElectron = typeof window !== 'undefined' && (window.electronAPI?.
 // Check if this is the dedicated Interview Prep window
 export const isAscendPrepWindow = typeof window !== 'undefined' && window.location.hash === '#ascend-prep';
 
-// Check if this is the dedicated Voice Assistant window
-export const isVoiceAssistantWindow = typeof window !== 'undefined' && window.location.hash === '#voice-assistant';

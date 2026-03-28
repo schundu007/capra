@@ -14,7 +14,6 @@ import SettingsPanel from '../components/settings/SettingsPanel';
 import SetupWizard from '../components/settings/SetupWizard';
 import PlatformAuth from '../components/PlatformAuth';
 import AscendAssistantPanel from '../components/AscendAssistantPanel';
-import VoiceAssistantPanel from '../components/VoiceAssistantPanel';
 import AscendModeSelector from '../components/AscendModeSelector';
 import SystemDesignPanel from '../components/SystemDesignPanel';
 import PrepTab from '../components/PrepTab';
@@ -37,7 +36,7 @@ import { getAuthHeaders, initDeviceId } from '../utils/authHeaders.js';
 import OAuthLogin from '../components/auth/OAuthLogin';
 
 // Constants
-import { isElectron, isAscendPrepWindow, isVoiceAssistantWindow, STORAGE_KEYS } from '../constants';
+import { isElectron, isAscendPrepWindow, STORAGE_KEYS } from '../constants';
 
 const API_URL = getApiUrl();
 
@@ -764,17 +763,6 @@ export default function MainApp() {
   }
 
   // ---------------------------------------------------------------------------
-  // Voice Assistant Window (Dedicated)
-  // ---------------------------------------------------------------------------
-  if (isVoiceAssistantWindow) {
-    return (
-      <div className="h-screen flex flex-col overflow-hidden" style={{ background: '#0a1a10' }}>
-        <VoiceAssistantPanel onClose={() => window.close()} provider={provider} model={model} isDedicatedWindow={true} />
-      </div>
-    );
-  }
-
-  // ---------------------------------------------------------------------------
   // Main App Render
   // ---------------------------------------------------------------------------
   const isMacElectron = isElectron && navigator.platform.toLowerCase().includes('mac');
@@ -820,7 +808,7 @@ export default function MainApp() {
           isMacElectron={isMacElectron}
           onSettingsClick={() => setShowSettings(true)}
           onPricingClick={() => setShowPricingPlans(true)}
-          onVoiceAssistantClick={() => setShowAscendAssistant(!showAscendAssistant)}
+          onAssistantClick={() => setShowAscendAssistant(!showAscendAssistant)}
           showAscendAssistant={showAscendAssistant}
           onDocsClick={() => isElectron ? setShowDocs(true) : null}
         />
@@ -936,7 +924,7 @@ export default function MainApp() {
 // Sub-Components (kept co-located for now)
 // ============================================================================
 
-function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, showSidebar, onToggleSidebar, isLoading, isMacElectron, onSettingsClick, onPricingClick, onVoiceAssistantClick, showAscendAssistant, onDocsClick }) {
+function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, showSidebar, onToggleSidebar, isLoading, isMacElectron, onSettingsClick, onPricingClick, onAssistantClick, showAscendAssistant, onDocsClick }) {
   return (
     <header
       className="flex items-center justify-between gap-4 px-5 border-b backdrop-blur-md bg-neutral-800/95 border-neutral-700/50"
@@ -1006,9 +994,9 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
             Prep
           </a>
         )}
-        <button onClick={onVoiceAssistantClick} aria-label="Toggle voice assistant" className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 border ${showAscendAssistant ? 'text-brand-400 bg-brand-400/10 border-brand-400/50' : 'text-neutral-400 hover:text-white bg-neutral-700/50 hover:bg-neutral-600/50 border-neutral-600/50'}`}>
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
-          Voice
+        <button onClick={onAssistantClick} aria-label="Toggle interview assistant" className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 border ${showAscendAssistant ? 'text-brand-400 bg-brand-400/10 border-brand-400/50' : 'text-neutral-400 hover:text-white bg-neutral-700/50 hover:bg-neutral-600/50 border-neutral-600/50'}`}>
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+          Assistant
         </button>
         <button onClick={onSettingsClick} aria-label="Open settings" className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-neutral-400 hover:text-white bg-neutral-700/50 hover:bg-neutral-600/50 border border-neutral-600/50 transition-all duration-200">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
@@ -1165,7 +1153,7 @@ function CodingLayout({
           </Allotment.Pane>
           {showAscendAssistant && (
             <Allotment.Pane minSize={400}>
-              <VoiceAssistantPanel onClose={onCloseAscendAssistant} provider={provider} model={model} />
+              <AscendAssistantPanel onClose={onCloseAscendAssistant} provider={provider} model={model} />
             </Allotment.Pane>
           )}
         </Allotment>
@@ -1202,7 +1190,7 @@ function CodingLayout({
         </Allotment.Pane>
         {showAscendAssistant && (
           <Allotment.Pane minSize={400}>
-            <VoiceAssistantPanel onClose={onCloseAscendAssistant} provider={provider} model={model} />
+            <AscendAssistantPanel onClose={onCloseAscendAssistant} provider={provider} model={model} />
           </Allotment.Pane>
         )}
       </Allotment>

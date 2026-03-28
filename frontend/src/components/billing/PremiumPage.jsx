@@ -97,7 +97,7 @@ export default function PremiumPage() {
         'Unlimited coding + system design',
         'Company-specific interview prep',
         'Behavioral coaching (STAR method)',
-        'Live voice assistant with stealth mode',
+        'Live interview assistant with stealth mode',
         'Resume & cover letter generation',
         'Job Discovery Portal access',
         'Export prep materials to PDF/DOCX',
@@ -136,7 +136,7 @@ export default function PremiumPage() {
     { icon: 'code', title: 'AI Coding Engine', desc: 'Instant solutions in 20+ languages with line-by-line explanations, complexity analysis, and auto-fix', color: '#10b981' },
     { icon: 'systemDesign', title: 'System Design', desc: 'Auto-generated architecture diagrams for AWS, GCP, Azure with scalability patterns and tech justifications', color: '#3b82f6' },
     { icon: 'users', title: 'Behavioral Coaching', desc: 'AI-generated STAR method responses for leadership, teamwork, and conflict resolution interviews', color: '#8b5cf6' },
-    { icon: 'microphone', title: 'Live Voice Assistant', desc: 'Real-time transcription with instant AI answers during live interviews. 100% invisible to screen share', color: '#ec4899' },
+    { icon: 'microphone', title: 'Live Interview Assistant', desc: 'Real-time AI answers during live interviews. 100% invisible to screen share', color: '#ec4899' },
     { icon: 'briefcase', title: 'Company-Specific Prep', desc: 'Upload JD + resume to get tailored pitch, behavioral questions, system design prompts, and culture insights', color: '#f59e0b' },
     { icon: 'resume', title: 'Resume & Cover Letters', desc: 'AI-generated tailored resumes and cover letters for each role. ATS-optimized with PDF/DOCX export', color: '#06b6d4' },
     { icon: 'camera', title: 'Screenshot Solver', desc: 'Snap a screenshot of any coding problem. AI extracts text via OCR and generates a complete solution', color: '#f97316' },
@@ -145,13 +145,13 @@ export default function PremiumPage() {
 
   const faqItems = [
     { q: 'What is Ascend?', a: 'Ascend is an AI-powered interview preparation platform that covers the full pipeline — from job discovery and resume generation to live interview assistance. It supports coding, system design, and behavioral interviews with real-time AI assistance.' },
-    { q: 'What is included in Ascend Premium?', a: 'Premium includes unlimited access to the AI coding engine, system design with auto-diagrams, behavioral coaching, company-specific prep, live voice assistant, resume/cover letter generation, screenshot OCR solver, and code execution sandbox.' },
+    { q: 'What is included in Ascend Premium?', a: 'Premium includes unlimited access to the AI coding engine, system design with auto-diagrams, behavioral coaching, company-specific prep, live interview assistant, resume/cover letter generation, screenshot OCR solver, and code execution sandbox.' },
     { q: 'What happens when my access expires?', a: 'For Monthly and Quarterly plans, you will lose access to premium features when your period ends. Your saved work (prep materials, coding history) remains accessible. You can renew anytime. Desktop Lifetime never expires.' },
     { q: 'Do you offer refunds?', a: 'Yes! We offer a 30-day money-back guarantee on all plans. If you\'re not satisfied for any reason, contact us at support@cariara.com for a full refund. No questions asked.' },
     { q: 'How often is new content added?', a: 'We release updates weekly — new problem solutions, system design patterns, behavioral templates, and AI model improvements. Desktop Lifetime users get all future updates included.' },
     { q: 'Can I share my account with others?', a: 'No, each account is for individual use only. We monitor for account sharing and may suspend accounts that violate our terms of service.' },
     { q: 'How is Ascend different from LeetCode or other platforms?', a: 'Ascend is the only platform that covers the entire interview pipeline end-to-end: job search, resume/CL generation, interview prep, AND real-time live assistance during actual interviews. Plus, our stealth mode is 100% invisible during screen sharing.' },
-    { q: 'What AI models power Ascend?', a: 'Ascend uses Claude (Opus & Sonnet) and GPT-4o for coding and reasoning, Whisper + Deepgram for voice transcription, and specialized models for diagram generation. Desktop users can choose their preferred AI provider.' },
+    { q: 'What AI models power Ascend?', a: 'Ascend uses Claude (Opus & Sonnet) and GPT-4o for coding and reasoning, and specialized models for diagram generation. Desktop users can choose their preferred AI provider.' },
   ];
 
   const hasActiveSubscription = subscription?.status === 'active';

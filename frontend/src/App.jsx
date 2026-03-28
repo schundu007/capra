@@ -19,7 +19,6 @@ import SettingsPanel from './components/settings/SettingsPanel';
 import SetupWizard from './components/settings/SetupWizard';
 import PlatformAuth from './components/PlatformAuth';
 import AscendAssistantPanel from './components/AscendAssistantPanel';
-import VoiceAssistantPanel from './components/VoiceAssistantPanel';
 import AscendModeSelector from './components/AscendModeSelector';
 import SystemDesignPanel from './components/SystemDesignPanel';
 import PrepTab from './components/PrepTab';
@@ -40,7 +39,7 @@ import { useAuth } from './contexts/AuthContext';
 import { getAuthHeaders, initDeviceId } from './utils/authHeaders.js';
 
 // Constants
-import { isElectron, isAscendPrepWindow, isVoiceAssistantWindow, STORAGE_KEYS } from './constants';
+import { isElectron, isAscendPrepWindow, STORAGE_KEYS } from './constants';
 
 // Re-export for backward compatibility
 export { getAuthHeaders };
@@ -874,22 +873,6 @@ export default function App() {
   }
 
   // ---------------------------------------------------------------------------
-  // Render: Voice Assistant Window (Dedicated)
-  // ---------------------------------------------------------------------------
-  if (isVoiceAssistantWindow) {
-    return (
-      <div className="h-screen flex flex-col overflow-hidden" style={{ background: '#0a1a10' }}>
-        <VoiceAssistantPanel
-          onClose={() => window.close()}
-          provider={provider}
-          model={model}
-          isDedicatedWindow={true}
-        />
-      </div>
-    );
-  }
-
-  // ---------------------------------------------------------------------------
   // Main App Render
   // ---------------------------------------------------------------------------
   const isMacElectron = isElectron && navigator.platform.toLowerCase().includes('mac');
@@ -935,7 +918,7 @@ export default function App() {
           isMacElectron={isMacElectron}
           onSettingsClick={() => setShowSettings(true)}
           onPricingClick={() => setShowPricingPlans(true)}
-          onVoiceAssistantClick={() => setShowAscendAssistant(!showAscendAssistant)}
+          onAssistantClick={() => setShowAscendAssistant(!showAscendAssistant)}
           showAscendAssistant={showAscendAssistant}
           onDocsClick={() => setShowDocs(true)}
         />
@@ -1090,7 +1073,7 @@ function useLocalStorage(key, initialValue) {
 // Sub-Components
 // ============================================================================
 
-function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, showSidebar, onToggleSidebar, isLoading, isMacElectron, onSettingsClick, onPricingClick, onVoiceAssistantClick, showAscendAssistant, onDocsClick }) {
+function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, showSidebar, onToggleSidebar, isLoading, isMacElectron, onSettingsClick, onPricingClick, onAssistantClick, showAscendAssistant, onDocsClick }) {
   return (
     <header
       className="flex items-center justify-between gap-4 px-5 border-b backdrop-blur-md bg-neutral-800/95 border-neutral-700/50"
@@ -1180,7 +1163,7 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
         </div>
       )}
 
-      {/* Right: Docs, Voice Assistant, Settings & Credits */}
+      {/* Right: Docs, Assistant, Settings & Credits */}
       <div className="flex items-center gap-3" style={{ WebkitAppRegion: 'no-drag' }}>
         {/* Docs Button */}
         {isElectron && onDocsClick ? (
@@ -1204,20 +1187,19 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
             Prep
           </a>
         )}
-        {/* Voice Assistant Button */}
+        {/* Interview Assistant Button */}
         <button
-          onClick={onVoiceAssistantClick}
+          onClick={onAssistantClick}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 border ${
             showAscendAssistant
               ? 'text-brand-400 bg-brand-400/10 border-brand-400/50'
               : 'text-neutral-400 hover:text-white bg-neutral-700/50 hover:bg-neutral-600/50 border-neutral-600/50'
           }`}
         >
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
           </svg>
-          Voice
+          Assistant
         </button>
         <button
           onClick={onSettingsClick}
@@ -1463,7 +1445,7 @@ function CodingLayout({
           {/* Right Pane - Interview Assistant (optional) */}
           {showAscendAssistant && (
             <Allotment.Pane minSize={400}>
-              <VoiceAssistantPanel onClose={onCloseAscendAssistant} provider={provider} model={model} />
+              <AscendAssistantPanel onClose={onCloseAscendAssistant} provider={provider} model={model} />
             </Allotment.Pane>
           )}
         </Allotment>
@@ -1569,7 +1551,7 @@ function CodingLayout({
         {/* Right Pane - Interview Assistant */}
         {showAscendAssistant && (
           <Allotment.Pane minSize={400}>
-            <VoiceAssistantPanel onClose={onCloseAscendAssistant} provider={provider} model={model} />
+            <AscendAssistantPanel onClose={onCloseAscendAssistant} provider={provider} model={model} />
           </Allotment.Pane>
         )}
       </Allotment>

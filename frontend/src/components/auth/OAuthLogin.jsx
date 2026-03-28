@@ -143,7 +143,6 @@ export default function OAuthLogin({ loginOnly = false }) {
             {/* Capabilities */}
             <div className="flex flex-wrap gap-2 justify-center">
               {[
-                { label: 'Live voice transcription', icon: 'microphone' },
                 { label: '20+ programming languages', icon: 'code' },
                 { label: 'Architecture diagrams', icon: 'systemDesign' },
                 { label: 'Stealth mode', icon: 'eyeOff' },
@@ -233,7 +232,7 @@ target = 9
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)' }}>
             {[
-              { icon: 'microphone', title: 'Live Interview Mode', desc: 'Voice transcription with real-time AI answers. Invisible during any screen share or recording.', accent: '#10b981' },
+              { icon: 'microphone', title: 'Live Interview Mode', desc: 'Real-time AI answers during interviews. Invisible during any screen share or recording.', accent: '#10b981' },
               { icon: 'code', title: 'Coding Engine', desc: 'Solutions in 20+ languages. Line-by-line explanations, complexity analysis, auto-fix, and live execution.', accent: '#3b82f6' },
               { icon: 'systemDesign', title: 'System Design', desc: 'Architecture diagrams for AWS, GCP, and Azure. Trade-off analysis and scalability patterns.', accent: '#f59e0b' },
               { icon: 'briefcase', title: 'Company Prep', desc: 'Upload a job description and resume. Get a tailored pitch, behavioral questions, and focus areas.', accent: '#8b5cf6' },

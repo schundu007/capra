@@ -357,23 +357,6 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
     }
   };
 
-  // Open voice assistant in separate window - PRESERVE STATE
-  const handlePopOut = useCallback(async () => {
-    if (isElectron && window.electronAPI?.openVoiceAssistant) {
-      // Save current state to localStorage before opening new window
-      const currentState = {
-        questions,
-        answer,
-        transcription,
-        timestamp: Date.now(),
-      };
-      localStorage.setItem('voice_assistant_popout_state', JSON.stringify(currentState));
-
-      await window.electronAPI.openVoiceAssistant();
-      onClose?.(); // Close the panel in main window
-    }
-  }, [onClose, questions, answer, transcription]);
-
   // Load conversation history from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem('ascend_assistant_history');
@@ -386,26 +369,6 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
     }
   }, []);
 
-  // CRITICAL: Load state from pop-out transfer (preserves questions/answers when expanding)
-  useEffect(() => {
-    const savedState = localStorage.getItem('voice_assistant_popout_state');
-    if (savedState) {
-      try {
-        const state = JSON.parse(savedState);
-        // Only restore if state is recent (within 5 seconds)
-        if (Date.now() - state.timestamp < 5000) {
-          if (state.questions?.length > 0) setQuestions(state.questions);
-          if (state.answer) setAnswer(state.answer);
-          if (state.transcription) setTranscription(state.transcription);
-          console.log('[VoiceAssistant] Restored state from pop-out:', state.questions?.length, 'questions');
-        }
-        // Clear the transfer state
-        localStorage.removeItem('voice_assistant_popout_state');
-      } catch (e) {
-        console.error('Failed to load pop-out state:', e);
-      }
-    }
-  }, []);
 
   // Save conversation history to localStorage
   const saveToHistory = useCallback((question, answerText) => {
@@ -1287,18 +1250,6 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </button>
-          {/* Pop Out button - only in main window, not in dedicated window */}
-          {isElectron && !isDedicatedWindow && (
-            <button
-              onClick={handlePopOut}
-              className="p-1.5 rounded-lg transition-colors hover:bg-neutral-700 text-neutral-400 hover:text-brand-400"
-              title="Open in separate window"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-            </button>
-          )}
           <button
             onClick={onClose}
             className="p-1.5 rounded-lg transition-colors hover:bg-neutral-700 text-neutral-400 hover:text-neutral-200"
