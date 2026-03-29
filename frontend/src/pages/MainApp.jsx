@@ -1191,7 +1191,7 @@ function CodingLayout({
   const modeSelectorProps = { ascendMode, designDetailLevel, onDetailLevelChange, autoGenerateEraser, onAutoGenerateEraserChange, codingLanguage, onLanguageChange, codingDetailLevel, onCodingDetailLevelChange };
 
   const ProblemPane = () => (
-    <div className="h-full flex flex-col overflow-hidden bg-neutral-750">
+    <div className="h-full flex flex-col overflow-y-auto bg-neutral-750">
       <div className="flex-shrink-0">
         <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b border-neutral-700/50 bg-neutral-800/50 gap-2 min-h-[44px] flex-wrap">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">

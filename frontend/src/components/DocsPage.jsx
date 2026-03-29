@@ -808,9 +808,9 @@ export default function DocsPage({ onBack }) {
                                       <Icon name={design.icon} size={20} style={{ color: design.color }} />
                                     </div>
                                     <div>
-                                      <span className="text-gray-900 text-base font-semibold group-hover:text-emerald-600 transition-colors">{design.title}</span>
+                                      <span className="text-gray-900 text-sm font-semibold group-hover:text-emerald-600 transition-colors">{design.title}</span>
                                       {design.isNew && <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30 ml-2">NEW</span>}
-                                      <span className="text-gray-500 text-lg ml-3 hidden md:inline">{design.subtitle}</span>
+                                      <span className="text-gray-500 text-sm ml-3 hidden md:inline">{design.subtitle}</span>
                                     </div>
                                   </div>
                                   <div className="flex items-center gap-3">
@@ -1000,7 +1000,7 @@ export default function DocsPage({ onBack }) {
                             >
                               {step.letter}
                             </div>
-                            <div className="text-gray-900 font-semibold text-base mb-2">{step.title}</div>
+                            <div className="text-gray-900 font-semibold text-sm mb-1">{step.title}</div>
                             <div className="text-gray-400 text-sm mb-3">{step.desc}</div>
                             <div className="flex items-center gap-2 text-sm" style={{ color: step.color }}>
                               <Icon name="lightbulb" size={12} />

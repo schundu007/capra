@@ -543,8 +543,8 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
             </button>
           )}
 
-          {/* Keyboard shortcuts hint */}
-          <span className="text-[9px] text-neutral-500">
+          {/* Keyboard shortcuts hint — hidden on mobile/touch */}
+          <span className="text-[9px] text-neutral-500 hidden lg:inline">
             ^1 solve · ^2 run · ^3 copy
           </span>
         </div>

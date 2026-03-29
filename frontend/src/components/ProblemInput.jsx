@@ -270,7 +270,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               className="w-full px-4 py-3 resize-none rounded-xl text-sm bg-neutral-700/30 border border-neutral-600/50 text-neutral-100 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400/50 transition-all"
               style={{
                 minHeight: '60px',
-                maxHeight: expanded !== false ? '600px' : '400px',
+                maxHeight: window.matchMedia?.('(max-width: 1024px)')?.matches ? '40vh' : (expanded !== false ? '600px' : '400px'),
                 lineHeight: '1.6',
               }}
               spellCheck="false"

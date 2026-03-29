@@ -176,14 +176,14 @@ export default function OAuthLogin({ loginOnly = false }) {
 
         {/* ═══ FOOTER ═══ */}
         <footer className="py-6 max-w-[1440px] mx-auto px-4 sm:px-8 mt-4">
-          <div className="flex items-center justify-between py-4" style={{ borderTop: '1px solid #e2e8f0' }}>
+          <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-4 py-4" style={{ borderTop: '1px solid #e2e8f0' }}>
             <div className="flex items-center gap-3">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
                 <Icon name="ascend" size={14} className="text-white" />
               </div>
-              <span className="text-[13px] text-gray-500 landing-body">&copy; 2025 Ascend by Cariara. All rights reserved.</span>
+              <span className="text-[13px] text-gray-500 landing-body">&copy; 2025 Ascend by Cariara.</span>
             </div>
-            <div className="flex items-center gap-5">
+            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
               {[
                 { label: 'Interview', href: '/app/coding' },
                 { label: 'Prep', href: '/prepare' },
