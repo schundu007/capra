@@ -554,7 +554,7 @@ export default function DocsPage({ onBack }) {
                       {activePage === 'coding' ? 'Algorithms' : activePage === 'system-design' ? 'Architecture' : 'Soft Skills'}
                     </div>
                     <h1 className="text-sm font-bold text-gray-900 mb-2">{pageConfig.title}</h1>
-                    <p className="text-[14px] text-gray-700 max-w-2xl">
+                    <p className="text-sm text-gray-700 max-w-2xl">
                       {activePage === 'coding' && 'Master the fundamental data structures and algorithms needed to ace technical interviews at top tech companies.'}
                       {activePage === 'system-design' && 'Learn to design scalable, reliable systems that can handle millions of users. Essential for senior engineering roles.'}
                       {activePage === 'behavioral' && 'Prepare compelling stories and answers for behavioral interviews using proven frameworks like STAR.'}

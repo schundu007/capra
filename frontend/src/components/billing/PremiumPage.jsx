@@ -158,14 +158,14 @@ export default function PremiumPage() {
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
                 <Icon name="ascend" size={20} className="text-white" />
               </div>
-              <span className="text-[26px] font-bold text-gray-900 premium-heading">Ascend</span>
+              <span className="text-2xl font-bold text-gray-900 premium-heading">Ascend</span>
             </a>
             <div className="hidden md:flex items-center gap-2">
-              <button onClick={() => scrollTo('plans')} className="px-5 py-2.5 rounded-xl text-[16px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200">Plans</button>
-              <button onClick={() => scrollTo('features')} className="px-5 py-2.5 rounded-xl text-[16px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200">Features</button>
-              <button onClick={() => scrollTo('faq')} className="px-5 py-2.5 rounded-xl text-[16px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200">FAQ</button>
+              <button onClick={() => scrollTo('plans')} className="px-5 py-2.5 rounded-xl text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200">Plans</button>
+              <button onClick={() => scrollTo('features')} className="px-5 py-2.5 rounded-xl text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200">Features</button>
+              <button onClick={() => scrollTo('faq')} className="px-5 py-2.5 rounded-xl text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200">FAQ</button>
             </div>
-            <a href="/" className="hidden sm:flex items-center gap-2 px-6 py-3 rounded-xl text-[16px] font-semibold text-white transition-all duration-300 hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)]" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+            <a href="/" className="hidden sm:flex items-center gap-2 px-6 py-3 rounded-xl text-base font-semibold text-white transition-all duration-300 hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)]" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
               Back to App
             </a>
           </div>
@@ -178,8 +178,8 @@ export default function PremiumPage() {
               <span className="text-gray-900">Ace Your Next </span>
               <span className="landing-gradient-text">Technical Interview</span>
             </h1>
-            <p className="text-[16px] text-gray-500 mb-6 leading-[1.6]">Choose a plan and start preparing with AI-powered tools for coding, system design, and behavioral interviews.</p>
-            <button onClick={() => scrollTo('plans')} className="px-6 py-3 rounded-xl font-semibold text-[16px] text-white transition-all hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)]" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+            <p className="text-base text-gray-500 mb-6 leading-[1.6]">Choose a plan and start preparing with AI-powered tools for coding, system design, and behavioral interviews.</p>
+            <button onClick={() => scrollTo('plans')} className="px-6 py-3 rounded-xl font-semibold text-base text-white transition-all hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)]" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
               View Plans & Pricing
             </button>
           </div>
@@ -274,7 +274,7 @@ export default function PremiumPage() {
                       {plan.features.map((feature, j) => (
                         <li key={j} className="flex items-center gap-1.5">
                           <Icon name="check" size={14} className="flex-shrink-0" style={{ color: plan.color }} />
-                          <span className="text-gray-800 text-[12px]">{feature}</span>
+                          <span className="text-gray-800 text-xs">{feature}</span>
                         </li>
                       ))}
                     </ul>
@@ -284,14 +284,14 @@ export default function PremiumPage() {
             })}
           </div>
 
-          <p className="text-center text-gray-900 text-[15px] mt-3 font-semibold">
+          <p className="text-center text-gray-900 text-sm mt-3 font-semibold">
             30-day money-back guarantee · Secure payment via Stripe · No auto-renewal
           </p>
         </section>
 
         {/* ═══ WHAT'S INCLUDED ═══ */}
         <section id="features" className="py-8 max-w-[1440px] mx-auto px-4 sm:px-8">
-          <h2 className="text-[24px] font-bold text-gray-900 text-center mb-6">What's Included</h2>
+          <h2 className="text-2xl font-bold text-gray-900 text-center mb-6">What's Included</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {whatsIncluded.map((item, i) => (
               <div key={i} className="flex items-center gap-3 p-4 rounded-xl hover:shadow-md transition-all duration-200" style={{ background: '#fff', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
@@ -299,8 +299,8 @@ export default function PremiumPage() {
                   <Icon name={item.icon} size={18} style={{ color: item.color }} />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-[14px] font-semibold text-gray-900">{item.title}</div>
-                  <div className="text-[12px] text-gray-500">{item.desc}</div>
+                  <div className="text-sm font-semibold text-gray-900">{item.title}</div>
+                  <div className="text-xs text-gray-500">{item.desc}</div>
                 </div>
               </div>
             ))}
@@ -309,17 +309,17 @@ export default function PremiumPage() {
 
         {/* ═══ FAQ ═══ */}
         <section id="faq" className="py-8 max-w-[1440px] mx-auto px-4 sm:px-8">
-          <h2 className="text-[24px] font-bold text-gray-900 text-center mb-6 premium-heading">Frequently Asked Questions</h2>
+          <h2 className="text-2xl font-bold text-gray-900 text-center mb-6 premium-heading">Frequently Asked Questions</h2>
           <div className="max-w-[900px] mx-auto space-y-2">
             {faqItems.map((faq, i) => (
               <div key={i} className="rounded-xl overflow-hidden transition-all" style={{ background: '#fff', border: `1px solid ${expandedFaq === i ? '#d1d5db' : '#e2e8f0'}`, boxShadow: expandedFaq === i ? '0 2px 8px rgba(0,0,0,0.06)' : '0 1px 2px rgba(0,0,0,0.03)' }}>
                 <button onClick={() => setExpandedFaq(expandedFaq === i ? null : i)} className="w-full px-5 py-3.5 flex items-center justify-between text-left">
-                  <span className="text-gray-900 font-semibold text-[14px] pr-4">{faq.q}</span>
+                  <span className="text-gray-900 font-semibold text-sm pr-4">{faq.q}</span>
                   <svg className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform duration-200 ${expandedFaq === i ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                 </button>
                 <div className={`overflow-hidden transition-all duration-200 ${expandedFaq === i ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'}`}>
                   <div className="px-5 pb-4">
-                    <p className="text-gray-600 text-[13px] leading-relaxed">{faq.a}</p>
+                    <p className="text-gray-600 text-sm leading-relaxed">{faq.a}</p>
                   </div>
                 </div>
               </div>
@@ -334,7 +334,7 @@ export default function PremiumPage() {
               <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
                 <Icon name="ascend" size={14} className="text-white" />
               </div>
-              <span className="text-[13px] text-gray-500">&copy; 2025 Ascend by Cariara. All rights reserved.</span>
+              <span className="text-sm text-gray-500">&copy; 2025 Ascend by Cariara. All rights reserved.</span>
             </div>
             <div className="flex items-center gap-5">
               {[
@@ -344,7 +344,7 @@ export default function PremiumPage() {
                 { label: 'Privacy', href: '/privacy' },
                 { label: 'Support', href: 'mailto:support@cariara.com' },
               ].map((link) => (
-                <a key={link.label} href={link.href} className="text-[13px] text-gray-500 hover:text-gray-900 transition-colors">{link.label}</a>
+                <a key={link.label} href={link.href} className="text-sm text-gray-500 hover:text-gray-900 transition-colors">{link.label}</a>
               ))}
             </div>
           </div>

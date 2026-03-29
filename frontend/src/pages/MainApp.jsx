@@ -1130,7 +1130,7 @@ function Footer({ isLoading, ascendMode }) {
           </span>
         </span>
       </div>
-      <div className="flex items-center gap-5 font-mono text-[11px] text-gray-400">
+      <div className="flex items-center gap-5 font-mono text-xs text-gray-400">
         {[
           { key: '^1', label: ascendMode === 'system-design' ? 'design' : 'code' },
           { key: '^2', label: 'run' },
@@ -1138,7 +1138,7 @@ function Footer({ isLoading, ascendMode }) {
           { key: 'Esc', label: 'clear' },
         ].map(({ key, label }) => (
           <span key={key} className="flex items-center gap-1.5">
-            <kbd className="px-2 py-1 rounded-md text-[10px] font-semibold bg-white border border-gray-200 text-gray-500">{key}</kbd>
+            <kbd className="px-2 py-1 rounded-md text-xs font-semibold bg-white border border-gray-200 text-gray-500">{key}</kbd>
             <span>{label}</span>
           </span>
         ))}
@@ -1197,7 +1197,7 @@ function CodingLayout({
             <div className="w-1 h-4 rounded-full flex-shrink-0" style={{ background: 'linear-gradient(to bottom, #10b981, #059669)' }} />
             <h2 className="text-xs sm:text-sm font-semibold truncate text-gray-900">{ascendMode === 'system-design' ? 'System Design' : 'Problem'}</h2>
             {ascendMode === 'system-design' && (
-              <button onClick={onSavedDesignsClick} aria-label="View saved designs" className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-medium rounded-lg transition-all duration-200 ${savedDesignsCount > 0 ? 'bg-brand-400/10 text-brand-400 border border-brand-400/30' : 'bg-gray-100 text-gray-500 hover:text-gray-700'}`}>
+              <button onClick={onSavedDesignsClick} aria-label="View saved designs" className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium rounded-lg transition-all duration-200 ${savedDesignsCount > 0 ? 'bg-brand-400/10 text-brand-400 border border-brand-400/30' : 'bg-gray-100 text-gray-500 hover:text-gray-700'}`}>
                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
                 Saved ({savedDesignsCount})
               </button>
@@ -1307,7 +1307,7 @@ function CodingLayout({
                   <div className="flex items-center gap-3">
                     <div className="w-1 h-4 rounded-full" style={{ background: 'linear-gradient(to bottom, #10b981, #059669)' }} />
                     <h2 className="text-sm font-semibold text-gray-900">System Design</h2>
-                    <button onClick={onSavedDesignsClick} aria-label="View saved designs" className={`flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-medium rounded-lg transition-all duration-200 ${savedDesignsCount > 0 ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-gray-100 text-gray-500 hover:text-gray-700'}`}>
+                    <button onClick={onSavedDesignsClick} aria-label="View saved designs" className={`flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium rounded-lg transition-all duration-200 ${savedDesignsCount > 0 ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-gray-100 text-gray-500 hover:text-gray-700'}`}>
                       <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
                       Saved ({savedDesignsCount})
                     </button>

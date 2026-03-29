@@ -544,7 +544,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
           )}
 
           {/* Keyboard shortcuts hint — hidden on mobile/touch */}
-          <span className="text-[9px] text-gray-500 hidden lg:inline">
+          <span className="text-xs text-gray-500 hidden lg:inline">
             ^1 solve · ^2 run · ^3 copy
           </span>
         </div>
@@ -559,7 +559,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
               <button
                 key={idx}
                 onClick={() => handleExampleSelect(idx)}
-                className={`px-2 py-0.5 text-[9px] font-medium rounded transition-colors ${
+                className={`px-2 py-0.5 text-xs font-medium rounded transition-colors ${
                   selectedExample === idx
                     ? 'bg-brand-400 text-white'
                     : 'bg-gray-100 text-gray-600 border border-gray-200 hover:text-gray-900'
@@ -594,18 +594,18 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
                 {output.success ? 'Output' : 'Error'}
               </span>
               {autoRunOutput && output === autoRunOutput && (
-                <span className="text-[8px] px-1 py-0.5 rounded font-medium bg-brand-400/10 text-brand-400">
+                <span className="text-xs px-1 py-0.5 rounded font-medium bg-brand-400/10 text-brand-400">
                   Auto
                 </span>
               )}
-              <span className="text-[8px] text-gray-500">
+              <span className="text-xs text-gray-500">
                 {(output.success ? output.output : output.error)?.split('\n').length || 0} lines
               </span>
             </div>
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setOutputExpanded(true)}
-                className="text-[9px] px-1.5 py-0.5 rounded hover:bg-gray-100 transition-colors flex items-center gap-1 text-gray-600 hover:text-gray-900"
+                className="text-xs px-1.5 py-0.5 rounded hover:bg-gray-100 transition-colors flex items-center gap-1 text-gray-600 hover:text-gray-900"
                 title="Expand output"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -617,7 +617,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
                 onClick={() => {
                   navigator.clipboard.writeText(output.success ? output.output : output.error);
                 }}
-                className="text-[9px] px-1.5 py-0.5 rounded hover:bg-gray-100 transition-colors text-gray-600 hover:text-gray-900"
+                className="text-xs px-1.5 py-0.5 rounded hover:bg-gray-100 transition-colors text-gray-600 hover:text-gray-900"
                 title="Copy output"
               >
                 Copy

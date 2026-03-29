@@ -1607,7 +1607,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
               {customSections.length > 0 && (
                 <>
                   <div className="my-2 mx-4 flex items-center gap-2" style={{ borderTop: '1px solid rgba(139, 92, 246, 0.15)', paddingTop: '8px' }}>
-                    <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: '#8b5cf6', opacity: 0.8 }}>Custom</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#8b5cf6', opacity: 0.8 }}>Custom</span>
                   </div>
                   {customSections.map((section) => {
                     const isActive = activeTab === section.id;
@@ -1897,7 +1897,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
             {/* Keyboard hint */}
             <div className="px-6 pb-4 flex justify-center">
               <span className="text-xs text-gray-400">
-                Press <kbd className="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 font-mono text-[10px]">ESC</kbd> to close
+                Press <kbd className="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 font-mono text-xs">ESC</kbd> to close
               </span>
             </div>
           </div>

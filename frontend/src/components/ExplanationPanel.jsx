@@ -498,14 +498,14 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
               <div className="space-y-3">
                 {/* Opener - the hook */}
                 <div>
-                  <span className="text-[10px] font-semibold text-gray-600 uppercase">Start with</span>
+                  <span className="text-xs font-semibold text-gray-600 uppercase">Start with</span>
                   <p className="text-sm text-gray-900 font-medium mt-0.5 italic">"{pitch.opener}"</p>
                 </div>
 
                 {/* Approach */}
                 {pitch.approach && (
                   <div>
-                    <span className="text-[10px] font-semibold text-gray-600 uppercase">Then explain</span>
+                    <span className="text-xs font-semibold text-gray-600 uppercase">Then explain</span>
                     <p className="text-sm text-gray-900 mt-0.5">{pitch.approach}</p>
                   </div>
                 )}
@@ -513,7 +513,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                 {/* Key Points */}
                 {pitch.keyPoints && pitch.keyPoints.length > 0 && (
                   <div>
-                    <span className="text-[10px] font-semibold text-gray-600 uppercase">Key Points to Mention</span>
+                    <span className="text-xs font-semibold text-gray-600 uppercase">Key Points to Mention</span>
                     <ul className="mt-1 space-y-1">
                       {pitch.keyPoints.map((point, i) => (
                         <li key={i} className="text-xs text-gray-900 flex items-start gap-2">
@@ -528,7 +528,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                 {/* Complexity */}
                 {pitch.complexity && (
                   <div>
-                    <span className="text-[10px] font-semibold text-gray-600 uppercase">Complexity</span>
+                    <span className="text-xs font-semibold text-gray-600 uppercase">Complexity</span>
                     <p className="text-xs text-gray-900 mt-0.5 font-mono bg-gray-100/50 px-2 py-1 rounded-lg inline-block">{pitch.complexity}</p>
                   </div>
                 )}
@@ -536,7 +536,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                 {/* Tradeoffs */}
                 {pitch.tradeoffs && (
                   <div>
-                    <span className="text-[10px] font-semibold text-gray-600 uppercase">Tradeoffs</span>
+                    <span className="text-xs font-semibold text-gray-600 uppercase">Tradeoffs</span>
                     {Array.isArray(pitch.tradeoffs) ? (
                       <ul className="mt-1 space-y-1">
                         {pitch.tradeoffs.map((tradeoff, i) => (
@@ -555,7 +555,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                 {/* Edge Cases */}
                 {pitch.edgeCases && pitch.edgeCases.length > 0 && (
                   <div>
-                    <span className="text-[10px] font-semibold text-gray-600 uppercase">Edge Cases to Mention</span>
+                    <span className="text-xs font-semibold text-gray-600 uppercase">Edge Cases to Mention</span>
                     <ul className="mt-1 space-y-1">
                       {pitch.edgeCases.map((edge, i) => (
                         <li key={i} className="text-xs text-gray-900 flex items-start gap-2">
@@ -575,7 +575,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                   const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
                   return (
                     <div key={key}>
-                      <span className="text-[10px] font-semibold text-gray-600 uppercase">{label}</span>
+                      <span className="text-xs font-semibold text-gray-600 uppercase">{label}</span>
                       {Array.isArray(value) ? (
                         <ul className="mt-1 space-y-1">
                           {value.map((item, i) => (
@@ -738,15 +738,15 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                   <div key={i} className="p-3 rounded-xl bg-gray-100/30 border border-gray-200 animate-fadeIn">
                     <div className="mb-2">
                       <div className="flex items-center gap-1.5 mb-1">
-                        <span className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold bg-info-900/30 text-info-400">Q</span>
-                        <span className="text-[10px] font-semibold uppercase text-info-400">Question</span>
+                        <span className="w-5 h-5 rounded-md flex items-center justify-center text-xs font-bold bg-info-900/30 text-info-400">Q</span>
+                        <span className="text-xs font-semibold uppercase text-info-400">Question</span>
                       </div>
                       <p className="text-sm text-gray-900 font-medium pl-6">{qa.question}</p>
                     </div>
                     <div>
                       <div className="flex items-center gap-1.5 mb-1">
-                        <span className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold bg-brand-900/30 text-brand-400">A</span>
-                        <span className="text-[10px] font-semibold uppercase text-brand-400">Answer</span>
+                        <span className="w-5 h-5 rounded-md flex items-center justify-center text-xs font-bold bg-brand-900/30 text-brand-400">A</span>
+                        <span className="text-xs font-semibold uppercase text-brand-400">Answer</span>
                       </div>
                       {qa.pending ? (
                         <div className="pl-6 flex items-center gap-2">

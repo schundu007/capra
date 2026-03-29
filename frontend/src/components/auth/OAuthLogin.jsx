@@ -42,19 +42,19 @@ export default function OAuthLogin({ loginOnly = false }) {
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
                 <Icon name="ascend" size={20} className="text-white" />
               </div>
-              <span className="text-[26px] font-bold text-gray-900 landing-display">Ascend</span>
+              <span className="text-2xl font-bold text-gray-900 landing-display">Ascend</span>
             </a>
 
             <div className="hidden md:flex items-center gap-2">
               {navLinks.map((link) => (
-                <a key={link.label} href={link.href} className="px-5 py-2.5 rounded-xl text-[16px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200 landing-body">
+                <a key={link.label} href={link.href} className="px-5 py-2.5 rounded-xl text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200 landing-body">
                   {link.label}
                 </a>
               ))}
             </div>
 
             <div className="flex items-center gap-4">
-              <a href="/app/coding" className="hidden sm:flex items-center gap-2 px-6 py-3 rounded-xl text-[16px] font-semibold text-white transition-all duration-300 hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)] landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+              <a href="/app/coding" className="hidden sm:flex items-center gap-2 px-6 py-3 rounded-xl text-base font-semibold text-white transition-all duration-300 hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)] landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
                 Get Started
               </a>
               <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors">
@@ -66,9 +66,9 @@ export default function OAuthLogin({ loginOnly = false }) {
           {mobileMenuOpen && (
             <div className="md:hidden mt-3 mx-6 p-5 rounded-2xl" style={{ background: '#fff', border: '1px solid #e5e7eb', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
               {navLinks.map((link) => (
-                <a key={link.label} href={link.href} className="block px-4 py-3 text-[16px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-colors landing-body">{link.label}</a>
+                <a key={link.label} href={link.href} className="block px-4 py-3 text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-colors landing-body">{link.label}</a>
               ))}
-              <a href="/app/coding" className="block w-full mt-3 px-4 py-3 rounded-xl text-[16px] font-semibold text-white text-center landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+              <a href="/app/coding" className="block w-full mt-3 px-4 py-3 rounded-xl text-base font-semibold text-white text-center landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
                 Get Started Free
               </a>
             </div>
@@ -82,7 +82,7 @@ export default function OAuthLogin({ loginOnly = false }) {
               <span className="text-gray-900">Your unfair advantage in </span>
               <span className="landing-gradient-text">every interview.</span>
             </h1>
-            <p className="text-[16px] text-gray-500 mb-6 leading-[1.6] landing-body">AI-powered coding solutions, system design, and live interview assistance — completely invisible to screen share.</p>
+            <p className="text-base text-gray-500 mb-6 leading-[1.6] landing-body">AI-powered coding solutions, system design, and live interview assistance — completely invisible to screen share.</p>
             <div className="flex flex-wrap gap-3 justify-center">
               {[
                 { label: '20+ languages', icon: 'code' },
@@ -92,7 +92,7 @@ export default function OAuthLogin({ loginOnly = false }) {
               ].map((cap, i) => (
                 <div key={i} className="flex items-center gap-2 px-4 py-2 rounded-full landing-body" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}>
                   <Icon name={cap.icon} size={14} className="text-emerald-600" />
-                  <span className="text-[14px] text-gray-700 font-medium">{cap.label}</span>
+                  <span className="text-sm text-gray-700 font-medium">{cap.label}</span>
                 </div>
               ))}
             </div>
@@ -101,7 +101,7 @@ export default function OAuthLogin({ loginOnly = false }) {
 
         {/* ═══ FEATURES ═══ */}
         <section className="py-8 max-w-[1440px] mx-auto px-4 sm:px-8">
-          <h2 className="text-[28px] font-bold text-center mb-6 landing-display"><span className="text-gray-900">Everything you need to </span><span style={{color:'#10b981'}}>land the job.</span></h2>
+          <h2 className="text-2xl font-bold text-center mb-6 landing-display"><span className="text-gray-900">Everything you need to </span><span style={{color:'#10b981'}}>land the job.</span></h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
               { icon: 'microphone', title: 'Live Interview', desc: 'Real-time AI answers. Invisible to screen share.', accent: '#10b981' },
@@ -116,8 +116,8 @@ export default function OAuthLogin({ loginOnly = false }) {
                   <Icon name={f.icon} size={18} style={{ color: f.accent }} />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-[15px] font-semibold text-gray-900">{f.title}</div>
-                  <div className="text-[13px] text-gray-500">{f.desc}</div>
+                  <div className="text-sm font-semibold text-gray-900">{f.title}</div>
+                  <div className="text-sm text-gray-500">{f.desc}</div>
                 </div>
               </div>
             ))}
@@ -126,7 +126,7 @@ export default function OAuthLogin({ loginOnly = false }) {
 
         {/* ═══ HOW IT WORKS ═══ */}
         <section className="py-8 max-w-[1440px] mx-auto px-4 sm:px-8">
-          <h2 className="text-[28px] font-bold text-center mb-6 landing-display"><span className="text-gray-900">Three steps. </span><span style={{color:'#10b981'}}>That's it.</span></h2>
+          <h2 className="text-2xl font-bold text-center mb-6 landing-display"><span className="text-gray-900">Three steps. </span><span style={{color:'#10b981'}}>That's it.</span></h2>
           <div className="grid md:grid-cols-3 gap-4">
             {[
               { num: '01', title: 'Drop your problem in', desc: 'Text, screenshot, or LeetCode URL.' },
@@ -134,9 +134,9 @@ export default function OAuthLogin({ loginOnly = false }) {
               { num: '03', title: 'Practice and refine', desc: 'Step-by-step walkthrough with follow-up Q&A.' },
             ].map((step, i) => (
               <div key={i} className="p-5 rounded-xl text-center" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                <div className="text-[32px] font-black text-emerald-500 mb-2 landing-display">{step.num}</div>
-                <div className="text-[15px] font-semibold text-gray-900 mb-1 landing-display">{step.title}</div>
-                <div className="text-[13px] text-gray-500 landing-body">{step.desc}</div>
+                <div className="text-3xl font-black text-emerald-500 mb-2 landing-display">{step.num}</div>
+                <div className="text-sm font-semibold text-gray-900 mb-1 landing-display">{step.title}</div>
+                <div className="text-sm text-gray-500 landing-body">{step.desc}</div>
               </div>
             ))}
           </div>
@@ -149,7 +149,7 @@ export default function OAuthLogin({ loginOnly = false }) {
               <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
                 <Icon name="ascend" size={14} className="text-white" />
               </div>
-              <span className="text-[13px] text-gray-500 landing-body">&copy; 2025 Ascend by Cariara.</span>
+              <span className="text-sm text-gray-500 landing-body">&copy; 2025 Ascend by Cariara.</span>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
               {[
@@ -160,7 +160,7 @@ export default function OAuthLogin({ loginOnly = false }) {
                 { label: 'Privacy', href: '/privacy' },
                 { label: 'Support', href: 'mailto:support@cariara.com' },
               ].map((link) => (
-                <a key={link.label} href={link.href} className="text-[13px] text-gray-500 hover:text-gray-900 transition-colors landing-body">{link.label}</a>
+                <a key={link.label} href={link.href} className="text-sm text-gray-500 hover:text-gray-900 transition-colors landing-body">{link.label}</a>
               ))}
             </div>
           </div>
