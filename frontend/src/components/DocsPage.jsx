@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useIsMobile } from '../hooks/useIsMobile';
 import { Icon } from './Icons.jsx';
 import { getAuthHeaders } from '../utils/authHeaders.js';
 import DiagramSVG from './DiagramSVG.jsx';
@@ -80,6 +81,8 @@ const getApiUrl = () => {
  * Original educational content for interview preparation
  */
 export default function DocsPage({ onBack }) {
+  const { isMobile } = useIsMobile();
+  const [docsSidebarOpen, setDocsSidebarOpen] = useState(false);
   const isElectron = window.electronAPI?.isElectron || false;
   // Initialize state from URL params for persistence on refresh
   const getInitialState = () => {
@@ -393,8 +396,13 @@ export default function DocsPage({ onBack }) {
       />
 
       <div className="relative flex">
+        {/* Mobile sidebar overlay */}
+        {isMobile && docsSidebarOpen && (
+          <div className="fixed inset-0 z-40 bg-black/50" onClick={() => setDocsSidebarOpen(false)} />
+        )}
+
         {/* Left Sidebar - Navigation */}
-        <div className="w-72 flex-shrink-0 h-screen sticky top-0 flex flex-col" style={{ background: '#f8fafc', borderRight: '1px solid #e2e8f0' }}>
+        <div className={`${isMobile ? 'fixed inset-y-0 left-0 z-50 w-72 transition-transform duration-300' : 'w-72 flex-shrink-0 h-screen sticky top-0'} flex flex-col ${isMobile && !docsSidebarOpen ? '-translate-x-full' : 'translate-x-0'}`} style={{ background: '#f8fafc', borderRight: '1px solid #e2e8f0' }}>
           {/* Logo */}
           <div className="p-6">
             <a href="/prepare" className="flex items-center gap-3 group">
@@ -417,7 +425,7 @@ export default function DocsPage({ onBack }) {
               return (
                 <button
                   key={item.id}
-                  onClick={() => { setActivePage(item.id); }}
+                  onClick={() => { setActivePage(item.id); if (isMobile) setDocsSidebarOpen(false); }}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all mb-1 ${
                     isActive ? 'text-gray-900 font-semibold' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
                   }`}
@@ -482,11 +490,21 @@ export default function DocsPage({ onBack }) {
         {/* Main Content Area + Right Sidebar */}
         <div className="flex-1 min-h-screen flex">
           {/* Center Content */}
-          <div className="flex-1 min-w-0 mx-auto" style={{ maxWidth: '100%', padding: '0 40px' }}>
+          <div className="flex-1 min-w-0 mx-auto" style={{ maxWidth: '100%', padding: isMobile ? '0 12px' : '0 40px' }}>
             {/* Top Bar */}
-            <div className="sticky top-0 z-20 px-4 py-4 flex items-center justify-between" style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #e2e8f0' }}>
+            <div className="sticky top-0 z-20 px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2" style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #e2e8f0' }}>
+              {/* Mobile hamburger */}
+              {isMobile && (
+                <button
+                  onClick={() => setDocsSidebarOpen(true)}
+                  className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors"
+                  aria-label="Open navigation"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                </button>
+              )}
               {/* Breadcrumb */}
-              <div className="flex items-center gap-2 text-sm">
+              <div className="flex items-center gap-2 text-sm min-w-0 flex-1">
                 {isElectron && onBack && (
                   <button
                     onClick={onBack}
@@ -544,8 +562,8 @@ export default function DocsPage({ onBack }) {
                   </div>
 
                   {/* Search and Filters */}
-                  <div className="flex items-center gap-3 mb-3 p-3 rounded-xl" style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
-                    <div className="relative flex-1 max-w-md">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-3 p-3 rounded-xl" style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
+                    <div className="relative flex-1 sm:max-w-md">
                       <Icon name="search" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
                       <input
                         type="text"

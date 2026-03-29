@@ -922,7 +922,7 @@ export default function TopicDetail({
                     <h3 className="text-sm font-bold text-gray-900">Discussion Points</h3>
                   </div>
                   <div className="p-3 ">
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
                       {topicDetails.discussionPoints.map((point, i) => (
                         <div key={i} className="p-3 rounded-lg" style={{ background: '#f8fafc', border: '1px solid rgba(6,182,212,0.1)' }}>
                           <h4 className="text-gray-900 font-semibold mb-1.5 text-sm">{point.topic}</h4>
