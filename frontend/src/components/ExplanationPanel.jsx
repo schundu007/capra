@@ -25,7 +25,7 @@ function FormattedText({ text }) {
         if (para.match(/^[\s]*[-•*]\s/m)) {
           const items = para.split(/\n/).filter(line => line.trim());
           return (
-            <ul key={i} className="space-y-1.5 ml-4 list-disc text-neutral-200 marker:text-brand-400">
+            <ul key={i} className="space-y-1.5 ml-4 list-disc text-gray-900 marker:text-brand-400">
               {items.map((item, j) => (
                 <li key={j} className="text-sm leading-relaxed">
                   {item.replace(/^[\s]*[-•*]\s*/, '')}
@@ -38,7 +38,7 @@ function FormattedText({ text }) {
         if (para.match(/^[\s]*\d+[.)]\s/m)) {
           const items = para.split(/\n/).filter(line => line.trim());
           return (
-            <ol key={i} className="space-y-1.5 ml-4 list-decimal text-neutral-200 marker:text-brand-400">
+            <ol key={i} className="space-y-1.5 ml-4 list-decimal text-gray-900 marker:text-brand-400">
               {items.map((item, j) => (
                 <li key={j} className="text-sm leading-relaxed">
                   {item.replace(/^[\s]*\d+[.)]\s*/, '')}
@@ -51,14 +51,14 @@ function FormattedText({ text }) {
         const formatted = para
           .split(/\n/)
           .join(' ')
-          .replace(/\*\*(.+?)\*\*|__(.+?)__/g, '<strong class="font-semibold text-neutral-100">$1$2</strong>')
+          .replace(/\*\*(.+?)\*\*|__(.+?)__/g, '<strong class="font-semibold text-gray-900">$1$2</strong>')
           .replace(/`([^`]+)`/g, '<code class="bg-brand-400/10 text-brand-400 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>')
           .replace(/\*(.+?)\*|_(.+?)_/g, '<em class="text-gray-900">$1$2</em>');
 
         return (
           <p
             key={i}
-            className="text-sm leading-relaxed text-neutral-200"
+            className="text-sm leading-relaxed text-gray-900"
             dangerouslySetInnerHTML={{ __html: formatted }}
           />
         );
@@ -424,7 +424,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
       case 'recording': return 'bg-error-500 animate-pulse';
       case 'transcribing': return 'bg-warning-500';
       case 'answering': return 'bg-info-500';
-      default: return 'bg-neutral-400';
+      default: return 'bg-gray-300';
     }
   };
 
@@ -434,7 +434,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
       <div className="h-full flex flex-col overflow-hidden bg-white rounded-xl border border-gray-200">
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-neutral-500" />
+            <div className="w-2 h-2 rounded-full bg-gray-400" />
             <span className="text-sm font-semibold text-gray-900">Explanation</span>
           </div>
         </div>
@@ -499,7 +499,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                 {/* Opener - the hook */}
                 <div>
                   <span className="text-[10px] font-semibold text-gray-600 uppercase">Start with</span>
-                  <p className="text-sm text-neutral-200 font-medium mt-0.5 italic">"{pitch.opener}"</p>
+                  <p className="text-sm text-gray-900 font-medium mt-0.5 italic">"{pitch.opener}"</p>
                 </div>
 
                 {/* Approach */}
@@ -529,7 +529,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                 {pitch.complexity && (
                   <div>
                     <span className="text-[10px] font-semibold text-gray-600 uppercase">Complexity</span>
-                    <p className="text-xs text-gray-900 mt-0.5 font-mono bg-neutral-700/50 px-2 py-1 rounded-lg inline-block">{pitch.complexity}</p>
+                    <p className="text-xs text-gray-900 mt-0.5 font-mono bg-gray-100/50 px-2 py-1 rounded-lg inline-block">{pitch.complexity}</p>
                   </div>
                 )}
 
@@ -540,14 +540,14 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                     {Array.isArray(pitch.tradeoffs) ? (
                       <ul className="mt-1 space-y-1">
                         {pitch.tradeoffs.map((tradeoff, i) => (
-                          <li key={i} className="text-xs text-neutral-200 flex items-start gap-2">
+                          <li key={i} className="text-xs text-gray-900 flex items-start gap-2">
                             <span className="text-warning-400 mt-0.5">⚖</span>
                             <span>{tradeoff}</span>
                           </li>
                         ))}
                       </ul>
                     ) : (
-                      <p className="text-xs text-neutral-200 mt-0.5">{pitch.tradeoffs}</p>
+                      <p className="text-xs text-gray-900 mt-0.5">{pitch.tradeoffs}</p>
                     )}
                   </div>
                 )}
@@ -558,7 +558,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                     <span className="text-[10px] font-semibold text-gray-600 uppercase">Edge Cases to Mention</span>
                     <ul className="mt-1 space-y-1">
                       {pitch.edgeCases.map((edge, i) => (
-                        <li key={i} className="text-xs text-neutral-200 flex items-start gap-2">
+                        <li key={i} className="text-xs text-gray-900 flex items-start gap-2">
                           <span className="text-error-400 mt-0.5">⚠</span>
                           <span>{edge}</span>
                         </li>
@@ -603,7 +603,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
 
         {/* Interviewer Q&A Section */}
         {hasSolution && onFollowUpQuestion && (
-          <div className="p-4 rounded-xl bg-neutral-700/30 border border-gray-200 animate-fadeIn">
+          <div className="p-4 rounded-xl bg-gray-100/30 border border-gray-200 animate-fadeIn">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-info-400/20">
@@ -650,7 +650,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                     px-4 py-2 text-sm font-semibold rounded-xl transition-all duration-200 flex items-center gap-2
                     ${autoListenEnabled
                       ? 'bg-gradient-to-r from-brand-400 to-brand-500 text-white shadow-lg shadow-brand-400/25 hover:shadow-brand-400/40'
-                      : 'bg-neutral-600 text-white hover:bg-neutral-500'
+                      : 'bg-gray-200 text-white hover:bg-gray-300'
                     }
                     disabled:opacity-50 disabled:cursor-not-allowed
                   `}
@@ -668,14 +668,14 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
 
             {/* Device Selector Dropdown */}
             {showDeviceSelector && (
-              <div className="mb-3 p-3 rounded-xl bg-neutral-700/30 border border-gray-200">
+              <div className="mb-3 p-3 rounded-xl bg-gray-100/30 border border-gray-200">
                 <label className="text-xs font-bold text-gray-600 uppercase mb-2 block">
                   Audio Input Device
                 </label>
                 <select
                   value={selectedDeviceId || ''}
                   onChange={(e) => setSelectedDeviceId(e.target.value)}
-                  className="w-full px-3 py-2 text-sm bg-gray-50 border border-neutral-600 rounded-lg text-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-transparent transition-all"
                 >
                   {audioDevices.map(device => (
                     <option key={device.deviceId} value={device.deviceId}>
@@ -705,7 +705,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
               <div className="mb-3 p-3 rounded-xl bg-info-900/20 border-2 border-info-700/50">
                 <div className="flex items-center gap-3">
                   <div className={`w-3 h-3 rounded-full ${getStatusColor()}`} />
-                  <span className="text-sm text-neutral-200 font-medium flex-1">
+                  <span className="text-sm text-gray-900 font-medium flex-1">
                     {getStatusText()}
                   </span>
                   {/* Audio level indicator */}
@@ -715,7 +715,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                         <div
                           key={i}
                           className={`w-1 rounded-full transition-all duration-75 ${
-                            audioLevel > i * 20 ? 'bg-brand-400' : 'bg-neutral-600'
+                            audioLevel > i * 20 ? 'bg-brand-400' : 'bg-gray-200'
                           }`}
                           style={{ height: `${8 + i * 3}px` }}
                         />
@@ -735,13 +735,13 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
             {qaHistory.length > 0 && (
               <div className="space-y-3">
                 {[...qaHistory].reverse().map((qa, i) => (
-                  <div key={i} className="p-3 rounded-xl bg-neutral-700/30 border border-gray-200 animate-fadeIn">
+                  <div key={i} className="p-3 rounded-xl bg-gray-100/30 border border-gray-200 animate-fadeIn">
                     <div className="mb-2">
                       <div className="flex items-center gap-1.5 mb-1">
                         <span className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold bg-info-900/30 text-info-400">Q</span>
                         <span className="text-[10px] font-semibold uppercase text-info-400">Question</span>
                       </div>
-                      <p className="text-sm text-neutral-200 font-medium pl-6">{qa.question}</p>
+                      <p className="text-sm text-gray-900 font-medium pl-6">{qa.question}</p>
                     </div>
                     <div>
                       <div className="flex items-center gap-1.5 mb-1">
@@ -766,9 +766,9 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
 
         {/* Line-by-line Explanations */}
         {explanations && explanations.length > 0 && (
-          <div className="p-4 rounded-xl bg-neutral-700/30 border border-gray-200 animate-fadeIn">
+          <div className="p-4 rounded-xl bg-gray-100/30 border border-gray-200 animate-fadeIn">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-neutral-600/50">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-gray-200/50">
                 <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
                 </svg>
@@ -784,18 +784,18 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                   <div
                     key={index}
                     className={`px-2 py-2 rounded-lg transition-all duration-200 ${
-                      isHighlighted ? 'bg-brand-400/10 border border-brand-400/30' : 'hover:bg-neutral-700/30'
+                      isHighlighted ? 'bg-brand-400/10 border border-brand-400/30' : 'hover:bg-gray-100/30'
                     }`}
                   >
                     <div className="flex items-start gap-2 mb-1">
                       <span
                         className={`flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-md text-xs font-mono font-bold ${
-                          isHighlighted ? 'bg-brand-400 text-white' : 'bg-neutral-600 text-gray-900'
+                          isHighlighted ? 'bg-brand-400 text-white' : 'bg-gray-200 text-gray-900'
                         }`}
                       >
                         {item.line}
                       </span>
-                      <code className="flex-1 text-sm font-mono text-neutral-200 font-medium select-text cursor-text whitespace-pre-wrap break-words">
+                      <code className="flex-1 text-sm font-mono text-gray-900 font-medium select-text cursor-text whitespace-pre-wrap break-words">
                         {item.code}
                       </code>
                     </div>

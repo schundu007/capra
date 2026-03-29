@@ -75,10 +75,10 @@ export default function Sidebar({
   };
 
   const sidebarContent = (
-    <div className={`${isMobile ? 'w-[280px] max-w-[80vw]' : 'w-[260px] min-w-[260px]'} h-full flex flex-col bg-neutral-850 border-r border-neutral-700/50`}>
+    <div className={`${isMobile ? 'w-[280px] max-w-[80vw]' : 'w-[260px] min-w-[260px]'} h-full flex flex-col bg-white border-r border-gray-200`}>
       {/* Header with Logo */}
       <div
-        className="flex items-center h-14 px-4 border-b border-neutral-700/50"
+        className="flex items-center h-14 px-4 border-b border-gray-200"
         style={{
           paddingLeft: isMacElectron ? '80px' : '16px',
           WebkitAppRegion: 'drag',
@@ -109,23 +109,23 @@ export default function Sidebar({
         {/* Saved Designs Section */}
         <div className="space-y-1">
           <button
-            className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-neutral-700/30 transition-colors"
+            className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-100/30 transition-colors"
             onClick={() => setDesignsCollapsed(!designsCollapsed)}
           >
             <div className="flex items-center gap-2">
               <svg
-                className={`w-3 h-3 text-neutral-400 transition-transform duration-200 ${designsCollapsed ? '-rotate-90' : ''}`}
+                className={`w-3 h-3 text-gray-600 transition-transform duration-200 ${designsCollapsed ? '-rotate-90' : ''}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
-              <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
                 Saved Designs
               </span>
             </div>
-            <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-neutral-700 text-brand-400">
+            <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-brand-400">
               {savedDesigns.length}
             </span>
           </button>
@@ -133,7 +133,7 @@ export default function Sidebar({
           {!designsCollapsed && (
             <div className="space-y-0.5 mt-1">
               {savedDesigns.length === 0 ? (
-                <div className="px-3 py-2 text-sm text-neutral-500 italic">
+                <div className="px-3 py-2 text-sm text-gray-400 italic">
                   No saved designs
                 </div>
               ) : (
@@ -141,10 +141,10 @@ export default function Sidebar({
                   {savedDesigns.slice(0, 5).map((design) => (
                     <button
                       key={design.id}
-                      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-700/50 transition-all duration-150 group"
+                      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-600 hover:text-white hover:bg-gray-100/50 transition-all duration-150 group"
                       onClick={() => onLoadDesign(design.id)}
                     >
-                      <div className="w-7 h-7 rounded-md bg-neutral-700 flex items-center justify-center flex-shrink-0 group-hover:bg-neutral-600">
+                      <div className="w-7 h-7 rounded-md bg-gray-100 flex items-center justify-center flex-shrink-0 group-hover:bg-gray-200">
                         <Icon name="document" size={14} />
                       </div>
                       <span className="text-sm truncate flex-1 text-left">{design.title || 'Untitled'}</span>
@@ -156,7 +156,7 @@ export default function Sidebar({
                             w-6 h-6 rounded-md flex items-center justify-center text-sm
                             ${deleteConfirmId === `design-${design.id}`
                               ? 'bg-error-500/20 text-error-400'
-                              : 'hover:bg-neutral-600 text-neutral-500'
+                              : 'hover:bg-gray-200 text-gray-400'
                             }
                           `}
                         >
@@ -182,23 +182,23 @@ export default function Sidebar({
         {/* Recent History Section */}
         <div className="space-y-1 mt-2">
           <button
-            className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-neutral-700/30 transition-colors"
+            className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-100/30 transition-colors"
             onClick={() => setHistoryCollapsed(!historyCollapsed)}
           >
             <div className="flex items-center gap-2">
               <svg
-                className={`w-3 h-3 text-neutral-400 transition-transform duration-200 ${historyCollapsed ? '-rotate-90' : ''}`}
+                className={`w-3 h-3 text-gray-600 transition-transform duration-200 ${historyCollapsed ? '-rotate-90' : ''}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
-              <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
                 Recent History
               </span>
             </div>
-            <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-neutral-700 text-brand-400">
+            <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-brand-400">
               {codingHistory.length}
             </span>
           </button>
@@ -206,7 +206,7 @@ export default function Sidebar({
           {!historyCollapsed && (
             <div className="space-y-0.5 mt-1">
               {codingHistory.length === 0 ? (
-                <div className="px-3 py-2 text-sm text-neutral-500 italic">
+                <div className="px-3 py-2 text-sm text-gray-400 italic">
                   No history yet
                 </div>
               ) : (
@@ -214,10 +214,10 @@ export default function Sidebar({
                   {codingHistory.slice(0, 8).map((entry) => (
                     <button
                       key={entry.id}
-                      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-700/50 transition-all duration-150 group"
+                      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-600 hover:text-white hover:bg-gray-100/50 transition-all duration-150 group"
                       onClick={() => onLoadHistory(entry.id)}
                     >
-                      <div className="w-7 h-7 rounded-md bg-neutral-700 flex items-center justify-center flex-shrink-0 group-hover:bg-neutral-600">
+                      <div className="w-7 h-7 rounded-md bg-gray-100 flex items-center justify-center flex-shrink-0 group-hover:bg-gray-200">
                         <Icon name="clock" size={14} />
                       </div>
                       <span className="text-sm truncate flex-1 text-left">{entry.title || 'Untitled'}</span>
@@ -229,7 +229,7 @@ export default function Sidebar({
                             w-6 h-6 rounded-md flex items-center justify-center text-sm
                             ${deleteConfirmId === `history-${entry.id}`
                               ? 'bg-error-500/20 text-error-400'
-                              : 'hover:bg-neutral-600 text-neutral-500'
+                              : 'hover:bg-gray-200 text-gray-400'
                             }
                           `}
                         >
@@ -255,13 +255,13 @@ export default function Sidebar({
 
       {/* Footer Section */}
       {authRequired && user && (
-        <div className="p-3 border-t border-neutral-700/50">
-          <div className="flex items-center gap-3 px-2 py-2 rounded-xl bg-neutral-700/30">
+        <div className="p-3 border-t border-gray-200">
+          <div className="flex items-center gap-3 px-2 py-2 rounded-xl bg-gray-100/30">
             <div className="relative">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-400 to-brand-500 flex items-center justify-center text-white font-semibold text-sm">
                 {(user.name || user.username || 'U')[0].toUpperCase()}
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-brand-400 border-2 border-neutral-850" />
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-brand-400 border-2 border-white" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-sm font-medium text-white truncate">
@@ -272,7 +272,7 @@ export default function Sidebar({
               {isAdmin && onOpenAdminPanel && (
                 <button
                   onClick={onOpenAdminPanel}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-600 transition-colors"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
                   title="Admin"
                 >
                   <Icon name="users" size={16} />
@@ -280,7 +280,7 @@ export default function Sidebar({
               )}
               <button
                 onClick={onLogout}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-400 hover:text-error-400 hover:bg-error-500/10 transition-colors"
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-600 hover:text-error-400 hover:bg-error-500/10 transition-colors"
                 title="Sign out"
               >
                 <Icon name="logout" size={16} />
