@@ -68,7 +68,7 @@ const getApiUrl = () => {
   if (window.electronAPI?.isElectron) {
     return 'http://127.0.0.1:3001';
   }
-  return import.meta.env.VITE_API_URL || 'https://capra-backend.up.railway.app';
+  return import.meta.env.VITE_API_URL || '';
 };
 
 /**

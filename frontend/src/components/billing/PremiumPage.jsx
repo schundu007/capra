@@ -334,7 +334,7 @@ export default function PremiumPage() {
               <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
                 <Icon name="ascend" size={14} className="text-gray-900" />
               </div>
-              <span className="text-sm text-gray-500">&copy; 2025 Ascend by Cariara. All rights reserved.</span>
+              <span className="text-sm text-gray-500">&copy; 2026 Ascend by Cariara. All rights reserved.</span>
             </div>
             <div className="flex items-center gap-5">
               {[

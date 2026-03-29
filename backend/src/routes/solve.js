@@ -49,7 +49,7 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
           logger.debug({ userId: webappUserId }, 'Webapp user detected');
 
           // Check subscription OR free usage (freemium model)
-          const featureType = ascendMode === 'system_design' ? 'design' : 'coding';
+          const featureType = ascendMode === 'system-design' ? 'design' : 'coding';
           const canUseResult = await freeUsageService.canUseFeature(webappUserId, featureType);
           logger.debug({ userId: webappUserId, featureType, result: canUseResult }, 'Feature access check');
 
@@ -199,13 +199,13 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
       // Deduct usage for webapp users after successful completion
       if (webappUserId) {
         try {
-          const featureType = ascendMode === 'system_design' ? 'design' : 'coding';
+          const featureType = ascendMode === 'system-design' ? 'design' : 'coding';
           // Check subscription status to determine which usage to deduct
           const subStatus = await freeUsageService.getSubscriptionStatus(webappUserId);
 
           if (subStatus.hasSubscription) {
             // Subscribed user - deduct from subscription allowance
-            if (ascendMode === 'system_design') {
+            if (ascendMode === 'system-design') {
               await usageService.useSystemDesign(webappUserId);
               logger.debug({ userId: webappUserId, type: 'design' }, 'Deducted subscription usage');
             } else {

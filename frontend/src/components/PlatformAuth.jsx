@@ -68,12 +68,12 @@ export default function PlatformAuth({ onClose }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.5)' }}>
       <div className="w-full max-w-md mx-4 rounded-lg overflow-hidden shadow-xl" style={{ background: '#ffffff', border: '1px solid #e5e5e5' }}>
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3" style={{ background: '#1a1a1a' }}>
-          <span className="text-sm font-semibold" style={{ color: '#ffffff' }}>Platform Login</span>
+        <div className="flex items-center justify-between px-4 py-3" style={{ background: '#f8fafc', borderBottom: '1px solid #e5e7eb' }}>
+          <span className="text-sm font-semibold" style={{ color: '#111827' }}>Platform Login</span>
           <button
             onClick={onClose}
-            className="p-1 rounded transition-colors hover:bg-white/10"
-            style={{ color: '#ffffff' }}
+            className="p-1 rounded transition-colors hover:bg-gray-100"
+            style={{ color: '#6b7280' }}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

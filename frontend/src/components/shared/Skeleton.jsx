@@ -1,5 +1,5 @@
 export default function Skeleton({ variant = 'text', lines = 3, className = '' }) {
-  const shimmer = 'animate-shimmer bg-gradient-to-r from-neutral-800 via-neutral-700 to-neutral-800 bg-[length:200%_100%]';
+  const shimmer = 'animate-shimmer bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 bg-[length:200%_100%]';
 
   if (variant === 'text') {
     return (

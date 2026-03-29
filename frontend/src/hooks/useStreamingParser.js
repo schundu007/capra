@@ -46,7 +46,7 @@ export function parseStreamingContent(text) {
   }
 
   if (codeMatch) {
-    const codeValue = codeMatch[1] || codeMatch[1];
+    const codeValue = codeMatch[1] || codeMatch[2] || '';
     result.code = codeValue
       .replace(/\\n/g, '\n')
       .replace(/\\t/g, '\t')

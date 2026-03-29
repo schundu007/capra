@@ -27,15 +27,15 @@ export default function KeyboardShortcutsModal({ onClose }) {
     >
       <div
         className="rounded-lg w-full max-w-[420px] mx-4 max-h-[80vh] overflow-hidden shadow-xl"
-        style={{ background: '#1a1a1a' }}
+        style={{ background: '#ffffff', border: '1px solid #e5e7eb' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid #333333' }}>
-          <span className="text-sm font-semibold" style={{ color: '#ffffff' }}>Keyboard Shortcuts</span>
+        <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid #e5e7eb' }}>
+          <span className="text-sm font-semibold" style={{ color: '#111827' }}>Keyboard Shortcuts</span>
           <button
             onClick={onClose}
-            style={{ color: '#a1a1aa' }}
+            style={{ color: '#6b7280' }}
             className="hover:text-gray-900 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,25 +56,25 @@ export default function KeyboardShortcutsModal({ onClose }) {
                   <div
                     key={idx}
                     className="flex items-center justify-between py-1.5 px-2 rounded"
-                    style={{ background: '#252525' }}
+                    style={{ background: '#f8fafc' }}
                   >
-                    <span className="text-xs" style={{ color: '#e4e4e7' }}>{shortcut.description}</span>
+                    <span className="text-xs" style={{ color: '#374151' }}>{shortcut.description}</span>
                     <div className="flex items-center gap-1">
                       {shortcut.keys.map((key, kidx) => (
                         <span key={kidx}>
                           <kbd
                             className="px-1.5 py-0.5 text-xs font-mono rounded"
                             style={{
-                              background: '#3d3d3d',
-                              color: '#ffffff',
-                              border: '1px solid #4d4d4d',
-                              boxShadow: '0 1px 0 #1a1a1a'
+                              background: '#e2e8f0',
+                              color: '#111827',
+                              border: '1px solid #cbd5e1',
+                              boxShadow: '0 1px 0 #d1d5db'
                             }}
                           >
                             {key}
                           </kbd>
                           {kidx < shortcut.keys.length - 1 && (
-                            <span className="mx-0.5 text-xs" style={{ color: '#666666' }}>+</span>
+                            <span className="mx-0.5 text-xs" style={{ color: '#9ca3af' }}>+</span>
                           )}
                         </span>
                       ))}

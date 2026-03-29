@@ -1,6 +1,6 @@
 export default function LoadingScreen() {
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-100">
+    <div className="h-screen flex items-center justify-center bg-white">
       <div className="flex flex-col items-center gap-4">
         <div
           className="w-12 h-12 rounded-xl flex items-center justify-center"

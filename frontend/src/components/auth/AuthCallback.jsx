@@ -35,10 +35,10 @@ export default function AuthCallback() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#1a1a1a' }}>
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#ffffff' }}>
         <div
           className="w-full max-w-sm p-8 rounded-xl text-center"
-          style={{ background: '#242424', border: '1px solid #333333' }}
+          style={{ background: '#f8fafc', border: '1px solid #e5e7eb' }}
         >
           <div className="mb-4">
             <svg className="w-12 h-12 mx-auto animate-spin text-emerald-500" fill="none" viewBox="0 0 24 24">
@@ -47,7 +47,7 @@ export default function AuthCallback() {
             </svg>
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">Signing you in...</h2>
-          <p className="text-gray-400">Please wait while we complete the authentication.</p>
+          <p className="text-gray-500">Please wait while we complete the authentication.</p>
         </div>
       </div>
     );
@@ -55,10 +55,10 @@ export default function AuthCallback() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#1a1a1a' }}>
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#ffffff' }}>
         <div
           className="w-full max-w-sm p-8 rounded-xl text-center"
-          style={{ background: '#242424', border: '1px solid #333333' }}
+          style={{ background: '#f8fafc', border: '1px solid #e5e7eb' }}
         >
           <div className="mb-4">
             <svg className="w-12 h-12 mx-auto text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,7 +66,7 @@ export default function AuthCallback() {
             </svg>
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">Authentication Failed</h2>
-          <p className="text-red-400 mb-4">{error}</p>
+          <p className="text-red-600 mb-4">{error}</p>
           <a
             href="/login"
             className="inline-block px-6 py-2 rounded-lg font-medium transition-colors"
@@ -81,10 +81,10 @@ export default function AuthCallback() {
 
   if (isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#1a1a1a' }}>
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#ffffff' }}>
         <div
           className="w-full max-w-sm p-8 rounded-xl text-center"
-          style={{ background: '#242424', border: '1px solid #333333' }}
+          style={{ background: '#f8fafc', border: '1px solid #e5e7eb' }}
         >
           <div className="mb-4">
             <svg className="w-12 h-12 mx-auto text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,7 +92,7 @@ export default function AuthCallback() {
             </svg>
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">Success!</h2>
-          <p className="text-gray-400">Redirecting to your dashboard...</p>
+          <p className="text-gray-500">Redirecting to your dashboard...</p>
         </div>
       </div>
     );

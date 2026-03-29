@@ -17,7 +17,6 @@ import ErrorBoundary from '../components/shared/ErrorBoundary';
 // Lazy-loaded components (modals, panels rendered on demand)
 const PricingPlans = lazy(() => import('../components/billing/PricingPlans'));
 const OnboardingModal = lazy(() => import('../components/onboarding/OnboardingModal'));
-import { hasCompletedOnboarding } from '../components/onboarding/OnboardingModal';
 const AdminPanel = lazy(() => import('../components/AdminPanel'));
 const SettingsPanel = lazy(() => import('../components/settings/SettingsPanel'));
 const SetupWizard = lazy(() => import('../components/settings/SetupWizard'));
@@ -35,7 +34,6 @@ import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
 import { useSystemDesignStorage } from '../hooks/useSystemDesignStorage';
 import { useCodingHistory } from '../hooks/useCodingHistory';
 import { useSolve, useAutoTestFix } from '../hooks/useSolve';
-import { parseStreamingContent } from '../hooks/useStreamingParser';
 
 // Context & Utils
 import { useAuth } from '../contexts/AuthContext';
@@ -282,15 +280,6 @@ export default function MainApp() {
       setAuthChecked(true);
     }
   }, [auth.loading]);
-
-  // ---------------------------------------------------------------------------
-  // Show onboarding for new webapp users
-  // ---------------------------------------------------------------------------
-  useEffect(() => {
-    if (false) {
-      setShowOnboarding(true);
-    }
-  }, [isAuthenticated, authChecked]);
 
   // ---------------------------------------------------------------------------
   // Handle incoming problem from docs page
@@ -615,7 +604,6 @@ export default function MainApp() {
       }
       return result;
     } catch (err) {
-      console.error('Follow-up error:', err);
       return null;
     } finally {
       setIsProcessingFollowUp(false);
@@ -642,7 +630,7 @@ export default function MainApp() {
         }
       }
     } catch (err) {
-      console.error('Eraser diagram failed:', err);
+      // Eraser diagram generation failed silently
     }
   }, [systemDesignStorage]);
 

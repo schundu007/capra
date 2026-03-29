@@ -89,7 +89,6 @@ export function useKeyboardShortcuts({
       if (e.key === '1' && modifierForNumbers && !e.shiftKey && !e.altKey) {
         e.preventDefault();
         e.stopPropagation();
-        console.log('[Shortcuts] Ctrl/Cmd+1 detected, isLoading:', isLoading, 'onSolve:', !!onSolve);
         if (!isLoading && onSolve) {
           document.activeElement?.blur?.();
           onSolve();
@@ -101,7 +100,6 @@ export function useKeyboardShortcuts({
       if (e.key === '2' && modifierForNumbers && !e.shiftKey && !e.altKey) {
         e.preventDefault();
         e.stopPropagation();
-        console.log('[Shortcuts] Ctrl/Cmd+2 detected, isLoading:', isLoading, 'onRun:', !!onRun);
         if (!isLoading && onRun) {
           onRun();
         }
@@ -112,7 +110,6 @@ export function useKeyboardShortcuts({
       if (e.key === '3' && modifierForNumbers && !e.shiftKey && !e.altKey) {
         e.preventDefault();
         e.stopPropagation();
-        console.log('[Shortcuts] Ctrl/Cmd+3 detected, hasCode:', hasCode, 'onCopyCode:', !!onCopyCode);
         if (hasCode && onCopyCode) {
           onCopyCode();
         }
