@@ -16,7 +16,7 @@ function FormattedText({ text }) {
         if (para.trim().startsWith('```') || para.match(/^[\s]{4,}/m)) {
           const code = para.replace(/^```\w*\n?|```$/g, '').trim();
           return (
-            <pre key={i} className="p-3 rounded-lg text-xs font-mono overflow-x-auto bg-neutral-800 text-brand-400 border border-neutral-600/50">
+            <pre key={i} className="p-3 rounded-lg text-xs font-mono overflow-x-auto bg-gray-50 text-brand-400 border border-gray-200">
               {code}
             </pre>
           );
@@ -53,7 +53,7 @@ function FormattedText({ text }) {
           .join(' ')
           .replace(/\*\*(.+?)\*\*|__(.+?)__/g, '<strong class="font-semibold text-neutral-100">$1$2</strong>')
           .replace(/`([^`]+)`/g, '<code class="bg-brand-400/10 text-brand-400 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>')
-          .replace(/\*(.+?)\*|_(.+?)_/g, '<em class="text-neutral-300">$1$2</em>');
+          .replace(/\*(.+?)\*|_(.+?)_/g, '<em class="text-gray-900">$1$2</em>');
 
         return (
           <p
@@ -431,15 +431,15 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
   // Empty state
   if ((!explanations || explanations.length === 0) && !pitch && !hasSystemDesign && !isStreaming) {
     return (
-      <div className="h-full flex flex-col overflow-hidden bg-neutral-750 rounded-xl border border-neutral-700/50">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700/50 bg-neutral-800/50">
+      <div className="h-full flex flex-col overflow-hidden bg-white rounded-xl border border-gray-200">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-neutral-500" />
-            <span className="text-sm font-semibold text-neutral-300">Explanation</span>
+            <span className="text-sm font-semibold text-gray-900">Explanation</span>
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center p-4">
-          <p className="text-sm text-neutral-500">Solve a problem to see explanations</p>
+          <p className="text-sm text-gray-500">Solve a problem to see explanations</p>
         </div>
       </div>
     );
@@ -448,11 +448,11 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
   // Streaming state
   if (isStreaming && !pitch && (!explanations || explanations.length === 0)) {
     return (
-      <div className="h-full flex flex-col overflow-hidden bg-neutral-750 rounded-xl border border-neutral-700/50">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700/50 bg-neutral-800/50">
+      <div className="h-full flex flex-col overflow-hidden bg-white rounded-xl border border-gray-200">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" />
-            <span className="text-sm font-semibold text-neutral-300">Explanation</span>
+            <span className="text-sm font-semibold text-gray-900">Explanation</span>
             <div className="flex gap-0.5 ml-1.5">
               <span className="w-1 h-1 rounded-full animate-bounce bg-brand-400" style={{ animationDelay: '0ms' }} />
               <span className="w-1 h-1 rounded-full animate-bounce bg-brand-400" style={{ animationDelay: '150ms' }} />
@@ -461,19 +461,19 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center">
-          <p className="text-sm text-neutral-500">Generating...</p>
+          <p className="text-sm text-gray-500">Generating...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col overflow-hidden bg-neutral-750 rounded-xl border border-neutral-700/50">
+    <div className="h-full flex flex-col overflow-hidden bg-white rounded-xl border border-gray-200">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700/50 bg-neutral-800/50">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-brand-400" />
-          <span className="text-sm font-semibold text-neutral-300">Explanation</span>
+          <span className="text-sm font-semibold text-gray-900">Explanation</span>
         </div>
       </div>
 
@@ -498,25 +498,25 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
               <div className="space-y-3">
                 {/* Opener - the hook */}
                 <div>
-                  <span className="text-[10px] font-semibold text-neutral-400 uppercase">Start with</span>
+                  <span className="text-[10px] font-semibold text-gray-600 uppercase">Start with</span>
                   <p className="text-sm text-neutral-200 font-medium mt-0.5 italic">"{pitch.opener}"</p>
                 </div>
 
                 {/* Approach */}
                 {pitch.approach && (
                   <div>
-                    <span className="text-[10px] font-semibold text-neutral-400 uppercase">Then explain</span>
-                    <p className="text-sm text-neutral-300 mt-0.5">{pitch.approach}</p>
+                    <span className="text-[10px] font-semibold text-gray-600 uppercase">Then explain</span>
+                    <p className="text-sm text-gray-900 mt-0.5">{pitch.approach}</p>
                   </div>
                 )}
 
                 {/* Key Points */}
                 {pitch.keyPoints && pitch.keyPoints.length > 0 && (
                   <div>
-                    <span className="text-[10px] font-semibold text-neutral-400 uppercase">Key Points to Mention</span>
+                    <span className="text-[10px] font-semibold text-gray-600 uppercase">Key Points to Mention</span>
                     <ul className="mt-1 space-y-1">
                       {pitch.keyPoints.map((point, i) => (
-                        <li key={i} className="text-xs text-neutral-300 flex items-start gap-2">
+                        <li key={i} className="text-xs text-gray-900 flex items-start gap-2">
                           <span className="text-brand-400 font-bold">{i + 1}.</span>
                           {point}
                         </li>
@@ -528,15 +528,15 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                 {/* Complexity */}
                 {pitch.complexity && (
                   <div>
-                    <span className="text-[10px] font-semibold text-neutral-400 uppercase">Complexity</span>
-                    <p className="text-xs text-neutral-300 mt-0.5 font-mono bg-neutral-700/50 px-2 py-1 rounded-lg inline-block">{pitch.complexity}</p>
+                    <span className="text-[10px] font-semibold text-gray-600 uppercase">Complexity</span>
+                    <p className="text-xs text-gray-900 mt-0.5 font-mono bg-neutral-700/50 px-2 py-1 rounded-lg inline-block">{pitch.complexity}</p>
                   </div>
                 )}
 
                 {/* Tradeoffs */}
                 {pitch.tradeoffs && (
                   <div>
-                    <span className="text-[10px] font-semibold text-neutral-400 uppercase">Tradeoffs</span>
+                    <span className="text-[10px] font-semibold text-gray-600 uppercase">Tradeoffs</span>
                     {Array.isArray(pitch.tradeoffs) ? (
                       <ul className="mt-1 space-y-1">
                         {pitch.tradeoffs.map((tradeoff, i) => (
@@ -555,7 +555,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                 {/* Edge Cases */}
                 {pitch.edgeCases && pitch.edgeCases.length > 0 && (
                   <div>
-                    <span className="text-[10px] font-semibold text-neutral-400 uppercase">Edge Cases to Mention</span>
+                    <span className="text-[10px] font-semibold text-gray-600 uppercase">Edge Cases to Mention</span>
                     <ul className="mt-1 space-y-1">
                       {pitch.edgeCases.map((edge, i) => (
                         <li key={i} className="text-xs text-neutral-200 flex items-start gap-2">
@@ -575,20 +575,20 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                   const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
                   return (
                     <div key={key}>
-                      <span className="text-[10px] font-semibold text-neutral-400 uppercase">{label}</span>
+                      <span className="text-[10px] font-semibold text-gray-600 uppercase">{label}</span>
                       {Array.isArray(value) ? (
                         <ul className="mt-1 space-y-1">
                           {value.map((item, i) => (
-                            <li key={i} className="text-xs text-neutral-300 flex items-start gap-2">
+                            <li key={i} className="text-xs text-gray-900 flex items-start gap-2">
                               <span className="text-brand-400 font-bold">{i + 1}.</span>
                               {typeof item === 'string' ? item : JSON.stringify(item)}
                             </li>
                           ))}
                         </ul>
                       ) : typeof value === 'object' ? (
-                        <p className="text-sm text-neutral-300 mt-0.5">{JSON.stringify(value)}</p>
+                        <p className="text-sm text-gray-900 mt-0.5">{JSON.stringify(value)}</p>
                       ) : (
-                        <p className="text-sm text-neutral-300 mt-0.5">{value}</p>
+                        <p className="text-sm text-gray-900 mt-0.5">{value}</p>
                       )}
                     </div>
                   );
@@ -603,7 +603,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
 
         {/* Interviewer Q&A Section */}
         {hasSolution && onFollowUpQuestion && (
-          <div className="p-4 rounded-xl bg-neutral-700/30 border border-neutral-600/50 animate-fadeIn">
+          <div className="p-4 rounded-xl bg-neutral-700/30 border border-gray-200 animate-fadeIn">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-info-400/20">
@@ -611,7 +611,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                   </svg>
                 </div>
-                <span className="text-xs font-bold uppercase tracking-wide text-neutral-300">
+                <span className="text-xs font-bold uppercase tracking-wide text-gray-900">
                   Interviewer Q&A
                 </span>
               </div>
@@ -621,7 +621,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                 {qaHistory.length > 0 && (
                   <button
                     onClick={() => setQaHistory([])}
-                    className="p-2 text-neutral-400 hover:text-error-400 hover:bg-error-900/20 rounded-lg transition-all duration-200"
+                    className="p-2 text-gray-600 hover:text-error-400 hover:bg-error-900/20 rounded-lg transition-all duration-200"
                     title="Clear Q&A history"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -633,7 +633,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                 {/* Device Selector */}
                 <button
                   onClick={() => setShowDeviceSelector(!showDeviceSelector)}
-                  className="p-2 text-neutral-400 hover:text-info-400 hover:bg-info-900/20 rounded-lg transition-all duration-200"
+                  className="p-2 text-gray-600 hover:text-info-400 hover:bg-info-900/20 rounded-lg transition-all duration-200"
                   title="Select audio input device"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -668,14 +668,14 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
 
             {/* Device Selector Dropdown */}
             {showDeviceSelector && (
-              <div className="mb-3 p-3 rounded-xl bg-neutral-700/30 border border-neutral-600/50">
-                <label className="text-xs font-bold text-neutral-400 uppercase mb-2 block">
+              <div className="mb-3 p-3 rounded-xl bg-neutral-700/30 border border-gray-200">
+                <label className="text-xs font-bold text-gray-600 uppercase mb-2 block">
                   Audio Input Device
                 </label>
                 <select
                   value={selectedDeviceId || ''}
                   onChange={(e) => setSelectedDeviceId(e.target.value)}
-                  className="w-full px-3 py-2 text-sm bg-neutral-800 border border-neutral-600 rounded-lg text-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 text-sm bg-gray-50 border border-neutral-600 rounded-lg text-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-transparent transition-all"
                 >
                   {audioDevices.map(device => (
                     <option key={device.deviceId} value={device.deviceId}>
@@ -683,7 +683,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                     </option>
                   ))}
                 </select>
-                <p className="text-xs text-neutral-500 mt-2 leading-relaxed">
+                <p className="text-xs text-gray-500 mt-2 leading-relaxed">
                   <strong>Tip:</strong> For best results capturing interviewer voice from Zoom/Meet/Teams:
                   <br />• Install <a href="https://existential.audio/blackhole/" target="_blank" rel="noopener" className="text-brand-400 hover:underline">BlackHole</a> (free virtual audio device)
                   <br />• Create Multi-Output Device in Audio MIDI Setup
@@ -723,7 +723,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                     </div>
                   )}
                 </div>
-                <p className="text-xs text-neutral-500 mt-1">
+                <p className="text-xs text-gray-500 mt-1">
                   {audioDevices.find(d => d.deviceId === selectedDeviceId)?.label?.toLowerCase().includes('blackhole')
                     ? 'Capturing system audio via BlackHole'
                     : 'Using: ' + (audioDevices.find(d => d.deviceId === selectedDeviceId)?.label || 'default mic')}
@@ -735,7 +735,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
             {qaHistory.length > 0 && (
               <div className="space-y-3">
                 {[...qaHistory].reverse().map((qa, i) => (
-                  <div key={i} className="p-3 rounded-xl bg-neutral-700/30 border border-neutral-600/50 animate-fadeIn">
+                  <div key={i} className="p-3 rounded-xl bg-neutral-700/30 border border-gray-200 animate-fadeIn">
                     <div className="mb-2">
                       <div className="flex items-center gap-1.5 mb-1">
                         <span className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold bg-info-900/30 text-info-400">Q</span>
@@ -751,10 +751,10 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                       {qa.pending ? (
                         <div className="pl-6 flex items-center gap-2">
                           <div className="w-3 h-3 border-2 rounded-full animate-spin border-brand-400 border-t-transparent" />
-                          <p className="text-sm text-neutral-500 italic">Generating answer...</p>
+                          <p className="text-sm text-gray-500 italic">Generating answer...</p>
                         </div>
                       ) : (
-                        <p className="text-sm text-neutral-300 whitespace-pre-wrap pl-6">{qa.answer}</p>
+                        <p className="text-sm text-gray-900 whitespace-pre-wrap pl-6">{qa.answer}</p>
                       )}
                     </div>
                   </div>
@@ -766,14 +766,14 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
 
         {/* Line-by-line Explanations */}
         {explanations && explanations.length > 0 && (
-          <div className="p-4 rounded-xl bg-neutral-700/30 border border-neutral-600/50 animate-fadeIn">
+          <div className="p-4 rounded-xl bg-neutral-700/30 border border-gray-200 animate-fadeIn">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-neutral-600/50">
-                <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
                 </svg>
               </div>
-              <span className="text-xs font-bold uppercase tracking-wide text-neutral-400">
+              <span className="text-xs font-bold uppercase tracking-wide text-gray-600">
                 Line Breakdown
               </span>
             </div>
@@ -790,7 +790,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                     <div className="flex items-start gap-2 mb-1">
                       <span
                         className={`flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-md text-xs font-mono font-bold ${
-                          isHighlighted ? 'bg-brand-400 text-white' : 'bg-neutral-600 text-neutral-300'
+                          isHighlighted ? 'bg-brand-400 text-white' : 'bg-neutral-600 text-gray-900'
                         }`}
                       >
                         {item.line}
@@ -800,7 +800,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                       </code>
                     </div>
                     <div className="pl-8">
-                      <p className="text-sm text-neutral-300 select-text leading-relaxed">
+                      <p className="text-sm text-gray-900 select-text leading-relaxed">
                         {item.explanation}
                       </p>
                     </div>
