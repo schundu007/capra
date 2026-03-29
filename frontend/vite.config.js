@@ -10,13 +10,14 @@ export default defineConfig({
     // PWA — disabled for Electron builds
     !isElectronBuild && VitePWA({
       registerType: 'autoUpdate',
+      devOptions: { enabled: false },
       includeAssets: ['ascend-logo.png', 'ascend-icon.png', 'vite.svg'],
       manifest: {
         name: 'Ascend — AI Coding Assistant',
         short_name: 'Ascend',
         description: 'AI-powered coding assistant for interviews',
-        theme_color: '#0f172a',
-        background_color: '#0f172a',
+        theme_color: '#ffffff',
+        background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait-primary',
         start_url: '/',
@@ -28,6 +29,8 @@ export default defineConfig({
         ],
       },
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB — app bundle is large
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         runtimeCaching: [
