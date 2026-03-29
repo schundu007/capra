@@ -86,9 +86,9 @@ export default function OAuthLogin({ loginOnly = false }) {
             </div>
 
             <div className="flex items-center gap-4">
-              <button onClick={() => handleOAuthLogin('google')} disabled={!!loading} className="hidden sm:flex items-center gap-2 px-6 py-3 rounded-xl text-[16px] font-semibold text-white transition-all duration-300 hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)] landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                {loading === 'google' ? <Icon name="loader" size={16} className="animate-spin" /> : 'Get Started'}
-              </button>
+              <a href="/app/coding" className="hidden sm:flex items-center gap-2 px-6 py-3 rounded-xl text-[16px] font-semibold text-white transition-all duration-300 hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)] landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                Get Started
+              </a>
               <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors">
                 <Icon name={mobileMenuOpen ? 'close' : 'menu'} size={22} />
               </button>

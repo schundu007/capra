@@ -847,19 +847,13 @@ export default function App() {
   // ---------------------------------------------------------------------------
   if (isPremiumPage) return <PremiumPage />;
 
-  // Protected routes require auth — show login prompt and save intended URL
-  if (authRequired && !isAuthenticated) {
-    const intended = window.location.pathname + window.location.search;
-    if (intended !== '/' && intended !== '/login') {
-      sessionStorage.setItem('postLoginRedirect', intended);
-    }
-    return <OAuthLogin loginOnly />;
-  }
+  // OAuth disabled — allow all users through
+  // When re-enabling, restore auth check here
 
   // ---------------------------------------------------------------------------
   // Render: Download Page
   // ---------------------------------------------------------------------------
-  if (isDownloadPage && isAuthenticated) return <DownloadPage />;
+  if (isDownloadPage) return <DownloadPage />;
 
   // ---------------------------------------------------------------------------
   // Render: Ascend Prep Window
