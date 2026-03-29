@@ -809,7 +809,7 @@ export default function MainApp() {
   };
 
   return (
-    <div className={`h-screen-safe flex overflow-hidden ${isMobile ? 'pb-[52px]' : ''}`} style={{ background: isMobile ? '#0f172a' : 'var(--content-bg)', color: isMobile ? '#ffffff' : '#1a1a1a' }}>
+    <div className={`h-screen-safe flex overflow-hidden`} style={{ background: isMobile ? '#0f172a' : 'var(--content-bg)', color: isMobile ? '#ffffff' : '#1a1a1a', paddingBottom: isMobile ? 'calc(52px + env(safe-area-inset-bottom, 0px))' : undefined }}>
       {/* Sidebar — desktop: inline, mobile: overlay drawer */}
       {isMobile ? (
         <Sidebar {...sidebarProps} isOpen={mobileDrawerOpen} />
@@ -1193,12 +1193,12 @@ function CodingLayout({
   const ProblemPane = () => (
     <div className="h-full flex flex-col overflow-hidden bg-neutral-750">
       <div className="flex-shrink-0">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700/50 bg-neutral-800/50">
-          <div className="flex items-center gap-3">
-            <div className="w-1 h-5 rounded-full bg-gradient-to-b from-brand-400 to-brand-500" />
-            <h2 className="text-sm font-semibold text-white">{ascendMode === 'system-design' ? 'System Design' : 'Problem'}</h2>
+        <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b border-neutral-700/50 bg-neutral-800/50 gap-2 min-h-[44px] flex-wrap">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="w-1 h-4 rounded-full bg-gradient-to-b from-brand-400 to-brand-500 flex-shrink-0" />
+            <h2 className="text-xs sm:text-sm font-semibold text-white truncate">{ascendMode === 'system-design' ? 'System Design' : 'Problem'}</h2>
             {ascendMode === 'system-design' && (
-              <button onClick={onSavedDesignsClick} aria-label="View saved designs" className={`flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-medium rounded-lg transition-all duration-200 ${savedDesignsCount > 0 ? 'bg-brand-400/10 text-brand-400 border border-brand-400/30' : 'bg-neutral-700 text-neutral-400 hover:text-neutral-300'}`}>
+              <button onClick={onSavedDesignsClick} aria-label="View saved designs" className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-medium rounded-lg transition-all duration-200 ${savedDesignsCount > 0 ? 'bg-brand-400/10 text-brand-400 border border-brand-400/30' : 'bg-neutral-700 text-neutral-400 hover:text-neutral-300'}`}>
                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
                 Saved ({savedDesignsCount})
               </button>

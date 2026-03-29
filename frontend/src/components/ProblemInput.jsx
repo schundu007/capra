@@ -210,7 +210,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                   key={tab.id}
                   onClick={() => handleTabSwitch(tab.id)}
                   className={`
-                    flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200
+                    flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200 min-h-[36px] touch:min-h-[40px]
                     ${activeTab === tab.id
                       ? 'bg-neutral-600 text-white shadow-sm'
                       : 'text-neutral-400 hover:text-neutral-200'
@@ -228,7 +228,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
           {problemText && onToggleExpand && (
             <button
               onClick={onToggleExpand}
-              className="p-2 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-700/50 transition-colors"
+              className="p-2 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-700/50 transition-colors min-h-[36px] min-w-[36px] touch:min-h-[40px] touch:min-w-[40px] flex items-center justify-center"
               title="Collapse"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -247,7 +247,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                 if (fileInputRef.current) fileInputRef.current.value = '';
                 onClear?.();
               }}
-              className="p-2 rounded-lg text-neutral-400 hover:text-error-400 hover:bg-error-900/20 transition-colors"
+              className="p-2 rounded-lg text-neutral-400 hover:text-error-400 hover:bg-error-900/20 transition-colors min-h-[36px] min-w-[36px] touch:min-h-[40px] touch:min-w-[40px] flex items-center justify-center"
               title="Clear"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -285,7 +285,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               <button
                 type="submit"
                 disabled={isLoading || !problemText.trim()}
-                className="px-5 py-2.5 text-sm font-semibold text-white rounded-xl bg-gradient-to-r from-brand-400 to-brand-500 hover:from-brand-500 hover:to-brand-600 shadow-lg shadow-brand-400/25 hover:shadow-brand-400/40 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-brand-400/25 transition-all duration-200 hover:-translate-y-0.5 disabled:hover:translate-y-0"
+                className="px-5 py-2.5 text-sm font-semibold text-white rounded-xl bg-gradient-to-r from-brand-400 to-brand-500 hover:from-brand-500 hover:to-brand-600 shadow-lg shadow-brand-400/25 hover:shadow-brand-400/40 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-brand-400/25 transition-all duration-200 hover:-translate-y-0.5 disabled:hover:translate-y-0 touch:min-h-[44px]"
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">

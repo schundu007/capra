@@ -42,12 +42,12 @@ export default function AscendModeSelector({
   // Coding mode controls
   if (ascendMode === 'coding') {
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
         {/* Language Selector */}
         <button
           type="button"
           onClick={() => setShowLanguageModal(true)}
-          className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all hover:scale-[1.02]"
+          className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-xs font-semibold rounded-lg transition-all hover:scale-[1.02] min-h-[36px] touch:min-h-[40px]"
           style={{
             background: 'linear-gradient(135deg, #2dd4bf 0%, #14b8a6 100%)',
             color: 'white',
@@ -72,7 +72,7 @@ export default function AscendModeSelector({
           <button
             type="button"
             onClick={() => onCodingDetailLevelChange('basic')}
-            className="px-3 py-1.5 text-xs font-semibold transition-all rounded-md"
+            className="px-2 sm:px-3 py-1.5 text-xs font-semibold transition-all rounded-md min-h-[32px] touch:min-h-[36px]"
             style={{
               background: codingDetailLevel === 'basic' ? '#10b981' : 'transparent',
               color: codingDetailLevel === 'basic' ? '#ffffff' : '#cbd5e1',
@@ -85,7 +85,7 @@ export default function AscendModeSelector({
           <button
             type="button"
             onClick={() => onCodingDetailLevelChange('detailed')}
-            className="px-3 py-1.5 text-xs font-semibold transition-all rounded-md"
+            className="px-2 sm:px-3 py-1.5 text-xs font-semibold transition-all rounded-md min-h-[32px] touch:min-h-[36px]"
             style={{
               background: codingDetailLevel === 'detailed' ? '#10b981' : 'transparent',
               color: codingDetailLevel === 'detailed' ? '#ffffff' : '#cbd5e1',
@@ -114,7 +114,7 @@ export default function AscendModeSelector({
   // System Design mode controls
   if (ascendMode === 'system-design') {
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
         {/* Design Detail Level - Pill Toggle */}
         <div
           className="flex items-center rounded-full p-0.5"

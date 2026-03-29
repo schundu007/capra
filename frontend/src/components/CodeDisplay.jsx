@@ -361,7 +361,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
   if (!code && !isStreaming) {
     return (
       <div className="h-full flex flex-col bg-neutral-750 rounded-xl border border-neutral-700/50">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700/50 bg-neutral-800/50" style={{ height: '44px', minHeight: '44px' }}>
+        <div className="flex items-center justify-between px-2 sm:px-4 py-2 sm:py-3 border-b border-neutral-700/50 bg-neutral-800/50 gap-2" style={{ minHeight: '44px' }}>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-neutral-500" />
             <span className="text-sm font-semibold text-neutral-300">Code</span>
@@ -405,7 +405,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
   return (
     <div className="h-full flex flex-col bg-neutral-750 rounded-xl border border-neutral-700/50">
       {/* Header - CoderPad style with Run button */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700/50 bg-neutral-800/50" style={{ height: '44px', minHeight: '44px' }}>
+      <div className="flex items-center justify-between px-2 sm:px-4 py-2 sm:py-3 border-b border-neutral-700/50 bg-neutral-800/50 gap-2" style={{ minHeight: '44px' }}>
         <div className="flex items-center gap-3">
           {/* Run Button - Modern gradient with glow */}
           <button
@@ -488,16 +488,16 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
             margin: 0,
             padding: '8px',
             background: '#0c1322',
-            fontSize: `${editorSettings?.fontSize || 12}px`,
+            fontSize: `${Math.max(editorSettings?.fontSize || 12, window.matchMedia?.('(max-width: 767px)')?.matches ? 14 : 12)}px`,
             lineHeight: '1.6',
             minHeight: '100%',
           }}
           lineNumberStyle={{
-            minWidth: '3em',
-            paddingRight: '1em',
+            minWidth: '2.5em',
+            paddingRight: '0.5em',
             color: '#475569',
             userSelect: 'none',
-            fontSize: `${editorSettings?.fontSize || 12}px`,
+            fontSize: `${Math.max(editorSettings?.fontSize || 12, window.matchMedia?.('(max-width: 767px)')?.matches ? 13 : 12)}px`,
           }}
         >
           {code}
