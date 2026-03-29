@@ -179,7 +179,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
   // Collapsed view
   if (expanded === false && problemText) {
     return (
-      <div className="flex items-center gap-3 py-2.5 px-4 rounded-xl bg-gray-100 border border-gray-200">
+      <div className="flex items-center gap-3 py-2.5 px-4 rounded-xl bg-white border border-gray-200">
         <div className="flex-1 min-w-0">
           <p className="text-sm text-gray-700 truncate">{getPreviewText()}</p>
         </div>
@@ -202,7 +202,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
       <div className="flex items-center justify-between gap-3 mb-3 flex-shrink-0">
         {/* Tabs */}
         <div className="flex items-center gap-2">
-          <div className="flex gap-1 p-1 rounded-xl bg-gray-100 border border-gray-200">
+          <div className="flex gap-1 p-1 rounded-xl bg-white border border-gray-200">
             {tabs.map(tab => {
               const Icon = tab.icon;
               return (
@@ -212,7 +212,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                   className={`
                     flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200 min-h-[36px] touch:min-h-[40px]
                     ${activeTab === tab.id
-                      ? 'bg-emerald-500 text-white shadow-sm'
+                      ? 'bg-emerald-500 text-white'
                       : 'text-gray-500 hover:text-gray-800'
                     }
                   `}
@@ -267,7 +267,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               value={problemText}
               onChange={(e) => setProblemText(e.target.value)}
               placeholder={ascendMode === 'system-design' ? 'Describe your system design problem...' : 'Paste coding problem...'}
-              className="w-full px-4 py-3 resize-none rounded-xl text-sm bg-gray-100 border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400/50 transition-all"
+              className="w-full px-4 py-3 resize-none rounded-xl text-sm bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400/50 transition-all"
               style={{
                 minHeight: '60px',
                 maxHeight: window.matchMedia?.('(max-width: 1024px)')?.matches ? '40vh' : (expanded !== false ? '600px' : '400px'),
@@ -308,7 +308,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://leetcode.com/problems/..."
-              className="w-full px-4 py-3 text-sm rounded-xl bg-gray-100 border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400/50 transition-all"
+              className="w-full px-4 py-3 text-sm rounded-xl bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400/50 transition-all"
               disabled={isLoading}
             />
             <div className="flex justify-end">
@@ -326,7 +326,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
         {activeTab === 'screenshot' && (
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
             {preview ? (
-              <div className="relative rounded-xl overflow-hidden bg-gray-100 border border-gray-200" style={{ maxHeight: '300px' }}>
+              <div className="relative rounded-xl overflow-hidden bg-white border border-gray-200" style={{ maxHeight: '300px' }}>
                 <img
                   src={preview}
                   alt="Preview"
