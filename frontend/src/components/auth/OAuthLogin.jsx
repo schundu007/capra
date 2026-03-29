@@ -24,10 +24,10 @@ export default function OAuthLogin({ loginOnly = false }) {
   // ══════════════════════════════════════════════════════════════
 
   const navLinks = [
-    { label: 'Practice', href: '/app/coding' },
     { label: 'Preparation', href: '/prepare' },
-    { label: 'Pricing', href: '/premium' },
+    { label: 'Practice', href: '/app/coding' },
     { label: 'Attend', href: 'https://lumora.cariara.com/dashboard' },
+    { label: 'Pricing', href: '/premium' },
   ];
 
   return (
@@ -45,7 +45,7 @@ export default function OAuthLogin({ loginOnly = false }) {
               <span className="text-2xl font-bold text-gray-900 landing-display">Ascend</span>
             </a>
 
-            <div className="hidden md:flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-2 mr-auto ml-8">
               {navLinks.map((link) => (
                 <a key={link.label} href={link.href} className="px-5 py-2.5 rounded-xl text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200 landing-body">
                   {link.label}
@@ -54,8 +54,8 @@ export default function OAuthLogin({ loginOnly = false }) {
             </div>
 
             <div className="flex items-center gap-4">
-              <a href="/app/coding" className="hidden sm:flex items-center gap-2 px-6 py-3 rounded-xl text-base font-semibold text-gray-900 transition-all duration-300 hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)] landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                Get Started
+              <a href="/prepare" className="hidden sm:flex items-center gap-2 px-6 py-3 rounded-xl text-base font-semibold text-gray-900 transition-all duration-300 hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)] landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                Preparation
               </a>
               <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors">
                 <Icon name={mobileMenuOpen ? 'close' : 'menu'} size={22} />
@@ -68,8 +68,8 @@ export default function OAuthLogin({ loginOnly = false }) {
               {navLinks.map((link) => (
                 <a key={link.label} href={link.href} className="block px-4 py-3 text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-colors landing-body">{link.label}</a>
               ))}
-              <a href="/app/coding" className="block w-full mt-3 px-4 py-3 rounded-xl text-base font-semibold text-gray-900 text-center landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                Get Started Free
+              <a href="/prepare" className="block w-full mt-3 px-4 py-3 rounded-xl text-base font-semibold text-gray-900 text-center landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                Preparation
               </a>
             </div>
           )}
@@ -153,10 +153,10 @@ export default function OAuthLogin({ loginOnly = false }) {
             </div>
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
               {[
-                { label: 'Practice', href: '/app/coding' },
                 { label: 'Preparation', href: '/prepare' },
-                { label: 'Pricing', href: '/premium' },
+                { label: 'Practice', href: '/app/coding' },
                 { label: 'Attend', href: 'https://lumora.cariara.com/dashboard' },
+                { label: 'Pricing', href: '/premium' },
                 { label: 'Privacy', href: '/privacy' },
                 { label: 'Support', href: 'mailto:support@cariara.com' },
               ].map((link) => (
