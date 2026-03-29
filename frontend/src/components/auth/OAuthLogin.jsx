@@ -24,10 +24,10 @@ export default function OAuthLogin({ loginOnly = false }) {
   // ══════════════════════════════════════════════════════════════
 
   const navLinks = [
-    { label: 'Interview', href: '/app/coding' },
-    { label: 'Prep', href: '/prepare' },
+    { label: 'Practice', href: '/app/coding' },
+    { label: 'Preparation', href: '/prepare' },
     { label: 'Pricing', href: '/premium' },
-    { label: 'Download', href: '/download' },
+    { label: 'Attend', href: 'https://lumora.cariara.com/dashboard' },
   ];
 
   return (
@@ -79,7 +79,7 @@ export default function OAuthLogin({ loginOnly = false }) {
         <section className="pt-28 sm:pt-32 pb-10 max-w-[1440px] mx-auto px-4 sm:px-8">
           <div className="max-w-[800px] mx-auto text-center">
             <h1 className="text-[clamp(28px,4.5vw,44px)] font-bold leading-[1.08] tracking-[-0.03em] mb-3 landing-display sm:whitespace-nowrap">
-              <span className="text-gray-900">Your unfair advantage in </span>
+              <span className="text-gray-900">Your winning edge in </span>
               <span className="landing-gradient-text">every interview.</span>
             </h1>
             <p className="text-base text-gray-500 mb-6 leading-[1.6] landing-body">AI-powered coding solutions, system design, and live interview assistance — completely invisible to screen share.</p>
@@ -153,10 +153,10 @@ export default function OAuthLogin({ loginOnly = false }) {
             </div>
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
               {[
-                { label: 'Interview', href: '/app/coding' },
-                { label: 'Prep', href: '/prepare' },
+                { label: 'Practice', href: '/app/coding' },
+                { label: 'Preparation', href: '/prepare' },
                 { label: 'Pricing', href: '/premium' },
-                { label: 'Download', href: '/download' },
+                { label: 'Attend', href: 'https://lumora.cariara.com/dashboard' },
                 { label: 'Privacy', href: '/privacy' },
                 { label: 'Support', href: 'mailto:support@cariara.com' },
               ].map((link) => (
