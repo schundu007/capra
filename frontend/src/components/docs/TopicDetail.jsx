@@ -1276,7 +1276,7 @@ export default function TopicDetail({
                   return (
                     <div key={key} className="p-2 rounded-lg" style={{ background: '#f8fafc', border: '1px solid #f0f0f0' }}>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="w-5 h-5 rounded flex items-center justify-center text-xs font-bold text-white" style={{ background: color }}>{key.charAt(0).toUpperCase()}</span>
+                        <span className="w-5 h-5 rounded flex items-center justify-center text-xs font-bold text-gray-900" style={{ background: color }}>{key.charAt(0).toUpperCase()}</span>
                         <span className="text-sm font-bold text-gray-900">{key.charAt(0).toUpperCase() + key.slice(1)}</span>
                       </div>
                       <div className="text-gray-900 text-sm leading-relaxed pl-7">{value}</div>

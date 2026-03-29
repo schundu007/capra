@@ -291,7 +291,7 @@ export default function PrepTab({ isOpen, onClose }) {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div
-                            className="w-9 h-9 rounded flex items-center justify-center text-white font-bold text-sm"
+                            className="w-9 h-9 rounded flex items-center justify-center text-gray-900 font-bold text-sm"
                             style={{ background: platform.color }}
                           >
                             {initials}

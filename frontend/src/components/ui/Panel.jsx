@@ -24,24 +24,24 @@ const panelVariants = cva(
     variants: {
       variant: {
         default: [
-          'bg-neutral-750 border border-neutral-700/50',
+          'bg-white border border-gray-200',
         ],
         elevated: [
-          'bg-neutral-750 border border-neutral-700/50',
+          'bg-white border border-gray-200',
           'shadow-lg',
         ],
         filled: [
-          'bg-neutral-700/30 border-0',
+          'bg-gray-100 border-0',
         ],
         glass: [
-          'bg-neutral-900/80 backdrop-blur-md border border-neutral-700/30',
+          'bg-gray-100/80 backdrop-blur-md border border-gray-200/30',
         ],
         ghost: [
           'bg-transparent border-0',
         ],
         sidebar: [
-          'bg-neutral-850 border-r border-neutral-700/50',
-          'text-neutral-100',
+          'bg-white border-r border-gray-200',
+          'text-gray-900',
         ],
       },
       size: {
@@ -100,25 +100,25 @@ const PanelHeader = forwardRef(({
       className={cn(
         'flex items-center justify-between gap-4',
         sizeClasses[size],
-        border && 'border-b border-neutral-700/50',
+        border && 'border-b border-gray-200',
         className
       )}
       {...props}
     >
       <div className="flex items-center gap-3 min-w-0">
         {icon && (
-          <span className="flex-shrink-0 text-neutral-400">
+          <span className="flex-shrink-0 text-gray-600">
             {icon}
           </span>
         )}
         <div className="min-w-0">
           {title && (
-            <h3 className="text-sm font-semibold text-neutral-100 truncate">
+            <h3 className="text-sm font-semibold text-gray-900 truncate">
               {title}
             </h3>
           )}
           {subtitle && (
-            <p className="text-xs text-neutral-400 truncate">
+            <p className="text-xs text-gray-600 truncate">
               {subtitle}
             </p>
           )}
@@ -198,7 +198,7 @@ const PanelFooter = forwardRef(({
         'flex items-center gap-2',
         sizeClasses[size],
         justifyClasses[justify],
-        border && 'border-t border-neutral-700/50',
+        border && 'border-t border-gray-200',
         className
       )}
       {...props}
@@ -225,26 +225,26 @@ const PanelSection = forwardRef(({
   return (
     <div
       ref={ref}
-      className={cn('border-b border-neutral-700/50 last:border-b-0', className)}
+      className={cn('border-b border-gray-200 last:border-b-0', className)}
       {...props}
     >
       {(title || description) && (
         <div
           className={cn(
             'px-4 py-3',
-            collapsible && 'cursor-pointer hover:bg-neutral-700/30 transition-colors'
+            collapsible && 'cursor-pointer hover:bg-gray-100 transition-colors'
           )}
           onClick={collapsible ? () => setIsOpen(!isOpen) : undefined}
         >
           <div className="flex items-center justify-between">
             <div>
               {title && (
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-600">
                   {title}
                 </h4>
               )}
               {description && (
-                <p className="text-xs text-neutral-500 mt-0.5">
+                <p className="text-xs text-gray-500 mt-0.5">
                   {description}
                 </p>
               )}
@@ -252,7 +252,7 @@ const PanelSection = forwardRef(({
             {collapsible && (
               <svg
                 className={cn(
-                  'w-4 h-4 text-neutral-400 transition-transform duration-200',
+                  'w-4 h-4 text-gray-600 transition-transform duration-200',
                   isOpen && 'rotate-180'
                 )}
                 fill="none"
@@ -281,7 +281,7 @@ const PanelDivider = forwardRef(({ className, ...props }, ref) => (
   <hr
     ref={ref}
     className={cn(
-      'border-0 border-t border-neutral-700/50',
+      'border-0 border-t border-gray-200',
       'mx-4',
       className
     )}
@@ -309,19 +309,19 @@ const PanelEmptyState = forwardRef(({
     {...props}
   >
     {icon && (
-      <div className="w-12 h-12 rounded-full bg-neutral-700/50 flex items-center justify-center mb-4">
-        <span className="text-neutral-500">
+      <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+        <span className="text-gray-500">
           {icon}
         </span>
       </div>
     )}
     {title && (
-      <h3 className="text-sm font-medium text-neutral-100 mb-1">
+      <h3 className="text-sm font-medium text-gray-900 mb-1">
         {title}
       </h3>
     )}
     {description && (
-      <p className="text-sm text-neutral-400 mb-4 max-w-sm">
+      <p className="text-sm text-gray-600 mb-4 max-w-sm">
         {description}
       </p>
     )}

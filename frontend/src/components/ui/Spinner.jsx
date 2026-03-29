@@ -23,9 +23,9 @@ const spinnerVariants = cva(
         xl: 'w-12 h-12',
       },
       color: {
-        default: 'text-neutral-500',
+        default: 'text-gray-500',
         primary: 'text-brand-400',
-        white: 'text-white',
+        white: 'text-gray-900',
         current: 'text-current',
       },
     },
@@ -93,7 +93,7 @@ const DotsLoader = forwardRef(({
   };
 
   const colorClasses = {
-    default: 'bg-neutral-500',
+    default: 'bg-gray-300',
     primary: 'bg-brand-400',
     white: 'bg-white',
     current: 'bg-current',
@@ -141,7 +141,7 @@ const PulseLoader = forwardRef(({
   };
 
   const colorClasses = {
-    default: 'bg-neutral-500',
+    default: 'bg-gray-300',
     primary: 'bg-brand-400',
     white: 'bg-white',
   };
@@ -201,7 +201,7 @@ const Skeleton = forwardRef(({
           <div
             key={i}
             className={cn(
-              'animate-pulse bg-neutral-700 rounded',
+              'animate-pulse bg-gray-200 rounded',
               'h-4',
               i === lines - 1 && 'w-3/4'
             )}
@@ -215,7 +215,7 @@ const Skeleton = forwardRef(({
     <div
       ref={ref}
       className={cn(
-        'animate-pulse bg-neutral-700',
+        'animate-pulse bg-gray-200',
         circle && 'rounded-full',
         variantClasses[variant],
         className
@@ -244,14 +244,14 @@ const LoadingOverlay = forwardRef(({
       <div
         className={cn(
           'absolute inset-0 flex flex-col items-center justify-center gap-3',
-          'bg-neutral-900/80',
+          'bg-gray-100/80',
           blur && 'backdrop-blur-sm',
           'z-50'
         )}
       >
         <Spinner size={spinnerSize} color="primary" />
         {text && (
-          <p className="text-sm font-medium text-neutral-400">
+          <p className="text-sm font-medium text-gray-600">
             {text}
           </p>
         )}
@@ -301,7 +301,7 @@ const Progress = forwardRef(({
         aria-valuemax={max}
         className={cn(
           'w-full overflow-hidden rounded-full',
-          'bg-neutral-700',
+          'bg-gray-200',
           sizeClasses[size]
         )}
         {...props}
@@ -316,7 +316,7 @@ const Progress = forwardRef(({
         />
       </div>
       {showValue && !indeterminate && (
-        <p className="mt-1 text-xs text-neutral-400 text-right">
+        <p className="mt-1 text-xs text-gray-600 text-right">
           {Math.round(percentage)}%
         </p>
       )}

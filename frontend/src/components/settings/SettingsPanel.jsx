@@ -116,10 +116,10 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
   if (loading) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-        <div className="p-8 w-72 bg-neutral-850 rounded-2xl border border-neutral-700/50">
+        <div className="p-8 w-72 bg-white rounded-2xl border border-gray-200">
           <div className="flex flex-col items-center justify-center gap-3">
             <div className="w-8 h-8 border-3 rounded-full animate-spin border-brand-400 border-t-transparent" style={{ borderWidth: '3px' }} />
-            <span className="text-sm font-medium text-neutral-400">Loading settings...</span>
+            <span className="text-sm font-medium text-gray-600">Loading settings...</span>
           </div>
         </div>
       </div>
@@ -141,9 +141,9 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-neutral-850 rounded-2xl border border-neutral-700/50 shadow-2xl overflow-hidden w-full mx-4" style={{ maxWidth: '520px', maxHeight: '85vh' }}>
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-2xl overflow-hidden w-full mx-4" style={{ maxWidth: '520px', maxHeight: '85vh' }}>
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700/50 bg-neutral-800/50">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-lg flex items-center justify-center bg-brand-400/15">
               <svg className="w-3.5 h-3.5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -151,11 +151,11 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
-            <span className="text-base font-semibold text-neutral-200">Settings</span>
+            <span className="text-base font-semibold text-gray-800">Settings</span>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-200 hover:bg-neutral-700/50 transition-colors"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-600 hover:text-gray-800 hover:bg-gray-100 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -164,15 +164,15 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex px-3 py-2 gap-2 bg-neutral-800 border-b border-neutral-700/50">
+        <div className="flex px-3 py-2 gap-2 bg-gray-50 border-b border-gray-200">
           {TABS.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                 activeTab === tab.id
-                  ? 'bg-gradient-to-r from-brand-400 to-brand-500 text-white shadow-lg shadow-brand-400/30'
-                  : 'bg-neutral-700/50 text-neutral-400 border border-neutral-600/50 hover:text-neutral-200 hover:bg-neutral-700'
+                  ? 'bg-gradient-to-r from-brand-400 to-brand-500 text-gray-900 shadow-lg shadow-brand-400/30'
+                  : 'bg-gray-100 text-gray-600 border border-gray-200 hover:text-gray-800 hover:bg-gray-200'
               }`}
             >
               <TabIcon name={tab.icon} />
@@ -188,14 +188,14 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
             <div className="space-y-4">
               {/* Provider Toggle */}
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide mb-2 text-neutral-400">Provider</p>
+                <p className="text-xs font-semibold uppercase tracking-wide mb-2 text-gray-600">Provider</p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleProviderSwitch('claude')}
                     className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${
                       provider === 'claude'
-                        ? 'bg-gradient-to-r from-brand-400 to-brand-500 text-white shadow-lg shadow-brand-400/30'
-                        : 'bg-neutral-700/50 text-neutral-400 border border-neutral-600/50 hover:text-neutral-200'
+                        ? 'bg-gradient-to-r from-brand-400 to-brand-500 text-gray-900 shadow-lg shadow-brand-400/30'
+                        : 'bg-gray-100 text-gray-600 border border-gray-200 hover:text-gray-800'
                     }`}
                   >
                     Claude
@@ -204,8 +204,8 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
                     onClick={() => handleProviderSwitch('openai')}
                     className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${
                       provider === 'openai'
-                        ? 'bg-gradient-to-r from-brand-400 to-brand-500 text-white shadow-lg shadow-brand-400/30'
-                        : 'bg-neutral-700/50 text-neutral-400 border border-neutral-600/50 hover:text-neutral-200'
+                        ? 'bg-gradient-to-r from-brand-400 to-brand-500 text-gray-900 shadow-lg shadow-brand-400/30'
+                        : 'bg-gray-100 text-gray-600 border border-gray-200 hover:text-gray-800'
                     }`}
                   >
                     OpenAI
@@ -215,7 +215,7 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
 
               {/* Models Grid */}
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide mb-2 text-neutral-400">Model</p>
+                <p className="text-xs font-semibold uppercase tracking-wide mb-2 text-gray-600">Model</p>
                 <div className="grid grid-cols-2 gap-2">
                   {models.map((m) => (
                     <button
@@ -224,12 +224,12 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
                       className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-left transition-all ${
                         m.id === model
                           ? 'bg-brand-400/10 border border-brand-400/30'
-                          : 'bg-neutral-700/30 border border-neutral-600/50 hover:bg-neutral-700/50'
+                          : 'bg-gray-100 border border-gray-200 hover:bg-gray-100'
                       }`}
                     >
                       <div>
-                        <div className={`text-sm font-medium ${m.id === model ? 'text-brand-400' : 'text-neutral-200'}`}>{m.name}</div>
-                        <div className="text-xs text-neutral-500">{m.description}</div>
+                        <div className={`text-sm font-medium ${m.id === model ? 'text-brand-400' : 'text-gray-800'}`}>{m.name}</div>
+                        <div className="text-xs text-gray-500">{m.description}</div>
                       </div>
                       {m.id === model && (
                         <svg className="w-4 h-4 text-brand-400" fill="currentColor" viewBox="0 0 20 20">
@@ -242,14 +242,14 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
               </div>
 
               {/* Auto-Switch */}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-neutral-700/30 border border-neutral-600/50">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-gray-100 border border-gray-200">
                 <div>
-                  <div className="text-sm font-medium text-neutral-200">Auto-switch on failure</div>
-                  <div className="text-xs text-neutral-500">Fallback to other provider</div>
+                  <div className="text-sm font-medium text-gray-800">Auto-switch on failure</div>
+                  <div className="text-xs text-gray-500">Fallback to other provider</div>
                 </div>
                 <button
                   onClick={() => onAutoSwitchChange && onAutoSwitchChange(!autoSwitch)}
-                  className={`relative w-10 h-5 rounded-full transition-all ${autoSwitch ? 'bg-brand-400' : 'bg-neutral-600'}`}
+                  className={`relative w-10 h-5 rounded-full transition-all ${autoSwitch ? 'bg-brand-400' : 'bg-gray-200'}`}
                 >
                   <span
                     className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all"
@@ -262,15 +262,15 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
               {isElectron && onOpenPlatforms && (
                 <button
                   onClick={() => { onClose(); onOpenPlatforms(); }}
-                  className="w-full flex items-center justify-between p-3 rounded-lg transition-all bg-neutral-700/30 border border-neutral-600/50 hover:bg-neutral-700/50"
+                  className="w-full flex items-center justify-between p-3 rounded-lg transition-all bg-gray-100 border border-gray-200 hover:bg-gray-100"
                 >
                   <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                     </svg>
-                    <span className="text-sm font-medium text-neutral-200">Coding Platforms</span>
+                    <span className="text-sm font-medium text-gray-800">Coding Platforms</span>
                   </div>
-                  <svg className="w-4 h-4 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -283,8 +283,8 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
             <div className="space-y-3">
               {/* Row 1: Theme & Key Bindings */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 rounded-lg bg-neutral-700/30 border border-neutral-600/50">
-                  <p className="text-xs font-semibold mb-2 text-neutral-400">Theme</p>
+                <div className="p-3 rounded-lg bg-gray-100 border border-gray-200">
+                  <p className="text-xs font-semibold mb-2 text-gray-600">Theme</p>
                   <div className="flex gap-1">
                     {['dark', 'light'].map(theme => (
                       <button
@@ -292,8 +292,8 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
                         onClick={() => onEditorSettingsChange({ theme })}
                         className={`flex-1 py-1.5 text-xs font-medium rounded transition-all capitalize ${
                           editorSettings.theme === theme
-                            ? 'bg-brand-400 text-white'
-                            : 'bg-neutral-600/50 text-neutral-400 hover:text-neutral-200'
+                            ? 'bg-brand-400 text-gray-900'
+                            : 'bg-gray-200 text-gray-600 hover:text-gray-800'
                         }`}
                       >
                         {theme}
@@ -301,8 +301,8 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
                     ))}
                   </div>
                 </div>
-                <div className="p-3 rounded-lg bg-neutral-700/30 border border-neutral-600/50">
-                  <p className="text-xs font-semibold mb-2 text-neutral-400">Key Bindings</p>
+                <div className="p-3 rounded-lg bg-gray-100 border border-gray-200">
+                  <p className="text-xs font-semibold mb-2 text-gray-600">Key Bindings</p>
                   <div className="flex gap-1">
                     {['standard', 'vim', 'emacs'].map(kb => (
                       <button
@@ -310,8 +310,8 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
                         onClick={() => onEditorSettingsChange({ keyBindings: kb })}
                         className={`flex-1 py-1.5 text-xs font-medium rounded transition-all capitalize ${
                           editorSettings.keyBindings === kb
-                            ? 'bg-brand-400 text-white'
-                            : 'bg-neutral-600/50 text-neutral-400 hover:text-neutral-200'
+                            ? 'bg-brand-400 text-gray-900'
+                            : 'bg-gray-200 text-gray-600 hover:text-gray-800'
                         }`}
                       >
                         {kb === 'standard' ? 'Std' : kb}
@@ -323,24 +323,24 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
 
               {/* Row 2: Font Size & Tab Spacing */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-neutral-700/30 border border-neutral-600/50">
-                  <span className="text-sm text-neutral-200">Font Size</span>
+                <div className="flex items-center justify-between p-3 rounded-lg bg-gray-100 border border-gray-200">
+                  <span className="text-sm text-gray-800">Font Size</span>
                   <select
                     value={editorSettings.fontSize}
                     onChange={(e) => onEditorSettingsChange({ fontSize: parseInt(e.target.value) })}
-                    className="px-2 py-1 text-xs rounded cursor-pointer bg-neutral-600 text-neutral-200 border-none focus:ring-2 focus:ring-brand-400/30"
+                    className="px-2 py-1 text-xs rounded cursor-pointer bg-gray-200 text-gray-800 border-none focus:ring-2 focus:ring-brand-400/30"
                   >
                     {[10, 11, 12, 13, 14, 16, 18, 20].map(size => (
                       <option key={size} value={size}>{size}px</option>
                     ))}
                   </select>
                 </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-neutral-700/30 border border-neutral-600/50">
-                  <span className="text-sm text-neutral-200">Tab Size</span>
+                <div className="flex items-center justify-between p-3 rounded-lg bg-gray-100 border border-gray-200">
+                  <span className="text-sm text-gray-800">Tab Size</span>
                   <select
                     value={editorSettings.tabSpacing}
                     onChange={(e) => onEditorSettingsChange({ tabSpacing: parseInt(e.target.value) })}
-                    className="px-2 py-1 text-xs rounded cursor-pointer bg-neutral-600 text-neutral-200 border-none focus:ring-2 focus:ring-brand-400/30"
+                    className="px-2 py-1 text-xs rounded cursor-pointer bg-gray-200 text-gray-800 border-none focus:ring-2 focus:ring-brand-400/30"
                   >
                     {[2, 4, 8].map(size => (
                       <option key={size} value={size}>{size}</option>
@@ -351,11 +351,11 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
 
               {/* Row 3: Toggles */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-neutral-700/30 border border-neutral-600/50">
-                  <span className="text-sm text-neutral-200">IntelliSense</span>
+                <div className="flex items-center justify-between p-3 rounded-lg bg-gray-100 border border-gray-200">
+                  <span className="text-sm text-gray-800">IntelliSense</span>
                   <button
                     onClick={() => onEditorSettingsChange({ intelliSense: !editorSettings.intelliSense })}
-                    className={`relative w-9 h-5 rounded-full transition-all ${editorSettings.intelliSense ? 'bg-brand-400' : 'bg-neutral-600'}`}
+                    className={`relative w-9 h-5 rounded-full transition-all ${editorSettings.intelliSense ? 'bg-brand-400' : 'bg-gray-200'}`}
                   >
                     <span
                       className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all"
@@ -363,11 +363,11 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
                     />
                   </button>
                 </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-neutral-700/30 border border-neutral-600/50">
-                  <span className="text-sm text-neutral-200">Auto Brackets</span>
+                <div className="flex items-center justify-between p-3 rounded-lg bg-gray-100 border border-gray-200">
+                  <span className="text-sm text-gray-800">Auto Brackets</span>
                   <button
                     onClick={() => onEditorSettingsChange({ autoCloseBrackets: !editorSettings.autoCloseBrackets })}
-                    className={`relative w-9 h-5 rounded-full transition-all ${editorSettings.autoCloseBrackets ? 'bg-brand-400' : 'bg-neutral-600'}`}
+                    className={`relative w-9 h-5 rounded-full transition-all ${editorSettings.autoCloseBrackets ? 'bg-brand-400' : 'bg-gray-200'}`}
                   >
                     <span
                       className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all"
@@ -380,7 +380,7 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
               {/* Shortcuts Button */}
               <button
                 onClick={() => setShowShortcuts(true)}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all bg-neutral-700 text-neutral-200 hover:bg-neutral-600"
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all bg-gray-200 text-gray-800 hover:bg-gray-200"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 7l9-5-9-5-9 5 9 5z" />

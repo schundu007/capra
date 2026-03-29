@@ -24,13 +24,13 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default: [
-          'bg-neutral-700 text-neutral-300',
+          'bg-gray-200 text-gray-900',
         ],
         primary: [
           'bg-brand-400/10 text-brand-400',
         ],
         secondary: [
-          'bg-neutral-600 text-neutral-200',
+          'bg-gray-200 text-gray-800',
         ],
         success: [
           'bg-success-500/10 text-success-400',
@@ -45,7 +45,7 @@ const badgeVariants = cva(
           'bg-info-500/10 text-info-400',
         ],
         outline: [
-          'bg-transparent border border-neutral-600 text-neutral-300',
+          'bg-transparent border border-gray-200 text-gray-900',
         ],
         'outline-primary': [
           'bg-transparent border border-brand-400/30 text-brand-400',
@@ -60,7 +60,7 @@ const badgeVariants = cva(
           'bg-transparent border border-error-500/30 text-error-400',
         ],
         ghost: [
-          'bg-transparent text-neutral-400',
+          'bg-transparent text-gray-600',
         ],
       },
       size: {
@@ -103,7 +103,7 @@ const Badge = forwardRef(({
           variant === 'error' && 'bg-error-500',
           variant === 'info' && 'bg-info-500',
           variant === 'primary' && 'bg-brand-500',
-          (!variant || variant === 'default' || variant === 'secondary') && 'bg-neutral-500',
+          (!variant || variant === 'default' || variant === 'secondary') && 'bg-gray-300',
         )}
       />
     )}

@@ -48,7 +48,7 @@ export default function CodingDocsPage() {
     });
 
   return (
-    <div className="min-h-screen flex" style={{ background: '#09090b', fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen flex" style={{ background: '#ffffff', fontFamily: "'Inter', sans-serif" }}>
       {/* Sidebar */}
       <DocsSidebar activePage="coding" />
 
@@ -61,7 +61,7 @@ export default function CodingDocsPage() {
             <a href="/app" className="px-4 py-2 rounded-lg text-sm font-medium text-green-400 hover:bg-green-400/10 transition-colors" style={{ border: '1px solid rgba(16, 185, 129, 0.3)' }}>
               Getting started guide
             </a>
-            <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white transition-colors" style={{ background: 'rgba(255,255,255,0.05)' }}>
+            <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-gray-900 transition-colors" style={{ background: 'rgba(255,255,255,0.05)' }}>
               <Icon name="search" size={16} />
               Search everything
               <span className="text-gray-600 ml-2">/</span>
@@ -72,7 +72,7 @@ export default function CodingDocsPage() {
         {/* Content */}
         <div className="px-8 py-8 max-w-6xl mx-auto">
           {/* Page Title */}
-          <h1 className="text-3xl font-bold text-white mb-8">Data Structures & Algorithms</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">Data Structures & Algorithms</h1>
 
           {/* Search and Sort */}
           <div className="flex items-center justify-between mb-6">
@@ -83,7 +83,7 @@ export default function CodingDocsPage() {
                 placeholder="Search topics"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2.5 rounded-lg text-sm text-white placeholder-gray-500 w-64 focus:outline-none focus:ring-1 focus:ring-green-400/50"
+                className="pl-10 pr-4 py-2.5 rounded-lg text-sm text-gray-900 placeholder-gray-500 w-64 focus:outline-none focus:ring-1 focus:ring-green-400/50"
                 style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
               />
             </div>
@@ -105,9 +105,9 @@ export default function CodingDocsPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                  <Icon name="ascend" size={20} className="text-white" />
+                  <Icon name="ascend" size={20} className="text-gray-900" />
                 </div>
-                <span className="text-white font-medium">How to Pass Data Structures & Algorithms Interviews in 2026</span>
+                <span className="text-gray-900 font-medium">How to Pass Data Structures & Algorithms Interviews in 2026</span>
               </div>
               <Icon name="chevronRight" size={20} className="text-gray-500" />
             </div>
@@ -125,7 +125,7 @@ export default function CodingDocsPage() {
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <Icon name={topic.icon} size={16} style={{ color: topic.color }} />
-                    <span className="text-white font-medium text-sm">{topic.title}</span>
+                    <span className="text-gray-900 font-medium text-sm">{topic.title}</span>
                   </div>
                   <Icon name="chevronRight" size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
                 </div>
@@ -139,11 +139,11 @@ export default function CodingDocsPage() {
 
           {/* Quick Reference Section */}
           <div className="mt-12">
-            <h2 className="text-xl font-bold text-white mb-6">Quick Reference</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Quick Reference</h2>
             <div className="grid md:grid-cols-2 gap-6">
               {/* Time Complexity */}
               <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                <h3 className="text-gray-900 font-semibold mb-4 flex items-center gap-2">
                   <Icon name="clock" size={18} className="text-green-400" />
                   Time Complexity Cheat Sheet
                 </h3>
@@ -159,17 +159,17 @@ export default function CodingDocsPage() {
 
               {/* Data Structures */}
               <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                <h3 className="text-gray-900 font-semibold mb-4 flex items-center gap-2">
                   <Icon name="database" size={18} className="text-blue-400" />
                   When to Use What
                 </h3>
                 <div className="space-y-2 text-sm">
-                  <div className="flex justify-between"><span className="text-gray-400">Fast lookup</span><span className="text-white">Hash Map</span></div>
-                  <div className="flex justify-between"><span className="text-gray-400">Sorted data</span><span className="text-white">Binary Search Tree</span></div>
-                  <div className="flex justify-between"><span className="text-gray-400">FIFO operations</span><span className="text-white">Queue</span></div>
-                  <div className="flex justify-between"><span className="text-gray-400">LIFO operations</span><span className="text-white">Stack</span></div>
-                  <div className="flex justify-between"><span className="text-gray-400">Priority access</span><span className="text-white">Heap</span></div>
-                  <div className="flex justify-between"><span className="text-gray-400">Prefix matching</span><span className="text-white">Trie</span></div>
+                  <div className="flex justify-between"><span className="text-gray-400">Fast lookup</span><span className="text-gray-900">Hash Map</span></div>
+                  <div className="flex justify-between"><span className="text-gray-400">Sorted data</span><span className="text-gray-900">Binary Search Tree</span></div>
+                  <div className="flex justify-between"><span className="text-gray-400">FIFO operations</span><span className="text-gray-900">Queue</span></div>
+                  <div className="flex justify-between"><span className="text-gray-400">LIFO operations</span><span className="text-gray-900">Stack</span></div>
+                  <div className="flex justify-between"><span className="text-gray-400">Priority access</span><span className="text-gray-900">Heap</span></div>
+                  <div className="flex justify-between"><span className="text-gray-400">Prefix matching</span><span className="text-gray-900">Trie</span></div>
                 </div>
               </div>
             </div>

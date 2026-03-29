@@ -17,7 +17,7 @@ export default function Skeleton({ variant = 'text', lines = 3, className = '' }
 
   if (variant === 'code') {
     return (
-      <div className={`space-y-2 p-4 bg-neutral-800/50 rounded-xl ${className}`}>
+      <div className={`space-y-2 p-4 bg-gray-50 rounded-xl ${className}`}>
         {Array.from({ length: lines }).map((_, i) => (
           <div
             key={i}
@@ -31,7 +31,7 @@ export default function Skeleton({ variant = 'text', lines = 3, className = '' }
 
   if (variant === 'card') {
     return (
-      <div className={`p-6 bg-neutral-800/50 rounded-xl border border-neutral-700/30 ${className}`}>
+      <div className={`p-6 bg-gray-50 rounded-xl border border-gray-200/30 ${className}`}>
         <div className={`h-6 w-1/3 rounded mb-4 ${shimmer}`} />
         <div className="space-y-3">
           <div className={`h-4 rounded ${shimmer}`} />

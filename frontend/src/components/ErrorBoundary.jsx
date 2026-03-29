@@ -124,7 +124,7 @@ class ErrorBoundary extends Component {
               </button>
               <button
                 onClick={this.handleReload}
-                className="flex-1 px-4 py-2.5 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-colors"
+                className="flex-1 px-4 py-2.5 rounded-lg bg-emerald-600 text-gray-900 font-medium hover:bg-emerald-700 transition-colors"
               >
                 Reload Page
               </button>

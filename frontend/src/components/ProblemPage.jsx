@@ -47,7 +47,7 @@ function TestCase({ testCase, index, isActive, onClick, result }) {
     ? 'bg-green-500/20 text-green-400 border-green-500/30'
     : result?.error
     ? 'bg-red-500/20 text-red-400 border-red-500/30'
-    : 'bg-gray-800/50 text-gray-400 border-gray-700/50';
+    : 'bg-gray-800/50 text-gray-400 border-gray-200';
 
   return (
     <button
@@ -86,12 +86,12 @@ function CodeBlock({ code, language }) {
     <div className="relative group">
       <button
         onClick={copyCode}
-        className="absolute top-3 right-3 px-3 py-1.5 rounded-lg bg-gray-700/50 text-gray-400 hover:text-white hover:bg-gray-700 transition-all opacity-0 group-hover:opacity-100 touch:opacity-100 text-sm flex items-center gap-2"
+        className="absolute top-3 right-3 px-3 py-1.5 rounded-lg bg-gray-700/50 text-gray-400 hover:text-gray-900 hover:bg-gray-700 transition-all opacity-0 group-hover:opacity-100 touch:opacity-100 text-sm flex items-center gap-2"
       >
         <Icon name={copied ? 'check' : 'copy'} size={14} />
         {copied ? 'Copied!' : 'Copy'}
       </button>
-      <pre className="bg-[#0d1117] rounded-xl p-5 overflow-x-auto border border-gray-700/50">
+      <pre className="bg-[#0d1117] rounded-xl p-5 overflow-x-auto border border-gray-200">
         <code className="text-sm leading-relaxed font-mono text-gray-300 whitespace-pre">
           {code}
         </code>
@@ -105,9 +105,9 @@ function CodeBlock({ code, language }) {
  */
 function ExampleBlock({ example, index }) {
   return (
-    <div className="bg-[#111318] rounded-xl border border-gray-700/50 overflow-hidden">
-      <div className="px-4 py-2.5 bg-gray-800/30 border-b border-gray-700/50">
-        <span className="text-base font-semibold text-white">Example {index + 1}</span>
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="px-4 py-2.5 bg-gray-800/30 border-b border-gray-200">
+        <span className="text-base font-semibold text-gray-900">Example {index + 1}</span>
       </div>
       <div className="p-4 space-y-3">
         <div>
@@ -140,12 +140,12 @@ function HintCard({ hint, index }) {
   const [revealed, setRevealed] = useState(false);
 
   return (
-    <div className="bg-[#111318] rounded-xl border border-gray-700/50 overflow-hidden">
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
       <button
         onClick={() => setRevealed(!revealed)}
         className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-gray-800/30 transition-colors"
       >
-        <span className="font-medium text-white">Hint {index + 1}</span>
+        <span className="font-medium text-gray-900">Hint {index + 1}</span>
         <Icon
           name={revealed ? 'eye' : 'eyeOff'}
           size={18}
@@ -344,7 +344,7 @@ export default function ProblemPage({ slug, onBack }) {
               </button>
               <div className="flex items-center gap-3">
                 <span className="text-sm text-gray-500 font-mono">#{problem.id}</span>
-                <h1 className="text-xl font-bold text-white">{problem.name}</h1>
+                <h1 className="text-xl font-bold text-gray-900">{problem.name}</h1>
                 <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${difficultyColor.bg} ${difficultyColor.text}`}>
                   {problem.difficulty}
                 </span>
@@ -379,8 +379,8 @@ export default function ProblemPage({ slug, onBack }) {
                   onClick={() => setActiveTab('description')}
                   className={`px-4 py-2 rounded-t-lg text-sm font-medium transition-colors ${
                     activeTab === 'description'
-                      ? 'bg-[#111318] text-emerald-400'
-                      : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                      ? 'bg-white text-emerald-400'
+                      : 'text-gray-400 hover:text-gray-900 hover:bg-gray-800/50'
                   }`}
                 >
                   Description
@@ -389,8 +389,8 @@ export default function ProblemPage({ slug, onBack }) {
                   onClick={() => setActiveTab('solution')}
                   className={`px-4 py-2 rounded-t-lg text-sm font-medium transition-colors ${
                     activeTab === 'solution'
-                      ? 'bg-[#111318] text-emerald-400'
-                      : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                      ? 'bg-white text-emerald-400'
+                      : 'text-gray-400 hover:text-gray-900 hover:bg-gray-800/50'
                   }`}
                 >
                   Solution
@@ -399,8 +399,8 @@ export default function ProblemPage({ slug, onBack }) {
                   onClick={() => setActiveTab('hints')}
                   className={`px-4 py-2 rounded-t-lg text-sm font-medium transition-colors ${
                     activeTab === 'hints'
-                      ? 'bg-[#111318] text-emerald-400'
-                      : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                      ? 'bg-white text-emerald-400'
+                      : 'text-gray-400 hover:text-gray-900 hover:bg-gray-800/50'
                   }`}
                 >
                   Hints
@@ -422,7 +422,7 @@ export default function ProblemPage({ slug, onBack }) {
                               </code>
                             ) : (
                               <span key={j} dangerouslySetInnerHTML={{
-                                __html: part.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
+                                __html: part.replace(/\*\*(.*?)\*\*/g, '<strong class="text-gray-900">$1</strong>')
                               }} />
                             )
                           )}
@@ -438,7 +438,7 @@ export default function ProblemPage({ slug, onBack }) {
                         ))}
                       </div>
                     ) : problem.isDynamic ? (
-                      <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-5 text-center">
+                      <div className="bg-gray-800/50 border border-gray-200 rounded-xl p-5 text-center">
                         <Icon name="externalLink" size={32} className="mx-auto mb-3 text-gray-400" />
                         <p className="text-gray-300 mb-4">
                           This problem is not in our practice database yet.
@@ -447,7 +447,7 @@ export default function ProblemPage({ slug, onBack }) {
                           href={`https://leetcode.com/problemset/?search=${encodeURIComponent(problem.name)}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-medium transition-colors inline-flex items-center gap-2"
+                          className="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-900 rounded-xl font-medium transition-colors inline-flex items-center gap-2"
                         >
                           <Icon name="externalLink" size={16} />
                           Find on LeetCode
@@ -458,7 +458,7 @@ export default function ProblemPage({ slug, onBack }) {
                     {/* Constraints */}
                     {problem.constraints && problem.constraints.length > 0 && (
                       <div>
-                        <h3 className="text-base font-semibold text-white mb-3">Constraints</h3>
+                        <h3 className="text-base font-semibold text-gray-900 mb-3">Constraints</h3>
                         <ul className="space-y-1.5">
                           {problem.constraints.map((constraint, i) => (
                             <li key={i} className="flex items-start gap-2 text-gray-300 text-sm">
@@ -492,7 +492,7 @@ export default function ProblemPage({ slug, onBack }) {
                           className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                             selectedLanguage === key
                               ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                              : 'bg-gray-800/50 text-gray-400 hover:text-white hover:bg-gray-800 border border-transparent'
+                              : 'bg-gray-800/50 text-gray-400 hover:text-gray-900 hover:bg-gray-800 border border-transparent'
                           }`}
                         >
                           {lang.name}
@@ -502,8 +502,8 @@ export default function ProblemPage({ slug, onBack }) {
 
                     {/* Approach */}
                     {problem.approach && (
-                      <div className="bg-[#111318] rounded-xl border border-gray-700/50 p-5">
-                        <h3 className="text-base font-semibold text-white mb-3">Approach</h3>
+                      <div className="bg-white rounded-xl border border-gray-200 p-5">
+                        <h3 className="text-base font-semibold text-gray-900 mb-3">Approach</h3>
                         <div className="prose prose-invert prose-sm max-w-none">
                           {problem.approach.split('\n').map((line, i) => {
                             if (line.startsWith('**')) {
@@ -527,7 +527,7 @@ export default function ProblemPage({ slug, onBack }) {
                     {solution && (
                       <div>
                         <div className="flex items-center justify-between mb-3">
-                          <h3 className="text-base font-semibold text-white">{LANGUAGE_CONFIG[selectedLanguage].name} Solution</h3>
+                          <h3 className="text-base font-semibold text-gray-900">{LANGUAGE_CONFIG[selectedLanguage].name} Solution</h3>
                           <div className="flex gap-3 text-xs">
                             <span className="text-gray-400">
                               Time: <span className="text-emerald-400 font-mono">{solution.timeComplexity}</span>
@@ -561,7 +561,7 @@ export default function ProblemPage({ slug, onBack }) {
               <Allotment.Pane minSize={200} preferredSize="60%">
                 <div className="h-full flex flex-col bg-[#0d1117]">
                   {/* Editor Header */}
-                  <div className="flex-shrink-0 flex items-center justify-between px-4 py-2 bg-[#161b22] border-b border-gray-700/50">
+                  <div className="flex-shrink-0 flex items-center justify-between px-4 py-2 bg-[#161b22] border-b border-gray-200">
                     <div className="flex items-center gap-2">
                       {Object.entries(LANGUAGE_CONFIG).map(([key, lang]) => (
                         <button
@@ -570,7 +570,7 @@ export default function ProblemPage({ slug, onBack }) {
                           className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                             selectedLanguage === key
                               ? 'bg-emerald-500/20 text-emerald-400'
-                              : 'text-gray-400 hover:text-white'
+                              : 'text-gray-400 hover:text-gray-900'
                           }`}
                         >
                           {lang.name}
@@ -583,7 +583,7 @@ export default function ProblemPage({ slug, onBack }) {
                           setUserCode(problem.solutions[selectedLanguage].code);
                         }
                       }}
-                      className="px-3 py-1 text-xs text-gray-400 hover:text-white transition-colors"
+                      className="px-3 py-1 text-xs text-gray-400 hover:text-gray-900 transition-colors"
                     >
                       Reset to Solution
                     </button>
@@ -602,16 +602,16 @@ export default function ProblemPage({ slug, onBack }) {
 
               {/* Test Cases / Output */}
               <Allotment.Pane minSize={120}>
-                <div className="h-full flex flex-col bg-[#111318]">
+                <div className="h-full flex flex-col bg-white">
                   {/* Tabs */}
-                  <div className="flex-shrink-0 flex items-center justify-between px-3 py-2 border-b border-gray-700/50">
+                  <div className="flex-shrink-0 flex items-center justify-between px-3 py-2 border-b border-gray-200">
                     <div className="flex gap-1">
                       <button
                         onClick={() => setBottomTab('testcase')}
                         className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                           bottomTab === 'testcase'
-                            ? 'bg-gray-700/50 text-white'
-                            : 'text-gray-400 hover:text-white'
+                            ? 'bg-gray-700/50 text-gray-900'
+                            : 'text-gray-400 hover:text-gray-900'
                         }`}
                       >
                         Test Cases
@@ -620,8 +620,8 @@ export default function ProblemPage({ slug, onBack }) {
                         onClick={() => setBottomTab('output')}
                         className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                           bottomTab === 'output'
-                            ? 'bg-gray-700/50 text-white'
-                            : 'text-gray-400 hover:text-white'
+                            ? 'bg-gray-700/50 text-gray-900'
+                            : 'text-gray-400 hover:text-gray-900'
                         }`}
                       >
                         Output
@@ -631,7 +631,7 @@ export default function ProblemPage({ slug, onBack }) {
                       <button
                         onClick={runCode}
                         disabled={isRunning}
-                        className="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
+                        className="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-900 rounded text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
                       >
                         {isRunning ? (
                           <Icon name="loader" size={14} className="animate-spin" />
@@ -643,7 +643,7 @@ export default function ProblemPage({ slug, onBack }) {
                       <button
                         onClick={runAllTests}
                         disabled={isRunning}
-                        className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
+                        className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-gray-900 rounded text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
                       >
                         Submit
                       </button>

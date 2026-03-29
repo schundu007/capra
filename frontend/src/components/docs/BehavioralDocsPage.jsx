@@ -46,7 +46,7 @@ export default function BehavioralDocsPage() {
     });
 
   return (
-    <div className="min-h-screen flex" style={{ background: '#09090b', fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen flex" style={{ background: '#ffffff', fontFamily: "'Inter', sans-serif" }}>
       {/* Sidebar */}
       <DocsSidebar activePage="behavioral" />
 
@@ -59,7 +59,7 @@ export default function BehavioralDocsPage() {
             <a href="/app" className="px-4 py-2 rounded-lg text-sm font-medium text-purple-400 hover:bg-purple-400/10 transition-colors" style={{ border: '1px solid rgba(168, 85, 247, 0.3)' }}>
               Getting started guide
             </a>
-            <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white transition-colors" style={{ background: 'rgba(255,255,255,0.05)' }}>
+            <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-gray-900 transition-colors" style={{ background: 'rgba(255,255,255,0.05)' }}>
               <Icon name="search" size={16} />
               Search everything
               <span className="text-gray-600 ml-2">/</span>
@@ -70,7 +70,7 @@ export default function BehavioralDocsPage() {
         {/* Content */}
         <div className="px-8 py-8 max-w-6xl mx-auto">
           {/* Page Title */}
-          <h1 className="text-3xl font-bold text-white mb-8">Behavioral Interviews</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">Behavioral Interviews</h1>
 
           {/* Search and Sort */}
           <div className="flex items-center justify-between mb-6">
@@ -81,7 +81,7 @@ export default function BehavioralDocsPage() {
                 placeholder="Search topics"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2.5 rounded-lg text-sm text-white placeholder-gray-500 w-64 focus:outline-none focus:ring-1 focus:ring-purple-400/50"
+                className="pl-10 pr-4 py-2.5 rounded-lg text-sm text-gray-900 placeholder-gray-500 w-64 focus:outline-none focus:ring-1 focus:ring-purple-400/50"
                 style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
               />
             </div>
@@ -103,9 +103,9 @@ export default function BehavioralDocsPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #a855f7, #7c3aed)' }}>
-                  <Icon name="users" size={20} className="text-white" />
+                  <Icon name="users" size={20} className="text-gray-900" />
                 </div>
-                <span className="text-white font-medium">Master Behavioral Interviews with the STAR Method</span>
+                <span className="text-gray-900 font-medium">Master Behavioral Interviews with the STAR Method</span>
               </div>
               <Icon name="chevronRight" size={20} className="text-gray-500" />
             </div>
@@ -113,7 +113,7 @@ export default function BehavioralDocsPage() {
 
           {/* STAR Method */}
           <div className="p-6 rounded-xl mb-8" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
-            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
               <Icon name="star" size={20} className="text-purple-400" />
               The STAR Method
             </h3>
@@ -128,7 +128,7 @@ export default function BehavioralDocsPage() {
                   <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3 text-xl font-bold" style={{ background: `${step.color}20`, color: step.color }}>
                     {step.letter}
                   </div>
-                  <div className="text-white font-semibold mb-2">{step.title}</div>
+                  <div className="text-gray-900 font-semibold mb-2">{step.title}</div>
                   <div className="text-gray-400 text-sm">{step.desc}</div>
                 </div>
               ))}
@@ -136,7 +136,7 @@ export default function BehavioralDocsPage() {
           </div>
 
           {/* Question Categories */}
-          <h2 className="text-xl font-bold text-white mb-4">Question Categories</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Question Categories</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-12">
             {filteredTopics.map((topic) => (
               <a
@@ -148,7 +148,7 @@ export default function BehavioralDocsPage() {
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <Icon name={topic.icon} size={16} style={{ color: topic.color }} />
-                    <span className="text-white font-medium text-sm">{topic.title}</span>
+                    <span className="text-gray-900 font-medium text-sm">{topic.title}</span>
                   </div>
                   <Icon name="chevronRight" size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
                 </div>
@@ -161,7 +161,7 @@ export default function BehavioralDocsPage() {
           </div>
 
           {/* Company-Specific */}
-          <h2 className="text-xl font-bold text-white mb-4">Company-Specific Prep</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Company-Specific Prep</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
             {starStories.map((story) => (
               <a
@@ -176,7 +176,7 @@ export default function BehavioralDocsPage() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <h3 className="text-white font-semibold">{story.title}</h3>
+                      <h3 className="text-gray-900 font-semibold">{story.title}</h3>
                       <Icon name="chevronRight" size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
                     </div>
                     <p className="text-gray-400 text-sm mb-2">{story.subtitle}</p>
@@ -190,11 +190,11 @@ export default function BehavioralDocsPage() {
           </div>
 
           {/* Quick Reference Section */}
-          <h2 className="text-xl font-bold text-white mb-6">Quick Reference</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Quick Reference</h2>
           <div className="grid md:grid-cols-2 gap-6">
             {/* Do's */}
             <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+              <h3 className="text-gray-900 font-semibold mb-4 flex items-center gap-2">
                 <Icon name="check" size={18} className="text-green-400" />
                 Do's
               </h3>
@@ -210,7 +210,7 @@ export default function BehavioralDocsPage() {
 
             {/* Don'ts */}
             <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+              <h3 className="text-gray-900 font-semibold mb-4 flex items-center gap-2">
                 <Icon name="x" size={18} className="text-red-400" />
                 Don'ts
               </h3>
@@ -227,7 +227,7 @@ export default function BehavioralDocsPage() {
 
           {/* Interview Tips */}
           <div className="mt-12 p-6 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.02))', border: '1px solid rgba(34, 197, 94, 0.2)' }}>
-            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
               <Icon name="lightbulb" size={20} className="text-green-400" />
               Pro Tips for Behavioral Interviews
             </h3>
@@ -238,7 +238,7 @@ export default function BehavioralDocsPage() {
                 { title: 'Practice, Don\'t Memorize', desc: 'Know your stories well enough to adapt them to different questions' },
               ].map((tip, i) => (
                 <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(0,0,0,0.3)' }}>
-                  <div className="text-white font-semibold mb-2">{tip.title}</div>
+                  <div className="text-gray-900 font-semibold mb-2">{tip.title}</div>
                   <div className="text-gray-400 text-sm">{tip.desc}</div>
                 </div>
               ))}

@@ -649,8 +649,8 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                   className={`
                     px-4 py-2 text-sm font-semibold rounded-xl transition-all duration-200 flex items-center gap-2
                     ${autoListenEnabled
-                      ? 'bg-gradient-to-r from-brand-400 to-brand-500 text-white shadow-lg shadow-brand-400/25 hover:shadow-brand-400/40'
-                      : 'bg-gray-200 text-white hover:bg-gray-300'
+                      ? 'bg-gradient-to-r from-brand-400 to-brand-500 text-gray-900 shadow-lg shadow-brand-400/25 hover:shadow-brand-400/40'
+                      : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
                     }
                     disabled:opacity-50 disabled:cursor-not-allowed
                   `}
@@ -790,7 +790,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                     <div className="flex items-start gap-2 mb-1">
                       <span
                         className={`flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-md text-xs font-mono font-bold ${
-                          isHighlighted ? 'bg-brand-400 text-white' : 'bg-gray-200 text-gray-900'
+                          isHighlighted ? 'bg-brand-400 text-gray-900' : 'bg-gray-200 text-gray-900'
                         }`}
                       >
                         {item.line}

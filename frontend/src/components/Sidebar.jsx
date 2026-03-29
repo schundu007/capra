@@ -141,7 +141,7 @@ export default function Sidebar({
                   {savedDesigns.slice(0, 5).map((design) => (
                     <button
                       key={design.id}
-                      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-600 hover:text-white hover:bg-gray-100/50 transition-all duration-150 group"
+                      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100/50 transition-all duration-150 group"
                       onClick={() => onLoadDesign(design.id)}
                     >
                       <div className="w-7 h-7 rounded-md bg-gray-100 flex items-center justify-center flex-shrink-0 group-hover:bg-gray-200">
@@ -214,7 +214,7 @@ export default function Sidebar({
                   {codingHistory.slice(0, 8).map((entry) => (
                     <button
                       key={entry.id}
-                      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-600 hover:text-white hover:bg-gray-100/50 transition-all duration-150 group"
+                      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100/50 transition-all duration-150 group"
                       onClick={() => onLoadHistory(entry.id)}
                     >
                       <div className="w-7 h-7 rounded-md bg-gray-100 flex items-center justify-center flex-shrink-0 group-hover:bg-gray-200">
@@ -258,13 +258,13 @@ export default function Sidebar({
         <div className="p-3 border-t border-gray-200">
           <div className="flex items-center gap-3 px-2 py-2 rounded-xl bg-gray-100/30">
             <div className="relative">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-400 to-brand-500 flex items-center justify-center text-white font-semibold text-sm">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-400 to-brand-500 flex items-center justify-center text-gray-900 font-semibold text-sm">
                 {(user.name || user.username || 'U')[0].toUpperCase()}
               </div>
               <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-brand-400 border-2 border-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-white truncate">
+              <div className="text-sm font-medium text-gray-900 truncate">
                 {user.name || user.username || 'User'}
               </div>
             </div>

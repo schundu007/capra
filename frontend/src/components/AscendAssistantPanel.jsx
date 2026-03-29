@@ -84,12 +84,12 @@ function renderMarkdown(text) {
     if (!table) return null;
 
     return (
-      <div key={elementKey++} className="rounded-lg overflow-hidden border border-neutral-600/40">
+      <div key={elementKey++} className="rounded-lg overflow-hidden border border-gray-200/40">
         <table className="w-full text-xs">
           <thead>
-            <tr className="bg-neutral-700/60">
+            <tr className="bg-gray-200/60">
               {table.headers.map((header, i) => (
-                <th key={i} className="px-2 py-1 text-left font-bold text-brand-400 border-b border-neutral-600/40 uppercase text-xs">
+                <th key={i} className="px-2 py-1 text-left font-bold text-brand-400 border-b border-gray-200/40 uppercase text-xs">
                   <span dangerouslySetInnerHTML={{ __html: processInline(header) }} />
                 </th>
               ))}
@@ -97,9 +97,9 @@ function renderMarkdown(text) {
           </thead>
           <tbody>
             {table.rows.map((row, rowIdx) => (
-              <tr key={rowIdx} className={rowIdx % 2 === 0 ? 'bg-neutral-800/30' : 'bg-neutral-800/50'}>
+              <tr key={rowIdx} className={rowIdx % 2 === 0 ? 'bg-gray-50/30' : 'bg-gray-50'}>
                 {row.map((cell, cellIdx) => (
-                  <td key={cellIdx} className="px-2 py-0.5 text-neutral-200 border-b border-neutral-700/20">
+                  <td key={cellIdx} className="px-2 py-0.5 text-gray-800 border-b border-gray-200/20">
                     <span dangerouslySetInnerHTML={{ __html: processInline(cell) }} />
                   </td>
                 ))}
@@ -126,7 +126,7 @@ function renderMarkdown(text) {
             <span className="text-brand-400 text-xs">💬</span>
             <span className="text-xs font-semibold text-brand-400 uppercase">{card.title}</span>
           </div>
-          <p className="text-xs text-neutral-100 mt-1 leading-snug" dangerouslySetInnerHTML={{ __html: processInline(card.content.replace(/\n/g, ' ')) }} />
+          <p className="text-xs text-gray-900 mt-1 leading-snug" dangerouslySetInnerHTML={{ __html: processInline(card.content.replace(/\n/g, ' ')) }} />
         </div>
       );
       return;
@@ -139,7 +139,7 @@ function renderMarkdown(text) {
       const ascii = asciiBlocks[parseInt(asciiMatch[1])];
       elements.push(
         <div key={elementKey++} className="my-1 rounded-lg overflow-hidden border border-brand-400/30">
-          <pre className="p-2 bg-neutral-900/80 overflow-x-auto">
+          <pre className="p-2 bg-gray-100/80 overflow-x-auto">
             <code className="text-xs leading-tight text-brand-300 font-mono whitespace-pre">{ascii}</code>
           </pre>
         </div>
@@ -153,9 +153,9 @@ function renderMarkdown(text) {
       flushTables();
       const block = codeBlocks[parseInt(codeMatch[1])];
       elements.push(
-        <div key={elementKey++} className="my-1 rounded-lg overflow-hidden border border-neutral-600/40">
-          <pre className="p-2 bg-neutral-800/80 overflow-x-auto">
-            <code className="text-xs text-neutral-200 font-mono whitespace-pre">{block.content}</code>
+        <div key={elementKey++} className="my-1 rounded-lg overflow-hidden border border-gray-200/40">
+          <pre className="p-2 bg-gray-50/80 overflow-x-auto">
+            <code className="text-xs text-gray-800 font-mono whitespace-pre">{block.content}</code>
           </pre>
         </div>
       );
@@ -176,7 +176,7 @@ function renderMarkdown(text) {
     // Bullet list - inline
     if (trimmed.match(/^[-*•]\s+/)) {
       elements.push(
-        <span key={elementKey++} className="inline-flex items-center gap-1 text-xs text-neutral-200 mr-2">
+        <span key={elementKey++} className="inline-flex items-center gap-1 text-xs text-gray-800 mr-2">
           <span className="text-brand-400">•</span>
           <span dangerouslySetInnerHTML={{ __html: processInline(trimmed.replace(/^[-*•]\s+/, '')) }} />
         </span>
@@ -195,7 +195,7 @@ function renderMarkdown(text) {
     }
 
     // Regular text
-    elements.push(<p key={elementKey++} className="text-xs text-neutral-200 mb-0.5" dangerouslySetInnerHTML={{ __html: processInline(trimmed) }} />);
+    elements.push(<p key={elementKey++} className="text-xs text-gray-800 mb-0.5" dangerouslySetInnerHTML={{ __html: processInline(trimmed) }} />);
   });
 
   flushTables();
@@ -1209,12 +1209,12 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
   };
 
   return (
-    <div className="h-full flex flex-col bg-neutral-750" style={{
+    <div className="h-full flex flex-col bg-white" style={{
       borderLeft: isDedicatedWindow ? 'none' : '1px solid rgba(100, 116, 139, 0.3)',
     }}>
       {/* Header - Matching other panels, draggable in dedicated window */}
       <div
-        className="flex items-center justify-between px-4 py-3 border-b border-neutral-700/50 bg-neutral-800"
+        className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50"
         style={isDedicatedWindow ? { WebkitAppRegion: 'drag', paddingTop: '2rem' } : {}}
       >
         <div className="flex items-center gap-2">
@@ -1226,7 +1226,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
               <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
             </svg>
           </div>
-          <span className="text-sm font-medium text-neutral-200">Interview</span>
+          <span className="text-sm font-medium text-gray-800">Interview</span>
           {isRecording && (
             <>
               <span className="text-xs font-mono text-error-400">{formatDuration(recordingDuration)}</span>
@@ -1242,7 +1242,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
         <div className="flex items-center gap-1" style={{ WebkitAppRegion: 'no-drag' }}>
           <button
             onClick={() => setShowHistory(!showHistory)}
-            className="p-1.5 rounded-lg transition-colors hover:bg-neutral-700"
+            className="p-1.5 rounded-lg transition-colors hover:bg-gray-200"
             style={{ color: showHistory ? '#2dd4bf' : '#94a3b8' }}
             title="Conversation History"
           >
@@ -1252,7 +1252,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
           </button>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg transition-colors hover:bg-neutral-700 text-neutral-400 hover:text-neutral-200"
+            className="p-1.5 rounded-lg transition-colors hover:bg-gray-200 text-gray-600 hover:text-gray-800"
             title="Close"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1264,9 +1264,9 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
 
       {/* Conversation History Panel */}
       {showHistory && (
-        <div className="flex-1 overflow-y-auto p-3 bg-neutral-800">
+        <div className="flex-1 overflow-y-auto p-3 bg-gray-50">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-semibold text-neutral-200">Conversation History</h3>
+            <h3 className="text-xs font-semibold text-gray-800">Conversation History</h3>
             {conversationHistory.length > 0 && (
               <button
                 onClick={clearHistory}
@@ -1277,13 +1277,13 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
             )}
           </div>
           {conversationHistory.length === 0 ? (
-            <p className="text-xs text-center py-8 text-neutral-500">No conversation history yet</p>
+            <p className="text-xs text-center py-8 text-gray-500">No conversation history yet</p>
           ) : (
             <div className="space-y-3">
               {[...conversationHistory].reverse().map((entry) => (
-                <div key={entry.id} className="bg-neutral-750 rounded-xl border border-neutral-700/50 overflow-hidden animate-fadeIn">
-                  <div className="flex items-center justify-between py-2 px-3 border-b border-neutral-700/50 bg-neutral-700/30">
-                    <span className="text-xs font-medium text-neutral-400">
+                <div key={entry.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden animate-fadeIn">
+                  <div className="flex items-center justify-between py-2 px-3 border-b border-gray-200 bg-gray-100">
+                    <span className="text-xs font-medium text-gray-600">
                       {new Date(entry.timestamp).toLocaleString()}
                     </span>
                   </div>
@@ -1293,14 +1293,14 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
                         <span className="w-5 h-5 rounded flex items-center justify-center text-xs font-bold bg-info-500/10 text-info-400">Q</span>
                         <span className="text-xs font-semibold uppercase text-info-400">Question</span>
                       </div>
-                      <p className="text-xs pl-6 text-neutral-200">{entry.question}</p>
+                      <p className="text-xs pl-6 text-gray-800">{entry.question}</p>
                     </div>
                     <div>
                       <div className="flex items-center gap-1.5 mb-1">
                         <span className="w-5 h-5 rounded flex items-center justify-center text-xs font-bold bg-brand-400/10 text-brand-400">A</span>
                         <span className="text-xs font-semibold uppercase text-brand-400">Answer</span>
                       </div>
-                      <div className="text-xs pl-6 text-neutral-200">{renderMarkdown(entry.answer)}</div>
+                      <div className="text-xs pl-6 text-gray-800">{renderMarkdown(entry.answer)}</div>
                     </div>
                   </div>
                 </div>
@@ -1333,17 +1333,17 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
                 </svg>
                 <span className="text-sm font-medium text-amber-400">BlackHole Required for Interviewer Audio</span>
               </div>
-              <p className="text-xs text-neutral-300 mb-3">
+              <p className="text-xs text-gray-900 mb-3">
                 To capture audio from Google Meet/Zoom, you need to install BlackHole (a free virtual audio driver) and configure it.
               </p>
               <button
                 onClick={() => setShowBlackholeSetup(true)}
-                className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-neutral-900 text-xs font-medium rounded-lg transition-colors"
+                className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-gray-900 text-xs font-medium rounded-lg transition-colors"
               >
                 View Setup Guide
               </button>
             </div>
-            <button onClick={() => setError(null)} className="text-neutral-400 hover:text-neutral-300 transition-colors">
+            <button onClick={() => setError(null)} className="text-gray-600 hover:text-gray-900 transition-colors">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -1364,14 +1364,14 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
         onChange={(e) => { if (e.target.files?.[0]) { handleFileUpload(e.target.files[0], setPrepMaterial, 'prep'); e.target.value = ''; }}} />
 
       {/* Top Strip: Two Cards Side by Side */}
-      <div className="flex border-b border-neutral-700/50">
+      <div className="flex border-b border-gray-200">
         {/* DOCS SECTION (LEFT) */}
-        <div className="flex-1 p-2 bg-neutral-800 border-r border-neutral-700/50">
+        <div className="flex-1 p-2 bg-gray-50 border-r border-gray-200">
           <div className="flex gap-1">
             <button
               onClick={() => setExpandedContext(expandedContext === 'jd' ? null : 'jd')}
               className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1 ${
-                expandedContext === 'jd' ? 'bg-info-500 text-white' : jobDescription ? 'bg-info-500/20 text-info-400 border border-info-500/50' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+                expandedContext === 'jd' ? 'bg-info-500 text-gray-900' : jobDescription ? 'bg-info-500/20 text-info-400 border border-info-500/50' : 'bg-gray-200 text-gray-900 hover:bg-gray-200'
               }`}
             >
               JD {jobDescription && <span className="w-1.5 h-1.5 rounded-full bg-current" />}
@@ -1379,7 +1379,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
             <button
               onClick={() => setExpandedContext(expandedContext === 'resume' ? null : 'resume')}
               className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1 ${
-                expandedContext === 'resume' ? 'bg-info-500 text-white' : resume ? 'bg-info-500/20 text-info-400 border border-info-500/50' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+                expandedContext === 'resume' ? 'bg-info-500 text-gray-900' : resume ? 'bg-info-500/20 text-info-400 border border-info-500/50' : 'bg-gray-200 text-gray-900 hover:bg-gray-200'
               }`}
             >
               CV {resume && <span className="w-1.5 h-1.5 rounded-full bg-current" />}
@@ -1387,7 +1387,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
             <button
               onClick={() => setExpandedContext(expandedContext === 'prep' ? null : 'prep')}
               className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1 ${
-                expandedContext === 'prep' ? 'bg-info-500 text-white' : prepMaterial ? 'bg-info-500/20 text-info-400 border border-info-500/50' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+                expandedContext === 'prep' ? 'bg-info-500 text-gray-900' : prepMaterial ? 'bg-info-500/20 text-info-400 border border-info-500/50' : 'bg-gray-200 text-gray-900 hover:bg-gray-200'
               }`}
             >
               Prep {prepMaterial && <span className="w-1.5 h-1.5 rounded-full bg-current" />}
@@ -1404,7 +1404,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
                   else setPrepMaterial(e.target.value);
                 }}
                 placeholder={expandedContext === 'jd' ? 'Paste JD...' : expandedContext === 'resume' ? 'Paste resume...' : 'Prep notes...'}
-                className="flex-1 h-20 px-2 py-1.5 text-xs bg-neutral-700 border border-neutral-600 rounded text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-info-500 resize-none"
+                className="flex-1 h-20 px-2 py-1.5 text-xs bg-gray-200 border border-gray-200 rounded text-gray-800 placeholder-gray-400 focus:outline-none focus:border-info-500 resize-none"
               />
               <div className="flex flex-col gap-1">
                 <button
@@ -1413,7 +1413,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
                     else if (expandedContext === 'resume') resumeFileRef.current?.click();
                     else prepFileRef.current?.click();
                   }}
-                  className="p-2 rounded-lg bg-neutral-700 hover:bg-info-500/20 text-neutral-400 hover:text-info-400 border border-neutral-600"
+                  className="p-2 rounded-lg bg-gray-200 hover:bg-info-500/20 text-gray-600 hover:text-info-400 border border-gray-200"
                   title="Upload PDF/DOCX"
                 >
                   {uploadingFile === expandedContext ? (
@@ -1430,7 +1430,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
                     else if (expandedContext === 'resume') setResume('');
                     else setPrepMaterial('');
                   }}
-                  className="p-2 rounded-lg bg-neutral-700 hover:bg-error-500/20 text-neutral-400 hover:text-error-400 border border-neutral-600"
+                  className="p-2 rounded-lg bg-gray-200 hover:bg-error-500/20 text-gray-600 hover:text-error-400 border border-gray-200"
                   title="Clear"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1443,15 +1443,15 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
         </div>
 
         {/* VOICE SECTION (RIGHT) */}
-        <div className="flex-1 p-2 bg-neutral-800">
+        <div className="flex-1 p-2 bg-gray-50">
           <div className="flex gap-1 items-center">
             <button
               onClick={() => setAudioSource('system')}
               disabled={isRecording}
               className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-50 ${
                 audioSource === 'system'
-                  ? 'bg-brand-400 text-neutral-900'
-                  : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+                  ? 'bg-brand-400 text-gray-900'
+                  : 'bg-gray-200 text-gray-900 hover:bg-gray-200'
               }`}
             >
               Interviewer
@@ -1461,15 +1461,15 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
               disabled={isRecording}
               className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-50 ${
                 audioSource === 'mic'
-                  ? 'bg-brand-400 text-neutral-900'
-                  : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+                  ? 'bg-brand-400 text-gray-900'
+                  : 'bg-gray-200 text-gray-900 hover:bg-gray-200'
               }`}
             >
               Speaker
             </button>
             <button
               onClick={() => setShowBlackholeSetup(true)}
-              className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-700 transition-all"
+              className="p-1.5 rounded-lg text-gray-600 hover:text-gray-800 hover:bg-gray-200 transition-all"
               title="Setup guide for capturing interviewer audio"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1481,7 +1481,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
       </div>
 
       {/* Voice Controls Container */}
-      <div className="border-b border-neutral-700/50 bg-neutral-800 flex justify-center">
+      <div className="border-b border-gray-200 bg-gray-50 flex justify-center">
         <div className="w-full max-w-md px-4 py-3 space-y-3">
           {/* Mic Selection */}
           {audioSource === 'mic' && audioDevices.inputs.length > 1 && (
@@ -1489,7 +1489,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
               value={selectedMic}
               onChange={(e) => setSelectedMic(e.target.value)}
               disabled={isRecording}
-              className="w-full px-2 py-1.5 rounded text-xs focus:outline-none disabled:opacity-50 truncate bg-neutral-700 border border-neutral-600/50 text-neutral-200"
+              className="w-full px-2 py-1.5 rounded text-xs focus:outline-none disabled:opacity-50 truncate bg-gray-200 border border-gray-200 text-gray-800"
             >
               {audioDevices.inputs.map((device) => (
                 <option key={device.deviceId} value={device.deviceId}>
@@ -1501,16 +1501,16 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
 
           {/* Transcription Provider Toggle */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-neutral-500 shrink-0">STT:</span>
-            <div className="flex rounded-lg overflow-hidden border border-neutral-600/50 flex-1">
+            <span className="text-xs text-gray-500 shrink-0">STT:</span>
+            <div className="flex rounded-lg overflow-hidden border border-gray-200 flex-1">
               <button
                 onClick={() => setTranscriptionProvider('openai')}
                 disabled={isRecording}
                 title="OpenAI Whisper API"
                 className={`flex-1 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
                   transcriptionProvider === 'openai'
-                    ? 'bg-brand-400 text-neutral-900'
-                    : 'bg-neutral-700 text-neutral-400 hover:bg-neutral-600'
+                    ? 'bg-brand-400 text-gray-900'
+                    : 'bg-gray-200 text-gray-600 hover:bg-gray-200'
                 }`}
               >
                 Whisper
@@ -1521,8 +1521,8 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
                 title="Deepgram Nova-2 API"
                 className={`flex-1 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
                   transcriptionProvider === 'deepgram'
-                    ? 'bg-brand-400 text-neutral-900'
-                    : 'bg-neutral-700 text-neutral-400 hover:bg-neutral-600'
+                    ? 'bg-brand-400 text-gray-900'
+                    : 'bg-gray-200 text-gray-600 hover:bg-gray-200'
                 }`}
               >
                 Deepgram
@@ -1560,8 +1560,8 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
 
               {/* Audio Level Indicator */}
               <div className="flex items-center gap-1 mb-2">
-                <span className="text-xs text-neutral-500">Level:</span>
-                <div className="flex-1 h-2 bg-neutral-700 rounded-full overflow-hidden">
+                <span className="text-xs text-gray-500">Level:</span>
+                <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                   <div
                     className="h-full transition-all duration-75 rounded-full"
                     style={{
@@ -1577,7 +1577,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
                 <button
                   onClick={togglePause}
                   className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-                    isPaused ? 'bg-brand-400 text-neutral-900' : 'bg-warning-500 text-white'
+                    isPaused ? 'bg-brand-400 text-gray-900' : 'bg-warning-500 text-gray-900'
                   }`}
                 >
                   {isPaused ? (
@@ -1599,7 +1599,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
                 </button>
                 <button
                   onClick={stopRecording}
-                  className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors bg-neutral-600 text-white hover:bg-neutral-500"
+                  className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors bg-gray-200 text-gray-900 hover:bg-gray-300"
                 >
                   <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
                     <rect x="6" y="6" width="12" height="12" rx="1"/>
@@ -1608,7 +1608,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
                 </button>
                 <button
                   onClick={clearAll}
-                  className="px-3 py-2 rounded-lg transition-colors text-neutral-400 hover:text-neutral-200 hover:bg-neutral-700"
+                  className="px-3 py-2 rounded-lg transition-colors text-gray-600 hover:text-gray-800 hover:bg-gray-200"
                   title="Clear"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1624,27 +1624,27 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
       {/* Content - Side by Side Layout */}
       <div className="flex-1 overflow-hidden flex flex-row">
         {/* Questions Section - Left side, 40% width */}
-        <div className="w-[40%] shrink-0 border-r border-neutral-700/50">
+        <div className="w-[40%] shrink-0 border-r border-gray-200">
           <div className="h-full flex flex-col">
-            <div className="px-3 py-1 flex items-center justify-between border-b border-neutral-700/50 bg-neutral-800">
-              <span className="text-xs font-medium uppercase tracking-wider text-neutral-400">
+            <div className="px-3 py-1 flex items-center justify-between border-b border-gray-200 bg-gray-50">
+              <span className="text-xs font-medium uppercase tracking-wider text-gray-600">
                 Questions
               </span>
               {questions.length > 0 && (
-                <span className="text-xs text-neutral-500">
+                <span className="text-xs text-gray-500">
                   {questions.length}
                 </span>
               )}
             </div>
-            <div className="flex-1 overflow-y-auto p-1.5 bg-neutral-750">
+            <div className="flex-1 overflow-y-auto p-1.5 bg-white">
               {questions.length > 0 ? (
                 <div className="space-y-1.5">
                   {/* Show all questions in side panel - scroll if needed */}
                   {questions.map((q, idx) => {
                     const actualNum = idx + 1;
                     return (
-                      <div key={actualNum} className="px-2 py-1 rounded bg-neutral-700/30 border-l-2 border-info-400 animate-fadeIn">
-                        <p className="text-xs leading-snug text-neutral-200">
+                      <div key={actualNum} className="px-2 py-1 rounded bg-gray-100 border-l-2 border-info-400 animate-fadeIn">
+                        <p className="text-xs leading-snug text-gray-800">
                           <span className="text-info-400 font-medium mr-1">Q{actualNum}.</span>
                           {q}
                         </p>
@@ -1653,7 +1653,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
                   })}
                 </div>
               ) : (
-                <div className="text-xs italic text-neutral-500">
+                <div className="text-xs italic text-gray-500">
                   {isRecording ? (isSpeaking ? 'Listening...' : 'Waiting...') : 'Click Record'}
                 </div>
               )}
@@ -1664,14 +1664,14 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
         {/* Answer Section - Right side, takes remaining 60% width */}
         <div className="flex-1 min-w-0 overflow-hidden">
           <div className="h-full flex flex-col">
-            <div className="px-3 py-2 flex items-center justify-between border-b border-neutral-700/50 bg-gradient-to-r from-brand-500/10 to-transparent">
+            <div className="px-3 py-2 flex items-center justify-between border-b border-gray-200 bg-gradient-to-r from-brand-500/10 to-transparent">
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 rounded bg-brand-400/20 flex items-center justify-center">
                   <svg className="w-3 h-3 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
                 </div>
-                <span className="text-xs font-semibold text-neutral-200">
+                <span className="text-xs font-semibold text-gray-800">
                   Answer
                 </span>
               </div>
@@ -1682,7 +1682,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
                 </div>
               )}
             </div>
-            <div className="flex-1 overflow-y-auto bg-neutral-800/30">
+            <div className="flex-1 overflow-y-auto bg-gray-50/30">
               {answer ? (
                 <div className="p-4">
                   <div className="prose prose-sm prose-invert max-w-none answer-content">
@@ -1691,15 +1691,15 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full text-center px-6">
-                  <div className="w-12 h-12 rounded-full bg-neutral-700/50 flex items-center justify-center mb-3">
-                    <svg className="w-6 h-6 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                    <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
                   </div>
-                  <p className="text-xs text-neutral-400 mb-1">
+                  <p className="text-xs text-gray-600 mb-1">
                     {questions.length > 0 ? 'Processing...' : 'Ready to help'}
                   </p>
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-xs text-gray-500">
                     {questions.length > 0 ? 'Generating expert answer...' : 'Click Record and ask a question'}
                   </p>
                 </div>
@@ -1714,12 +1714,12 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
       {/* BlackHole Setup Modal */}
       {showBlackholeSetup && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-neutral-800 rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-neutral-700">
-            <div className="sticky top-0 bg-neutral-800 px-5 py-4 border-b border-neutral-700 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">BlackHole Setup Guide</h2>
+          <div className="bg-gray-50 rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200">
+            <div className="sticky top-0 bg-gray-50 px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">BlackHole Setup Guide</h2>
               <button
                 onClick={() => setShowBlackholeSetup(false)}
-                className="text-neutral-400 hover:text-white transition-colors"
+                className="text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1728,42 +1728,42 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
             </div>
 
             <div className="px-5 py-4 space-y-5">
-              <p className="text-sm text-neutral-300">
+              <p className="text-sm text-gray-900">
                 BlackHole is a free virtual audio driver that lets Ascend capture audio from Google Meet, Zoom, and other apps.
               </p>
 
               {/* Step 1 */}
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-brand-500 text-white text-xs font-bold flex items-center justify-center">1</span>
-                  <h3 className="text-sm font-medium text-white">Download & Install BlackHole</h3>
+                  <span className="w-6 h-6 rounded-full bg-brand-500 text-gray-900 text-xs font-bold flex items-center justify-center">1</span>
+                  <h3 className="text-sm font-medium text-gray-900">Download & Install BlackHole</h3>
                 </div>
                 <div className="ml-8 space-y-2">
-                  <p className="text-xs text-neutral-400">Download BlackHole 2ch (free) from the official website:</p>
+                  <p className="text-xs text-gray-600">Download BlackHole 2ch (free) from the official website:</p>
                   <a
                     href="https://existential.audio/blackhole/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-3 py-2 bg-neutral-700 hover:bg-neutral-600 rounded-lg text-sm text-brand-400 transition-colors"
+                    className="inline-flex items-center gap-2 px-3 py-2 bg-gray-200 hover:bg-gray-200 rounded-lg text-sm text-brand-400 transition-colors"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
                     existential.audio/blackhole
                   </a>
-                  <p className="text-xs text-neutral-500">Run the installer and restart your Mac if prompted.</p>
+                  <p className="text-xs text-gray-500">Run the installer and restart your Mac if prompted.</p>
                 </div>
               </div>
 
               {/* Step 2 */}
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-brand-500 text-white text-xs font-bold flex items-center justify-center">2</span>
-                  <h3 className="text-sm font-medium text-white">Create Multi-Output Device</h3>
+                  <span className="w-6 h-6 rounded-full bg-brand-500 text-gray-900 text-xs font-bold flex items-center justify-center">2</span>
+                  <h3 className="text-sm font-medium text-gray-900">Create Multi-Output Device</h3>
                 </div>
                 <div className="ml-8 space-y-2">
-                  <p className="text-xs text-neutral-400">This lets you hear audio AND capture it simultaneously:</p>
-                  <ol className="text-xs text-neutral-300 space-y-1.5 list-decimal list-inside">
+                  <p className="text-xs text-gray-600">This lets you hear audio AND capture it simultaneously:</p>
+                  <ol className="text-xs text-gray-900 space-y-1.5 list-decimal list-inside">
                     <li>Open <span className="text-brand-400 font-medium">Audio MIDI Setup</span> (search in Spotlight)</li>
                     <li>Click the <span className="text-brand-400 font-medium">+</span> button at bottom left</li>
                     <li>Select <span className="text-brand-400 font-medium">"Create Multi-Output Device"</span></li>
@@ -1776,11 +1776,11 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
               {/* Step 3 */}
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-brand-500 text-white text-xs font-bold flex items-center justify-center">3</span>
-                  <h3 className="text-sm font-medium text-white">Configure Ascend</h3>
+                  <span className="w-6 h-6 rounded-full bg-brand-500 text-gray-900 text-xs font-bold flex items-center justify-center">3</span>
+                  <h3 className="text-sm font-medium text-gray-900">Configure Ascend</h3>
                 </div>
                 <div className="ml-8 space-y-2">
-                  <ol className="text-xs text-neutral-300 space-y-1.5 list-decimal list-inside">
+                  <ol className="text-xs text-gray-900 space-y-1.5 list-decimal list-inside">
                     <li>In Ascend, click the <span className="text-brand-400 font-medium">"Interviewer"</span> button (not "Speaker")</li>
                     <li>Click the <span className="text-brand-400 font-medium">Record</span> button</li>
                     <li>Ascend will now capture both your voice AND the interviewer's voice</li>
@@ -1789,9 +1789,9 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
               </div>
 
               {/* Troubleshooting */}
-              <div className="bg-neutral-700/50 rounded-lg p-4 space-y-2">
-                <h4 className="text-xs font-medium text-neutral-200">Troubleshooting</h4>
-                <ul className="text-xs text-neutral-400 space-y-1">
+              <div className="bg-gray-100 rounded-lg p-4 space-y-2">
+                <h4 className="text-xs font-medium text-gray-800">Troubleshooting</h4>
+                <ul className="text-xs text-gray-600 space-y-1">
                   <li>• If you can't hear audio: Make sure your speakers/headphones are checked in the Multi-Output Device</li>
                   <li>• If BlackHole doesn't appear: Restart your Mac after installation</li>
                   <li>• Volume too low? Adjust the master volume slider in Audio MIDI Setup</li>
@@ -1803,7 +1803,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
                   setShowBlackholeSetup(false);
                   setError(null);
                 }}
-                className="w-full py-2.5 bg-brand-500 hover:bg-brand-400 text-white font-medium rounded-lg transition-colors"
+                className="w-full py-2.5 bg-brand-500 hover:bg-brand-400 text-gray-900 font-medium rounded-lg transition-colors"
               >
                 Got it
               </button>

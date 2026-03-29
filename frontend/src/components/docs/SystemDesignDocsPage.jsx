@@ -56,7 +56,7 @@ export default function SystemDesignDocsPage() {
     });
 
   return (
-    <div className="min-h-screen flex" style={{ background: '#09090b', fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen flex" style={{ background: '#ffffff', fontFamily: "'Inter', sans-serif" }}>
       {/* Sidebar */}
       <DocsSidebar activePage="system-design" />
 
@@ -69,7 +69,7 @@ export default function SystemDesignDocsPage() {
             <a href="/app" className="px-4 py-2 rounded-lg text-sm font-medium text-blue-400 hover:bg-blue-400/10 transition-colors" style={{ border: '1px solid rgba(59, 130, 246, 0.3)' }}>
               Getting started guide
             </a>
-            <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white transition-colors" style={{ background: 'rgba(255,255,255,0.05)' }}>
+            <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-gray-900 transition-colors" style={{ background: 'rgba(255,255,255,0.05)' }}>
               <Icon name="search" size={16} />
               Search everything
               <span className="text-gray-600 ml-2">/</span>
@@ -80,7 +80,7 @@ export default function SystemDesignDocsPage() {
         {/* Content */}
         <div className="px-8 py-8 max-w-6xl mx-auto">
           {/* Page Title */}
-          <h1 className="text-3xl font-bold text-white mb-8">System Design</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">System Design</h1>
 
           {/* Search and Sort */}
           <div className="flex items-center justify-between mb-6">
@@ -91,7 +91,7 @@ export default function SystemDesignDocsPage() {
                 placeholder="Search topics"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2.5 rounded-lg text-sm text-white placeholder-gray-500 w-64 focus:outline-none focus:ring-1 focus:ring-blue-400/50"
+                className="pl-10 pr-4 py-2.5 rounded-lg text-sm text-gray-900 placeholder-gray-500 w-64 focus:outline-none focus:ring-1 focus:ring-blue-400/50"
                 style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
               />
             </div>
@@ -113,16 +113,16 @@ export default function SystemDesignDocsPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' }}>
-                  <Icon name="systemDesign" size={20} className="text-white" />
+                  <Icon name="systemDesign" size={20} className="text-gray-900" />
                 </div>
-                <span className="text-white font-medium">How to Pass System Design Interviews in 2026</span>
+                <span className="text-gray-900 font-medium">How to Pass System Design Interviews in 2026</span>
               </div>
               <Icon name="chevronRight" size={20} className="text-gray-500" />
             </div>
           </a>
 
           {/* Core Concepts Section */}
-          <h2 className="text-xl font-bold text-white mb-4">Core Concepts</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Core Concepts</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-12">
             {filteredTopics.map((topic) => (
               <a
@@ -134,7 +134,7 @@ export default function SystemDesignDocsPage() {
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <Icon name={topic.icon} size={16} style={{ color: topic.color }} />
-                    <span className="text-white font-medium text-sm">{topic.title}</span>
+                    <span className="text-gray-900 font-medium text-sm">{topic.title}</span>
                   </div>
                   <Icon name="chevronRight" size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
                 </div>
@@ -147,7 +147,7 @@ export default function SystemDesignDocsPage() {
           </div>
 
           {/* Common Designs Section */}
-          <h2 className="text-xl font-bold text-white mb-4">Common System Designs</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Common System Designs</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
             {systemDesigns.map((design) => (
               <a
@@ -162,7 +162,7 @@ export default function SystemDesignDocsPage() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <h3 className="text-white font-semibold">{design.title}</h3>
+                      <h3 className="text-gray-900 font-semibold">{design.title}</h3>
                       <Icon name="chevronRight" size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
                     </div>
                     <p className="text-gray-400 text-sm mb-2">{design.subtitle}</p>
@@ -177,7 +177,7 @@ export default function SystemDesignDocsPage() {
 
           {/* Interview Framework */}
           <div className="p-6 rounded-xl mb-12" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.02))', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
               <Icon name="target" size={20} className="text-blue-400" />
               System Design Interview Framework (45 min)
             </h3>
@@ -190,7 +190,7 @@ export default function SystemDesignDocsPage() {
               ].map((phase, i) => (
                 <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(0,0,0,0.3)' }}>
                   <div className="text-blue-400 text-sm font-bold mb-1">{phase.time}</div>
-                  <div className="text-white font-semibold mb-2">{phase.step}</div>
+                  <div className="text-gray-900 font-semibold mb-2">{phase.step}</div>
                   <div className="text-gray-400 text-sm">{phase.desc}</div>
                 </div>
               ))}
@@ -198,37 +198,37 @@ export default function SystemDesignDocsPage() {
           </div>
 
           {/* Quick Reference Section */}
-          <h2 className="text-xl font-bold text-white mb-6">Quick Reference</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Quick Reference</h2>
           <div className="grid md:grid-cols-2 gap-6">
             {/* Building Blocks */}
             <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+              <h3 className="text-gray-900 font-semibold mb-4 flex items-center gap-2">
                 <Icon name="layers" size={18} className="text-blue-400" />
                 Building Blocks
               </h3>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between"><span className="text-gray-400">Load Balancer</span><span className="text-white">NGINX, HAProxy, ALB</span></div>
-                <div className="flex justify-between"><span className="text-gray-400">Cache</span><span className="text-white">Redis, Memcached</span></div>
-                <div className="flex justify-between"><span className="text-gray-400">Message Queue</span><span className="text-white">Kafka, RabbitMQ, SQS</span></div>
-                <div className="flex justify-between"><span className="text-gray-400">Search</span><span className="text-white">Elasticsearch, Solr</span></div>
-                <div className="flex justify-between"><span className="text-gray-400">SQL Database</span><span className="text-white">PostgreSQL, MySQL</span></div>
-                <div className="flex justify-between"><span className="text-gray-400">NoSQL Database</span><span className="text-white">MongoDB, Cassandra</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">Load Balancer</span><span className="text-gray-900">NGINX, HAProxy, ALB</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">Cache</span><span className="text-gray-900">Redis, Memcached</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">Message Queue</span><span className="text-gray-900">Kafka, RabbitMQ, SQS</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">Search</span><span className="text-gray-900">Elasticsearch, Solr</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">SQL Database</span><span className="text-gray-900">PostgreSQL, MySQL</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">NoSQL Database</span><span className="text-gray-900">MongoDB, Cassandra</span></div>
               </div>
             </div>
 
             {/* Key Tradeoffs */}
             <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+              <h3 className="text-gray-900 font-semibold mb-4 flex items-center gap-2">
                 <Icon name="puzzle" size={18} className="text-purple-400" />
                 Key Trade-offs
               </h3>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between"><span className="text-gray-400">Consistency vs Availability</span><span className="text-white">CAP Theorem</span></div>
-                <div className="flex justify-between"><span className="text-gray-400">Latency vs Throughput</span><span className="text-white">System tuning</span></div>
-                <div className="flex justify-between"><span className="text-gray-400">SQL vs NoSQL</span><span className="text-white">Data modeling</span></div>
-                <div className="flex justify-between"><span className="text-gray-400">Push vs Pull</span><span className="text-white">Data delivery</span></div>
-                <div className="flex justify-between"><span className="text-gray-400">Sync vs Async</span><span className="text-white">Communication</span></div>
-                <div className="flex justify-between"><span className="text-gray-400">Strong vs Eventual</span><span className="text-white">Consistency</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">Consistency vs Availability</span><span className="text-gray-900">CAP Theorem</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">Latency vs Throughput</span><span className="text-gray-900">System tuning</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">SQL vs NoSQL</span><span className="text-gray-900">Data modeling</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">Push vs Pull</span><span className="text-gray-900">Data delivery</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">Sync vs Async</span><span className="text-gray-900">Communication</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">Strong vs Eventual</span><span className="text-gray-900">Consistency</span></div>
               </div>
             </div>
           </div>

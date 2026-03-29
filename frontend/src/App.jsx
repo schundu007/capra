@@ -796,7 +796,7 @@ export default function App() {
             className="w-12 h-12 rounded-xl flex items-center justify-center"
             style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
           >
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
             </svg>
           </div>
@@ -1070,7 +1070,7 @@ function useLocalStorage(key, initialValue) {
 function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, showSidebar, onToggleSidebar, isLoading, isMacElectron, onSettingsClick, onPricingClick, onAssistantClick, showAscendAssistant, onDocsClick }) {
   return (
     <header
-      className="flex items-center justify-between gap-4 px-5 border-b backdrop-blur-md bg-neutral-800/95 border-neutral-700/50"
+      className="flex items-center justify-between gap-4 px-5 border-b backdrop-blur-md bg-white border-gray-200"
       style={{
         paddingLeft: (isMacElectron && !showSidebar) ? '80px' : '20px',
         WebkitAppRegion: 'drag',
@@ -1092,7 +1092,7 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
         )}
 
         {/* Mode Tabs - Modern pill design */}
-        <div className="flex items-center gap-1 p-1 rounded-xl bg-neutral-700/50 border border-neutral-600/50">
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-gray-100 border border-gray-200">
           {[
             { id: 'coding', label: 'Coding', icon: <CodeIcon /> },
             { id: 'system-design', label: 'Design', icon: <DesignIcon /> },
@@ -1104,8 +1104,8 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
               className={`
                 flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
                 ${ascendMode === mode.id
-                  ? 'bg-brand-400 text-white shadow-md shadow-brand-400/30'
-                  : 'text-neutral-400 hover:text-white hover:bg-neutral-600/50'
+                  ? 'bg-brand-400 text-gray-900 shadow-md shadow-brand-400/30'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
                 }
               `}
             >
@@ -1125,7 +1125,7 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
               flex items-center gap-2.5 px-4 py-2 rounded-xl transition-all duration-200
               ${stealthMode
                 ? 'bg-brand-400/15 border-brand-400/40 text-brand-400'
-                : 'bg-neutral-700/50 border-neutral-600/50 text-neutral-400 hover:text-white hover:bg-neutral-600/50'
+                : 'bg-gray-100 border-gray-200 text-gray-600 hover:text-gray-900 hover:bg-gray-200'
               }
               border
             `}
@@ -1134,7 +1134,7 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
             <span className="text-sm font-medium">Stealth</span>
             <div className={`
               w-9 h-5 rounded-full relative transition-all duration-300
-              ${stealthMode ? 'bg-brand-400' : 'bg-neutral-600'}
+              ${stealthMode ? 'bg-brand-400' : 'bg-gray-200'}
             `}>
               <div className={`
                 absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-md transition-all duration-300
@@ -1147,7 +1147,7 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
         <div className="flex items-center" style={{ WebkitAppRegion: 'no-drag' }}>
           <button
             onClick={onPricingClick}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-brand-400 to-brand-500 hover:from-brand-500 hover:to-brand-600 shadow-lg shadow-brand-400/30 hover:shadow-brand-400/40 transition-all duration-200 hover:scale-[1.02]"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm text-gray-900 bg-gradient-to-r from-brand-400 to-brand-500 hover:from-brand-500 hover:to-brand-600 shadow-lg shadow-brand-400/30 hover:shadow-brand-400/40 transition-all duration-200 hover:scale-[1.02]"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -1163,7 +1163,7 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
         {isElectron && onDocsClick ? (
           <button
             onClick={onDocsClick}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-neutral-400 hover:text-white bg-neutral-700/50 hover:bg-neutral-600/50 border border-neutral-600/50 transition-all duration-200"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 border border-gray-200 transition-all duration-200"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -1173,7 +1173,7 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
         ) : !isElectron && (
           <a
             href="/prepare"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-neutral-400 hover:text-white bg-neutral-700/50 hover:bg-neutral-600/50 border border-neutral-600/50 transition-all duration-200"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 border border-gray-200 transition-all duration-200"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -1187,7 +1187,7 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 border ${
             showAscendAssistant
               ? 'text-brand-400 bg-brand-400/10 border-brand-400/50'
-              : 'text-neutral-400 hover:text-white bg-neutral-700/50 hover:bg-neutral-600/50 border-neutral-600/50'
+              : 'text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 border-gray-200'
           }`}
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1197,7 +1197,7 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
         </button>
         <button
           onClick={onSettingsClick}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-neutral-400 hover:text-white bg-neutral-700/50 hover:bg-neutral-600/50 border border-neutral-600/50 transition-all duration-200"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 border border-gray-200 transition-all duration-200"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -1263,7 +1263,7 @@ function SwitchNotificationBanner({ notification, onDismiss }) {
 function LoadingProgress() {
   return (
     <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
-      <div className="h-1 overflow-hidden bg-neutral-200 dark:bg-neutral-800">
+      <div className="h-1 overflow-hidden bg-gray-200">
         <div
           className="h-full w-1/3 bg-gradient-to-r from-brand-400 via-brand-500 to-brand-400 rounded-full"
           style={{
@@ -1277,16 +1277,16 @@ function LoadingProgress() {
 
 function Footer({ isLoading, ascendMode }) {
   return (
-    <footer className="relative z-10 px-5 py-3 flex items-center justify-between text-xs border-t border-neutral-700/50 bg-neutral-800">
+    <footer className="relative z-10 px-5 py-3 flex items-center justify-between text-xs border-t border-gray-200 bg-gray-50">
       <div className="flex items-center gap-4">
         <span className="flex items-center gap-2">
           <span className={`w-2 h-2 rounded-full ${isLoading ? 'animate-pulse bg-brand-400' : 'bg-brand-400'}`} />
-          <span className={`text-sm font-medium ${isLoading ? 'text-brand-400' : 'text-neutral-400'}`}>
+          <span className={`text-sm font-medium ${isLoading ? 'text-brand-400' : 'text-gray-600'}`}>
             {isLoading ? 'Processing...' : 'Ready'}
           </span>
         </span>
       </div>
-      <div className="flex items-center gap-5 font-mono text-xs text-neutral-500">
+      <div className="flex items-center gap-5 font-mono text-xs text-gray-500">
         {[
           { key: '^1', label: ascendMode === 'system-design' ? 'design' : 'code' },
           { key: '^2', label: 'run' },
@@ -1294,10 +1294,10 @@ function Footer({ isLoading, ascendMode }) {
           { key: 'Esc', label: 'clear' },
         ].map(({ key, label }) => (
           <span key={key} className="flex items-center gap-1.5">
-            <kbd className="px-2 py-1 rounded-md text-xs font-semibold bg-neutral-700 border border-neutral-600 text-neutral-300">
+            <kbd className="px-2 py-1 rounded-md text-xs font-semibold bg-gray-200 border border-gray-200 text-gray-900">
               {key}
             </kbd>
-            <span className="text-neutral-400">{label}</span>
+            <span className="text-gray-600">{label}</span>
           </span>
         ))}
       </div>
@@ -1310,11 +1310,11 @@ function CopyToast() {
     <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 animate-scale-in">
       <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-gradient-to-r from-brand-500 to-brand-600 shadow-xl shadow-brand-500/30">
         <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm">
-          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <span className="text-sm font-semibold text-white">Code copied to clipboard!</span>
+        <span className="text-sm font-semibold text-gray-900">Code copied to clipboard!</span>
       </div>
     </div>
   );
@@ -1337,25 +1337,25 @@ function CodingLayout({
   // System Design Mode - Vertical Layout: Problem on top, SystemDesignPanel below
   if (ascendMode === 'system-design') {
     return (
-      <div className="h-full bg-neutral-800">
+      <div className="h-full bg-gray-50">
         <Allotment defaultSizes={showAscendAssistant ? [70, 30] : [100]}>
           {/* Main Content - Vertical Stack */}
           <Allotment.Pane minSize={600}>
-            <div className="h-full flex flex-col overflow-hidden bg-neutral-750">
+            <div className="h-full flex flex-col overflow-hidden bg-white">
               {/* Top Section: Problem Input (compact, auto-height) */}
-              <div className="flex-shrink-0 border-b border-neutral-700/50">
+              <div className="flex-shrink-0 border-b border-gray-200">
                 {/* Panel Header */}
-                <div className="flex items-center justify-between px-4 py-2 bg-neutral-800/50">
+                <div className="flex items-center justify-between px-4 py-2 bg-gray-50">
                   <div className="flex items-center gap-3">
                     <div className="w-1 h-4 rounded-full bg-gradient-to-b from-brand-400 to-brand-500" />
-                    <h2 className="text-sm font-semibold text-white">System Design</h2>
+                    <h2 className="text-sm font-semibold text-gray-900">System Design</h2>
                     <button
                       onClick={onSavedDesignsClick}
                       className={`
                         flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium rounded-lg transition-all duration-200
                         ${savedDesignsCount > 0
                           ? 'bg-brand-400/10 text-brand-400 border border-brand-400/30'
-                          : 'bg-neutral-700 text-neutral-400 hover:text-neutral-300'
+                          : 'bg-gray-200 text-gray-600 hover:text-gray-900'
                         }
                       `}
                     >
@@ -1416,7 +1416,7 @@ function CodingLayout({
                     isProcessingFollowUp={isProcessingFollowUp}
                   />
                 ) : isLoading && loadingType === 'solve' ? (
-                  <div className="flex flex-col items-center justify-center h-full text-neutral-300">
+                  <div className="flex flex-col items-center justify-center h-full text-gray-900">
                     <div className="flex gap-1 mb-2">
                       <span className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '0ms' }} />
                       <span className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -1425,7 +1425,7 @@ function CodingLayout({
                     <span className="text-sm">Generating system design...</span>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-neutral-500">
+                  <div className="flex flex-col items-center justify-center h-full text-gray-500">
                     <svg className="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
@@ -1449,17 +1449,17 @@ function CodingLayout({
 
   // Coding/Behavioral Mode - Original horizontal split layout
   return (
-    <div className="h-full bg-neutral-800">
+    <div className="h-full bg-gray-50">
       <Allotment defaultSizes={showAscendAssistant ? [30, 40, 30] : [30, 70]}>
         {/* Left Pane - Problem + Explanation */}
         <Allotment.Pane minSize={300}>
-          <div className="h-full flex flex-col overflow-hidden bg-neutral-750 border-r border-neutral-700/50">
+          <div className="h-full flex flex-col overflow-hidden bg-white border-r border-gray-200">
             <div className="flex-shrink-0">
               {/* Panel Header */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700/50 bg-neutral-800/50">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
                 <div className="flex items-center gap-3">
                   <div className="w-1 h-5 rounded-full bg-gradient-to-b from-brand-400 to-brand-500" />
-                  <h2 className="text-sm font-semibold text-white">Problem</h2>
+                  <h2 className="text-sm font-semibold text-gray-900">Problem</h2>
                 </div>
                 <div className="flex items-center">
                   <AscendModeSelector
@@ -1515,7 +1515,7 @@ function CodingLayout({
 
         {/* Center Pane - Code Editor */}
         <Allotment.Pane minSize={400}>
-          <div className="h-full bg-neutral-800 border-l border-neutral-700/50">
+          <div className="h-full bg-gray-50 border-l border-gray-200">
             <CodeDisplay
               ref={codeDisplayRef}
               code={solution?.code || streamingContent.code}

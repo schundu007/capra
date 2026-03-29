@@ -156,7 +156,7 @@ export default function PremiumPage() {
           <div className="max-w-[1440px] mx-auto px-4 sm:px-8 flex items-center justify-between">
             <a href="/" className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
-                <Icon name="ascend" size={20} className="text-white" />
+                <Icon name="ascend" size={20} className="text-gray-900" />
               </div>
               <span className="text-2xl font-bold text-gray-900 premium-heading">Ascend</span>
             </a>
@@ -165,7 +165,7 @@ export default function PremiumPage() {
               <button onClick={() => scrollTo('features')} className="px-5 py-2.5 rounded-xl text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200">Features</button>
               <button onClick={() => scrollTo('faq')} className="px-5 py-2.5 rounded-xl text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200">FAQ</button>
             </div>
-            <a href="/" className="hidden sm:flex items-center gap-2 px-6 py-3 rounded-xl text-base font-semibold text-white transition-all duration-300 hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)]" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+            <a href="/" className="hidden sm:flex items-center gap-2 px-6 py-3 rounded-xl text-base font-semibold text-gray-900 transition-all duration-300 hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)]" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
               Back to App
             </a>
           </div>
@@ -179,7 +179,7 @@ export default function PremiumPage() {
               <span className="landing-gradient-text">Technical Interview</span>
             </h1>
             <p className="text-base text-gray-500 mb-6 leading-[1.6]">Choose a plan and start preparing with AI-powered tools for coding, system design, and behavioral interviews.</p>
-            <button onClick={() => scrollTo('plans')} className="px-6 py-3 rounded-xl font-semibold text-base text-white transition-all hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)]" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+            <button onClick={() => scrollTo('plans')} className="px-6 py-3 rounded-xl font-semibold text-base text-gray-900 transition-all hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)]" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
               View Plans & Pricing
             </button>
           </div>
@@ -332,7 +332,7 @@ export default function PremiumPage() {
           <div className="flex items-center justify-between py-4" style={{ borderTop: '1px solid #e2e8f0' }}>
             <div className="flex items-center gap-3">
               <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                <Icon name="ascend" size={14} className="text-white" />
+                <Icon name="ascend" size={14} className="text-gray-900" />
               </div>
               <span className="text-sm text-gray-500">&copy; 2025 Ascend by Cariara. All rights reserved.</span>
             </div>

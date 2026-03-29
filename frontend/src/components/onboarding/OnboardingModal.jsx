@@ -129,7 +129,7 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
               }}
             >
               <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg font-bold text-white"
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg font-bold text-gray-900"
                 style={{ background: step.color }}
               >
                 {step.num}
@@ -248,7 +248,7 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
       subtitle: 'Start your interview prep journey',
       icon: (
         <div className="w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float" style={{ background: 'var(--brand-gradient)', boxShadow: 'var(--shadow-glow-purple)' }}>
-          <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-12 h-12 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
         </div>

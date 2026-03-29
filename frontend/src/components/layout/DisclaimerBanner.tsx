@@ -1,6 +1,6 @@
 export function DisclaimerBanner() {
   return (
-    <div className="bg-amber-600 dark:bg-amber-700 text-white text-center py-1.5 px-4 text-sm font-medium">
+    <div className="bg-amber-600 dark:bg-amber-700 text-gray-900 text-center py-1.5 px-4 text-sm font-medium">
       <span className="inline-flex items-center gap-2">
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path

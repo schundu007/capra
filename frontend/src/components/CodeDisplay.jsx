@@ -561,7 +561,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
                 onClick={() => handleExampleSelect(idx)}
                 className={`px-2 py-0.5 text-xs font-medium rounded transition-colors ${
                   selectedExample === idx
-                    ? 'bg-brand-400 text-white'
+                    ? 'bg-brand-400 text-gray-900'
                     : 'bg-gray-100 text-gray-600 border border-gray-200 hover:text-gray-900'
                 }`}
               >

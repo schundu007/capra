@@ -212,7 +212,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                   className={`
                     flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200 min-h-[36px] touch:min-h-[40px]
                     ${activeTab === tab.id
-                      ? 'bg-emerald-500 text-white'
+                      ? 'bg-emerald-500 text-gray-900'
                       : 'text-gray-500 hover:text-gray-800'
                     }
                   `}
@@ -285,7 +285,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               <button
                 type="submit"
                 disabled={isLoading || !problemText.trim()}
-                className="px-5 py-2.5 text-sm font-semibold text-white rounded-xl bg-gradient-to-r from-brand-400 to-brand-500 hover:from-brand-500 hover:to-brand-600 shadow-lg shadow-brand-400/25 hover:shadow-brand-400/40 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-brand-400/25 transition-all duration-200 hover:-translate-y-0.5 disabled:hover:translate-y-0 touch:min-h-[44px]"
+                className="px-5 py-2.5 text-sm font-semibold text-gray-900 rounded-xl bg-gradient-to-r from-brand-400 to-brand-500 hover:from-brand-500 hover:to-brand-600 shadow-lg shadow-brand-400/25 hover:shadow-brand-400/40 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-brand-400/25 transition-all duration-200 hover:-translate-y-0.5 disabled:hover:translate-y-0 touch:min-h-[44px]"
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">
@@ -315,7 +315,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               <button
                 type="submit"
                 disabled={isLoading || !url.trim()}
-                className="px-5 py-2.5 text-sm font-semibold text-white rounded-xl bg-gradient-to-r from-brand-400 to-brand-500 hover:from-brand-500 hover:to-brand-600 shadow-lg shadow-brand-400/25 hover:shadow-brand-400/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:-translate-y-0.5 disabled:hover:translate-y-0"
+                className="px-5 py-2.5 text-sm font-semibold text-gray-900 rounded-xl bg-gradient-to-r from-brand-400 to-brand-500 hover:from-brand-500 hover:to-brand-600 shadow-lg shadow-brand-400/25 hover:shadow-brand-400/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:-translate-y-0.5 disabled:hover:translate-y-0"
               >
                 {isLoading ? 'Fetching...' : ascendMode === 'system-design' ? 'Fetch & Design' : 'Fetch & Code'}
               </button>
@@ -336,7 +336,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                 <button
                   onClick={clearPreview}
                   disabled={isLoading}
-                  className="absolute top-3 right-3 p-2 rounded-lg bg-black/60 hover:bg-black/80 text-white transition-colors backdrop-blur-sm"
+                  className="absolute top-3 right-3 p-2 rounded-lg bg-black/60 hover:bg-black/80 text-gray-900 transition-colors backdrop-blur-sm"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

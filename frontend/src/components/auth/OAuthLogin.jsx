@@ -40,7 +40,7 @@ export default function OAuthLogin({ loginOnly = false }) {
           <div className="max-w-[1440px] mx-auto px-4 sm:px-8 flex items-center justify-between">
             <a href="/" className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
-                <Icon name="ascend" size={20} className="text-white" />
+                <Icon name="ascend" size={20} className="text-gray-900" />
               </div>
               <span className="text-2xl font-bold text-gray-900 landing-display">Ascend</span>
             </a>
@@ -54,7 +54,7 @@ export default function OAuthLogin({ loginOnly = false }) {
             </div>
 
             <div className="flex items-center gap-4">
-              <a href="/app/coding" className="hidden sm:flex items-center gap-2 px-6 py-3 rounded-xl text-base font-semibold text-white transition-all duration-300 hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)] landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+              <a href="/app/coding" className="hidden sm:flex items-center gap-2 px-6 py-3 rounded-xl text-base font-semibold text-gray-900 transition-all duration-300 hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)] landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
                 Get Started
               </a>
               <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors">
@@ -68,7 +68,7 @@ export default function OAuthLogin({ loginOnly = false }) {
               {navLinks.map((link) => (
                 <a key={link.label} href={link.href} className="block px-4 py-3 text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-colors landing-body">{link.label}</a>
               ))}
-              <a href="/app/coding" className="block w-full mt-3 px-4 py-3 rounded-xl text-base font-semibold text-white text-center landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+              <a href="/app/coding" className="block w-full mt-3 px-4 py-3 rounded-xl text-base font-semibold text-gray-900 text-center landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
                 Get Started Free
               </a>
             </div>
@@ -147,7 +147,7 @@ export default function OAuthLogin({ loginOnly = false }) {
           <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-4 py-4" style={{ borderTop: '1px solid #e2e8f0' }}>
             <div className="flex items-center gap-3">
               <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                <Icon name="ascend" size={14} className="text-white" />
+                <Icon name="ascend" size={14} className="text-gray-900" />
               </div>
               <span className="text-sm text-gray-500 landing-body">&copy; 2025 Ascend by Cariara.</span>
             </div>
@@ -194,7 +194,7 @@ export default function OAuthLogin({ loginOnly = false }) {
         .landing-root h2,
         .landing-root h3,
         .landing-root nav span,
-        .landing-root footer span.text-white {
+        .landing-root footer span.text-gray-900 {
           font-family: 'Source Serif 4', Georgia, serif;
         }
 

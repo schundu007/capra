@@ -26,33 +26,33 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary: [
-          'bg-gradient-to-r from-brand-400 to-brand-500 text-neutral-900',
+          'bg-gradient-to-r from-brand-400 to-brand-500 text-gray-900',
           'hover:from-brand-500 hover:to-brand-600',
           'active:from-brand-600 active:to-brand-700',
           'shadow-glow-brand hover:shadow-glow',
         ],
         secondary: [
-          'bg-neutral-700 text-neutral-100',
-          'hover:bg-neutral-600',
-          'active:bg-neutral-500',
+          'bg-gray-200 text-gray-900',
+          'hover:bg-gray-200',
+          'active:bg-gray-300',
         ],
         outline: [
-          'border border-neutral-600 bg-transparent text-neutral-300',
-          'hover:bg-neutral-800 hover:border-neutral-500 hover:text-neutral-100',
-          'active:bg-neutral-700',
+          'border border-gray-200 bg-transparent text-gray-900',
+          'hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900',
+          'active:bg-gray-200',
         ],
         ghost: [
-          'bg-transparent text-neutral-400',
-          'hover:bg-neutral-800 hover:text-neutral-100',
-          'active:bg-neutral-700',
+          'bg-transparent text-gray-600',
+          'hover:bg-gray-50 hover:text-gray-900',
+          'active:bg-gray-200',
         ],
         danger: [
-          'bg-error-500 text-white',
+          'bg-error-500 text-gray-900',
           'hover:bg-error-600',
           'active:bg-error-700',
         ],
         success: [
-          'bg-success-500 text-white',
+          'bg-success-500 text-gray-900',
           'hover:bg-success-600',
           'active:bg-success-700',
         ],

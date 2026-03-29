@@ -80,7 +80,7 @@ export default function DownloadPage() {
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#030712' }}>
         <div className="text-center max-w-md p-8 rounded-2xl" style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
           <Icon name="alertTriangle" size={48} className="text-red-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-white mb-2">Error</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Error</h2>
           <p className="text-gray-400 mb-4">{error}</p>
           <button
             onClick={() => window.location.href = '/app'}
@@ -99,7 +99,7 @@ export default function DownloadPage() {
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#030712' }}>
         <div className="text-center max-w-md p-8 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
           <Icon name="lock" size={48} className="text-yellow-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-white mb-2">Purchase Required</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Purchase Required</h2>
           <p className="text-gray-400 mb-6">
             You need to purchase the Desktop Lifetime plan to download the app.
           </p>
@@ -142,7 +142,7 @@ export default function DownloadPage() {
             <span className="text-purple-400 font-medium text-sm">Purchase Complete</span>
           </div>
 
-          <h1 className="text-4xl font-bold text-white mb-4">Download Ascend Desktop</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Download Ascend Desktop</h1>
           <p className="text-gray-400 text-lg">
             Thank you for your purchase! Download the app for your platform below.
           </p>
@@ -154,7 +154,7 @@ export default function DownloadPage() {
         {/* Recommended Download */}
         {recommended && (
           <div className="mb-12">
-            <h2 className="text-lg font-semibold text-white mb-4 text-center">Recommended for your system</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 text-center">Recommended for your system</h2>
             <div
               className="p-8 rounded-2xl text-center cursor-pointer transition-all hover:scale-[1.02]"
               style={{ background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.05))', border: '2px solid #8b5cf6' }}
@@ -163,7 +163,7 @@ export default function DownloadPage() {
               <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: 'rgba(139, 92, 246, 0.2)' }}>
                 <Icon name={detectedPlatform?.includes('mac') ? 'apple' : 'terminal'} size={32} className="text-purple-400" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">{recommended.label}</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{recommended.label}</h3>
               <p className="text-gray-400 text-sm mb-4">{recommended.size}</p>
               <button
                 className="px-8 py-3 rounded-xl font-semibold text-lg transition-all"
@@ -180,7 +180,7 @@ export default function DownloadPage() {
 
         {/* All Downloads */}
         <div className="mb-12">
-          <h2 className="text-lg font-semibold text-white mb-4">All Platforms</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">All Platforms</h2>
           <div className="grid md:grid-cols-3 gap-4">
             {/* Mac Apple Silicon */}
             <div
@@ -191,7 +191,7 @@ export default function DownloadPage() {
               <div className="w-12 h-12 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
                 <Icon name="apple" size={24} className="text-gray-400" />
               </div>
-              <h3 className="font-semibold text-white mb-1">{downloads.mac.arm64.label}</h3>
+              <h3 className="font-semibold text-gray-900 mb-1">{downloads.mac.arm64.label}</h3>
               <p className="text-gray-500 text-sm mb-3">M1, M2, M3 chips • {downloads.mac.arm64.size}</p>
               <button className="flex items-center gap-2 text-purple-400 text-sm font-medium">
                 <Icon name="download" size={16} />
@@ -208,7 +208,7 @@ export default function DownloadPage() {
               <div className="w-12 h-12 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
                 <Icon name="apple" size={24} className="text-gray-400" />
               </div>
-              <h3 className="font-semibold text-white mb-1">{downloads.mac.x64.label}</h3>
+              <h3 className="font-semibold text-gray-900 mb-1">{downloads.mac.x64.label}</h3>
               <p className="text-gray-500 text-sm mb-3">Intel processors • {downloads.mac.x64.size}</p>
               <button className="flex items-center gap-2 text-purple-400 text-sm font-medium">
                 <Icon name="download" size={16} />
@@ -225,7 +225,7 @@ export default function DownloadPage() {
               <div className="w-12 h-12 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
                 <Icon name="terminal" size={24} className="text-gray-400" />
               </div>
-              <h3 className="font-semibold text-white mb-1">{downloads.windows.x64.label}</h3>
+              <h3 className="font-semibold text-gray-900 mb-1">{downloads.windows.x64.label}</h3>
               <p className="text-gray-500 text-sm mb-3">Windows 10/11 • {downloads.windows.x64.size}</p>
               <button className="flex items-center gap-2 text-purple-400 text-sm font-medium">
                 <Icon name="download" size={16} />
@@ -237,14 +237,14 @@ export default function DownloadPage() {
 
         {/* Installation Instructions */}
         <div className="p-6 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <Icon name="book" size={20} className="text-purple-400" />
             Installation Instructions
           </h2>
 
           <div className="space-y-4 text-gray-400">
             <div>
-              <h3 className="font-medium text-white mb-2">macOS</h3>
+              <h3 className="font-medium text-gray-900 mb-2">macOS</h3>
               <ol className="list-decimal list-inside space-y-1 text-sm">
                 <li>Open the downloaded .dmg file</li>
                 <li>Drag Ascend to your Applications folder</li>
@@ -254,7 +254,7 @@ export default function DownloadPage() {
             </div>
 
             <div>
-              <h3 className="font-medium text-white mb-2">Windows</h3>
+              <h3 className="font-medium text-gray-900 mb-2">Windows</h3>
               <ol className="list-decimal list-inside space-y-1 text-sm">
                 <li>Run the downloaded .exe installer</li>
                 <li>Follow the installation wizard</li>
@@ -270,7 +270,7 @@ export default function DownloadPage() {
           <div className="flex items-start gap-3">
             <Icon name="info" size={20} className="text-blue-400 mt-0.5" />
             <div>
-              <h3 className="font-medium text-white mb-1">You'll need your own API keys</h3>
+              <h3 className="font-medium text-gray-900 mb-1">You'll need your own API keys</h3>
               <p className="text-gray-400 text-sm">
                 The desktop app uses your own API keys for unlimited usage. You can get keys from{' '}
                 <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Anthropic</a>
@@ -285,7 +285,7 @@ export default function DownloadPage() {
         <div className="mt-8 text-center">
           <button
             onClick={() => window.location.href = '/app'}
-            className="text-gray-500 hover:text-white transition-colors"
+            className="text-gray-500 hover:text-gray-900 transition-colors"
           >
             ← Back to Home
           </button>

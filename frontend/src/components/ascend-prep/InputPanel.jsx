@@ -462,7 +462,7 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
                   setEditingField(null);
                   setEditText('');
                 }}
-                className="px-4 py-2 rounded text-sm text-white"
+                className="px-4 py-2 rounded text-sm text-gray-900"
                 style={{ background: '#10b981' }}
                 disabled={!editText.trim()}
               >

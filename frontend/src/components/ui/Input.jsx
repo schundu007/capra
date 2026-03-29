@@ -17,7 +17,7 @@ const inputVariants = cva(
     'flex w-full',
     'text-sm',
     'transition-all duration-200',
-    'placeholder:text-neutral-500',
+    'placeholder:text-gray-500',
     'focus:outline-none',
     'disabled:cursor-not-allowed disabled:opacity-50',
     'file:border-0 file:bg-transparent file:text-sm file:font-medium',
@@ -26,23 +26,23 @@ const inputVariants = cva(
     variants: {
       variant: {
         default: [
-          'bg-neutral-700 border border-neutral-600/50 text-neutral-100',
-          'hover:border-neutral-500',
+          'bg-gray-200 border border-gray-200 text-gray-900',
+          'hover:border-gray-300',
           'focus:border-brand-400 focus:ring-2 focus:ring-brand-400/20',
         ],
         filled: [
-          'bg-neutral-800 border-2 border-transparent text-neutral-100',
-          'hover:bg-neutral-700',
-          'focus:bg-neutral-750 focus:border-brand-400',
+          'bg-gray-50 border-2 border-transparent text-gray-900',
+          'hover:bg-gray-200',
+          'focus:bg-white focus:border-brand-400',
         ],
         ghost: [
-          'bg-transparent border-0 text-neutral-100',
-          'hover:bg-neutral-800',
-          'focus:bg-neutral-800',
+          'bg-transparent border-0 text-gray-900',
+          'hover:bg-gray-50',
+          'focus:bg-gray-50',
         ],
         underline: [
-          'bg-transparent border-0 border-b-2 border-neutral-600 rounded-none text-neutral-100',
-          'hover:border-neutral-500',
+          'bg-transparent border-0 border-b-2 border-gray-200 rounded-none text-gray-900',
+          'hover:border-gray-300',
           'focus:border-brand-400',
           'px-0',
         ],
@@ -90,7 +90,7 @@ const Input = forwardRef(({
           htmlFor={id}
           className={cn(
             'block text-sm font-medium mb-1.5',
-            'text-neutral-300',
+            'text-gray-900',
             hasError && 'text-error-400'
           )}
         >
@@ -101,7 +101,7 @@ const Input = forwardRef(({
 
       <div className="relative">
         {leftIcon && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600">
             {leftIcon}
           </span>
         )}
@@ -120,7 +120,7 @@ const Input = forwardRef(({
         />
 
         {rightIcon && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600">
             {rightIcon}
           </span>
         )}
@@ -130,7 +130,7 @@ const Input = forwardRef(({
         <p
           className={cn(
             'mt-1.5 text-xs',
-            hasError ? 'text-error-400' : 'text-neutral-400'
+            hasError ? 'text-error-400' : 'text-gray-600'
           )}
         >
           {error || hint}
@@ -171,7 +171,7 @@ const Textarea = forwardRef(({
           htmlFor={id}
           className={cn(
             'block text-sm font-medium mb-1.5',
-            'text-neutral-300',
+            'text-gray-900',
             hasError && 'text-error-400'
           )}
         >
@@ -197,7 +197,7 @@ const Textarea = forwardRef(({
         <p
           className={cn(
             'mt-1.5 text-xs',
-            hasError ? 'text-error-400' : 'text-neutral-400'
+            hasError ? 'text-error-400' : 'text-gray-600'
           )}
         >
           {error || hint}
@@ -230,7 +230,7 @@ const SearchInput = forwardRef(({
         <button
           type="button"
           onClick={onClear}
-          className="hover:text-neutral-200 transition-colors"
+          className="hover:text-gray-800 transition-colors"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

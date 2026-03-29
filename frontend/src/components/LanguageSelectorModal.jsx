@@ -127,7 +127,7 @@ export default function LanguageSelectorModal({ isOpen, onClose, selectedLanguag
       onClick={onClose}
     >
       <div
-        className="relative w-full rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 bg-neutral-850 border border-neutral-700/50"
+        className="relative w-full rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 bg-white border border-gray-200"
         style={{
           maxWidth: '800px',
           height: '560px',
@@ -142,21 +142,21 @@ export default function LanguageSelectorModal({ isOpen, onClose, selectedLanguag
         />
 
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-700/50 bg-neutral-800">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 bg-gray-50">
           <div>
-            <h2 className="text-lg font-bold text-neutral-100">Select Language</h2>
-            <p className="text-xs text-neutral-400">Choose your preferred programming language</p>
+            <h2 className="text-lg font-bold text-gray-900">Select Language</h2>
+            <p className="text-xs text-gray-600">Choose your preferred programming language</p>
           </div>
           <button
             onClick={onClose}
-            className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all text-neutral-400 hover:text-neutral-200 hover:bg-neutral-700"
+            className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all text-gray-600 hover:text-gray-800 hover:bg-gray-200"
           >
             Close
           </button>
         </div>
 
         {/* Category Pills */}
-        <div className="px-5 py-3 flex flex-wrap gap-2 border-b border-neutral-700/50 bg-neutral-800">
+        <div className="px-5 py-3 flex flex-wrap gap-2 border-b border-gray-200 bg-gray-50">
           {CATEGORIES.map(cat => (
             <button
               key={cat.id}
@@ -178,19 +178,19 @@ export default function LanguageSelectorModal({ isOpen, onClose, selectedLanguag
         </div>
 
         {/* Search */}
-        <div className="px-5 py-3 border-b border-neutral-700/50 bg-neutral-800">
+        <div className="px-5 py-3 border-b border-gray-200 bg-gray-50">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Type to search..."
-            className="w-full px-4 py-2.5 text-sm rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-brand-400/30 bg-neutral-700 text-neutral-200 border border-neutral-600/50 placeholder-neutral-500"
+            className="w-full px-4 py-2.5 text-sm rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-brand-400/30 bg-gray-200 text-gray-800 border border-gray-200 placeholder-gray-400"
             autoFocus
           />
         </div>
 
         {/* Language Grid */}
-        <div className="flex-1 overflow-y-auto p-5 bg-neutral-750" style={{ maxHeight: 'calc(100% - 220px)' }}>
+        <div className="flex-1 overflow-y-auto p-5 bg-white" style={{ maxHeight: 'calc(100% - 220px)' }}>
           {/* Auto option */}
           <button
             type="button"
@@ -198,7 +198,7 @@ export default function LanguageSelectorModal({ isOpen, onClose, selectedLanguag
               e.stopPropagation();
               handleSelect('auto');
             }}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-4 transition-all hover:bg-neutral-700/50"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-4 transition-all hover:bg-gray-100"
             style={{
               background: selectedLanguage === 'auto'
                 ? 'linear-gradient(135deg, rgba(45, 212, 191, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)'
@@ -217,8 +217,8 @@ export default function LanguageSelectorModal({ isOpen, onClose, selectedLanguag
               ✨
             </div>
             <div className="text-left flex-1">
-              <div className="text-sm font-semibold text-neutral-100">Auto Detect</div>
-              <div className="text-xs text-neutral-400">Let AI choose the best language</div>
+              <div className="text-sm font-semibold text-gray-900">Auto Detect</div>
+              <div className="text-xs text-gray-600">Let AI choose the best language</div>
             </div>
             {selectedLanguage === 'auto' && (
               <span className="text-lg font-bold text-brand-400">✓</span>
@@ -235,7 +235,7 @@ export default function LanguageSelectorModal({ isOpen, onClose, selectedLanguag
                   e.stopPropagation();
                   handleSelect(lang.value);
                 }}
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-all hover:bg-neutral-700/50 group"
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-all hover:bg-gray-100 group"
                 style={{
                   background: selectedLanguage === lang.value
                     ? `linear-gradient(135deg, ${activeCategoryData?.color || '#2dd4bf'}15 0%, ${activeCategoryData?.color || '#2dd4bf'}08 100%)`
@@ -256,7 +256,7 @@ export default function LanguageSelectorModal({ isOpen, onClose, selectedLanguag
                 >
                   {lang.icon}
                 </span>
-                <span className="text-sm font-medium text-neutral-200 truncate flex-1">{lang.label}</span>
+                <span className="text-sm font-medium text-gray-800 truncate flex-1">{lang.label}</span>
                 {selectedLanguage === lang.value && (
                   <span className="text-sm font-bold flex-shrink-0" style={{ color: activeCategoryData?.color || '#2dd4bf' }}>✓</span>
                 )}
@@ -266,14 +266,14 @@ export default function LanguageSelectorModal({ isOpen, onClose, selectedLanguag
 
           {filteredLanguages.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-neutral-400 font-medium">No languages found</p>
-              <p className="text-sm text-neutral-500 mt-1">Try a different search term</p>
+              <p className="text-gray-600 font-medium">No languages found</p>
+              <p className="text-sm text-gray-500 mt-1">Try a different search term</p>
             </div>
           )}
         </div>
 
         {/* Footer hint */}
-        <div className="px-5 py-3 flex items-center justify-between text-xs text-neutral-500 border-t border-neutral-700/50 bg-neutral-800">
+        <div className="px-5 py-3 flex items-center justify-between text-xs text-gray-500 border-t border-gray-200 bg-gray-50">
           <span>Press ESC to close</span>
           <span>{filteredLanguages.length} languages available</span>
         </div>

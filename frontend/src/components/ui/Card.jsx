@@ -27,23 +27,23 @@ const cardVariants = cva(
     variants: {
       variant: {
         default: [
-          'bg-neutral-750 border border-neutral-700/50',
+          'bg-white border border-gray-200',
         ],
         elevated: [
-          'bg-neutral-750 border border-neutral-700/50',
+          'bg-white border border-gray-200',
           'shadow-card hover:shadow-card-hover',
         ],
         outlined: [
-          'bg-transparent border border-neutral-600/50',
+          'bg-transparent border border-gray-200',
         ],
         filled: [
-          'bg-neutral-700/30 border-0',
+          'bg-gray-100 border-0',
         ],
         glass: [
-          'bg-neutral-900/80 backdrop-blur-md border border-neutral-700/30',
+          'bg-gray-100/80 backdrop-blur-md border border-gray-200/30',
         ],
         interactive: [
-          'bg-neutral-750 border border-neutral-700/50',
+          'bg-white border border-gray-200',
           'shadow-card hover:shadow-card-hover',
           'hover:border-brand-400/50 hover:-translate-y-0.5',
           'cursor-pointer',
@@ -106,7 +106,7 @@ const CardTitle = forwardRef(({ className, children, as: Component = 'h3', ...pr
   <Component
     ref={ref}
     className={cn(
-      'text-lg font-semibold text-neutral-100 leading-tight',
+      'text-lg font-semibold text-gray-900 leading-tight',
       className
     )}
     {...props}
@@ -122,7 +122,7 @@ const CardDescription = forwardRef(({ className, children, ...props }, ref) => (
   <p
     ref={ref}
     className={cn(
-      'text-sm text-neutral-400',
+      'text-sm text-gray-600',
       className
     )}
     {...props}
@@ -167,7 +167,7 @@ const CardDivider = forwardRef(({ className, ...props }, ref) => (
   <hr
     ref={ref}
     className={cn(
-      'border-0 border-t border-neutral-700/50',
+      'border-0 border-t border-gray-200',
       className
     )}
     {...props}

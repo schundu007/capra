@@ -138,7 +138,7 @@ class ErrorBoundary extends Component {
           <p className="text-red-500 mb-2">Failed to render content</p>
           <button
             onClick={() => this.setState({ hasError: false, error: null })}
-            className="px-3 py-1 bg-blue-500 text-white rounded text-sm"
+            className="px-3 py-1 bg-blue-500 text-gray-900 rounded text-sm"
           >
             Try Again
           </button>
@@ -399,7 +399,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
             <div className="text-center">
               <p className="text-sm mb-4" style={{ color: colors.textLight }}>{section?.description}</p>
               {hasInputs ? (
-                <button onClick={onGenerate} className="px-5 py-2 rounded text-sm font-medium text-white" style={{ background: colors.accent }}>
+                <button onClick={onGenerate} className="px-5 py-2 rounded text-sm font-medium text-gray-900" style={{ background: colors.accent }}>
                   Generate
                 </button>
               ) : (
@@ -829,7 +829,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                         <div className="prep-content-card-header">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
-                              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                               </svg>
                             </div>

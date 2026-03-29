@@ -407,7 +407,7 @@ export default function DocsPage({ onBack }) {
           <div className="p-6">
             <a href="/prepare" className="flex items-center gap-3 group">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                <Icon name="ascend" size={22} className="text-white" />
+                <Icon name="ascend" size={22} className="text-gray-900" />
               </div>
               <div>
                 <span className="text-sm font-bold text-gray-900">Ascend</span>
@@ -481,7 +481,7 @@ export default function DocsPage({ onBack }) {
               <span className="text-sm font-semibold text-gray-900">Ascend Pro</span>
             </div>
             <p className="text-sm text-gray-400 mb-3">Get AI-powered practice with real-time feedback</p>
-            <a href="/app/coding" className="block text-center py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+            <a href="/app/coding" className="block text-center py-2 rounded-lg text-sm font-medium text-gray-900 transition-all hover:opacity-90" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
               Try Free
             </a>
           </div>
@@ -957,7 +957,7 @@ export default function DocsPage({ onBack }) {
                               <div className="w-6 h-6 rounded flex items-center justify-center" style={{ background: `${phase.color}20` }}>
                                 <Icon name={phase.icon} size={12} style={{ color: phase.color }} />
                               </div>
-                              <span className="px-1.5 py-0.5 rounded text-sm font-bold" style={{ background: phase.color, color: '#0a0a0f' }}>
+                              <span className="px-1.5 py-0.5 rounded text-sm font-bold" style={{ background: phase.color, color: '#111827' }}>
                                 {phase.time}
                               </span>
                             </div>
@@ -989,7 +989,7 @@ export default function DocsPage({ onBack }) {
                         { letter: 'R', title: 'Result', desc: 'Share outcomes. Quantify when possible.' },
                       ].map((step, i) => (
                         <div key={i} className="flex items-start gap-2 p-2 rounded" style={{ background: '#f8fafc', border: '1px solid #f0f0f0' }}>
-                          <span className="w-5 h-5 rounded flex items-center justify-center text-xs font-bold text-white bg-emerald-500 flex-shrink-0">{step.letter}</span>
+                          <span className="w-5 h-5 rounded flex items-center justify-center text-xs font-bold text-gray-900 bg-emerald-500 flex-shrink-0">{step.letter}</span>
                           <div>
                             <div className="text-sm font-bold text-gray-900">{step.title}</div>
                             <div className="text-xs text-gray-900">{step.desc}</div>
