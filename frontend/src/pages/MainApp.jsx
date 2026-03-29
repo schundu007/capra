@@ -136,7 +136,7 @@ export default function MainApp() {
   // Auth
   // ---------------------------------------------------------------------------
   const auth = useAuth();
-  const isAuthenticated = isElectron ? true : auth.isAuthenticated;
+  const isAuthenticated = true;
   const user = isElectron ? null : auth.user;
   // OAuth disabled — allow all users to access /app without auth
   const authRequired = false;
@@ -286,7 +286,7 @@ export default function MainApp() {
   // Show onboarding for new webapp users
   // ---------------------------------------------------------------------------
   useEffect(() => {
-    if (!isElectron && isAuthenticated && authChecked && !hasCompletedOnboarding()) {
+    if (false) {
       setShowOnboarding(true);
     }
   }, [isAuthenticated, authChecked]);
@@ -363,7 +363,7 @@ export default function MainApp() {
   // Extension SSE Listener
   // ---------------------------------------------------------------------------
   useEffect(() => {
-    if (!isElectron && !isAuthenticated) return;
+    // OAuth disabled
     let eventSource = null;
     let reconnectTimeout = null;
     let reconnectAttempts = 0;
@@ -726,7 +726,7 @@ export default function MainApp() {
   // Utility Handlers
   // ---------------------------------------------------------------------------
   const handleLogout = useCallback(() => {
-    if (!isElectron) auth.signOut();
+    // OAuth disabled
   }, [auth]);
 
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);

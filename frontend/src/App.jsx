@@ -90,9 +90,9 @@ export default function App() {
   // Auth (webapp uses context, Electron skips auth)
   // ---------------------------------------------------------------------------
   const auth = useAuth();
-  const isAuthenticated = isElectron ? true : auth.isAuthenticated;
+  const isAuthenticated = true;
   const user = isElectron ? null : auth.user;
-  const authRequired = !isElectron && auth.isWebApp;
+  const authRequired = false;
   const isAdmin = user?.role === 'admin' || user?.roles?.includes?.('admin');
 
   // ---------------------------------------------------------------------------
@@ -251,7 +251,7 @@ export default function App() {
   // Show onboarding for new webapp users
   // ---------------------------------------------------------------------------
   useEffect(() => {
-    if (!isElectron && isAuthenticated && authChecked && !hasCompletedOnboarding()) {
+    if (false) {
       setShowOnboarding(true);
     }
   }, [isAuthenticated, authChecked]);
@@ -350,7 +350,7 @@ export default function App() {
   // Extension SSE Listener
   // ---------------------------------------------------------------------------
   useEffect(() => {
-    if (!isElectron && !isAuthenticated) return;
+    // OAuth disabled
 
     let eventSource = null;
     let reconnectTimeout = null;
@@ -778,7 +778,7 @@ export default function App() {
   // Utility Handlers
   // ---------------------------------------------------------------------------
   const handleLogout = useCallback(() => {
-    if (!isElectron) auth.signOut();
+    // OAuth disabled
   }, [auth]);
 
   const toggleSidebar = useCallback(() => {

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext.jsx';
+
 import { Icon } from '../Icons.jsx';
 
 export default function OAuthLogin({ loginOnly = false }) {
-  const { signIn } = useAuth();
+  
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState('');
   const [scrolled, setScrolled] = useState(false);
@@ -15,41 +15,9 @@ export default function OAuthLogin({ loginOnly = false }) {
     return () => window.removeEventListener('scroll', h);
   }, []);
 
-  const handleOAuthLogin = async (provider) => {
-    setLoading(provider);
-    setError('');
-    try { await signIn(provider); } catch (err) { setError(err.message || 'Failed to sign in'); setLoading(null); }
-  };
 
-  const handlePricingClick = async (planId) => {
-    setLoading(planId);
-    setError('');
-    localStorage.setItem('ascend_pending_plan', planId);
-    try { await signIn('google'); } catch (err) { localStorage.removeItem('ascend_pending_plan'); setError(err.message || 'Failed to sign in'); setLoading(null); }
-  };
 
-  // ── Login-only (for protected routes) ──
-  if (loginOnly) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#08080c', fontFamily: "'Source Serif 4', Georgia, serif" }}>
-        <div className="w-full max-w-md p-10 rounded-2xl text-center" style={{ background: 'linear-gradient(180deg, #111116 0%, #0d0d12 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-6" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-            <Icon name="ascend" size={28} className="text-white" />
-          </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Sign in to Ascend</h2>
-          <p className="text-gray-500 mb-8" style={{ fontFamily: "'Source Sans 3', sans-serif" }}>Access your interview toolkit.</p>
-          {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
-          <button onClick={() => handleOAuthLogin('google')} disabled={!!loading} className="w-full flex items-center justify-center gap-3 px-6 py-3.5 rounded-xl text-sm font-semibold transition-all hover:scale-[1.02] mb-3" style={{ background: '#fff', color: '#000' }}>
-            {loading === 'google' ? <Icon name="loader" size={18} className="animate-spin" /> : <><GoogleIcon /> Continue with Google</>}
-          </button>
-          <button onClick={() => handleOAuthLogin('github')} disabled={!!loading} className="w-full flex items-center justify-center gap-3 px-6 py-3.5 rounded-xl text-sm font-semibold transition-all hover:scale-[1.02]" style={{ background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.08)' }}>
-            {loading === 'github' ? <Icon name="loader" size={18} className="animate-spin" /> : <><GithubIcon /> Continue with GitHub</>}
-          </button>
-          <p className="text-gray-600 text-xs mt-6"><a href="/" className="text-gray-500 hover:text-white transition-colors">Back to home</a></p>
-        </div>
-      </div>
-    );
-  }
+
 
   // ══════════════════════════════════════════════════════════════
   // LANDING PAGE
@@ -100,9 +68,9 @@ export default function OAuthLogin({ loginOnly = false }) {
               {navLinks.map((link) => (
                 <a key={link.label} href={link.href} className="block px-4 py-3 text-[16px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-colors landing-body">{link.label}</a>
               ))}
-              <button onClick={() => handleOAuthLogin('google')} className="w-full mt-3 px-4 py-3 rounded-xl text-[16px] font-semibold text-white landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+              <a href="/app/coding" className="block w-full mt-3 px-4 py-3 rounded-xl text-[16px] font-semibold text-white text-center landing-body" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
                 Get Started Free
-              </button>
+              </a>
             </div>
           )}
         </nav>
