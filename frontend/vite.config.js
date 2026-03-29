@@ -1,8 +1,50 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { VitePWA } from 'vite-plugin-pwa';
+
+const isElectronBuild = process.env.VITE_ELECTRON === 'true';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    // PWA — disabled for Electron builds
+    !isElectronBuild && VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['ascend-logo.png', 'ascend-icon.png', 'vite.svg'],
+      manifest: {
+        name: 'Ascend — AI Coding Assistant',
+        short_name: 'Ascend',
+        description: 'AI-powered coding assistant for interviews',
+        theme_color: '#0f172a',
+        background_color: '#0f172a',
+        display: 'standalone',
+        orientation: 'portrait-primary',
+        start_url: '/',
+        scope: '/',
+        icons: [
+          { src: '/ascend-icon.png', sizes: '192x192', type: 'image/png' },
+          { src: '/ascend-icon.png', sizes: '512x512', type: 'image/png' },
+          { src: '/ascend-icon.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+      },
+      workbox: {
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB — app bundle is large
+        globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: { cacheName: 'google-fonts', expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 } },
+          },
+          {
+            urlPattern: /\/api\/.*/i,
+            handler: 'NetworkFirst',
+            options: { cacheName: 'api-cache', expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 } },
+          },
+        ],
+      },
+    }),
+  ].filter(Boolean),
   // Use absolute paths for webapp, relative for Electron (set via VITE_BASE_URL env)
   base: process.env.VITE_ELECTRON === 'true' ? './' : '/',
   server: {

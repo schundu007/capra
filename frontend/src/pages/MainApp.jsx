@@ -20,10 +20,13 @@ import PrepTab from '../components/PrepTab';
 import AscendPrepModal from '../components/AscendPrepModal';
 import SavedSystemDesignsModal from '../components/SavedSystemDesignsModal';
 import Sidebar from '../components/Sidebar';
+import MobileBottomNav from '../components/layout/MobileBottomNav';
+import MobileTabView from '../components/layout/MobileTabView';
 import ErrorBoundary from '../components/shared/ErrorBoundary';
 
 // Hooks
 import { getApiUrl } from '../hooks/useElectron';
+import { useIsMobile } from '../hooks/useIsMobile';
 import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
 import { useSystemDesignStorage } from '../hooks/useSystemDesignStorage';
 import { useCodingHistory } from '../hooks/useCodingHistory';
@@ -121,6 +124,11 @@ MONITORING: CloudWatch, X-Ray, Centralized logging, Alerting.`;
 // Main App Component
 // ============================================================================
 export default function MainApp() {
+  // ---------------------------------------------------------------------------
+  // Responsive
+  // ---------------------------------------------------------------------------
+  const { isMobile } = useIsMobile();
+
   // ---------------------------------------------------------------------------
   // Auth
   // ---------------------------------------------------------------------------
@@ -717,9 +725,15 @@ export default function MainApp() {
     if (!isElectron) auth.signOut();
   }, [auth]);
 
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+
   const toggleSidebar = useCallback(() => {
-    setSidebarCollapsed(prev => !prev);
-  }, []);
+    if (isMobile) {
+      setMobileDrawerOpen(prev => !prev);
+    } else {
+      setSidebarCollapsed(prev => !prev);
+    }
+  }, [isMobile]);
 
   // ---------------------------------------------------------------------------
   // Render: Loading State
@@ -766,32 +780,36 @@ export default function MainApp() {
   // Main App Render
   // ---------------------------------------------------------------------------
   const isMacElectron = isElectron && navigator.platform.toLowerCase().includes('mac');
-  const showSidebar = !sidebarCollapsed && ascendMode !== 'ascend-prep';
+  const showSidebar = !isMobile && !sidebarCollapsed && ascendMode !== 'ascend-prep';
+
+  const sidebarProps = {
+    savedDesigns: systemDesignStorage.getAllSessions(),
+    codingHistory: codingHistory.getAllEntries(),
+    onLoadDesign: handleLoadSavedSession,
+    onLoadHistory: handleLoadHistoryEntry,
+    onDeleteDesign: systemDesignStorage.deleteSession,
+    onDeleteHistory: codingHistory.deleteEntry,
+    onCollapse: isMobile ? () => setMobileDrawerOpen(false) : toggleSidebar,
+    onViewAllDesigns: () => setShowSavedDesigns(true),
+    onViewAllHistory: () => {},
+    isLoading,
+    showAscendAssistant,
+    onToggleAscendAssistant: () => setShowAscendAssistant(!showAscendAssistant),
+    user,
+    isAdmin,
+    authRequired,
+    onLogout: handleLogout,
+    onOpenAdminPanel: () => setShowAdminPanel(true),
+    theme: editorSettings.theme,
+  };
 
   return (
-    <div className="h-screen flex overflow-hidden" style={{ background: 'var(--content-bg)', color: '#1a1a1a' }}>
-      {/* Sidebar */}
-      {showSidebar && (
-        <Sidebar
-          savedDesigns={systemDesignStorage.getAllSessions()}
-          codingHistory={codingHistory.getAllEntries()}
-          onLoadDesign={handleLoadSavedSession}
-          onLoadHistory={handleLoadHistoryEntry}
-          onDeleteDesign={systemDesignStorage.deleteSession}
-          onDeleteHistory={codingHistory.deleteEntry}
-          onCollapse={toggleSidebar}
-          onViewAllDesigns={() => setShowSavedDesigns(true)}
-          onViewAllHistory={() => {}}
-          isLoading={isLoading}
-          showAscendAssistant={showAscendAssistant}
-          onToggleAscendAssistant={() => setShowAscendAssistant(!showAscendAssistant)}
-          user={user}
-          isAdmin={isAdmin}
-          authRequired={authRequired}
-          onLogout={handleLogout}
-          onOpenAdminPanel={() => setShowAdminPanel(true)}
-          theme={editorSettings.theme}
-        />
+    <div className={`h-screen-safe flex overflow-hidden ${isMobile ? 'pb-[52px]' : ''}`} style={{ background: 'var(--content-bg)', color: '#1a1a1a' }}>
+      {/* Sidebar — desktop: inline, mobile: overlay drawer */}
+      {isMobile ? (
+        <Sidebar {...sidebarProps} isOpen={mobileDrawerOpen} />
+      ) : (
+        showSidebar && <Sidebar {...sidebarProps} />
       )}
 
       {/* Main Content */}
@@ -806,6 +824,7 @@ export default function MainApp() {
           onToggleSidebar={toggleSidebar}
           isLoading={isLoading}
           isMacElectron={isMacElectron}
+          isMobile={isMobile}
           onSettingsClick={() => setShowSettings(true)}
           onPricingClick={() => setShowPricingPlans(true)}
           onAssistantClick={() => setShowAscendAssistant(!showAscendAssistant)}
@@ -875,14 +894,26 @@ export default function MainApp() {
                 onCloseAscendAssistant={() => setShowAscendAssistant(false)}
                 provider={provider}
                 model={model}
+                isMobile={isMobile}
               />
             )}
           </main>
         </ErrorBoundary>
 
-        {/* Footer */}
-        <Footer isLoading={isLoading} ascendMode={ascendMode} />
+        {/* Footer — hidden on mobile (bottom nav replaces it) */}
+        {!isMobile && <Footer isLoading={isLoading} ascendMode={ascendMode} />}
       </div>
+
+      {/* Mobile bottom navigation */}
+      {isMobile && (
+        <MobileBottomNav
+          ascendMode={ascendMode}
+          onModeChange={handleModeChange}
+          showAscendAssistant={showAscendAssistant}
+          onAssistantClick={() => setShowAscendAssistant(!showAscendAssistant)}
+          onSettingsClick={() => setShowSettings(true)}
+        />
+      )}
 
       {/* Modals */}
       {showAdminPanel && <AdminPanel token={getToken()} onClose={() => setShowAdminPanel(false)} />}
@@ -924,7 +955,31 @@ export default function MainApp() {
 // Sub-Components (kept co-located for now)
 // ============================================================================
 
-function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, showSidebar, onToggleSidebar, isLoading, isMacElectron, onSettingsClick, onPricingClick, onAssistantClick, showAscendAssistant, onDocsClick }) {
+function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, showSidebar, onToggleSidebar, isLoading, isMacElectron, isMobile, onSettingsClick, onPricingClick, onAssistantClick, showAscendAssistant, onDocsClick }) {
+  // ---- Mobile Header ----
+  if (isMobile) {
+    return (
+      <header className="flex items-center justify-between gap-3 px-3 border-b backdrop-blur-md bg-neutral-800/95 border-neutral-700/50 safe-top" style={{ height: '52px' }}>
+        <div className="flex items-center gap-3">
+          <button onClick={onToggleSidebar} className="w-10 h-10 rounded-xl flex items-center justify-center text-neutral-300 active:bg-neutral-700/50 transition-colors" aria-label="Open menu">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-400 to-brand-500 flex items-center justify-center">
+              <img src="/ascend-logo.png" alt="Ascend" className="h-4 w-auto object-contain filter brightness-0 invert" />
+            </div>
+            <span className="text-sm font-semibold text-brand-400">Ascend</span>
+            {isLoading && <div className="w-3.5 h-3.5 border-2 border-brand-400 border-t-transparent rounded-full animate-spin" />}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <CreditBalance onUpgrade={onPricingClick} compact={true} />
+        </div>
+      </header>
+    );
+  }
+
+  // ---- Desktop Header (unchanged) ----
   return (
     <header
       className="flex items-center justify-between gap-4 px-5 border-b backdrop-blur-md bg-neutral-800/95 border-neutral-700/50"
@@ -1103,11 +1158,133 @@ function CodingLayout({
   onSolve, onFetchUrl, onScreenshot, onClear, onFollowUpQuestion, isProcessingFollowUp,
   onExpandSystemDesign, onGenerateEraserDiagram, onExplanationsUpdate,
   codeDisplayRef, editorSettings, showAscendAssistant, onCloseAscendAssistant, provider, model,
-  qaHistory,
+  qaHistory, isMobile,
 }) {
+  const [mobileTab, setMobileTab] = useState('problem');
   const systemDesign = solution?.systemDesign || streamingContent.systemDesign;
   const hasSystemDesign = systemDesign && systemDesign.included;
 
+  // Auto-switch to code/design tab when solution arrives
+  useEffect(() => {
+    if (!isMobile) return;
+    if (solution && !isLoading) {
+      setMobileTab(ascendMode === 'system-design' ? 'design' : 'code');
+    }
+  }, [solution, isLoading, isMobile, ascendMode]);
+
+  // ===========================================================================
+  // Shared sub-panels (used by both mobile and desktop)
+  // ===========================================================================
+  const problemInputProps = { onSubmit: onSolve, onFetchUrl, onScreenshot, onClear, isLoading, extractedText, onExtractedTextClear, shouldClear: clearScreenshot, hasSolution, expanded: problemExpanded, onToggleExpand, ascendMode, loadedProblem, detailLevel: codingDetailLevel, language: codingLanguage };
+  const modeSelectorProps = { ascendMode, designDetailLevel, onDetailLevelChange, autoGenerateEraser, onAutoGenerateEraserChange, codingLanguage, onLanguageChange, codingDetailLevel, onCodingDetailLevelChange };
+
+  const ProblemPane = () => (
+    <div className="h-full flex flex-col overflow-hidden bg-neutral-750">
+      <div className="flex-shrink-0">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700/50 bg-neutral-800/50">
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-5 rounded-full bg-gradient-to-b from-brand-400 to-brand-500" />
+            <h2 className="text-sm font-semibold text-white">{ascendMode === 'system-design' ? 'System Design' : 'Problem'}</h2>
+            {ascendMode === 'system-design' && (
+              <button onClick={onSavedDesignsClick} aria-label="View saved designs" className={`flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-medium rounded-lg transition-all duration-200 ${savedDesignsCount > 0 ? 'bg-brand-400/10 text-brand-400 border border-brand-400/30' : 'bg-neutral-700 text-neutral-400 hover:text-neutral-300'}`}>
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+                Saved ({savedDesignsCount})
+              </button>
+            )}
+          </div>
+          <AscendModeSelector {...modeSelectorProps} />
+        </div>
+        <div className="p-3">
+          <ProblemInput {...problemInputProps} />
+        </div>
+      </div>
+      {ascendMode !== 'system-design' && (
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <ExplanationPanel explanations={solution?.explanations} highlightedLine={highlightedLine} pitch={solution?.pitch || streamingContent.pitch} systemDesign={solution?.systemDesign || streamingContent.systemDesign} isStreaming={isLoading && loadingType === 'solve' && !solution} onExpandSystemDesign={onExpandSystemDesign} canExpandSystemDesign={!!currentProblem && !isLoading} onFollowUpQuestion={onFollowUpQuestion} isProcessingFollowUp={isProcessingFollowUp} />
+        </div>
+      )}
+    </div>
+  );
+
+  const DesignPane = () => (
+    <div className="h-full overflow-auto p-3 bg-neutral-750">
+      {hasSystemDesign ? (
+        <SystemDesignPanel systemDesign={systemDesign} eraserDiagram={eraserDiagram} autoGenerateEraser={autoGenerateEraser} onGenerateEraserDiagram={onGenerateEraserDiagram} question={currentProblem || loadedProblem} cloudProvider="auto" qaHistory={qaHistory || []} onFollowUpQuestion={onFollowUpQuestion} isProcessingFollowUp={isProcessingFollowUp} />
+      ) : isLoading && loadingType === 'solve' ? (
+        <div className="flex flex-col items-center justify-center h-full text-neutral-300">
+          <div className="flex gap-1 mb-2">
+            <span className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+            <span className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+            <span className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+          </div>
+          <span className="text-sm">Generating system design...</span>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center h-full text-neutral-500">
+          <svg className="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+          <span className="text-sm">Enter a system design question to get started</span>
+        </div>
+      )}
+    </div>
+  );
+
+  const CodePane = () => (
+    <div className="h-full bg-neutral-800">
+      <CodeDisplay ref={codeDisplayRef} code={solution?.code || streamingContent.code} language={solution?.language || streamingContent.language} complexity={solution?.complexity || streamingContent.complexity} onLineHover={onLineHover} examples={solution?.examples} isStreaming={isLoading && loadingType === 'solve' && !solution} autoRunOutput={autoRunOutput} onExplanationsUpdate={onExplanationsUpdate} ascendMode={ascendMode} codingLanguage={codingLanguage} onLanguageChange={ascendMode === 'coding' ? onLanguageChange : undefined} detailLevel={codingDetailLevel} onDetailLevelChange={ascendMode === 'coding' ? onCodingDetailLevelChange : undefined} editorSettings={editorSettings} systemDesign={solution?.systemDesign || streamingContent.systemDesign} eraserDiagram={eraserDiagram} autoGenerateEraser={autoGenerateEraser} question={currentProblem || loadedProblem} cloudProvider="auto" onGenerateEraserDiagram={onGenerateEraserDiagram} />
+    </div>
+  );
+
+  const ExplainPane = () => (
+    <div className="h-full overflow-hidden bg-neutral-750">
+      <ExplanationPanel explanations={solution?.explanations} highlightedLine={highlightedLine} pitch={solution?.pitch || streamingContent.pitch} systemDesign={solution?.systemDesign || streamingContent.systemDesign} isStreaming={isLoading && loadingType === 'solve' && !solution} onExpandSystemDesign={onExpandSystemDesign} canExpandSystemDesign={!!currentProblem && !isLoading} onFollowUpQuestion={onFollowUpQuestion} isProcessingFollowUp={isProcessingFollowUp} />
+    </div>
+  );
+
+  // ===========================================================================
+  // MOBILE LAYOUT — tabbed view
+  // ===========================================================================
+  if (isMobile) {
+    const tabs = ascendMode === 'system-design'
+      ? [{ id: 'problem', label: 'Problem' }, { id: 'design', label: 'Design' }]
+      : [{ id: 'problem', label: 'Problem' }, { id: 'code', label: 'Code' }, { id: 'explain', label: 'Explain' }];
+
+    return (
+      <div className="h-full bg-neutral-800">
+        <MobileTabView tabs={tabs} activeTab={mobileTab} onTabChange={setMobileTab}>
+          {(activeId) => (
+            <>
+              {activeId === 'problem' && <ProblemPane />}
+              {activeId === 'code' && <CodePane />}
+              {activeId === 'explain' && <ExplainPane />}
+              {activeId === 'design' && <DesignPane />}
+            </>
+          )}
+        </MobileTabView>
+
+        {/* AscendAssistant as bottom sheet on mobile */}
+        {showAscendAssistant && (
+          <div className="fixed inset-0 z-modal flex flex-col">
+            <div className="flex-1 bg-black/50" onClick={onCloseAscendAssistant} />
+            <div className="h-[75vh] bg-neutral-800 rounded-t-2xl border-t border-neutral-700/50 overflow-hidden animate-slide-in-up">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700/50">
+                <span className="text-sm font-semibold text-white">Assistant</span>
+                <button onClick={onCloseAscendAssistant} className="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-400 active:bg-neutral-700">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+              <div className="h-full overflow-hidden">
+                <AscendAssistantPanel onClose={onCloseAscendAssistant} provider={provider} model={model} />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ===========================================================================
+  // DESKTOP LAYOUT — Allotment split panes (unchanged)
+  // ===========================================================================
   if (ascendMode === 'system-design') {
     return (
       <div className="h-full bg-neutral-800">
@@ -1124,30 +1301,14 @@ function CodingLayout({
                       Saved ({savedDesignsCount})
                     </button>
                   </div>
-                  <AscendModeSelector ascendMode={ascendMode} designDetailLevel={designDetailLevel} onDetailLevelChange={onDetailLevelChange} autoGenerateEraser={autoGenerateEraser} onAutoGenerateEraserChange={onAutoGenerateEraserChange} codingLanguage={codingLanguage} onLanguageChange={onLanguageChange} codingDetailLevel={codingDetailLevel} onCodingDetailLevelChange={onCodingDetailLevelChange} />
+                  <AscendModeSelector {...modeSelectorProps} />
                 </div>
                 <div className="px-3 py-2">
-                  <ProblemInput onSubmit={onSolve} onFetchUrl={onFetchUrl} onScreenshot={onScreenshot} onClear={onClear} isLoading={isLoading} extractedText={extractedText} onExtractedTextClear={onExtractedTextClear} shouldClear={clearScreenshot} hasSolution={hasSolution} expanded={problemExpanded} onToggleExpand={onToggleExpand} ascendMode={ascendMode} loadedProblem={loadedProblem} detailLevel={codingDetailLevel} language={codingLanguage} />
+                  <ProblemInput {...problemInputProps} />
                 </div>
               </div>
               <div className="flex-1 min-h-0 overflow-auto p-3">
-                {hasSystemDesign ? (
-                  <SystemDesignPanel systemDesign={systemDesign} eraserDiagram={eraserDiagram} autoGenerateEraser={autoGenerateEraser} onGenerateEraserDiagram={onGenerateEraserDiagram} question={currentProblem || loadedProblem} cloudProvider="auto" qaHistory={qaHistory || []} onFollowUpQuestion={onFollowUpQuestion} isProcessingFollowUp={isProcessingFollowUp} />
-                ) : isLoading && loadingType === 'solve' ? (
-                  <div className="flex flex-col items-center justify-center h-full text-neutral-300">
-                    <div className="flex gap-1 mb-2">
-                      <span className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '300ms' }} />
-                    </div>
-                    <span className="text-sm">Generating system design...</span>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-neutral-500">
-                    <svg className="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-                    <span className="text-sm">Enter a system design question to get started</span>
-                  </div>
-                )}
+                <DesignPane />
               </div>
             </div>
           </Allotment.Pane>
@@ -1165,27 +1326,11 @@ function CodingLayout({
     <div className="h-full bg-neutral-800">
       <Allotment defaultSizes={showAscendAssistant ? [30, 40, 30] : [30, 70]}>
         <Allotment.Pane minSize={300}>
-          <div className="h-full flex flex-col overflow-hidden bg-neutral-750 border-r border-neutral-700/50">
-            <div className="flex-shrink-0">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700/50 bg-neutral-800/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-1 h-5 rounded-full bg-gradient-to-b from-brand-400 to-brand-500" />
-                  <h2 className="text-sm font-semibold text-white">Problem</h2>
-                </div>
-                <AscendModeSelector ascendMode={ascendMode} designDetailLevel={designDetailLevel} onDetailLevelChange={onDetailLevelChange} autoGenerateEraser={autoGenerateEraser} onAutoGenerateEraserChange={onAutoGenerateEraserChange} codingLanguage={codingLanguage} onLanguageChange={onLanguageChange} codingDetailLevel={codingDetailLevel} onCodingDetailLevelChange={onCodingDetailLevelChange} />
-              </div>
-              <div className="p-3">
-                <ProblemInput onSubmit={onSolve} onFetchUrl={onFetchUrl} onScreenshot={onScreenshot} onClear={onClear} isLoading={isLoading} extractedText={extractedText} onExtractedTextClear={onExtractedTextClear} shouldClear={clearScreenshot} hasSolution={hasSolution} expanded={problemExpanded} onToggleExpand={onToggleExpand} ascendMode={ascendMode} loadedProblem={loadedProblem} detailLevel={codingDetailLevel} language={codingLanguage} />
-              </div>
-            </div>
-            <div className="flex-1 min-h-0 overflow-hidden">
-              <ExplanationPanel explanations={solution?.explanations} highlightedLine={highlightedLine} pitch={solution?.pitch || streamingContent.pitch} systemDesign={solution?.systemDesign || streamingContent.systemDesign} isStreaming={isLoading && loadingType === 'solve' && !solution} onExpandSystemDesign={onExpandSystemDesign} canExpandSystemDesign={!!currentProblem && !isLoading} onFollowUpQuestion={onFollowUpQuestion} isProcessingFollowUp={isProcessingFollowUp} />
-            </div>
-          </div>
+          <ProblemPane />
         </Allotment.Pane>
         <Allotment.Pane minSize={400}>
           <div className="h-full bg-neutral-800 border-l border-neutral-700/50">
-            <CodeDisplay ref={codeDisplayRef} code={solution?.code || streamingContent.code} language={solution?.language || streamingContent.language} complexity={solution?.complexity || streamingContent.complexity} onLineHover={onLineHover} examples={solution?.examples} isStreaming={isLoading && loadingType === 'solve' && !solution} autoRunOutput={autoRunOutput} onExplanationsUpdate={onExplanationsUpdate} ascendMode={ascendMode} codingLanguage={codingLanguage} onLanguageChange={ascendMode === 'coding' ? onLanguageChange : undefined} detailLevel={codingDetailLevel} onDetailLevelChange={ascendMode === 'coding' ? onCodingDetailLevelChange : undefined} editorSettings={editorSettings} systemDesign={solution?.systemDesign || streamingContent.systemDesign} eraserDiagram={eraserDiagram} autoGenerateEraser={autoGenerateEraser} question={currentProblem || loadedProblem} cloudProvider="auto" onGenerateEraserDiagram={onGenerateEraserDiagram} />
+            <CodePane />
           </div>
         </Allotment.Pane>
         {showAscendAssistant && (

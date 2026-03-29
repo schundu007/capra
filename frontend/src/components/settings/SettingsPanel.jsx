@@ -141,7 +141,7 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-neutral-850 rounded-2xl border border-neutral-700/50 shadow-2xl overflow-hidden" style={{ width: '520px', maxHeight: '85vh' }}>
+      <div className="bg-neutral-850 rounded-2xl border border-neutral-700/50 shadow-2xl overflow-hidden w-full mx-4" style={{ maxWidth: '520px', maxHeight: '85vh' }}>
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700/50 bg-neutral-800/50">
           <div className="flex items-center gap-2">

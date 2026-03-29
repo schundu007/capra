@@ -26,7 +26,7 @@ export default function KeyboardShortcutsModal({ onClose }) {
       onClick={onClose}
     >
       <div
-        className="rounded-lg w-[420px] max-h-[80vh] overflow-hidden shadow-xl"
+        className="rounded-lg w-full max-w-[420px] mx-4 max-h-[80vh] overflow-hidden shadow-xl"
         style={{ background: '#1a1a1a' }}
         onClick={e => e.stopPropagation()}
       >

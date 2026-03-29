@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Icon } from './Icons';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 // Check if running on macOS in Electron
 const isMacElectron = window.electronAPI?.isElectron && navigator.platform.toLowerCase().includes('mac');
@@ -26,10 +27,20 @@ export default function Sidebar({
   onLogout,
   onOpenAdminPanel,
   theme = 'dark',
+  isOpen = true,
 }) {
+  const { isMobile } = useIsMobile();
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [designsCollapsed, setDesignsCollapsed] = useState(false);
   const [historyCollapsed, setHistoryCollapsed] = useState(false);
+
+  // Prevent body scroll when mobile drawer is open
+  useEffect(() => {
+    if (isMobile && isOpen) {
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
+    }
+  }, [isMobile, isOpen]);
 
   const formatRelativeTime = (timestamp) => {
     const now = Date.now();
@@ -63,8 +74,8 @@ export default function Sidebar({
     }
   };
 
-  return (
-    <div className="w-[260px] min-w-[260px] h-full flex flex-col bg-neutral-850 border-r border-neutral-700/50">
+  const sidebarContent = (
+    <div className={`${isMobile ? 'w-[280px] max-w-[80vw]' : 'w-[260px] min-w-[260px]'} h-full flex flex-col bg-neutral-850 border-r border-neutral-700/50`}>
       {/* Header with Logo */}
       <div
         className="flex items-center h-14 px-4 border-b border-neutral-700/50"
@@ -141,7 +152,7 @@ export default function Sidebar({
                         <span
                           onClick={(e) => handleDelete('design', design.id, e)}
                           className={`
-                            opacity-0 group-hover:opacity-100 transition-all duration-150
+                            opacity-0 group-hover:opacity-100 touch:opacity-100 transition-all duration-150
                             w-6 h-6 rounded-md flex items-center justify-center text-sm
                             ${deleteConfirmId === `design-${design.id}`
                               ? 'bg-error-500/20 text-error-400'
@@ -214,7 +225,7 @@ export default function Sidebar({
                         <span
                           onClick={(e) => handleDelete('history', entry.id, e)}
                           className={`
-                            opacity-0 group-hover:opacity-100 transition-all duration-150
+                            opacity-0 group-hover:opacity-100 touch:opacity-100 transition-all duration-150
                             w-6 h-6 rounded-md flex items-center justify-center text-sm
                             ${deleteConfirmId === `history-${entry.id}`
                               ? 'bg-error-500/20 text-error-400'
@@ -278,6 +289,27 @@ export default function Sidebar({
           </div>
         </div>
       )}
+    </div>
+  );
+
+  // Desktop: render inline as before
+  if (!isMobile) return sidebarContent;
+
+  // Mobile: render as overlay drawer
+  return (
+    <div
+      className={`fixed inset-0 z-modal-backdrop transition-opacity duration-300 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+      onClick={onCollapse}
+    >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-xs" />
+      {/* Drawer */}
+      <div
+        className={`absolute top-0 left-0 h-full transition-transform duration-300 ease-smooth ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {sidebarContent}
+      </div>
     </div>
   );
 }

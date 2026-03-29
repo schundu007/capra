@@ -83,7 +83,7 @@ export default function ScreenshotUpload({ onUpload, isLoading, shouldClear }) {
           </span>
         </div>
       )}
-      <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+      <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileChange} className="hidden" />
     </div>
   );
 }

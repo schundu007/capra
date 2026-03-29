@@ -9,6 +9,31 @@
 @tailwind utilities;
 
 /* ============================================
+   MOBILE / PWA UTILITIES
+   ============================================ */
+
+/* Dynamic viewport height — fixes iOS Safari 100vh bug */
+@supports (height: 100dvh) {
+  .h-screen-safe { height: 100dvh; }
+  .min-h-screen-safe { min-height: 100dvh; }
+  .max-h-screen-safe { max-height: 100dvh; }
+}
+@supports not (height: 100dvh) {
+  .h-screen-safe { height: 100vh; }
+  .min-h-screen-safe { min-height: 100vh; }
+  .max-h-screen-safe { max-height: 100vh; }
+}
+
+/* Safe area padding for notched devices (iPhone, Android punch-hole) */
+.safe-top    { padding-top: env(safe-area-inset-top); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+.safe-left   { padding-left: env(safe-area-inset-left); }
+.safe-right  { padding-right: env(safe-area-inset-right); }
+.safe-x      { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+.safe-y      { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+.safe-all    { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+
+/* ============================================
    PREMIUM DESIGN SYSTEM
    Inspired by Lusion.co & Igloo.inc
    Award-winning digital experiences

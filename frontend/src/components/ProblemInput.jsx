@@ -379,7 +379,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                 <span className="text-xs text-neutral-400 dark:text-neutral-500 mt-1">PNG, JPG up to 10MB</span>
               </div>
             )}
-            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+            <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileChange} className="hidden" />
           </div>
         )}
       </div>
