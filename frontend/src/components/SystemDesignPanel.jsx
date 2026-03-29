@@ -417,6 +417,9 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
   const hasTradeoffs = systemDesign.tradeoffs?.length > 0;
   const hasEdgeCases = systemDesign.edgeCases?.length > 0;
   const hasTechJustifications = systemDesign.techJustifications?.length > 0;
+  const hasApiDesign = systemDesign.apiDesign?.length > 0;
+  const hasDataModel = systemDesign.dataModel?.length > 0;
+  const hasDiagram = !!systemDesign.diagram;
   const showProDiagram = autoGenerateEraser || eraserDiagram;
 
   return (
@@ -587,6 +590,102 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
               </div>
             )}
 
+
+            {/* Row 3b: API Design */}
+            {hasApiDesign && (
+              <div className="col-span-12 rounded p-2 bg-gray-200/30 border border-gray-200">
+                <h4 className="text-xs font-semibold uppercase tracking-wide mb-1.5 flex items-center gap-1.5 text-gray-500">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  API Design
+                  <span className="px-1 py-0.5 bg-brand-400/10 text-brand-400 border border-brand-400/30 rounded text-xs">{systemDesign.apiDesign.length}</span>
+                </h4>
+                <div className="space-y-1.5">
+                  {systemDesign.apiDesign.map((api, i) => (
+                    <div key={i} className="bg-gray-50 border border-gray-200 rounded p-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`px-1.5 py-0.5 text-xs font-bold rounded ${
+                          api.method === 'GET' ? 'bg-blue-100 text-blue-700' :
+                          api.method === 'POST' ? 'bg-green-100 text-green-700' :
+                          api.method === 'PUT' ? 'bg-yellow-100 text-yellow-700' :
+                          api.method === 'DELETE' ? 'bg-red-100 text-red-700' :
+                          'bg-gray-200 text-gray-700'
+                        }`}>{api.method}</span>
+                        <code className="text-xs font-mono text-gray-800">{api.endpoint}</code>
+                      </div>
+                      <p className="text-xs text-gray-600 leading-snug">{api.description}</p>
+                      {(api.request || api.response) && (
+                        <div className="grid grid-cols-2 gap-2 mt-1.5">
+                          {api.request && (
+                            <div>
+                              <span className="text-xs font-semibold text-gray-500 uppercase">Request</span>
+                              <pre className="text-xs text-gray-700 bg-gray-100 rounded p-1.5 mt-0.5 overflow-x-auto font-mono whitespace-pre-wrap">{typeof api.request === 'string' ? api.request : JSON.stringify(api.request, null, 2)}</pre>
+                            </div>
+                          )}
+                          {api.response && (
+                            <div>
+                              <span className="text-xs font-semibold text-gray-500 uppercase">Response</span>
+                              <pre className="text-xs text-gray-700 bg-gray-100 rounded p-1.5 mt-0.5 overflow-x-auto font-mono whitespace-pre-wrap">{typeof api.response === 'string' ? api.response : JSON.stringify(api.response, null, 2)}</pre>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Row 3c: Data Model */}
+            {hasDataModel && (
+              <div className="col-span-12 rounded p-2 bg-gray-200/30 border border-gray-200">
+                <h4 className="text-xs font-semibold uppercase tracking-wide mb-1.5 flex items-center gap-1.5 text-gray-500">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+                  </svg>
+                  Data Model
+                  <span className="px-1 py-0.5 bg-brand-400/10 text-brand-400 border border-brand-400/30 rounded text-xs">{systemDesign.dataModel.length}</span>
+                </h4>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-1.5">
+                  {systemDesign.dataModel.map((model, i) => (
+                    <div key={i} className="bg-gray-50 border border-gray-200 rounded overflow-hidden">
+                      <div className="bg-gray-100 px-2 py-1 border-b border-gray-200">
+                        <span className="text-xs font-bold text-gray-800 font-mono">{model.table}</span>
+                      </div>
+                      <div className="px-2 py-1">
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr className="border-b border-gray-200">
+                              <th className="text-left py-0.5 text-gray-500 font-semibold">Field</th>
+                              <th className="text-left py-0.5 text-gray-500 font-semibold">Type</th>
+                              <th className="text-left py-0.5 text-gray-500 font-semibold">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {model.fields?.map((field, fi) => (
+                              <tr key={fi} className="border-b border-gray-100 last:border-0">
+                                <td className="py-0.5 font-mono text-gray-800">{field.name}</td>
+                                <td className="py-0.5 text-blue-600 font-mono">{field.type}</td>
+                                <td className="py-0.5 text-gray-600">{field.description}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Row 3d: Mermaid Diagram */}
+            {hasDiagram && (
+              <div className="col-span-12 rounded-lg p-3 bg-gray-200/30 border border-gray-200">
+                <h4 className="text-xs font-semibold uppercase tracking-wide mb-2 text-gray-500">System Flow Diagram</h4>
+                <pre className="text-xs text-gray-800 bg-gray-100 rounded p-3 overflow-x-auto font-mono whitespace-pre leading-relaxed border border-gray-200">{systemDesign.diagram.replace(/\\n/g, '\n')}</pre>
+              </div>
+            )}
 
             {/* Row 4: ASCII Diagram - Full Width */}
             <div className="col-span-12 rounded-lg p-4 bg-gray-200/30 border border-gray-200">
