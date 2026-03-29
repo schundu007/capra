@@ -20,15 +20,15 @@ import TopicDetail from './docs/TopicDetail.jsx';
 const CARD_STYLES = {
   // Standard card with subtle border
   card: {
-    background: '#111318',
+    background: '#ffffff',
     border: '1px solid #e2e8f0',
-    borderRadius: '16px',
+    borderRadius: '8px',
   },
   // Card header - uses Ascend emerald accent
   header: {
-    background: 'rgba(16, 185, 129, 0.05)',
-    borderBottom: '1px solid rgba(16, 185, 129, 0.15)',
-    padding: '18px 24px',
+    background: '#f0fdf4',
+    borderBottom: '1px solid #d1fae5',
+    padding: '8px 12px',
   },
   // Card body
   body: {
@@ -535,7 +535,7 @@ export default function DocsPage({ onBack }) {
                       <Icon name={activePage === 'coding' ? 'code' : activePage === 'system-design' ? 'systemDesign' : 'users'} size={12} />
                       {activePage === 'coding' ? 'Algorithms' : activePage === 'system-design' ? 'Architecture' : 'Soft Skills'}
                     </div>
-                    <h1 className="text-[20px] font-bold text-gray-900 mb-2">{pageConfig.title}</h1>
+                    <h1 className="text-sm font-bold text-gray-900 mb-2">{pageConfig.title}</h1>
                     <p className="text-[14px] text-gray-700 max-w-2xl">
                       {activePage === 'coding' && 'Master the fundamental data structures and algorithms needed to ace technical interviews at top tech companies.'}
                       {activePage === 'system-design' && 'Learn to design scalable, reliable systems that can handle millions of users. Essential for senior engineering roles.'}
@@ -578,50 +578,39 @@ export default function DocsPage({ onBack }) {
               {/* DSA Content */}
               {activePage === 'coding' && (
                 <>
-                  {/* Topic Cards - Grouped by Category */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                    {codingCategories.map((category) => {
-                      const categoryTopics = filteredTopics.filter(t => codingCategoryMap[t.id] === category.id);
-                      if (categoryTopics.length === 0) return null;
+                  {/* All topics in a flat 2-column grid */}
+                  <div className="rounded-xl overflow-hidden mb-4" style={{ border: '1px solid #e2e8f0' }}>
+                    <div className="grid grid-cols-1 md:grid-cols-2">
+                    {filteredTopics.map((topic, idx) => {
+                      const catId = codingCategoryMap[topic.id];
+                      const category = codingCategories.find(c => c.id === catId);
+                      const isFirstInCategory = idx === 0 || codingCategoryMap[filteredTopics[idx-1]?.id] !== catId;
                       return (
-                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-                          {/* Category Header */}
-                          <div className="px-3 py-2 flex items-center gap-2" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
-                            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${category.color}20` }}>
-                              <Icon name={category.icon} size={16} style={{ color: category.color }} />
+                        <div key={topic.id}>
+                          {isFirstInCategory && category && (
+                            <div className="col-span-full px-3 py-1.5 flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wider" style={{ background: '#f8fafc', borderTop: idx > 0 ? '1px solid #e2e8f0' : 'none', borderBottom: '1px solid #f0f0f0' }}>
+                              <Icon name={category.icon} size={12} style={{ color: category.color }} />
+                              {category.name} · {filteredTopics.filter(t => codingCategoryMap[t.id] === catId).length}
                             </div>
-                            <div>
-                              <h3 className="text-sm font-bold text-gray-900">{category.name}</h3>
-                              <span className="text-sm text-gray-700">{categoryTopics.length} topics</span>
-                            </div>
-                          </div>
-                          {/* Topics in Category */}
-                          <div className="divide-y" style={{ borderColor: '#f0f0f0' }}>
-                            {categoryTopics.map((topic) => (
-                              <div
-                                key={topic.id}
-                                onClick={() => setSelectedTopic(topic.id)}
-                                className="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? '#d1fae5' : `${topic.color}15` }}>
-                                    {completedTopics[topic.id] ? <Icon name="check" size={12} className="text-emerald-600" /> : <Icon name={topic.icon} size={12} style={{ color: topic.color }} />}
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <span className={`text-sm font-medium group-hover:text-emerald-600 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-gray-900'}`}>{topic.title}</span>
-                                    {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-500" />}
-                                    <span className="text-gray-600 text-sm ml-2 hidden md:inline">{topic.description}</span>
-                                  </div>
-                                </div>
-                                <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
-                                  {topic.commonProblems?.length || topic.keyQuestions?.length || 0}Q
-                                </span>
+                          )}
+                          <div
+                            onClick={() => setSelectedTopic(topic.id)}
+                            className="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group border-b border-r border-gray-100"
+                          >
+                            <div className="flex items-center gap-2">
+                              <div className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? '#d1fae5' : `${topic.color}15` }}>
+                                {completedTopics[topic.id] ? <Icon name="check" size={10} className="text-emerald-600" /> : <Icon name={topic.icon} size={10} style={{ color: topic.color }} />}
                               </div>
-                            ))}
+                              <span className={`text-sm font-medium group-hover:text-emerald-600 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-gray-900'}`}>{topic.title}</span>
+                            </div>
+                            <span className="px-1.5 py-0.5 rounded text-xs font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
+                              {topic.commonProblems?.length || topic.keyQuestions?.length || 0}Q
+                            </span>
                           </div>
                         </div>
                       );
                     })}
+                    </div>
                   </div>
 
                   {/* Quick Reference - Enhanced */}
@@ -630,12 +619,12 @@ export default function DocsPage({ onBack }) {
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
                         <Icon name="book" size={16} className="text-emerald-600" />
                       </div>
-                      <h2 className="text-[16px] font-bold text-gray-900">Quick Reference</h2>
+                      <h2 className="text-sm font-bold text-gray-900">Quick Reference</h2>
                     </div>
                     <div className="grid md:grid-cols-2 gap-3">
                       {/* Time Complexity Card */}
                       <div className="rounded-xl overflow-hidden" style={CARD_STYLES.card}>
-                        <div className="px-4 py-3 border-b border-emerald-500/20" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                        <div className="px-4 py-3 border-b border-emerald-200" style={{ background: '#f0fdf4' }}>
                           <h3 className="text-sm text-gray-900 font-semibold flex items-center gap-2">
                             <Icon name="clock" size={16} className="text-emerald-600" />
                             Time Complexity Cheat Sheet
@@ -652,9 +641,9 @@ export default function DocsPage({ onBack }) {
                                 { complexity: 'O(n²)', desc: 'Quadratic', rating: 'Slow', color: '#f97316' },
                                 { complexity: 'O(2ⁿ)', desc: 'Exponential', rating: 'Avoid', color: '#ef4444' },
                               ].map((item, i) => (
-                                <tr key={i} className="border-b border-gray-200 last:border-0">
-                                  <td className="py-2 font-mono text-sm text-emerald-600">{item.complexity}</td>
-                                  <td className="py-2 text-gray-600">{item.desc}</td>
+                                <tr key={i} className="border-b border-gray-100 last:border-0">
+                                  <td className="py-2 font-mono text-sm text-emerald-700">{item.complexity}</td>
+                                  <td className="py-2 text-gray-900">{item.desc}</td>
                                   <td className="py-2 text-right">
                                     <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${item.color}20`, color: item.color }}>
                                       {item.rating}
@@ -668,7 +657,7 @@ export default function DocsPage({ onBack }) {
                       </div>
                       {/* Data Structure Selection Card */}
                       <div className="rounded-xl overflow-hidden" style={CARD_STYLES.card}>
-                        <div className="px-4 py-3 border-b border-emerald-500/20" style={{ background: 'rgba(16,185,129,0.05)' }}>
+                        <div className="px-4 py-3 border-b border-emerald-200" style={{ background: '#f0fdf4' }}>
                           <h3 className="text-sm text-gray-900 font-semibold flex items-center gap-2">
                             <Icon name="database" size={16} className="text-emerald-600" />
                             When to Use What
@@ -685,7 +674,7 @@ export default function DocsPage({ onBack }) {
                                 { need: 'Priority access', solution: 'Heap', icon: 'triangle' },
                                 { need: 'Prefix matching', solution: 'Trie', icon: 'search' },
                               ].map((item, i) => (
-                                <tr key={i} className="border-b border-gray-200 last:border-0">
+                                <tr key={i} className="border-b border-gray-100 last:border-0">
                                   <td className="py-2 text-gray-600">{item.need}</td>
                                   <td className="py-2 text-right">
                                     <span className="px-2 py-0.5 rounded text-sm font-medium bg-emerald-50 text-emerald-600">
@@ -707,7 +696,7 @@ export default function DocsPage({ onBack }) {
               {activePage === 'system-design' && (
                 <>
                   {/* Core Concepts Section - Grouped by Category */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                  <div className="space-y-3 mb-4">
                     {systemDesignCategories.map((category) => {
                       const categoryTopics = filteredTopics.filter(t => systemDesignCategoryMap[t.id] === category.id);
                       if (categoryTopics.length === 0) return null;
@@ -724,12 +713,12 @@ export default function DocsPage({ onBack }) {
                             </div>
                           </div>
                           {/* Topics in Category */}
-                          <div className="divide-y" style={{ borderColor: '#f0f0f0' }}>
+                          <div className="grid grid-cols-1 md:grid-cols-2" style={{ borderTop: '1px solid #f0f0f0' }}>
                             {categoryTopics.map((topic) => (
                               <div
                                 key={topic.id}
                                 onClick={() => setSelectedTopic(topic.id)}
-                                className="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group"
+                                className="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group border-b border-r border-gray-100"
                               >
                                 <div className="flex items-center gap-3">
                                   <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? '#d1fae5' : `${topic.color}15` }}>
@@ -738,7 +727,7 @@ export default function DocsPage({ onBack }) {
                                   <div className="flex items-center gap-2">
                                     <span className={`text-sm font-medium group-hover:text-emerald-600 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-gray-900'}`}>{topic.title}</span>
                                     {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-500" />}
-                                    <span className="text-gray-600 text-sm ml-2 hidden md:inline">{topic.description}</span>
+                                    
                                   </div>
                                 </div>
                                 <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
@@ -753,7 +742,7 @@ export default function DocsPage({ onBack }) {
                   </div>
 
                   {/* System Design Problems Section - Grouped by Category */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                  <div className="space-y-3 mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-50">
                         <Icon name="systemDesign" size={16} className="text-emerald-600" />
@@ -784,7 +773,7 @@ export default function DocsPage({ onBack }) {
                             </div>
                           </div>
                           {/* Designs in Category */}
-                          <div className="divide-y" style={{ borderColor: '#f0f0f0' }}>
+                          <div className="grid grid-cols-1 md:grid-cols-2" style={{ borderTop: '1px solid #f0f0f0' }}>
                             {categoryDesigns.map((design) => {
                               const diffColor = difficultyColors[design.difficulty] || difficultyColors['Medium'];
                               const designProblem = `Design ${design.title}. ${design.description || design.subtitle || ''}`;
@@ -807,12 +796,12 @@ export default function DocsPage({ onBack }) {
                                     </div>
                                   </div>
                                   <div className="flex items-center gap-3">
-                                    <span className="px-3 py-1 rounded-lg text-lg font-medium" style={{ background: diffColor.bg, color: diffColor.text }}>
+                                    <span className="px-3 py-1 rounded-lg text-sm font-medium" style={{ background: diffColor.bg, color: diffColor.text }}>
                                       {design.difficulty}
                                     </span>
                                     <a
                                       href={`/app?problem=${encodeURIComponent(designProblem)}&mode=system-design&autosolve=true`}
-                                      className="px-4 py-2 rounded-lg text-lg font-medium bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500/25 transition-colors flex items-center gap-2"
+                                      className="px-4 py-2 rounded-lg text-sm font-medium bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500/25 transition-colors flex items-center gap-2"
                                       onClick={(e) => e.stopPropagation()}
                                     >
                                       <Icon name="zap" size={16} />
@@ -829,7 +818,7 @@ export default function DocsPage({ onBack }) {
                   </div>
 
                   {/* Low-Level Design Problems Section */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                  <div className="space-y-3 mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-teal-500/10">
                         <Icon name="code" size={16} className="text-teal-400" />
@@ -858,14 +847,14 @@ export default function DocsPage({ onBack }) {
                               <span className="text-sm text-gray-700">{categoryProblems.length} problems</span>
                             </div>
                           </div>
-                          <div className="divide-y" style={{ borderColor: '#f0f0f0' }}>
+                          <div className="grid grid-cols-1 md:grid-cols-2" style={{ borderTop: '1px solid #f0f0f0' }}>
                             {categoryProblems.map((problem) => {
                               const diffColor = difficultyColors[problem.difficulty] || difficultyColors['Medium'];
                               return (
                                 <div
                                   key={problem.id}
                                   onClick={() => setSelectedTopic(problem.id)}
-                                  className="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group"
+                                  className="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group border-b border-r border-gray-100"
                                 >
                                   <div className="flex items-center gap-3">
                                     <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${problem.color}15` }}>
@@ -890,7 +879,7 @@ export default function DocsPage({ onBack }) {
                   </div>
 
                   {/* Concurrency Section */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                  <div className="space-y-3 mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-orange-500/10">
                         <Icon name="cpu" size={16} className="text-orange-400" />
@@ -901,12 +890,12 @@ export default function DocsPage({ onBack }) {
                       </div>
                     </div>
                     <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-                      <div className="divide-y" style={{ borderColor: '#f0f0f0' }}>
+                      <div className="grid grid-cols-1 md:grid-cols-2" style={{ borderTop: '1px solid #f0f0f0' }}>
                         {concurrencyTopics.map((topic) => (
                           <div
                             key={topic.id}
                             onClick={() => setSelectedTopic(topic.id)}
-                            className="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group"
+                            className="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group border-b border-r border-gray-100"
                           >
                             <div className="flex items-center gap-3">
                               <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}15` }}>
@@ -914,7 +903,7 @@ export default function DocsPage({ onBack }) {
                               </div>
                               <div>
                                 <span className="text-gray-900 text-sm font-medium group-hover:text-emerald-600 transition-colors">{topic.title}</span>
-                                <span className="text-gray-600 text-sm ml-2 hidden md:inline">{topic.description}</span>
+                                
                               </div>
                             </div>
                             <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
@@ -1006,7 +995,7 @@ export default function DocsPage({ onBack }) {
                   </div>
 
                   {/* Question Categories Section - Grouped by Category */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                  <div className="space-y-3 mb-4">
                     {behavioralCategories.map((category) => {
                       const categoryTopics = filteredTopics.filter(t => topicCategoryMap[t.id] === category.id);
                       if (categoryTopics.length === 0) return null;
@@ -1023,12 +1012,12 @@ export default function DocsPage({ onBack }) {
                             </div>
                           </div>
                           {/* Topics in Category */}
-                          <div className="divide-y" style={{ borderColor: '#f0f0f0' }}>
+                          <div className="grid grid-cols-1 md:grid-cols-2" style={{ borderTop: '1px solid #f0f0f0' }}>
                             {categoryTopics.map((topic) => (
                               <div
                                 key={topic.id}
                                 onClick={() => setSelectedTopic(topic.id)}
-                                className="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group"
+                                className="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group border-b border-r border-gray-100"
                               >
                                 <div className="flex items-center gap-3">
                                   <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? '#d1fae5' : `${topic.color}15` }}>
@@ -1037,7 +1026,7 @@ export default function DocsPage({ onBack }) {
                                   <div className="flex items-center gap-2">
                                     <span className={`text-sm font-medium group-hover:text-emerald-600 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-gray-900'}`}>{topic.title}</span>
                                     {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-500" />}
-                                    <span className="text-gray-600 text-sm ml-2 hidden md:inline">{topic.description}</span>
+                                    
                                   </div>
                                 </div>
                                 <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
