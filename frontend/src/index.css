@@ -58,9 +58,9 @@ html {
 
   /* ========== SIMPLIFIED COLOR PALETTE ========== */
   /* Dark Base (header/sidebar) - Neutral charcoal */
-  --color-black: #1a1a1a;
-  --color-dark: #242424;
-  --color-surface: #2a2a2a;
+  --color-black: #111827;
+  --color-dark: #f8fafc;
+  --color-surface: #ffffff;
   --color-elevated: #333333;
   --color-hover: #3a3a3a;
   --color-white: #ffffff;
@@ -108,7 +108,7 @@ html {
   --sidebar-surface: #ffffff;
   --sidebar-hover: #f1f5f9;
   --sidebar-active: rgba(16, 185, 129, 0.12);
-  --sidebar-text: rgba(255, 255, 255, 0.7);
+  --sidebar-text: #374151;
   --sidebar-text-bright: #ffffff;
 
   /* ========== PREMIUM SHADOWS ========== */
@@ -128,7 +128,7 @@ html {
   --gradient-primary: linear-gradient(135deg, #10b981 0%, #059669 100%);
   --gradient-primary-hover: linear-gradient(135deg, #059669 0%, #047857 100%);
   --gradient-header: linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%);
-  --gradient-header-dark: linear-gradient(180deg, #1e1e1e 0%, #1a1a1a 100%);
+  --gradient-header-dark: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   --gradient-surface: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
   --gradient-accent: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
   --gradient-warm: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
@@ -158,33 +158,33 @@ html {
 
   /* ========== UNIFIED THEME VARIABLES ========== */
   /* These change based on data-theme attribute */
-  --nav-bg: #1a1a1a;
-  --nav-bg-secondary: #242424;
-  --nav-border: rgba(255, 255, 255, 0.08);
-  --nav-text: #ffffff;
-  --nav-text-secondary: rgba(255, 255, 255, 0.7);
-  --nav-text-muted: rgba(255, 255, 255, 0.5);
-  --nav-hover: rgba(255, 255, 255, 0.08);
+  --nav-bg: #f8fafc;
+  --nav-bg-secondary: #ffffff;
+  --nav-border: #e2e8f0;
+  --nav-text: #111827;
+  --nav-text-secondary: #374151;
+  --nav-text-muted: #6b7280;
+  --nav-hover: #f1f5f9;
   --nav-active: rgba(16, 185, 129, 0.15);
 
   --content-bg: #ffffff;
   --content-bg-secondary: #f8f9fa;
   --content-bg-hover: #f3f4f6;
   --content-border: #e5e7eb;
-  --content-text: #1a1a1a;
+  --content-text: #111827;
   --content-text-secondary: #4b5563;
   --content-text-muted: #9ca3af;
 }
 
 /* ========== DARK THEME (Default) ========== */
 [data-theme="dark"] {
-  --nav-bg: #1a1a1a;
-  --nav-bg-secondary: #242424;
-  --nav-border: rgba(255, 255, 255, 0.08);
-  --nav-text: #ffffff;
-  --nav-text-secondary: rgba(255, 255, 255, 0.7);
-  --nav-text-muted: rgba(255, 255, 255, 0.5);
-  --nav-hover: rgba(255, 255, 255, 0.08);
+  --nav-bg: #f8fafc;
+  --nav-bg-secondary: #ffffff;
+  --nav-border: #e2e8f0;
+  --nav-text: #111827;
+  --nav-text-secondary: #374151;
+  --nav-text-muted: #6b7280;
+  --nav-hover: #f1f5f9;
   --nav-active: rgba(16, 185, 129, 0.15);
 }
 
@@ -193,7 +193,7 @@ html {
   --nav-bg: #ffffff;
   --nav-bg-secondary: #f8f9fa;
   --nav-border: rgba(0, 0, 0, 0.08);
-  --nav-text: #1a1a1a;
+  --nav-text: #111827;
   --nav-text-secondary: #4b5563;
   --nav-text-muted: #9ca3af;
   --nav-hover: rgba(0, 0, 0, 0.04);
@@ -1227,7 +1227,7 @@ code, pre, kbd {
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  background: linear-gradient(180deg, #1a1a1a 0%, #1e1e1e 100%);
+  background: #ffffff;
   border-bottom: 1px solid #2d2d2d;
 }
 
@@ -1390,13 +1390,13 @@ code, pre, kbd {
   border-radius: 6px;
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.7);
+  color: #374151;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .sidebar-collapse-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: #f1f5f9;
   color: #ffffff;
 }
 
@@ -1557,7 +1557,7 @@ code, pre, kbd {
   height: 10px;
   border-radius: 50%;
   background: #22c55e;
-  border: 2px solid #1a1a1a;
+  border: 2px solid #e2e8f0;
   box-shadow: 0 0 4px rgba(34, 197, 94, 0.5);
 }
 
@@ -1596,7 +1596,7 @@ code, pre, kbd {
 }
 
 .sidebar-action-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: #f1f5f9;
   color: #ffffff;
 }
 
@@ -1610,14 +1610,14 @@ code, pre, kbd {
   border-radius: 6px;
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.5);
+  color: #6b7280;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .sidebar-expand-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.9);
+  background: #f1f5f9;
+  color: #111827;
 }
 
 .sidebar-expand-btn:active {
@@ -1644,7 +1644,7 @@ code, pre, kbd {
   position: relative;
   width: 40px;
   height: 22px;
-  background: rgba(255, 255, 255, 0.1);
+  background: #f1f5f9;
   border-radius: 11px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1982,12 +1982,12 @@ code, pre, kbd {
   align-items: center;
   gap: 2px;
   padding: 3px;
-  background: rgba(255, 255, 255, 0.08);
+  background: #f1f5f9;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 #f5f5f5;
 }
 
 .slack-tab {
@@ -1999,7 +1999,7 @@ code, pre, kbd {
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.02em;
-  color: rgba(255, 255, 255, 0.6);
+  color: #6b7280;
   background: transparent;
   border: none;
   border-radius: 10px;
@@ -2012,14 +2012,14 @@ code, pre, kbd {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+  background: linear-gradient(135deg, #e2e8f0 0%, #ffffff 100%);
   opacity: 0;
   transition: opacity 0.2s ease;
   border-radius: 10px;
 }
 
 .slack-tab:hover {
-  color: rgba(255, 255, 255, 0.9);
+  color: #111827;
   transform: translateY(-1px);
 }
 
@@ -2030,7 +2030,7 @@ code, pre, kbd {
 .slack-tab.active {
   color: #ffffff;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4), 0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4), 0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 #d1d5db;
   transform: translateY(0);
 }
 
@@ -2038,7 +2038,7 @@ code, pre, kbd {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 50%);
+  background: linear-gradient(180deg, #d1d5db 0%, #ffffff 50%);
   border-radius: 10px;
   pointer-events: none;
 }
@@ -2170,8 +2170,8 @@ code, pre, kbd {
 
 /* Dark variant for code panels */
 .panel-header-dark {
-  background: #1a1a1a;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: #111827;
+  border-bottom: 1px solid #f1f5f9;
   height: 44px;
   min-height: 44px;
 }
@@ -2241,7 +2241,7 @@ code, pre, kbd {
 
 /* Panel Content Area - Dark panels (code editor) */
 .panel-content-dark {
-  background: #1a1a1a;
+  background: #111827;
   flex: 1;
   overflow: auto;
 }
@@ -2502,7 +2502,7 @@ code, pre, kbd {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #1e1e1e;
+  background: #f8fafc;
   overflow: hidden;
 }
 
@@ -2512,7 +2512,7 @@ code, pre, kbd {
   flex-direction: column;
   width: 48px;
   min-width: 48px;
-  background: #1a1a1a;
+  background: #111827;
   border-right: 1px solid #2d2d2d;
   padding: 8px 0;
   gap: 4px;
@@ -2535,7 +2535,7 @@ code, pre, kbd {
 }
 
 .coderpad-toolbar-btn:hover {
-  background: #2a2a2a;
+  background: #f1f5f9;
   color: #c0c0c0;
 }
 
@@ -2563,7 +2563,7 @@ code, pre, kbd {
   height: 48px;
   min-height: 48px;
   padding: 0 12px;
-  background: #1e1e1e;
+  background: #f8fafc;
   border-bottom: 1px solid #2d2d2d;
 }
 
@@ -2659,7 +2659,7 @@ code, pre, kbd {
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  background: #1a1a1a;
+  background: #111827;
   border-bottom: 1px solid #2d2d2d;
 }
 
@@ -2683,7 +2683,7 @@ code, pre, kbd {
 
 .coderpad-editor-tab:hover {
   color: #c0c0c0;
-  background: #2a2a2a;
+  background: #f1f5f9;
 }
 
 .coderpad-editor-tab.active {
@@ -2804,7 +2804,7 @@ code, pre, kbd {
 
 .coderpad-output-content {
   padding: 12px;
-  background: #1a1a1a;
+  background: #111827;
   border-radius: 6px;
   font-family: var(--font-mono);
   font-size: 12px;
@@ -2832,7 +2832,7 @@ code, pre, kbd {
   height: 40px;
   min-height: 40px;
   padding: 0 12px;
-  background: #1a1a1a;
+  background: #111827;
   border-top: 1px solid #2d2d2d;
 }
 
@@ -2864,7 +2864,7 @@ code, pre, kbd {
 }
 
 .coderpad-bottombar-btn:hover {
-  background: #2a2a2a;
+  background: #f1f5f9;
   color: #e5e7eb;
   border-color: #4b5563;
 }
@@ -2894,7 +2894,7 @@ code, pre, kbd {
   left: 0;
   margin-top: 4px;
   min-width: 160px;
-  background: #1e1e1e;
+  background: #f8fafc;
   border: 1px solid #2d2d2d;
   border-radius: 6px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
@@ -2918,7 +2918,7 @@ code, pre, kbd {
 }
 
 .coderpad-language-item:hover {
-  background: #2a2a2a;
+  background: #f1f5f9;
   color: #ffffff;
 }
 
@@ -3360,20 +3360,20 @@ code, pre, kbd {
   cursor: pointer;
   overflow: hidden;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3), inset 0 1px 0 #d1d5db;
 }
 
 .prep-generate-btn::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 50%);
+  background: linear-gradient(180deg, #d1d5db 0%, #ffffff 50%);
   pointer-events: none;
 }
 
 .prep-generate-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4), inset 0 1px 0 #d1d5db;
 }
 
 .prep-generate-btn:active {
@@ -3676,7 +3676,7 @@ code, pre, kbd {
   justify-content: space-between;
   padding: 10px 16px;
   background: rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid #f5f5f5;
 }
 
 .prep-code-lang {
@@ -3696,7 +3696,7 @@ code, pre, kbd {
   font-weight: 500;
   color: #94a3b8;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid #e2e8f0;
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -3704,8 +3704,8 @@ code, pre, kbd {
 
 .prep-code-copy-btn:hover {
   color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.05);
+  border-color: #d1d5db;
+  background: #f5f5f5;
 }
 
 .prep-code-content {
