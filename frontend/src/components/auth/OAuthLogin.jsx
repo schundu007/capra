@@ -69,7 +69,7 @@ export default function OAuthLogin({ loginOnly = false }) {
 
         {/* ═══ NAV ═══ */}
         <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'py-3' : 'py-5'}`} style={{ background: scrolled ? 'rgba(255,255,255,0.95)' : 'transparent', backdropFilter: scrolled ? 'blur(20px)' : 'none', borderBottom: scrolled ? '1px solid #e5e7eb' : '1px solid transparent' }}>
-          <div className="max-w-[1440px] mx-auto px-8 flex items-center justify-between">
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-8 flex items-center justify-between">
             <a href="/" className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
                 <Icon name="ascend" size={20} className="text-white" />
@@ -108,9 +108,9 @@ export default function OAuthLogin({ loginOnly = false }) {
         </nav>
 
         {/* ═══ HERO ═══ */}
-        <section className="pt-28 sm:pt-32 pb-10 max-w-[1440px] mx-auto px-8">
+        <section className="pt-28 sm:pt-32 pb-10 max-w-[1440px] mx-auto px-4 sm:px-8">
           <div className="max-w-[800px] mx-auto text-center">
-            <h1 className="text-[clamp(28px,4.5vw,44px)] font-bold leading-[1.08] tracking-[-0.03em] mb-3 landing-display whitespace-nowrap">
+            <h1 className="text-[clamp(28px,4.5vw,44px)] font-bold leading-[1.08] tracking-[-0.03em] mb-3 landing-display sm:whitespace-nowrap">
               <span className="text-gray-900">Your unfair advantage in </span>
               <span className="landing-gradient-text">every interview.</span>
             </h1>
@@ -132,7 +132,7 @@ export default function OAuthLogin({ loginOnly = false }) {
         </section>
 
         {/* ═══ FEATURES ═══ */}
-        <section className="py-8 max-w-[1440px] mx-auto px-8">
+        <section className="py-8 max-w-[1440px] mx-auto px-4 sm:px-8">
           <h2 className="text-[28px] font-bold text-center mb-6 landing-display"><span className="text-gray-900">Everything you need to </span><span style={{color:'#10b981'}}>land the job.</span></h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
@@ -157,7 +157,7 @@ export default function OAuthLogin({ loginOnly = false }) {
         </section>
 
         {/* ═══ HOW IT WORKS ═══ */}
-        <section className="py-8 max-w-[1440px] mx-auto px-8">
+        <section className="py-8 max-w-[1440px] mx-auto px-4 sm:px-8">
           <h2 className="text-[28px] font-bold text-center mb-6 landing-display"><span className="text-gray-900">Three steps. </span><span style={{color:'#10b981'}}>That's it.</span></h2>
           <div className="grid md:grid-cols-3 gap-4">
             {[
@@ -175,7 +175,7 @@ export default function OAuthLogin({ loginOnly = false }) {
         </section>
 
         {/* ═══ FOOTER ═══ */}
-        <footer className="py-6 max-w-[1440px] mx-auto px-8 mt-4">
+        <footer className="py-6 max-w-[1440px] mx-auto px-4 sm:px-8 mt-4">
           <div className="flex items-center justify-between py-4" style={{ borderTop: '1px solid #e2e8f0' }}>
             <div className="flex items-center gap-3">
               <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>

@@ -153,7 +153,7 @@ export default function PremiumPage() {
 
         {/* ═══ NAV ═══ */}
         <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'py-3' : 'py-5'}`} style={{ background: scrolled ? 'rgba(255,255,255,0.95)' : 'transparent', backdropFilter: scrolled ? 'blur(20px)' : 'none', borderBottom: scrolled ? '1px solid #e5e7eb' : '1px solid transparent' }}>
-          <div className="max-w-[1440px] mx-auto px-8 flex items-center justify-between">
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-8 flex items-center justify-between">
             <a href="/" className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
                 <Icon name="ascend" size={20} className="text-white" />
@@ -172,7 +172,7 @@ export default function PremiumPage() {
         </nav>
 
         {/* ═══ HERO ═══ */}
-        <section className="pt-28 sm:pt-32 pb-8 max-w-[1440px] mx-auto px-8">
+        <section className="pt-28 sm:pt-32 pb-8 max-w-[1440px] mx-auto px-4 sm:px-8">
           <div className="max-w-[800px] mx-auto text-center">
             <h1 className="text-[clamp(32px,5vw,52px)] font-bold leading-[1.08] tracking-[-0.03em] mb-3 premium-heading">
               <span className="text-gray-900">Ace Your Next </span>
@@ -186,7 +186,7 @@ export default function PremiumPage() {
         </section>
 
         {/* ═══ PRICING CARDS ═══ */}
-        <section id="plans" className="py-6 max-w-[1440px] mx-auto px-8">
+        <section id="plans" className="py-6 max-w-[1440px] mx-auto px-4 sm:px-8">
           {hasActiveSubscription && (
             <div className="mb-4 p-3 rounded-2xl text-center" style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid #a7f3d0' }}>
               <div className="flex items-center justify-center gap-2 text-emerald-600 text-lg font-semibold mb-1">
@@ -290,7 +290,7 @@ export default function PremiumPage() {
         </section>
 
         {/* ═══ WHAT'S INCLUDED ═══ */}
-        <section id="features" className="py-8 max-w-[1440px] mx-auto px-8">
+        <section id="features" className="py-8 max-w-[1440px] mx-auto px-4 sm:px-8">
           <h2 className="text-[24px] font-bold text-gray-900 text-center mb-6">What's Included</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {whatsIncluded.map((item, i) => (
@@ -308,7 +308,7 @@ export default function PremiumPage() {
         </section>
 
         {/* ═══ FAQ ═══ */}
-        <section id="faq" className="py-8 max-w-[1440px] mx-auto px-8">
+        <section id="faq" className="py-8 max-w-[1440px] mx-auto px-4 sm:px-8">
           <h2 className="text-[24px] font-bold text-gray-900 text-center mb-6 premium-heading">Frequently Asked Questions</h2>
           <div className="max-w-[900px] mx-auto space-y-2">
             {faqItems.map((faq, i) => (
@@ -328,7 +328,7 @@ export default function PremiumPage() {
         </section>
 
         {/* ═══ FOOTER ═══ */}
-        <footer className="py-6 max-w-[1440px] mx-auto px-8 mt-4">
+        <footer className="py-6 max-w-[1440px] mx-auto px-4 sm:px-8 mt-4">
           <div className="flex items-center justify-between py-4" style={{ borderTop: '1px solid #e2e8f0' }}>
             <div className="flex items-center gap-3">
               <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>

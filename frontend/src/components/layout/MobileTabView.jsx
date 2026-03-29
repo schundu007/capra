@@ -22,7 +22,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
  *     )}
  *   </MobileTabView>
  */
-export default function MobileTabView({ tabs, activeTab, onTabChange, children, className = '' }) {
+export default function MobileTabView({ tabs, activeTab, onTabChange, children, className = '', loadingTabId }) {
   const [localActive, setLocalActive] = useState(tabs[0]?.id);
   const active = activeTab ?? localActive;
   const setActive = onTabChange ?? setLocalActive;
@@ -81,7 +81,12 @@ export default function MobileTabView({ tabs, activeTab, onTabChange, children, 
             className={`flex-1 py-3 text-xs font-semibold uppercase tracking-wider transition-colors duration-200
               ${active === tab.id ? 'text-brand-400' : 'text-neutral-500 active:text-neutral-300'}`}
           >
-            {tab.label}
+            <span className="flex items-center justify-center gap-1.5">
+              {tab.label}
+              {loadingTabId === tab.id && (
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse" />
+              )}
+            </span>
           </button>
         ))}
         {/* Animated indicator line */}
@@ -91,13 +96,16 @@ export default function MobileTabView({ tabs, activeTab, onTabChange, children, 
         />
       </div>
 
-      {/* Tab content */}
+      {/* Tab content — explicit height ensures panes fill correctly on Android */}
       <div
-        className="flex-1 min-h-0 overflow-hidden"
+        className="flex-1 min-h-0 overflow-hidden relative"
+        style={{ flex: '1 1 0%' }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {typeof children === 'function' ? children(active) : children}
+        <div className="absolute inset-0 overflow-hidden">
+          {typeof children === 'function' ? children(active) : children}
+        </div>
       </div>
     </div>
   );

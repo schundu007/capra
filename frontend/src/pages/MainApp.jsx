@@ -1,28 +1,31 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { Allotment } from 'allotment';
 import 'allotment/dist/style.css';
 
-// Components
+// Core components (always needed)
 import ProblemInput from '../components/ProblemInput';
 import CodeDisplay from '../components/CodeDisplay';
 import ExplanationPanel from '../components/ExplanationPanel';
-import PricingPlans from '../components/billing/PricingPlans';
 import CreditBalance from '../components/billing/CreditBalance';
-import OnboardingModal, { hasCompletedOnboarding } from '../components/onboarding/OnboardingModal';
-import AdminPanel from '../components/AdminPanel';
-import SettingsPanel from '../components/settings/SettingsPanel';
-import SetupWizard from '../components/settings/SetupWizard';
-import PlatformAuth from '../components/PlatformAuth';
-import AscendAssistantPanel from '../components/AscendAssistantPanel';
 import AscendModeSelector from '../components/AscendModeSelector';
-import SystemDesignPanel from '../components/SystemDesignPanel';
-import PrepTab from '../components/PrepTab';
-import AscendPrepModal from '../components/AscendPrepModal';
-import SavedSystemDesignsModal from '../components/SavedSystemDesignsModal';
 import Sidebar from '../components/Sidebar';
 import MobileBottomNav from '../components/layout/MobileBottomNav';
 import MobileTabView from '../components/layout/MobileTabView';
 import ErrorBoundary from '../components/shared/ErrorBoundary';
+
+// Lazy-loaded components (modals, panels rendered on demand)
+const PricingPlans = lazy(() => import('../components/billing/PricingPlans'));
+const OnboardingModal = lazy(() => import('../components/onboarding/OnboardingModal'));
+import { hasCompletedOnboarding } from '../components/onboarding/OnboardingModal';
+const AdminPanel = lazy(() => import('../components/AdminPanel'));
+const SettingsPanel = lazy(() => import('../components/settings/SettingsPanel'));
+const SetupWizard = lazy(() => import('../components/settings/SetupWizard'));
+const PlatformAuth = lazy(() => import('../components/PlatformAuth'));
+const AscendAssistantPanel = lazy(() => import('../components/AscendAssistantPanel'));
+const SystemDesignPanel = lazy(() => import('../components/SystemDesignPanel'));
+const PrepTab = lazy(() => import('../components/PrepTab'));
+const AscendPrepModal = lazy(() => import('../components/AscendPrepModal'));
+const SavedSystemDesignsModal = lazy(() => import('../components/SavedSystemDesignsModal'));
 
 // Hooks
 import { getApiUrl } from '../hooks/useElectron';
@@ -740,7 +743,7 @@ export default function MainApp() {
   // ---------------------------------------------------------------------------
   if (!authChecked) {
     return (
-      <div className="h-screen flex items-center justify-center bg-white">
+      <div className="h-screen-safe flex items-center justify-center bg-white">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -770,8 +773,10 @@ export default function MainApp() {
   // ---------------------------------------------------------------------------
   if (isAscendPrepWindow) {
     return (
-      <div className="h-screen flex flex-col overflow-hidden bg-white">
-        <AscendPrepModal isOpen={true} onClose={() => window.close()} provider={provider} model={model} isDedicatedWindow={true} />
+      <div className="h-screen-safe flex flex-col overflow-hidden bg-white">
+        <Suspense fallback={null}>
+          <AscendPrepModal isOpen={true} onClose={() => window.close()} provider={provider} model={model} isDedicatedWindow={true} />
+        </Suspense>
       </div>
     );
   }
@@ -804,7 +809,7 @@ export default function MainApp() {
   };
 
   return (
-    <div className={`h-screen-safe flex overflow-hidden ${isMobile ? 'pb-[52px]' : ''}`} style={{ background: 'var(--content-bg)', color: '#1a1a1a' }}>
+    <div className={`h-screen-safe flex overflow-hidden ${isMobile ? 'pb-[52px]' : ''}`} style={{ background: isMobile ? '#0f172a' : 'var(--content-bg)', color: isMobile ? '#ffffff' : '#1a1a1a' }}>
       {/* Sidebar — desktop: inline, mobile: overlay drawer */}
       {isMobile ? (
         <Sidebar {...sidebarProps} isOpen={mobileDrawerOpen} />
@@ -845,6 +850,7 @@ export default function MainApp() {
 
         {/* Main Layout */}
         <ErrorBoundary>
+          <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="w-6 h-6 border-2 border-brand-400 border-t-transparent rounded-full animate-spin" /></div>}>
           <main className="flex-1 overflow-hidden relative z-10">
             {ascendMode === 'behavioral' ? (
               <div className="h-full" style={{ background: 'var(--content-bg)' }}>
@@ -898,6 +904,7 @@ export default function MainApp() {
               />
             )}
           </main>
+          </Suspense>
         </ErrorBoundary>
 
         {/* Footer — hidden on mobile (bottom nav replaces it) */}
@@ -915,35 +922,40 @@ export default function MainApp() {
         />
       )}
 
-      {/* Modals */}
-      {showAdminPanel && <AdminPanel token={getToken()} onClose={() => setShowAdminPanel(false)} />}
-      <PricingPlans isOpen={showPricingPlans} onClose={() => setShowPricingPlans(false)} />
-      <OnboardingModal isOpen={showOnboarding} onComplete={() => setShowOnboarding(false)} onOpenPricing={() => setShowPricingPlans(true)} />
-      {showSettings && (
-        <SettingsPanel
-          onClose={() => setShowSettings(false)}
-          provider={provider}
-          model={model}
-          onProviderChange={setProvider}
-          onModelChange={setModel}
-          onOpenPlatforms={() => setShowPrepTab(true)}
-          autoSwitch={autoSwitch}
-          onAutoSwitchChange={setAutoSwitch}
-          editorSettings={editorSettings}
-          onEditorSettingsChange={updateEditorSettings}
-        />
-      )}
-      {showSetupWizard && <SetupWizard onComplete={() => setShowSetupWizard(false)} />}
-      {showPlatformAuth && <PlatformAuth onClose={() => setShowPlatformAuth(false)} />}
-      {showPrepTab && <PrepTab isOpen={showPrepTab} onClose={() => setShowPrepTab(false)} />}
-      <SavedSystemDesignsModal
-        isOpen={showSavedDesigns}
-        onClose={() => setShowSavedDesigns(false)}
-        sessions={systemDesignStorage.getAllSessions()}
-        onLoadSession={handleLoadSavedSession}
-        onDeleteSession={systemDesignStorage.deleteSession}
-        onClearAll={systemDesignStorage.clearAllSessions}
-      />
+      {/* Modals (lazy-loaded) */}
+      <Suspense fallback={null}>
+        {showAdminPanel && <AdminPanel token={getToken()} onClose={() => setShowAdminPanel(false)} />}
+        {showPricingPlans && <PricingPlans isOpen={showPricingPlans} onClose={() => setShowPricingPlans(false)} />}
+        {showOnboarding && <OnboardingModal isOpen={showOnboarding} onComplete={() => setShowOnboarding(false)} onOpenPricing={() => setShowPricingPlans(true)} />}
+        {showSettings && (
+          <SettingsPanel
+            onClose={() => setShowSettings(false)}
+            provider={provider}
+            model={model}
+            onProviderChange={setProvider}
+            onModelChange={setModel}
+            onOpenPlatforms={() => setShowPrepTab(true)}
+            autoSwitch={autoSwitch}
+            onAutoSwitchChange={setAutoSwitch}
+            editorSettings={editorSettings}
+            onEditorSettingsChange={updateEditorSettings}
+          />
+        )}
+        {showSetupWizard && <SetupWizard onComplete={() => setShowSetupWizard(false)} />}
+        {showPlatformAuth && <PlatformAuth onClose={() => setShowPlatformAuth(false)} />}
+        {showPrepTab && <PrepTab isOpen={showPrepTab} onClose={() => setShowPrepTab(false)} />}
+
+        {showSavedDesigns && (
+          <SavedSystemDesignsModal
+            isOpen={showSavedDesigns}
+            onClose={() => setShowSavedDesigns(false)}
+            sessions={systemDesignStorage.getAllSessions()}
+            onLoadSession={handleLoadSavedSession}
+            onDeleteSession={systemDesignStorage.deleteSession}
+            onClearAll={systemDesignStorage.clearAllSessions}
+          />
+        )}
+      </Suspense>
 
       {/* Copy Toast */}
       {copyToast && <CopyToast />}
@@ -1250,7 +1262,7 @@ function CodingLayout({
 
     return (
       <div className="h-full bg-neutral-800">
-        <MobileTabView tabs={tabs} activeTab={mobileTab} onTabChange={setMobileTab}>
+        <MobileTabView tabs={tabs} activeTab={mobileTab} onTabChange={setMobileTab} loadingTabId={isLoading ? (ascendMode === 'system-design' ? 'design' : 'code') : null}>
           {(activeId) => (
             <>
               {activeId === 'problem' && <ProblemPane />}
