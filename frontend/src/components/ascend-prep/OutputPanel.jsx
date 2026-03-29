@@ -410,7 +410,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
         ) : (
           <div className="rounded-lg p-5" style={{ background: colors.paper, border: `1px solid ${colors.border}` }}>
             {typeof displayContent === 'string' ? (
-              <div className="text-[13px] leading-relaxed" style={{ color: colors.text }}>
+              <div className="text-sm leading-relaxed" style={{ color: colors.text }}>
                 {/* Check if streaming content looks like JSON - show cleaner loading state */}
                 {isGenerating && displayContent.trim().startsWith('{') ? (
                   <div className="flex items-center gap-3 py-8">
@@ -425,7 +425,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                 )}
               </div>
             ) : displayContent && typeof displayContent === 'object' ? (
-              <div className="space-y-4 text-[13px]" style={{ color: colors.text, lineHeight: '1.6' }}>
+              <div className="space-y-4 text-sm" style={{ color: colors.text, lineHeight: '1.6' }}>
                 {/* Summary */}
                 {displayContent.summary?.trim() && (
                   <p className="pb-3" style={{ borderBottom: `1px solid ${colors.border}` }}>{displayContent.summary?.trim()}</p>
@@ -439,7 +439,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                         <span className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: 'white', boxShadow: '0 2px 4px rgba(16,185,129,0.3)' }}>{i + 1}</span>
                         <div className="flex-1 pt-0.5">
                           {safeArray(section?.bullets).length > 0 && (
-                            <p className="text-[13px] leading-relaxed" style={{ color: colors.text }}>
+                            <p className="text-sm leading-relaxed" style={{ color: colors.text }}>
                               {safeArray(section.bullets).filter(b => b != null).map((bullet, j) => (
                                 <span key={j}>
                                   {j === 0 ? <strong style={{ color: '#1e40af' }}>{String(bullet).split(' ').slice(0, 3).join(' ')}</strong> : null}
@@ -450,7 +450,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                             </p>
                           )}
                           {section?.duration && (
-                            <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded" style={{ background: '#f1f5f9', color: '#64748b' }}>{section.duration}</span>
+                            <span className="inline-block mt-1 text-xs px-1.5 py-0.5 rounded" style={{ background: '#f1f5f9', color: '#64748b' }}>{section.duration}</span>
                           )}
                         </div>
                       </div>

@@ -63,7 +63,7 @@ export default function KeyboardShortcutsModal({ onClose }) {
                       {shortcut.keys.map((key, kidx) => (
                         <span key={kidx}>
                           <kbd
-                            className="px-1.5 py-0.5 text-[10px] font-mono rounded"
+                            className="px-1.5 py-0.5 text-xs font-mono rounded"
                             style={{
                               background: '#3d3d3d',
                               color: '#ffffff',
@@ -74,7 +74,7 @@ export default function KeyboardShortcutsModal({ onClose }) {
                             {key}
                           </kbd>
                           {kidx < shortcut.keys.length - 1 && (
-                            <span className="mx-0.5 text-[10px]" style={{ color: '#666666' }}>+</span>
+                            <span className="mx-0.5 text-xs" style={{ color: '#666666' }}>+</span>
                           )}
                         </span>
                       ))}
@@ -88,7 +88,7 @@ export default function KeyboardShortcutsModal({ onClose }) {
           {/* Tip */}
           <div className="mt-4 p-3 rounded-lg" style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
             <p className="text-xs" style={{ color: '#a78bfa' }}>
-              <strong>Tip:</strong> On Mac, use <kbd className="px-1 py-0.5 text-[10px] font-mono rounded" style={{ background: '#3d3d3d', color: '#ffffff' }}>Cmd</kbd> instead of <kbd className="px-1 py-0.5 text-[10px] font-mono rounded" style={{ background: '#3d3d3d', color: '#ffffff' }}>Ctrl</kbd>
+              <strong>Tip:</strong> On Mac, use <kbd className="px-1 py-0.5 text-xs font-mono rounded" style={{ background: '#3d3d3d', color: '#ffffff' }}>Cmd</kbd> instead of <kbd className="px-1 py-0.5 text-xs font-mono rounded" style={{ background: '#3d3d3d', color: '#ffffff' }}>Ctrl</kbd>
             </p>
           </div>
         </div>

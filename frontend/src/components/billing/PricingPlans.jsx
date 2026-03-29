@@ -219,12 +219,12 @@ export default function PricingPlans({ isOpen, onClose }) {
                   }}
                 >
                   {plan.popular && (
-                    <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-bold" style={{ background: '#10b981', color: 'white' }}>
+                    <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-bold" style={{ background: '#10b981', color: 'white' }}>
                       POPULAR
                     </div>
                   )}
                   {plan.isDesktop && (
-                    <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-bold" style={{ background: '#f97316', color: 'white' }}>
+                    <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-bold" style={{ background: '#f97316', color: 'white' }}>
                       LIFETIME
                     </div>
                   )}

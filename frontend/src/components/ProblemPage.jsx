@@ -30,7 +30,7 @@ function SimpleCodeEditor({ code, onChange, language, readOnly = false }) {
         value={code}
         onChange={(e) => onChange(e.target.value)}
         readOnly={readOnly}
-        className="w-full h-full bg-[#0d1117] text-gray-200 font-mono text-[14px] leading-relaxed p-4 resize-none outline-none border-none"
+        className="w-full h-full bg-[#0d1117] text-gray-200 font-mono text-sm leading-relaxed p-4 resize-none outline-none border-none"
         style={{ tabSize: 2 }}
         spellCheck={false}
         placeholder={readOnly ? '' : 'Write your code here...'}
@@ -92,7 +92,7 @@ function CodeBlock({ code, language }) {
         {copied ? 'Copied!' : 'Copy'}
       </button>
       <pre className="bg-[#0d1117] rounded-xl p-5 overflow-x-auto border border-gray-700/50">
-        <code className="text-[14px] leading-relaxed font-mono text-gray-300 whitespace-pre">
+        <code className="text-sm leading-relaxed font-mono text-gray-300 whitespace-pre">
           {code}
         </code>
       </pre>
@@ -112,20 +112,20 @@ function ExampleBlock({ example, index }) {
       <div className="p-4 space-y-3">
         <div>
           <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">Input</span>
-          <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-emerald-400 font-mono text-[14px] overflow-x-auto">
+          <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-emerald-400 font-mono text-sm overflow-x-auto">
             {example.input}
           </pre>
         </div>
         <div>
           <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">Output</span>
-          <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-yellow-400 font-mono text-[14px] overflow-x-auto">
+          <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-yellow-400 font-mono text-sm overflow-x-auto">
             {example.output}
           </pre>
         </div>
         {example.explanation && (
           <div>
             <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">Explanation</span>
-            <p className="mt-1.5 text-gray-300 text-[14px] leading-relaxed">{example.explanation}</p>
+            <p className="mt-1.5 text-gray-300 text-sm leading-relaxed">{example.explanation}</p>
           </div>
         )}
       </div>
@@ -154,7 +154,7 @@ function HintCard({ hint, index }) {
       </button>
       {revealed && (
         <div className="px-5 pb-4">
-          <p className="text-gray-300 text-[14px] leading-relaxed">{hint}</p>
+          <p className="text-gray-300 text-sm leading-relaxed">{hint}</p>
         </div>
       )}
     </div>
@@ -414,7 +414,7 @@ export default function ProblemPage({ slug, onBack }) {
                     {/* Problem Description */}
                     <div className="prose prose-invert max-w-none">
                       {problem.description.split('\n').map((paragraph, i) => (
-                        <p key={i} className="text-gray-300 text-[15px] leading-relaxed mb-3">
+                        <p key={i} className="text-gray-300 text-sm leading-relaxed mb-3">
                           {paragraph.split('`').map((part, j) =>
                             j % 2 === 1 ? (
                               <code key={j} className="px-1.5 py-0.5 bg-gray-800 rounded text-emerald-400 font-mono text-sm">
@@ -461,7 +461,7 @@ export default function ProblemPage({ slug, onBack }) {
                         <h3 className="text-base font-semibold text-white mb-3">Constraints</h3>
                         <ul className="space-y-1.5">
                           {problem.constraints.map((constraint, i) => (
-                            <li key={i} className="flex items-start gap-2 text-gray-300 text-[14px]">
+                            <li key={i} className="flex items-start gap-2 text-gray-300 text-sm">
                               <span className="text-emerald-400 mt-0.5">•</span>
                               <code className="font-mono text-sm">{constraint}</code>
                             </li>
@@ -514,7 +514,7 @@ export default function ProblemPage({ slug, onBack }) {
                               );
                             }
                             return line ? (
-                              <p key={i} className="text-gray-300 text-[14px] leading-relaxed mb-1.5">
+                              <p key={i} className="text-gray-300 text-sm leading-relaxed mb-1.5">
                                 {line}
                               </p>
                             ) : null;
@@ -675,13 +675,13 @@ export default function ProblemPage({ slug, onBack }) {
                               <div className="space-y-3">
                                 <div>
                                   <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">Input</span>
-                                  <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-emerald-400 font-mono text-[13px] overflow-x-auto">
+                                  <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-emerald-400 font-mono text-sm overflow-x-auto">
                                     {problem.examples[activeTestCase].input}
                                   </pre>
                                 </div>
                                 <div>
                                   <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">Expected Output</span>
-                                  <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-yellow-400 font-mono text-[13px] overflow-x-auto">
+                                  <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-yellow-400 font-mono text-sm overflow-x-auto">
                                     {problem.examples[activeTestCase].output}
                                   </pre>
                                 </div>
@@ -720,7 +720,7 @@ export default function ProblemPage({ slug, onBack }) {
                                 {output.input && (
                                   <div>
                                     <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">Input</span>
-                                    <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-emerald-400 font-mono text-[13px] overflow-x-auto">
+                                    <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-emerald-400 font-mono text-sm overflow-x-auto">
                                       {output.input}
                                     </pre>
                                   </div>
@@ -729,14 +729,14 @@ export default function ProblemPage({ slug, onBack }) {
                                   <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">
                                     {output.success ? 'Output' : 'Error'}
                                   </span>
-                                  <pre className={`mt-1.5 bg-[#0d1117] rounded-lg p-3 font-mono text-[13px] overflow-x-auto ${output.success ? 'text-gray-300' : 'text-red-400'}`}>
+                                  <pre className={`mt-1.5 bg-[#0d1117] rounded-lg p-3 font-mono text-sm overflow-x-auto ${output.success ? 'text-gray-300' : 'text-red-400'}`}>
                                     {output.output}
                                   </pre>
                                 </div>
                                 {output.expected && (
                                   <div>
                                     <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">Expected</span>
-                                    <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-yellow-400 font-mono text-[13px] overflow-x-auto">
+                                    <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-yellow-400 font-mono text-sm overflow-x-auto">
                                       {output.expected}
                                     </pre>
                                   </div>

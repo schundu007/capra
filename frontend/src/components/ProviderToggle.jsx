@@ -137,7 +137,7 @@ export default function ProviderToggle({ provider, model, onChange, onModelChang
                   onMouseLeave={(e) => { if (m.id !== model) e.currentTarget.style.background = 'transparent'; }}
                 >
                   <div className="font-medium" style={{ color: '#333333' }}>{m.name}</div>
-                  <div className="text-[10px]" style={{ color: '#999999' }}>{m.description}</div>
+                  <div className="text-xs" style={{ color: '#999999' }}>{m.description}</div>
                 </button>
               ))}
             </div>
@@ -220,7 +220,7 @@ export default function ProviderToggle({ provider, model, onChange, onModelChang
                 }}
               >
                 <div className="font-medium" style={{ color: '#333333' }}>{m.name}</div>
-                <div className="text-[10px]" style={{ color: '#999999' }}>{m.description}</div>
+                <div className="text-xs" style={{ color: '#999999' }}>{m.description}</div>
               </button>
             ))}
           </div>

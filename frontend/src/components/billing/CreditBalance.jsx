@@ -59,7 +59,7 @@ export default function CreditBalance({ onUpgrade, compact = false }) {
         <div
           className="text-title"
           style={{
-            fontSize: '32px',
+            fontSize: '2.25rem',
             color: balance > 0 ? 'var(--accent-green)' : 'var(--accent-red)',
           }}
         >

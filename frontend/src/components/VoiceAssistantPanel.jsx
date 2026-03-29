@@ -112,12 +112,12 @@ function SystemDesignAnswer({ text, isStreaming }) {
   }
 
   return (
-    <div className="p-3 space-y-3 text-[11px]">
+    <div className="p-3 space-y-3 text-xs">
       {/* Approach Banner */}
       {sections.approach && (
         <div className="bg-gradient-to-r from-brand-500/20 to-brand-400/5 border border-brand-400/30 rounded-lg p-3">
           <div className="flex items-center gap-2 mb-1">
-            <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-brand-400 text-neutral-900">Approach</span>
+            <span className="px-2 py-0.5 rounded text-xs font-bold uppercase bg-brand-400 text-neutral-900">Approach</span>
           </div>
           <p className="text-neutral-100 leading-relaxed">{sections.approach}</p>
         </div>
@@ -128,7 +128,7 @@ function SystemDesignAnswer({ text, isStreaming }) {
         {/* Functional */}
         {sections.functional.length > 0 && (
           <div className="bg-neutral-800/50 border border-neutral-700/50 rounded-lg p-2">
-            <h3 className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 mb-2">Functional</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">Functional</h3>
             <ul className="space-y-1">
               {sections.functional.map((item, i) => (
                 <li key={i} className="flex items-start gap-1.5 text-neutral-300">
@@ -143,7 +143,7 @@ function SystemDesignAnswer({ text, isStreaming }) {
         {/* Non-Functional */}
         {sections.nonFunctional.length > 0 && (
           <div className="bg-neutral-800/50 border border-neutral-700/50 rounded-lg p-2">
-            <h3 className="text-[10px] font-bold uppercase tracking-wider text-purple-400 mb-2">Non-Functional</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-purple-400 mb-2">Non-Functional</h3>
             <ul className="space-y-1">
               {sections.nonFunctional.map((item, i) => (
                 <li key={i} className="flex items-start gap-1.5 text-neutral-300">
@@ -158,12 +158,12 @@ function SystemDesignAnswer({ text, isStreaming }) {
         {/* Scale Math */}
         {sections.scaleMath.length > 0 && (
           <div className="bg-neutral-800/50 border border-neutral-700/50 rounded-lg p-2">
-            <h3 className="text-[10px] font-bold uppercase tracking-wider text-amber-400 mb-2">Scale Math</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-2">Scale Math</h3>
             <div className="space-y-1">
               {sections.scaleMath.map((item, i) => (
                 <div key={i} className="flex justify-between items-start gap-2">
                   <span className="text-neutral-500 shrink-0">{item.label}</span>
-                  <span className="text-amber-300 text-right font-mono text-[10px]">{item.value}</span>
+                  <span className="text-amber-300 text-right font-mono text-xs">{item.value}</span>
                 </div>
               ))}
             </div>
@@ -176,8 +176,8 @@ function SystemDesignAnswer({ text, isStreaming }) {
         {/* Architecture Diagram */}
         {sections.architecture && (
           <div className="bg-neutral-800/50 border border-neutral-700/50 rounded-lg p-2">
-            <h3 className="text-[10px] font-bold uppercase tracking-wider text-green-400 mb-2">Architecture</h3>
-            <pre className="text-[9px] text-green-300 font-mono whitespace-pre overflow-x-auto leading-tight">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-green-400 mb-2">Architecture</h3>
+            <pre className="text-xs text-green-300 font-mono whitespace-pre overflow-x-auto leading-tight">
               {sections.architecture}
             </pre>
           </div>
@@ -186,7 +186,7 @@ function SystemDesignAnswer({ text, isStreaming }) {
         {/* Layer Design */}
         {sections.layerDesign.length > 0 && (
           <div className="bg-neutral-800/50 border border-neutral-700/50 rounded-lg p-2">
-            <h3 className="text-[10px] font-bold uppercase tracking-wider text-blue-400 mb-2">Layer Design</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-blue-400 mb-2">Layer Design</h3>
             <ol className="space-y-1">
               {sections.layerDesign.map((item, i) => (
                 <li key={i} className="text-neutral-300">
@@ -205,11 +205,11 @@ function SystemDesignAnswer({ text, isStreaming }) {
         {/* Edge Cases */}
         {sections.edgeCases.length > 0 && (
           <div className="bg-neutral-800/50 border border-neutral-700/50 rounded-lg p-2">
-            <h3 className="text-[10px] font-bold uppercase tracking-wider text-rose-400 mb-2">Edge Cases</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-rose-400 mb-2">Edge Cases</h3>
             <div className="space-y-2">
               {sections.edgeCases.map((item, i) => (
                 <div key={i}>
-                  <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-medium bg-rose-500/20 text-rose-400 border border-rose-500/30 mr-2">
+                  <span className="inline-block px-1.5 py-0.5 rounded text-xs font-medium bg-rose-500/20 text-rose-400 border border-rose-500/30 mr-2">
                     {item.name}
                   </span>
                   <span className="text-neutral-400">{item.desc}</span>
@@ -222,7 +222,7 @@ function SystemDesignAnswer({ text, isStreaming }) {
         {/* Trade-offs */}
         {sections.tradeOffs.length > 0 && (
           <div className="bg-neutral-800/50 border border-neutral-700/50 rounded-lg p-2">
-            <h3 className="text-[10px] font-bold uppercase tracking-wider text-orange-400 mb-2">Trade-Offs</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-orange-400 mb-2">Trade-Offs</h3>
             <div className="space-y-2">
               {sections.tradeOffs.map((item, i) => (
                 <div key={i}>
@@ -231,7 +231,7 @@ function SystemDesignAnswer({ text, isStreaming }) {
                     <span className="text-neutral-500">vs.</span>
                     <span className="text-orange-300">{item.optionB}</span>
                   </div>
-                  <p className="text-neutral-500 text-[10px] pl-2 border-l border-orange-500/30">
+                  <p className="text-neutral-500 text-xs pl-2 border-l border-orange-500/30">
                     because: {item.reason}
                   </p>
                 </div>
@@ -676,18 +676,18 @@ export default function VoiceAssistantPanel({ onClose, provider = 'claude', mode
 
           {/* Audio Source Toggle */}
           <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-neutral-800 border border-neutral-700/50">
-            <span className="text-[9px] text-neutral-500 uppercase mr-1">Audio</span>
-            <button onClick={() => !isRecording && setAudioSource('system')} disabled={isRecording} className={`px-2 py-0.5 text-[9px] font-medium rounded ${audioSource === 'system' ? 'bg-brand-400 text-neutral-900' : 'text-neutral-400 hover:text-neutral-200'}`}>
+            <span className="text-xs text-neutral-500 uppercase mr-1">Audio</span>
+            <button onClick={() => !isRecording && setAudioSource('system')} disabled={isRecording} className={`px-2 py-0.5 text-xs font-medium rounded ${audioSource === 'system' ? 'bg-brand-400 text-neutral-900' : 'text-neutral-400 hover:text-neutral-200'}`}>
               Capture
             </button>
-            <button onClick={() => !isRecording && setAudioSource('mic')} disabled={isRecording} className={`px-2 py-0.5 text-[9px] font-medium rounded ${audioSource === 'mic' ? 'bg-brand-400 text-neutral-900' : 'text-neutral-400 hover:text-neutral-200'}`}>
+            <button onClick={() => !isRecording && setAudioSource('mic')} disabled={isRecording} className={`px-2 py-0.5 text-xs font-medium rounded ${audioSource === 'mic' ? 'bg-brand-400 text-neutral-900' : 'text-neutral-400 hover:text-neutral-200'}`}>
               Mic
             </button>
           </div>
 
           {/* Mic Selector */}
           {audioSource === 'mic' && audioDevices.inputs.length > 1 && (
-            <select value={selectedMic} onChange={(e) => setSelectedMic(e.target.value)} disabled={isRecording} className="px-2 py-1 text-[10px] rounded bg-neutral-800 border border-neutral-700/50 text-neutral-300 max-w-[150px]">
+            <select value={selectedMic} onChange={(e) => setSelectedMic(e.target.value)} disabled={isRecording} className="px-2 py-1 text-xs rounded bg-neutral-800 border border-neutral-700/50 text-neutral-300 max-w-[150px]">
               {audioDevices.inputs.map(d => <option key={d.deviceId} value={d.deviceId}>{d.label || 'Mic'}</option>)}
             </select>
           )}
@@ -698,10 +698,10 @@ export default function VoiceAssistantPanel({ onClose, provider = 'claude', mode
           {/* Audio Level */}
           {isRecording && (
             <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-neutral-800">
-              <span className="text-[9px] text-neutral-500">rms</span>
-              <span className="text-[10px] font-mono text-neutral-300 w-12">{audioLevel.toFixed(4)}</span>
-              <span className="text-[9px] text-neutral-500">thr</span>
-              <span className="text-[10px] font-mono text-neutral-300 w-12">{vadThreshold.toFixed(4)}</span>
+              <span className="text-xs text-neutral-500">rms</span>
+              <span className="text-xs font-mono text-neutral-300 w-12">{audioLevel.toFixed(4)}</span>
+              <span className="text-xs text-neutral-500">thr</span>
+              <span className="text-xs font-mono text-neutral-300 w-12">{vadThreshold.toFixed(4)}</span>
             </div>
           )}
 
@@ -730,8 +730,8 @@ export default function VoiceAssistantPanel({ onClose, provider = 'claude', mode
           {/* Status */}
           <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-neutral-800">
             <div className="w-2 h-2 rounded-full" style={{ background: getStatusColor() }} />
-            <span className="text-[10px] text-neutral-400">{status.msg}</span>
-            {isRecording && <span className="text-[10px] font-mono text-rose-400">{formatDuration(recordingDuration)}</span>}
+            <span className="text-xs text-neutral-400">{status.msg}</span>
+            {isRecording && <span className="text-xs font-mono text-rose-400">{formatDuration(recordingDuration)}</span>}
           </div>
 
           <button onClick={onClose} className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800">
@@ -752,7 +752,7 @@ export default function VoiceAssistantPanel({ onClose, provider = 'claude', mode
       {currentQuestion && (
         <div className="px-4 py-3 border-b border-neutral-800 bg-neutral-850">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[9px] font-bold uppercase tracking-wider text-neutral-500">Question</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">Question</span>
           </div>
           <p className="text-sm text-neutral-200">{currentQuestion}</p>
         </div>
@@ -782,7 +782,7 @@ export default function VoiceAssistantPanel({ onClose, provider = 'claude', mode
             const value = type === 'jd' ? jobDescription : type === 'resume' ? resume : prepMaterial;
             const label = type === 'jd' ? 'Job Description' : type === 'resume' ? 'Resume' : 'Prep Notes';
             return (
-              <button key={type} onClick={() => setExpandedContext(expandedContext === type ? null : type)} className={`flex-1 py-1.5 rounded text-[10px] font-medium transition-all ${expandedContext === type ? 'bg-brand-400 text-neutral-900' : value ? 'bg-brand-400/20 text-brand-400 border border-brand-400/30' : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'}`}>
+              <button key={type} onClick={() => setExpandedContext(expandedContext === type ? null : type)} className={`flex-1 py-1.5 rounded text-xs font-medium transition-all ${expandedContext === type ? 'bg-brand-400 text-neutral-900' : value ? 'bg-brand-400/20 text-brand-400 border border-brand-400/30' : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'}`}>
                 {label} {value && '✓'}
               </button>
             );

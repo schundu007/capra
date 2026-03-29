@@ -160,8 +160,8 @@ export default function PrepTab({ isOpen, onClose }) {
         <div className="flex items-center justify-between px-4 py-3" style={{ background: '#1e293b', borderBottom: '1px solid #334155' }}>
           <div className="flex items-center gap-3">
             <div className="w-2 h-2 rounded-full" style={{ background: '#10b981' }} />
-            <span className="text-[13px] font-semibold uppercase tracking-wide" style={{ color: '#ffffff' }}>Coding Platforms</span>
-            <span className="px-2 py-0.5 text-[10px] font-semibold rounded" style={{ background: '#10b981', color: '#ffffff' }}>
+            <span className="text-sm font-semibold uppercase tracking-wide" style={{ color: '#ffffff' }}>Coding Platforms</span>
+            <span className="px-2 py-0.5 text-xs font-semibold rounded" style={{ background: '#10b981', color: '#ffffff' }}>
               {connectedCount} connected
             </span>
           </div>
@@ -180,7 +180,7 @@ export default function PrepTab({ isOpen, onClose }) {
         <div className="flex" style={{ borderBottom: '1px solid #e2e8f0' }}>
           <button
             onClick={() => setActiveTab('coding')}
-            className="flex-1 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide transition-colors"
+            className="flex-1 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide transition-colors"
             style={{
               color: activeTab === 'coding' ? '#10b981' : '#64748b',
               borderBottom: activeTab === 'coding' ? '2px solid #10b981' : '2px solid transparent',
@@ -191,7 +191,7 @@ export default function PrepTab({ isOpen, onClose }) {
           </button>
           <button
             onClick={() => setActiveTab('prep')}
-            className="flex-1 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide transition-colors"
+            className="flex-1 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide transition-colors"
             style={{
               color: activeTab === 'prep' ? '#10b981' : '#64748b',
               borderBottom: activeTab === 'prep' ? '2px solid #10b981' : '2px solid transparent',
@@ -340,7 +340,7 @@ export default function PrepTab({ isOpen, onClose }) {
 
               {/* Fetch Content Section */}
               <div className="p-4 rounded-lg" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
-                <h3 className="text-[11px] font-semibold uppercase tracking-wide mb-3" style={{ color: '#475569' }}>
+                <h3 className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: '#475569' }}>
                   Fetch Problem by URL
                 </h3>
                 <div className="flex gap-2 mb-3">
@@ -389,7 +389,7 @@ export default function PrepTab({ isOpen, onClose }) {
 
         {/* Footer */}
         <div className="px-4 py-3" style={{ background: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
-          <p className="text-[10px] text-center" style={{ color: '#64748b' }}>
+          <p className="text-xs text-center" style={{ color: '#64748b' }}>
             {isElectron
               ? 'Connect to platforms to auto-fetch problems • Sessions persist across restarts'
               : 'Install the browser extension to sync your platform logins and auto-fetch problems'

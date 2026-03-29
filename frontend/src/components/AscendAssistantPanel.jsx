@@ -85,11 +85,11 @@ function renderMarkdown(text) {
 
     return (
       <div key={elementKey++} className="rounded-lg overflow-hidden border border-neutral-600/40">
-        <table className="w-full text-[9px]">
+        <table className="w-full text-xs">
           <thead>
             <tr className="bg-neutral-700/60">
               {table.headers.map((header, i) => (
-                <th key={i} className="px-2 py-1 text-left font-bold text-brand-400 border-b border-neutral-600/40 uppercase text-[8px]">
+                <th key={i} className="px-2 py-1 text-left font-bold text-brand-400 border-b border-neutral-600/40 uppercase text-xs">
                   <span dangerouslySetInnerHTML={{ __html: processInline(header) }} />
                 </th>
               ))}
@@ -124,9 +124,9 @@ function renderMarkdown(text) {
         <div key={elementKey++} className="mb-2 px-3 py-2 rounded-lg bg-gradient-to-r from-brand-500/20 to-brand-400/5 border border-brand-400/40">
           <div className="flex items-center gap-2">
             <span className="text-brand-400 text-xs">💬</span>
-            <span className="text-[10px] font-semibold text-brand-400 uppercase">{card.title}</span>
+            <span className="text-xs font-semibold text-brand-400 uppercase">{card.title}</span>
           </div>
-          <p className="text-[11px] text-neutral-100 mt-1 leading-snug" dangerouslySetInnerHTML={{ __html: processInline(card.content.replace(/\n/g, ' ')) }} />
+          <p className="text-xs text-neutral-100 mt-1 leading-snug" dangerouslySetInnerHTML={{ __html: processInline(card.content.replace(/\n/g, ' ')) }} />
         </div>
       );
       return;
@@ -140,7 +140,7 @@ function renderMarkdown(text) {
       elements.push(
         <div key={elementKey++} className="my-1 rounded-lg overflow-hidden border border-brand-400/30">
           <pre className="p-2 bg-neutral-900/80 overflow-x-auto">
-            <code className="text-[9px] leading-tight text-brand-300 font-mono whitespace-pre">{ascii}</code>
+            <code className="text-xs leading-tight text-brand-300 font-mono whitespace-pre">{ascii}</code>
           </pre>
         </div>
       );
@@ -155,7 +155,7 @@ function renderMarkdown(text) {
       elements.push(
         <div key={elementKey++} className="my-1 rounded-lg overflow-hidden border border-neutral-600/40">
           <pre className="p-2 bg-neutral-800/80 overflow-x-auto">
-            <code className="text-[9px] text-neutral-200 font-mono whitespace-pre">{block.content}</code>
+            <code className="text-xs text-neutral-200 font-mono whitespace-pre">{block.content}</code>
           </pre>
         </div>
       );
@@ -176,7 +176,7 @@ function renderMarkdown(text) {
     // Bullet list - inline
     if (trimmed.match(/^[-*•]\s+/)) {
       elements.push(
-        <span key={elementKey++} className="inline-flex items-center gap-1 text-[10px] text-neutral-200 mr-2">
+        <span key={elementKey++} className="inline-flex items-center gap-1 text-xs text-neutral-200 mr-2">
           <span className="text-brand-400">•</span>
           <span dangerouslySetInnerHTML={{ __html: processInline(trimmed.replace(/^[-*•]\s+/, '')) }} />
         </span>
@@ -186,16 +186,16 @@ function renderMarkdown(text) {
 
     // Headers - minimal
     if (trimmed.startsWith('### ')) {
-      elements.push(<h4 key={elementKey++} className="text-[10px] font-bold mt-2 mb-0.5 text-brand-400">{trimmed.slice(4)}</h4>);
+      elements.push(<h4 key={elementKey++} className="text-xs font-bold mt-2 mb-0.5 text-brand-400">{trimmed.slice(4)}</h4>);
       return;
     }
     if (trimmed.startsWith('## ')) {
-      elements.push(<h3 key={elementKey++} className="text-[11px] font-bold mt-2 mb-0.5 text-brand-300">{trimmed.slice(3)}</h3>);
+      elements.push(<h3 key={elementKey++} className="text-xs font-bold mt-2 mb-0.5 text-brand-300">{trimmed.slice(3)}</h3>);
       return;
     }
 
     // Regular text
-    elements.push(<p key={elementKey++} className="text-[10px] text-neutral-200 mb-0.5" dangerouslySetInnerHTML={{ __html: processInline(trimmed) }} />);
+    elements.push(<p key={elementKey++} className="text-xs text-neutral-200 mb-0.5" dangerouslySetInnerHTML={{ __html: processInline(trimmed) }} />);
   });
 
   flushTables();
@@ -1270,7 +1270,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
             {conversationHistory.length > 0 && (
               <button
                 onClick={clearHistory}
-                className="text-[10px] px-2 py-1 rounded bg-error-500/10 text-error-400 hover:bg-error-500/20 transition-colors"
+                className="text-xs px-2 py-1 rounded bg-error-500/10 text-error-400 hover:bg-error-500/20 transition-colors"
               >
                 Clear All
               </button>
@@ -1283,22 +1283,22 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
               {[...conversationHistory].reverse().map((entry) => (
                 <div key={entry.id} className="bg-neutral-750 rounded-xl border border-neutral-700/50 overflow-hidden animate-fadeIn">
                   <div className="flex items-center justify-between py-2 px-3 border-b border-neutral-700/50 bg-neutral-700/30">
-                    <span className="text-[10px] font-medium text-neutral-400">
+                    <span className="text-xs font-medium text-neutral-400">
                       {new Date(entry.timestamp).toLocaleString()}
                     </span>
                   </div>
                   <div className="py-3 px-3">
                     <div className="mb-3">
                       <div className="flex items-center gap-1.5 mb-1">
-                        <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold bg-info-500/10 text-info-400">Q</span>
-                        <span className="text-[10px] font-semibold uppercase text-info-400">Question</span>
+                        <span className="w-5 h-5 rounded flex items-center justify-center text-xs font-bold bg-info-500/10 text-info-400">Q</span>
+                        <span className="text-xs font-semibold uppercase text-info-400">Question</span>
                       </div>
                       <p className="text-xs pl-6 text-neutral-200">{entry.question}</p>
                     </div>
                     <div>
                       <div className="flex items-center gap-1.5 mb-1">
-                        <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold bg-brand-400/10 text-brand-400">A</span>
-                        <span className="text-[10px] font-semibold uppercase text-brand-400">Answer</span>
+                        <span className="w-5 h-5 rounded flex items-center justify-center text-xs font-bold bg-brand-400/10 text-brand-400">A</span>
+                        <span className="text-xs font-semibold uppercase text-brand-400">Answer</span>
                       </div>
                       <div className="text-xs pl-6 text-neutral-200">{renderMarkdown(entry.answer)}</div>
                     </div>
@@ -1370,7 +1370,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
           <div className="flex gap-1">
             <button
               onClick={() => setExpandedContext(expandedContext === 'jd' ? null : 'jd')}
-              className={`flex-1 py-2 rounded-lg text-[10px] font-medium transition-all flex items-center justify-center gap-1 ${
+              className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1 ${
                 expandedContext === 'jd' ? 'bg-info-500 text-white' : jobDescription ? 'bg-info-500/20 text-info-400 border border-info-500/50' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
               }`}
             >
@@ -1378,7 +1378,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
             </button>
             <button
               onClick={() => setExpandedContext(expandedContext === 'resume' ? null : 'resume')}
-              className={`flex-1 py-2 rounded-lg text-[10px] font-medium transition-all flex items-center justify-center gap-1 ${
+              className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1 ${
                 expandedContext === 'resume' ? 'bg-info-500 text-white' : resume ? 'bg-info-500/20 text-info-400 border border-info-500/50' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
               }`}
             >
@@ -1386,7 +1386,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
             </button>
             <button
               onClick={() => setExpandedContext(expandedContext === 'prep' ? null : 'prep')}
-              className={`flex-1 py-2 rounded-lg text-[10px] font-medium transition-all flex items-center justify-center gap-1 ${
+              className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1 ${
                 expandedContext === 'prep' ? 'bg-info-500 text-white' : prepMaterial ? 'bg-info-500/20 text-info-400 border border-info-500/50' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
               }`}
             >
@@ -1404,7 +1404,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
                   else setPrepMaterial(e.target.value);
                 }}
                 placeholder={expandedContext === 'jd' ? 'Paste JD...' : expandedContext === 'resume' ? 'Paste resume...' : 'Prep notes...'}
-                className="flex-1 h-20 px-2 py-1.5 text-[10px] bg-neutral-700 border border-neutral-600 rounded text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-info-500 resize-none"
+                className="flex-1 h-20 px-2 py-1.5 text-xs bg-neutral-700 border border-neutral-600 rounded text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-info-500 resize-none"
               />
               <div className="flex flex-col gap-1">
                 <button
@@ -1448,7 +1448,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
             <button
               onClick={() => setAudioSource('system')}
               disabled={isRecording}
-              className={`flex-1 py-2 rounded-lg text-[10px] font-medium transition-all disabled:opacity-50 ${
+              className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-50 ${
                 audioSource === 'system'
                   ? 'bg-brand-400 text-neutral-900'
                   : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
@@ -1459,7 +1459,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
             <button
               onClick={() => setAudioSource('mic')}
               disabled={isRecording}
-              className={`flex-1 py-2 rounded-lg text-[10px] font-medium transition-all disabled:opacity-50 ${
+              className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-50 ${
                 audioSource === 'mic'
                   ? 'bg-brand-400 text-neutral-900'
                   : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
@@ -1501,13 +1501,13 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
 
           {/* Transcription Provider Toggle */}
           <div className="flex items-center gap-2">
-            <span className="text-[9px] text-neutral-500 shrink-0">STT:</span>
+            <span className="text-xs text-neutral-500 shrink-0">STT:</span>
             <div className="flex rounded-lg overflow-hidden border border-neutral-600/50 flex-1">
               <button
                 onClick={() => setTranscriptionProvider('openai')}
                 disabled={isRecording}
                 title="OpenAI Whisper API"
-                className={`flex-1 py-1 text-[9px] font-medium transition-colors disabled:opacity-50 ${
+                className={`flex-1 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
                   transcriptionProvider === 'openai'
                     ? 'bg-brand-400 text-neutral-900'
                     : 'bg-neutral-700 text-neutral-400 hover:bg-neutral-600'
@@ -1519,7 +1519,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
                 onClick={() => setTranscriptionProvider('deepgram')}
                 disabled={isRecording}
                 title="Deepgram Nova-2 API"
-                className={`flex-1 py-1 text-[9px] font-medium transition-colors disabled:opacity-50 ${
+                className={`flex-1 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
                   transcriptionProvider === 'deepgram'
                     ? 'bg-brand-400 text-neutral-900'
                     : 'bg-neutral-700 text-neutral-400 hover:bg-neutral-600'
@@ -1555,12 +1555,12 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
                   <span className="text-xs font-medium text-error-400">Recording {audioSource === 'system' ? 'Interviewer' : 'Mic'}...</span>
                   <span className="text-xs font-mono text-error-300">{formatDuration(recordingDuration)}</span>
                 </div>
-                {isSpeaking && <span className="text-[10px] text-brand-400 bg-brand-400/10 px-2 py-0.5 rounded">Speaking</span>}
+                {isSpeaking && <span className="text-xs text-brand-400 bg-brand-400/10 px-2 py-0.5 rounded">Speaking</span>}
               </div>
 
               {/* Audio Level Indicator */}
               <div className="flex items-center gap-1 mb-2">
-                <span className="text-[9px] text-neutral-500">Level:</span>
+                <span className="text-xs text-neutral-500">Level:</span>
                 <div className="flex-1 h-2 bg-neutral-700 rounded-full overflow-hidden">
                   <div
                     className="h-full transition-all duration-75 rounded-full"
@@ -1627,11 +1627,11 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
         <div className="w-[40%] shrink-0 border-r border-neutral-700/50">
           <div className="h-full flex flex-col">
             <div className="px-3 py-1 flex items-center justify-between border-b border-neutral-700/50 bg-neutral-800">
-              <span className="text-[10px] font-medium uppercase tracking-wider text-neutral-400">
+              <span className="text-xs font-medium uppercase tracking-wider text-neutral-400">
                 Questions
               </span>
               {questions.length > 0 && (
-                <span className="text-[10px] text-neutral-500">
+                <span className="text-xs text-neutral-500">
                   {questions.length}
                 </span>
               )}
@@ -1644,7 +1644,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
                     const actualNum = idx + 1;
                     return (
                       <div key={actualNum} className="px-2 py-1 rounded bg-neutral-700/30 border-l-2 border-info-400 animate-fadeIn">
-                        <p className="text-[11px] leading-snug text-neutral-200">
+                        <p className="text-xs leading-snug text-neutral-200">
                           <span className="text-info-400 font-medium mr-1">Q{actualNum}.</span>
                           {q}
                         </p>
@@ -1653,7 +1653,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
                   })}
                 </div>
               ) : (
-                <div className="text-[10px] italic text-neutral-500">
+                <div className="text-xs italic text-neutral-500">
                   {isRecording ? (isSpeaking ? 'Listening...' : 'Waiting...') : 'Click Record'}
                 </div>
               )}
@@ -1678,7 +1678,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
               {isGenerating && (
                 <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-brand-400/10">
                   <div className="w-2 h-2 border-2 border-brand-400 border-t-transparent rounded-full animate-spin" />
-                  <span className="text-[10px] text-brand-400">Thinking...</span>
+                  <span className="text-xs text-brand-400">Thinking...</span>
                 </div>
               )}
             </div>
@@ -1699,7 +1699,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
                   <p className="text-xs text-neutral-400 mb-1">
                     {questions.length > 0 ? 'Processing...' : 'Ready to help'}
                   </p>
-                  <p className="text-[10px] text-neutral-500">
+                  <p className="text-xs text-neutral-500">
                     {questions.length > 0 ? 'Generating expert answer...' : 'Click Record and ask a question'}
                   </p>
                 </div>

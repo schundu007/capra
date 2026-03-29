@@ -64,7 +64,7 @@ const badgeVariants = cva(
         ],
       },
       size: {
-        xs: 'h-4 px-1.5 text-[10px]',
+        xs: 'h-4 px-1.5 text-xs',
         sm: 'h-5 px-2 text-xs',
         md: 'h-6 px-2.5 text-xs',
         lg: 'h-7 px-3 text-sm',

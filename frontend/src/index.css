@@ -211,7 +211,7 @@ html {
   font-family: var(--font-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-size: 15px;
+  font-size: 1rem;
   line-height: 1.5;
   letter-spacing: -0.01em;
 }
@@ -242,7 +242,7 @@ body {
 }
 
 .text-heading {
-  font-size: 16px;
+  font-size: 1.125rem;
   font-weight: 600;
   line-height: 1.3;
   letter-spacing: -0.01em;
@@ -250,14 +250,14 @@ body {
 }
 
 .text-body {
-  font-size: 14px;
+  font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
   color: var(--text-secondary);
 }
 
 .text-caption {
-  font-size: 12px;
+  font-size: 0.875rem;
   font-weight: 500;
   line-height: 1.4;
   color: var(--text-muted);
@@ -266,7 +266,7 @@ body {
 }
 
 .text-tiny {
-  font-size: 11px;
+  font-size: 0.875rem;
   font-weight: 500;
   line-height: 1.3;
   color: var(--text-caption);
@@ -275,7 +275,7 @@ body {
 /* Code Typography */
 code, pre, kbd {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 1rem;
   line-height: 1.6;
 }
 
@@ -297,7 +297,7 @@ code, pre, kbd {
 }
 
 .premium-sidebar-logo {
-  font-size: 24px;
+  font-size: 1.875rem;
   font-weight: 800;
   color: var(--text-primary);
   letter-spacing: -0.02em;
@@ -329,7 +329,7 @@ code, pre, kbd {
 }
 
 .premium-section-title {
-  font-size: 11px;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-caption);
   text-transform: uppercase;
@@ -371,7 +371,7 @@ code, pre, kbd {
 }
 
 .premium-item-text {
-  font-size: 14px;
+  font-size: 1rem;
   font-weight: 500;
 }
 
@@ -407,7 +407,7 @@ code, pre, kbd {
 }
 
 .premium-header-title {
-  font-size: 16px;
+  font-size: 1.125rem;
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -425,7 +425,7 @@ code, pre, kbd {
 
 .premium-tab {
   padding: 8px 16px;
-  font-size: 13px;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--text-muted);
   background: transparent;
@@ -464,7 +464,7 @@ code, pre, kbd {
   gap: 8px;
   padding: 0 20px;
   height: 40px;
-  font-size: 14px;
+  font-size: 1rem;
   font-weight: 600;
   border-radius: var(--radius-md);
   border: none;
@@ -536,7 +536,7 @@ code, pre, kbd {
   justify-content: center;
   gap: 6px;
   padding: 8px 16px;
-  font-size: 12px;
+  font-size: 0.875rem;
   font-weight: 600;
   background: var(--gradient-primary);
   color: white;
@@ -584,7 +584,7 @@ code, pre, kbd {
   justify-content: center;
   gap: 6px;
   padding: 8px 16px;
-  font-size: 12px;
+  font-size: 0.875rem;
   font-weight: 500;
   background: #ffffff;
   color: #374151;
@@ -612,7 +612,7 @@ code, pre, kbd {
   justify-content: center;
   gap: 6px;
   padding: 6px 12px;
-  font-size: 12px;
+  font-size: 0.875rem;
   font-weight: 500;
   background: transparent;
   color: #6b7280;
@@ -638,7 +638,7 @@ code, pre, kbd {
   justify-content: center;
   gap: 6px;
   padding: 8px 16px;
-  font-size: 12px;
+  font-size: 0.875rem;
   font-weight: 600;
   background: var(--gradient-primary);
   color: white;
@@ -861,14 +861,14 @@ code, pre, kbd {
 }
 
 .upload-card-title {
-  font-size: 14px;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 4px;
 }
 
 .upload-card-subtitle {
-  font-size: 12px;
+  font-size: 0.875rem;
   color: var(--text-muted);
 }
 
@@ -878,7 +878,7 @@ code, pre, kbd {
 
 .upload-card-clear {
   margin-top: 12px;
-  font-size: 11px;
+  font-size: 0.875rem;
   font-weight: 500;
   color: var(--text-caption);
   background: var(--glass-bg);
@@ -901,7 +901,7 @@ code, pre, kbd {
 .input-premium {
   width: 100%;
   padding: 12px 16px;
-  font-size: 14px;
+  font-size: 1rem;
   font-weight: 500;
   color: var(--text-primary);
   background: var(--color-surface);
@@ -933,7 +933,7 @@ code, pre, kbd {
   align-items: center;
   gap: 4px;
   padding: 4px 10px;
-  font-size: 11px;
+  font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   border-radius: var(--radius-full);
@@ -1130,7 +1130,7 @@ code, pre, kbd {
 }
 
 .code-block-lang {
-  font-size: 11px;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-caption);
   text-transform: uppercase;
@@ -1141,7 +1141,7 @@ code, pre, kbd {
   padding: 16px;
   overflow-x: auto;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 1rem;
   line-height: 1.6;
   color: var(--text-primary);
 }
@@ -1236,7 +1236,7 @@ code, pre, kbd {
 }
 
 .modal-title {
-  font-size: 14px;
+  font-size: 1rem;
   font-weight: 600;
   color: #ffffff;
 }
@@ -1374,7 +1374,7 @@ code, pre, kbd {
 }
 
 .sidebar-logo-text {
-  font-size: 17px;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--nav-text);
   letter-spacing: -0.02em;
@@ -1421,7 +1421,7 @@ code, pre, kbd {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--nav-text-muted);
   text-transform: uppercase;
@@ -1440,7 +1440,7 @@ code, pre, kbd {
 
 .sidebar-section-badge {
   padding: 2px 8px;
-  font-size: 10px;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--nav-text-muted);
   background: var(--nav-hover);
@@ -1454,7 +1454,7 @@ code, pre, kbd {
   gap: 12px;
   padding: 10px 16px;
   margin: 2px 8px;
-  font-size: 13px;
+  font-size: 1rem;
   font-weight: 500;
   color: var(--nav-text-secondary);
   background: transparent;
@@ -1501,7 +1501,7 @@ code, pre, kbd {
 
 .sidebar-item-badge {
   padding: 2px 8px;
-  font-size: 10px;
+  font-size: 0.875rem;
   font-weight: 600;
   border-radius: 10px;
   background: rgba(16, 185, 129, 0.15);
@@ -1542,7 +1542,7 @@ code, pre, kbd {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 1rem;
   font-weight: 700;
   position: relative;
   box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
@@ -1566,7 +1566,7 @@ code, pre, kbd {
 }
 
 .sidebar-user-name {
-  font-size: 13px;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--nav-text);
   white-space: nowrap;
@@ -1706,7 +1706,7 @@ code, pre, kbd {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 15px;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
   cursor: pointer;
@@ -1753,7 +1753,7 @@ code, pre, kbd {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 12px;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-caption);
   text-transform: uppercase;
@@ -1782,7 +1782,7 @@ code, pre, kbd {
   background: transparent;
   width: 100%;
   text-align: left;
-  font-size: 13px;
+  font-size: 1rem;
 }
 
 .slack-item:hover {
@@ -1831,7 +1831,7 @@ code, pre, kbd {
 
 .slack-badge {
   padding: 2px 6px;
-  font-size: 11px;
+  font-size: 0.875rem;
   font-weight: 500;
   color: var(--text-muted);
   background: var(--sidebar-surface);
@@ -1855,7 +1855,7 @@ code, pre, kbd {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 1rem;
   font-weight: 700;
   position: relative;
 }
@@ -1872,7 +1872,7 @@ code, pre, kbd {
 }
 
 .slack-user-name {
-  font-size: 13px;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -1995,7 +1995,7 @@ code, pre, kbd {
   align-items: center;
   gap: 8px;
   padding: 10px 18px;
-  font-size: 13px;
+  font-size: 1rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   color: #6b7280;
@@ -2090,7 +2090,7 @@ code, pre, kbd {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 1rem;
   font-weight: 500;
   border: none;
   border-radius: var(--radius-sm);
@@ -2189,7 +2189,7 @@ code, pre, kbd {
 
 /* Panel Title - Consistent across all */
 .panel-title {
-  font-size: 11px;
+  font-size: 0.875rem;
   font-weight: 600;
   color: #000000;
   text-transform: uppercase;
@@ -2255,7 +2255,7 @@ code, pre, kbd {
 
 /* Panel Badge - Subtle, muted */
 .panel-badge {
-  font-size: 10px;
+  font-size: 0.875rem;
   padding: 2px 6px;
   font-weight: 500;
   border-radius: var(--radius-xs);
@@ -2295,7 +2295,7 @@ code, pre, kbd {
 }
 
 .panel-footer-text {
-  font-size: 11px;
+  font-size: 0.875rem;
   color: var(--text-dark-muted);
 }
 
@@ -2321,7 +2321,7 @@ code, pre, kbd {
 }
 
 .nav-sidebar-title {
-  font-size: 16px;
+  font-size: 1.125rem;
   font-weight: 700;
   color: var(--text-dark);
 }
@@ -2344,7 +2344,7 @@ code, pre, kbd {
   gap: 10px;
   padding: 10px 16px;
   margin: 2px 8px;
-  font-size: 14px;
+  font-size: 1rem;
   font-weight: 500;
   color: var(--text-dark-secondary);
   background: transparent;
@@ -2390,7 +2390,7 @@ code, pre, kbd {
 
 .nav-item-badge {
   margin-left: auto;
-  font-size: 11px;
+  font-size: 0.875rem;
   padding: 2px 6px;
   font-weight: 600;
   border-radius: 4px;
@@ -2410,7 +2410,7 @@ code, pre, kbd {
 
 .nav-section-title {
   padding: 8px 16px;
-  font-size: 11px;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-dark-muted);
   text-transform: uppercase;
@@ -2476,13 +2476,13 @@ code, pre, kbd {
 }
 
 .upload-card-light .card-title {
-  font-size: 13px;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--text-dark);
 }
 
 .upload-card-light .card-subtitle {
-  font-size: 11px;
+  font-size: 0.875rem;
   color: var(--text-dark-muted);
   margin-top: 2px;
 }
@@ -2588,7 +2588,7 @@ code, pre, kbd {
   color: #ffffff;
   border: none;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -2619,7 +2619,7 @@ code, pre, kbd {
   color: #ffffff;
   border: none;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -2670,7 +2670,7 @@ code, pre, kbd {
 
 .coderpad-editor-tab {
   padding: 6px 12px;
-  font-size: 12px;
+  font-size: 0.875rem;
   font-weight: 500;
   color: #808080;
   background: transparent;
@@ -2724,7 +2724,7 @@ code, pre, kbd {
   justify-content: center;
   gap: 6px;
   padding: 8px 0;
-  font-size: 12px;
+  font-size: 0.875rem;
   font-weight: 500;
   color: #6b7280;
   background: transparent;
@@ -2761,14 +2761,14 @@ code, pre, kbd {
 }
 
 .coderpad-instructions-title {
-  font-size: 16px;
+  font-size: 1.125rem;
   font-weight: 600;
   color: #111827;
   margin-bottom: 12px;
 }
 
 .coderpad-instructions-text {
-  font-size: 14px;
+  font-size: 1rem;
   line-height: 1.6;
   color: #374151;
   white-space: pre-wrap;
@@ -2794,7 +2794,7 @@ code, pre, kbd {
 }
 
 .coderpad-output-title {
-  font-size: 11px;
+  font-size: 0.875rem;
   font-weight: 600;
   color: #6b7280;
   text-transform: uppercase;
@@ -2806,7 +2806,7 @@ code, pre, kbd {
   background: #111827;
   border-radius: 6px;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 0.875rem;
   line-height: 1.5;
   color: #e4e4e7;
   white-space: pre-wrap;
@@ -2852,7 +2852,7 @@ code, pre, kbd {
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
-  font-size: 11px;
+  font-size: 0.875rem;
   font-weight: 500;
   color: #9ca3af;
   background: transparent;
@@ -2907,7 +2907,7 @@ code, pre, kbd {
   gap: 8px;
   width: 100%;
   padding: 8px 12px;
-  font-size: 13px;
+  font-size: 1rem;
   color: #c0c0c0;
   background: transparent;
   border: none;
@@ -2931,7 +2931,7 @@ code, pre, kbd {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: 0.875rem;
   color: #6b7280;
 }
 
@@ -2974,14 +2974,14 @@ code, pre, kbd {
 }
 
 .coderpad-empty-title {
-  font-size: 14px;
+  font-size: 1rem;
   font-weight: 500;
   color: #374151;
   margin-bottom: 4px;
 }
 
 .coderpad-empty-text {
-  font-size: 12px;
+  font-size: 0.875rem;
   color: #6b7280;
 }
 
@@ -3062,7 +3062,7 @@ code, pre, kbd {
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   padding: 10px 14px;
-  font-size: 14px;
+  font-size: 1rem;
   transition: all 0.15s ease;
 }
 
@@ -3083,7 +3083,7 @@ code, pre, kbd {
 
 .tab-modern {
   padding: 6px 14px;
-  font-size: 12px;
+  font-size: 0.875rem;
   font-weight: 500;
   color: #6b7280;
   background: transparent;
@@ -3108,7 +3108,7 @@ code, pre, kbd {
   display: inline-flex;
   align-items: center;
   padding: 4px 10px;
-  font-size: 11px;
+  font-size: 0.875rem;
   font-weight: 600;
   background: #f3f4f6;
   color: #4b5563;
@@ -3136,7 +3136,7 @@ code, pre, kbd {
   padding: 8px 12px;
   margin: 2px 8px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 1rem;
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--nav-text-secondary);
@@ -3244,7 +3244,7 @@ code, pre, kbd {
   align-items: center;
   gap: 4px;
   padding: 3px 8px;
-  font-size: 10px;
+  font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -3271,14 +3271,14 @@ code, pre, kbd {
 }
 
 .prep-header-title {
-  font-size: 24px;
+  font-size: 1.875rem;
   font-weight: 700;
   color: var(--nav-text);
   letter-spacing: -0.02em;
 }
 
 .prep-header-subtitle {
-  font-size: 13px;
+  font-size: 1rem;
   color: var(--nav-text-muted);
   margin-top: 4px;
 }
@@ -3305,13 +3305,13 @@ code, pre, kbd {
 }
 
 .prep-company-name {
-  font-size: 15px;
+  font-size: 1rem;
   font-weight: 600;
   color: #111827;
 }
 
 .prep-company-meta {
-  font-size: 12px;
+  font-size: 0.875rem;
   color: #9ca3af;
   margin-top: 2px;
 }
@@ -3350,7 +3350,7 @@ code, pre, kbd {
   gap: 10px;
   width: 100%;
   padding: 14px 20px;
-  font-size: 14px;
+  font-size: 1rem;
   font-weight: 600;
   color: #ffffff;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -3415,7 +3415,7 @@ code, pre, kbd {
 }
 
 .prep-content-card-title {
-  font-size: 16px;
+  font-size: 1.125rem;
   font-weight: 600;
   color: #111827;
   letter-spacing: -0.01em;
@@ -3425,7 +3425,7 @@ code, pre, kbd {
   display: inline-flex;
   align-items: center;
   padding: 4px 10px;
-  font-size: 11px;
+  font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -3481,7 +3481,7 @@ code, pre, kbd {
 }
 
 .prep-question-text {
-  font-size: 15px;
+  font-size: 1rem;
   font-weight: 600;
   color: #111827;
   line-height: 1.5;
@@ -3492,7 +3492,7 @@ code, pre, kbd {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -3501,7 +3501,7 @@ code, pre, kbd {
 }
 
 .prep-answer-text {
-  font-size: 14px;
+  font-size: 1rem;
   color: #4b5563;
   line-height: 1.7;
 }
@@ -3520,7 +3520,7 @@ code, pre, kbd {
   align-items: center;
   gap: 8px;
   padding: 4px 12px;
-  font-size: 11px;
+  font-size: 0.875rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -3554,7 +3554,7 @@ code, pre, kbd {
   align-items: center;
   gap: 12px;
   margin: 16px 0;
-  font-size: 11px;
+  font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -3575,7 +3575,7 @@ code, pre, kbd {
   align-items: center;
   gap: 4px;
   padding: 4px 10px;
-  font-size: 10px;
+  font-size: 0.875rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -3603,7 +3603,7 @@ code, pre, kbd {
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
-  font-size: 13px;
+  font-size: 1rem;
   font-weight: 600;
   color: #374151;
   background: #ffffff;
@@ -3647,14 +3647,14 @@ code, pre, kbd {
 }
 
 .prep-empty-state-title {
-  font-size: 18px;
+  font-size: 1.25rem;
   font-weight: 600;
   color: #111827;
   margin-bottom: 8px;
 }
 
 .prep-empty-state-text {
-  font-size: 14px;
+  font-size: 1rem;
   color: #6b7280;
   max-width: 320px;
   line-height: 1.6;
@@ -3679,7 +3679,7 @@ code, pre, kbd {
 }
 
 .prep-code-lang {
-  font-size: 11px;
+  font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -3691,7 +3691,7 @@ code, pre, kbd {
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
-  font-size: 11px;
+  font-size: 0.875rem;
   font-weight: 500;
   color: #94a3b8;
   background: transparent;
@@ -3710,7 +3710,7 @@ code, pre, kbd {
 .prep-code-content {
   padding: 16px;
   font-family: 'Source Code Pro', 'SF Mono', 'Menlo', monospace;
-  font-size: 13px;
+  font-size: 1rem;
   line-height: 1.6;
   color: #e2e8f0;
   overflow-x: auto;
@@ -3748,11 +3748,11 @@ code, pre, kbd {
   justify-content: center;
   background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 1rem;
 }
 
 .prep-tech-name {
-  font-size: 13px;
+  font-size: 1rem;
   font-weight: 600;
   color: #111827;
 }
@@ -3761,18 +3761,18 @@ code, pre, kbd {
 /* Double font sizes on mobile/touch devices for readability */
 @media (max-width: 768px) {
   html {
-    font-size: 24px; /* Base 20px instead of 16px = 125% increase */
+    font-size: 1.875rem; /* Base 20px instead of 16px = 125% increase */
   }
   
   /* Ensure inputs and buttons are touch-friendly */
   input, textarea, select, button {
-    font-size: 16px !important; /* Prevents iOS zoom on focus */
+    font-size: 1.125rem !important; /* Prevents iOS zoom on focus */
     min-height: 44px;
   }
 }
 
 @media (max-width: 480px) {
   html {
-    font-size: 28px; /* Even larger on small phones */
+    font-size: 1.75rem; /* Even larger on small phones */
   }
 }

@@ -189,7 +189,7 @@ export default function App() {
   const [editorSettings, setEditorSettings] = useLocalStorage(STORAGE_KEYS.editorSettings, {
     theme: 'dark',
     keyBindings: 'standard',
-    fontSize: 12,
+    fontSize: '0.875rem',
     tabSpacing: 4,
     intelliSense: true,
     autoCloseBrackets: true,
@@ -1286,7 +1286,7 @@ function Footer({ isLoading, ascendMode }) {
           </span>
         </span>
       </div>
-      <div className="flex items-center gap-5 font-mono text-[11px] text-neutral-500">
+      <div className="flex items-center gap-5 font-mono text-xs text-neutral-500">
         {[
           { key: '^1', label: ascendMode === 'system-design' ? 'design' : 'code' },
           { key: '^2', label: 'run' },
@@ -1294,7 +1294,7 @@ function Footer({ isLoading, ascendMode }) {
           { key: 'Esc', label: 'clear' },
         ].map(({ key, label }) => (
           <span key={key} className="flex items-center gap-1.5">
-            <kbd className="px-2 py-1 rounded-md text-[10px] font-semibold bg-neutral-700 border border-neutral-600 text-neutral-300">
+            <kbd className="px-2 py-1 rounded-md text-xs font-semibold bg-neutral-700 border border-neutral-600 text-neutral-300">
               {key}
             </kbd>
             <span className="text-neutral-400">{label}</span>
@@ -1352,7 +1352,7 @@ function CodingLayout({
                     <button
                       onClick={onSavedDesignsClick}
                       className={`
-                        flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-medium rounded-lg transition-all duration-200
+                        flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium rounded-lg transition-all duration-200
                         ${savedDesignsCount > 0
                           ? 'bg-brand-400/10 text-brand-400 border border-brand-400/30'
                           : 'bg-neutral-700 text-neutral-400 hover:text-neutral-300'

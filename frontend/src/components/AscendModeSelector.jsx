@@ -123,7 +123,7 @@ export default function AscendModeSelector({
           <button
             type="button"
             onClick={() => onDetailLevelChange('basic')}
-            className="px-3 py-1 text-[10px] font-semibold transition-all rounded-full"
+            className="px-3 py-1 text-xs font-semibold transition-all rounded-full"
             style={{
               background: designDetailLevel === 'basic' ? '#10b981' : 'transparent',
               color: designDetailLevel === 'basic' ? '#ffffff' : '#666666',
@@ -136,7 +136,7 @@ export default function AscendModeSelector({
           <button
             type="button"
             onClick={() => onDetailLevelChange('full')}
-            className="px-3 py-1 text-[10px] font-semibold transition-all rounded-full"
+            className="px-3 py-1 text-xs font-semibold transition-all rounded-full"
             style={{
               background: designDetailLevel === 'full' ? '#10b981' : 'transparent',
               color: designDetailLevel === 'full' ? '#ffffff' : '#666666',
@@ -152,7 +152,7 @@ export default function AscendModeSelector({
         <button
           type="button"
           onClick={() => onAutoGenerateEraserChange(!autoGenerateEraser)}
-          className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all"
+          className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-all"
           style={{
             background: autoGenerateEraser ? '#8b5cf6' : 'transparent',
             color: autoGenerateEraser ? '#ffffff' : '#8b5cf6',

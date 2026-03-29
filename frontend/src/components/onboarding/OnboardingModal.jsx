@@ -216,7 +216,7 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
                 border: '1px solid rgba(6, 182, 212, 0.3)'
               }}
             >
-              <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded-full text-[8px] font-bold" style={{ background: '#10b981', color: 'white' }}>POPULAR</div>
+              <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded-full text-xs font-bold" style={{ background: '#10b981', color: 'white' }}>POPULAR</div>
               <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>$300</div>
               <div className="text-sm font-medium" style={{ color: 'var(--accent-teal-light)' }}>Quarterly Pro</div>
               <div className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>10 credits/qtr</div>

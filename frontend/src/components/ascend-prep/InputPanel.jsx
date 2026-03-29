@@ -174,7 +174,7 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full" style={{ background: '#10b981' }} />
           <span style={{
-            fontSize: '12px',
+            fontSize: '0.875rem',
             fontWeight: 600,
             color: '#666666',
             textTransform: 'uppercase',
@@ -185,7 +185,7 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
         </div>
         {hasInputs && (
           <span style={{
-            fontSize: '11px',
+            fontSize: '0.875rem',
             padding: '2px 8px',
             background: '#dcfce7',
             color: '#16a34a',
@@ -241,7 +241,7 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
                       className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin mb-2"
                       style={{ borderColor: '#10b981', borderTopColor: 'transparent' }}
                     />
-                    <span style={{ fontSize: '12px', color: '#10b981' }}>Processing...</span>
+                    <span style={{ fontSize: '0.875rem', color: '#10b981' }}>Processing...</span>
                   </>
                 ) : hasContent ? (
                   <>
@@ -251,8 +251,8 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
                     >
                       {ICONS.check}
                     </div>
-                    <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--content-text)' }}>{field.label}</span>
-                    <span style={{ fontSize: '11px', color: '#16a34a', marginTop: '2px' }}>{wordCount.toLocaleString()} words</span>
+                    <span style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--content-text)' }}>{field.label}</span>
+                    <span style={{ fontSize: '0.875rem', color: '#16a34a', marginTop: '2px' }}>{wordCount.toLocaleString()} words</span>
                     <button
                       className="mt-2 px-3 py-1 rounded text-xs transition-all hover:bg-white/50"
                       style={{ background: 'rgba(255,255,255,0.5)', color: '#666666' }}
@@ -269,11 +269,11 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
                     >
                       {ICONS[field.icon]}
                     </div>
-                    <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--content-text)' }}>
+                    <span style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--content-text)' }}>
                       {field.label}
                       {field.required && <span style={{ color: '#ef4444', marginLeft: '2px' }}>*</span>}
                     </span>
-                    <span style={{ fontSize: '11px', color: '#888888', marginTop: '2px' }}>Drop or click</span>
+                    <span style={{ fontSize: '0.875rem', color: '#888888', marginTop: '2px' }}>Drop or click</span>
                   </>
                 )}
                 <input
@@ -306,11 +306,11 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
             onDrop={handleDocDrop}
           >
             <div className="flex items-center justify-between mb-2">
-              <span style={{ fontSize: '11px', fontWeight: 600, color: '#666666', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#666666', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                 Study Materials
               </span>
               {inputs.documentation?.length > 0 && (
-                <span style={{ fontSize: '11px', color: '#888888' }}>
+                <span style={{ fontSize: '0.875rem', color: '#888888' }}>
                   {inputs.documentation.length} files
                 </span>
               )}
@@ -322,7 +322,7 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
                   className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin mr-2"
                   style={{ borderColor: '#10b981', borderTopColor: 'transparent' }}
                 />
-                <span style={{ fontSize: '12px', color: '#10b981' }}>Processing...</span>
+                <span style={{ fontSize: '0.875rem', color: '#10b981' }}>Processing...</span>
               </div>
             ) : inputs.documentation?.length > 0 ? (
               <div className="flex flex-wrap gap-2">
@@ -332,7 +332,7 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
                     className="flex items-center gap-2 px-2 py-1 rounded"
                     style={{ background: 'var(--content-bg)', border: '1px solid #e5e5e5' }}
                   >
-                    <span style={{ fontSize: '12px', color: 'var(--content-text)' }}>{doc.name}</span>
+                    <span style={{ fontSize: '0.875rem', color: 'var(--content-text)' }}>{doc.name}</span>
                     <button
                       onClick={() => {
                         const docs = inputs.documentation.filter((_, i) => i !== idx);
@@ -365,7 +365,7 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
                 >
                   {ICONS.upload}
                 </div>
-                <span style={{ fontSize: '11px', color: '#888888' }}>Drop files or click</span>
+                <span style={{ fontSize: '0.875rem', color: '#888888' }}>Drop files or click</span>
               </div>
             )}
             <input
@@ -391,10 +391,10 @@ export default function InputPanel({ inputs, onChange, hasInputs }) {
           {hasInputs ? (
             <>
               <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#10b981' }} />
-              <span style={{ fontSize: '11px', color: '#10b981' }}>Select a section to generate</span>
+              <span style={{ fontSize: '0.875rem', color: '#10b981' }}>Select a section to generate</span>
             </>
           ) : (
-            <span style={{ fontSize: '11px', color: '#888888' }}>Add JD & Resume to start</span>
+            <span style={{ fontSize: '0.875rem', color: '#888888' }}>Add JD & Resume to start</span>
           )}
         </div>
       </div>
