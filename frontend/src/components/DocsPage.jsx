@@ -974,41 +974,28 @@ export default function DocsPage({ onBack }) {
               {/* Behavioral Content */}
               {activePage === 'behavioral' && (
                 <>
-                  {/* STAR Method - Enhanced */}
-                  <div className="rounded-lg overflow-hidden mb-4" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
-                    <div className="px-6 py-4 border-b border-purple-500/20" style={{ background: 'rgba(168,85,247,0.05)' }}>
-                      <h3 className="text-sm font-bold text-gray-900 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-500/15">
-                          <Icon name="star" size={20} className="text-emerald-600" />
-                        </div>
-                        The STAR Method
-                      </h3>
-                      <p className="text-gray-400 text-sm mt-1 ml-13">The proven framework for behavioral interview answers</p>
+                  {/* STAR Method - Compact */}
+                  <div className="rounded-lg overflow-hidden mb-3" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                    <div className="px-3 py-2 border-b border-gray-200 flex items-center gap-2" style={{ background: '#f8fafc' }}>
+                      <Icon name="star" size={14} className="text-emerald-700" />
+                      <h3 className="text-sm font-bold text-gray-900">The STAR Method</h3>
+                      <span className="text-xs text-gray-500">— Framework for behavioral answers</span>
                     </div>
-                    <div className="p-6">
-                      <div className="grid md:grid-cols-4 gap-4">
-                        {[
-                          { letter: 'S', title: 'Situation', desc: 'Set the scene and give context for your story', color: '#ef4444', tip: 'Be specific about when and where' },
-                          { letter: 'T', title: 'Task', desc: 'Describe your responsibility or challenge', color: '#f59e0b', tip: 'Focus on YOUR role' },
-                          { letter: 'A', title: 'Action', desc: 'Explain the specific steps you took', color: '#22c55e', tip: 'Use "I" not "we"' },
-                          { letter: 'R', title: 'Result', desc: 'Share the outcomes and what you learned', color: '#3b82f6', tip: 'Quantify when possible' },
-                        ].map((step, i) => (
-                          <div key={i} className="relative rounded-xl p-5" style={{ background: '#f5f5f5' }}>
-                            <div
-                              className="w-14 h-14 rounded-xl flex items-center justify-center mb-4 text-sm font-bold transition-transform hover:scale-110"
-                              style={{ background: `${step.color}20`, color: step.color }}
-                            >
-                              {step.letter}
-                            </div>
-                            <div className="text-gray-900 font-semibold text-sm mb-1">{step.title}</div>
-                            <div className="text-gray-400 text-sm mb-3">{step.desc}</div>
-                            <div className="flex items-center gap-2 text-sm" style={{ color: step.color }}>
-                              <Icon name="lightbulb" size={12} />
-                              <span>{step.tip}</span>
-                            </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-2">
+                      {[
+                        { letter: 'S', title: 'Situation', desc: 'Set the scene. Be specific about when and where.' },
+                        { letter: 'T', title: 'Task', desc: 'Describe your responsibility. Focus on YOUR role.' },
+                        { letter: 'A', title: 'Action', desc: 'Explain specific steps you took. Use "I" not "we".' },
+                        { letter: 'R', title: 'Result', desc: 'Share outcomes. Quantify when possible.' },
+                      ].map((step, i) => (
+                        <div key={i} className="flex items-start gap-2 p-2 rounded" style={{ background: '#f8fafc', border: '1px solid #f0f0f0' }}>
+                          <span className="w-5 h-5 rounded flex items-center justify-center text-xs font-bold text-white bg-emerald-500 flex-shrink-0">{step.letter}</span>
+                          <div>
+                            <div className="text-sm font-bold text-gray-900">{step.title}</div>
+                            <div className="text-xs text-gray-900">{step.desc}</div>
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
