@@ -138,7 +138,8 @@ export default function MainApp() {
   const auth = useAuth();
   const isAuthenticated = isElectron ? true : auth.isAuthenticated;
   const user = isElectron ? null : auth.user;
-  const authRequired = !isElectron && auth.isWebApp;
+  // OAuth disabled — allow all users to access /app without auth
+  const authRequired = false;
   const isAdmin = user?.role === 'admin' || user?.roles?.includes?.('admin');
 
   // ---------------------------------------------------------------------------
@@ -759,16 +760,8 @@ export default function MainApp() {
     );
   }
 
-  // Protected routes require auth
-  if (authRequired && !isAuthenticated) {
-    const intended = window.location.pathname + window.location.search;
-    if (intended !== '/' && intended !== '/login') {
-      // Save redirect in both sessionStorage and localStorage for reliability
-      sessionStorage.setItem('postLoginRedirect', intended);
-      localStorage.setItem('postLoginRedirect', intended);
-    }
-    return <OAuthLogin loginOnly />;
-  }
+  // OAuth disabled — allow all users through
+  // When re-enabling, restore auth check here
 
   // ---------------------------------------------------------------------------
   // Ascend Prep Window
