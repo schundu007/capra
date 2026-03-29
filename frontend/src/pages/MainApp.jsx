@@ -853,7 +853,7 @@ export default function MainApp() {
           <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="w-6 h-6 border-2 border-brand-400 border-t-transparent rounded-full animate-spin" /></div>}>
           <main className="flex-1 overflow-hidden relative z-10">
             {ascendMode === 'behavioral' ? (
-              <div className="h-full" style={{ background: 'var(--content-bg)' }}>
+              <div className="h-full" style={{ background: isMobile ? '#0f172a' : 'var(--content-bg)' }}>
                 <AscendPrepModal isOpen={true} onClose={() => {}} provider={provider} model={model} embedded={true} />
               </div>
             ) : (

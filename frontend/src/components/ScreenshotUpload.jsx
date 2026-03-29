@@ -60,7 +60,7 @@ export default function ScreenshotUpload({ onUpload, isLoading, shouldClear }) {
           {isLoading && (
             <div
               className="absolute inset-0 flex items-center justify-center rounded"
-              style={{ background: 'rgba(255,255,255,0.9)' }}
+              style={{ background: 'rgba(0,0,0,0.7)' }}
             >
               <span className="text-xs font-medium" style={{ color: '#10b981' }}>Analyzing...</span>
             </div>
@@ -74,11 +74,11 @@ export default function ScreenshotUpload({ onUpload, isLoading, shouldClear }) {
           onClick={() => fileInputRef.current?.click()}
           className="h-20 border-2 border-dashed rounded flex items-center justify-center cursor-pointer transition-colors"
           style={{
-            borderColor: isDragging ? '#10b981' : '#e5e5e5',
-            background: isDragging ? '#ecfdf5' : '#ffffff',
+            borderColor: isDragging ? '#10b981' : 'rgba(255,255,255,0.15)',
+            background: isDragging ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.05)',
           }}
         >
-          <span className="text-xs font-medium" style={{ color: '#999999' }}>
+          <span className="text-xs font-medium" style={{ color: '#a0a0a0' }}>
             Drop screenshot or click
           </span>
         </div>
