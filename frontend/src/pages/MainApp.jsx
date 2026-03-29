@@ -1,3 +1,4 @@
+import CloudArchitectureDiagram from '../components/docs/CloudArchitectureDiagram.jsx';
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { Allotment } from 'allotment';
 import 'allotment/dist/style.css';
@@ -1299,12 +1300,14 @@ function CodingLayout({
   if (ascendMode === 'system-design') {
     return (
       <div className="h-full bg-white">
-        <Allotment defaultSizes={showAscendAssistant ? [70, 30] : [100]}>
-          <Allotment.Pane minSize={600}>
-            <div className="h-full flex flex-col overflow-hidden bg-white">
+        <Allotment defaultSizes={showAscendAssistant ? [50, 50] : [40, 60]}>
+          {/* LEFT PANEL — Problem input + Architecture diagram */}
+          <Allotment.Pane minSize={350}>
+            <div className="h-full flex flex-col overflow-hidden bg-white border-r border-gray-200">
+              {/* Header */}
               <div className="flex-shrink-0 border-b border-gray-200">
-                <div className="flex items-center justify-between px-4 py-2 bg-gray-50">
-                  <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between px-3 py-2 bg-gray-50">
+                  <div className="flex items-center gap-2">
                     <div className="w-1 h-4 rounded-full" style={{ background: 'linear-gradient(to bottom, #10b981, #059669)' }} />
                     <h2 className="text-sm font-semibold text-gray-900">System Design</h2>
                     <button onClick={onSavedDesignsClick} aria-label="View saved designs" className={`flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium rounded-lg transition-all duration-200 ${savedDesignsCount > 0 ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-gray-100 text-gray-500 hover:text-gray-700'}`}>
@@ -1314,20 +1317,67 @@ function CodingLayout({
                   </div>
                   <AscendModeSelector {...modeSelectorProps} />
                 </div>
-                <div className="px-3 py-2">
-                  <ProblemInput {...problemInputProps} />
-                </div>
               </div>
+              {/* Problem input */}
+              <div className="flex-shrink-0 px-3 py-2 border-b border-gray-200">
+                <ProblemInput {...problemInputProps} />
+              </div>
+              {/* Architecture diagram fills remaining space */}
               <div className="flex-1 min-h-0 overflow-auto p-3">
-                <DesignPane />
+                {hasSystemDesign && eraserDiagram ? (
+                  <div>
+                    <CloudArchitectureDiagram
+                      imageUrl={eraserDiagram?.imageUrl}
+                      loading={false}
+                      error={null}
+                      cloudProvider="auto"
+                    />
+                  </div>
+                ) : hasSystemDesign ? (
+                  <div className="text-center text-gray-500 py-8">
+                    <p className="text-sm mb-2">Architecture diagram not generated yet</p>
+                    <button onClick={onGenerateEraserDiagram} className="px-4 py-2 rounded-lg text-sm font-medium text-white" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                      Generate Diagram
+                    </button>
+                  </div>
+                ) : isLoading ? (
+                  <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                    <div className="flex gap-1 mb-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                    <span className="text-sm">Generating system design...</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                    <svg className="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                    <span className="text-sm">Enter a system design question</span>
+                  </div>
+                )}
               </div>
             </div>
           </Allotment.Pane>
-          {showAscendAssistant && (
-            <Allotment.Pane minSize={400}>
-              <AscendAssistantPanel onClose={onCloseAscendAssistant} provider={provider} model={model} />
-            </Allotment.Pane>
-          )}
+
+          {/* RIGHT PANEL — Design details (requirements, tradeoffs, components, etc.) */}
+          <Allotment.Pane minSize={400}>
+            {showAscendAssistant ? (
+              <Allotment defaultSizes={[60, 40]}>
+                <Allotment.Pane minSize={300}>
+                  <div className="h-full overflow-auto p-3 bg-white">
+                    <DesignPane />
+                  </div>
+                </Allotment.Pane>
+                <Allotment.Pane minSize={300}>
+                  <AscendAssistantPanel onClose={onCloseAscendAssistant} provider={provider} model={model} />
+                </Allotment.Pane>
+              </Allotment>
+            ) : (
+              <div className="h-full overflow-auto p-3 bg-white">
+                <DesignPane />
+              </div>
+            )}
+          </Allotment.Pane>
         </Allotment>
       </div>
     );
