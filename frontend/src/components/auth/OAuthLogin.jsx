@@ -45,7 +45,7 @@ export default function OAuthLogin({ loginOnly = false }) {
               <span className="text-2xl font-bold text-gray-900 landing-display">Ascend</span>
             </a>
 
-            <div className="hidden md:flex items-center gap-2 mr-auto ml-8">
+            <div className="hidden md:flex items-center gap-2 ml-auto">
               {navLinks.map((link) => (
                 <a key={link.label} href={link.href} className="px-5 py-2.5 rounded-xl text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200 landing-body">
                   {link.label}
