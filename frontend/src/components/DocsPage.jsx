@@ -726,8 +726,8 @@ export default function DocsPage({ onBack }) {
                               <Icon name={category.icon} size={16} style={{ color: category.color }} />
                             </div>
                             <div>
-                              <h3 className="text-sm font-bold text-gray-900">{category.name}</h3>
-                              <span className="text-sm text-gray-700">{categoryTopics.length} topics</span>
+                              <h3 className="text-sm font-bold text-gray-900 inline">{category.name}</h3>
+                              <span className="text-xs text-gray-500 ml-2">{categoryTopics.length} topics</span>
                             </div>
                           </div>
                           {/* Topics in Category */}
@@ -786,7 +786,7 @@ export default function DocsPage({ onBack }) {
                               <Icon name={category.icon} size={16} style={{ color: category.color }} />
                             </div>
                             <div>
-                              <h3 className="text-sm font-bold text-gray-900">{category.name}</h3>
+                              <h3 className="text-sm font-bold text-gray-900 inline">{category.name}</h3>
                               <span className="text-sm text-gray-700">{categoryDesigns.length} systems</span>
                             </div>
                           </div>
@@ -861,7 +861,7 @@ export default function DocsPage({ onBack }) {
                               <Icon name={category.icon} size={16} style={{ color: category.color }} />
                             </div>
                             <div>
-                              <h3 className="text-sm font-bold text-gray-900">{category.name}</h3>
+                              <h3 className="text-sm font-bold text-gray-900 inline">{category.name}</h3>
                               <span className="text-sm text-gray-700">{categoryProblems.length} problems</span>
                             </div>
                           </div>
@@ -1025,8 +1025,8 @@ export default function DocsPage({ onBack }) {
                               <Icon name={category.icon} size={16} style={{ color: category.color }} />
                             </div>
                             <div>
-                              <h3 className="text-sm font-bold text-gray-900">{category.name}</h3>
-                              <span className="text-sm text-gray-700">{categoryTopics.length} topics</span>
+                              <h3 className="text-sm font-bold text-gray-900 inline">{category.name}</h3>
+                              <span className="text-xs text-gray-500 ml-2">{categoryTopics.length} topics</span>
                             </div>
                           </div>
                           {/* Topics in Category */}

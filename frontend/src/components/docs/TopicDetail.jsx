@@ -1264,23 +1264,22 @@ export default function TopicDetail({
           )}
 
           {topicDetails.starExample && (
-            <div id="star-example" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(168, 85, 247, 0.08) 0%, #f9fafb 100%)', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
-              <div className="px-3 py-2 border-b border-gray-200 flex items-center gap-2" style={{ background: 'rgba(168, 85, 247, 0.05)' }}>
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
-                  <Icon name="target" size={16} className="text-emerald-700" />
-                </div>
+            <div id="star-example" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+              <div className="px-3 py-2 border-b border-gray-200 flex items-center gap-2" style={{ background: '#f8fafc' }}>
+                <Icon name="target" size={14} className="text-emerald-700" />
                 <h3 className="text-sm font-bold text-gray-900">STAR Framework Example</h3>
               </div>
-              <div className="divide-y divide-purple-500/10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 p-2">
                 {Object.entries(topicDetails.starExample).map(([key, value]) => {
                   const colors = { situation: '#3b82f6', task: '#f59e0b', action: '#10b981', result: '#ef4444' };
                   const color = colors[key.toLowerCase()] || '#a855f7';
                   return (
-                    <div key={key} className="px-3 py-2 flex items-start gap-2 hover:bg-gray-50 transition-colors">
-                      <div className="w-24 flex-shrink-0">
-                        <div className="text-sm font-bold uppercase tracking-wide" style={{ color }}>{key}</div>
+                    <div key={key} className="p-2 rounded-lg" style={{ background: '#f8fafc', border: '1px solid #f0f0f0' }}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="w-5 h-5 rounded flex items-center justify-center text-xs font-bold text-white" style={{ background: color }}>{key.charAt(0).toUpperCase()}</span>
+                        <span className="text-sm font-bold text-gray-900">{key.charAt(0).toUpperCase() + key.slice(1)}</span>
                       </div>
-                      <div className="flex-1 text-gray-900 text-sm leading-relaxed">{value}</div>
+                      <div className="text-gray-900 text-sm leading-relaxed pl-7">{value}</div>
                     </div>
                   );
                 })}
@@ -1289,17 +1288,15 @@ export default function TopicDetail({
           )}
 
           {topicDetails.sampleQuestions && !topicDetails.keyQuestions && (
-            <div id="sample-questions" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(59, 130, 246, 0.08) 0%, #f9fafb 100%)', border: '1px solid #a7f3d0' }}>
-              <div className="px-3 py-2 border-b border-gray-200 flex items-center gap-2" style={{ background: 'rgba(59, 130, 246, 0.05)' }}>
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
-                  <Icon name="helpCircle" size={16} className="text-emerald-700" />
-                </div>
+            <div id="sample-questions" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+              <div className="px-3 py-2 border-b border-gray-200 flex items-center gap-2" style={{ background: '#f8fafc' }}>
+                <Icon name="helpCircle" size={14} className="text-emerald-700" />
                 <h3 className="text-sm font-bold text-gray-900">Sample Questions</h3>
               </div>
-              <div className="divide-y divide-blue-500/10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-1 p-2">
                 {topicDetails.sampleQuestions.map((q, i) => (
-                  <div key={i} className="px-3 py-2 flex items-center gap-2 hover:bg-gray-50 transition-colors">
-                    <span className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>{i + 1}</span>
+                  <div key={i} className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 transition-colors">
+                    <span className="w-5 h-5 rounded flex items-center justify-center text-xs font-bold flex-shrink-0 bg-emerald-50 text-emerald-700">{i + 1}</span>
                     <span className="text-gray-900 text-sm">{q}</span>
                   </div>
                 ))}
@@ -1308,17 +1305,15 @@ export default function TopicDetail({
           )}
 
           {topicDetails.tips && (
-            <div id="tips" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, #f9fafb 100%)', border: '1px solid #a7f3d0' }}>
-              <div className="px-3 py-2 border-b border-emerald-200 flex items-center gap-2" style={{ background: '#f0fdf4' }}>
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
-                  <Icon name="checkCircle" size={16} className="text-emerald-700" />
-                </div>
+            <div id="tips" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+              <div className="px-3 py-2 border-b border-gray-200 flex items-center gap-2" style={{ background: '#f0fdf4' }}>
+                <Icon name="checkCircle" size={14} className="text-emerald-700" />
                 <h3 className="text-sm font-bold text-gray-900">Tips for Success</h3>
               </div>
-              <div className="divide-y divide-emerald-500/10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-1 p-2">
                 {topicDetails.tips.map((tip, i) => (
-                  <div key={i} className="px-3 py-2 flex items-center gap-2 hover:bg-gray-50 transition-colors">
-                    <span className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-emerald-50 text-gray-900 text-sm">✓</span>
+                  <div key={i} className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 transition-colors">
+                    <span className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 bg-emerald-50 text-emerald-700 text-xs">✓</span>
                     <span className="text-gray-900 text-sm">{tip}</span>
                   </div>
                 ))}
