@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import InputPanel from './ascend-prep/InputPanel';
 import OutputPanel from './ascend-prep/OutputPanel';
 import { getApiUrl } from '../hooks/useElectron';
+import { useIsMobile } from '../hooks/useIsMobile';
 import { getAuthHeaders } from '../utils/authHeaders.js';
 
 const API_URL = getApiUrl();
@@ -388,7 +389,14 @@ async function renameCloudCompany(cloudId, newName) {
 }
 
 export default function AscendPrepModal({ isOpen, onClose, provider, model, isDedicatedWindow = false, embedded = false }) {
-  const [activeTab, setActiveTab] = useState('input');
+  const { isMobile } = useIsMobile();
+  const [prepSidebarOpen, setPrepSidebarOpen] = useState(false);
+  const [activeTabRaw, setActiveTabRaw] = useState('input');
+  const setActiveTab = (tab) => {
+    setActiveTabRaw(tab);
+    if (isMobile) setPrepSidebarOpen(false);
+  };
+  const activeTab = activeTabRaw;
   const [companies, setCompanies] = useState([]);
   const [activeCompany, setActiveCompany] = useState(null);
   const [inputs, setInputs] = useState({ ...EMPTY_INPUTS });
@@ -1218,7 +1226,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
   return (
     <div className={containerClass}>
       {/* Modal wrapper - constrains size when in modal mode */}
-      <div className={isModal ? "flex w-[90vw] h-[90vh] rounded-xl overflow-hidden shadow-2xl" : "flex w-full h-full"}>
+      <div className={isModal ? "flex w-[90vw] h-[90vh] rounded-xl overflow-hidden shadow-2xl" : "flex w-full h-full relative"}>
       {/* Drag bar for dedicated window - spans entire top */}
       {isDedicatedWindow && !embedded && (
         <div
@@ -1226,8 +1234,12 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
           style={{ WebkitAppRegion: 'drag', backgroundColor: 'transparent' }}
         />
       )}
+      {/* Mobile sidebar overlay */}
+      {isMobile && prepSidebarOpen && (
+        <div className="fixed inset-0 z-40 bg-black/50" onClick={() => setPrepSidebarOpen(false)} />
+      )}
       {/* Sidebar Navigation */}
-      <div className={`w-64 flex flex-col prep-sidebar ${isDedicatedWindow && !embedded ? 'pt-7' : ''}`}>
+      <div className={`${isMobile ? 'fixed inset-y-0 left-0 z-50 w-72 transition-transform duration-300' : 'w-64'} flex flex-col prep-sidebar ${isDedicatedWindow && !embedded ? 'pt-7' : ''} ${isMobile && !prepSidebarOpen ? '-translate-x-full' : 'translate-x-0'}`}>
         {/* Header with Company Selector */}
         <div className="prep-header">
           <div className="flex items-center justify-between mb-3">
@@ -1704,7 +1716,24 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-hidden" style={{ background: 'var(--content-bg-secondary)' }}>
+      <div className="flex-1 flex flex-col overflow-hidden" style={{ background: 'var(--content-bg-secondary)' }}>
+        {/* Mobile top bar */}
+        {isMobile && (
+          <div className="flex items-center gap-3 px-3 py-2 border-b flex-shrink-0" style={{ borderColor: 'var(--border-default)', background: 'var(--content-bg)' }}>
+            <button
+              onClick={() => setPrepSidebarOpen(true)}
+              className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors"
+              style={{ color: 'var(--text-secondary)' }}
+              aria-label="Open sections"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            </button>
+            <span className="text-sm font-medium" style={{ color: 'var(--content-text)' }}>
+              {activeCompany || 'Interview Prep'}
+            </span>
+          </div>
+        )}
+        <div className="flex-1 overflow-hidden">
         {!activeCompany ? (
           <div className="h-full flex items-center justify-center">
             <div className="text-center" style={{ color: 'var(--text-muted)' }}>
@@ -1747,7 +1776,8 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
             hasInputs={hasInputs}
           />
         )}
-      </div>
+      </div>{/* End inner scroll */}
+      </div>{/* End content area */}
       </div>{/* End modal wrapper */}
 
       {/* JD Popup Modal */}
