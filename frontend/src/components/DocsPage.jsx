@@ -767,7 +767,7 @@ export default function DocsPage({ onBack }) {
                       </div>
                       <div>
                         <h2 className="text-sm font-bold text-gray-900">Common System Designs</h2>
-                        <p className="text-sm text-gray-700">Real-world systems frequently asked in interviews</p>
+                        
                       </div>
                     </div>
                     {systemDesignProblemCategories.map((category) => {
@@ -787,7 +787,7 @@ export default function DocsPage({ onBack }) {
                             </div>
                             <div>
                               <h3 className="text-sm font-bold text-gray-900 inline">{category.name}</h3>
-                              <span className="text-sm text-gray-700">{categoryDesigns.length} systems</span>
+                              <span className="text-xs text-gray-500 ml-2">{categoryDesigns.length} systems</span>
                             </div>
                           </div>
                           {/* Designs in Category */}
@@ -798,23 +798,23 @@ export default function DocsPage({ onBack }) {
                               return (
                                 <div
                                   key={design.id}
-                                  className="px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors group"
+                                  className="px-3 py-2 flex items-center justify-between hover:bg-gray-50 transition-colors group"
                                 >
                                   <div
                                     onClick={() => setSelectedTopic(design.id)}
-                                    className="flex items-center gap-4 flex-1 cursor-pointer"
+                                    className="flex items-center gap-2 flex-1 cursor-pointer"
                                   >
-                                    <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${design.color}15` }}>
-                                      <Icon name={design.icon} size={20} style={{ color: design.color }} />
+                                    <div className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${design.color}15` }}>
+                                      <Icon name={design.icon} size={10} style={{ color: design.color }} />
                                     </div>
                                     <div>
-                                      <span className="text-gray-900 text-sm font-semibold group-hover:text-emerald-600 transition-colors">{design.title}</span>
-                                      {design.isNew && <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30 ml-2">NEW</span>}
-                                      <span className="text-gray-500 text-sm ml-3 hidden md:inline">{design.subtitle}</span>
+                                      <span className="text-sm font-medium text-gray-900 group-hover:text-emerald-600 transition-colors">{design.title}</span>
+                                      {design.isNew && <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 ml-2">NEW</span>}
+                                      <span className="text-gray-500 text-xs ml-2 hidden md:inline">{design.subtitle}</span>
                                     </div>
                                   </div>
                                   <div className="flex items-center gap-3">
-                                    <span className="px-3 py-1 rounded-lg text-sm font-medium" style={{ background: diffColor.bg, color: diffColor.text }}>
+                                    <span className="px-1.5 py-0.5 rounded text-xs font-medium" style={{ background: diffColor.bg, color: diffColor.text }}>
                                       {design.difficulty}
                                     </span>
                                     <a
@@ -880,7 +880,7 @@ export default function DocsPage({ onBack }) {
                                     </div>
                                     <div>
                                       <span className="text-gray-900 text-sm font-medium group-hover:text-emerald-600 transition-colors">{problem.title}</span>
-                                      {problem.isNew && <span className="px-1 py-0.5 rounded text-xs font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30 ml-1">NEW</span>}
+                                      {problem.isNew && <span className="px-1 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 ml-1">NEW</span>}
                                       <span className="text-gray-600 text-sm ml-2 hidden md:inline">{problem.subtitle}</span>
                                     </div>
                                   </div>
