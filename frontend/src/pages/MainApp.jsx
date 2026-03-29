@@ -763,7 +763,9 @@ export default function MainApp() {
   if (authRequired && !isAuthenticated) {
     const intended = window.location.pathname + window.location.search;
     if (intended !== '/' && intended !== '/login') {
+      // Save redirect in both sessionStorage and localStorage for reliability
       sessionStorage.setItem('postLoginRedirect', intended);
+      localStorage.setItem('postLoginRedirect', intended);
     }
     return <OAuthLogin loginOnly />;
   }
