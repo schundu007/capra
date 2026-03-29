@@ -579,7 +579,7 @@ export default function DocsPage({ onBack }) {
               {activePage === 'coding' && (
                 <>
                   {/* Topic Cards - Grouped by Category */}
-                  <div className="space-y-3 mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                     {codingCategories.map((category) => {
                       const categoryTopics = filteredTopics.filter(t => codingCategoryMap[t.id] === category.id);
                       if (categoryTopics.length === 0) return null;
@@ -707,7 +707,7 @@ export default function DocsPage({ onBack }) {
               {activePage === 'system-design' && (
                 <>
                   {/* Core Concepts Section - Grouped by Category */}
-                  <div className="space-y-3 mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                     {systemDesignCategories.map((category) => {
                       const categoryTopics = filteredTopics.filter(t => systemDesignCategoryMap[t.id] === category.id);
                       if (categoryTopics.length === 0) return null;
@@ -753,7 +753,7 @@ export default function DocsPage({ onBack }) {
                   </div>
 
                   {/* System Design Problems Section - Grouped by Category */}
-                  <div className="space-y-3 mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-50">
                         <Icon name="systemDesign" size={16} className="text-emerald-600" />
@@ -829,7 +829,7 @@ export default function DocsPage({ onBack }) {
                   </div>
 
                   {/* Low-Level Design Problems Section */}
-                  <div className="space-y-3 mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-teal-500/10">
                         <Icon name="code" size={16} className="text-teal-400" />
@@ -890,7 +890,7 @@ export default function DocsPage({ onBack }) {
                   </div>
 
                   {/* Concurrency Section */}
-                  <div className="space-y-3 mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-orange-500/10">
                         <Icon name="cpu" size={16} className="text-orange-400" />
@@ -1006,7 +1006,7 @@ export default function DocsPage({ onBack }) {
                   </div>
 
                   {/* Question Categories Section - Grouped by Category */}
-                  <div className="space-y-3 mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                     {behavioralCategories.map((category) => {
                       const categoryTopics = filteredTopics.filter(t => topicCategoryMap[t.id] === category.id);
                       if (categoryTopics.length === 0) return null;

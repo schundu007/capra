@@ -50,8 +50,8 @@ export default function TopicDetail({
               {topicDetails.isNew && <span className="px-1.5 py-0.5 rounded text-sm font-bold bg-gray-50 text-gray-900 border border-gray-200/30">NEW</span>}
               {topicDetails.difficulty && (
                 <span className={`px-2.5 py-0.5 rounded text-sm font-medium ${
-                  topicDetails.difficulty === 'Easy' ? 'bg-emerald-500/15 text-emerald-700' :
-                  topicDetails.difficulty === 'Medium' ? 'bg-emerald-500/15 text-emerald-700' :
+                  topicDetails.difficulty === 'Easy' ? 'bg-emerald-50 text-emerald-700' :
+                  topicDetails.difficulty === 'Medium' ? 'bg-emerald-50 text-emerald-700' :
                   'bg-gray-600/15 text-gray-900'
                 }`}>
                   {topicDetails.difficulty}
@@ -511,9 +511,9 @@ export default function TopicDetail({
                     <h3 className="text-sm font-bold text-gray-900">Functional Requirements</h3>
                   </div>
                   <div className="p-4">
-                    <ul className="space-y-2">
+                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-1">
                       {(topicDetails.functionalRequirements || topicDetails.requirements).map((req, i) => (
-                        <li key={i} className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <li key={i} className="flex items-start gap-2 rounded hover:bg-gray-50 transition-colors">
                           <span className="w-5 h-5 rounded-full flex items-center justify-center text-sm flex-shrink-0 bg-emerald-50 text-emerald-700 mt-0.5">✓</span>
                           <span className="text-gray-900 text-sm">{req}</span>
                         </li>
@@ -533,9 +533,9 @@ export default function TopicDetail({
                       <h3 className="text-sm font-bold text-gray-900">Non-Functional Requirements</h3>
                     </div>
                     <div className="p-4">
-                      <ul className="space-y-2">
+                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-1">
                         {topicDetails.nonFunctionalRequirements.map((req, i) => (
-                          <li key={i} className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                          <li key={i} className="flex items-start gap-2 rounded hover:bg-gray-50 transition-colors">
                             <span className="w-5 h-5 rounded-full flex items-center justify-center text-sm flex-shrink-0 bg-emerald-50 text-emerald-700 mt-0.5">•</span>
                             <span className="text-gray-900 text-sm">{req}</span>
                           </li>
@@ -554,7 +554,7 @@ export default function TopicDetail({
                   {topicDetails.apiDesign && topicDetails.apiDesign.endpoints && (
                     <div id="api-design" className="rounded-lg overflow-hidden scroll-mt-24" style={CARD_STYLES.card}>
                       <div className="px-3 py-2 border-b border-gray-200/20 flex items-center gap-2" style={{ background: '#f0fdf4' }}>
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
+                        <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
                           <Icon name="code" size={16} className="text-emerald-700" />
                         </div>
                         <h3 className="text-sm font-bold text-gray-900">API Design</h3>
@@ -861,7 +861,7 @@ export default function TopicDetail({
 
               {/* Flow Cards - Row Mode */}
               {(topicDetails.createFlow || topicDetails.redirectFlow) && (
-                <div className="space-y-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {/* Create Flow */}
                   {topicDetails.createFlow && (
                     <div className="rounded-lg overflow-hidden" style={CARD_STYLES.card}>
@@ -872,9 +872,9 @@ export default function TopicDetail({
                         <h3 className="text-sm font-bold text-gray-900">{topicDetails.createFlow.title}</h3>
                       </div>
                       <div className="p-4">
-                        <ol className="space-y-2">
+                        <ol className="grid grid-cols-1 md:grid-cols-2 gap-1">
                           {topicDetails.createFlow.steps.map((step, i) => (
-                            <li key={i} className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                            <li key={i} className="flex items-start gap-2 rounded hover:bg-gray-50 transition-colors">
                               <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-emerald-50 text-emerald-700 border border-gray-200">
                                 {i + 1}
                               </span>
@@ -896,9 +896,9 @@ export default function TopicDetail({
                         <h3 className="text-sm font-bold text-gray-900">{topicDetails.redirectFlow.title}</h3>
                       </div>
                       <div className="p-4">
-                        <ol className="space-y-2">
+                        <ol className="grid grid-cols-1 md:grid-cols-2 gap-1">
                           {topicDetails.redirectFlow.steps.map((step, i) => (
-                            <li key={i} className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                            <li key={i} className="flex items-start gap-2 rounded hover:bg-gray-50 transition-colors">
                               <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-emerald-50 text-emerald-700 border border-gray-200">
                                 {i + 1}
                               </span>
@@ -916,7 +916,7 @@ export default function TopicDetail({
               {topicDetails.discussionPoints && (
                 <div className="rounded-lg overflow-hidden" style={{ background: '#f8fafc', border: '1px solid rgba(6,182,212,0.2)' }}>
                   <div className="px-3 py-2 border-b border-gray-200/20 flex items-center gap-2" style={{ background: '#f8fafc' }}>
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
                       <Icon name="messageCircle" size={16} className="text-gray-900" />
                     </div>
                     <h3 className="text-sm font-bold text-gray-900">Discussion Points</h3>
@@ -959,7 +959,7 @@ export default function TopicDetail({
                       <div className="p-4">
                         <div className="flex flex-wrap gap-2">
                           {topicDetails.components.map((comp, i) => (
-                            <span key={i} className="px-3 py-1.5 rounded-lg text-sm bg-emerald-500/15 text-emerald-700 border border-gray-200">
+                            <span key={i} className="px-3 py-1.5 rounded-lg text-sm bg-emerald-50 text-emerald-700 border border-gray-200">
                               {comp}
                             </span>
                           ))}
@@ -978,9 +978,9 @@ export default function TopicDetail({
                         <h3 className="text-sm font-bold text-gray-900">Key Design Decisions</h3>
                       </div>
                       <div className="p-4">
-                        <ol className="space-y-2">
+                        <ol className="grid grid-cols-1 md:grid-cols-2 gap-1">
                           {topicDetails.keyDecisions.map((decision, i) => (
-                            <li key={i} className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                            <li key={i} className="flex items-start gap-2 rounded hover:bg-gray-50 transition-colors">
                               <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-gray-50 text-gray-900 border border-amber-500/30">
                                 {i + 1}
                               </span>
@@ -996,29 +996,31 @@ export default function TopicDetail({
 
               {/* LLD Core Entities */}
               {topicDetails.coreEntities && (
-                <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(20,184,166,0.08) 0%, transparent 100%)', border: '1px solid rgba(20,184,166,0.2)' }}>
-                  <div className="px-3 py-2 border-b border-teal-500/20 flex items-center gap-2" style={{ background: '#f8fafc' }}>
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
+                <div className="rounded-lg overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                  <div className="px-3 py-2 border-b border-gray-200 flex items-center gap-2" style={{ background: '#f8fafc' }}>
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
                       <Icon name="box" size={16} className="text-gray-900" />
                     </div>
                     <h3 className="text-sm font-bold text-gray-900">Core Entities</h3>
                   </div>
-                  <div className="p-4 space-y-2">
+                  <div className="p-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {topicDetails.coreEntities.map((entity, i) => (
                       <div key={i} className="flex items-start gap-2 p-3 rounded-lg" style={{ background: '#f8fafc', border: '1px solid rgba(20,184,166,0.1)' }}>
                         <code className="text-gray-900 font-mono text-sm font-semibold whitespace-nowrap">{entity.name}</code>
                         <span className="text-gray-900 text-sm">{entity.description}</span>
                       </div>
                     ))}
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* LLD Design Patterns */}
               {topicDetails.designPatterns && (
-                <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(139,92,246,0.08) 0%, transparent 100%)', border: '1px solid rgba(139,92,246,0.2)' }}>
-                  <div className="px-3 py-2 border-b border-gray-200/20 flex items-center gap-2" style={{ background: 'rgba(139,92,246,0.05)' }}>
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
+                <div className="rounded-lg overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                  <div className="px-3 py-2 border-b border-gray-200/20 flex items-center gap-2" style={{ background: '#f8fafc' }}>
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
                       <Icon name="puzzle" size={16} className="text-gray-900" />
                     </div>
                     <h3 className="text-sm font-bold text-gray-900">Design Patterns</h3>
@@ -1026,7 +1028,7 @@ export default function TopicDetail({
                   <div className="p-4">
                     <ul className="space-y-2">
                       {topicDetails.designPatterns.map((pattern, i) => (
-                        <li key={i} className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <li key={i} className="flex items-start gap-2 rounded hover:bg-gray-50 transition-colors">
                           <span className="w-5 h-5 rounded-full flex items-center justify-center text-sm flex-shrink-0 bg-gray-50 text-gray-900 mt-0.5">✦</span>
                           <span className="text-gray-900 text-sm">{pattern}</span>
                         </li>
@@ -1040,7 +1042,7 @@ export default function TopicDetail({
               {topicDetails.implementation && (
                 <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(34,197,94,0.08) 0%, transparent 100%)', border: '1px solid rgba(34,197,94,0.2)' }}>
                   <div className="px-3 py-2 border-b border-gray-200/20 flex items-center gap-2" style={{ background: '#f8fafc' }}>
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
                       <Icon name="code" size={16} className="text-emerald-700" />
                     </div>
                     <h3 className="text-sm font-bold text-gray-900">Implementation</h3>
@@ -1065,7 +1067,7 @@ export default function TopicDetail({
               {topicDetails.concepts && Array.isArray(topicDetails.concepts) && topicDetails.concepts[0]?.name && (
                 <div className="rounded-lg overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(249,115,22,0.08) 0%, transparent 100%)', border: '1px solid rgba(249,115,22,0.2)' }}>
                   <div className="px-3 py-2 border-b border-orange-500/20 flex items-center gap-2" style={{ background: '#f8fafc' }}>
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
                       <Icon name="cpu" size={16} className="text-gray-900" />
                     </div>
                     <h3 className="text-sm font-bold text-gray-900">Core Concepts</h3>
@@ -1132,7 +1134,7 @@ export default function TopicDetail({
               {topicDetails.structures && (
                 <div className="rounded-lg overflow-hidden" style={{ background: '#f8fafc', border: '1px solid rgba(6,182,212,0.2)' }}>
                   <div className="px-3 py-2 border-b border-gray-200/20 flex items-center gap-2" style={{ background: '#f8fafc' }}>
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/20">
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
                       <Icon name="database" size={16} className="text-gray-900" />
                     </div>
                     <h3 className="text-sm font-bold text-gray-900">Concurrent Data Structures</h3>
