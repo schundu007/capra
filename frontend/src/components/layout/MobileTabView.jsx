@@ -71,7 +71,7 @@ export default function MobileTabView({ tabs, activeTab, onTabChange, children, 
       {/* Tab bar */}
       <div
         ref={tabBarRef}
-        className="relative flex items-stretch border-b border-neutral-700/50 bg-neutral-800/80 backdrop-blur-sm flex-shrink-0"
+        className="relative flex items-stretch border-b border-gray-200 bg-white/95 backdrop-blur-sm flex-shrink-0"
       >
         {tabs.map((tab) => (
           <button
@@ -79,7 +79,7 @@ export default function MobileTabView({ tabs, activeTab, onTabChange, children, 
             data-tab-id={tab.id}
             onClick={() => setActive(tab.id)}
             className={`flex-1 py-3 text-xs font-semibold uppercase tracking-wider transition-colors duration-200
-              ${active === tab.id ? 'text-brand-400' : 'text-neutral-500 active:text-neutral-300'}`}
+              ${active === tab.id ? 'text-emerald-600' : 'text-gray-400 active:text-gray-600'}`}
           >
             <span className="flex items-center justify-center gap-1.5">
               {tab.label}
@@ -91,7 +91,7 @@ export default function MobileTabView({ tabs, activeTab, onTabChange, children, 
         ))}
         {/* Animated indicator line */}
         <div
-          className="absolute bottom-0 h-0.5 bg-brand-400 transition-all duration-250 ease-smooth rounded-full"
+          className="absolute bottom-0 h-0.5 bg-emerald-500 transition-all duration-250 ease-smooth rounded-full"
           style={indicatorStyle}
         />
       </div>

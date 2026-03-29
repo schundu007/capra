@@ -743,7 +743,7 @@ export default function MainApp() {
   // ---------------------------------------------------------------------------
   if (!authChecked) {
     return (
-      <div className="h-screen-safe flex items-center justify-center bg-white">
+      <div className="h-screen-safe flex items-center justify-center bg-white" style={{ fontFamily: "'Source Sans 3', -apple-system, sans-serif" }}>
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -751,8 +751,8 @@ export default function MainApp() {
             </svg>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse" />
-            <span className="text-black">Loading...</span>
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-gray-700">Loading...</span>
           </div>
         </div>
       </div>
@@ -809,7 +809,7 @@ export default function MainApp() {
   };
 
   return (
-    <div className={`h-screen-safe flex overflow-hidden`} style={{ background: isMobile ? '#0f172a' : 'var(--content-bg)', color: isMobile ? '#ffffff' : '#1a1a1a', paddingBottom: isMobile ? 'calc(52px + env(safe-area-inset-bottom, 0px))' : undefined }}>
+    <div className={`h-screen-safe flex overflow-hidden`} style={{ background: isMobile ? '#ffffff' : 'var(--content-bg)', color: '#1a1a1a', fontFamily: isMobile ? "'Source Sans 3', -apple-system, sans-serif" : undefined, paddingBottom: isMobile ? 'calc(52px + env(safe-area-inset-bottom, 0px))' : undefined }}>
       {/* Sidebar — desktop: inline, mobile: overlay drawer */}
       {isMobile ? (
         <Sidebar {...sidebarProps} isOpen={mobileDrawerOpen} />
@@ -853,7 +853,7 @@ export default function MainApp() {
           <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="w-6 h-6 border-2 border-brand-400 border-t-transparent rounded-full animate-spin" /></div>}>
           <main className="flex-1 overflow-hidden relative z-10">
             {ascendMode === 'behavioral' ? (
-              <div className="h-full" style={{ background: isMobile ? '#0f172a' : 'var(--content-bg)' }}>
+              <div className="h-full" style={{ background: isMobile ? '#ffffff' : 'var(--content-bg)' }}>
                 <AscendPrepModal isOpen={true} onClose={() => {}} provider={provider} model={model} embedded={true} />
               </div>
             ) : (
@@ -971,17 +971,17 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
   // ---- Mobile Header ----
   if (isMobile) {
     return (
-      <header className="flex items-center justify-between gap-3 px-3 border-b backdrop-blur-md bg-neutral-800/95 border-neutral-700/50 safe-top" style={{ height: '52px' }}>
+      <header className="flex items-center justify-between gap-3 px-3 border-b safe-top" style={{ height: '52px', background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)', borderColor: '#e2e8f0' }}>
         <div className="flex items-center gap-3">
-          <button onClick={onToggleSidebar} className="w-10 h-10 rounded-xl flex items-center justify-center text-neutral-300 active:bg-neutral-700/50 transition-colors" aria-label="Open menu">
+          <button onClick={onToggleSidebar} className="w-10 h-10 rounded-xl flex items-center justify-center text-gray-600 active:bg-gray-100 transition-colors" aria-label="Open menu">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-400 to-brand-500 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
               <img src="/ascend-logo.png" alt="Ascend" className="h-4 w-auto object-contain filter brightness-0 invert" />
             </div>
-            <span className="text-sm font-semibold text-brand-400">Ascend</span>
-            {isLoading && <div className="w-3.5 h-3.5 border-2 border-brand-400 border-t-transparent rounded-full animate-spin" />}
+            <span className="text-sm font-bold text-gray-900">Ascend</span>
+            {isLoading && <div className="w-3.5 h-3.5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />}
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -1191,12 +1191,12 @@ function CodingLayout({
   const modeSelectorProps = { ascendMode, designDetailLevel, onDetailLevelChange, autoGenerateEraser, onAutoGenerateEraserChange, codingLanguage, onLanguageChange, codingDetailLevel, onCodingDetailLevelChange };
 
   const ProblemPane = () => (
-    <div className="h-full flex flex-col overflow-y-auto bg-neutral-750">
+    <div className={`h-full flex flex-col overflow-y-auto ${isMobile ? 'bg-white' : 'bg-neutral-750'}`}>
       <div className="flex-shrink-0">
-        <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b border-neutral-700/50 bg-neutral-800/50 gap-2 min-h-[44px] flex-wrap">
+        <div className={`flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b gap-2 min-h-[44px] flex-wrap ${isMobile ? 'border-gray-200 bg-gray-50' : 'border-neutral-700/50 bg-neutral-800/50'}`}>
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <div className="w-1 h-4 rounded-full bg-gradient-to-b from-brand-400 to-brand-500 flex-shrink-0" />
-            <h2 className="text-xs sm:text-sm font-semibold text-white truncate">{ascendMode === 'system-design' ? 'System Design' : 'Problem'}</h2>
+            <div className="w-1 h-4 rounded-full flex-shrink-0" style={{ background: 'linear-gradient(to bottom, #10b981, #059669)' }} />
+            <h2 className={`text-xs sm:text-sm font-semibold truncate ${isMobile ? 'text-gray-900' : 'text-white'}`}>{ascendMode === 'system-design' ? 'System Design' : 'Problem'}</h2>
             {ascendMode === 'system-design' && (
               <button onClick={onSavedDesignsClick} aria-label="View saved designs" className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-medium rounded-lg transition-all duration-200 ${savedDesignsCount > 0 ? 'bg-brand-400/10 text-brand-400 border border-brand-400/30' : 'bg-neutral-700 text-neutral-400 hover:text-neutral-300'}`}>
                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
@@ -1219,7 +1219,7 @@ function CodingLayout({
   );
 
   const DesignPane = () => (
-    <div className="h-full overflow-auto p-3 bg-neutral-750">
+    <div className={`h-full overflow-auto p-3 ${isMobile ? 'bg-white' : 'bg-neutral-750'}`}>
       {hasSystemDesign ? (
         <SystemDesignPanel systemDesign={systemDesign} eraserDiagram={eraserDiagram} autoGenerateEraser={autoGenerateEraser} onGenerateEraserDiagram={onGenerateEraserDiagram} question={currentProblem || loadedProblem} cloudProvider="auto" qaHistory={qaHistory || []} onFollowUpQuestion={onFollowUpQuestion} isProcessingFollowUp={isProcessingFollowUp} />
       ) : isLoading && loadingType === 'solve' ? (
@@ -1241,13 +1241,13 @@ function CodingLayout({
   );
 
   const CodePane = () => (
-    <div className="h-full bg-neutral-800">
+    <div className={`h-full ${isMobile ? 'bg-gray-50' : 'bg-neutral-800'}`}>
       <CodeDisplay ref={codeDisplayRef} code={solution?.code || streamingContent.code} language={solution?.language || streamingContent.language} complexity={solution?.complexity || streamingContent.complexity} onLineHover={onLineHover} examples={solution?.examples} isStreaming={isLoading && loadingType === 'solve' && !solution} autoRunOutput={autoRunOutput} onExplanationsUpdate={onExplanationsUpdate} ascendMode={ascendMode} codingLanguage={codingLanguage} onLanguageChange={ascendMode === 'coding' ? onLanguageChange : undefined} detailLevel={codingDetailLevel} onDetailLevelChange={ascendMode === 'coding' ? onCodingDetailLevelChange : undefined} editorSettings={editorSettings} systemDesign={solution?.systemDesign || streamingContent.systemDesign} eraserDiagram={eraserDiagram} autoGenerateEraser={autoGenerateEraser} question={currentProblem || loadedProblem} cloudProvider="auto" onGenerateEraserDiagram={onGenerateEraserDiagram} />
     </div>
   );
 
   const ExplainPane = () => (
-    <div className="h-full overflow-hidden bg-neutral-750">
+    <div className={`h-full overflow-hidden ${isMobile ? 'bg-white' : 'bg-neutral-750'}`}>
       <ExplanationPanel explanations={solution?.explanations} highlightedLine={highlightedLine} pitch={solution?.pitch || streamingContent.pitch} systemDesign={solution?.systemDesign || streamingContent.systemDesign} isStreaming={isLoading && loadingType === 'solve' && !solution} onExpandSystemDesign={onExpandSystemDesign} canExpandSystemDesign={!!currentProblem && !isLoading} onFollowUpQuestion={onFollowUpQuestion} isProcessingFollowUp={isProcessingFollowUp} />
     </div>
   );
@@ -1261,7 +1261,7 @@ function CodingLayout({
       : [{ id: 'problem', label: 'Problem' }, { id: 'code', label: 'Code' }, { id: 'explain', label: 'Explain' }];
 
     return (
-      <div className="h-full bg-neutral-800">
+      <div className="h-full bg-white">
         <MobileTabView tabs={tabs} activeTab={mobileTab} onTabChange={setMobileTab} loadingTabId={isLoading ? (ascendMode === 'system-design' ? 'design' : 'code') : null}>
           {(activeId) => (
             <>
@@ -1277,10 +1277,10 @@ function CodingLayout({
         {showAscendAssistant && (
           <div className="fixed inset-0 z-modal flex flex-col">
             <div className="flex-1 bg-black/50" onClick={onCloseAscendAssistant} />
-            <div className="h-[75vh] bg-neutral-800 rounded-t-2xl border-t border-neutral-700/50 overflow-hidden animate-slide-in-up">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700/50">
-                <span className="text-sm font-semibold text-white">Assistant</span>
-                <button onClick={onCloseAscendAssistant} className="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-400 active:bg-neutral-700">
+            <div className="h-[75vh] bg-white rounded-t-2xl border-t border-gray-200 overflow-hidden animate-slide-in-up shadow-xl">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+                <span className="text-sm font-semibold text-gray-900">Assistant</span>
+                <button onClick={onCloseAscendAssistant} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 active:bg-gray-100">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </div>
