@@ -1255,10 +1255,10 @@ function CodingLayout({
         <MobileTabView tabs={tabs} activeTab={mobileTab} onTabChange={setMobileTab} loadingTabId={isLoading ? (ascendMode === 'system-design' ? 'design' : 'code') : null}>
           {(activeId) => (
             <>
-              {activeId === 'problem' && {problemPane}}
-              {activeId === 'code' && {codePane}}
-              {activeId === 'explain' && {explainPane}}
-              {activeId === 'design' && {designPane}}
+              {activeId === 'problem' && problemPane}
+              {activeId === 'code' && codePane}
+              {activeId === 'explain' && explainPane}
+              {activeId === 'design' && designPane}
             </>
           )}
         </MobileTabView>
