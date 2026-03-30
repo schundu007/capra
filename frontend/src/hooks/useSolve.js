@@ -108,7 +108,7 @@ async function solveWithStream(
           }
         } catch (e) {
           if (e.message !== 'Unexpected end of JSON input') {
-            if (e.needCredits || e.freeTrialExhausted || e.subscriptionRequired) throw e;
+            throw e;
           }
         }
       }
