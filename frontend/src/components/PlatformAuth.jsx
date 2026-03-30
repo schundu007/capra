@@ -68,7 +68,7 @@ export default function PlatformAuth({ onClose }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.5)' }}>
       <div className="w-full max-w-md mx-4 rounded-lg overflow-hidden shadow-xl" style={{ background: '#ffffff', border: '1px solid #e5e5e5' }}>
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3" style={{ background: '#f8fafc', borderBottom: '1px solid #e5e7eb' }}>
+        <div className="flex items-center justify-between px-4 py-3 bg-gray-50" style={{ borderBottom: '1px solid #e5e7eb' }}>
           <span className="text-sm font-semibold" style={{ color: '#111827' }}>Platform Login</span>
           <button
             onClick={onClose}

@@ -55,8 +55,7 @@ export default function KeyboardShortcutsModal({ onClose }) {
                 {section.items.map((shortcut, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center justify-between py-1.5 px-2 rounded"
-                    style={{ background: '#f8fafc' }}
+                    className="flex items-center justify-between py-1.5 px-2 rounded bg-gray-50"
                   >
                     <span className="text-xs" style={{ color: '#374151' }}>{shortcut.description}</span>
                     <div className="flex items-center gap-1">

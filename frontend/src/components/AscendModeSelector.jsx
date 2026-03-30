@@ -65,8 +65,8 @@ export default function AscendModeSelector({
 
         {/* Detail Level Toggle */}
         <div
-          className="flex items-center rounded-lg p-0.5"
-          style={{ background: '#f1f5f9', border: '1px solid #e2e8f0' }}
+          className="flex items-center rounded-lg p-0.5 border border-gray-200"
+          style={{ background: '#f1f5f9' }}
         >
           <button
             type="button"

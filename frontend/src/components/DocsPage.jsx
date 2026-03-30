@@ -22,7 +22,7 @@ const CARD_STYLES = {
   // Standard card with subtle border
   card: {
     background: '#ffffff',
-    border: '1px solid #e2e8f0',
+    border: '1px solid #e5e7eb',
     borderRadius: '8px',
   },
   // Card header - uses Ascend emerald accent
@@ -38,7 +38,7 @@ const CARD_STYLES = {
   // Code block
   code: {
     background: '#0d1117',
-    border: '1px solid #e2e8f0',
+    border: '1px solid #e5e7eb',
     borderRadius: '10px',
   },
 };

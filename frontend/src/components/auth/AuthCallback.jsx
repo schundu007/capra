@@ -37,8 +37,7 @@ export default function AuthCallback() {
     return (
       <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#ffffff' }}>
         <div
-          className="w-full max-w-sm p-8 rounded-lg text-center"
-          style={{ background: '#f8fafc', border: '1px solid #e5e7eb' }}
+          className="w-full max-w-sm p-8 rounded-lg text-center bg-gray-50 border border-gray-200"
         >
           <div className="mb-4">
             <svg className="w-12 h-12 mx-auto animate-spin text-emerald-500" fill="none" viewBox="0 0 24 24">
@@ -57,8 +56,7 @@ export default function AuthCallback() {
     return (
       <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#ffffff' }}>
         <div
-          className="w-full max-w-sm p-8 rounded-lg text-center"
-          style={{ background: '#f8fafc', border: '1px solid #e5e7eb' }}
+          className="w-full max-w-sm p-8 rounded-lg text-center bg-gray-50 border border-gray-200"
         >
           <div className="mb-4">
             <svg className="w-12 h-12 mx-auto text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -83,8 +81,7 @@ export default function AuthCallback() {
     return (
       <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#ffffff' }}>
         <div
-          className="w-full max-w-sm p-8 rounded-lg text-center"
-          style={{ background: '#f8fafc', border: '1px solid #e5e7eb' }}
+          className="w-full max-w-sm p-8 rounded-lg text-center bg-gray-50 border border-gray-200"
         >
           <div className="mb-4">
             <svg className="w-12 h-12 mx-auto text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -961,7 +961,7 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
   // ---- Mobile Header ----
   if (isMobile) {
     return (
-      <header className="flex items-center justify-between gap-3 px-3 border-b safe-top" style={{ height: '52px', background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)', borderColor: '#e2e8f0' }}>
+      <header className="flex items-center justify-between gap-3 px-3 border-b border-gray-200 safe-top" style={{ height: '52px', background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)' }}>
         <div className="flex items-center gap-3">
           <button onClick={onToggleSidebar} className="w-10 h-10 rounded-lg flex items-center justify-center text-gray-600 active:bg-gray-100 transition-colors" aria-label="Open menu">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
@@ -984,14 +984,13 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
   // ---- Desktop Header — light theme matching landing/premium ----
   return (
     <header
-      className="flex items-center justify-between gap-4 px-5 border-b"
+      className="flex items-center justify-between gap-4 px-5 border-b border-gray-200"
       style={{
         paddingLeft: (isMacElectron && !showSidebar) ? '80px' : '20px',
         WebkitAppRegion: 'drag',
         height: '56px',
         background: 'rgba(255,255,255,0.95)',
         backdropFilter: 'blur(12px)',
-        borderColor: '#e2e8f0',
       }}
     >
       <div className="flex items-center gap-6" style={{ WebkitAppRegion: 'no-drag' }}>
@@ -1004,7 +1003,7 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
             {isLoading && <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />}
           </button>
         )}
-        <div className="flex items-center gap-1 p-1 rounded-lg" style={{ background: '#f1f5f9', border: '1px solid #e2e8f0' }}>
+        <div className="flex items-center gap-1 p-1 rounded-lg border border-gray-200" style={{ background: '#f1f5f9' }}>
           {[
             { id: 'coding', label: 'Coding', icon: <CodeIcon /> },
             { id: 'system-design', label: 'Design', icon: <DesignIcon /> },
@@ -1026,7 +1025,7 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
 
       {isElectron ? (
         <div className="flex items-center" style={{ WebkitAppRegion: 'no-drag' }}>
-          <button onClick={onStealthModeToggle} aria-label="Toggle stealth mode" className={`flex items-center gap-2.5 px-4 py-2 rounded-lg transition-all duration-200 border ${stealthMode ? 'text-emerald-600' : 'text-gray-500 hover:text-gray-900'}`} style={{ background: stealthMode ? 'rgba(16,185,129,0.08)' : '#f8fafc', borderColor: stealthMode ? 'rgba(16,185,129,0.3)' : '#e2e8f0' }}>
+          <button onClick={onStealthModeToggle} aria-label="Toggle stealth mode" className={`flex items-center gap-2.5 px-4 py-2 rounded-lg transition-all duration-200 border ${stealthMode ? 'text-emerald-600 border-emerald-500/30' : 'text-gray-500 hover:text-gray-900 bg-gray-50 border-gray-200'}`} style={stealthMode ? { background: 'rgba(16,185,129,0.08)' } : {}}>
             <StealthIcon stealthMode={stealthMode} />
             <span className="text-sm font-medium">Stealth</span>
             <div className={`w-9 h-5 rounded-full relative transition-all duration-300 ${stealthMode ? 'bg-emerald-500' : 'bg-gray-300'}`}>
@@ -1116,7 +1115,7 @@ function LoadingProgress() {
 
 function Footer({ isLoading, ascendMode }) {
   return (
-    <footer className="relative z-10 px-5 py-3 flex items-center justify-between text-xs border-t" style={{ borderColor: '#e2e8f0', background: '#f8fafc' }}>
+    <footer className="relative z-10 px-5 py-3 flex items-center justify-between text-xs border-t border-gray-200 bg-gray-50">
       <div className="flex items-center gap-4">
         <span className="flex items-center gap-2">
           <span className={`w-2 h-2 rounded-full ${isLoading ? 'animate-pulse bg-emerald-500' : 'bg-emerald-500'}`} />

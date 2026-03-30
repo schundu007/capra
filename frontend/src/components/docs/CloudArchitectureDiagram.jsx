@@ -10,7 +10,7 @@ export default function CloudArchitectureDiagram({ imageUrl, loading = false, er
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-8 rounded-lg" style={{ background: '#f8fafc' }}>
+      <div className="flex items-center justify-center py-8 rounded-lg bg-gray-50">
         <div className="flex items-center gap-3">
           <svg className="w-6 h-6 animate-spin text-emerald-500" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -41,7 +41,7 @@ export default function CloudArchitectureDiagram({ imageUrl, loading = false, er
 
   if (!imageUrl || imageError) {
     return (
-      <div className="text-center py-8 rounded-lg" style={{ background: '#f8fafc' }}>
+      <div className="text-center py-8 rounded-lg bg-gray-50">
         <Icon name="image" size={32} className="mx-auto mb-3 text-gray-500" />
         <p className="text-lg text-gray-400">Click "Generate Diagram" to create a visual architecture</p>
         <p className="text-sm text-gray-500 mt-1">Real AWS/GCP/Azure cloud icons</p>

@@ -365,7 +365,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
   const displayContent = isGenerating ? streamingContent : parsedContent;
 
   return (
-    <div className="h-full flex flex-col overflow-hidden" style={{ background: colors.bg, fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div className="h-full flex flex-col overflow-hidden landing-root" style={{ background: colors.bg }}>
       {/* Minimal Header */}
       <div className="px-5 py-2.5 flex items-center justify-between flex-shrink-0" style={{ borderBottom: `1px solid ${colors.border}` }}>
         <div className="flex items-center gap-3">
@@ -531,7 +531,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
 
                         {/* Problem Statement */}
                         {q.problemStatement && (
-                          <p className="mb-3 p-2 rounded" style={{ background: '#f8fafc', color: colors.text }}>{q.problemStatement}</p>
+                          <p className="mb-3 p-2 rounded bg-gray-50" style={{ color: colors.text }}>{q.problemStatement}</p>
                         )}
 
                         {/* Examples */}
@@ -671,7 +671,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                                   </p>
                                 )}
                                 {q.diagramDescription && (
-                                  <p className="text-xs p-2" style={{ background: '#f8fafc', color: colors.textMuted }}>{q.diagramDescription}</p>
+                                  <p className="text-xs p-2 bg-gray-50" style={{ color: colors.textMuted }}>{q.diagramDescription}</p>
                                 )}
                               </div>
                             ) : q.architecture?.asciiDiagram ? (
@@ -701,7 +701,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                             <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: colors.accent }}>Components</p>
                             <div className="space-y-2">
                               {safeArray(q.architecture.components).filter(comp => comp && typeof comp === 'object').map((comp, j) => (
-                                <div key={j} className="text-xs p-2 rounded" style={{ background: '#f8fafc' }}>
+                                <div key={j} className="text-xs p-2 rounded bg-gray-50">
                                   <span className="font-semibold" style={{ color: '#1e40af' }}>{comp?.name || ''}</span>
                                   <span className="ml-2 px-1.5 py-0.5 rounded text-xs" style={{ background: '#E0E7FF', color: '#3730A3' }}>{comp?.technology || ''}</span>
                                   <p className="mt-1" style={{ color: colors.textMuted }}>{comp?.responsibility || ''}</p>
@@ -794,7 +794,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                             </div>
                           </div>
                         )}
-                        {q.tips && <p className="mt-2 p-2 rounded italic text-xs" style={{ background: '#f8fafc', color: colors.accent }}>💡 {safeStr(q.tips).trim()}</p>}
+                        {q.tips && <p className="mt-2 p-2 rounded italic text-xs bg-gray-50" style={{ color: colors.accent }}>💡 {safeStr(q.tips).trim()}</p>}
                       </div>
                     ))}
                   </div>
@@ -991,7 +991,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                     ) : (
                       <div className="space-y-2">
                         {safeArray(displayContent.architectureTopics).filter(topic => topic && typeof topic === 'object').map((topic, i) => (
-                          <div key={i} className="p-2 rounded" style={{ background: '#f8fafc' }}>
+                          <div key={i} className="p-2 rounded bg-gray-50">
                             <span className="font-semibold" style={{ color: colors.accent }}>{topic?.topic || ''}</span>
                             {topic?.relevance && <p className="text-xs" style={{ color: colors.textMuted }}>{topic.relevance}</p>}
                             {safeArray(topic?.keyPoints).length > 0 && (
@@ -1010,7 +1010,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                     <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: colors.textLight }}>System Integrations</p>
                     <div className="space-y-2">
                       {safeArray(displayContent.systemIntegrations).filter(int => int && typeof int === 'object').map((int, i) => (
-                        <div key={i} className="p-2 rounded" style={{ background: '#f8fafc' }}>
+                        <div key={i} className="p-2 rounded bg-gray-50">
                           <span className="font-semibold" style={{ color: colors.accent }}>{int?.integration || ''}</span>
                           {safeArray(int?.patterns).length > 0 && (
                             <p className="text-xs mt-1">{safeArray(int.patterns).join(' • ')}</p>
@@ -1146,7 +1146,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                             }
                             if (item.type === 'tech') {
                               return (
-                                <div key={i} className="p-3 rounded-lg" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                                <div key={i} className="p-3 rounded-lg bg-gray-50 border border-gray-200">
                                   <span className="font-bold text-base" style={{ color: '#1e40af' }}>{item.name}</span>
                                   <p className="text-sm mt-1" style={{ color: colors.textMuted }}>{item.description}</p>
                                 </div>
@@ -1236,7 +1236,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                         ) : Array.isArray(value) ? (
                           <div className="space-y-2">
                             {value.map((item, idx) => (
-                              <div key={idx} className="p-3 rounded" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                              <div key={idx} className="p-3 rounded bg-gray-50 border border-gray-200">
                                 {typeof item === 'string' ? (
                                   <p className="text-sm">{item}</p>
                                 ) : typeof item === 'object' && item ? (
@@ -1255,7 +1255,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                             ))}
                           </div>
                         ) : typeof value === 'object' && value ? (
-                          <div className="p-3 rounded" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                          <div className="p-3 rounded bg-gray-50 border border-gray-200">
                             {Object.entries(value).map(([k, v]) => (
                               <p key={k} className="text-sm mb-1">
                                 <span className="font-medium" style={{ color: colors.accent }}>{k}: </span>
