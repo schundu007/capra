@@ -51,6 +51,9 @@ router.post('/eraser', async (req, res, next) => {
  * Generate a cloud architecture diagram using Python diagrams library
  */
 router.post('/generate', async (req, res, next) => {
+  // Set timeout for long-running diagram generation
+  req.setTimeout(120000);
+  res.setTimeout(120000);
   try {
     const { question, cloudProvider, difficulty, category, format, detailLevel, direction } = req.body;
 
