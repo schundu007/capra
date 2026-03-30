@@ -589,8 +589,8 @@ export default function DocsPage({ onBack }) {
               {activePage === 'coding' && (
                 <>
                   {/* All topics in a flat 2-column grid */}
-                  <div className="rounded-xl overflow-hidden mb-4" style={{ border: '1px solid #e2e8f0' }}>
-                    <div className="grid grid-cols-1 md:grid-cols-2">
+                  <div className="rounded-lg overflow-hidden mb-6 border border-gray-200">
+                    <div className="grid grid-cols-1 md:grid-cols-2 bg-white">
                     {filteredTopics.map((topic, idx) => {
                       const catId = codingCategoryMap[topic.id];
                       const category = codingCategories.find(c => c.id === catId);
@@ -598,24 +598,27 @@ export default function DocsPage({ onBack }) {
                       return (
                         <div key={topic.id}>
                           {isFirstInCategory && category && (
-                            <div className="col-span-full px-3 py-1.5 flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wider" style={{ background: '#f8fafc', borderTop: idx > 0 ? '1px solid #e2e8f0' : 'none', borderBottom: '1px solid #f0f0f0' }}>
-                              <Icon name={category.icon} size={12} style={{ color: category.color }} />
+                            <div className={`col-span-full px-4 py-2 flex items-center gap-2 landing-mono text-[10px] text-gray-400 uppercase tracking-widest bg-gray-50/80 ${idx > 0 ? 'border-t border-gray-200' : ''} border-b border-gray-100`}>
+                              <Icon name={category.icon} size={11} style={{ color: category.color }} />
                               {category.name} · {filteredTopics.filter(t => codingCategoryMap[t.id] === catId).length}
                             </div>
                           )}
                           <div
                             onClick={() => setSelectedTopic(topic.id)}
-                            className="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group border-b border-r border-gray-100"
+                            className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-all group border-b border-r border-gray-100"
                           >
-                            <div className="flex items-center gap-2">
-                              <div className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? '#d1fae5' : `${topic.color}15` }}>
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? '#d1fae5' : `${topic.color}12` }}>
                                 {completedTopics[topic.id] ? <Icon name="check" size={10} className="text-emerald-600" /> : <Icon name={topic.icon} size={10} style={{ color: topic.color }} />}
                               </div>
-                              <span className={`text-sm font-medium group-hover:text-emerald-600 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-gray-900'}`}>{topic.title}</span>
+                              <span className={`text-sm landing-body font-medium group-hover:text-emerald-600 transition-colors ${completedTopics[topic.id] ? 'text-gray-400 line-through' : 'text-gray-900'}`}>{topic.title}</span>
                             </div>
-                            <span className="px-1.5 py-0.5 rounded text-xs font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
-                              {topic.commonProblems?.length || topic.keyQuestions?.length || 0}Q
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] landing-mono px-1.5 py-0.5 rounded border border-gray-200 text-gray-400">
+                                {topic.commonProblems?.length || topic.keyQuestions?.length || 0}Q
+                              </span>
+                              <Icon name="chevronRight" size={12} className="text-gray-300 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all" />
+                            </div>
                           </div>
                         </div>
                       );
@@ -623,20 +626,23 @@ export default function DocsPage({ onBack }) {
                     </div>
                   </div>
 
-                  {/* Quick Reference - Enhanced */}
-                  <div className="mb-4">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
-                        <Icon name="book" size={16} className="text-emerald-600" />
-                      </div>
-                      <h2 className="text-sm font-bold text-gray-900">Quick Reference</h2>
+                  {/* Gradient Divider */}
+                  <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent mb-6" />
+
+                  {/* Quick Reference */}
+                  <div className="mb-6">
+                    <div className="mb-4">
+                      <span className="landing-mono text-xs text-emerald-600 tracking-widest uppercase">Cheat Sheet</span>
+                      <h2 className="landing-display font-bold text-xl mt-1 tracking-tight text-gray-900">Quick Reference</h2>
                     </div>
-                    <div className="grid md:grid-cols-2 gap-3">
+                    <div className="grid md:grid-cols-2 gap-4">
                       {/* Time Complexity Card */}
-                      <div className="rounded-xl overflow-hidden" style={CARD_STYLES.card}>
-                        <div className="px-4 py-3 border-b border-emerald-200" style={{ background: '#f0fdf4' }}>
-                          <h3 className="text-sm text-gray-900 font-semibold flex items-center gap-2">
-                            <Icon name="clock" size={16} className="text-emerald-600" />
+                      <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
+                        <div className="px-4 py-3 border-b border-gray-100 bg-emerald-50/50">
+                          <h3 className="text-sm text-gray-900 font-semibold landing-display flex items-center gap-2">
+                            <div className="w-6 h-6 rounded flex items-center justify-center bg-emerald-100">
+                              <Icon name="clock" size={12} className="text-emerald-600" />
+                            </div>
                             Time Complexity Cheat Sheet
                           </h3>
                         </div>
@@ -644,18 +650,18 @@ export default function DocsPage({ onBack }) {
                           <table className="w-full text-sm">
                             <tbody>
                               {[
-                                { complexity: 'O(1)', desc: 'Constant', rating: 'Best', color: '#10b981' },
-                                { complexity: 'O(log n)', desc: 'Logarithmic', rating: 'Great', color: '#10b981' },
-                                { complexity: 'O(n)', desc: 'Linear', rating: 'Good', color: '#eab308' },
-                                { complexity: 'O(n log n)', desc: 'Linearithmic', rating: 'Fair', color: '#eab308' },
-                                { complexity: 'O(n²)', desc: 'Quadratic', rating: 'Slow', color: '#f97316' },
-                                { complexity: 'O(2ⁿ)', desc: 'Exponential', rating: 'Avoid', color: '#ef4444' },
+                                { complexity: 'O(1)', desc: 'Constant', rating: 'Best', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+                                { complexity: 'O(log n)', desc: 'Logarithmic', rating: 'Great', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+                                { complexity: 'O(n)', desc: 'Linear', rating: 'Good', cls: 'bg-amber-50 text-amber-700 border-amber-200' },
+                                { complexity: 'O(n log n)', desc: 'Linearithmic', rating: 'Fair', cls: 'bg-amber-50 text-amber-700 border-amber-200' },
+                                { complexity: 'O(n²)', desc: 'Quadratic', rating: 'Slow', cls: 'bg-orange-50 text-orange-700 border-orange-200' },
+                                { complexity: 'O(2ⁿ)', desc: 'Exponential', rating: 'Avoid', cls: 'bg-red-50 text-red-700 border-red-200' },
                               ].map((item, i) => (
                                 <tr key={i} className="border-b border-gray-100 last:border-0">
-                                  <td className="py-2 font-mono text-sm text-emerald-700">{item.complexity}</td>
-                                  <td className="py-2 text-gray-900">{item.desc}</td>
+                                  <td className="py-2 landing-mono text-xs text-emerald-700">{item.complexity}</td>
+                                  <td className="py-2 text-gray-900 landing-body">{item.desc}</td>
                                   <td className="py-2 text-right">
-                                    <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${item.color}20`, color: item.color }}>
+                                    <span className={`text-[10px] landing-mono px-1.5 py-0.5 rounded border font-medium ${item.cls}`}>
                                       {item.rating}
                                     </span>
                                   </td>
@@ -666,10 +672,12 @@ export default function DocsPage({ onBack }) {
                         </div>
                       </div>
                       {/* Data Structure Selection Card */}
-                      <div className="rounded-xl overflow-hidden" style={CARD_STYLES.card}>
-                        <div className="px-4 py-3 border-b border-emerald-200" style={{ background: '#f0fdf4' }}>
-                          <h3 className="text-sm text-gray-900 font-semibold flex items-center gap-2">
-                            <Icon name="database" size={16} className="text-emerald-600" />
+                      <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
+                        <div className="px-4 py-3 border-b border-gray-100 bg-emerald-50/50">
+                          <h3 className="text-sm text-gray-900 font-semibold landing-display flex items-center gap-2">
+                            <div className="w-6 h-6 rounded flex items-center justify-center bg-emerald-100">
+                              <Icon name="database" size={12} className="text-emerald-600" />
+                            </div>
                             When to Use What
                           </h3>
                         </div>
@@ -677,17 +685,17 @@ export default function DocsPage({ onBack }) {
                           <table className="w-full text-sm">
                             <tbody>
                               {[
-                                { need: 'Fast lookup', solution: 'Hash Map', icon: 'hash' },
-                                { need: 'Sorted data', solution: 'BST / TreeMap', icon: 'tree' },
-                                { need: 'FIFO operations', solution: 'Queue', icon: 'list' },
-                                { need: 'LIFO operations', solution: 'Stack', icon: 'layers' },
-                                { need: 'Priority access', solution: 'Heap', icon: 'triangle' },
-                                { need: 'Prefix matching', solution: 'Trie', icon: 'search' },
+                                { need: 'Fast lookup', solution: 'Hash Map' },
+                                { need: 'Sorted data', solution: 'BST / TreeMap' },
+                                { need: 'FIFO operations', solution: 'Queue' },
+                                { need: 'LIFO operations', solution: 'Stack' },
+                                { need: 'Priority access', solution: 'Heap' },
+                                { need: 'Prefix matching', solution: 'Trie' },
                               ].map((item, i) => (
                                 <tr key={i} className="border-b border-gray-100 last:border-0">
-                                  <td className="py-2 text-gray-600">{item.need}</td>
+                                  <td className="py-2 text-gray-500 landing-body">{item.need}</td>
                                   <td className="py-2 text-right">
-                                    <span className="px-2 py-0.5 rounded text-sm font-medium bg-emerald-50 text-emerald-600">
+                                    <span className="landing-mono text-xs text-emerald-700">
                                       {item.solution}
                                     </span>
                                   </td>
@@ -962,25 +970,25 @@ export default function DocsPage({ onBack }) {
               {/* Behavioral Content */}
               {activePage === 'behavioral' && (
                 <>
-                  {/* STAR Method - Compact */}
-                  <div className="rounded-lg overflow-hidden mb-3" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
-                    <div className="px-3 py-2 border-b border-gray-200 flex items-center gap-2" style={{ background: '#f8fafc' }}>
-                      <Icon name="star" size={14} className="text-emerald-700" />
-                      <h3 className="text-sm font-bold text-gray-900">The STAR Method</h3>
-                      <span className="text-xs text-gray-500">— Framework for behavioral answers</span>
+                  {/* STAR Method */}
+                  <div className="rounded-lg overflow-hidden mb-4 border border-gray-200 bg-white">
+                    <div className="px-4 py-2.5 border-b border-gray-100 bg-gray-50/80 flex items-center gap-2">
+                      <Icon name="star" size={14} className="text-emerald-600" />
+                      <h3 className="text-sm font-semibold text-gray-900 landing-display">The STAR Method</h3>
+                      <span className="text-[10px] landing-mono text-gray-400">Framework for behavioral answers</span>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-2">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 p-3">
                       {[
-                        { letter: 'S', title: 'Situation', desc: 'Set the scene. Be specific about when and where.', color: '#3b82f6', bg: '#eff6ff' },
-                        { letter: 'T', title: 'Task', desc: 'Describe your responsibility. Focus on YOUR role.', color: '#f59e0b', bg: '#fffbeb' },
-                        { letter: 'A', title: 'Action', desc: 'Explain specific steps you took. Use "I" not "we".', color: '#10b981', bg: '#ecfdf5' },
-                        { letter: 'R', title: 'Result', desc: 'Share outcomes. Quantify when possible.', color: '#ef4444', bg: '#fef2f2' },
+                        { letter: 'S', title: 'Situation', desc: 'Set the scene. Be specific about when and where.', color: '#3b82f6', bg: 'bg-blue-50', border: 'border-blue-200' },
+                        { letter: 'T', title: 'Task', desc: 'Describe your responsibility. Focus on YOUR role.', color: '#f59e0b', bg: 'bg-amber-50', border: 'border-amber-200' },
+                        { letter: 'A', title: 'Action', desc: 'Explain specific steps you took. Use "I" not "we".', color: '#10b981', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+                        { letter: 'R', title: 'Result', desc: 'Share outcomes. Quantify when possible.', color: '#ef4444', bg: 'bg-red-50', border: 'border-red-200' },
                       ].map((step, i) => (
-                        <div key={i} className="flex items-start gap-2 p-2 rounded" style={{ background: step.bg, borderLeft: `3px solid ${step.color}` }}>
-                          <span className="w-6 h-6 rounded flex items-center justify-center text-xs font-extrabold text-white flex-shrink-0" style={{ background: step.color }}>{step.letter}</span>
+                        <div key={i} className={`flex items-start gap-2 p-2.5 rounded-lg ${step.bg} border-l-3`} style={{ borderLeft: `3px solid ${step.color}` }}>
+                          <span className="w-6 h-6 rounded flex items-center justify-center text-[10px] landing-mono font-bold text-white flex-shrink-0" style={{ background: step.color }}>{step.letter}</span>
                           <div>
-                            <div className="text-sm font-extrabold" style={{ color: step.color }}>{step.title}</div>
-                            <div className="text-xs text-gray-700">{step.desc}</div>
+                            <div className="text-sm font-bold landing-display" style={{ color: step.color }}>{step.title}</div>
+                            <div className="text-xs text-gray-500 landing-body">{step.desc}</div>
                           </div>
                         </div>
                       ))}
@@ -988,69 +996,74 @@ export default function DocsPage({ onBack }) {
                   </div>
 
                   {/* Question Categories Section - Grouped by Category */}
-                  <div className="space-y-3 mb-4">
+                  <div className="mb-6">
+                    <div className="mb-4">
+                      <span className="landing-mono text-xs text-emerald-600 tracking-widest uppercase">Categories</span>
+                      <h2 className="landing-display font-bold text-xl mt-1 tracking-tight text-gray-900">Question Topics</h2>
+                    </div>
+                    <div className="space-y-3">
                     {behavioralCategories.map((category) => {
                       const categoryTopics = filteredTopics.filter(t => topicCategoryMap[t.id] === category.id);
                       if (categoryTopics.length === 0) return null;
                       return (
-                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                        <div key={category.id} className="rounded-lg overflow-hidden border border-gray-200">
                           {/* Category Header */}
-                          <div className="px-3 py-2 flex items-center gap-2" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
-                            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${category.color}20` }}>
-                              <Icon name={category.icon} size={16} style={{ color: category.color }} />
+                          <div className="px-4 py-2.5 flex items-center gap-2.5 bg-gray-50/80 border-b border-gray-100">
+                            <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: `${category.color}12` }}>
+                              <Icon name={category.icon} size={14} style={{ color: category.color }} />
                             </div>
-                            <div>
-                              <h3 className="text-sm font-bold text-gray-900 inline">{category.name}</h3>
-                              <span className="text-xs text-gray-500 ml-2">{categoryTopics.length} topics</span>
-                            </div>
+                            <h3 className="text-sm font-semibold text-gray-900 landing-display">{category.name}</h3>
+                            <span className="text-[10px] landing-mono text-gray-400">{categoryTopics.length} topics</span>
                           </div>
                           {/* Topics in Category */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ borderTop: '1px solid #f0f0f0' }}>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white">
                             {categoryTopics.map((topic) => (
                               <div
                                 key={topic.id}
                                 onClick={() => setSelectedTopic(topic.id)}
-                                className="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group border-b border-r border-gray-100"
+                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-all group border-b border-r border-gray-100"
                               >
-                                <div className="flex items-center gap-3">
-                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? '#d1fae5' : `${topic.color}15` }}>
-                                    {completedTopics[topic.id] ? <Icon name="check" size={12} className="text-emerald-600" /> : <Icon name={topic.icon} size={12} style={{ color: topic.color }} />}
+                                <div className="flex items-center gap-2.5">
+                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? '#d1fae5' : `${topic.color}12` }}>
+                                    {completedTopics[topic.id] ? <Icon name="check" size={11} className="text-emerald-600" /> : <Icon name={topic.icon} size={11} style={{ color: topic.color }} />}
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <span className={`text-sm font-medium group-hover:text-emerald-600 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-gray-900'}`}>{topic.title}</span>
+                                    <span className={`text-sm landing-body font-medium group-hover:text-emerald-600 transition-colors ${completedTopics[topic.id] ? 'text-gray-400 line-through' : 'text-gray-900'}`}>{topic.title}</span>
                                     {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-500" />}
-                                    
                                   </div>
                                 </div>
-                                <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
-                                  {topic.keyQuestions?.length || topic.sampleQuestions?.length || 0}Q
-                                </span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] landing-mono px-1.5 py-0.5 rounded border border-gray-200 text-gray-400">
+                                    {topic.keyQuestions?.length || topic.sampleQuestions?.length || 0}Q
+                                  </span>
+                                  <Icon name="chevronRight" size={12} className="text-gray-300 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all" />
+                                </div>
                               </div>
                             ))}
                           </div>
                         </div>
                       );
                     })}
+                    </div>
                   </div>
+
+                  {/* Gradient Divider */}
+                  <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-6" />
 
                   {/* Company-Specific Section */}
                   <div className="mb-6">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-amber-500/10">
-                        <Icon name="briefcase" size={16} className="text-amber-400" />
-                      </div>
-                      <div>
-                        <h2 className="text-sm font-bold text-gray-900">Company-Specific Prep</h2>
-                        <p className="text-sm text-gray-700">Tailored guidance for top tech companies</p>
-                      </div>
+                    <div className="mb-4">
+                      <span className="landing-mono text-xs text-emerald-600 tracking-widest uppercase">Companies</span>
+                      <h2 className="landing-display font-bold text-xl mt-1 tracking-tight text-gray-900">Company-Specific Prep</h2>
+                      <p className="text-sm text-gray-500 landing-body mt-1">Tailored guidance for top tech companies</p>
                     </div>
-                    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                    <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                       <table className="w-full">
                         <thead>
-                          <tr style={{ background: '#f8fafc' }}>
-                            <th className="text-left text-sm font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Company</th>
-                            <th className="text-left text-sm font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 hidden md:table-cell">Focus Areas</th>
-                            <th className="text-right text-sm font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 w-24">Topics</th>
+                          <tr className="bg-gray-50/80 border-b border-gray-100">
+                            <th className="text-left landing-mono text-[10px] text-gray-400 uppercase tracking-widest px-4 py-3">Company</th>
+                            <th className="text-left landing-mono text-[10px] text-gray-400 uppercase tracking-widest px-4 py-3 hidden md:table-cell">Focus Areas</th>
+                            <th className="text-right landing-mono text-[10px] text-gray-400 uppercase tracking-widest px-4 py-3 w-24">Topics</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1058,25 +1071,21 @@ export default function DocsPage({ onBack }) {
                             <tr
                               key={company.id}
                               onClick={() => setSelectedTopic(company.id)}
-                              className="group cursor-pointer transition-all hover:bg-gray-50"
-                              className="border-t border-gray-100"
+                              className="group cursor-pointer transition-all hover:bg-gray-50 border-t border-gray-100"
                             >
                               <td className="px-4 py-3">
                                 <div className="flex items-center gap-3">
-                                  <div
-                                    className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-                                    style={{ background: `${company.color}15` }}
-                                  >
-                                    <Icon name={company.icon} size={16} style={{ color: company.color }} />
+                                  <div className="w-7 h-7 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${company.color}12` }}>
+                                    <Icon name={company.icon} size={14} style={{ color: company.color }} />
                                   </div>
-                                  <span className="text-gray-900 font-medium group-hover:text-emerald-600 transition-colors">{company.title}</span>
+                                  <span className="text-gray-900 landing-body font-medium group-hover:text-emerald-600 transition-colors">{company.title}</span>
                                 </div>
                               </td>
                               <td className="px-4 py-3 hidden md:table-cell">
-                                <span className="text-gray-400 text-sm">{company.subtitle}</span>
+                                <span className="text-gray-500 text-sm landing-body">{company.subtitle}</span>
                               </td>
                               <td className="px-4 py-3 text-right">
-                                <span className="px-2 py-1 rounded text-sm font-medium" style={{ background: `${company.color}15`, color: company.color }}>
+                                <span className="text-[10px] landing-mono px-1.5 py-0.5 rounded border border-gray-200 text-gray-400">
                                   {company.keyQuestions?.length || 0}
                                 </span>
                               </td>
