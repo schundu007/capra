@@ -52,7 +52,7 @@ router.post('/eraser', async (req, res, next) => {
  */
 router.post('/generate', async (req, res, next) => {
   try {
-    const { question, cloudProvider, difficulty, category, format, detailLevel } = req.body;
+    const { question, cloudProvider, difficulty, category, format, detailLevel, direction } = req.body;
 
     if (!question) {
       throw new AppError(
@@ -77,7 +77,8 @@ router.post('/generate', async (req, res, next) => {
       difficulty: difficulty || 'medium',
       category: category || 'System Design',
       format: format || 'png',
-      detailLevel: detailLevel || 'overview'  // 'overview' or 'detailed'
+      detailLevel: detailLevel || 'overview',  // 'overview' or 'detailed'
+      direction: direction || 'LR'  // 'LR' or 'TB'
     });
 
     if (!result.success) {

@@ -304,13 +304,18 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
   const [imageError, setImageError] = useState(false);
 
   const [generatingDiagram, setGeneratingDiagram] = useState(false);
-  const [overviewDiagram, setOverviewDiagram] = useState(null);
-  const [detailedDiagram, setDetailedDiagram] = useState(null);
+  const [diagramCache, setDiagramCache] = useState({});
   const [diagramError, setDiagramError] = useState(null);
   const [diagramDetailLevel, setDiagramDetailLevel] = useState('overview');
+  const [diagramDirection, setDiagramDirection] = useState('LR');
   const [showASCII, setShowASCII] = useState(true);
+  const [diagramScale, setDiagramScale] = useState(1);
+  const [diagramTranslate, setDiagramTranslate] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-  const diagramData = diagramDetailLevel === 'detailed' ? detailedDiagram : overviewDiagram;
+  const diagramKey = `${diagramDetailLevel}_${diagramDirection}`;
+  const diagramData = diagramCache[diagramKey] || null;
   const hasComparison = systemDesign?.comparison || systemDesign?.comparisonDiagram;
 
   useEffect(() => {
@@ -321,9 +326,9 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
 
   useEffect(() => {
     // Don't auto-generate diagrams for focused questions (SLIs, SLOs, metrics)
-    if (systemDesign?.included && question && !overviewDiagram && !generatingDiagram && !diagramError && !systemDesign?.focusedAnswer) {
+    if (systemDesign?.included && question && !diagramCache['overview_LR'] && !generatingDiagram && !diagramError && !systemDesign?.focusedAnswer) {
       const timer = setTimeout(() => {
-        handleGenerateDiagram('overview');
+        handleGenerateDiagram('overview', 'LR');
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -339,18 +344,22 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
     }
   };
 
-  const handleGenerateDiagram = async (detailLevel = 'overview') => {
+  const handleGenerateDiagram = async (detailLevel = 'overview', direction = 'LR') => {
     if (!question) return;
 
-    const cachedDiagram = detailLevel === 'detailed' ? detailedDiagram : overviewDiagram;
-    if (cachedDiagram) {
+    const cacheKey = `${detailLevel}_${direction}`;
+    if (diagramCache[cacheKey]) {
       setDiagramDetailLevel(detailLevel);
+      setDiagramDirection(direction);
       return;
     }
 
     setGeneratingDiagram(true);
     setDiagramError(null);
     setDiagramDetailLevel(detailLevel);
+    setDiagramDirection(direction);
+    setDiagramScale(1);
+    setDiagramTranslate({ x: 0, y: 0 });
 
     try {
       const response = await fetch(`${API_URL}/api/diagram/generate`, {
@@ -365,7 +374,8 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
           difficulty: 'medium',
           category: 'System Design',
           format: 'png',
-          detailLevel: detailLevel
+          detailLevel,
+          direction,
         }),
       });
 
@@ -383,23 +393,20 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
       const result = await response.json();
 
       if (result.success && result.image_url) {
-        const newDiagramData = {
-          imageUrl: `${API_URL}${result.image_url}`,
-          cloudProvider: result.cloud_provider,
-          pythonCode: result.python_code,
-          detailLevel: detailLevel
-        };
-
-        if (detailLevel === 'detailed') {
-          setDetailedDiagram(newDiagramData);
-        } else {
-          setOverviewDiagram(newDiagramData);
-        }
+        setDiagramCache(prev => ({
+          ...prev,
+          [cacheKey]: {
+            imageUrl: `${API_URL}${result.image_url}`,
+            cloudProvider: result.cloud_provider,
+            pythonCode: result.python_code,
+            detailLevel,
+            direction,
+          }
+        }));
       } else {
         throw new Error(result.error || 'Diagram generation failed');
       }
     } catch (error) {
-      console.error('[Diagram] Generation error:', error);
       setDiagramError(error.message);
     } finally {
       setGeneratingDiagram(false);
@@ -703,49 +710,97 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
               <ASCIIDiagram systemDesign={systemDesign} detailed={diagramDetailLevel === 'detailed'} />
             </div>
 
-            {/* Row 5: Cloud Diagram - Full Width */}
-            <div className="col-span-12 rounded-lg p-4 bg-gray-200/30 border border-gray-200">
-              <div className="flex items-center justify-between mb-3">
+            {/* Row 5: Cloud Diagram - Full Width with Controls */}
+            <div className="col-span-12 rounded-lg bg-gray-200/30 border border-gray-200 overflow-hidden">
+              {/* Diagram Controls */}
+              <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 bg-gray-50 flex-wrap gap-2">
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-900">
                   Cloud Architecture {diagramData?.cloudProvider && `(${diagramData.cloudProvider.toUpperCase()})`}
                 </h4>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {/* Detail Level Toggle */}
+                  <div className="flex rounded border border-gray-300 overflow-hidden">
+                    <button
+                      onClick={() => handleGenerateDiagram('overview', diagramDirection)}
+                      className={`px-2 py-1 text-[10px] font-semibold transition-colors ${diagramDetailLevel === 'overview' ? 'bg-emerald-500 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+                    >
+                      Overview
+                    </button>
+                    <button
+                      onClick={() => handleGenerateDiagram('detailed', diagramDirection)}
+                      className={`px-2 py-1 text-[10px] font-semibold transition-colors ${diagramDetailLevel === 'detailed' ? 'bg-emerald-500 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+                    >
+                      Detailed
+                    </button>
+                  </div>
+                  {/* Direction Toggle */}
+                  <div className="flex rounded border border-gray-300 overflow-hidden">
+                    <button
+                      onClick={() => handleGenerateDiagram(diagramDetailLevel, 'LR')}
+                      className={`px-2 py-1 text-[10px] font-semibold transition-colors ${diagramDirection === 'LR' ? 'bg-blue-500 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+                      title="Left to Right"
+                    >
+                      L→R
+                    </button>
+                    <button
+                      onClick={() => handleGenerateDiagram(diagramDetailLevel, 'TB')}
+                      className={`px-2 py-1 text-[10px] font-semibold transition-colors ${diagramDirection === 'TB' ? 'bg-blue-500 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+                      title="Top to Bottom"
+                    >
+                      T↓B
+                    </button>
+                  </div>
+                  {/* Zoom Controls */}
                   {diagramData && (
-                    <button
-                      onClick={() => setDiagramModal(true)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded border bg-brand-400 text-gray-900 border-brand-400 hover:bg-brand-500"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                      </svg>
-                      Full Screen
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => setDiagramScale(s => Math.max(0.3, s - 0.15))} className="w-6 h-6 flex items-center justify-center rounded border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 text-xs font-bold">−</button>
+                      <span className="text-[10px] font-mono text-gray-500 w-8 text-center">{Math.round(diagramScale * 100)}%</span>
+                      <button onClick={() => setDiagramScale(s => Math.min(4, s + 0.15))} className="w-6 h-6 flex items-center justify-center rounded border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 text-xs font-bold">+</button>
+                      <button onClick={() => { setDiagramScale(1); setDiagramTranslate({ x: 0, y: 0 }); }} className="px-1.5 py-0.5 rounded border border-gray-300 bg-white text-[10px] text-gray-500 hover:bg-gray-50">Fit</button>
+                    </div>
                   )}
-                  {!diagramData && !generatingDiagram && (
-                    <button
-                      onClick={() => handleGenerateDiagram('overview')}
-                      className="px-3 py-1.5 text-xs font-medium rounded border bg-brand-400 text-gray-900 border-brand-400 hover:bg-brand-500"
-                    >
-                      Generate Diagram
-                    </button>
-                  )}
-                  {diagramData && !detailedDiagram && diagramDetailLevel !== 'detailed' && (
-                    <button
-                      onClick={() => handleGenerateDiagram('detailed')}
-                      disabled={generatingDiagram}
-                      className="px-3 py-1.5 text-xs font-medium rounded border bg-info-500 text-gray-900 border-info-500 hover:bg-info-600"
-                    >
-                      Deep Dive
+                  {/* Full Screen */}
+                  {diagramData && (
+                    <button onClick={() => setDiagramModal(true)} className="w-6 h-6 flex items-center justify-center rounded border border-gray-300 bg-white text-gray-600 hover:bg-gray-50" title="Full Screen">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
                     </button>
                   )}
                 </div>
               </div>
-              <CloudArchitectureDiagram
-                imageUrl={diagramData?.imageUrl}
-                loading={generatingDiagram}
-                error={diagramError}
-                cloudProvider={diagramData?.cloudProvider || cloudProvider}
-              />
+              {/* Diagram Image with Pan+Zoom */}
+              <div
+                className="relative overflow-hidden cursor-grab active:cursor-grabbing"
+                style={{ minHeight: diagramData ? '300px' : undefined }}
+                onWheel={(e) => { if (diagramData) { e.preventDefault(); setDiagramScale(s => Math.min(4, Math.max(0.3, s + (e.deltaY > 0 ? -0.1 : 0.1)))); } }}
+                onMouseDown={(e) => { if (diagramData) { setIsDragging(true); setDragStart({ x: e.clientX - diagramTranslate.x, y: e.clientY - diagramTranslate.y }); } }}
+                onMouseMove={(e) => { if (isDragging) { setDiagramTranslate({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y }); } }}
+                onMouseUp={() => setIsDragging(false)}
+                onMouseLeave={() => setIsDragging(false)}
+              >
+                {diagramData ? (
+                  <img
+                    src={diagramData.imageUrl}
+                    alt="Cloud Architecture Diagram"
+                    className="select-none"
+                    draggable={false}
+                    style={{
+                      transform: `translate(${diagramTranslate.x}px, ${diagramTranslate.y}px) scale(${diagramScale})`,
+                      transformOrigin: '0 0',
+                      maxWidth: 'none',
+                    }}
+                    onError={() => setDiagramError('Image failed to load')}
+                  />
+                ) : (
+                  <div className="p-4">
+                    <CloudArchitectureDiagram
+                      imageUrl={null}
+                      loading={generatingDiagram}
+                      error={diagramError}
+                      cloudProvider={cloudProvider}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Row 6: Tech Justifications (compact grid) */}

@@ -361,10 +361,7 @@ def sanitize_code(code: str) -> str:
         if not imp.startswith('diagrams'):
             raise SecurityError(f"Blocked non-diagrams import: {imp}")
 
-    # Force direction="LR" — replace any "TB" with "LR"
-    code = re.sub(r'direction\s*=\s*["\']TB["\']', 'direction="LR"', code)
-
-    # Ensure direction="LR" exists in Diagram() call
+    # Ensure direction exists in Diagram() call (will be overridden by generate())
     if 'direction=' not in code and 'Diagram(' in code:
         code = code.replace('show=False', 'show=False, direction="LR"')
 
@@ -395,7 +392,8 @@ class CapraDiagramEngine:
         difficulty: str = "medium",
         category: str = "System Design",
         output_format: str = "png",
-        detail_level: str = "overview"  # "overview" or "detailed"
+        detail_level: str = "overview",  # "overview" or "detailed"
+        direction: str = "LR"  # "LR" or "TB"
     ) -> DiagramResult:
         """Generate a cloud architecture diagram from a system design question."""
 
@@ -457,6 +455,9 @@ class CapraDiagramEngine:
             try:
                 # Sanitize code
                 sanitize_code(python_code)
+
+                # Apply requested direction (LR or TB)
+                python_code = re.sub(r'direction\s*=\s*["\'][A-Z]+["\']', f'direction="{direction}"', python_code)
 
                 # Execute code
                 image_path = self._execute_diagram_code(
@@ -574,6 +575,8 @@ def main():
     parser.add_argument('--api-key', '-k', help='Anthropic API key (or set ANTHROPIC_API_KEY env)')
     parser.add_argument('--detail-level', '-l', default='overview', choices=['overview', 'detailed'],
                         help='Diagram detail level: overview (simple) or detailed (comprehensive)')
+    parser.add_argument('--direction', default='LR', choices=['LR', 'TB'],
+                        help='Diagram direction: LR (left-right) or TB (top-bottom)')
 
     args = parser.parse_args()
 
@@ -594,7 +597,8 @@ def main():
         difficulty=args.difficulty,
         category=args.category,
         output_format=args.format,
-        detail_level=args.detail_level
+        detail_level=args.detail_level,
+        direction=args.direction
     )
 
     # Output as JSON

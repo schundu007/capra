@@ -70,7 +70,8 @@ export async function generateDiagram({
   difficulty = 'medium',
   category = 'System Design',
   format = 'png',
-  detailLevel = 'overview'
+  detailLevel = 'overview',
+  direction = 'LR'
 }) {
   const apiKey = getApiKey();
 
@@ -95,7 +96,8 @@ export async function generateDiagram({
       '--format', format,
       '--output-dir', OUTPUT_DIR,
       '--api-key', apiKey,
-      '--detail-level', detailLevel
+      '--detail-level', detailLevel,
+      '--direction', direction
     ];
 
     const pythonProcess = spawn('python3', args, {
