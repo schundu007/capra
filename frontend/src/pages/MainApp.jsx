@@ -1361,7 +1361,7 @@ function CodingLayout({
                 </Allotment.Pane>
               </Allotment>
             ) : (
-              {designPane}
+              designPane
             )}
           </Allotment.Pane>
         </Allotment>
