@@ -83,13 +83,15 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
     }
   }, [loadedProblem, cleanupText]);
 
+  const prevShouldClear = useRef(shouldClear);
   useEffect(() => {
-    if (shouldClear) {
+    if (shouldClear && shouldClear !== prevShouldClear.current) {
       setProblemText('');
       setUrl('');
       setPreview(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
+    prevShouldClear.current = shouldClear;
   }, [shouldClear]);
 
   useEffect(() => {
@@ -177,11 +179,11 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
   ];
 
   // Collapsed view
-  if (expanded === false && problemText) {
+  if (expanded === false) {
     return (
       <div className="flex items-center gap-3 py-2.5 px-4 rounded-xl bg-white border border-gray-200">
         <div className="flex-1 min-w-0">
-          <p className="text-sm text-gray-700 truncate">{getPreviewText()}</p>
+          <p className="text-sm text-gray-700 truncate">{problemText ? getPreviewText() : <span className="text-gray-400 italic">No problem text</span>}</p>
         </div>
         <button
           onClick={onToggleExpand}
@@ -225,7 +227,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
           </div>
 
           {/* Collapse button */}
-          {problemText && onToggleExpand && (
+          {onToggleExpand && (
             <button
               onClick={onToggleExpand}
               className="p-2 rounded-lg text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-colors min-h-[36px] min-w-[36px] touch:min-h-[40px] touch:min-w-[40px] flex items-center justify-center"

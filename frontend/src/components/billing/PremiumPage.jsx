@@ -209,15 +209,13 @@ export default function PremiumPage() {
                     <p className="text-[10px] text-gray-400 premium-mono">{plan.period}</p>
                   </div>
 
-                  <div className="text-center mb-3">
-                    <div className="flex items-baseline gap-1.5 justify-center">
-                      {plan.originalPrice && (
-                        <span className="text-lg text-gray-400 line-through">${plan.originalPrice}</span>
-                      )}
-                      <span className="text-3xl font-extrabold text-gray-900 premium-display">${plan.price}</span>
-                    </div>
+                  <div className="flex items-baseline gap-1.5 justify-center flex-wrap mb-3">
+                    {plan.originalPrice && (
+                      <span className="text-lg text-gray-400 line-through">${plan.originalPrice}</span>
+                    )}
+                    <span className="text-3xl font-extrabold text-gray-900 premium-display">${plan.price}</span>
                     {plan.savings && (
-                      <span className="inline-block mt-1 px-2.5 py-0.5 text-[10px] font-bold premium-mono uppercase tracking-wider rounded-full" style={{ background: `${plan.color}15`, color: plan.color }}>
+                      <span className="px-2.5 py-0.5 text-[10px] font-bold premium-mono uppercase tracking-wider rounded-full" style={{ background: `${plan.color}15`, color: plan.color }}>
                         {plan.savings}
                       </span>
                     )}
