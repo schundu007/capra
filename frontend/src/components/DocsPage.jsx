@@ -346,7 +346,6 @@ export default function DocsPage({ onBack }) {
     if (activePage === 'system-design') {
       return systemDesignTopics.find(t => t.id === selectedTopic) ||
              systemDesigns.find(t => t.id === selectedTopic) ||
-             lldProblems.find(t => t.id === selectedTopic) ||
              concurrencyTopics.find(t => t.id === selectedTopic);
     }
     if (activePage === 'low-level') {
