@@ -132,8 +132,8 @@ export default function PremiumPage() {
           <button onClick={() => scrollTo('plans')} className="text-sm text-gray-500 hover:text-gray-900 transition-colors font-medium">Plans</button>
           <button onClick={() => scrollTo('features')} className="text-sm text-gray-500 hover:text-gray-900 transition-colors font-medium">Features</button>
           <button onClick={() => scrollTo('faq')} className="text-sm text-gray-500 hover:text-gray-900 transition-colors font-medium">FAQ</button>
-          <a href="/app/coding" className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors">
-            Back to App
+          <a href="/" className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors">
+            Back to Home
           </a>
         </div>
       </nav>
