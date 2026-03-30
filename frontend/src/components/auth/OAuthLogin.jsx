@@ -71,8 +71,8 @@ export default function OAuthLogin() {
       )}
 
       {/* Hero */}
-      <section className="flex flex-col items-center justify-center text-center px-6 pt-16 pb-20 md:pt-24 md:pb-28">
-        <div className={`inline-flex items-center gap-2 px-4 py-1.5 border border-emerald-200 bg-emerald-50 rounded-full mb-8 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+      <section className="flex flex-col items-center justify-center text-center px-6 pt-12 pb-12 md:pt-16 md:pb-16">
+        <div className={`inline-flex items-center gap-2 px-4 py-1.5 border border-emerald-200 bg-emerald-50 rounded-full mb-5 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
           <span className="text-xs landing-mono text-emerald-700 tracking-wide">AI-Powered Interview Prep</span>
         </div>
@@ -82,11 +82,11 @@ export default function OAuthLogin() {
           <span className="text-3xl md:text-4xl lg:text-5xl bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Every Interview</span>
         </h1>
 
-        <p className={`mt-6 text-base md:text-lg text-gray-500 max-w-2xl leading-relaxed landing-body transition-all duration-700 delay-200 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+        <p className={`mt-4 text-base md:text-lg text-gray-500 max-w-2xl leading-relaxed landing-body transition-all duration-700 delay-200 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
           AI-powered coding solutions, system design, and live interview assistance. 20+ languages. Invisible to screen share.
         </p>
 
-        <div className={`mt-8 flex flex-col sm:flex-row items-center gap-3 transition-all duration-700 delay-300 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+        <div className={`mt-5 flex flex-col sm:flex-row items-center gap-3 transition-all duration-700 delay-300 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
           <a href="/app/coding" className="px-8 py-3 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors shadow-sm landing-body">
             Start Practicing
           </a>
@@ -100,28 +100,28 @@ export default function OAuthLogin() {
       <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent" />
 
       {/* Features */}
-      <section id="features" className="px-6 md:px-12 py-16 md:py-20 bg-gray-50/50">
+      <section id="features" className="px-6 md:px-12 py-10 md:py-12 bg-gray-50/50">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-6">
             <span className="landing-mono text-xs text-emerald-600 tracking-widest uppercase">Capabilities</span>
             <h2 className="landing-display font-bold text-2xl md:text-3xl mt-2 tracking-tight text-gray-900">
               Everything You Need. <span className="text-gray-400">Nothing You Don't.</span>
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-3 gap-2.5">
             {[
               { icon: 'microphone', title: 'Live Interview', desc: 'Real-time AI answers during interviews. Completely invisible to screen share.', tags: ['Voice Capture', 'Stealth Mode', 'Streaming'], color: 'emerald' },
               { icon: 'code', title: 'Coding Engine', desc: '20+ languages with explanations, auto-fix, and complexity analysis.', tags: ['Multi-Language', 'Auto-Fix', 'Complexity'], color: 'cyan' },
               { icon: 'systemDesign', title: 'System Design', desc: 'Architecture diagrams, scalability analysis, and tech justifications.', tags: ['Diagrams', 'Scale Math', 'Tradeoffs'], color: 'violet' },
             ].map((f) => (
-              <div key={f.title} className="p-6 border border-gray-200 rounded-lg bg-white hover:border-gray-300 hover:shadow-sm transition-all">
-                <div className={`w-10 h-10 border border-${f.color}-200 bg-${f.color}-50 rounded flex items-center justify-center mb-4`}>
+              <div key={f.title} className="p-4 border border-gray-200 rounded-lg bg-white hover:border-gray-300 hover:shadow-sm transition-all">
+                <div className={`w-9 h-9 border border-${f.color}-200 bg-${f.color}-50 rounded flex items-center justify-center mb-3`}>
                   <Icon name={f.icon} size={18} className={`text-${f.color}-500`} />
                 </div>
-                <h3 className="landing-display font-semibold text-lg mb-2 text-gray-900">{f.title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed landing-body">{f.desc}</p>
-                <div className="mt-4 flex flex-wrap gap-1.5">
+                <h3 className="landing-display font-semibold text-base mb-1 text-gray-900">{f.title}</h3>
+                <p className="text-sm text-gray-500 leading-snug landing-body">{f.desc}</p>
+                <div className="mt-2.5 flex flex-wrap gap-1">
                   {f.tags.map(t => (
                     <span key={t} className="text-[10px] landing-mono px-2 py-1 border border-gray-200 text-gray-400 rounded">{t}</span>
                   ))}
@@ -130,7 +130,7 @@ export default function OAuthLogin() {
             ))}
           </div>
 
-          <div className="grid sm:grid-cols-3 gap-4 mt-4">
+          <div className="grid sm:grid-cols-3 gap-2.5 mt-2.5">
             {[
               { icon: 'briefcase', title: 'Company Prep', desc: 'Tailored pitch from your JD + resume.', color: 'amber' },
               { icon: 'resume', title: 'Resume Builder', desc: 'ATS-optimized with PDF and DOCX export.', color: 'cyan' },
@@ -151,22 +151,22 @@ export default function OAuthLogin() {
       </section>
 
       {/* How it works */}
-      <section className="px-6 md:px-12 py-16 md:py-20">
+      <section className="px-6 md:px-12 py-10 md:py-12">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-6">
             <span className="landing-mono text-xs text-emerald-600 tracking-widest uppercase">Workflow</span>
             <h2 className="landing-display font-bold text-2xl md:text-3xl mt-2 tracking-tight text-gray-900">
               Three Steps. <span className="text-gray-400">Zero Friction.</span>
             </h2>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-2.5">
             {[
               { step: '01', title: 'Drop Your Problem In', desc: 'Text, screenshot, or LeetCode URL. Paste, snap, or speak it.', color: 'text-emerald-200' },
               { step: '02', title: 'AI Generates', desc: 'Code, explanations, diagrams, and edge cases in seconds.', color: 'text-cyan-200' },
               { step: '03', title: 'Practice & Refine', desc: 'Step-by-step walkthrough with follow-up Q&A. Build confidence.', color: 'text-violet-200' },
             ].map((item, i) => (
-              <div key={i} className="group p-5 border border-gray-200 rounded-lg bg-white text-center">
+              <div key={i} className="group p-4 border border-gray-200 rounded-lg bg-white text-center">
                 <span className={`landing-mono text-3xl font-black ${item.color} group-hover:text-gray-300 transition-colors`}>
                   {item.step}
                 </span>
@@ -179,21 +179,21 @@ export default function OAuthLogin() {
       </section>
 
       {/* CTA */}
-      <section className="px-6 md:px-12 py-16 md:py-24 text-center">
+      <section className="px-6 md:px-12 py-10 md:py-14 text-center">
         <h2 className="landing-display font-bold text-2xl md:text-3xl tracking-tight max-w-2xl mx-auto text-gray-900">
           Your Next Interview{' '}
           <span className="bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Starts Here</span>
         </h2>
-        <p className="mt-3 text-sm text-gray-500 max-w-lg mx-auto landing-body">
+        <p className="mt-2 text-sm text-gray-500 max-w-lg mx-auto landing-body">
           Stop memorizing. Start understanding. Practice with AI that thinks like a senior engineer.
         </p>
-        <a href="/app/coding" className="inline-block mt-6 px-8 py-3 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors shadow-sm landing-body">
+        <a href="/app/coding" className="inline-block mt-4 px-8 py-3 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors shadow-sm landing-body">
           Start Practicing
         </a>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-100 px-6 md:px-12 py-6">
+      <footer className="border-t border-gray-100 px-6 md:px-12 py-4">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-emerald-500 flex items-center justify-center">
