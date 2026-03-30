@@ -6,13 +6,26 @@ import DiagramSVG from './DiagramSVG.jsx';
 import { generateSlug, getProblemBySlug } from '../data/problems.js';
 import { getLeetCodeUrl } from '../data/leetcodeUrls.js';
 import problemsFull from '../data/problems-full.json';
-import { codingCategories, codingCategoryMap, codingTopics } from '../data/topics/codingTopics.js';
+import { codingCategories, codingCategoryMap as _codingCategoryMap, codingTopics as _codingTopics } from '../data/topics/codingTopics.js';
+import { extraCodingCategoryMap, extraCodingTopics } from '../data/topics/codingTopicsExtra.js';
 import { systemDesignCategories, systemDesignCategoryMap, systemDesignTopics } from '../data/topics/systemDesignTopics.js';
-import { systemDesignProblemCategories, systemDesignProblemCategoryMap, systemDesigns, lldProblemCategories, lldProblemCategoryMap } from '../data/topics/systemDesignProblems.js';
-import { lldProblems } from '../data/topics/lldProblems.js';
+import { systemDesignProblemCategories as _sdProblemCategories, systemDesignProblemCategoryMap as _sdProblemCategoryMap, systemDesigns as _systemDesigns, lldProblemCategories, lldProblemCategoryMap as _lldProblemCategoryMap } from '../data/topics/systemDesignProblems.js';
+import { extraSystemDesignProblemCategories, extraSystemDesignProblemCategoryMap, extraSystemDesigns } from '../data/topics/systemDesignProblemsExtra.js';
+import { lldProblems as _lldProblems } from '../data/topics/lldProblems.js';
+import { extraLldProblems, extraLldProblemCategoryMap } from '../data/topics/lldProblemsExtra.js';
+import { lldCategories, lldCategoryMap, lldTopics } from '../data/topics/lldTopics.js';
 import { concurrencyTopics } from '../data/topics/concurrencyTopics.js';
 import { behavioralCategories, topicCategoryMap, behavioralTopics } from '../data/topics/behavioralTopics.js';
 import { companyPrep } from '../data/topics/companyPrep.js';
+
+// Merge extra topics into base arrays
+const codingCategoryMap = { ..._codingCategoryMap, ...extraCodingCategoryMap };
+const codingTopics = [..._codingTopics, ...extraCodingTopics];
+const systemDesignProblemCategories = [..._sdProblemCategories, ...extraSystemDesignProblemCategories];
+const systemDesignProblemCategoryMap = { ..._sdProblemCategoryMap, ...extraSystemDesignProblemCategoryMap };
+const systemDesigns = [..._systemDesigns, ...extraSystemDesigns];
+const lldProblemCategoryMap = { ..._lldProblemCategoryMap, ...extraLldProblemCategoryMap };
+const lldProblems = [..._lldProblems, ...extraLldProblems];
 
 // Unified card styling - clean, minimal design with larger fonts
 import CloudArchitectureDiagram from './docs/CloudArchitectureDiagram.jsx';
@@ -194,7 +207,8 @@ export default function DocsPage({ onBack }) {
   // Calculate progress
   const getProgress = () => {
     const topics = activePage === 'coding' ? codingTopics :
-      activePage === 'system-design' ? [...systemDesignTopics, ...systemDesigns, ...lldProblems, ...concurrencyTopics] :
+      activePage === 'system-design' ? [...systemDesignTopics, ...systemDesigns, ...concurrencyTopics] :
+      activePage === 'low-level' ? [...lldTopics, ...lldProblems] :
       [...behavioralTopics, ...companyPrep];
     const total = topics.length;
     const completed = topics.filter(t => completedTopics[t.id]).length;
@@ -285,6 +299,7 @@ export default function DocsPage({ onBack }) {
   const navItems = [
     { id: 'coding', label: 'Data Structures & Algorithms', icon: 'code' },
     { id: 'system-design', label: 'System Design', icon: 'systemDesign' },
+    { id: 'low-level', label: 'Low-Level Design', icon: 'puzzle' },
     { id: 'behavioral', label: 'Behavioral', icon: 'users' },
   ];
 
@@ -294,6 +309,7 @@ export default function DocsPage({ onBack }) {
     let topics = [];
     if (activePage === 'coding') topics = codingTopics;
     else if (activePage === 'system-design') topics = systemDesignTopics;
+    else if (activePage === 'low-level') topics = lldTopics;
     else if (activePage === 'behavioral') topics = behavioralTopics;
     else return [];
 
@@ -315,6 +331,7 @@ export default function DocsPage({ onBack }) {
     switch (activePage) {
       case 'coding': return { title: 'Data Structures & Algorithms', color: '#10b981' };
       case 'system-design': return { title: 'System Design', color: '#3b82f6' };
+      case 'low-level': return { title: 'Low-Level Design', color: '#8b5cf6' };
       case 'behavioral': return { title: 'Behavioral Interviews', color: '#a855f7' };
       default: return { title: 'Documentation', color: '#10b981' };
     }
@@ -331,6 +348,10 @@ export default function DocsPage({ onBack }) {
              systemDesigns.find(t => t.id === selectedTopic) ||
              lldProblems.find(t => t.id === selectedTopic) ||
              concurrencyTopics.find(t => t.id === selectedTopic);
+    }
+    if (activePage === 'low-level') {
+      return lldTopics.find(t => t.id === selectedTopic) ||
+             lldProblems.find(t => t.id === selectedTopic);
     }
     if (activePage === 'behavioral') {
       return behavioralTopics.find(t => t.id === selectedTopic) ||
@@ -363,11 +384,20 @@ export default function DocsPage({ onBack }) {
       if (topicDetails.apiDesign) toc.push({ id: 'api-design', label: 'API Design' });
       if (topicDetails.dataModel) toc.push({ id: 'data-model', label: 'Data Model' });
       if (topicDetails.basicImplementation) toc.push({ id: 'architecture', label: 'Architecture' });
+    } else if (activePage === 'low-level') {
+      if (topicDetails.introduction) toc.push({ id: 'overview', label: 'Overview' });
+      if (topicDetails.keyQuestions) toc.push({ id: 'key-questions', label: 'Key Questions' });
+      if (topicDetails.coreEntities) toc.push({ id: 'core-entities', label: 'Core Entities' });
+      if (topicDetails.designPatterns) toc.push({ id: 'design-patterns', label: 'Design Patterns' });
+      if (topicDetails.implementation) toc.push({ id: 'implementation', label: 'Implementation' });
+      if (topicDetails.sampleQuestions) toc.push({ id: 'sample-questions', label: 'Practice Questions' });
+      if (topicDetails.tips) toc.push({ id: 'tips', label: 'Tips' });
     } else if (activePage === 'behavioral') {
       if (topicDetails.introduction) toc.push({ id: 'overview', label: 'Overview' });
       if (topicDetails.keyQuestions) toc.push({ id: 'key-questions', label: 'Key Questions' });
       if (topicDetails.starExample) toc.push({ id: 'star-example', label: 'STAR Example' });
-      if (topicDetails.sampleQuestions) toc.push({ id: 'sample-questions', label: 'Sample Questions' });
+      if (topicDetails.exampleResponse) toc.push({ id: 'example-response', label: 'Example Response' });
+      if (topicDetails.sampleQuestions) toc.push({ id: 'sample-questions', label: 'Practice Questions' });
       if (topicDetails.tips) toc.push({ id: 'tips', label: 'Tips' });
     }
     return toc;
@@ -433,7 +463,8 @@ export default function DocsPage({ onBack }) {
                     <span className="block">{item.label}</span>
                     <span className="text-xs text-gray-400 landing-mono">
                       {item.id === 'coding' ? `${codingTopics.length} topics` :
-                       item.id === 'system-design' ? `${systemDesignTopics.length + systemDesigns.length + lldProblems.length + concurrencyTopics.length} topics` :
+                       item.id === 'system-design' ? `${systemDesignTopics.length + systemDesigns.length + concurrencyTopics.length} topics` :
+                       item.id === 'low-level' ? `${lldTopics.length + lldProblems.length} topics` :
                        `${behavioralTopics.length} topics`}
                     </span>
                   </div>
@@ -539,17 +570,19 @@ export default function DocsPage({ onBack }) {
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 border border-emerald-200 bg-emerald-50 rounded-full mb-4">
                       <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
                       <span className="text-xs landing-mono text-emerald-700 tracking-wide">
-                        {activePage === 'coding' ? 'Algorithms' : activePage === 'system-design' ? 'Architecture' : 'Soft Skills'}
+                        {activePage === 'coding' ? 'Algorithms' : activePage === 'system-design' ? 'Architecture' : activePage === 'low-level' ? 'OOP & Patterns' : 'Soft Skills'}
                       </span>
                     </div>
                     <h1 className="landing-display font-extrabold text-2xl md:text-3xl tracking-tight text-gray-900 mb-2">
                       {activePage === 'coding' && <>Data Structures &{' '}<span className="bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Algorithms</span></>}
                       {activePage === 'system-design' && <>Design Systems That{' '}<span className="bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Scale</span></>}
+                      {activePage === 'low-level' && <>Master Object-Oriented{' '}<span className="bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Design</span></>}
                       {activePage === 'behavioral' && <>Tell Your{' '}<span className="bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Best Story</span></>}
                     </h1>
                     <p className="text-sm text-gray-500 max-w-2xl leading-relaxed landing-body">
                       {activePage === 'coding' && 'Master the fundamental data structures and algorithms needed to ace technical interviews at top tech companies.'}
                       {activePage === 'system-design' && 'Master distributed systems, scalability patterns, and architecture trade-offs. From fundamentals to real-world designs at top companies.'}
+                      {activePage === 'low-level' && 'OOP principles, SOLID design, UML diagrams, and all 23 Gang of Four design patterns. Build clean, extensible object-oriented systems.'}
                       {activePage === 'behavioral' && 'Prepare compelling stories and answers for behavioral interviews using proven frameworks like STAR.'}
                     </p>
                   </div>
@@ -967,35 +1000,216 @@ export default function DocsPage({ onBack }) {
                 </>
               )}
 
-              {/* Behavioral Content */}
-              {activePage === 'behavioral' && (
+              {/* Low-Level Design Content */}
+              {activePage === 'low-level' && (
                 <>
-                  {/* STAR Method */}
-                  <div className="rounded-lg overflow-hidden mb-4 border border-gray-200 bg-white">
-                    <div className="px-4 py-2.5 border-b border-gray-100 bg-gray-50/80 flex items-center gap-2">
-                      <Icon name="star" size={14} className="text-emerald-600" />
-                      <h3 className="text-sm font-semibold text-gray-900 landing-display">The STAR Method</h3>
-                      <span className="text-[10px] landing-mono text-gray-400">Framework for behavioral answers</span>
+                  {/* LLD Learning Topics - Grouped by Category */}
+                  <div className="mb-6">
+                    <div className="mb-4">
+                      <span className="landing-mono text-xs text-emerald-600 tracking-widest uppercase">Learn</span>
+                      <h2 className="landing-display font-bold text-xl mt-1 tracking-tight text-gray-900">Concepts & Patterns</h2>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 p-3">
-                      {[
-                        { letter: 'S', title: 'Situation', desc: 'Set the scene. Be specific about when and where.', color: '#3b82f6', bg: 'bg-blue-50', border: 'border-blue-200' },
-                        { letter: 'T', title: 'Task', desc: 'Describe your responsibility. Focus on YOUR role.', color: '#f59e0b', bg: 'bg-amber-50', border: 'border-amber-200' },
-                        { letter: 'A', title: 'Action', desc: 'Explain specific steps you took. Use "I" not "we".', color: '#10b981', bg: 'bg-emerald-50', border: 'border-emerald-200' },
-                        { letter: 'R', title: 'Result', desc: 'Share outcomes. Quantify when possible.', color: '#ef4444', bg: 'bg-red-50', border: 'border-red-200' },
-                      ].map((step, i) => (
-                        <div key={i} className={`flex items-start gap-2 p-2.5 rounded-lg ${step.bg} border-l-3`} style={{ borderLeft: `3px solid ${step.color}` }}>
-                          <span className="w-6 h-6 rounded flex items-center justify-center text-[10px] landing-mono font-bold text-white flex-shrink-0" style={{ background: step.color }}>{step.letter}</span>
-                          <div>
-                            <div className="text-sm font-bold landing-display" style={{ color: step.color }}>{step.title}</div>
-                            <div className="text-xs text-gray-500 landing-body">{step.desc}</div>
+                    <div className="space-y-3">
+                    {lldCategories.map((category) => {
+                      const categoryTopics = filteredTopics.filter(t => lldCategoryMap[t.id] === category.id);
+                      if (categoryTopics.length === 0) return null;
+                      return (
+                        <div key={category.id} className="rounded-lg overflow-hidden border border-gray-200">
+                          <div className="px-4 py-2.5 flex items-center gap-2.5 bg-gray-50/80 border-b border-gray-100">
+                            <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: `${category.color}12` }}>
+                              <Icon name={category.icon} size={14} style={{ color: category.color }} />
+                            </div>
+                            <h3 className="text-sm font-semibold text-gray-900 landing-display">{category.name}</h3>
+                            <span className="text-[10px] landing-mono text-gray-400">{categoryTopics.length} topics</span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white">
+                            {categoryTopics.map((topic) => (
+                              <div
+                                key={topic.id}
+                                onClick={() => setSelectedTopic(topic.id)}
+                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-all group border-b border-r border-gray-100"
+                              >
+                                <div className="flex items-center gap-2.5">
+                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? '#d1fae5' : `${topic.color}12` }}>
+                                    {completedTopics[topic.id] ? <Icon name="check" size={11} className="text-emerald-600" /> : <Icon name={topic.icon} size={11} style={{ color: topic.color }} />}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className={`text-sm landing-body font-medium group-hover:text-emerald-600 transition-colors ${completedTopics[topic.id] ? 'text-gray-400 line-through' : 'text-gray-900'}`}>{topic.title}</span>
+                                    {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-500" />}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] landing-mono px-1.5 py-0.5 rounded border border-gray-200 text-gray-400">
+                                    {topic.keyQuestions?.length || topic.questions || 0}Q
+                                  </span>
+                                  <Icon name="chevronRight" size={12} className="text-gray-300 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all" />
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
-                      ))}
+                      );
+                    })}
                     </div>
                   </div>
 
-                  {/* Question Categories Section - Grouped by Category */}
+                  {/* Gradient Divider */}
+                  <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-6" />
+
+                  {/* LLD Practice Problems Section */}
+                  <div className="mb-6">
+                    <div className="mb-4">
+                      <span className="landing-mono text-xs text-emerald-600 tracking-widest uppercase">Practice</span>
+                      <h2 className="landing-display font-bold text-xl mt-1 tracking-tight text-gray-900">Design Problems</h2>
+                      <p className="text-sm text-gray-500 landing-body mt-1">Apply OOP and design patterns to real-world systems</p>
+                    </div>
+                    <div className="space-y-3">
+                    {lldProblemCategories.map((category) => {
+                      const categoryProblems = lldProblems.filter(p => lldProblemCategoryMap[p.id] === category.id);
+                      if (categoryProblems.length === 0) return null;
+                      return (
+                        <div key={category.id} className="rounded-lg overflow-hidden border border-gray-200">
+                          <div className="px-4 py-2.5 flex items-center gap-2.5 bg-gray-50/80 border-b border-gray-100">
+                            <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: `${category.color}12` }}>
+                              <Icon name={category.icon} size={14} style={{ color: category.color }} />
+                            </div>
+                            <h3 className="text-sm font-semibold text-gray-900 landing-display">{category.name}</h3>
+                            <span className="text-[10px] landing-mono text-gray-400">{categoryProblems.length} problems</span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white">
+                            {categoryProblems.map((problem) => {
+                              const diffStyle = { Easy: 'bg-emerald-50 text-emerald-700 border-emerald-200', Medium: 'bg-amber-50 text-amber-700 border-amber-200', Hard: 'bg-red-50 text-red-700 border-red-200' }[problem.difficulty] || 'bg-amber-50 text-amber-700 border-amber-200';
+                              return (
+                                <div
+                                  key={problem.id}
+                                  onClick={() => setSelectedTopic(problem.id)}
+                                  className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-all group border-b border-r border-gray-100"
+                                >
+                                  <div className="flex items-center gap-2.5">
+                                    <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${problem.color}12` }}>
+                                      <Icon name={problem.icon} size={11} style={{ color: problem.color }} />
+                                    </div>
+                                    <div>
+                                      <span className="text-gray-900 text-sm landing-body font-medium group-hover:text-emerald-600 transition-colors">{problem.title}</span>
+                                      {problem.subtitle && <span className="text-gray-400 text-xs ml-2 hidden md:inline landing-body">{problem.subtitle}</span>}
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className={`text-[10px] landing-mono px-1.5 py-0.5 rounded border font-medium ${diffStyle}`}>{problem.difficulty}</span>
+                                    <Icon name="chevronRight" size={12} className="text-gray-300 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all" />
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Behavioral Content */}
+              {activePage === 'behavioral' && (
+                <>
+                  {/* Preparation Readiness Dashboard */}
+                  {(() => {
+                    const allBehavioralTopics = [...behavioralTopics, ...companyPrep];
+                    const totalTopics = behavioralTopics.length;
+                    const completedCount = behavioralTopics.filter(t => completedTopics[t.id]).length;
+                    const starredCount = behavioralTopics.filter(t => starredTopics[t.id]).length;
+                    const companyCompleted = companyPrep.filter(t => completedTopics[t.id]).length;
+                    const readinessPercent = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0;
+                    const readinessLabel = readinessPercent === 0 ? 'Not Started' : readinessPercent < 25 ? 'Getting Started' : readinessPercent < 50 ? 'Building Momentum' : readinessPercent < 75 ? 'Strong Progress' : readinessPercent < 100 ? 'Almost Ready' : 'Fully Prepared';
+                    return (
+                      <div className="rounded-lg overflow-hidden mb-6 border border-gray-200 bg-white">
+                        <div className="px-5 py-4">
+                          <div className="flex items-center justify-between mb-4">
+                            <div>
+                              <span className="landing-mono text-[10px] text-emerald-600 tracking-widest uppercase">Your Progress</span>
+                              <h2 className="landing-display font-bold text-lg tracking-tight text-gray-900">Interview Readiness</h2>
+                            </div>
+                            <div className="text-right">
+                              <span className="landing-mono text-2xl font-black text-emerald-600">{readinessPercent}%</span>
+                              <span className="block text-[10px] landing-mono text-gray-400 mt-0.5">{readinessLabel}</span>
+                            </div>
+                          </div>
+                          {/* Progress bar */}
+                          <div className="w-full h-2 rounded-full bg-gray-100 mb-4 overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-700 ease-out"
+                              style={{
+                                width: `${readinessPercent}%`,
+                                background: readinessPercent < 25 ? '#f59e0b' : readinessPercent < 75 ? '#10b981' : '#059669',
+                              }}
+                            />
+                          </div>
+                          {/* Stats row */}
+                          <div className="grid grid-cols-4 gap-3">
+                            {[
+                              { value: completedCount, label: 'Topics Done', total: totalTopics, color: '#10b981' },
+                              { value: starredCount, label: 'Starred', total: null, color: '#f59e0b' },
+                              { value: companyCompleted, label: 'Companies', total: companyPrep.length, color: '#3b82f6' },
+                              { value: behavioralCategories.filter(cat => { const ct = behavioralTopics.filter(t => topicCategoryMap[t.id] === cat.id); return ct.length > 0 && ct.every(t => completedTopics[t.id]); }).length, label: 'Categories Done', total: behavioralCategories.length, color: '#8b5cf6' },
+                            ].map((stat, i) => (
+                              <div key={i} className="text-center p-2.5 rounded-lg bg-gray-50">
+                                <div className="landing-mono text-lg font-bold" style={{ color: stat.color }}>
+                                  {stat.value}{stat.total !== null && <span className="text-gray-300 text-sm">/{stat.total}</span>}
+                                </div>
+                                <div className="text-[10px] landing-mono text-gray-400 mt-0.5">{stat.label}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* STAR Method — Interactive Timeline Design */}
+                  <div className="rounded-lg overflow-hidden mb-6 border border-emerald-200 bg-gradient-to-br from-emerald-50/80 to-cyan-50/40">
+                    <div className="px-5 py-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Icon name="star" size={16} className="text-emerald-600" />
+                        <span className="landing-mono text-xs text-emerald-600 tracking-widest uppercase">Framework</span>
+                      </div>
+                      <h2 className="landing-display font-bold text-xl tracking-tight text-gray-900 mb-1">The STAR Method</h2>
+                      <p className="text-sm text-gray-500 landing-body mb-5">Structure every behavioral answer with this proven four-step framework</p>
+
+                      {/* STAR Flow — Connected steps */}
+                      <div className="relative">
+                        {/* Connection line */}
+                        <div className="hidden md:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-300 via-amber-300 via-emerald-300 to-red-300 -translate-y-1/2 z-0 mx-12" />
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 relative z-10">
+                          {[
+                            { letter: 'S', title: 'Situation', desc: 'Set the scene — when, where, what was at stake.', color: '#3b82f6', timing: '15%' },
+                            { letter: 'T', title: 'Task', desc: 'Your responsibility. What was expected of you?', color: '#f59e0b', timing: '10%' },
+                            { letter: 'A', title: 'Action', desc: 'Steps you took. Use "I" — own your contribution.', color: '#10b981', timing: '60%' },
+                            { letter: 'R', title: 'Result', desc: 'Measurable outcomes. Numbers and impact.', color: '#ef4444', timing: '15%' },
+                          ].map((step, i) => (
+                            <div key={i} className="group bg-white rounded-lg p-4 border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all">
+                              <div className="flex items-center justify-between mb-3">
+                                <span className="w-9 h-9 rounded-lg flex items-center justify-center text-sm landing-mono font-extrabold text-white" style={{ background: step.color }}>{step.letter}</span>
+                                <span className="text-[10px] landing-mono px-1.5 py-0.5 rounded-full border font-medium" style={{ color: step.color, borderColor: `${step.color}30`, background: `${step.color}08` }}>{step.timing} of time</span>
+                              </div>
+                              <h3 className="text-sm font-bold landing-display mb-1" style={{ color: step.color }}>{step.title}</h3>
+                              <p className="text-xs text-gray-500 leading-relaxed landing-body">{step.desc}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="mt-4 px-4 py-2.5 rounded-lg bg-white/60 border border-emerald-100 flex items-start gap-2">
+                        <Icon name="lightbulb" size={13} className="text-emerald-500 mt-0.5 flex-shrink-0" />
+                        <p className="text-xs text-gray-600 landing-body"><span className="font-semibold text-emerald-700 landing-mono">Pro Tip:</span> Spend 60% of your answer on the <strong>Action</strong> — that's what interviewers care about most. Always quantify your <strong>Result</strong>.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Gradient Divider */}
+                  <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-6" />
+
+                  {/* Question Categories Section - Grouped by Category with Progress */}
                   <div className="mb-6">
                     <div className="mb-4">
                       <span className="landing-mono text-xs text-emerald-600 tracking-widest uppercase">Categories</span>
@@ -1005,15 +1219,27 @@ export default function DocsPage({ onBack }) {
                     {behavioralCategories.map((category) => {
                       const categoryTopics = filteredTopics.filter(t => topicCategoryMap[t.id] === category.id);
                       if (categoryTopics.length === 0) return null;
+                      const catCompleted = categoryTopics.filter(t => completedTopics[t.id]).length;
+                      const catPercent = Math.round((catCompleted / categoryTopics.length) * 100);
                       return (
                         <div key={category.id} className="rounded-lg overflow-hidden border border-gray-200">
-                          {/* Category Header */}
+                          {/* Category Header with Progress */}
                           <div className="px-4 py-2.5 flex items-center gap-2.5 bg-gray-50/80 border-b border-gray-100">
                             <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: `${category.color}12` }}>
                               <Icon name={category.icon} size={14} style={{ color: category.color }} />
                             </div>
                             <h3 className="text-sm font-semibold text-gray-900 landing-display">{category.name}</h3>
                             <span className="text-[10px] landing-mono text-gray-400">{categoryTopics.length} topics</span>
+                            <div className="ml-auto flex items-center gap-2">
+                              {catCompleted > 0 && (
+                                <span className="text-[10px] landing-mono font-medium" style={{ color: catPercent === 100 ? '#059669' : category.color }}>
+                                  {catCompleted}/{categoryTopics.length}
+                                </span>
+                              )}
+                              <div className="w-16 h-1.5 rounded-full bg-gray-200 overflow-hidden">
+                                <div className="h-full rounded-full transition-all duration-500" style={{ width: `${catPercent}%`, background: catPercent === 100 ? '#059669' : category.color }} />
+                              </div>
+                            </div>
                           </div>
                           {/* Topics in Category */}
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white">
@@ -1050,49 +1276,85 @@ export default function DocsPage({ onBack }) {
                   {/* Gradient Divider */}
                   <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-6" />
 
-                  {/* Company-Specific Section */}
+                  {/* Company-Specific Section — Upgraded with progress */}
                   <div className="mb-6">
                     <div className="mb-4">
                       <span className="landing-mono text-xs text-emerald-600 tracking-widest uppercase">Companies</span>
                       <h2 className="landing-display font-bold text-xl mt-1 tracking-tight text-gray-900">Company-Specific Prep</h2>
                       <p className="text-sm text-gray-500 landing-body mt-1">Tailored guidance for top tech companies</p>
                     </div>
-                    <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
-                      <table className="w-full">
-                        <thead>
-                          <tr className="bg-gray-50/80 border-b border-gray-100">
-                            <th className="text-left landing-mono text-[10px] text-gray-400 uppercase tracking-widest px-4 py-3">Company</th>
-                            <th className="text-left landing-mono text-[10px] text-gray-400 uppercase tracking-widest px-4 py-3 hidden md:table-cell">Focus Areas</th>
-                            <th className="text-right landing-mono text-[10px] text-gray-400 uppercase tracking-widest px-4 py-3 w-24">Topics</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {companyPrep.map((company) => (
-                            <tr
-                              key={company.id}
-                              onClick={() => setSelectedTopic(company.id)}
-                              className="group cursor-pointer transition-all hover:bg-gray-50 border-t border-gray-100"
-                            >
-                              <td className="px-4 py-3">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-7 h-7 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${company.color}12` }}>
-                                    <Icon name={company.icon} size={14} style={{ color: company.color }} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {companyPrep.map((company) => (
+                        <div
+                          key={company.id}
+                          onClick={() => setSelectedTopic(company.id)}
+                          className={`group rounded-lg bg-white hover:shadow-sm transition-all cursor-pointer p-4 ${completedTopics[company.id] ? 'border-2 border-emerald-300' : 'border border-gray-200 hover:border-gray-300'}`}
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 relative" style={{ background: `${company.color}15` }}>
+                                <Icon name={company.icon} size={16} style={{ color: company.color }} />
+                                {completedTopics[company.id] && (
+                                  <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center">
+                                    <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
                                   </div>
-                                  <span className="text-gray-900 landing-body font-medium group-hover:text-emerald-600 transition-colors">{company.title}</span>
-                                </div>
-                              </td>
-                              <td className="px-4 py-3 hidden md:table-cell">
-                                <span className="text-gray-500 text-sm landing-body">{company.subtitle}</span>
-                              </td>
-                              <td className="px-4 py-3 text-right">
-                                <span className="text-[10px] landing-mono px-1.5 py-0.5 rounded border border-gray-200 text-gray-400">
-                                  {company.keyQuestions?.length || 0}
+                                )}
+                              </div>
+                              <div>
+                                <h3 className="landing-display font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors text-sm">{company.title}</h3>
+                                <p className="landing-body text-gray-500 text-xs mt-0.5">{company.subtitle}</p>
+                              </div>
+                            </div>
+                            <span className="text-[10px] landing-mono px-2 py-0.5 rounded-full border text-gray-400 flex-shrink-0" style={{ borderColor: `${company.color}30`, background: `${company.color}06` }}>
+                              {company.keyQuestions?.length || 0}Q
+                            </span>
+                          </div>
+                          {company.principles && company.principles.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5">
+                              {company.principles.slice(0, 5).map((principle, i) => (
+                                <span key={i} className="landing-mono text-[10px] px-2 py-0.5 rounded-full border text-gray-500" style={{ borderColor: `${company.color}30`, background: `${company.color}08` }}>
+                                  {principle}
                                 </span>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                              ))}
+                              {company.principles.length > 5 && (
+                                <span className="landing-mono text-[10px] px-2 py-0.5 rounded-full border border-gray-200 text-gray-400">
+                                  +{company.principles.length - 5}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Gradient Divider */}
+                  <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-6" />
+
+                  {/* Interview Day Playbook — Modern data-point presentation */}
+                  <div className="mb-6">
+                    <div className="mb-4">
+                      <span className="landing-mono text-xs text-emerald-600 tracking-widest uppercase">Game Day</span>
+                      <h2 className="landing-display font-bold text-xl mt-1 tracking-tight text-gray-900">Interview Day Playbook</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                      {[
+                        { icon: 'user', title: 'Use "I" not "We"', desc: 'Own your contribution. Interviewers evaluate you, not your team.', metric: '#1 Rule', metricColor: '#ef4444' },
+                        { icon: 'clock', title: '2 Min Per Answer', desc: 'Concise and structured. Practice timing for the ideal window.', metric: '90-120s', metricColor: '#3b82f6' },
+                        { icon: 'layers', title: '8-10 Stories Ready', desc: 'Diverse stories that flex across question types and company values.', metric: 'Story Bank', metricColor: '#8b5cf6' },
+                        { icon: 'target', title: 'Quantify Everything', desc: 'Revenue, percentages, users impacted, time saved — numbers stick.', metric: 'Data > Words', metricColor: '#10b981' },
+                      ].map((tip, i) => (
+                        <div key={i} className="border border-gray-200 rounded-lg bg-white hover:border-gray-300 hover:shadow-sm transition-all p-4 group">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover:bg-emerald-50 flex items-center justify-center transition-colors">
+                              <Icon name={tip.icon} size={14} className="text-gray-400 group-hover:text-emerald-600 transition-colors" />
+                            </div>
+                            <span className="text-[10px] landing-mono font-bold px-2 py-0.5 rounded-full" style={{ color: tip.metricColor, background: `${tip.metricColor}10`, border: `1px solid ${tip.metricColor}20` }}>{tip.metric}</span>
+                          </div>
+                          <h3 className="landing-display font-semibold text-sm text-gray-900 mb-1">{tip.title}</h3>
+                          <p className="landing-body text-xs text-gray-500 leading-relaxed">{tip.desc}</p>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </>
@@ -1102,46 +1364,6 @@ export default function DocsPage({ onBack }) {
         </div>
           </div>
 
-          {/* Right Sidebar - Table of Contents (only shown on topic detail) */}
-          {selectedTopic && topicDetails && tableOfContents.length > 0 && (
-            <div className="w-64 flex-shrink-0 hidden xl:block">
-              <div className="sticky top-24 p-6">
-                <div className="landing-mono text-[10px] text-emerald-600 tracking-widest uppercase mb-4">On this page</div>
-                <nav className="space-y-1">
-                  {tableOfContents.map((item) => (
-                    <a
-                      key={item.id}
-                      href={`#${item.id}`}
-                      className="block px-3 py-2 text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors landing-body"
-                    >
-                      {item.label}
-                    </a>
-                  ))}
-                </nav>
-
-                {/* Quick Actions */}
-                <div className="mt-8 pt-6 border-t border-gray-100">
-                  <div className="landing-mono text-[10px] text-emerald-600 tracking-widest uppercase mb-4">Quick Actions</div>
-                  <div className="space-y-2">
-                    <a
-                      href="/app"
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors landing-body font-medium"
-                    >
-                      <Icon name="play" size={14} />
-                      <span>Practice Now</span>
-                    </a>
-                    <button
-                      onClick={() => setSelectedTopic(null)}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:bg-gray-50 rounded-lg transition-colors w-full text-left landing-body"
-                    >
-                      <Icon name="list" size={14} />
-                      <span>All Topics</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* ── Right Sidebar — Progress & TOC (visible when topic selected) ── */}

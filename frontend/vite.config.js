@@ -31,7 +31,7 @@ export default defineConfig({
       workbox: {
         skipWaiting: true,
         clientsClaim: true,
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB — app bundle is large
+        maximumFileSizeToCacheInBytes: 8 * 1024 * 1024, // 8 MB — app bundle includes large topic data
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         runtimeCaching: [
           {
