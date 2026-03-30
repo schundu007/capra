@@ -353,8 +353,8 @@ export default function MainApp() {
   // Extension SSE Listener
   // ---------------------------------------------------------------------------
   useEffect(() => {
-    // Extension SSE disabled — only useful with Chrome extension installed
-    return;
+    // Skip extension SSE in Electron — not needed
+    if (isElectron) return;
     let eventSource = null;
     let reconnectTimeout = null;
     let reconnectAttempts = 0;
@@ -460,7 +460,6 @@ export default function MainApp() {
     setProblemExpanded(false);
     setCurrentProblem(problem);
     setCurrentLanguage(language);
-    setLoadedProblem(problem);
     setEraserDiagram(null);
 
     try {
