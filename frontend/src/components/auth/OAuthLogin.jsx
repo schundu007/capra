@@ -77,7 +77,7 @@ export default function OAuthLogin() {
           <span className="text-xs landing-mono text-emerald-700 tracking-wide">AI-Powered Interview Prep</span>
         </div>
 
-        <h1 className={`landing-display font-extrabold leading-tight tracking-tight max-w-4xl transition-all duration-700 delay-100 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+        <h1 className={`landing-display font-extrabold leading-tight tracking-tight max-w-4xl transition-all duration-700 delay-100 sm:whitespace-nowrap ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
           <span className="text-3xl md:text-4xl lg:text-5xl text-gray-900">Your Winning Edge in </span>
           <span className="text-3xl md:text-4xl lg:text-5xl bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Every Interview</span>
         </h1>
