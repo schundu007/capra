@@ -153,21 +153,15 @@ export default function FormattedContent({ content, color = 'emerald' }) {
     if (block.type === 'code') {
       // Render code block with proper formatting
       elements.push(
-        <div key={`code-${blockIdx}`} className="my-1 rounded-lg border overflow-hidden" style={{ background: '#f1f5f9', borderColor: '#e5e7eb' }}>
+        <div key={`code-${blockIdx}`} className="my-1 rounded-lg border border-gray-200 overflow-hidden bg-gray-50">
           {block.lang && block.lang !== 'code' && (
-            <div className="px-4 py-2 text-sm text-gray-900 border-b" style={{ borderColor: '#e5e7eb', background: '#fafafa' }}>
+            <div className="px-4 py-1.5 text-xs landing-mono text-gray-400 border-b border-gray-200 bg-gray-100/50">
               {block.lang}
             </div>
           )}
           <pre
-            className="p-4 text-sm leading-6 overflow-x-auto"
-            style={{
-              fontFamily: '"SF Mono", "Monaco", "Inconsolata", "Fira Mono", "Droid Sans Mono", "Source Code Pro", "Courier New", monospace',
-              whiteSpace: 'pre',
-              tabSize: 2,
-              color: '#1e293b',
-              margin: 0,
-            }}
+            className="p-4 text-sm leading-6 overflow-x-auto landing-mono text-gray-800"
+            style={{ whiteSpace: 'pre', tabSize: 2, margin: 0 }}
           >
             {block.lines.join('\n')}
           </pre>
@@ -176,17 +170,10 @@ export default function FormattedContent({ content, color = 'emerald' }) {
     } else if (block.type === 'diagram') {
       // Render diagram with preserved spacing
       elements.push(
-        <div key={`diagram-${blockIdx}`} className="my-1 rounded-lg border overflow-x-auto" style={{ background: '#f1f5f9', borderColor: '#e5e7eb' }}>
+        <div key={`diagram-${blockIdx}`} className="my-1 rounded-lg border border-gray-200 overflow-x-auto bg-gray-50">
           <pre
-            className="p-4 text-sm leading-6"
-            style={{
-              fontFamily: '"SF Mono", "Monaco", "Inconsolata", "Fira Mono", "Droid Sans Mono", "Source Code Pro", "Courier New", monospace',
-              whiteSpace: 'pre',
-              tabSize: 4,
-              color: '#0c4a6e',
-              margin: 0,
-              overflow: 'visible'
-            }}
+            className="p-4 text-sm leading-6 landing-mono text-emerald-800"
+            style={{ whiteSpace: 'pre', tabSize: 4, margin: 0, overflow: 'visible' }}
           >
             {block.lines.join('\n')}
           </pre>
@@ -203,7 +190,7 @@ export default function FormattedContent({ content, color = 'emerald' }) {
               {currentList.map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 flex-shrink-0" />
-                  <span className="text-gray-900 text-sm leading-relaxed">{formatInlineText(item)}</span>
+                  <span className="text-gray-900 text-sm leading-relaxed landing-body">{formatInlineText(item)}</span>
                 </li>
               ))}
             </ul>
@@ -238,7 +225,7 @@ export default function FormattedContent({ content, color = 'emerald' }) {
             );
           } else {
             elements.push(
-              <div key={`h-${blockIdx}-${lineIdx}`} className="text-gray-900 font-semibold text-sm mt-2 mb-1 first:mt-0">
+              <div key={`h-${blockIdx}-${lineIdx}`} className="text-gray-900 font-semibold text-sm mt-2 mb-1 first:mt-0 landing-display">
                 {headerText}
               </div>
             );
@@ -265,7 +252,7 @@ export default function FormattedContent({ content, color = 'emerald' }) {
         if (trimmed.endsWith(':') && trimmed.length < 50 && !trimmed.includes('.')) {
           flushList();
           elements.push(
-            <div key={`h-${blockIdx}-${lineIdx}`} className="text-gray-900 font-semibold text-sm mt-2 mb-1 first:mt-0">
+            <div key={`h-${blockIdx}-${lineIdx}`} className="text-gray-900 font-semibold text-sm mt-2 mb-1 first:mt-0 landing-display">
               {trimmed}
             </div>
           );
@@ -281,7 +268,7 @@ export default function FormattedContent({ content, color = 'emerald' }) {
         // Regular paragraph
         flushList();
         elements.push(
-          <p key={`p-${blockIdx}-${lineIdx}`} className="text-gray-900 text-sm leading-relaxed my-1">
+          <p key={`p-${blockIdx}-${lineIdx}`} className="text-gray-900 text-sm leading-relaxed my-1 landing-body">
             {formatInlineText(trimmed)}
           </p>
         );

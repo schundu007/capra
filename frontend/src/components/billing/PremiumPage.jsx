@@ -114,7 +114,7 @@ export default function PremiumPage() {
   const hasActiveSubscription = subscription?.status === 'active';
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 overflow-hidden premium-root">
+    <div className="min-h-screen bg-white text-gray-900 overflow-hidden landing-root">
 
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 md:px-12 py-4 border-b border-gray-100">
@@ -123,8 +123,8 @@ export default function PremiumPage() {
             <Icon name="ascend" size={16} className="text-white" />
           </div>
           <div>
-            <span className="premium-display font-bold text-lg tracking-tight text-gray-900">Ascend</span>
-            <span className="block text-[10px] premium-mono uppercase tracking-[0.2em] text-emerald-600 -mt-0.5">Interview AI</span>
+            <span className="landing-display font-bold text-lg tracking-tight text-gray-900">Ascend</span>
+            <span className="block text-[10px] landing-mono uppercase tracking-[0.2em] text-emerald-600 -mt-0.5">Interview AI</span>
           </div>
         </a>
 
@@ -142,19 +142,19 @@ export default function PremiumPage() {
       <section className="flex flex-col items-center justify-center text-center px-6 pt-10 pb-8 md:pt-14 md:pb-10">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 border border-emerald-200 bg-emerald-50 rounded-full mb-4">
           <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-          <span className="text-xs premium-mono text-emerald-700 tracking-wide">Premium Plans</span>
+          <span className="text-xs landing-mono text-emerald-700 tracking-wide">Premium Plans</span>
         </div>
 
-        <h1 className="premium-display font-extrabold leading-tight tracking-tight max-w-3xl sm:whitespace-nowrap">
+        <h1 className="landing-display font-extrabold leading-tight tracking-tight max-w-3xl sm:whitespace-nowrap">
           <span className="text-3xl md:text-4xl lg:text-5xl text-gray-900">Ace Your Next </span>
           <span className="text-3xl md:text-4xl lg:text-5xl bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Technical Interview</span>
         </h1>
 
-        <p className="mt-3 text-base text-gray-500 max-w-2xl leading-relaxed premium-body">
+        <p className="mt-3 text-base text-gray-500 max-w-2xl leading-relaxed landing-body">
           Choose a plan and start preparing with AI-powered tools for coding, system design, and behavioral interviews.
         </p>
 
-        <button onClick={() => scrollTo('plans')} className="mt-4 px-8 py-2.5 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors shadow-sm premium-body">
+        <button onClick={() => scrollTo('plans')} className="mt-4 px-8 py-2.5 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors shadow-sm landing-body">
           View Plans
         </button>
       </section>
@@ -166,8 +166,8 @@ export default function PremiumPage() {
       <section id="plans" className="px-6 md:px-12 py-8 md:py-10 bg-gray-50/50">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-5">
-            <span className="premium-mono text-xs text-emerald-600 tracking-widest uppercase">Pricing</span>
-            <h2 className="premium-display font-bold text-2xl md:text-3xl mt-1 tracking-tight text-gray-900 sm:whitespace-nowrap">
+            <span className="landing-mono text-xs text-emerald-600 tracking-widest uppercase">Pricing</span>
+            <h2 className="landing-display font-bold text-2xl md:text-3xl mt-1 tracking-tight text-gray-900 sm:whitespace-nowrap">
               Simple Plans. <span className="text-gray-400">No Surprises.</span>
             </h2>
           </div>
@@ -195,7 +195,7 @@ export default function PremiumPage() {
                 <div key={plan.id} className={`relative p-4 border rounded-lg bg-white flex flex-col transition-all hover:shadow-sm ${isFeatured ? 'border-emerald-300 ring-1 ring-emerald-200' : 'border-gray-200'}`}>
                   {plan.badge && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                      <span className="px-3 py-1 text-[10px] font-bold premium-mono uppercase tracking-wider rounded-full text-white" style={{ background: plan.color }}>
+                      <span className="px-3 py-1 text-[10px] font-bold landing-mono uppercase tracking-wider rounded-full text-white" style={{ background: plan.color }}>
                         {plan.badge}
                       </span>
                     </div>
@@ -205,17 +205,17 @@ export default function PremiumPage() {
                     <div className={`w-8 h-8 border border-${plan.colorName}-200 bg-${plan.colorName}-50 rounded flex items-center justify-center mx-auto mb-2`}>
                       <Icon name={plan.icon} size={16} style={{ color: plan.color }} />
                     </div>
-                    <h3 className="premium-display font-bold text-base text-gray-900">{plan.name}</h3>
-                    <p className="text-[10px] text-gray-400 premium-mono">{plan.period}</p>
+                    <h3 className="landing-display font-bold text-base text-gray-900">{plan.name}</h3>
+                    <p className="text-[10px] text-gray-400 landing-mono">{plan.period}</p>
                   </div>
 
                   <div className="flex items-baseline gap-1.5 justify-center flex-wrap mb-3">
                     {plan.originalPrice && (
                       <span className="text-lg text-gray-400 line-through">${plan.originalPrice}</span>
                     )}
-                    <span className="text-3xl font-extrabold text-gray-900 premium-display">${plan.price}</span>
+                    <span className="text-3xl font-extrabold text-gray-900 landing-display">${plan.price}</span>
                     {plan.savings && (
-                      <span className="px-2.5 py-0.5 text-[10px] font-bold premium-mono uppercase tracking-wider rounded-full" style={{ background: `${plan.color}15`, color: plan.color }}>
+                      <span className="px-2.5 py-0.5 text-[10px] font-bold landing-mono uppercase tracking-wider rounded-full" style={{ background: `${plan.color}15`, color: plan.color }}>
                         {plan.savings}
                       </span>
                     )}
@@ -224,7 +224,7 @@ export default function PremiumPage() {
                   <button
                     onClick={() => handleSubscribe(plan.id)}
                     disabled={!!loading}
-                    className="w-full py-2 text-sm font-semibold rounded transition-colors mb-3 premium-body"
+                    className="w-full py-2 text-sm font-semibold rounded transition-colors mb-3 landing-body"
                     style={{ background: plan.color, color: '#fff' }}
                   >
                     {loading === plan.id ? <Icon name="loader" size={18} className="animate-spin mx-auto" /> : plan.cta}
@@ -232,7 +232,7 @@ export default function PremiumPage() {
 
                   <ul className="space-y-1 mt-auto">
                     {plan.features.map((feature, j) => (
-                      <li key={j} className="flex items-start gap-1.5 text-xs text-gray-600 premium-body">
+                      <li key={j} className="flex items-start gap-1.5 text-xs text-gray-600 landing-body">
                         <svg className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: plan.color }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
@@ -245,7 +245,7 @@ export default function PremiumPage() {
             })}
           </div>
 
-          <p className="text-center text-xs text-gray-400 premium-mono mt-4 tracking-wide">
+          <p className="text-center text-xs text-gray-400 landing-mono mt-4 tracking-wide">
             30-day money-back guarantee · Secure payment via Stripe · No auto-renewal
           </p>
         </div>
@@ -255,8 +255,8 @@ export default function PremiumPage() {
       <section id="features" className="px-6 md:px-12 py-8 md:py-10">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-5">
-            <span className="premium-mono text-xs text-emerald-600 tracking-widest uppercase">Included</span>
-            <h2 className="premium-display font-bold text-2xl md:text-3xl mt-1 tracking-tight text-gray-900 sm:whitespace-nowrap">
+            <span className="landing-mono text-xs text-emerald-600 tracking-widest uppercase">Included</span>
+            <h2 className="landing-display font-bold text-2xl md:text-3xl mt-1 tracking-tight text-gray-900 sm:whitespace-nowrap">
               Everything You Need. <span className="text-gray-400">In Every Plan.</span>
             </h2>
           </div>
@@ -268,11 +268,11 @@ export default function PremiumPage() {
                   <Icon name={item.icon} size={14} className="text-emerald-500" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="premium-display font-semibold text-sm text-gray-900">{item.title}</h3>
-                  <p className="text-xs text-gray-500 leading-snug premium-body">{item.desc}</p>
+                  <h3 className="landing-display font-semibold text-sm text-gray-900">{item.title}</h3>
+                  <p className="text-xs text-gray-500 leading-snug landing-body">{item.desc}</p>
                   <div className="mt-1.5 flex flex-wrap gap-1">
                     {item.tags.map(t => (
-                      <span key={t} className="text-[10px] premium-mono px-1.5 py-0.5 border border-gray-200 text-gray-400 rounded">{t}</span>
+                      <span key={t} className="text-[10px] landing-mono px-1.5 py-0.5 border border-gray-200 text-gray-400 rounded">{t}</span>
                     ))}
                   </div>
                 </div>
@@ -286,8 +286,8 @@ export default function PremiumPage() {
       <section id="faq" className="px-6 md:px-12 py-8 md:py-10 bg-gray-50/50">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-5">
-            <span className="premium-mono text-xs text-emerald-600 tracking-widest uppercase">FAQ</span>
-            <h2 className="premium-display font-bold text-2xl md:text-3xl mt-1 tracking-tight text-gray-900">
+            <span className="landing-mono text-xs text-emerald-600 tracking-widest uppercase">FAQ</span>
+            <h2 className="landing-display font-bold text-2xl md:text-3xl mt-1 tracking-tight text-gray-900">
               Common Questions
             </h2>
           </div>
@@ -296,12 +296,12 @@ export default function PremiumPage() {
             {faqItems.map((faq, i) => (
               <div key={i} className={`border rounded-lg bg-white transition-all ${expandedFaq === i ? 'border-gray-300 shadow-sm' : 'border-gray-200'}`}>
                 <button onClick={() => setExpandedFaq(expandedFaq === i ? null : i)} className="w-full px-4 py-3 flex items-center justify-between text-left">
-                  <span className="text-sm font-semibold text-gray-900 pr-4 premium-body">{faq.q}</span>
+                  <span className="text-sm font-semibold text-gray-900 pr-4 landing-body">{faq.q}</span>
                   <svg className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform duration-200 ${expandedFaq === i ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                 </button>
                 <div className={`overflow-hidden transition-all duration-200 ${expandedFaq === i ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'}`}>
                   <div className="px-5 pb-4">
-                    <p className="text-sm text-gray-500 leading-relaxed premium-body">{faq.a}</p>
+                    <p className="text-sm text-gray-500 leading-relaxed landing-body">{faq.a}</p>
                   </div>
                 </div>
               </div>
@@ -317,7 +317,7 @@ export default function PremiumPage() {
             <div className="w-6 h-6 bg-emerald-500 flex items-center justify-center">
               <Icon name="ascend" size={12} className="text-white" />
             </div>
-            <span className="premium-display font-bold text-sm text-gray-900">Ascend</span>
+            <span className="landing-display font-bold text-sm text-gray-900">Ascend</span>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
             {[
@@ -326,10 +326,10 @@ export default function PremiumPage() {
               { label: 'Preparation', href: '/prepare' },
               { label: 'Support', href: 'mailto:support@cariara.com' },
             ].map((link) => (
-              <a key={link.label} href={link.href} className="text-xs text-gray-400 hover:text-gray-900 transition-colors premium-body font-medium">{link.label}</a>
+              <a key={link.label} href={link.href} className="text-xs text-gray-400 hover:text-gray-900 transition-colors landing-body font-medium">{link.label}</a>
             ))}
           </div>
-          <p className="text-xs text-gray-400 premium-mono">
+          <p className="text-xs text-gray-400 landing-mono">
             &copy; {new Date().getFullYear()} Ascend by Cariara
           </p>
         </div>
@@ -338,20 +338,20 @@ export default function PremiumPage() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap');
 
-        .premium-root {
+        .landing-root {
           -webkit-font-smoothing: antialiased;
           font-family: 'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif;
         }
 
-        .premium-display {
+        .landing-display {
           font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
         }
 
-        .premium-body {
+        .landing-body {
           font-family: 'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif;
         }
 
-        .premium-mono {
+        .landing-mono {
           font-family: 'IBM Plex Mono', monospace;
         }
 

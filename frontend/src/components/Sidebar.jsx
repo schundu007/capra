@@ -97,7 +97,7 @@ export default function Sidebar({
               className="h-5 w-auto object-contain filter brightness-0 invert"
             />
           </div>
-          <span className="text-base font-semibold text-brand-400 tracking-tight">Ascend</span>
+          <span className="text-base font-semibold text-brand-400 tracking-tight landing-display">Ascend</span>
           {isLoading && (
             <div className="w-4 h-4 border-2 border-brand-400 border-t-transparent rounded-full animate-spin" />
           )}
@@ -121,7 +121,7 @@ export default function Sidebar({
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
+              <span className="landing-mono text-[10px] text-emerald-600 tracking-widest uppercase">
                 Saved Designs
               </span>
             </div>
@@ -194,7 +194,7 @@ export default function Sidebar({
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
+              <span className="landing-mono text-[10px] text-emerald-600 tracking-widest uppercase">
                 Recent History
               </span>
             </div>

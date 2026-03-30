@@ -24,7 +24,7 @@ export function resetOnboarding() {
 }
 
 /**
- * Onboarding Modal Component - Modern Design System
+ * Onboarding Modal Component - Landing Page Design System
  */
 export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
   const [currentStep, setCurrentStep] = useState(0);
@@ -37,10 +37,9 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
       subtitle: 'Your AI-Powered Interview Prep Assistant',
       icon: (
         <div
-          className="w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-pulse-glow"
+          className="w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-pulse-glow bg-gradient-to-br from-emerald-500 to-emerald-600"
           style={{
-            background: 'var(--brand-gradient)',
-            boxShadow: 'var(--shadow-glow-purple)'
+            boxShadow: '0 0 30px rgba(16, 185, 129, 0.4)'
           }}
         >
           <img
@@ -52,52 +51,40 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
       ),
       content: (
         <div className="space-y-6">
-          <p style={{ color: 'var(--text-secondary)' }} className="text-center text-base">
+          <p className="text-center text-base text-gray-500 landing-body">
             Ascend helps you prepare for technical interviews with AI-powered assistance
             for coding challenges, system design, and behavioral questions.
           </p>
           <div className="grid grid-cols-3 gap-3">
             <div
-              className="text-center p-4 rounded-lg transition-all hover:scale-105"
-              style={{
-                background: 'rgba(124, 58, 237, 0.15)',
-                border: '1px solid rgba(124, 58, 237, 0.3)'
-              }}
+              className="text-center p-4 rounded-lg transition-all hover:scale-105 bg-emerald-50 border border-emerald-200"
             >
-              <div className="w-12 h-12 rounded-lg mx-auto mb-3 flex items-center justify-center" style={{ background: 'rgba(124, 58, 237, 0.3)' }}>
-                <svg className="w-6 h-6" style={{ color: 'var(--brand-primary-light)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 rounded-lg mx-auto mb-3 flex items-center justify-center bg-emerald-100">
+                <svg className="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                 </svg>
               </div>
-              <div className="text-sm font-semibold" style={{ color: 'var(--brand-primary-light)' }}>Coding</div>
+              <div className="text-sm font-semibold text-emerald-500 landing-body">Coding</div>
             </div>
             <div
-              className="text-center p-4 rounded-lg transition-all hover:scale-105"
-              style={{
-                background: 'rgba(6, 182, 212, 0.15)',
-                border: '1px solid rgba(6, 182, 212, 0.3)'
-              }}
+              className="text-center p-4 rounded-lg transition-all hover:scale-105 bg-cyan-50 border border-cyan-200"
             >
-              <div className="w-12 h-12 rounded-lg mx-auto mb-3 flex items-center justify-center" style={{ background: 'rgba(6, 182, 212, 0.3)' }}>
-                <svg className="w-6 h-6" style={{ color: 'var(--accent-teal-light)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 rounded-lg mx-auto mb-3 flex items-center justify-center bg-cyan-100">
+                <svg className="w-6 h-6 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
               </div>
-              <div className="text-sm font-semibold" style={{ color: 'var(--accent-teal-light)' }}>System Design</div>
+              <div className="text-sm font-semibold text-cyan-500 landing-body">System Design</div>
             </div>
             <div
-              className="text-center p-4 rounded-lg transition-all hover:scale-105"
-              style={{
-                background: 'rgba(16, 185, 129, 0.15)',
-                border: '1px solid rgba(16, 185, 129, 0.3)'
-              }}
+              className="text-center p-4 rounded-lg transition-all hover:scale-105 bg-emerald-50 border border-emerald-200"
             >
-              <div className="w-12 h-12 rounded-lg mx-auto mb-3 flex items-center justify-center" style={{ background: 'rgba(16, 185, 129, 0.3)' }}>
-                <svg className="w-6 h-6" style={{ color: 'var(--accent-success-light)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 rounded-lg mx-auto mb-3 flex items-center justify-center bg-emerald-100">
+                <svg className="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </div>
-              <div className="text-sm font-semibold" style={{ color: 'var(--accent-success-light)' }}>Behavioral</div>
+              <div className="text-sm font-semibold text-emerald-500 landing-body">Behavioral</div>
             </div>
           </div>
         </div>
@@ -107,8 +94,8 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
       title: 'How It Works',
       subtitle: 'Three simple steps to ace your interview',
       icon: (
-        <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6" style={{ background: 'rgba(6, 182, 212, 0.2)' }}>
-          <svg className="w-10 h-10" style={{ color: 'var(--accent-teal-light)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 bg-cyan-100">
+          <svg className="w-10 h-10 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
         </div>
@@ -116,27 +103,23 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
       content: (
         <div className="space-y-4">
           {[
-            { num: 1, color: 'var(--brand-primary)', title: 'Input Your Problem', desc: 'Paste code, upload screenshots, or share URLs from LeetCode, HackerRank, and more.' },
-            { num: 2, color: 'var(--accent-teal)', title: 'Get AI-Powered Solutions', desc: 'Receive optimized code solutions with detailed explanations and complexity analysis.' },
-            { num: 3, color: 'var(--accent-success)', title: 'Practice & Improve', desc: 'Use follow-up questions, run code, and track your progress across sessions.' },
+            { num: 1, color: '#10b981', title: 'Input Your Problem', desc: 'Paste code, upload screenshots, or share URLs from LeetCode, HackerRank, and more.' },
+            { num: 2, color: '#06b6d4', title: 'Get AI-Powered Solutions', desc: 'Receive optimized code solutions with detailed explanations and complexity analysis.' },
+            { num: 3, color: '#10b981', title: 'Practice & Improve', desc: 'Use follow-up questions, run code, and track your progress across sessions.' },
           ].map((step, idx) => (
             <div
               key={idx}
-              className="flex items-start gap-4 p-4 rounded-lg transition-all hover:scale-[1.02]"
-              style={{
-                background: 'var(--bg-elevated)',
-                border: '1px solid var(--border-subtle)',
-              }}
+              className="flex items-start gap-4 p-4 rounded-lg transition-all hover:scale-[1.02] bg-gray-50 border border-gray-200"
             >
               <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 text-lg font-bold text-gray-900"
+                className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 text-lg font-bold text-white"
                 style={{ background: step.color }}
               >
                 {step.num}
               </div>
               <div>
-                <h4 className="font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{step.title}</h4>
-                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{step.desc}</p>
+                <h4 className="font-semibold mb-1 text-gray-900 landing-body">{step.title}</h4>
+                <p className="text-sm text-gray-400 landing-body">{step.desc}</p>
               </div>
             </div>
           ))}
@@ -147,15 +130,15 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
       title: 'Company Interview Prep',
       subtitle: 'Targeted preparation for specific companies',
       icon: (
-        <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6" style={{ background: 'rgba(16, 185, 129, 0.2)' }}>
-          <svg className="w-10 h-10" style={{ color: 'var(--accent-success-light)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 bg-emerald-100">
+          <svg className="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
           </svg>
         </div>
       ),
       content: (
         <div className="space-y-4">
-          <p style={{ color: 'var(--text-secondary)' }}>
+          <p className="text-gray-500 landing-body">
             Create personalized interview prep materials for any company. Get AI-generated:
           </p>
           <div className="space-y-2">
@@ -167,15 +150,14 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
             ].map((item, idx) => (
               <div
                 key={idx}
-                className="flex items-center gap-3 p-3 rounded-lg"
-                style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}
+                className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-200"
               >
-                <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: 'rgba(16, 185, 129, 0.2)' }}>
-                  <svg className="w-4 h-4" style={{ color: 'var(--accent-success)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-6 h-6 rounded-full flex items-center justify-center bg-emerald-100">
+                  <svg className="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <span style={{ color: 'var(--text-secondary)' }}>{item}</span>
+                <span className="text-gray-500 landing-body">{item}</span>
               </div>
             ))}
           </div>
@@ -186,59 +168,46 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
       title: 'Credits System',
       subtitle: 'Simple and transparent pricing',
       icon: (
-        <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6" style={{ background: 'rgba(124, 58, 237, 0.2)' }}>
-          <svg className="w-10 h-10" style={{ color: 'var(--brand-primary-light)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 bg-emerald-100">
+          <svg className="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
       ),
       content: (
         <div className="space-y-4">
-          <p style={{ color: 'var(--text-secondary)' }}>
+          <p className="text-gray-500 landing-body">
             Each credit allows you to create one company interview preparation package.
           </p>
           <div className="grid grid-cols-3 gap-3">
             <div
-              className="p-4 rounded-lg text-center relative overflow-hidden"
-              style={{
-                background: 'linear-gradient(145deg, rgba(124, 58, 237, 0.2) 0%, rgba(124, 58, 237, 0.1) 100%)',
-                border: '1px solid rgba(124, 58, 237, 0.3)'
-              }}
+              className="p-4 rounded-lg text-center relative overflow-hidden bg-emerald-50 border border-emerald-200"
             >
-              <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>$99</div>
-              <div className="text-sm font-medium" style={{ color: 'var(--brand-primary-light)' }}>Monthly</div>
-              <div className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>5 credits/mo</div>
+              <div className="text-2xl font-bold text-gray-900 landing-display">$99</div>
+              <div className="text-sm font-medium text-emerald-500 landing-body">Monthly</div>
+              <div className="text-xs mt-2 text-gray-400 landing-body">5 credits/mo</div>
             </div>
             <div
-              className="p-4 rounded-lg text-center relative overflow-hidden"
-              style={{
-                background: 'linear-gradient(145deg, rgba(6, 182, 212, 0.2) 0%, rgba(6, 182, 212, 0.1) 100%)',
-                border: '1px solid rgba(6, 182, 212, 0.3)'
-              }}
+              className="p-4 rounded-lg text-center relative overflow-hidden bg-cyan-50 border border-cyan-200"
             >
-              <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded-full text-xs font-bold" style={{ background: '#10b981', color: 'white' }}>POPULAR</div>
-              <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>$300</div>
-              <div className="text-sm font-medium" style={{ color: 'var(--accent-teal-light)' }}>Quarterly Pro</div>
-              <div className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>10 credits/qtr</div>
+              <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500 text-white landing-mono">POPULAR</div>
+              <div className="text-2xl font-bold text-gray-900 landing-display">$300</div>
+              <div className="text-sm font-medium text-cyan-500 landing-body">Quarterly Pro</div>
+              <div className="text-xs mt-2 text-gray-400 landing-body">10 credits/qtr</div>
             </div>
             <div
-              className="p-4 rounded-lg text-center"
-              style={{
-                background: 'linear-gradient(145deg, rgba(249, 115, 22, 0.2) 0%, rgba(249, 115, 22, 0.1) 100%)',
-                border: '1px solid rgba(249, 115, 22, 0.3)'
-              }}
+              className="p-4 rounded-lg text-center bg-orange-50 border border-orange-200"
             >
-              <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>$300</div>
-              <div className="text-sm font-medium" style={{ color: '#fb923c' }}>Desktop</div>
-              <div className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>Lifetime access</div>
+              <div className="text-2xl font-bold text-gray-900 landing-display">$300</div>
+              <div className="text-sm font-medium text-orange-400 landing-body">Desktop</div>
+              <div className="text-xs mt-2 text-gray-400 landing-body">Lifetime access</div>
             </div>
           </div>
           <div
-            className="p-4 rounded-lg text-center"
-            style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}
+            className="p-4 rounded-lg text-center bg-gray-50 border border-gray-200"
           >
-            <span style={{ color: 'var(--text-secondary)' }}>Need more? </span>
-            <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>$30 for 3 additional credits</span>
+            <span className="text-gray-500 landing-body">Need more? </span>
+            <span className="font-semibold text-gray-900 landing-body">$30 for 3 additional credits</span>
           </div>
         </div>
       ),
@@ -247,15 +216,15 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
       title: "You're All Set!",
       subtitle: 'Start your interview prep journey',
       icon: (
-        <div className="w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float" style={{ background: 'var(--brand-gradient)', boxShadow: 'var(--shadow-glow-purple)' }}>
-          <svg className="w-12 h-12 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float bg-gradient-to-br from-emerald-500 to-emerald-600" style={{ boxShadow: '0 0 30px rgba(16, 185, 129, 0.4)' }}>
+          <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
         </div>
       ),
       content: (
         <div className="space-y-6 text-center">
-          <p style={{ color: 'var(--text-secondary)' }}>
+          <p className="text-gray-500 landing-body">
             You're ready to start preparing for your dream job interviews.
             Get credits to unlock company-specific prep materials.
           </p>
@@ -266,7 +235,7 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
                 onOpenPricing?.();
                 onComplete();
               }}
-              className="btn-primary w-full py-4 text-base"
+              className="bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 landing-body w-full py-4 text-base"
             >
               Get Credits & Start
             </button>
@@ -275,7 +244,7 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
                 markOnboardingComplete();
                 onComplete();
               }}
-              className="btn-secondary w-full py-4"
+              className="btn-secondary w-full py-4 landing-body"
             >
               Explore First
             </button>
@@ -320,16 +289,15 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
       <div
         className="relative w-full max-w-lg rounded-2xl overflow-hidden animate-scale-in glass-card"
         style={{
-          boxShadow: 'var(--shadow-lg), var(--shadow-glow-purple)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 30px rgba(16, 185, 129, 0.15)',
         }}
       >
         {/* Progress bar */}
-        <div className="h-1" style={{ background: 'var(--bg-active)' }}>
+        <div className="h-1 bg-gray-200">
           <div
-            className="h-full transition-all duration-500 ease-out"
+            className="h-full transition-all duration-500 ease-out bg-gradient-to-r from-emerald-500 to-emerald-400"
             style={{
               width: `${((currentStep + 1) / steps.length) * 100}%`,
-              background: 'var(--brand-gradient)',
             }}
           />
         </div>
@@ -341,10 +309,10 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
 
           {/* Header */}
           <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold mb-2">
-              <span className="gradient-text">{currentStepData.title}</span>
+            <h2 className="text-2xl font-bold mb-2 landing-display">
+              <span className="text-emerald-500">{currentStepData.title}</span>
             </h2>
-            <p style={{ color: 'var(--text-muted)' }}>{currentStepData.subtitle}</p>
+            <p className="text-gray-400 landing-body">{currentStepData.subtitle}</p>
           </div>
 
           {/* Step content */}
@@ -357,8 +325,7 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
             <div className="flex items-center justify-between mt-8">
               <button
                 onClick={handleSkip}
-                className="text-sm transition-colors hover:opacity-80"
-                style={{ color: 'var(--text-muted)' }}
+                className="text-sm transition-colors hover:opacity-80 text-gray-400 landing-body"
               >
                 Skip intro
               </button>
@@ -367,14 +334,14 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
                 {!isFirstStep && (
                   <button
                     onClick={handlePrev}
-                    className="btn-secondary px-5 py-2.5"
+                    className="btn-secondary px-5 py-2.5 landing-body"
                   >
                     Back
                   </button>
                 )}
                 <button
                   onClick={handleNext}
-                  className="btn-primary px-6 py-2.5"
+                  className="bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 landing-body px-6 py-2.5"
                 >
                   Next
                 </button>
@@ -390,9 +357,9 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
                 onClick={() => setCurrentStep(index)}
                 className="w-2 h-2 rounded-full transition-all duration-300"
                 style={{
-                  background: index === currentStep ? 'var(--brand-primary)' : 'var(--bg-active)',
+                  background: index === currentStep ? '#10b981' : '#e5e7eb',
                   transform: index === currentStep ? 'scale(1.5)' : 'scale(1)',
-                  boxShadow: index === currentStep ? '0 0 8px var(--brand-primary)' : 'none',
+                  boxShadow: index === currentStep ? '0 0 8px #10b981' : 'none',
                 }}
               />
             ))}

@@ -66,51 +66,73 @@ export default function DownloadPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#030712' }}>
+      <div className="min-h-screen flex items-center justify-center bg-white landing-root">
         <div className="text-center">
-          <Icon name="loader" size={48} className="animate-spin text-green-400 mx-auto mb-4" />
-          <p className="text-gray-400">Checking download access...</p>
+          <Icon name="loader" size={48} className="animate-spin text-emerald-500 mx-auto mb-4" />
+          <p className="text-gray-500 landing-body">Checking download access...</p>
         </div>
+
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap');
+          .landing-root { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-family: 'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif; }
+          .landing-display { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+          .landing-body { font-family: 'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif; }
+          .landing-mono { font-family: 'IBM Plex Mono', monospace; }
+        `}</style>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#030712' }}>
-        <div className="text-center max-w-md p-8 rounded-2xl" style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
-          <Icon name="alertTriangle" size={48} className="text-red-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Error</h2>
-          <p className="text-gray-400 mb-4">{error}</p>
+      <div className="min-h-screen flex items-center justify-center bg-white landing-root">
+        <div className="text-center max-w-md p-8 rounded-lg border border-red-200 bg-red-50">
+          <Icon name="alertTriangle" size={48} className="text-red-500 mx-auto mb-4" />
+          <h2 className="landing-display text-xl font-bold text-gray-900 mb-2">Error</h2>
+          <p className="text-gray-500 landing-body mb-4">{error}</p>
           <button
             onClick={() => window.location.href = '/app'}
-            className="px-6 py-2 rounded-lg font-medium"
-            style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#fff' }}
+            className="px-6 py-2 rounded bg-emerald-500 text-white font-semibold text-sm hover:bg-emerald-600 transition-colors landing-body"
           >
             Go Home
           </button>
         </div>
+
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap');
+          .landing-root { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-family: 'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif; }
+          .landing-display { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+          .landing-body { font-family: 'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif; }
+          .landing-mono { font-family: 'IBM Plex Mono', monospace; }
+        `}</style>
       </div>
     );
   }
 
   if (!downloadInfo?.hasAccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#030712' }}>
-        <div className="text-center max-w-md p-8 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-          <Icon name="lock" size={48} className="text-yellow-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Purchase Required</h2>
-          <p className="text-gray-400 mb-6">
+      <div className="min-h-screen flex items-center justify-center bg-white landing-root">
+        <div className="text-center max-w-md p-8 rounded-lg border border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm">
+          <Icon name="lock" size={48} className="text-yellow-500 mx-auto mb-4" />
+          <h2 className="landing-display text-xl font-bold text-gray-900 mb-2">Purchase Required</h2>
+          <p className="text-gray-500 landing-body mb-6">
             You need to purchase the Desktop Lifetime plan to download the app.
           </p>
           <button
             onClick={() => window.location.href = '/?pricing=true'}
-            className="px-6 py-3 rounded-lg font-semibold transition-all hover:scale-105"
-            style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: '#fff' }}
+            className="px-6 py-3 rounded bg-emerald-500 text-white font-semibold text-sm hover:bg-emerald-600 transition-all hover:scale-105 landing-body"
           >
             View Pricing
           </button>
         </div>
+
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap');
+          .landing-root { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-family: 'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif; }
+          .landing-display { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+          .landing-body { font-family: 'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif; }
+          .landing-mono { font-family: 'IBM Plex Mono', monospace; }
+        `}</style>
       </div>
     );
   }
@@ -128,46 +150,44 @@ export default function DownloadPage() {
   const recommended = getRecommendedDownload();
 
   return (
-    <div className="min-h-screen" style={{ background: '#ffffff', fontFamily: "'Source Sans 3', sans-serif" }}>
+    <div className="min-h-screen bg-white landing-root">
       {/* Background gradient */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute w-[600px] h-[600px] rounded-full opacity-20 blur-3xl" style={{ background: 'radial-gradient(circle, #8b5cf6 0%, transparent 70%)', top: '-200px', right: '-100px' }} />
+        <div className="absolute w-[600px] h-[600px] rounded-full opacity-10 blur-3xl -top-[200px] -right-[100px] bg-emerald-400" />
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 py-16">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6" style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
-            <Icon name="check" size={16} className="text-purple-400" />
-            <span className="text-purple-400 font-medium text-sm">Purchase Complete</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 border border-emerald-200 bg-emerald-50">
+            <Icon name="check" size={16} className="text-emerald-500" />
+            <span className="text-emerald-700 font-medium text-sm landing-body">Purchase Complete</span>
           </div>
 
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Download Ascend Desktop</h1>
-          <p className="text-gray-400 text-lg">
+          <h1 className="landing-display text-4xl font-bold text-gray-900 mb-4 tracking-tight">Download <span className="bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Ascend Desktop</span></h1>
+          <p className="text-gray-500 text-lg landing-body">
             Thank you for your purchase! Download the app for your platform below.
           </p>
-          <p className="text-gray-500 text-sm mt-2">
-            Version {version} • Purchased {new Date(purchaseDate).toLocaleDateString()}
+          <p className="text-gray-400 text-sm mt-2 landing-mono">
+            Version {version} -- Purchased {new Date(purchaseDate).toLocaleDateString()}
           </p>
         </div>
 
         {/* Recommended Download */}
         {recommended && (
           <div className="mb-12">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 text-center">Recommended for your system</h2>
+            <h2 className="landing-display text-lg font-semibold text-gray-900 mb-4 text-center">Recommended for your system</h2>
             <div
-              className="p-8 rounded-2xl text-center cursor-pointer transition-all hover:scale-[1.02]"
-              style={{ background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.05))', border: '2px solid #8b5cf6' }}
+              className="p-8 rounded-lg text-center cursor-pointer transition-all hover:scale-[1.02] border-2 border-emerald-500 bg-emerald-50/50 hover:shadow-sm"
               onClick={() => handleDownload(recommended.url)}
             >
-              <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: 'rgba(139, 92, 246, 0.2)' }}>
-                <Icon name={detectedPlatform?.includes('mac') ? 'apple' : 'terminal'} size={32} className="text-purple-400" />
+              <div className="w-16 h-16 rounded-lg mx-auto mb-4 flex items-center justify-center bg-emerald-100 border border-emerald-200">
+                <Icon name={detectedPlatform?.includes('mac') ? 'apple' : 'terminal'} size={32} className="text-emerald-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">{recommended.label}</h3>
-              <p className="text-gray-400 text-sm mb-4">{recommended.size}</p>
+              <h3 className="landing-display text-xl font-bold text-gray-900 mb-2">{recommended.label}</h3>
+              <p className="text-gray-400 text-sm mb-4 landing-body">{recommended.size}</p>
               <button
-                className="px-8 py-3 rounded-lg font-semibold text-lg transition-all"
-                style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: '#fff' }}
+                className="px-8 py-3 rounded bg-emerald-500 text-white font-semibold text-sm hover:bg-emerald-600 transition-colors landing-body"
               >
                 <span className="flex items-center gap-2">
                   <Icon name="download" size={20} />
@@ -180,20 +200,19 @@ export default function DownloadPage() {
 
         {/* All Downloads */}
         <div className="mb-12">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">All Platforms</h2>
+          <h2 className="landing-display text-lg font-semibold text-gray-900 mb-4">All Platforms</h2>
           <div className="grid md:grid-cols-3 gap-4">
             {/* Mac Apple Silicon */}
             <div
-              className="p-6 rounded-lg cursor-pointer transition-all hover:scale-[1.02]"
-              style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)' }}
+              className="p-6 rounded-lg cursor-pointer transition-all hover:scale-[1.02] border border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
               onClick={() => handleDownload(downloads.mac.arm64.url)}
             >
-              <div className="w-12 h-12 rounded-lg mb-3 flex items-center justify-center" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
+              <div className="w-12 h-12 rounded-lg mb-3 flex items-center justify-center bg-gray-50 border border-gray-200">
                 <Icon name="apple" size={24} className="text-gray-400" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-1">{downloads.mac.arm64.label}</h3>
-              <p className="text-gray-500 text-sm mb-3">M1, M2, M3 chips • {downloads.mac.arm64.size}</p>
-              <button className="flex items-center gap-2 text-purple-400 text-sm font-medium">
+              <h3 className="landing-display font-semibold text-gray-900 mb-1">{downloads.mac.arm64.label}</h3>
+              <p className="text-gray-500 text-sm mb-3 landing-body">M1, M2, M3 chips -- {downloads.mac.arm64.size}</p>
+              <button className="flex items-center gap-2 text-emerald-500 text-sm font-medium landing-body">
                 <Icon name="download" size={16} />
                 Download .dmg
               </button>
@@ -201,16 +220,15 @@ export default function DownloadPage() {
 
             {/* Mac Intel */}
             <div
-              className="p-6 rounded-lg cursor-pointer transition-all hover:scale-[1.02]"
-              style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)' }}
+              className="p-6 rounded-lg cursor-pointer transition-all hover:scale-[1.02] border border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
               onClick={() => handleDownload(downloads.mac.x64.url)}
             >
-              <div className="w-12 h-12 rounded-lg mb-3 flex items-center justify-center" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
+              <div className="w-12 h-12 rounded-lg mb-3 flex items-center justify-center bg-gray-50 border border-gray-200">
                 <Icon name="apple" size={24} className="text-gray-400" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-1">{downloads.mac.x64.label}</h3>
-              <p className="text-gray-500 text-sm mb-3">Intel processors • {downloads.mac.x64.size}</p>
-              <button className="flex items-center gap-2 text-purple-400 text-sm font-medium">
+              <h3 className="landing-display font-semibold text-gray-900 mb-1">{downloads.mac.x64.label}</h3>
+              <p className="text-gray-500 text-sm mb-3 landing-body">Intel processors -- {downloads.mac.x64.size}</p>
+              <button className="flex items-center gap-2 text-emerald-500 text-sm font-medium landing-body">
                 <Icon name="download" size={16} />
                 Download .dmg
               </button>
@@ -218,16 +236,15 @@ export default function DownloadPage() {
 
             {/* Windows */}
             <div
-              className="p-6 rounded-lg cursor-pointer transition-all hover:scale-[1.02]"
-              style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)' }}
+              className="p-6 rounded-lg cursor-pointer transition-all hover:scale-[1.02] border border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
               onClick={() => handleDownload(downloads.windows.x64.url)}
             >
-              <div className="w-12 h-12 rounded-lg mb-3 flex items-center justify-center" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
+              <div className="w-12 h-12 rounded-lg mb-3 flex items-center justify-center bg-gray-50 border border-gray-200">
                 <Icon name="terminal" size={24} className="text-gray-400" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-1">{downloads.windows.x64.label}</h3>
-              <p className="text-gray-500 text-sm mb-3">Windows 10/11 • {downloads.windows.x64.size}</p>
-              <button className="flex items-center gap-2 text-purple-400 text-sm font-medium">
+              <h3 className="landing-display font-semibold text-gray-900 mb-1">{downloads.windows.x64.label}</h3>
+              <p className="text-gray-500 text-sm mb-3 landing-body">Windows 10/11 -- {downloads.windows.x64.size}</p>
+              <button className="flex items-center gap-2 text-emerald-500 text-sm font-medium landing-body">
                 <Icon name="download" size={16} />
                 Download .exe
               </button>
@@ -236,16 +253,16 @@ export default function DownloadPage() {
         </div>
 
         {/* Installation Instructions */}
-        <div className="p-6 rounded-2xl" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Icon name="book" size={20} className="text-purple-400" />
+        <div className="p-6 rounded-lg border border-gray-200 bg-white">
+          <h2 className="landing-display text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Icon name="book" size={20} className="text-emerald-500" />
             Installation Instructions
           </h2>
 
-          <div className="space-y-4 text-gray-400">
+          <div className="space-y-4">
             <div>
-              <h3 className="font-medium text-gray-900 mb-2">macOS</h3>
-              <ol className="list-decimal list-inside space-y-1 text-sm">
+              <h3 className="landing-display font-medium text-gray-900 mb-2">macOS</h3>
+              <ol className="list-decimal list-inside space-y-1 text-sm text-gray-500 landing-body">
                 <li>Open the downloaded .dmg file</li>
                 <li>Drag Ascend to your Applications folder</li>
                 <li>Right-click and select "Open" the first time (to bypass Gatekeeper)</li>
@@ -254,8 +271,8 @@ export default function DownloadPage() {
             </div>
 
             <div>
-              <h3 className="font-medium text-gray-900 mb-2">Windows</h3>
-              <ol className="list-decimal list-inside space-y-1 text-sm">
+              <h3 className="landing-display font-medium text-gray-900 mb-2">Windows</h3>
+              <ol className="list-decimal list-inside space-y-1 text-sm text-gray-500 landing-body">
                 <li>Run the downloaded .exe installer</li>
                 <li>Follow the installation wizard</li>
                 <li>Launch Ascend from the Start Menu or Desktop</li>
@@ -266,16 +283,16 @@ export default function DownloadPage() {
         </div>
 
         {/* API Keys Notice */}
-        <div className="mt-6 p-4 rounded-lg" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+        <div className="mt-6 p-4 rounded-lg border border-blue-200 bg-blue-50">
           <div className="flex items-start gap-3">
-            <Icon name="info" size={20} className="text-blue-400 mt-0.5" />
+            <Icon name="info" size={20} className="text-blue-500 mt-0.5" />
             <div>
-              <h3 className="font-medium text-gray-900 mb-1">You'll need your own API keys</h3>
-              <p className="text-gray-400 text-sm">
+              <h3 className="landing-display font-medium text-gray-900 mb-1">You'll need your own API keys</h3>
+              <p className="text-gray-500 text-sm landing-body">
                 The desktop app uses your own API keys for unlimited usage. You can get keys from{' '}
-                <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Anthropic</a>
+                <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Anthropic</a>
                 {' '}and{' '}
-                <a href="https://platform.openai.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">OpenAI</a>.
+                <a href="https://platform.openai.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">OpenAI</a>.
               </p>
             </div>
           </div>
@@ -285,12 +302,34 @@ export default function DownloadPage() {
         <div className="mt-8 text-center">
           <button
             onClick={() => window.location.href = '/app'}
-            className="text-gray-500 hover:text-gray-900 transition-colors"
+            className="text-gray-500 hover:text-gray-900 transition-colors landing-body"
           >
-            ← Back to Home
+            &larr; Back to Home
           </button>
         </div>
       </div>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap');
+
+        .landing-root {
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+          font-family: 'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif;
+        }
+
+        .landing-display {
+          font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        }
+
+        .landing-body {
+          font-family: 'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif;
+        }
+
+        .landing-mono {
+          font-family: 'IBM Plex Mono', monospace;
+        }
+      `}</style>
     </div>
   );
 }

@@ -734,7 +734,7 @@ export default function MainApp() {
   // ---------------------------------------------------------------------------
   if (!authChecked) {
     return (
-      <div className="h-screen-safe flex items-center justify-center bg-white" style={{ fontFamily: "'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif" }}>
+      <div className="h-screen-safe flex items-center justify-center bg-white landing-root">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ background: '#10b981' }}>
             <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -794,7 +794,7 @@ export default function MainApp() {
   };
 
   return (
-    <div className={`h-screen-safe flex overflow-hidden`} style={{ background: '#ffffff', color: '#1a1a1a', fontFamily: "'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif", paddingBottom: isMobile ? 'calc(52px + env(safe-area-inset-bottom, 0px))' : undefined }}>
+    <div className={`h-screen-safe flex overflow-hidden landing-root bg-white text-gray-900`} style={isMobile ? { paddingBottom: 'calc(52px + env(safe-area-inset-bottom, 0px))' } : undefined}>
       {/* Sidebar — desktop: inline, mobile: overlay drawer */}
       {isMobile ? (
         <Sidebar {...sidebarProps} isOpen={mobileDrawerOpen} />
@@ -1381,6 +1381,14 @@ function CodingLayout({
           </Allotment.Pane>
         )}
       </Allotment>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap');
+        .landing-root { -webkit-font-smoothing: antialiased; font-family: 'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif; }
+        .landing-display { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+        .landing-body { font-family: 'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif; }
+        .landing-mono { font-family: 'IBM Plex Mono', monospace; }
+      `}</style>
     </div>
   );
 }
