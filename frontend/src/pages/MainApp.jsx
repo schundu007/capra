@@ -460,6 +460,7 @@ export default function MainApp() {
     setProblemExpanded(false);
     setCurrentProblem(problem);
     setCurrentLanguage(language);
+    setLoadedProblem(problem);
     setEraserDiagram(null);
 
     try {
