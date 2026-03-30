@@ -128,7 +128,7 @@ export default function DownloadPage() {
   const recommended = getRecommendedDownload();
 
   return (
-    <div className="min-h-screen" style={{ background: '#030712', fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen" style={{ background: '#ffffff', fontFamily: "'Source Sans 3', sans-serif" }}>
       {/* Background gradient */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute w-[600px] h-[600px] rounded-full opacity-20 blur-3xl" style={{ background: 'radial-gradient(circle, #8b5cf6 0%, transparent 70%)', top: '-200px', right: '-100px' }} />

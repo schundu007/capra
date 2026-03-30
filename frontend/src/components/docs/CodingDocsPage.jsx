@@ -48,7 +48,7 @@ export default function CodingDocsPage() {
     });
 
   return (
-    <div className="min-h-screen flex" style={{ background: '#ffffff', fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen flex" style={{ background: '#ffffff', fontFamily: "'Source Sans 3', sans-serif" }}>
       {/* Sidebar */}
       <DocsSidebar activePage="coding" />
 

@@ -87,9 +87,11 @@ export default function DocsPage({ onBack }) {
   // Initialize state from URL params for persistence on refresh
   const getInitialState = () => {
     const params = new URLSearchParams(window.location.search);
-    const rawPage = params.get('page') || 'coding';
+    // Support both query param (?page=...) and path segment (/prepare/system-design)
+    const pathSegment = window.location.pathname.replace('/prepare', '').replace(/^\//, '');
+    const rawPage = params.get('page') || (pathSegment || 'coding');
     // Support 'dsa' as alias for 'coding'
-    const page = rawPage === 'dsa' ? 'coding' : rawPage;
+    const page = rawPage === 'dsa' ? 'coding' : rawPage === 'low-level-design' ? 'low-level' : rawPage;
     return {
       page,
       topic: params.get('topic') || null,

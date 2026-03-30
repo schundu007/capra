@@ -561,7 +561,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
 
                                 {/* Code */}
                                 {approach.code && (
-                                  <pre className="text-xs p-3 rounded overflow-x-auto mb-2" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: 'Monaco, monospace' }}>
+                                  <pre className="text-xs p-3 rounded overflow-x-auto mb-2" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: "'Source Code Pro', Monaco, monospace" }}>
                                     {approach.code.replace(/\\n/g, '\n')}
                                   </pre>
                                 )}
@@ -675,7 +675,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                                 )}
                               </div>
                             ) : q.architecture?.asciiDiagram ? (
-                              <pre className="text-xs p-3 rounded overflow-x-auto" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: 'Monaco, monospace', lineHeight: '1.3' }}>
+                              <pre className="text-xs p-3 rounded overflow-x-auto" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: "'Source Code Pro', Monaco, monospace", lineHeight: '1.3' }}>
                                 {q.architecture.asciiDiagram.replace(/\\n/g, '\n')}
                               </pre>
                             ) : q.architecture?.diagramDescription ? (
@@ -880,7 +880,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                                   </div>
                                 )}
                                 {q?.codeExample && (
-                                  <pre className="text-xs p-2 rounded mt-2 overflow-x-auto" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: 'Monaco, monospace' }}>
+                                  <pre className="text-xs p-2 rounded mt-2 overflow-x-auto" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: "'Source Code Pro', Monaco, monospace" }}>
                                     {String(q.codeExample).replace(/\\n/g, '\n')}
                                   </pre>
                                 )}
@@ -910,7 +910,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                                 <span className="font-semibold">{bp?.practice || ''}</span>
                                 {bp?.when && <span style={{ color: colors.textMuted }}> — {bp.when}</span>}
                                 {bp?.codeExample && (
-                                  <pre className="text-xs p-2 rounded mt-1 overflow-x-auto" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: 'Monaco, monospace' }}>
+                                  <pre className="text-xs p-2 rounded mt-1 overflow-x-auto" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: "'Source Code Pro', Monaco, monospace" }}>
                                     {String(bp.codeExample).replace(/\\n/g, '\n')}
                                   </pre>
                                 )}
@@ -1016,7 +1016,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                             <p className="text-xs mt-1">{safeArray(int.patterns).join(' • ')}</p>
                           )}
                           {int?.codeExample && (
-                            <pre className="text-xs p-2 rounded mt-1 overflow-x-auto" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: 'Monaco, monospace' }}>
+                            <pre className="text-xs p-2 rounded mt-1 overflow-x-auto" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: "'Source Code Pro', Monaco, monospace" }}>
                               {String(int.codeExample).replace(/\\n/g, '\n')}
                             </pre>
                           )}

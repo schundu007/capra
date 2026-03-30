@@ -165,7 +165,7 @@ export default function PremiumPage() {
               <button onClick={() => scrollTo('features')} className="px-5 py-2.5 rounded-xl text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200">Features</button>
               <button onClick={() => scrollTo('faq')} className="px-5 py-2.5 rounded-xl text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200">FAQ</button>
             </div>
-            <a href="/" className="hidden sm:flex items-center gap-2 px-6 py-3 rounded-xl text-base font-semibold text-gray-900 transition-all duration-300 hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)]" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+            <a href="/app/coding" className="hidden sm:flex items-center gap-2 px-6 py-3 rounded-xl text-base font-semibold text-gray-900 transition-all duration-300 hover:shadow-[0_4px_24px_rgba(16,185,129,0.3)]" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
               Back to App
             </a>
           </div>

@@ -353,7 +353,8 @@ export default function MainApp() {
   // Extension SSE Listener
   // ---------------------------------------------------------------------------
   useEffect(() => {
-    // OAuth disabled
+    // Skip extension SSE in Electron — not needed
+    if (isElectron) return;
     let eventSource = null;
     let reconnectTimeout = null;
     let reconnectAttempts = 0;
@@ -1352,18 +1353,14 @@ function CodingLayout({
             {showAscendAssistant ? (
               <Allotment defaultSizes={[60, 40]}>
                 <Allotment.Pane minSize={300}>
-                  <div className="h-full overflow-auto p-3 bg-white">
-                    <DesignPane />
-                  </div>
+                  <DesignPane />
                 </Allotment.Pane>
                 <Allotment.Pane minSize={300}>
                   <AscendAssistantPanel onClose={onCloseAscendAssistant} provider={provider} model={model} />
                 </Allotment.Pane>
               </Allotment>
             ) : (
-              <div className="h-full overflow-auto p-3 bg-white">
-                <DesignPane />
-              </div>
+              <DesignPane />
             )}
           </Allotment.Pane>
         </Allotment>
