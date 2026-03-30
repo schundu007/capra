@@ -733,7 +733,7 @@ export default function DocsPage({ onBack }) {
                             </div>
                           </div>
                           {/* Topics in Category */}
-                          <div className="grid grid-cols-1 md:grid-cols-2" style={{ borderTop: '1px solid #f0f0f0' }}>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ borderTop: '1px solid #f0f0f0' }}>
                             {categoryTopics.map((topic) => (
                               <div
                                 key={topic.id}
@@ -793,7 +793,7 @@ export default function DocsPage({ onBack }) {
                             </div>
                           </div>
                           {/* Designs in Category */}
-                          <div className="grid grid-cols-1 md:grid-cols-2" style={{ borderTop: '1px solid #f0f0f0' }}>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ borderTop: '1px solid #f0f0f0' }}>
                             {categoryDesigns.map((design) => {
                               const diffColor = difficultyColors[design.difficulty] || difficultyColors['Medium'];
                               const designProblem = `Design ${design.title}. ${design.description || design.subtitle || ''}`;
@@ -867,7 +867,7 @@ export default function DocsPage({ onBack }) {
                               <span className="text-sm text-gray-700">{categoryProblems.length} problems</span>
                             </div>
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2" style={{ borderTop: '1px solid #f0f0f0' }}>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ borderTop: '1px solid #f0f0f0' }}>
                             {categoryProblems.map((problem) => {
                               const diffColor = difficultyColors[problem.difficulty] || difficultyColors['Medium'];
                               return (
@@ -910,7 +910,7 @@ export default function DocsPage({ onBack }) {
                       </div>
                     </div>
                     <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-                      <div className="grid grid-cols-1 md:grid-cols-2" style={{ borderTop: '1px solid #f0f0f0' }}>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ borderTop: '1px solid #f0f0f0' }}>
                         {concurrencyTopics.map((topic) => (
                           <div
                             key={topic.id}
@@ -1019,7 +1019,7 @@ export default function DocsPage({ onBack }) {
                             </div>
                           </div>
                           {/* Topics in Category */}
-                          <div className="grid grid-cols-1 md:grid-cols-2" style={{ borderTop: '1px solid #f0f0f0' }}>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ borderTop: '1px solid #f0f0f0' }}>
                             {categoryTopics.map((topic) => (
                               <div
                                 key={topic.id}

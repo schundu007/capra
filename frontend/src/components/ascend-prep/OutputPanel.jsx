@@ -66,7 +66,7 @@ function renderMarkdown(text) {
         i++;
       }
       elements.push(
-        <ul key={`ul-${elements.length}`} className="list-disc list-inside space-y-1 my-2 ml-2">
+        <ul key={`ul-${elements.length}`} className="list-disc list-inside grid grid-cols-1 md:grid-cols-2 gap-1 my-2 ml-2">
           {listItems.map((item, j) => (
             <li key={j} className="text-sm" style={{ color: 'var(--content-text)' }} dangerouslySetInnerHTML={{ __html: processInline(item) }} />
           ))}
@@ -83,7 +83,7 @@ function renderMarkdown(text) {
         i++;
       }
       elements.push(
-        <ol key={`ol-${elements.length}`} className="list-decimal list-inside space-y-1 my-2 ml-2">
+        <ol key={`ol-${elements.length}`} className="list-decimal list-inside grid grid-cols-1 md:grid-cols-2 gap-1 my-2 ml-2">
           {listItems.map((item, j) => (
             <li key={j} className="text-sm" style={{ color: 'var(--content-text)' }} dangerouslySetInnerHTML={{ __html: processInline(item) }} />
           ))}

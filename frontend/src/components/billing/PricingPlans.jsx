@@ -254,7 +254,7 @@ export default function PricingPlans({ isOpen, onClose }) {
                   )}
 
                   {/* Features list */}
-                  <div className="space-y-2 mb-4 text-sm" style={{ color: '#333' }}>
+                  <div className="grid grid-cols-2 gap-1 mb-4 text-sm" style={{ color: '#333' }}>
                     {plan.isDesktop ? (
                       plan.desktopFeatures.map((feature, i) => (
                         <div key={i} className="flex items-center gap-2">

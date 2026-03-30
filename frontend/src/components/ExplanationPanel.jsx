@@ -514,7 +514,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                 {pitch.keyPoints && pitch.keyPoints.length > 0 && (
                   <div>
                     <span className="text-xs font-semibold text-gray-600 uppercase">Key Points to Mention</span>
-                    <ul className="mt-1 space-y-1">
+                    <ul className="mt-1 grid grid-cols-1 md:grid-cols-2 gap-1">
                       {pitch.keyPoints.map((point, i) => (
                         <li key={i} className="text-xs text-gray-900 flex items-start gap-2">
                           <span className="text-brand-400 font-bold">{i + 1}.</span>
