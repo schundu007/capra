@@ -453,6 +453,11 @@ export default function MainApp() {
   // Main Solve Handler
   // ---------------------------------------------------------------------------
   const handleSolve = useCallback(async (problem, language, detailLevel = 'detailed') => {
+    if (!problem || !problem.trim()) {
+      setError('Please enter a problem before solving.');
+      return;
+    }
+
     abortControllerRef.current?.abort();
     abortControllerRef.current = new AbortController();
 
