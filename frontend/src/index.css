@@ -3745,22 +3745,14 @@ code, pre, kbd {
   color: #111827;
 }
 
-/* ═══ MOBILE FONT SCALING ═══ */
-/* Double font sizes on mobile/touch devices for readability */
+/* ═══ MOBILE TOUCH TARGETS ═══ */
 @media (max-width: 768px) {
-  html {
-    font-size: 1.875rem; /* Base 20px instead of 16px = 125% increase */
+  /* Prevent iOS zoom on input focus */
+  input, textarea, select {
+    font-size: 16px !important;
   }
-  
-  /* Ensure inputs and buttons are touch-friendly */
-  input, textarea, select, button {
-    font-size: 1.125rem !important; /* Prevents iOS zoom on focus */
+  /* Touch-friendly interactive elements */
+  button, [role="button"], a {
     min-height: 44px;
-  }
-}
-
-@media (max-width: 480px) {
-  html {
-    font-size: 1.75rem; /* Even larger on small phones */
   }
 }

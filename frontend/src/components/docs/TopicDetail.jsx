@@ -1185,65 +1185,144 @@ export default function TopicDetail({
             );
           })()}
 
-          {/* Key Questions - Row Mode Layout */}
+          {/* Key Questions - Modern Card Layout */}
           {topicDetails.keyQuestions && topicDetails.keyQuestions.length > 0 && (
-            <div id="key-questions" className="rounded-lg overflow-hidden scroll-mt-24" style={{ background: 'linear-gradient(180deg, #f9fafb 0%, #f9fafb 100%)', border: '1px solid #e2e8f0' }}>
-              <div className="px-3 py-2 border-b flex items-center gap-2" style={{ background: `linear-gradient(135deg, ${topicDetails.color}10, transparent)`, borderColor: `${topicDetails.color}20` }}>
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${topicDetails.color}20` }}>
-                  <Icon name="messageSquare" size={16} style={{ color: topicDetails.color }} />
+            <div id="key-questions" className="rounded-lg overflow-hidden scroll-mt-24" style={{ border: '1px solid #e2e8f0' }}>
+              <div className="px-3 py-2 border-b border-gray-200 flex items-center gap-2" style={{ background: '#f8fafc' }}>
+                <div className="w-6 h-6 rounded flex items-center justify-center" style={{ background: topicDetails.color }}>
+                  <Icon name="messageSquare" size={12} className="text-white" />
                 </div>
-                <h3 className="text-sm font-bold text-gray-900">Key Questions & Answers</h3>
-                <span className="text-sm text-gray-900 ml-auto">{topicDetails.keyQuestions.length} questions</span>
+                <h3 className="text-sm font-bold text-gray-900" style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>Questions & Answers</h3>
+                <span className="text-[10px] font-mono text-gray-400 ml-auto">{topicDetails.keyQuestions.length}Q</span>
               </div>
-              <div className="grid md:grid-cols-2 gap-2 p-3">
+              <div className="grid md:grid-cols-2 gap-2 p-2">
                 {topicDetails.keyQuestions.map((item, index) => (
-                  <div key={index} className="p-2.5 rounded-lg hover:bg-gray-50 transition-colors" style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                    <div className="flex items-start gap-2">
-                      <span className="w-6 h-6 rounded flex items-center justify-center text-xs font-bold flex-shrink-0" style={{ background: `${topicDetails.color}25`, color: topicDetails.color }}>
+                  <div key={index} className="rounded-lg overflow-hidden border border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm transition-all">
+                    {/* Question header */}
+                    <div className="px-3 py-2 flex items-start gap-2 border-b border-gray-100" style={{ background: '#fafafa' }}>
+                      <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0 mt-0.5" style={{ background: topicDetails.color }}>
                         {index + 1}
                       </span>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-gray-900 font-semibold text-xs mb-1">{item.question}</h4>
-                        <div className="text-gray-700 leading-snug text-xs">
-                          {item.answer.split('\n').map((line, i) => {
-                            const trimmedLine = line.trim();
-                            if (!trimmedLine) return null;
-                            // STAR keywords
-                            const starMatch = trimmedLine.match(/^(Situation|Task|Action|Result)\s*[:–—-]\s*(.*)/i);
-                            if (starMatch) {
-                              const keyword = starMatch[1].charAt(0).toUpperCase() + starMatch[1].slice(1).toLowerCase();
-                              const starColors = { Situation: '#3b82f6', Task: '#f59e0b', Action: '#10b981', Result: '#ef4444' };
-                              const sc = starColors[keyword] || topicDetails.color;
-                              return <p key={i} className="mb-1 text-xs flex items-start gap-1.5"><span className="px-1 py-0.5 rounded text-[10px] font-extrabold text-white flex-shrink-0" style={{ background: sc }}>{keyword.charAt(0)}</span><span><strong style={{ color: sc }}>{keyword}:</strong> {starMatch[2]}</span></p>;
+                      <h4 className="text-gray-900 font-semibold text-xs leading-snug" style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>{item.question}</h4>
+                    </div>
+                    {/* Answer body — grouped into blocks for PPT-style layout */}
+                    <div className="px-3 py-2 text-xs text-gray-700 leading-snug" style={{ fontFamily: "'Work Sans', system-ui, sans-serif" }}>
+                      {(() => {
+                        const starColors = { Situation: '#3b82f6', Task: '#f59e0b', Action: '#10b981', Result: '#ef4444' };
+                        const lines = item.answer.split('\n').map(l => l.trim());
+
+                        // Group lines into blocks: each header starts a new block with its child content
+                        const blocks = [];
+                        let current = null;
+                        lines.forEach(t => {
+                          if (!t) return;
+                          const isStar = t.match(/^\*\*(?:[STAR]\s*[-–—]\s*)?(Situation|Task|Action|Result)\*\*/i) || t.match(/^(Situation|Task|Action|Result)\s*[:–—-]/i);
+                          const isStarHeader = t.match(/^\*\*STAR/i);
+                          const isBoldHeader = (t.startsWith('**') && t.endsWith('**')) || t.match(/^\*\*\d+\.\s/);
+                          const isHeader = isStar || isStarHeader || isBoldHeader;
+
+                          if (isHeader) {
+                            if (current) blocks.push(current);
+                            current = { header: t, children: [], type: isStar ? 'star' : isStarHeader ? 'star-header' : 'section' };
+                          } else {
+                            if (!current) current = { header: null, children: [], type: 'text' };
+                            current.children.push(t);
+                          }
+                        });
+                        if (current) blocks.push(current);
+
+                        // Detect if blocks form a numbered step sequence (for grid layout)
+                        const isStepSequence = blocks.filter(b => b.header?.match(/^\*\*\d+\./)).length >= 3;
+                        const isStarSequence = blocks.filter(b => b.type === 'star').length >= 2;
+
+                        const renderLine = (t, i) => {
+                          if (t.startsWith('✅') || t.startsWith('❌')) {
+                            const ok = t.startsWith('✅');
+                            return <div key={i} className="flex items-start gap-1.5 mb-0.5"><span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${ok ? 'bg-emerald-100' : 'bg-red-100'}`}><svg className={`w-2 h-2 ${ok ? 'text-emerald-600' : 'text-red-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>{ok ? <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /> : <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />}</svg></span><span className="text-xs">{t.substring(2).trim()}</span></div>;
+                          }
+                          if (t.startsWith('"') && t.endsWith('"')) {
+                            return <div key={i} className="pl-2 py-0.5 text-xs italic text-gray-500 rounded-r" style={{ borderLeft: `2px solid ${topicDetails.color}30` }}>{t.slice(1, -1)}</div>;
+                          }
+                          if (t.startsWith('- ') || t.startsWith('• ')) {
+                            return <div key={i} className="flex items-start gap-1.5 mb-0.5"><span className="w-1 h-1 rounded-full mt-1.5 flex-shrink-0" style={{ background: topicDetails.color }} /><span className="text-xs">{t.substring(2)}</span></div>;
+                          }
+                          if (/^\d+\./.test(t)) {
+                            const num = t.match(/^(\d+)\./)[1];
+                            return <div key={i} className="flex items-start gap-1.5 mb-0.5"><span className="w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] font-bold flex-shrink-0" style={{ background: `${topicDetails.color}15`, color: topicDetails.color }}>{num}</span><span className="text-xs">{t.replace(/^\d+\.\s*/, '')}</span></div>;
+                          }
+                          if (t.includes('**')) {
+                            const parts = t.split('**');
+                            return <p key={i} className="mb-0.5 text-xs">{parts.map((part, j) => j % 2 === 1 ? <strong key={j} className="font-semibold text-gray-900">{part}</strong> : <span key={j}>{part}</span>)}</p>;
+                          }
+                          if (t.match(/^(Example|Key insight|Key learning|Key takeaway|Pro tip|Tip|Note):/i)) {
+                            const label = t.match(/^([^:]+):/)[1];
+                            return <div key={i} className="p-1.5 rounded text-xs" style={{ background: `${topicDetails.color}08`, borderLeft: `2px solid ${topicDetails.color}40` }}><span className="font-bold" style={{ color: topicDetails.color }}>{label}:</span> {t.substring(label.length + 1).trim()}</div>;
+                          }
+                          return <p key={i} className="mb-0.5 text-xs leading-snug">{t}</p>;
+                        };
+
+                        const renderBlock = (block, bi) => {
+                          const h = block.header;
+                          if (!h && block.children.length > 0) {
+                            return <div key={bi}>{block.children.map((c, ci) => renderLine(c, ci))}</div>;
+                          }
+                          // STAR keyword block
+                          if (block.type === 'star') {
+                            const sm = h.match(/^\*\*(?:[STAR]\s*[-–—]\s*)?(Situation|Task|Action|Result)\*\*\s*[:–—-]?\s*(.*)/i) || h.match(/^(Situation|Task|Action|Result)\s*[:–—-]\s*(.*)/i);
+                            if (sm) {
+                              const kw = sm[1].charAt(0).toUpperCase() + sm[1].slice(1).toLowerCase();
+                              const sc = starColors[kw] || topicDetails.color;
+                              const headerRest = (sm[2] || '').replace(/^[""\s—–-]+|[""\s]+$/g, '').trim();
+                              return <div key={bi} className="rounded-lg overflow-hidden" style={{ background: `${sc}08`, borderLeft: `3px solid ${sc}`, border: `1px solid ${sc}20`, borderLeftWidth: '3px', borderLeftColor: sc }}>
+                                <div className="px-2.5 py-2">
+                                  <div className="flex items-center gap-1.5"><span className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-extrabold text-white flex-shrink-0" style={{ background: sc }}>{kw.charAt(0)}</span><span className="text-xs font-bold" style={{ color: sc }}>{kw}</span></div>
+                                  {headerRest && <p className="text-xs text-gray-700 mt-1 ml-6">{headerRest}</p>}
+                                  {block.children.length > 0 && <div className="mt-1 ml-6 space-y-0.5">{block.children.map((c, ci) => renderLine(c, ci))}</div>}
+                                </div>
+                              </div>;
                             }
-                            // Section headers
-                            if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**')) {
-                              return <h5 key={i} className="text-gray-900 font-semibold mt-1.5 mb-0.5 text-xs flex items-center gap-1.5"><span className="w-1 h-1 rounded-full" style={{ background: topicDetails.color }}></span>{trimmedLine.replace(/\*\*/g, '')}</h5>;
-                            }
-                            if (trimmedLine.includes('**')) {
-                              const parts = trimmedLine.split('**');
-                              return <p key={i} className="mb-1 text-xs leading-snug">{parts.map((part, j) => j % 2 === 1 ? <strong key={j} className="text-gray-900 font-medium">{part}</strong> : <span key={j}>{part}</span>)}</p>;
-                            }
-                            if (trimmedLine.startsWith('"') && trimmedLine.endsWith('"')) {
-                              return <div key={i} className="my-1 pl-3 py-1 text-xs italic text-gray-600" style={{ borderLeft: `2px solid ${topicDetails.color}40` }}>{trimmedLine.slice(1, -1)}</div>;
-                            }
-                            if (trimmedLine.startsWith('✅') || trimmedLine.startsWith('❌')) {
-                              return <p key={i} className="mb-0.5 text-xs flex items-start gap-1.5"><span className="flex-shrink-0">{trimmedLine.substring(0, 2)}</span><span>{trimmedLine.substring(2)}</span></p>;
-                            }
-                            if (/^\d+\./.test(trimmedLine)) {
-                              const num = trimmedLine.match(/^(\d+)\./)[1];
-                              return <p key={i} className="mb-0.5 text-xs flex items-start gap-1.5"><span className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>{num}</span><span>{trimmedLine.replace(/^\d+\.\s*/, '')}</span></p>;
-                            }
-                            if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('• ')) {
-                              return <p key={i} className="mb-0.5 text-xs flex items-start gap-1.5 ml-1"><span className="w-1 h-1 rounded-full mt-1.5 flex-shrink-0" style={{ background: topicDetails.color }}></span><span>{trimmedLine.substring(2)}</span></p>;
-                            }
-                            if (trimmedLine.toLowerCase().startsWith('example:')) {
-                              return <div key={i} className="my-1 p-2 rounded text-xs italic" style={{ background: '#f9fafb', borderLeft: `2px solid ${topicDetails.color}` }}>{trimmedLine}</div>;
-                            }
-                            return <p key={i} className="mb-0.5 text-xs leading-snug">{trimmedLine}</p>;
-                          })}
-                        </div>
-                      </div>
+                          }
+                          // STAR Example header
+                          if (block.type === 'star-header') {
+                            return <div key={bi} className="flex items-center gap-1.5 mt-1"><span className="text-[9px] font-bold text-white px-1.5 py-0.5 rounded" style={{ background: topicDetails.color }}>STAR</span><span className="text-xs font-bold text-gray-900">Example</span></div>;
+                          }
+                          // Numbered step or section header — tree structure card
+                          const numMatch = h.replace(/\*\*/g, '').match(/^(\d+)\.\s*(.*)/);
+                          const sectionTitle = h.replace(/\*\*/g, '').replace(/:$/, '');
+                          return <div key={bi} className="rounded-lg overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb', borderLeft: `3px solid ${topicDetails.color}` }}>
+                            <div className="px-2.5 py-2">
+                              <div className="flex items-center gap-1.5">
+                                {numMatch
+                                  ? <><span className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0" style={{ background: topicDetails.color }}>{numMatch[1]}</span><span className="text-xs font-bold text-gray-900" style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>{numMatch[2].replace(/:$/, '')}</span></>
+                                  : <><span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: topicDetails.color }} /><span className="text-xs font-bold text-gray-900" style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>{sectionTitle}</span></>
+                                }
+                              </div>
+                              {block.children.length > 0 && <div className="mt-1 ml-6 space-y-0.5">{block.children.map((c, ci) => renderLine(c, ci))}</div>}
+                            </div>
+                          </div>;
+                        };
+
+                        // Render: use grid for step sequences and STAR sequences
+                        if (isStepSequence || isStarSequence) {
+                          // Separate preamble blocks from the grid blocks
+                          const preamble = [];
+                          const gridBlocks = [];
+                          const postamble = [];
+                          let foundGrid = false;
+                          blocks.forEach(b => {
+                            const isGridItem = (b.type === 'star') || (b.header?.match(/^\*\*\d+\./));
+                            if (isGridItem) { foundGrid = true; gridBlocks.push(b); }
+                            else if (!foundGrid) preamble.push(b);
+                            else postamble.push(b);
+                          });
+                          return <>
+                            {preamble.map((b, i) => renderBlock(b, `pre-${i}`))}
+                            <div className="grid md:grid-cols-2 gap-1.5 mt-1">{gridBlocks.map((b, i) => renderBlock(b, `grid-${i}`))}</div>
+                            {postamble.map((b, i) => renderBlock(b, `post-${i}`))}
+                          </>;
+                        }
+                        return blocks.map((b, i) => renderBlock(b, i));
+                      })()}
                     </div>
                   </div>
                 ))}

@@ -78,7 +78,7 @@ export default function Sidebar({
     <div className={`${isMobile ? 'w-[280px] max-w-[80vw]' : 'w-[260px] min-w-[260px]'} h-full flex flex-col bg-white border-r border-gray-200`}>
       {/* Header with Logo */}
       <div
-        className="flex items-center h-14 px-4 border-b border-gray-200"
+        className={`flex items-center h-14 px-4 border-b border-gray-200 ${isMobile ? 'safe-top' : ''}`}
         style={{
           paddingLeft: isMacElectron ? '80px' : '16px',
           WebkitAppRegion: 'drag',

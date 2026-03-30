@@ -624,7 +624,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
               </button>
               <button
                 onClick={() => setOutput(null)}
-                className="text-gray-500 hover:text-gray-900 transition-colors"
+                className="p-2 min-w-[32px] min-h-[32px] flex items-center justify-center text-gray-500 hover:text-gray-900 transition-colors rounded hover:bg-gray-100"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -655,7 +655,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
           onClick={() => setOutputExpanded(false)}
         >
           <div
-            className="w-full max-w-4xl max-h-[80vh] bg-gray-50 rounded-2xl border border-gray-200 shadow-2xl overflow-hidden animate-scale-in"
+            className="w-full max-w-4xl max-h-[80vh] mx-4 sm:mx-auto bg-gray-50 rounded-2xl border border-gray-200 shadow-2xl overflow-hidden animate-scale-in"
             onClick={e => e.stopPropagation()}
           >
             {/* Modal Header */}

@@ -290,7 +290,7 @@ function ASCIIDiagram({ systemDesign, detailed = false }) {
   const asciiDiagram = buildASCII();
 
   return (
-    <div className="font-mono text-sm leading-relaxed bg-gray-100 text-brand-400 p-4 rounded whitespace-pre border border-gray-200">
+    <div className="font-mono text-sm leading-relaxed bg-gray-100 text-brand-400 p-4 rounded whitespace-pre border border-gray-200 overflow-x-auto">
       {asciiDiagram}
     </div>
   );
@@ -526,10 +526,10 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
                     <table className="w-full text-xs">
                       <thead>
                         <tr className="border-b border-gray-200">
-                          <th className="text-left px-2 py-1 text-gray-600 font-semibold whitespace-nowrap">Metric</th>
-                          <th className="text-left px-2 py-1 text-gray-600 font-semibold whitespace-nowrap">Target</th>
-                          <th className="text-left px-2 py-1 text-gray-600 font-semibold whitespace-nowrap">Measurement</th>
-                          <th className="text-left px-2 py-1 text-gray-600 font-semibold whitespace-nowrap">Alert</th>
+                          <th className="text-left px-2 py-1 text-gray-600 font-semibold ">Metric</th>
+                          <th className="text-left px-2 py-1 text-gray-600 font-semibold ">Target</th>
+                          <th className="text-left px-2 py-1 text-gray-600 font-semibold ">Measurement</th>
+                          <th className="text-left px-2 py-1 text-gray-600 font-semibold ">Alert</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -552,17 +552,17 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
 
         {/* Full System Design Mode - Optimized Grid Layout */}
         {!systemDesign.focusedAnswer && (
-          <div className="grid grid-cols-12 gap-2 auto-rows-min">
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 auto-rows-min">
 
             {/* Row 1: Explanation (spans 8) + Scalability (spans 4) */}
             {systemDesign.overview && (
-              <div className={`rounded p-2 bg-gray-200/30 border border-gray-200 ${hasScalability ? 'col-span-8' : 'col-span-12'}`}>
+              <div className={`rounded p-2 bg-gray-200/30 border border-gray-200 ${hasScalability ? 'col-span-full sm:col-span-8' : 'col-span-full'}`}>
                 <h4 className="text-xs font-semibold uppercase tracking-wide mb-1 text-gray-500">Explanation</h4>
                 <p className="text-xs text-gray-900 leading-snug">{systemDesign.overview}</p>
               </div>
             )}
             {hasScalability && (
-              <div className="col-span-4 rounded p-2 bg-gray-200/30 border border-gray-200">
+              <div className="col-span-full sm:col-span-4 rounded p-2 bg-gray-200/30 border border-gray-200">
                 <h4 className="text-xs font-semibold uppercase tracking-wide mb-1 text-gray-500">Scalability</h4>
                 <div className="flex flex-wrap gap-1">
                   {systemDesign.scalability.map((item, i) => (
@@ -581,7 +581,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
             {(hasRequirements || hasTradeoffs || hasEdgeCases) && (
               <>
                 {systemDesign.requirements?.functional?.length > 0 && (
-                  <div className="col-span-3 rounded p-2 bg-gray-200/30 border border-gray-200">
+                  <div className="col-span-full sm:col-span-3 rounded p-2 bg-gray-200/30 border border-gray-200">
                     <h4 className="text-xs font-semibold uppercase tracking-wide mb-1 text-gray-500">Functional</h4>
                     <ul className="space-y-0.5">
                       {systemDesign.requirements.functional.map((req, i) => (
@@ -594,7 +594,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
                   </div>
                 )}
                 {systemDesign.requirements?.nonFunctional?.length > 0 && (
-                  <div className="col-span-3 rounded p-2 bg-gray-200/30 border border-gray-200">
+                  <div className="col-span-full sm:col-span-3 rounded p-2 bg-gray-200/30 border border-gray-200">
                     <h4 className="text-xs font-semibold uppercase tracking-wide mb-1 text-gray-500">Non-Functional</h4>
                     <ul className="space-y-0.5">
                       {systemDesign.requirements.nonFunctional.map((req, i) => (
@@ -607,7 +607,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
                   </div>
                 )}
                 {hasTradeoffs && (
-                  <div className="col-span-3 rounded p-2 bg-warning-500/10 border border-warning-500/30">
+                  <div className="col-span-full sm:col-span-3 rounded p-2 bg-warning-500/10 border border-warning-500/30">
                     <h4 className="text-xs font-semibold uppercase tracking-wide mb-1 flex items-center gap-1 text-warning-400">
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
@@ -625,7 +625,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
                   </div>
                 )}
                 {hasEdgeCases && (
-                  <div className="col-span-3 rounded p-2 bg-error-500/10 border border-error-500/30">
+                  <div className="col-span-full sm:col-span-3 rounded p-2 bg-error-500/10 border border-error-500/30">
                     <h4 className="text-xs font-semibold uppercase tracking-wide mb-1 flex items-center gap-1 text-error-400">
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -647,7 +647,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
 
             {/* Row 3: Architecture Components */}
             {hasArchitecture && (
-              <div className="col-span-12 rounded p-2 bg-gray-200/30 border border-gray-200">
+              <div className="col-span-full rounded p-2 bg-gray-200/30 border border-gray-200">
                 <h4 className="text-xs font-semibold uppercase tracking-wide mb-1 text-gray-500">Architecture Components</h4>
                 <div className="flex flex-wrap gap-1 mb-1.5">
                   {systemDesign.architecture.components?.map((component, i) => (
@@ -665,7 +665,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
 
             {/* Row 3b: API Design */}
             {hasApiDesign && (
-              <div className="col-span-12 rounded p-2 bg-gray-200/30 border border-gray-200">
+              <div className="col-span-full rounded p-2 bg-gray-200/30 border border-gray-200">
                 <h4 className="text-xs font-semibold uppercase tracking-wide mb-1.5 flex items-center gap-1.5 text-gray-500">
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -711,7 +711,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
 
             {/* Row 3c: Data Model */}
             {hasDataModel && (
-              <div className="col-span-12 rounded p-2 bg-gray-200/30 border border-gray-200">
+              <div className="col-span-full rounded p-2 bg-gray-200/30 border border-gray-200">
                 <h4 className="text-xs font-semibold uppercase tracking-wide mb-1.5 flex items-center gap-1.5 text-gray-500">
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
@@ -753,14 +753,14 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
 
             {/* Row 3d: Mermaid Diagram */}
             {hasDiagram && (
-              <div className="col-span-12 rounded-lg p-3 bg-gray-200/30 border border-gray-200">
+              <div className="col-span-full rounded-lg p-3 bg-gray-200/30 border border-gray-200">
                 <h4 className="text-xs font-semibold uppercase tracking-wide mb-2 text-gray-500">System Flow Diagram</h4>
                 <pre className="text-xs text-gray-800 bg-gray-100 rounded p-3 overflow-x-auto font-mono whitespace-pre leading-relaxed border border-gray-200">{systemDesign.diagram.replace(/\\n/g, '\n')}</pre>
               </div>
             )}
 
             {/* Row 4: ASCII Diagram - Full Width */}
-            <div className="col-span-12 rounded-lg p-4 bg-gray-200/30 border border-gray-200">
+            <div className="col-span-full rounded-lg p-4 bg-gray-200/30 border border-gray-200">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-900">Architecture Flow</h4>
                 <button
@@ -777,7 +777,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
 
             {/* Row 5: Tech Justifications (compact grid) */}
             {hasTechJustifications && (
-              <div className="col-span-12 rounded p-2 bg-gray-200/30 border border-gray-200">
+              <div className="col-span-full rounded p-2 bg-gray-200/30 border border-gray-200">
                 <h4 className="text-xs font-semibold uppercase tracking-wide mb-1.5 flex items-center gap-1.5 text-gray-500">
                   Technologies
                   <span className="px-1 py-0.5 bg-brand-400/10 text-brand-400 border border-brand-400/30 rounded text-xs">{systemDesign.techJustifications.length}</span>
@@ -799,7 +799,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
 
             {/* Row 6: Comparison (side by side, compact) */}
             {systemDesign.comparison && (
-              <div className="col-span-12 grid grid-cols-2 gap-2">
+              <div className="col-span-full grid grid-cols-2 gap-2">
                 {systemDesign.comparison.approach1 && (
                   <div className="rounded p-2 bg-gray-50 border border-gray-200">
                     <h5 className="text-xs font-bold text-gray-800 mb-1 flex items-center gap-1.5">
@@ -877,7 +877,7 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
 
             {/* Row 7: Interviewer Q&A Section */}
             {onFollowUpQuestion && (
-              <div className="col-span-12 rounded p-2 bg-info-400/5 border border-info-400/20">
+              <div className="col-span-full rounded p-2 bg-info-400/5 border border-info-400/20">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-5 h-5 rounded flex items-center justify-center bg-info-400/20">
                     <svg className="w-3 h-3 text-info-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

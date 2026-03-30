@@ -404,7 +404,7 @@ export default function DocsPage({ onBack }) {
         )}
 
         {/* Left Sidebar - Navigation */}
-        <div className={`${isMobile ? 'fixed inset-y-0 left-0 z-50 w-72 transition-transform duration-300' : 'w-72 flex-shrink-0 h-screen sticky top-0'} flex flex-col ${isMobile && !docsSidebarOpen ? '-translate-x-full' : 'translate-x-0'}`} style={{ background: '#f8fafc', borderRight: '1px solid #e2e8f0' }}>
+        <div className={`${isMobile ? 'fixed inset-y-0 left-0 z-50 w-72 max-w-[80vw] transition-transform duration-300' : 'w-72 flex-shrink-0 h-screen sticky top-0'} flex flex-col ${isMobile && !docsSidebarOpen ? '-translate-x-full' : 'translate-x-0'}`} style={{ background: '#f8fafc', borderRight: '1px solid #e2e8f0' }}>
           {/* Logo */}
           <div className="p-6">
             <a href="/prepare" className="flex items-center gap-3 group">
@@ -494,7 +494,7 @@ export default function DocsPage({ onBack }) {
           {/* Center Content */}
           <div className="flex-1 min-w-0 mx-auto" style={{ maxWidth: '100%', padding: isMobile ? '0 12px' : '0 40px' }}>
             {/* Top Bar */}
-            <div className="sticky top-0 z-20 px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2" style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #e2e8f0' }}>
+            <div className="sticky top-0 z-20 px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2 safe-top" style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #e2e8f0' }}>
               {/* Mobile hamburger */}
               {isMobile && (
                 <button

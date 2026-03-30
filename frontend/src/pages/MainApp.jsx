@@ -1266,7 +1266,7 @@ function CodingLayout({
         {showAscendAssistant && (
           <div className="fixed inset-0 z-modal flex flex-col">
             <div className="flex-1 bg-black/50" onClick={onCloseAscendAssistant} />
-            <div className="h-[75vh] bg-white rounded-t-2xl border-t border-gray-200 overflow-hidden animate-slide-in-up shadow-xl">
+            <div className="h-[75dvh] bg-white rounded-t-2xl border-t border-gray-200 overflow-hidden animate-slide-in-up shadow-xl">
               <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
                 <span className="text-sm font-semibold text-gray-900">Assistant</span>
                 <button onClick={onCloseAscendAssistant} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 active:bg-gray-100">
