@@ -6,7 +6,7 @@ export const lldProblems = [
       title: 'LRU Cache',
       subtitle: 'Least Recently Used Cache',
       icon: 'database',
-      color: '#10b981',
+      color: '#059669',
       difficulty: 'Medium',
       description: 'Design a data structure that stores key-value pairs with automatic eviction of least recently accessed items.',
 
@@ -133,7 +133,7 @@ class LRUCache:
       title: 'Parking Lot',
       subtitle: 'Vehicle Parking System',
       icon: 'car',
-      color: '#3b82f6',
+      color: '#2563eb',
       difficulty: 'Medium',
       description: 'Design a parking lot system managing multiple floors with different spot sizes for various vehicle types.',
 
@@ -297,7 +297,7 @@ class ParkingLot:
       title: 'Elevator System',
       subtitle: 'Multi-Elevator Controller',
       icon: 'arrowUpDown',
-      color: '#8b5cf6',
+      color: '#7c3aed',
       difficulty: 'Hard',
       description: 'Design an elevator system with multiple elevators, efficient scheduling, and the LOOK algorithm.',
 
@@ -449,7 +449,7 @@ class Elevator:
       title: 'Tic Tac Toe',
       subtitle: 'Classic Board Game',
       icon: 'grid',
-      color: '#ef4444',
+      color: '#dc2626',
       difficulty: 'Easy',
       description: 'Design a Tic Tac Toe game with win detection, scoreboard, and extensible architecture.',
 
@@ -591,7 +591,7 @@ class Game:
       title: 'Snake and Ladder',
       subtitle: 'Classic Board Game',
       icon: 'gamepad',
-      color: '#22c55e',
+      color: '#16a34a',
       difficulty: 'Easy',
       description: 'Design the Snake and Ladder game with dice rolling, player turns, and board entities.',
 
@@ -744,7 +744,7 @@ class Game:
       title: 'Logging Framework',
       subtitle: 'Customizable Logger',
       icon: 'document',
-      color: '#06b6d4',
+      color: '#0891b2',
       difficulty: 'Medium',
       description: 'Design a logging framework with multiple log levels, appenders, and formatters.',
 
@@ -896,7 +896,7 @@ class Logger:
       title: 'Vending Machine',
       subtitle: 'State Machine Design',
       icon: 'shoppingCart',
-      color: '#f59e0b',
+      color: '#d97706',
       difficulty: 'Medium',
       description: 'Design a vending machine with coin-based payments, product selection, and state management.',
 
@@ -1070,7 +1070,7 @@ class VendingMachine:
       title: 'Task Scheduler',
       subtitle: 'Job Scheduling System',
       icon: 'clock',
-      color: '#8b5cf6',
+      color: '#9333ea',
       difficulty: 'Medium',
       description: 'Design a task scheduler that manages one-time and recurring tasks with concurrent execution.',
 
@@ -1212,7 +1212,7 @@ class TaskScheduler:
       title: 'Stack Overflow',
       subtitle: 'Q&A Platform',
       icon: 'messageSquare',
-      color: '#f97316',
+      color: '#ea580c',
       difficulty: 'Hard',
       description: 'Design a Q&A platform with voting, reputation, tags, and answer acceptance.',
 
@@ -1371,7 +1371,7 @@ class Answer(Post):
       title: 'Chess Game',
       subtitle: 'Classic Board Game',
       icon: 'crown',
-      color: '#1e293b',
+      color: '#b45309',
       difficulty: 'Hard',
       description: 'Design a chess game with piece movements, game rules, check/checkmate detection.',
 
@@ -1568,7 +1568,7 @@ class Game:
       title: 'ATM System',
       subtitle: 'Banking Machine',
       icon: 'creditCard',
-      color: '#059669',
+      color: '#0d9488',
       difficulty: 'Medium',
       description: 'Design an ATM system with card authentication, transactions, and state management.',
 
@@ -1798,7 +1798,7 @@ class ATM:
       title: 'Design HashMap',
       subtitle: 'Hash Table Implementation',
       icon: 'database',
-      color: '#10b981',
+      color: '#4f46e5',
       difficulty: 'Easy',
       description: 'Design a HashMap from scratch with put, get, and remove operations using hashing and collision handling.',
 
@@ -1938,7 +1938,7 @@ class HashMap:
       title: 'Splitwise',
       subtitle: 'Expense Sharing',
       icon: 'dollarSign',
-      color: '#5bc5a7',
+      color: '#0ea5e9',
       difficulty: 'Medium',
       description: 'Design an expense sharing system where users can split bills and track balances with friends.',
 
@@ -2091,7 +2091,7 @@ class BalanceSheet:
       title: 'Design Circular Queue',
       subtitle: 'Ring Buffer',
       icon: 'refreshCw',
-      color: '#3b82f6',
+      color: '#6366f1',
       difficulty: 'Easy',
       description: 'Design a circular queue (ring buffer) with fixed capacity using an array.',
 
@@ -2196,7 +2196,7 @@ The key insight is using modular arithmetic with front and rear pointers to effi
       title: 'Library Management System',
       subtitle: 'Book Lending Platform',
       icon: 'book',
-      color: '#8b5cf6',
+      color: '#a855f7',
       difficulty: 'Medium',
       description: 'Design a library management system for book catalog, member management, borrowing, and reservations.',
 
@@ -2367,7 +2367,7 @@ class Library:
       title: 'Locker Allocation System',
       subtitle: 'Package Delivery Lockers',
       icon: 'lock',
-      color: '#f97316',
+      color: '#c2410c',
       difficulty: 'Medium',
       description: 'Design a locker allocation system for package delivery with different locker sizes.',
 
@@ -2527,7 +2527,7 @@ class LockerSystem:
       title: 'Implement Queue using Array',
       subtitle: 'Array-Based Queue',
       icon: 'layers',
-      color: '#06b6d4',
+      color: '#0284c7',
       difficulty: 'Easy',
       description: 'Implement a queue data structure using a fixed-size array with enqueue, dequeue, and peek operations.',
 
@@ -2642,7 +2642,7 @@ The key insight is using two pointers (front and rear) with modular arithmetic t
       title: 'Memory Allocator',
       subtitle: 'Dynamic Memory Management',
       icon: 'cpu',
-      color: '#ef4444',
+      color: '#be123c',
       difficulty: 'Hard',
       description: 'Design a memory allocator that manages a contiguous block of memory with malloc and free operations.',
 
@@ -2776,7 +2776,7 @@ class MemoryAllocator:
       title: 'Rock Paper Scissors',
       subtitle: 'Hand Game',
       icon: 'gamepad',
-      color: '#22c55e',
+      color: '#15803d',
       difficulty: 'Easy',
       description: 'Design the Rock Paper Scissors game with player turns, win detection, and match scoring.',
 
@@ -2933,7 +2933,7 @@ class Game:
       title: 'Notepad System',
       subtitle: 'Text Editor',
       icon: 'document',
-      color: '#f59e0b',
+      color: '#ca8a04',
       difficulty: 'Medium',
       description: 'Design a notepad/text editor system with note creation, editing, search, and undo/redo support.',
 
@@ -3116,7 +3116,7 @@ class Notepad:
       title: '2D Vector Class',
       subtitle: 'Mathematical Vector',
       icon: 'arrowUpDown',
-      color: '#06b6d4',
+      color: '#0369a1',
       difficulty: 'Easy',
       description: 'Design a 2D vector class supporting arithmetic operations, dot product, cross product, and transformations.',
 
@@ -3259,7 +3259,7 @@ class Vector2D:
       title: 'Access Management System',
       subtitle: 'Role-Based Access Control',
       icon: 'shield',
-      color: '#8b5cf6',
+      color: '#7e22ce',
       difficulty: 'Medium',
       description: 'Design a role-based access control (RBAC) system managing users, roles, and permissions.',
 
@@ -3422,7 +3422,7 @@ class AccessManager:
       title: 'Design GPU Credits',
       subtitle: 'Cloud GPU Billing',
       icon: 'zap',
-      color: '#f97316',
+      color: '#e11d48',
       difficulty: 'Medium',
       description: 'Design a GPU credits system for cloud computing with usage tracking, billing, and quota management.',
 
@@ -3579,7 +3579,7 @@ class GPUCreditsSystem:
       title: 'Disk Space Manager',
       subtitle: 'Storage Block Allocator',
       icon: 'hardDrive',
-      color: '#64748b',
+      color: '#475569',
       difficulty: 'Medium',
       description: 'Design a disk space manager that allocates and frees blocks of storage with defragmentation support.',
 
@@ -3751,7 +3751,7 @@ class DiskManager:
       title: 'Account Balance Tracker',
       subtitle: 'Financial Ledger',
       icon: 'dollarSign',
-      color: '#10b981',
+      color: '#047857',
       difficulty: 'Easy',
       description: 'Design an account balance tracker with deposits, withdrawals, transfers, and transaction history.',
 
@@ -3899,7 +3899,7 @@ class BalanceTracker:
       title: 'Go Fish',
       subtitle: 'Card Game',
       icon: 'gamepad',
-      color: '#3b82f6',
+      color: '#1d4ed8',
       difficulty: 'Medium',
       description: 'Design the Go Fish card game with deck management, hand tracking, and book collection.',
 
@@ -4076,7 +4076,7 @@ class GoFishGame:
       title: 'Access Control Tree',
       subtitle: 'Hierarchical Permissions',
       icon: 'gitBranch',
-      color: '#8b5cf6',
+      color: '#6d28d9',
       difficulty: 'Medium',
       description: 'Design a tree-based access control system where permissions inherit from parent to child nodes.',
 
@@ -4227,7 +4227,7 @@ class ACLTree:
       title: 'Active Users in N Minutes',
       subtitle: 'Sliding Window Counter',
       icon: 'users',
-      color: '#3b82f6',
+      color: '#0e7490',
       difficulty: 'Medium',
       description: 'Design a system to track and query the number of active users within a sliding time window.',
 
@@ -4367,7 +4367,7 @@ class ActivityTracker:
       title: 'Actor Component Model',
       subtitle: 'Concurrent Message Passing',
       icon: 'cpu',
-      color: '#ef4444',
+      color: '#c026d3',
       difficulty: 'Hard',
       description: 'Design an actor-based concurrency model where actors communicate via asynchronous message passing.',
 
