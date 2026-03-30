@@ -376,7 +376,7 @@ export default function DocsPage({ onBack }) {
   const tableOfContents = getTableOfContents();
 
   return (
-    <div className="min-h-screen" style={{ background: '#ffffff', fontFamily: "'Source Sans 3', sans-serif", color: '#1a1a1a' }}>
+    <div className="min-h-screen landing-root bg-white text-gray-900">
       {/* Electron drag region */}
       {isElectron && (
         <div
@@ -385,15 +385,12 @@ export default function DocsPage({ onBack }) {
         />
       )}
 
-      {/* Background grid pattern */}
+      {/* Subtle dot pattern background */}
       <div
-        className="fixed inset-0 pointer-events-none opacity-30"
+        className="fixed inset-0 pointer-events-none opacity-20"
         style={{
-          backgroundImage: `
-            linear-gradient(rgba(79, 79, 79, 0.08) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(79, 79, 79, 0.08) 1px, transparent 1px)
-          `,
-          backgroundSize: '60px 60px'
+          backgroundImage: 'radial-gradient(circle, #d1d5db 0.5px, transparent 0.5px)',
+          backgroundSize: '24px 24px'
         }}
       />
 
@@ -404,59 +401,50 @@ export default function DocsPage({ onBack }) {
         )}
 
         {/* Left Sidebar - Navigation */}
-        <div className={`${isMobile ? 'fixed inset-y-0 left-0 z-50 w-72 max-w-[80vw] transition-transform duration-300' : 'w-72 flex-shrink-0 h-screen sticky top-0'} flex flex-col ${isMobile && !docsSidebarOpen ? '-translate-x-full' : 'translate-x-0'}`} style={{ background: '#f8fafc', borderRight: '1px solid #e2e8f0' }}>
+        <div className={`${isMobile ? 'fixed inset-y-0 left-0 z-50 w-72 max-w-[80vw] transition-transform duration-300' : 'w-72 flex-shrink-0 h-screen sticky top-0'} flex flex-col bg-white border-r border-gray-100 ${isMobile && !docsSidebarOpen ? '-translate-x-full' : 'translate-x-0'}`}>
           {/* Logo */}
           <div className="p-6">
-            <a href="/prepare" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105" style={{ background: '#10b981' }}>
-                <Icon name="ascend" size={22} className="text-gray-900" />
+            <a href="/" className="flex items-center gap-3 group">
+              <div className="w-8 h-8 bg-emerald-500 flex items-center justify-center transition-transform group-hover:scale-105">
+                <Icon name="ascend" size={16} className="text-white" />
               </div>
               <div>
-                <span className="text-sm font-bold text-gray-900">Ascend</span>
-                <span className="block text-sm text-gray-700">Job Interview Preparation</span>
+                <span className="landing-display font-bold text-lg tracking-tight text-gray-900">Ascend</span>
+                <span className="block text-[10px] landing-mono uppercase tracking-[0.2em] text-emerald-600 -mt-0.5">Interview AI</span>
               </div>
             </a>
           </div>
 
           {/* Category Navigation */}
           <nav className="flex-1 px-4 py-2 overflow-y-auto">
-            <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider px-3 mb-3">Learning Tracks</div>
+            <div className="landing-mono text-[10px] text-emerald-600 tracking-widest uppercase px-3 mb-3">Learning Tracks</div>
             {navItems.map((item) => {
               const isActive = activePage === item.id;
-              const accentColor = item.id === 'coding' ? '#10b981' : item.id === 'system-design' ? '#3b82f6' : '#a855f7';
               return (
                 <button
                   key={item.id}
                   onClick={() => { setActivePage(item.id); if (isMobile) setDocsSidebarOpen(false); }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all mb-1 ${
-                    isActive ? 'text-gray-900 font-semibold' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-all mb-1 landing-body ${
+                    isActive ? 'text-emerald-700 font-semibold bg-emerald-50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 font-medium'
                   }`}
-                  style={isActive ? {
-                    background: `${accentColor}08`,
-                    border: `1px solid ${accentColor}25`
-                  } : {}}
                 >
-                  <div
-                    className="w-7 h-7 rounded-lg flex items-center justify-center transition-transform"
-                    style={{ background: isActive ? `${accentColor}20` : 'rgba(255,255,255,0.05)' }}
-                  >
-                    <Icon name={item.icon} size={16} style={{ color: isActive ? accentColor : '#9ca3af' }} />
-                  </div>
+                  <Icon name={item.icon} size={18} className={isActive ? 'text-emerald-500' : 'text-gray-400'} />
                   <div className="flex-1 text-left">
-                    <span className="font-medium block">{item.label}</span>
-                    <span className="text-sm text-gray-700">
+                    <span className="block">{item.label}</span>
+                    <span className="text-xs text-gray-400 landing-mono">
                       {item.id === 'coding' ? `${codingTopics.length} topics` :
                        item.id === 'system-design' ? `${systemDesignTopics.length + systemDesigns.length + lldProblems.length + concurrencyTopics.length} topics` :
                        `${behavioralTopics.length} topics`}
                     </span>
                   </div>
-                  {isActive && <div className="w-1.5 h-1.5 rounded-full" style={{ background: accentColor }} />}
+                  {isActive && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />}
                 </button>
               );
             })}
 
             {/* Practice Links */}
-            <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider px-3 mt-8 mb-3">Practice Links</div>
+            <div className="mx-5 h-px bg-gradient-to-r from-transparent via-emerald-200 to-transparent mt-6 mb-4" />
+            <div className="landing-mono text-[10px] text-emerald-600 tracking-widest uppercase px-3 mb-3">Practice</div>
             {[
               { href: '/app/coding', label: 'Coding', icon: 'code', color: '#10b981' },
               { href: '/app/design', label: 'Design', icon: 'systemDesign', color: '#3b82f6' },
@@ -465,36 +453,37 @@ export default function DocsPage({ onBack }) {
               <a
                 key={link.href}
                 href={link.href}
-                className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all hover:bg-gray-50 mb-1"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all hover:bg-gray-50 mb-0.5 landing-body font-medium"
                 style={{ color: link.color }}
               >
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${link.color}15` }}>
-                  <Icon name={link.icon} size={16} />
-                </div>
-                <span className="font-medium">{link.label}</span>
+                <Icon name={link.icon} size={16} />
+                <span>{link.label}</span>
               </a>
             ))}
           </nav>
 
           {/* Pro Badge */}
-          <div className="p-4 m-4 rounded-xl" style={{ background: '#f5f3ff', border: '1px solid #ddd6fe' }}>
-            <div className="flex items-center gap-2 mb-2">
-              <Icon name="crown" size={16} className="text-emerald-600" />
-              <span className="text-sm font-semibold text-gray-900">Ascend Pro</span>
+          <div className="mx-4 mb-4">
+            <div className="h-px bg-gradient-to-r from-transparent via-emerald-200 to-transparent mb-4" />
+            <div className="p-4 rounded-lg border border-emerald-200 bg-emerald-50/50">
+              <div className="flex items-center gap-2 mb-2">
+                <Icon name="crown" size={14} className="text-emerald-600" />
+                <span className="text-sm font-semibold text-gray-900 landing-display">Ascend Pro</span>
+              </div>
+              <p className="text-xs text-gray-500 mb-3 landing-body">AI-powered practice with real-time feedback</p>
+              <a href="/app/coding" className="block text-center py-2 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors landing-body">
+                Try Free
+              </a>
             </div>
-            <p className="text-sm text-gray-400 mb-3">Get AI-powered practice with real-time feedback</p>
-            <a href="/app/coding" className="block text-center py-2 rounded-lg text-sm font-medium text-gray-900 transition-all hover:opacity-90" style={{ background: '#10b981' }}>
-              Try Free
-            </a>
           </div>
         </div>
 
         {/* Main Content Area + Right Sidebar */}
         <div className="flex-1 min-h-screen flex">
           {/* Center Content */}
-          <div className="flex-1 min-w-0 mx-auto" style={{ maxWidth: '100%', padding: isMobile ? '0 12px' : '0 40px' }}>
+          <div className={`flex-1 min-w-0 mx-auto max-w-full ${isMobile ? 'px-3' : 'px-10'}`}>
             {/* Top Bar */}
-            <div className="sticky top-0 z-20 px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2 safe-top" style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #e2e8f0' }}>
+            <div className="sticky top-0 z-20 px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2 safe-top bg-white/90 backdrop-blur-md border-b border-gray-100">
               {/* Mobile hamburger */}
               {isMobile && (
                 <button
@@ -510,30 +499,29 @@ export default function DocsPage({ onBack }) {
                 {isElectron && onBack && (
                   <button
                     onClick={onBack}
-                    className="flex items-center gap-1 text-gray-700 hover:text-gray-900 transition-colors mr-2"
+                    className="flex items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors mr-2 landing-body"
                   >
                     <Icon name="arrowLeft" size={16} />
                     <span>Back</span>
                   </button>
                 )}
-                <button onClick={() => setSelectedTopic(null)} className="text-gray-700 hover:text-gray-900 transition-colors cursor-pointer">Learn</button>
-                <Icon name="chevronRight" size={14} className="text-gray-600" />
+                <button onClick={() => setSelectedTopic(null)} className="text-gray-400 hover:text-gray-900 transition-colors cursor-pointer landing-body font-medium">Learn</button>
+                <Icon name="chevronRight" size={14} className="text-gray-300" />
                 {selectedTopic && topicDetails ? (
                   <>
-                    <button onClick={() => setSelectedTopic(null)} className="text-gray-700 hover:text-gray-900 transition-colors cursor-pointer">{pageConfig.title}</button>
-                    <Icon name="chevronRight" size={14} className="text-gray-600" />
-                    <span className="text-gray-900">{topicDetails.title}</span>
+                    <button onClick={() => setSelectedTopic(null)} className="text-gray-400 hover:text-gray-900 transition-colors cursor-pointer landing-body font-medium">{pageConfig.title}</button>
+                    <Icon name="chevronRight" size={14} className="text-gray-300" />
+                    <span className="text-gray-900 landing-body font-semibold">{topicDetails.title}</span>
                   </>
                 ) : (
-                  <span className="text-gray-900">{pageConfig.title}</span>
+                  <span className="text-gray-900 landing-body font-semibold">{pageConfig.title}</span>
                 )}
               </div>
               {!selectedTopic && (
                 <div className="flex items-center gap-3">
                   <a
                     href="/app"
-                    className="px-4 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-90"
-                    style={{ background: '#10b981', color: '#fff' }}
+                    className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors landing-body"
                   >
                     Start Practice
                   </a>
@@ -547,51 +535,53 @@ export default function DocsPage({ onBack }) {
               {selectedTopic ? <TopicDetail activePage={activePage} selectedTopic={selectedTopic} topicDetails={topicDetails} pageConfig={pageConfig} completedTopics={completedTopics} starredTopics={starredTopics} toggleComplete={toggleComplete} toggleStar={toggleStar} showAskAI={showAskAI} setShowAskAI={setShowAskAI} aiQuestion={aiQuestion} setAiQuestion={setAiQuestion} aiAnswer={aiAnswer} aiLoading={aiLoading} handleAskAI={handleAskAI} showRoadmap={showRoadmap} setShowRoadmap={setShowRoadmap} expandedTheoryQuestions={expandedTheoryQuestions} setExpandedTheoryQuestions={setExpandedTheoryQuestions} setSelectedTopic={setSelectedTopic} generatingDiagram={generatingDiagram} diagramData={diagramData} diagramError={diagramError} diagramDetailLevel={diagramDetailLevel} setDiagramDetailLevel={setDiagramDetailLevel} diagramCloudProvider={diagramCloudProvider} setDiagramCloudProvider={setDiagramCloudProvider} generateDiagram={handleGenerateDiagram} codingTopics={codingTopics} systemDesignTopics={systemDesignTopics} systemDesigns={systemDesigns} behavioralTopics={behavioralTopics} filteredTopics={filteredTopics} /> : (
                 <>
                   {/* Page Hero */}
-                  <div className="mb-4">
-                    <div
-                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium mb-4"
-                      style={{ background: `${pageConfig.color}15`, color: pageConfig.color }}
-                    >
-                      <Icon name={activePage === 'coding' ? 'code' : activePage === 'system-design' ? 'systemDesign' : 'users'} size={12} />
-                      {activePage === 'coding' ? 'Algorithms' : activePage === 'system-design' ? 'Architecture' : 'Soft Skills'}
+                  <div className="mb-6">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 border border-emerald-200 bg-emerald-50 rounded-full mb-4">
+                      <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                      <span className="text-xs landing-mono text-emerald-700 tracking-wide">
+                        {activePage === 'coding' ? 'Algorithms' : activePage === 'system-design' ? 'Architecture' : 'Soft Skills'}
+                      </span>
                     </div>
-                    <h1 className="text-sm font-bold text-gray-900 mb-2">{pageConfig.title}</h1>
-                    <p className="text-sm text-gray-700 max-w-2xl">
+                    <h1 className="landing-display font-extrabold text-2xl md:text-3xl tracking-tight text-gray-900 mb-2">
+                      {activePage === 'coding' && <>Data Structures &{' '}<span className="bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Algorithms</span></>}
+                      {activePage === 'system-design' && <>Design Systems That{' '}<span className="bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Scale</span></>}
+                      {activePage === 'behavioral' && <>Tell Your{' '}<span className="bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Best Story</span></>}
+                    </h1>
+                    <p className="text-sm text-gray-500 max-w-2xl leading-relaxed landing-body">
                       {activePage === 'coding' && 'Master the fundamental data structures and algorithms needed to ace technical interviews at top tech companies.'}
-                      {activePage === 'system-design' && 'Learn to design scalable, reliable systems that can handle millions of users. Essential for senior engineering roles.'}
+                      {activePage === 'system-design' && 'Master distributed systems, scalability patterns, and architecture trade-offs. From fundamentals to real-world designs at top companies.'}
                       {activePage === 'behavioral' && 'Prepare compelling stories and answers for behavioral interviews using proven frameworks like STAR.'}
                     </p>
                   </div>
+                  {/* Gradient Divider */}
+                  <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent mb-6" />
 
                   {/* Search and Filters */}
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-3 p-3 rounded-xl" style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
                     <div className="relative flex-1 sm:max-w-md">
-                      <Icon name="search" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                      <Icon name="search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                       <input
                         type="text"
                         placeholder="Search topics..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all"
-                        style={{ background: '#ffffff', border: '1px solid #d1d5db', '--tw-ring-color': pageConfig.color }}
+                        className="w-full pl-9 pr-4 py-2 rounded-lg text-sm text-gray-900 placeholder-gray-400 border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-300 transition-all landing-body"
                       />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-700">Sort:</span>
+                    <div className="flex items-center gap-3">
                       <select
                         value={sortOrder}
                         onChange={(e) => setSortOrder(e.target.value)}
-                        className="px-3 py-2 rounded-lg text-sm text-gray-700 focus:outline-none cursor-pointer transition-all hover:bg-gray-100"
-                        style={{ background: '#ffffff', border: '1px solid #d1d5db' }}
+                        className="px-4 py-2 rounded-lg text-sm text-gray-500 border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-300 cursor-pointer landing-body"
                       >
                         <option value="a-z">A - Z</option>
                         <option value="z-a">Z - A</option>
                         <option value="most">Most Questions</option>
                         <option value="least">Least Questions</option>
                       </select>
-                    </div>
-                    <div className="text-sm text-gray-700">
-                      {filteredTopics.length} {filteredTopics.length === 1 ? 'topic' : 'topics'}
+                      <span className="text-xs text-gray-400 landing-mono">
+                        {filteredTopics.length} {filteredTopics.length === 1 ? 'topic' : 'topics'}
+                      </span>
                     </div>
                   </div>
 
@@ -716,115 +706,118 @@ export default function DocsPage({ onBack }) {
               {activePage === 'system-design' && (
                 <>
                   {/* Core Concepts Section - Grouped by Category */}
-                  <div className="space-y-3 mb-4">
+                  <div className="mb-6">
+                    <div className="mb-4">
+                      <span className="landing-mono text-xs text-emerald-600 tracking-widest uppercase">Foundations</span>
+                      <h2 className="landing-display font-bold text-xl mt-1 tracking-tight text-gray-900">Core Concepts</h2>
+                    </div>
+                    <div className="space-y-3">
                     {systemDesignCategories.map((category) => {
                       const categoryTopics = filteredTopics.filter(t => systemDesignCategoryMap[t.id] === category.id);
                       if (categoryTopics.length === 0) return null;
                       return (
-                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                        <div key={category.id} className="rounded-lg overflow-hidden border border-gray-200">
                           {/* Category Header */}
-                          <div className="px-3 py-2 flex items-center gap-2" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
-                            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${category.color}20` }}>
-                              <Icon name={category.icon} size={16} style={{ color: category.color }} />
+                          <div className="px-4 py-2.5 flex items-center gap-2.5 bg-gray-50/80 border-b border-gray-100">
+                            <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: `${category.color}12` }}>
+                              <Icon name={category.icon} size={14} style={{ color: category.color }} />
                             </div>
-                            <div>
-                              <h3 className="text-sm font-bold text-gray-900 inline">{category.name}</h3>
-                              <span className="text-xs text-gray-500 ml-2">{categoryTopics.length} topics</span>
-                            </div>
+                            <h3 className="text-sm font-semibold text-gray-900 landing-display">{category.name}</h3>
+                            <span className="text-[10px] landing-mono text-gray-400">{categoryTopics.length} topics</span>
                           </div>
                           {/* Topics in Category */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ borderTop: '1px solid #f0f0f0' }}>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white">
                             {categoryTopics.map((topic) => (
                               <div
                                 key={topic.id}
                                 onClick={() => setSelectedTopic(topic.id)}
-                                className="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group border-b border-r border-gray-100"
+                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-all group border-b border-r border-gray-100"
                               >
-                                <div className="flex items-center gap-3">
-                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? '#d1fae5' : `${topic.color}15` }}>
-                                    {completedTopics[topic.id] ? <Icon name="check" size={12} className="text-emerald-600" /> : <Icon name={topic.icon} size={12} style={{ color: topic.color }} />}
+                                <div className="flex items-center gap-2.5">
+                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? '#d1fae5' : `${topic.color}12` }}>
+                                    {completedTopics[topic.id] ? <Icon name="check" size={11} className="text-emerald-600" /> : <Icon name={topic.icon} size={11} style={{ color: topic.color }} />}
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <span className={`text-sm font-medium group-hover:text-emerald-600 transition-colors ${completedTopics[topic.id] ? 'text-gray-400' : 'text-gray-900'}`}>{topic.title}</span>
+                                    <span className={`text-sm landing-body font-medium group-hover:text-emerald-600 transition-colors ${completedTopics[topic.id] ? 'text-gray-400 line-through' : 'text-gray-900'}`}>{topic.title}</span>
                                     {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-500" />}
-                                    
                                   </div>
                                 </div>
-                                <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
-                                  {topic.keyQuestions?.length || topic.questions || 0}Q
-                                </span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] landing-mono px-1.5 py-0.5 rounded border border-gray-200 text-gray-400">
+                                    {topic.keyQuestions?.length || topic.questions || 0}Q
+                                  </span>
+                                  <Icon name="chevronRight" size={12} className="text-gray-300 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all" />
+                                </div>
                               </div>
                             ))}
                           </div>
                         </div>
                       );
                     })}
+                    </div>
                   </div>
 
+                  {/* Gradient Divider */}
+                  <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-6" />
+
                   {/* System Design Problems Section - Grouped by Category */}
-                  <div className="space-y-3 mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-50">
-                        <Icon name="systemDesign" size={16} className="text-emerald-600" />
-                      </div>
-                      <div>
-                        <h2 className="text-sm font-bold text-gray-900">Common System Designs</h2>
-                        
-                      </div>
+                  <div className="mb-6">
+                    <div className="mb-4">
+                      <span className="landing-mono text-xs text-emerald-600 tracking-widest uppercase">Real-World</span>
+                      <h2 className="landing-display font-bold text-xl mt-1 tracking-tight text-gray-900">Common System Designs</h2>
                     </div>
+                    <div className="space-y-3">
                     {systemDesignProblemCategories.map((category) => {
                       const categoryDesigns = systemDesigns.filter(d => systemDesignProblemCategoryMap[d.id] === category.id);
                       if (categoryDesigns.length === 0) return null;
-                      const difficultyColors = {
-                        'Easy': { bg: 'rgba(16,185,129,0.15)', text: '#10b981' },
-                        'Medium': { bg: 'rgba(234,179,8,0.15)', text: '#eab308' },
-                        'Hard': { bg: 'rgba(239,68,68,0.15)', text: '#ef4444' }
+                      const difficultyStyles = {
+                        'Easy': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                        'Medium': 'bg-amber-50 text-amber-700 border-amber-200',
+                        'Hard': 'bg-red-50 text-red-700 border-red-200',
                       };
                       return (
-                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                        <div key={category.id} className="rounded-lg overflow-hidden border border-gray-200">
                           {/* Category Header */}
-                          <div className="px-3 py-2 flex items-center gap-2" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
-                            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${category.color}20` }}>
-                              <Icon name={category.icon} size={16} style={{ color: category.color }} />
+                          <div className="px-4 py-2.5 flex items-center gap-2.5 bg-gray-50/80 border-b border-gray-100">
+                            <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: `${category.color}12` }}>
+                              <Icon name={category.icon} size={14} style={{ color: category.color }} />
                             </div>
-                            <div>
-                              <h3 className="text-sm font-bold text-gray-900 inline">{category.name}</h3>
-                              <span className="text-xs text-gray-500 ml-2">{categoryDesigns.length} systems</span>
-                            </div>
+                            <h3 className="text-sm font-semibold text-gray-900 landing-display">{category.name}</h3>
+                            <span className="text-[10px] landing-mono text-gray-400">{categoryDesigns.length} systems</span>
                           </div>
                           {/* Designs in Category */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ borderTop: '1px solid #f0f0f0' }}>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white">
                             {categoryDesigns.map((design) => {
-                              const diffColor = difficultyColors[design.difficulty] || difficultyColors['Medium'];
+                              const diffStyle = difficultyStyles[design.difficulty] || difficultyStyles['Medium'];
                               const designProblem = `Design ${design.title}. ${design.description || design.subtitle || ''}`;
                               return (
                                 <div
                                   key={design.id}
-                                  className="px-3 py-2 flex items-center justify-between hover:bg-gray-50 transition-colors group"
+                                  className="px-4 py-2.5 flex items-center justify-between hover:bg-gray-50 transition-all group border-b border-r border-gray-100"
                                 >
                                   <div
                                     onClick={() => setSelectedTopic(design.id)}
-                                    className="flex items-center gap-2 flex-1 cursor-pointer"
+                                    className="flex items-center gap-2.5 flex-1 cursor-pointer"
                                   >
-                                    <div className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${design.color}15` }}>
-                                      <Icon name={design.icon} size={10} style={{ color: design.color }} />
+                                    <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${design.color}12` }}>
+                                      <Icon name={design.icon} size={11} style={{ color: design.color }} />
                                     </div>
                                     <div>
-                                      <span className="text-sm font-medium text-gray-900 group-hover:text-emerald-600 transition-colors">{design.title}</span>
-                                      {design.isNew && <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 ml-2">NEW</span>}
-                                      <span className="text-gray-500 text-xs ml-2 hidden md:inline">{design.subtitle}</span>
+                                      <span className="text-sm landing-body font-medium text-gray-900 group-hover:text-emerald-600 transition-colors">{design.title}</span>
+                                      {design.isNew && <span className="text-[10px] landing-mono px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 ml-2 font-bold">NEW</span>}
+                                      <span className="text-gray-400 text-xs ml-2 hidden md:inline landing-body">{design.subtitle}</span>
                                     </div>
                                   </div>
-                                  <div className="flex items-center gap-3">
-                                    <span className="px-1.5 py-0.5 rounded text-xs font-medium" style={{ background: diffColor.bg, color: diffColor.text }}>
+                                  <div className="flex items-center gap-2">
+                                    <span className={`text-[10px] landing-mono px-1.5 py-0.5 rounded border font-medium ${diffStyle}`}>
                                       {design.difficulty}
                                     </span>
                                     <a
                                       href={`/app?problem=${encodeURIComponent(designProblem)}&mode=system-design&autosolve=true`}
-                                      className="px-4 py-2 rounded-lg text-sm font-medium bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500/25 transition-colors flex items-center gap-2"
+                                      className="px-3 py-1.5 rounded text-xs font-semibold bg-emerald-500 text-white hover:bg-emerald-600 transition-colors flex items-center gap-1.5 landing-body"
                                       onClick={(e) => e.stopPropagation()}
                                     >
-                                      <Icon name="zap" size={16} />
+                                      <Icon name="zap" size={12} />
                                       Design
                                     </a>
                                   </div>
@@ -835,60 +828,58 @@ export default function DocsPage({ onBack }) {
                         </div>
                       );
                     })}
+                    </div>
                   </div>
 
+                  {/* Gradient Divider */}
+                  <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-6" />
+
                   {/* Low-Level Design Problems Section */}
-                  <div className="space-y-3 mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-teal-500/10">
-                        <Icon name="code" size={16} className="text-teal-400" />
-                      </div>
-                      <div>
-                        <h2 className="text-sm font-bold text-gray-900">Low-Level Design (LLD)</h2>
-                        <p className="text-sm text-gray-700">Object-oriented design problems with class diagrams and implementations</p>
-                      </div>
+                  <div className="mb-6">
+                    <div className="mb-4">
+                      <span className="landing-mono text-xs text-emerald-600 tracking-widest uppercase">Object-Oriented</span>
+                      <h2 className="landing-display font-bold text-xl mt-1 tracking-tight text-gray-900">Low-Level Design</h2>
+                      <p className="text-sm text-gray-500 landing-body mt-1">Class diagrams, design patterns, and OOP implementations</p>
                     </div>
+                    <div className="space-y-3">
                     {lldProblemCategories.map((category) => {
                       const categoryProblems = lldProblems.filter(p => lldProblemCategoryMap[p.id] === category.id);
                       if (categoryProblems.length === 0) return null;
-                      const difficultyColors = {
-                        'Easy': { bg: 'rgba(16,185,129,0.15)', text: '#10b981' },
-                        'Medium': { bg: 'rgba(234,179,8,0.15)', text: '#eab308' },
-                        'Hard': { bg: 'rgba(239,68,68,0.15)', text: '#ef4444' }
-                      };
+                      // diffStyle is computed inline per-problem below
                       return (
-                        <div key={category.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-                          <div className="px-3 py-2 flex items-center gap-2" style={{ background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)` }}>
-                            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${category.color}20` }}>
-                              <Icon name={category.icon} size={16} style={{ color: category.color }} />
+                        <div key={category.id} className="rounded-lg overflow-hidden border border-gray-200">
+                          <div className="px-4 py-2.5 flex items-center gap-2.5 bg-gray-50/80 border-b border-gray-100">
+                            <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: `${category.color}12` }}>
+                              <Icon name={category.icon} size={14} style={{ color: category.color }} />
                             </div>
-                            <div>
-                              <h3 className="text-sm font-bold text-gray-900 inline">{category.name}</h3>
-                              <span className="text-sm text-gray-700">{categoryProblems.length} problems</span>
-                            </div>
+                            <h3 className="text-sm font-semibold text-gray-900 landing-display">{category.name}</h3>
+                            <span className="text-[10px] landing-mono text-gray-400">{categoryProblems.length} problems</span>
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ borderTop: '1px solid #f0f0f0' }}>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white">
                             {categoryProblems.map((problem) => {
-                              const diffColor = difficultyColors[problem.difficulty] || difficultyColors['Medium'];
+                              const diffStyle = { Easy: 'bg-emerald-50 text-emerald-700 border-emerald-200', Medium: 'bg-amber-50 text-amber-700 border-amber-200', Hard: 'bg-red-50 text-red-700 border-red-200' }[problem.difficulty] || 'bg-amber-50 text-amber-700 border-amber-200';
                               return (
                                 <div
                                   key={problem.id}
                                   onClick={() => setSelectedTopic(problem.id)}
-                                  className="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group border-b border-r border-gray-100"
+                                  className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-all group border-b border-r border-gray-100"
                                 >
-                                  <div className="flex items-center gap-3">
-                                    <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${problem.color}15` }}>
-                                      <Icon name={problem.icon} size={12} style={{ color: problem.color }} />
+                                  <div className="flex items-center gap-2.5">
+                                    <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${problem.color}12` }}>
+                                      <Icon name={problem.icon} size={11} style={{ color: problem.color }} />
                                     </div>
                                     <div>
-                                      <span className="text-gray-900 text-sm font-medium group-hover:text-emerald-600 transition-colors">{problem.title}</span>
-                                      {problem.isNew && <span className="px-1 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 ml-1">NEW</span>}
-                                      <span className="text-gray-600 text-sm ml-2 hidden md:inline">{problem.subtitle}</span>
+                                      <span className="text-gray-900 text-sm landing-body font-medium group-hover:text-emerald-600 transition-colors">{problem.title}</span>
+                                      {problem.isNew && <span className="text-[10px] landing-mono px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 ml-2 font-bold">NEW</span>}
+                                      <span className="text-gray-400 text-xs ml-2 hidden md:inline landing-body">{problem.subtitle}</span>
                                     </div>
                                   </div>
-                                  <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: diffColor.bg, color: diffColor.text }}>
-                                    {problem.difficulty}
-                                  </span>
+                                  <div className="flex items-center gap-2">
+                                    <span className={`text-[10px] landing-mono px-1.5 py-0.5 rounded border font-medium ${diffStyle}`}>
+                                      {problem.difficulty}
+                                    </span>
+                                    <Icon name="chevronRight" size={12} className="text-gray-300 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all" />
+                                  </div>
                                 </div>
                               );
                             })}
@@ -896,78 +887,73 @@ export default function DocsPage({ onBack }) {
                         </div>
                       );
                     })}
+                    </div>
                   </div>
 
+                  {/* Gradient Divider */}
+                  <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-6" />
+
                   {/* Concurrency Section */}
-                  <div className="space-y-3 mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-orange-500/10">
-                        <Icon name="cpu" size={16} className="text-orange-400" />
-                      </div>
-                      <div>
-                        <h2 className="text-sm font-bold text-gray-900">Concurrency & Multithreading</h2>
-                        <p className="text-sm text-gray-700">Thread-safe programming, synchronization, and classic problems</p>
-                      </div>
+                  <div className="mb-6">
+                    <div className="mb-4">
+                      <span className="landing-mono text-xs text-emerald-600 tracking-widest uppercase">Advanced</span>
+                      <h2 className="landing-display font-bold text-xl mt-1 tracking-tight text-gray-900">Concurrency & Multithreading</h2>
+                      <p className="text-sm text-gray-500 landing-body mt-1">Thread-safe programming, synchronization, and classic problems</p>
                     </div>
-                    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ borderTop: '1px solid #f0f0f0' }}>
+                    <div className="rounded-lg overflow-hidden border border-gray-200">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white">
                         {concurrencyTopics.map((topic) => (
                           <div
                             key={topic.id}
                             onClick={() => setSelectedTopic(topic.id)}
-                            className="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group border-b border-r border-gray-100"
+                            className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-all group border-b border-r border-gray-100"
                           >
-                            <div className="flex items-center gap-3">
-                              <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}15` }}>
-                                <Icon name={topic.icon} size={12} style={{ color: topic.color }} />
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}12` }}>
+                                <Icon name={topic.icon} size={11} style={{ color: topic.color }} />
                               </div>
-                              <div>
-                                <span className="text-gray-900 text-sm font-medium group-hover:text-emerald-600 transition-colors">{topic.title}</span>
-                                
-                              </div>
+                              <span className="text-gray-900 text-sm landing-body font-medium group-hover:text-emerald-600 transition-colors">{topic.title}</span>
                             </div>
-                            <span className="px-2 py-0.5 rounded text-sm font-medium" style={{ background: `${topic.color}15`, color: topic.color }}>
-                              {topic.concepts?.length || topic.primitives?.length || topic.problems?.length || 0} items
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] landing-mono px-1.5 py-0.5 rounded border border-gray-200 text-gray-400">
+                                {topic.concepts?.length || topic.primitives?.length || topic.problems?.length || 0} items
+                              </span>
+                              <Icon name="chevronRight" size={12} className="text-gray-300 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all" />
+                            </div>
                           </div>
                         ))}
                       </div>
                     </div>
                   </div>
 
-                  {/* Interview Framework - Compact */}
-                  <div className="rounded-xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.02))', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                    <div className="px-4 py-3 border-b border-blue-500/20 flex items-center gap-3" style={{ background: 'rgba(59,130,246,0.05)' }}>
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15">
-                        <Icon name="target" size={14} className="text-emerald-600" />
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-bold text-gray-900">Interview Framework</h3>
-                        <p className="text-gray-500 text-sm">45-minute breakdown</p>
-                      </div>
+                  {/* Gradient Divider */}
+                  <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent mb-6" />
+
+                  {/* Interview Framework */}
+                  <div className="rounded-lg border border-emerald-200 bg-gradient-to-br from-emerald-50/80 to-cyan-50/40 p-5">
+                    <div className="mb-4">
+                      <span className="landing-mono text-xs text-emerald-600 tracking-widest uppercase">Framework</span>
+                      <h3 className="landing-display font-bold text-lg mt-1 tracking-tight text-gray-900 flex items-center gap-2">
+                        System Design Interview
+                        <span className="text-gray-400 font-normal text-sm landing-body">(45 min)</span>
+                      </h3>
                     </div>
-                    <div className="p-3">
-                      <div className="grid grid-cols-4 gap-2">
-                        {[
-                          { time: '5m', step: 'Requirements', desc: 'Functional & non-functional', icon: 'list', color: '#10b981' },
-                          { time: '5m', step: 'Estimations', desc: 'QPS, storage, bandwidth', icon: 'calculator', color: '#eab308' },
-                          { time: '20m', step: 'High-Level', desc: 'Components, data flow', icon: 'systemDesign', color: '#3b82f6' },
-                          { time: '15m', step: 'Deep Dive', desc: 'Schema, scaling', icon: 'database', color: '#a855f7' },
-                        ].map((phase, i) => (
-                          <div key={i} className="rounded-lg p-3" style={{ background: '#f5f5f5' }}>
-                            <div className="flex items-center gap-2 mb-2">
-                              <div className="w-6 h-6 rounded flex items-center justify-center" style={{ background: `${phase.color}20` }}>
-                                <Icon name={phase.icon} size={12} style={{ color: phase.color }} />
-                              </div>
-                              <span className="px-1.5 py-0.5 rounded text-sm font-bold" style={{ background: phase.color, color: '#111827' }}>
-                                {phase.time}
-                              </span>
-                            </div>
-                            <div className="text-gray-900 font-semibold text-sm mb-1">{phase.step}</div>
-                            <div className="text-gray-500 text-sm">{phase.desc}</div>
-                          </div>
-                        ))}
-                      </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+                      {[
+                        { time: '5 min', step: 'Requirements', desc: 'Functional & non-functional requirements', num: '01', accent: 'emerald' },
+                        { time: '5 min', step: 'Estimations', desc: 'QPS, storage, bandwidth calculations', num: '02', accent: 'cyan' },
+                        { time: '20 min', step: 'High-Level', desc: 'Components, data flow, API design', num: '03', accent: 'emerald' },
+                        { time: '15 min', step: 'Deep Dive', desc: 'Database schema, scaling, trade-offs', num: '04', accent: 'cyan' },
+                      ].map((phase, i) => (
+                        <div key={i} className="group p-3 rounded-lg border border-white/60 bg-white/70 hover:bg-white hover:shadow-sm transition-all">
+                          <span className={`landing-mono text-2xl font-black text-${phase.accent}-200 group-hover:text-${phase.accent}-300 transition-colors`}>
+                            {phase.num}
+                          </span>
+                          <div className="landing-mono text-[10px] text-emerald-600 font-semibold mt-1.5 mb-1">{phase.time}</div>
+                          <div className="text-gray-900 font-semibold text-sm landing-display mb-0.5">{phase.step}</div>
+                          <div className="text-gray-500 text-xs leading-relaxed landing-body">{phase.desc}</div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </>
@@ -1073,7 +1059,7 @@ export default function DocsPage({ onBack }) {
                               key={company.id}
                               onClick={() => setSelectedTopic(company.id)}
                               className="group cursor-pointer transition-all hover:bg-gray-50"
-                              style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
+                              className="border-t border-gray-100"
                             >
                               <td className="px-4 py-3">
                                 <div className="flex items-center gap-3">
@@ -1111,13 +1097,13 @@ export default function DocsPage({ onBack }) {
           {selectedTopic && topicDetails && tableOfContents.length > 0 && (
             <div className="w-64 flex-shrink-0 hidden xl:block">
               <div className="sticky top-24 p-6">
-                <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">On this page</div>
+                <div className="landing-mono text-[10px] text-emerald-600 tracking-widest uppercase mb-4">On this page</div>
                 <nav className="space-y-1">
                   {tableOfContents.map((item) => (
                     <a
                       key={item.id}
                       href={`#${item.id}`}
-                      className="block px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                      className="block px-3 py-2 text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors landing-body"
                     >
                       {item.label}
                     </a>
@@ -1125,19 +1111,19 @@ export default function DocsPage({ onBack }) {
                 </nav>
 
                 {/* Quick Actions */}
-                <div className="mt-8 pt-6 border-t border-white/10">
-                  <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Quick Actions</div>
+                <div className="mt-8 pt-6 border-t border-gray-100">
+                  <div className="landing-mono text-[10px] text-emerald-600 tracking-widest uppercase mb-4">Quick Actions</div>
                   <div className="space-y-2">
                     <a
                       href="/app"
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-emerald-600 hover:bg-emerald-400/10 rounded-lg transition-colors"
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors landing-body font-medium"
                     >
                       <Icon name="play" size={14} />
                       <span>Practice Now</span>
                     </a>
                     <button
                       onClick={() => setSelectedTopic(null)}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:bg-gray-50 rounded-lg transition-colors w-full text-left"
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:bg-gray-50 rounded-lg transition-colors w-full text-left landing-body"
                     >
                       <Icon name="list" size={14} />
                       <span>All Topics</span>
@@ -1151,12 +1137,12 @@ export default function DocsPage({ onBack }) {
 
         {/* ── Right Sidebar — Progress & TOC (visible when topic selected) ── */}
         {selectedTopic && topicDetails && (
-          <div className="w-64 flex-shrink-0 h-screen sticky top-0 hidden xl:flex flex-col py-6 px-4 overflow-y-auto" style={{ borderLeft: '1px solid #e2e8f0', background: '#f8fafc' }}>
+          <div className="w-64 flex-shrink-0 h-screen sticky top-0 hidden xl:flex flex-col py-6 px-4 overflow-y-auto bg-white border-l border-gray-100">
             {/* Progress Ring */}
             <div className="text-center mb-6">
               <div className="relative w-20 h-20 mx-auto mb-3">
                 <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
-                  <circle cx="40" cy="40" r="35" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
+                  <circle cx="40" cy="40" r="35" fill="none" stroke="#f1f5f9" strokeWidth="6" />
                   <circle cx="40" cy="40" r="35" fill="none" stroke="#10b981" strokeWidth="6" strokeLinecap="round"
                     strokeDasharray={`${2 * Math.PI * 35}`}
                     strokeDashoffset={`${2 * Math.PI * 35 * (1 - getProgress().percent / 100)}`}
@@ -1167,29 +1153,29 @@ export default function DocsPage({ onBack }) {
                   <span className="text-sm font-bold text-gray-900">{getProgress().percent}%</span>
                 </div>
               </div>
-              <div className="text-sm text-gray-600">{getProgress().completed}/{getProgress().total} topics</div>
-              <div className="text-xs text-gray-600 mt-1">{pageConfig.title}</div>
+              <div className="text-sm text-gray-500 landing-body">{getProgress().completed}/{getProgress().total} topics</div>
+              <div className="text-xs text-gray-400 landing-mono mt-1">{pageConfig.title}</div>
             </div>
 
             {/* Quick Actions */}
             <div className="space-y-1.5 mb-6">
               <button
                 onClick={() => toggleComplete(selectedTopic)}
-                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${completedTopics[selectedTopic] ? 'bg-emerald-500/15 text-emerald-600' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
+                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all landing-body ${completedTopics[selectedTopic] ? 'bg-emerald-50 text-emerald-600' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}
               >
                 <Icon name={completedTopics[selectedTopic] ? 'checkCircle' : 'check'} size={14} />
                 {completedTopics[selectedTopic] ? 'Completed' : 'Mark Complete'}
               </button>
               <button
                 onClick={() => toggleStar(selectedTopic)}
-                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${starredTopics[selectedTopic] ? 'text-yellow-500 bg-yellow-400/10' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
+                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all landing-body ${starredTopics[selectedTopic] ? 'text-yellow-500 bg-amber-50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}
               >
                 <Icon name={starredTopics[selectedTopic] ? 'star5' : 'star'} size={14} />
                 {starredTopics[selectedTopic] ? 'Starred' : 'Add to Favorites'}
               </button>
               <button
                 onClick={() => setShowAskAI(!showAskAI)}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-gray-400 hover:text-purple-400 hover:bg-purple-400/10 transition-all"
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all landing-body"
               >
                 <Icon name="sparkles" size={14} />
                 Ask AI
@@ -1199,13 +1185,13 @@ export default function DocsPage({ onBack }) {
             {/* Table of Contents */}
             {tableOfContents.length > 0 && (
               <div>
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">On This Page</div>
+                <div className="landing-mono text-[10px] text-emerald-600 tracking-widest uppercase mb-3">On This Page</div>
                 <div className="space-y-0.5">
                   {tableOfContents.map((item, i) => (
                     <a
                       key={i}
                       href={`#${item.id}`}
-                      className="block px-3 py-1.5 rounded text-xs text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-all truncate"
+                      className="block px-3 py-1.5 rounded text-xs text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-all truncate landing-body"
                     >
                       {item.label}
                     </a>
@@ -1216,8 +1202,8 @@ export default function DocsPage({ onBack }) {
 
             {/* Starred Topics */}
             {Object.keys(starredTopics).filter(k => starredTopics[k]).length > 0 && (
-              <div className="mt-6 pt-6" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Favorites</div>
+              <div className="mt-6 pt-6 border-t border-gray-100">
+                <div className="landing-mono text-[10px] text-emerald-600 tracking-widest uppercase mb-3">Favorites</div>
                 <div className="space-y-1">
                   {Object.keys(starredTopics).filter(k => starredTopics[k]).map((topicId) => {
                     const t = [...codingTopics, ...systemDesignTopics, ...systemDesigns, ...behavioralTopics].find(x => x.id === topicId);
@@ -1226,7 +1212,7 @@ export default function DocsPage({ onBack }) {
                       <button
                         key={topicId}
                         onClick={() => setSelectedTopic(topicId)}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 rounded text-xs text-left text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-all"
+                        className="w-full flex items-center gap-2 px-3 py-1.5 rounded text-xs text-left text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-all landing-body"
                       >
                         <Icon name="star5" size={10} className="text-yellow-500 flex-shrink-0" />
                         <span className="truncate">{t.title}</span>
@@ -1241,6 +1227,26 @@ export default function DocsPage({ onBack }) {
       </div>
 
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap');
+
+        .landing-root {
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+          font-family: 'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif;
+        }
+
+        .landing-display {
+          font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        }
+
+        .landing-body {
+          font-family: 'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif;
+        }
+
+        .landing-mono {
+          font-family: 'IBM Plex Mono', monospace;
+        }
+
         .animate-fade-in {
           animation: fadeIn 0.3s ease-out;
         }
@@ -1262,29 +1268,13 @@ export default function DocsPage({ onBack }) {
           line-height: 1.4 !important;
           letter-spacing: 0 !important;
         }
-        /* Smooth scrolling for anchor links */
-        html {
-          scroll-behavior: smooth;
-        }
+        html { scroll-behavior: smooth; }
         /* Custom scrollbar */
-        ::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-          background: rgba(255,255,255,0.02);
-        }
-        ::-webkit-scrollbar-thumb {
-          background: rgba(255,255,255,0.1);
-          border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background: rgba(255,255,255,0.2);
-        }
-        /* Card hover effects */
-        .group:hover .hover-glow {
-          opacity: 1;
-        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+        .group:hover .hover-glow { opacity: 1; }
       `}</style>
     </div>
   );
