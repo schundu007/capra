@@ -233,6 +233,21 @@ export default function FormattedContent({ content, color = 'emerald' }) {
           return;
         }
 
+        // STAR keywords as styled headers
+        const starHeaderMatch = trimmed.match(/^(Situation|Task|Action|Result)\s*[:]\s*$/i);
+        if (starHeaderMatch) {
+          flushList();
+          const keyword = starHeaderMatch[1].charAt(0).toUpperCase() + starHeaderMatch[1].slice(1).toLowerCase();
+          const sc = starColors[keyword] || '#a855f7';
+          elements.push(
+            <div key={`star-${blockIdx}-${lineIdx}`} className="flex items-center gap-2 mt-2 mb-0.5 first:mt-0">
+              <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-extrabold text-white" style={{ background: sc }}>{keyword.charAt(0)}</span>
+              <span className="text-sm font-bold" style={{ color: sc }}>{keyword}</span>
+            </div>
+          );
+          return;
+        }
+
         // Section headers without bold (ending with colon)
         if (trimmed.endsWith(':') && trimmed.length < 50 && !trimmed.includes('.')) {
           flushList();
