@@ -224,12 +224,25 @@ export default function FormattedContent({ content, color = 'emerald' }) {
         // Bold section headers (with colon at end or space after)
         if (trimmed.match(/^\*\*[^*]+\*\*[:\s(]/) || (trimmed.startsWith('**') && trimmed.endsWith(':'))) {
           flushList();
-          const headerText = trimmed.replace(/\*\*/g, '');
-          elements.push(
-            <div key={`h-${blockIdx}-${lineIdx}`} className="text-gray-900 font-semibold text-sm mt-2 mb-1 first:mt-0">
-              {headerText}
-            </div>
-          );
+          const headerText = trimmed.replace(/\*\*/g, '').replace(/:\s*$/, '');
+          // Check if it's a STAR keyword
+          const starKey = Object.keys(starColors).find(k => headerText.toLowerCase().startsWith(k.toLowerCase()));
+          if (starKey) {
+            const sc = starColors[starKey];
+            const rest = headerText.slice(starKey.length).replace(/^[\s:–—-]+/, '');
+            elements.push(
+              <div key={`star-${blockIdx}-${lineIdx}`} className="flex items-center gap-2 mt-2 mb-0.5 first:mt-0">
+                <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-extrabold text-white" style={{ background: sc }}>{starKey.charAt(0)}</span>
+                <span className="text-sm font-bold" style={{ color: sc }}>{starKey}{rest ? ': ' + rest : ''}</span>
+              </div>
+            );
+          } else {
+            elements.push(
+              <div key={`h-${blockIdx}-${lineIdx}`} className="text-gray-900 font-semibold text-sm mt-2 mb-1 first:mt-0">
+                {headerText}
+              </div>
+            );
+          }
           return;
         }
 
