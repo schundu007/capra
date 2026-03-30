@@ -21,10 +21,26 @@ export default function FormattedContent({ content, color = 'emerald' }) {
   };
 
   // Format inline text with bold, code, and quoted text
+  const starColors = { 'Situation': '#3b82f6', 'Task': '#f59e0b', 'Action': '#10b981', 'Result': '#ef4444' };
+
   const formatInlineText = (text) => {
     const parts = [];
     let remaining = text;
     let keyCounter = 0;
+
+    // Check for STAR keywords at the start of text
+    const starMatch = remaining.match(/^(Situation|Task|Action|Result)\s*[:–—-]\s*/i);
+    if (starMatch) {
+      const keyword = starMatch[1].charAt(0).toUpperCase() + starMatch[1].slice(1).toLowerCase();
+      const color = starColors[keyword] || '#a855f7';
+      parts.push(
+        <span key={keyCounter++} className="inline-flex items-center gap-1.5 mr-1.5">
+          <span className="px-1.5 py-0.5 rounded text-xs font-extrabold text-white" style={{ background: color }}>{keyword.charAt(0)}</span>
+          <span className="font-bold text-sm" style={{ color }}>{keyword}:</span>
+        </span>
+      );
+      remaining = remaining.substring(starMatch[0].length);
+    }
 
     while (remaining.length > 0) {
       const boldMatch = remaining.match(/\*\*([^*]+)\*\*/);
