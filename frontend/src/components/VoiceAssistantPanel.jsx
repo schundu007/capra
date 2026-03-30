@@ -650,7 +650,7 @@ export default function VoiceAssistantPanel({ onClose, provider = 'claude', mode
 
   const getStatusColor = () => {
     switch (status.state) {
-      case 'ready': case 'listen': return '#2dd4bf';
+      case 'ready': case 'listen': return '#10b981';
       case 'transcribe': return '#f59e0b';
       case 'write': return '#6366f1';
       case 'error': return '#ef4444';

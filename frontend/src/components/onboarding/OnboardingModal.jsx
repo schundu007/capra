@@ -58,13 +58,13 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
           </p>
           <div className="grid grid-cols-3 gap-3">
             <div
-              className="text-center p-4 rounded-xl transition-all hover:scale-105"
+              className="text-center p-4 rounded-lg transition-all hover:scale-105"
               style={{
                 background: 'rgba(124, 58, 237, 0.15)',
                 border: '1px solid rgba(124, 58, 237, 0.3)'
               }}
             >
-              <div className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center" style={{ background: 'rgba(124, 58, 237, 0.3)' }}>
+              <div className="w-12 h-12 rounded-lg mx-auto mb-3 flex items-center justify-center" style={{ background: 'rgba(124, 58, 237, 0.3)' }}>
                 <svg className="w-6 h-6" style={{ color: 'var(--brand-primary-light)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                 </svg>
@@ -72,13 +72,13 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
               <div className="text-sm font-semibold" style={{ color: 'var(--brand-primary-light)' }}>Coding</div>
             </div>
             <div
-              className="text-center p-4 rounded-xl transition-all hover:scale-105"
+              className="text-center p-4 rounded-lg transition-all hover:scale-105"
               style={{
                 background: 'rgba(6, 182, 212, 0.15)',
                 border: '1px solid rgba(6, 182, 212, 0.3)'
               }}
             >
-              <div className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center" style={{ background: 'rgba(6, 182, 212, 0.3)' }}>
+              <div className="w-12 h-12 rounded-lg mx-auto mb-3 flex items-center justify-center" style={{ background: 'rgba(6, 182, 212, 0.3)' }}>
                 <svg className="w-6 h-6" style={{ color: 'var(--accent-teal-light)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
@@ -86,13 +86,13 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
               <div className="text-sm font-semibold" style={{ color: 'var(--accent-teal-light)' }}>System Design</div>
             </div>
             <div
-              className="text-center p-4 rounded-xl transition-all hover:scale-105"
+              className="text-center p-4 rounded-lg transition-all hover:scale-105"
               style={{
                 background: 'rgba(16, 185, 129, 0.15)',
                 border: '1px solid rgba(16, 185, 129, 0.3)'
               }}
             >
-              <div className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center" style={{ background: 'rgba(16, 185, 129, 0.3)' }}>
+              <div className="w-12 h-12 rounded-lg mx-auto mb-3 flex items-center justify-center" style={{ background: 'rgba(16, 185, 129, 0.3)' }}>
                 <svg className="w-6 h-6" style={{ color: 'var(--accent-success-light)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
@@ -122,14 +122,14 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
           ].map((step, idx) => (
             <div
               key={idx}
-              className="flex items-start gap-4 p-4 rounded-xl transition-all hover:scale-[1.02]"
+              className="flex items-start gap-4 p-4 rounded-lg transition-all hover:scale-[1.02]"
               style={{
                 background: 'var(--bg-elevated)',
                 border: '1px solid var(--border-subtle)',
               }}
             >
               <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg font-bold text-gray-900"
+                className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 text-lg font-bold text-gray-900"
                 style={{ background: step.color }}
               >
                 {step.num}
@@ -167,7 +167,7 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
             ].map((item, idx) => (
               <div
                 key={idx}
-                className="flex items-center gap-3 p-3 rounded-xl"
+                className="flex items-center gap-3 p-3 rounded-lg"
                 style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}
               >
                 <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: 'rgba(16, 185, 129, 0.2)' }}>
@@ -199,7 +199,7 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
           </p>
           <div className="grid grid-cols-3 gap-3">
             <div
-              className="p-4 rounded-xl text-center relative overflow-hidden"
+              className="p-4 rounded-lg text-center relative overflow-hidden"
               style={{
                 background: 'linear-gradient(145deg, rgba(124, 58, 237, 0.2) 0%, rgba(124, 58, 237, 0.1) 100%)',
                 border: '1px solid rgba(124, 58, 237, 0.3)'
@@ -210,7 +210,7 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
               <div className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>5 credits/mo</div>
             </div>
             <div
-              className="p-4 rounded-xl text-center relative overflow-hidden"
+              className="p-4 rounded-lg text-center relative overflow-hidden"
               style={{
                 background: 'linear-gradient(145deg, rgba(6, 182, 212, 0.2) 0%, rgba(6, 182, 212, 0.1) 100%)',
                 border: '1px solid rgba(6, 182, 212, 0.3)'
@@ -222,7 +222,7 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
               <div className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>10 credits/qtr</div>
             </div>
             <div
-              className="p-4 rounded-xl text-center"
+              className="p-4 rounded-lg text-center"
               style={{
                 background: 'linear-gradient(145deg, rgba(249, 115, 22, 0.2) 0%, rgba(249, 115, 22, 0.1) 100%)',
                 border: '1px solid rgba(249, 115, 22, 0.3)'
@@ -234,7 +234,7 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
             </div>
           </div>
           <div
-            className="p-4 rounded-xl text-center"
+            className="p-4 rounded-lg text-center"
             style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}
           >
             <span style={{ color: 'var(--text-secondary)' }}>Need more? </span>

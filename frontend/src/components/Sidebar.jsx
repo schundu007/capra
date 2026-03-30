@@ -90,7 +90,7 @@ export default function Sidebar({
           title="Collapse sidebar"
           style={{ WebkitAppRegion: 'no-drag' }}
         >
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-400 to-brand-500 flex items-center justify-center shadow-lg shadow-brand-400/20 group-hover:shadow-brand-400/40 group-hover:scale-105 transition-all duration-200">
+          <div className="w-8 h-8 bg-emerald-500 flex items-center justify-center group-hover:scale-105 transition-all duration-200">
             <img
               src="/ascend-logo.png"
               alt="Ascend"
@@ -256,9 +256,9 @@ export default function Sidebar({
       {/* Footer Section */}
       {authRequired && user && (
         <div className="p-3 border-t border-gray-200">
-          <div className="flex items-center gap-3 px-2 py-2 rounded-xl bg-gray-100/30">
+          <div className="flex items-center gap-3 px-2 py-2 rounded-lg bg-gray-100/30">
             <div className="relative">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-400 to-brand-500 flex items-center justify-center text-gray-900 font-semibold text-sm">
+              <div className="w-8 h-8 bg-emerald-500 flex items-center justify-center text-white font-semibold text-sm">
                 {(user.name || user.username || 'U')[0].toUpperCase()}
               </div>
               <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-brand-400 border-2 border-white" />

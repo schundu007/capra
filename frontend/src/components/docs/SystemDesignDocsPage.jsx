@@ -21,7 +21,7 @@ export default function SystemDesignDocsPage() {
     { id: 'microservices', title: 'Microservices', icon: 'share', color: '#06b6d4', questions: 9 },
     { id: 'api-design', title: 'API Design', icon: 'code', color: '#22c55e', questions: 11 },
     { id: 'cap-theorem', title: 'CAP Theorem', icon: 'puzzle', color: '#a855f7', questions: 5 },
-    { id: 'consistency', title: 'Consistency Patterns', icon: 'refresh', color: '#14b8a6', questions: 8 },
+    { id: 'consistency', title: 'Consistency Patterns', icon: 'refresh', color: '#059669', questions: 8 },
     { id: 'cdn', title: 'CDN', icon: 'globe', color: '#f97316', questions: 4 },
     { id: 'dns', title: 'DNS', icon: 'globe', color: '#84cc16', questions: 3 },
     { id: 'proxies', title: 'Proxies', icon: 'shield', color: '#6366f1', questions: 5 },
@@ -109,7 +109,7 @@ export default function SystemDesignDocsPage() {
           </div>
 
           {/* Featured Banner */}
-          <a href="#" className="block mb-8 p-5 rounded-xl transition-all hover:scale-[1.01]" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <a href="#" className="block mb-8 p-5 rounded-lg transition-all hover:scale-[1.01]" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' }}>
@@ -128,7 +128,7 @@ export default function SystemDesignDocsPage() {
               <a
                 key={topic.id}
                 href={`/prepare/system-design/${topic.id}`}
-                className="group p-4 rounded-xl transition-all hover:scale-[1.02] hover:bg-white/5"
+                className="group p-4 rounded-lg transition-all hover:scale-[1.02] hover:bg-white/5"
                 style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
               >
                 <div className="flex items-start justify-between mb-3">
@@ -153,11 +153,11 @@ export default function SystemDesignDocsPage() {
               <a
                 key={design.id}
                 href={`/prepare/system-design/${design.id}`}
-                className="group p-5 rounded-xl transition-all hover:scale-[1.01] hover:bg-white/5"
+                className="group p-5 rounded-lg transition-all hover:scale-[1.01] hover:bg-white/5"
                 style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${design.color}15` }}>
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${design.color}15` }}>
                     <Icon name={design.icon} size={24} style={{ color: design.color }} />
                   </div>
                   <div className="flex-1">
@@ -176,7 +176,7 @@ export default function SystemDesignDocsPage() {
           </div>
 
           {/* Interview Framework */}
-          <div className="p-6 rounded-xl mb-12" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.02))', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+          <div className="p-6 rounded-lg mb-12" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.02))', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
               <Icon name="target" size={20} className="text-blue-400" />
               System Design Interview Framework (45 min)
@@ -188,7 +188,7 @@ export default function SystemDesignDocsPage() {
                 { time: '20 min', step: 'High-Level Design', desc: 'Components, data flow, API design' },
                 { time: '15 min', step: 'Deep Dive', desc: 'Database schema, scaling, trade-offs' },
               ].map((phase, i) => (
-                <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                <div key={i} className="p-4 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
                   <div className="text-blue-400 text-sm font-bold mb-1">{phase.time}</div>
                   <div className="text-gray-900 font-semibold mb-2">{phase.step}</div>
                   <div className="text-gray-400 text-sm">{phase.desc}</div>
@@ -201,7 +201,7 @@ export default function SystemDesignDocsPage() {
           <h2 className="text-xl font-bold text-gray-900 mb-6">Quick Reference</h2>
           <div className="grid md:grid-cols-2 gap-6">
             {/* Building Blocks */}
-            <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="p-6 rounded-lg" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
               <h3 className="text-gray-900 font-semibold mb-4 flex items-center gap-2">
                 <Icon name="layers" size={18} className="text-blue-400" />
                 Building Blocks
@@ -217,7 +217,7 @@ export default function SystemDesignDocsPage() {
             </div>
 
             {/* Key Tradeoffs */}
-            <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="p-6 rounded-lg" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
               <h3 className="text-gray-900 font-semibold mb-4 flex items-center gap-2">
                 <Icon name="puzzle" size={18} className="text-purple-400" />
                 Key Trade-offs

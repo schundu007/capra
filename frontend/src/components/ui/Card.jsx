@@ -19,7 +19,7 @@ import { cn } from '../../utils/cn';
 const cardVariants = cva(
   // Base styles
   [
-    'rounded-xl',
+    'rounded-lg',
     'transition-all duration-200',
     'overflow-hidden',
   ],

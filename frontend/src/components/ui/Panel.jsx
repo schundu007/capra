@@ -17,7 +17,7 @@ const panelVariants = cva(
   // Base styles
   [
     'flex flex-col',
-    'rounded-xl',
+    'rounded-lg',
     'overflow-hidden',
   ],
   {

@@ -436,7 +436,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                   <div className="space-y-3">
                     {safeArray(displayContent.pitchSections).filter(section => section && typeof section === 'object').map((section, i) => (
                       <div key={i} className="flex gap-3">
-                        <span className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: 'white', boxShadow: '0 2px 4px rgba(16,185,129,0.3)' }}>{i + 1}</span>
+                        <span className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold" style={{ background: '#10b981', color: 'white', boxShadow: '0 2px 4px rgba(16,185,129,0.3)' }}>{i + 1}</span>
                         <div className="flex-1 pt-0.5">
                           {safeArray(section?.bullets).length > 0 && (
                             <p className="text-sm leading-relaxed" style={{ color: colors.text }}>
@@ -828,7 +828,7 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                         {/* Header */}
                         <div className="prep-content-card-header">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#10b981' }}>
                               <svg className="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                               </svg>

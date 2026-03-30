@@ -181,7 +181,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
   // Collapsed view
   if (expanded === false) {
     return (
-      <div className="flex items-center gap-3 py-2.5 px-4 rounded-xl bg-white border border-gray-200">
+      <div className="flex items-center gap-3 py-2.5 px-4 rounded-lg bg-white border border-gray-200">
         <div className="flex-1 min-w-0">
           <p className="text-sm text-gray-700 truncate">{problemText ? getPreviewText() : <span className="text-gray-400 italic">No problem text</span>}</p>
         </div>
@@ -204,7 +204,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
       <div className="flex items-center justify-between gap-3 mb-3 flex-shrink-0">
         {/* Tabs */}
         <div className="flex items-center gap-2">
-          <div className="flex gap-1 p-1 rounded-xl bg-white border border-gray-200">
+          <div className="flex gap-1 p-1 rounded-lg bg-white border border-gray-200">
             {tabs.map(tab => {
               const Icon = tab.icon;
               return (
@@ -269,7 +269,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               value={problemText}
               onChange={(e) => setProblemText(e.target.value)}
               placeholder={ascendMode === 'system-design' ? 'Describe your system design problem...' : 'Paste coding problem...'}
-              className="w-full px-4 py-3 resize-none rounded-xl text-sm bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400/50 transition-all"
+              className="w-full px-4 py-3 resize-none rounded-lg text-sm bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400/50 transition-all"
               style={{
                 minHeight: '60px',
                 maxHeight: window.matchMedia?.('(max-width: 1024px)')?.matches ? '40vh' : (expanded !== false ? '600px' : '400px'),
@@ -287,7 +287,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               <button
                 type="submit"
                 disabled={isLoading || !problemText.trim()}
-                className="px-5 py-2.5 text-sm font-semibold text-gray-900 rounded-xl bg-gradient-to-r from-brand-400 to-brand-500 hover:from-brand-500 hover:to-brand-600 shadow-lg shadow-brand-400/25 hover:shadow-brand-400/40 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-brand-400/25 transition-all duration-200 hover:-translate-y-0.5 disabled:hover:translate-y-0 touch:min-h-[44px]"
+                className="px-5 py-2.5 text-sm font-semibold text-white rounded bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-brand-400/25 transition-all duration-200 hover:-translate-y-0.5 disabled:hover:translate-y-0 touch:min-h-[44px]"
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">
@@ -310,14 +310,14 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://leetcode.com/problems/..."
-              className="w-full px-4 py-3 text-sm rounded-xl bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400/50 transition-all"
+              className="w-full px-4 py-3 text-sm rounded-lg bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400/50 transition-all"
               disabled={isLoading}
             />
             <div className="flex justify-end">
               <button
                 type="submit"
                 disabled={isLoading || !url.trim()}
-                className="px-5 py-2.5 text-sm font-semibold text-gray-900 rounded-xl bg-gradient-to-r from-brand-400 to-brand-500 hover:from-brand-500 hover:to-brand-600 shadow-lg shadow-brand-400/25 hover:shadow-brand-400/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:-translate-y-0.5 disabled:hover:translate-y-0"
+                className="px-5 py-2.5 text-sm font-semibold text-white rounded bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:-translate-y-0.5 disabled:hover:translate-y-0"
               >
                 {isLoading ? 'Fetching...' : ascendMode === 'system-design' ? 'Fetch & Design' : 'Fetch & Code'}
               </button>
@@ -328,7 +328,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
         {activeTab === 'screenshot' && (
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
             {preview ? (
-              <div className="relative rounded-xl overflow-hidden bg-white border border-gray-200" style={{ maxHeight: '300px' }}>
+              <div className="relative rounded-lg overflow-hidden bg-white border border-gray-200" style={{ maxHeight: '300px' }}>
                 <img
                   src={preview}
                   alt="Preview"
@@ -361,7 +361,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                 onDrop={handleDrop}
                 onClick={() => { setIsSelectingFile(true); fileInputRef.current?.click(); }}
                 className={`
-                  flex-1 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all py-10
+                  flex-1 rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all py-10
                   border-2 border-dashed
                   ${isDragging
                     ? 'border-brand-500 bg-brand-50 '

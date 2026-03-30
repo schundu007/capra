@@ -431,7 +431,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
   // Empty state
   if ((!explanations || explanations.length === 0) && !pitch && !hasSystemDesign && !isStreaming) {
     return (
-      <div className="h-full flex flex-col overflow-hidden bg-white rounded-xl border border-gray-200">
+      <div className="h-full flex flex-col overflow-hidden bg-white rounded-lg border border-gray-200">
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-gray-400" />
@@ -448,7 +448,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
   // Streaming state
   if (isStreaming && !pitch && (!explanations || explanations.length === 0)) {
     return (
-      <div className="h-full flex flex-col overflow-hidden bg-white rounded-xl border border-gray-200">
+      <div className="h-full flex flex-col overflow-hidden bg-white rounded-lg border border-gray-200">
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" />
@@ -468,7 +468,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
   }
 
   return (
-    <div className="h-full flex flex-col overflow-hidden bg-white rounded-xl border border-gray-200">
+    <div className="h-full flex flex-col overflow-hidden bg-white rounded-lg border border-gray-200">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
         <div className="flex items-center gap-2">
@@ -481,7 +481,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
       <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin p-3 space-y-3">
         {/* Solution Pitch - Structured format for easy verbal delivery */}
         {pitch && (
-          <div className="p-4 rounded-xl bg-brand-400/10 border border-brand-400/30 animate-fadeIn">
+          <div className="p-4 rounded-lg bg-brand-400/10 border border-brand-400/30 animate-fadeIn">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-brand-400/20">
                 <svg className="w-4 h-4 text-brand-400" fill="currentColor" viewBox="0 0 20 20">
@@ -603,7 +603,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
 
         {/* Interviewer Q&A Section */}
         {hasSolution && onFollowUpQuestion && (
-          <div className="p-4 rounded-xl bg-gray-100/30 border border-gray-200 animate-fadeIn">
+          <div className="p-4 rounded-lg bg-gray-100/30 border border-gray-200 animate-fadeIn">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-info-400/20">
@@ -647,7 +647,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
                   onClick={toggleAutoListen}
                   disabled={isProcessingFollowUp}
                   className={`
-                    px-4 py-2 text-sm font-semibold rounded-xl transition-all duration-200 flex items-center gap-2
+                    px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 flex items-center gap-2
                     ${autoListenEnabled
                       ? 'bg-gradient-to-r from-brand-400 to-brand-500 text-gray-900 shadow-lg shadow-brand-400/25 hover:shadow-brand-400/40'
                       : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
@@ -668,7 +668,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
 
             {/* Device Selector Dropdown */}
             {showDeviceSelector && (
-              <div className="mb-3 p-3 rounded-xl bg-gray-100/30 border border-gray-200">
+              <div className="mb-3 p-3 rounded-lg bg-gray-100/30 border border-gray-200">
                 <label className="text-xs font-bold text-gray-600 uppercase mb-2 block">
                   Audio Input Device
                 </label>
@@ -695,14 +695,14 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
 
             {/* Status/Error */}
             {error && (
-              <div className="mb-3 p-3 rounded-xl bg-error-900/20 border border-error-700/50 text-error-400 text-sm">
+              <div className="mb-3 p-3 rounded-lg bg-error-900/20 border border-error-700/50 text-error-400 text-sm">
                 {error}
               </div>
             )}
 
             {/* Live status */}
             {autoListenEnabled && (
-              <div className="mb-3 p-3 rounded-xl bg-info-900/20 border-2 border-info-700/50">
+              <div className="mb-3 p-3 rounded-lg bg-info-900/20 border-2 border-info-700/50">
                 <div className="flex items-center gap-3">
                   <div className={`w-3 h-3 rounded-full ${getStatusColor()}`} />
                   <span className="text-sm text-gray-900 font-medium flex-1">
@@ -735,7 +735,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
             {qaHistory.length > 0 && (
               <div className="space-y-3">
                 {[...qaHistory].reverse().map((qa, i) => (
-                  <div key={i} className="p-3 rounded-xl bg-gray-100/30 border border-gray-200 animate-fadeIn">
+                  <div key={i} className="p-3 rounded-lg bg-gray-100/30 border border-gray-200 animate-fadeIn">
                     <div className="mb-2">
                       <div className="flex items-center gap-1.5 mb-1">
                         <span className="w-5 h-5 rounded-md flex items-center justify-center text-xs font-bold bg-info-900/30 text-info-400">Q</span>
@@ -766,7 +766,7 @@ export default function ExplanationPanel({ explanations, highlightedLine, pitch,
 
         {/* Line-by-line Explanations */}
         {explanations && explanations.length > 0 && (
-          <div className="p-4 rounded-xl bg-gray-100/30 border border-gray-200 animate-fadeIn">
+          <div className="p-4 rounded-lg bg-gray-100/30 border border-gray-200 animate-fadeIn">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-gray-200/50">
                 <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

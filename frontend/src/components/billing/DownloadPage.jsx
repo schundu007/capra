@@ -105,7 +105,7 @@ export default function DownloadPage() {
           </p>
           <button
             onClick={() => window.location.href = '/?pricing=true'}
-            className="px-6 py-3 rounded-xl font-semibold transition-all hover:scale-105"
+            className="px-6 py-3 rounded-lg font-semibold transition-all hover:scale-105"
             style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: '#fff' }}
           >
             View Pricing
@@ -166,7 +166,7 @@ export default function DownloadPage() {
               <h3 className="text-xl font-bold text-gray-900 mb-2">{recommended.label}</h3>
               <p className="text-gray-400 text-sm mb-4">{recommended.size}</p>
               <button
-                className="px-8 py-3 rounded-xl font-semibold text-lg transition-all"
+                className="px-8 py-3 rounded-lg font-semibold text-lg transition-all"
                 style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: '#fff' }}
               >
                 <span className="flex items-center gap-2">
@@ -184,11 +184,11 @@ export default function DownloadPage() {
           <div className="grid md:grid-cols-3 gap-4">
             {/* Mac Apple Silicon */}
             <div
-              className="p-6 rounded-xl cursor-pointer transition-all hover:scale-[1.02]"
+              className="p-6 rounded-lg cursor-pointer transition-all hover:scale-[1.02]"
               style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)' }}
               onClick={() => handleDownload(downloads.mac.arm64.url)}
             >
-              <div className="w-12 h-12 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
+              <div className="w-12 h-12 rounded-lg mb-3 flex items-center justify-center" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
                 <Icon name="apple" size={24} className="text-gray-400" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-1">{downloads.mac.arm64.label}</h3>
@@ -201,11 +201,11 @@ export default function DownloadPage() {
 
             {/* Mac Intel */}
             <div
-              className="p-6 rounded-xl cursor-pointer transition-all hover:scale-[1.02]"
+              className="p-6 rounded-lg cursor-pointer transition-all hover:scale-[1.02]"
               style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)' }}
               onClick={() => handleDownload(downloads.mac.x64.url)}
             >
-              <div className="w-12 h-12 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
+              <div className="w-12 h-12 rounded-lg mb-3 flex items-center justify-center" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
                 <Icon name="apple" size={24} className="text-gray-400" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-1">{downloads.mac.x64.label}</h3>
@@ -218,11 +218,11 @@ export default function DownloadPage() {
 
             {/* Windows */}
             <div
-              className="p-6 rounded-xl cursor-pointer transition-all hover:scale-[1.02]"
+              className="p-6 rounded-lg cursor-pointer transition-all hover:scale-[1.02]"
               style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)' }}
               onClick={() => handleDownload(downloads.windows.x64.url)}
             >
-              <div className="w-12 h-12 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
+              <div className="w-12 h-12 rounded-lg mb-3 flex items-center justify-center" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
                 <Icon name="terminal" size={24} className="text-gray-400" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-1">{downloads.windows.x64.label}</h3>
@@ -266,7 +266,7 @@ export default function DownloadPage() {
         </div>
 
         {/* API Keys Notice */}
-        <div className="mt-6 p-4 rounded-xl" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+        <div className="mt-6 p-4 rounded-lg" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
           <div className="flex items-start gap-3">
             <Icon name="info" size={20} className="text-blue-400 mt-0.5" />
             <div>

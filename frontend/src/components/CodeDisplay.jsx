@@ -314,7 +314,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
   // DESIGN MODE: Show only system design content
   if (isDesignMode) {
     return (
-      <div className="h-full flex flex-col bg-white rounded-xl border border-gray-200">
+      <div className="h-full flex flex-col bg-white rounded-lg border border-gray-200">
         {/* Header for Design Mode */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
           <div className="flex items-center gap-2">
@@ -360,7 +360,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
   // Empty state for coding mode
   if (!code && !isStreaming) {
     return (
-      <div className="h-full flex flex-col bg-white rounded-xl border border-gray-200">
+      <div className="h-full flex flex-col bg-white rounded-lg border border-gray-200">
         <div className="flex items-center justify-between px-2 sm:px-4 py-2 sm:py-3 border-b border-gray-200 bg-gray-50 gap-2" style={{ minHeight: '44px' }}>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-gray-400" />
@@ -382,7 +382,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
   // Streaming state for coding mode
   if (isStreaming && !code) {
     return (
-      <div className="h-full flex flex-col bg-white rounded-xl border border-gray-200">
+      <div className="h-full flex flex-col bg-white rounded-lg border border-gray-200">
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-brand-400" />
@@ -403,7 +403,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
 
   // CODING MODE: Full code display with all features
   return (
-    <div className="h-full flex flex-col bg-white rounded-xl border border-gray-200">
+    <div className="h-full flex flex-col bg-white rounded-lg border border-gray-200">
       {/* Header - CoderPad style with Run button */}
       <div className="flex items-center justify-between px-2 sm:px-4 py-2 sm:py-3 border-b border-gray-200 bg-gray-50 gap-2" style={{ minHeight: '44px' }}>
         <div className="flex items-center gap-3">
@@ -413,19 +413,19 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
             disabled={running || !canRun}
             className={`flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${running ? 'running' : ''}`}
             style={{
-              background: running ? '#334155' : 'linear-gradient(135deg, #2dd4bf 0%, #14b8a6 100%)',
+              background: running ? '#334155' : '#10b981',
               color: 'white',
-              boxShadow: running ? 'none' : '0 2px 6px rgba(45, 212, 191, 0.25)',
+              boxShadow: running ? 'none' : '0 2px 6px rgba(16, 185, 129, 0.25)',
               cursor: running || !canRun ? 'not-allowed' : 'pointer',
             }}
             onMouseEnter={(e) => {
               if (!running && canRun) {
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(45, 212, 191, 0.35)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.35)';
                 e.currentTarget.style.transform = 'translateY(-1px)';
               }
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = running ? 'none' : '0 2px 6px rgba(45, 212, 191, 0.25)';
+              e.currentTarget.style.boxShadow = running ? 'none' : '0 2px 6px rgba(16, 185, 129, 0.25)';
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
@@ -456,8 +456,8 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
             onClick={handleCopy}
             className="px-3 py-1 text-xs font-medium rounded-md transition-all hover:bg-gray-100"
             style={{
-              color: copied ? '#2dd4bf' : '#94a3b8',
-              background: copied ? 'rgba(45, 212, 191, 0.1)' : 'transparent'
+              color: copied ? '#10b981' : '#94a3b8',
+              background: copied ? 'rgba(16, 185, 129, 0.1)' : 'transparent'
             }}
           >
             {copied ? (
@@ -528,7 +528,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
               disabled={fixing}
               className="px-3 py-1 text-xs font-semibold rounded-md transition-all border border-brand-400 text-brand-400 hover:bg-brand-400/10"
               style={{
-                background: fixing ? 'rgba(45, 212, 191, 0.1)' : 'transparent',
+                background: fixing ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
               }}
             >
               {fixing ? (
@@ -635,7 +635,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
           <pre
             className="px-3 py-1.5 text-xs font-mono overflow-auto select-text scrollbar-thin cursor-pointer bg-gray-50"
             style={{
-              color: output.success ? '#2dd4bf' : '#f87171',
+              color: output.success ? '#10b981' : '#f87171',
               height: `${outputHeight}px`,
               minHeight: '50px',
               maxHeight: '200px',
@@ -662,7 +662,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
             <div className="px-4 py-3 flex items-center justify-between border-b border-gray-200 bg-gray-50">
               <div className="flex items-center gap-3">
                 <div className={`w-2.5 h-2.5 rounded-full ${output.success ? 'bg-brand-400' : 'bg-error-400'}`}
-                     style={{ boxShadow: output.success ? '0 0 8px rgba(45, 212, 191, 0.5)' : '0 0 8px rgba(239, 68, 68, 0.5)' }} />
+                     style={{ boxShadow: output.success ? '0 0 8px rgba(16, 185, 129, 0.5)' : '0 0 8px rgba(239, 68, 68, 0.5)' }} />
                 <span className="text-sm font-semibold text-gray-900">
                   {output.success ? 'Program Output' : 'Error Output'}
                 </span>
@@ -705,7 +705,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
                 {/* Output Content */}
                 <pre
                   className="flex-1 py-3 px-4 select-text leading-5"
-                  style={{ color: output.success ? '#2dd4bf' : '#f87171' }}
+                  style={{ color: output.success ? '#10b981' : '#f87171' }}
                 >
                   {output.success ? output.output : output.error}
                 </pre>

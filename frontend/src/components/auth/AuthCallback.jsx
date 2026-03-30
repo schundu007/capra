@@ -37,7 +37,7 @@ export default function AuthCallback() {
     return (
       <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#ffffff' }}>
         <div
-          className="w-full max-w-sm p-8 rounded-xl text-center"
+          className="w-full max-w-sm p-8 rounded-lg text-center"
           style={{ background: '#f8fafc', border: '1px solid #e5e7eb' }}
         >
           <div className="mb-4">
@@ -57,7 +57,7 @@ export default function AuthCallback() {
     return (
       <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#ffffff' }}>
         <div
-          className="w-full max-w-sm p-8 rounded-xl text-center"
+          className="w-full max-w-sm p-8 rounded-lg text-center"
           style={{ background: '#f8fafc', border: '1px solid #e5e7eb' }}
         >
           <div className="mb-4">
@@ -83,7 +83,7 @@ export default function AuthCallback() {
     return (
       <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#ffffff' }}>
         <div
-          className="w-full max-w-sm p-8 rounded-xl text-center"
+          className="w-full max-w-sm p-8 rounded-lg text-center"
           style={{ background: '#f8fafc', border: '1px solid #e5e7eb' }}
         >
           <div className="mb-4">

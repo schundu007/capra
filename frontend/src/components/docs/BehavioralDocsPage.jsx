@@ -22,7 +22,7 @@ export default function BehavioralDocsPage() {
     { id: 'motivation', title: 'Motivation & Goals', icon: 'target', color: '#06b6d4', questions: 6 },
     { id: 'pressure-stress', title: 'Pressure & Stress', icon: 'zap', color: '#a855f7', questions: 8 },
     { id: 'communication', title: 'Communication', icon: 'messageCircle', color: '#ec4899', questions: 7 },
-    { id: 'adaptability', title: 'Adaptability', icon: 'refresh', color: '#14b8a6', questions: 6 },
+    { id: 'adaptability', title: 'Adaptability', icon: 'refresh', color: '#059669', questions: 6 },
     { id: 'decision-making', title: 'Decision Making', icon: 'puzzle', color: '#6366f1', questions: 8 },
   ];
 
@@ -99,7 +99,7 @@ export default function BehavioralDocsPage() {
           </div>
 
           {/* Featured Banner */}
-          <a href="#" className="block mb-8 p-5 rounded-xl transition-all hover:scale-[1.01]" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <a href="#" className="block mb-8 p-5 rounded-lg transition-all hover:scale-[1.01]" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #a855f7, #7c3aed)' }}>
@@ -112,7 +112,7 @@ export default function BehavioralDocsPage() {
           </a>
 
           {/* STAR Method */}
-          <div className="p-6 rounded-xl mb-8" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+          <div className="p-6 rounded-lg mb-8" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.02))', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
               <Icon name="star" size={20} className="text-purple-400" />
               The STAR Method
@@ -124,7 +124,7 @@ export default function BehavioralDocsPage() {
                 { letter: 'A', title: 'Action', desc: 'Explain what steps you took to address it', color: '#22c55e' },
                 { letter: 'R', title: 'Result', desc: 'Share the outcomes and what you learned', color: '#3b82f6' },
               ].map((step, i) => (
-                <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                <div key={i} className="p-4 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
                   <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3 text-xl font-bold" style={{ background: `${step.color}20`, color: step.color }}>
                     {step.letter}
                   </div>
@@ -142,7 +142,7 @@ export default function BehavioralDocsPage() {
               <a
                 key={topic.id}
                 href={`/prepare/behavioral/${topic.id}`}
-                className="group p-4 rounded-xl transition-all hover:scale-[1.02] hover:bg-white/5"
+                className="group p-4 rounded-lg transition-all hover:scale-[1.02] hover:bg-white/5"
                 style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
               >
                 <div className="flex items-start justify-between mb-3">
@@ -167,11 +167,11 @@ export default function BehavioralDocsPage() {
               <a
                 key={story.id}
                 href={`/prepare/behavioral/${story.id}`}
-                className="group p-5 rounded-xl transition-all hover:scale-[1.01] hover:bg-white/5"
+                className="group p-5 rounded-lg transition-all hover:scale-[1.01] hover:bg-white/5"
                 style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${story.color}15` }}>
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${story.color}15` }}>
                     <Icon name={story.icon} size={24} style={{ color: story.color }} />
                   </div>
                   <div className="flex-1">
@@ -193,7 +193,7 @@ export default function BehavioralDocsPage() {
           <h2 className="text-xl font-bold text-gray-900 mb-6">Quick Reference</h2>
           <div className="grid md:grid-cols-2 gap-6">
             {/* Do's */}
-            <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="p-6 rounded-lg" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
               <h3 className="text-gray-900 font-semibold mb-4 flex items-center gap-2">
                 <Icon name="check" size={18} className="text-green-400" />
                 Do's
@@ -209,7 +209,7 @@ export default function BehavioralDocsPage() {
             </div>
 
             {/* Don'ts */}
-            <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="p-6 rounded-lg" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
               <h3 className="text-gray-900 font-semibold mb-4 flex items-center gap-2">
                 <Icon name="x" size={18} className="text-red-400" />
                 Don'ts
@@ -226,7 +226,7 @@ export default function BehavioralDocsPage() {
           </div>
 
           {/* Interview Tips */}
-          <div className="mt-12 p-6 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.02))', border: '1px solid rgba(34, 197, 94, 0.2)' }}>
+          <div className="mt-12 p-6 rounded-lg" style={{ background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.02))', border: '1px solid rgba(34, 197, 94, 0.2)' }}>
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
               <Icon name="lightbulb" size={20} className="text-green-400" />
               Pro Tips for Behavioral Interviews
@@ -237,7 +237,7 @@ export default function BehavioralDocsPage() {
                 { title: 'Research the Company', desc: 'Align your stories with company values and the specific role requirements' },
                 { title: 'Practice, Don\'t Memorize', desc: 'Know your stories well enough to adapt them to different questions' },
               ].map((tip, i) => (
-                <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                <div key={i} className="p-4 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
                   <div className="text-gray-900 font-semibold mb-2">{tip.title}</div>
                   <div className="text-gray-400 text-sm">{tip.desc}</div>
                 </div>

@@ -51,7 +51,7 @@ const inputVariants = cva(
         sm: 'h-8 px-3 text-xs rounded-md',
         md: 'h-9 px-3 text-sm rounded-lg',
         lg: 'h-10 px-4 text-sm rounded-lg',
-        xl: 'h-12 px-4 text-base rounded-xl',
+        xl: 'h-12 px-4 text-base rounded-lg',
       },
       hasError: {
         true: [

@@ -190,7 +190,7 @@ const Skeleton = forwardRef(({
     title: 'h-6 rounded',
     avatar: 'w-10 h-10 rounded-full',
     thumbnail: 'w-16 h-16 rounded-lg',
-    card: 'w-full h-32 rounded-xl',
+    card: 'w-full h-32 rounded-lg',
     button: 'h-9 w-24 rounded-lg',
   };
 

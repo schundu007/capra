@@ -52,8 +52,8 @@ html {
 
 :root {
   /* ========== TYPOGRAPHY ========== */
-  --font-primary: 'Source Sans 3', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-mono: 'Source Code Pro', 'SF Mono', 'Menlo', 'Monaco', monospace;
+  --font-primary: 'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SF Mono', 'Menlo', 'Monaco', monospace;
 
   /* ========== SIMPLIFIED COLOR PALETTE ========== */
   /* Dark Base (header/sidebar) - Neutral charcoal */

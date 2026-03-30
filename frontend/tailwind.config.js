@@ -19,9 +19,9 @@ export default {
          TYPOGRAPHY
          ======================================== */
       fontFamily: {
-        sans: ['Source Sans 3', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
-        mono: ['Source Code Pro', 'SF Mono', 'Menlo', 'Monaco', 'monospace'],
-        display: ['Source Serif 4', 'Georgia', 'serif'],
+        sans: ['Work Sans', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+        mono: ['IBM Plex Mono', 'SF Mono', 'Menlo', 'Monaco', 'monospace'],
+        display: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         'xs': ['0.875rem', { lineHeight: '1.25rem' }],
@@ -39,19 +39,19 @@ export default {
          COLORS - Cariara-inspired Dark Theme
          ======================================== */
       colors: {
-        // Brand colors (Teal/Cyan - Cariara style)
+        // Brand colors (Emerald - matching landing/premium)
         brand: {
-          50: '#f0fdfa',
-          100: '#ccfbf1',
-          200: '#99f6e4',
-          300: '#5eead4',
-          400: '#2dd4bf',  // Primary accent
-          500: '#14b8a6',  // Main brand
-          600: '#0d9488',
-          700: '#0f766e',
-          800: '#115e59',
-          900: '#134e4a',
-          950: '#042f2e',
+          50: '#ecfdf5',
+          100: '#d1fae5',
+          200: '#a7f3d0',
+          300: '#6ee7b7',
+          400: '#10b981',  // Primary accent (emerald-500)
+          500: '#059669',  // Main brand (emerald-600)
+          600: '#047857',
+          700: '#065f46',
+          800: '#064e3b',
+          900: '#022c22',
+          950: '#011d13',
         },
         // Dark slate backgrounds (Cariara style)
         neutral: {

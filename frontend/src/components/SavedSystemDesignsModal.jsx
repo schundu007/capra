@@ -129,7 +129,7 @@ export default function SavedSystemDesignsModal({
             filteredSessions.map((session) => (
               <div
                 key={session.id}
-                className="group rounded-xl p-4 transition-all cursor-pointer bg-gray-100 border border-gray-200 hover:bg-gray-100 hover:border-gray-200"
+                className="group rounded-lg p-4 transition-all cursor-pointer bg-gray-100 border border-gray-200 hover:bg-gray-100 hover:border-gray-200"
                 onClick={() => {
                   onLoadSession(session.id);
                   onClose();

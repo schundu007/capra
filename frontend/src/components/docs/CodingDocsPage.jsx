@@ -22,7 +22,7 @@ export default function CodingDocsPage() {
     { id: 'heaps', title: 'Heaps', icon: 'layers', color: '#f97316', questions: 33 },
     { id: 'intervals', title: 'Intervals', icon: 'chartBar', color: '#84cc16', questions: 5 },
     { id: 'linked-lists', title: 'Linked Lists', icon: 'link', color: '#a855f7', questions: 31 },
-    { id: 'math-geometry', title: 'Math & Geometry', icon: 'puzzle', color: '#14b8a6', questions: 10 },
+    { id: 'math-geometry', title: 'Math & Geometry', icon: 'puzzle', color: '#059669', questions: 10 },
     { id: 'matrix', title: 'Matrix', icon: 'layers', color: '#6366f1', questions: 7 },
     { id: 'queues', title: 'Queues', icon: 'inbox', color: '#f43f5e', questions: 17 },
     { id: 'recursion', title: 'Recursion', icon: 'refresh', color: '#10b981', questions: 15 },
@@ -101,10 +101,10 @@ export default function CodingDocsPage() {
           </div>
 
           {/* Featured Banner */}
-          <a href="#" className="block mb-8 p-5 rounded-xl transition-all hover:scale-[1.01]" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <a href="#" className="block mb-8 p-5 rounded-lg transition-all hover:scale-[1.01]" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#10b981' }}>
                   <Icon name="ascend" size={20} className="text-gray-900" />
                 </div>
                 <span className="text-gray-900 font-medium">How to Pass Data Structures & Algorithms Interviews in 2026</span>
@@ -119,7 +119,7 @@ export default function CodingDocsPage() {
               <a
                 key={topic.id}
                 href={`/prepare/coding/${topic.id}`}
-                className="group p-4 rounded-xl transition-all hover:scale-[1.02] hover:bg-white/5"
+                className="group p-4 rounded-lg transition-all hover:scale-[1.02] hover:bg-white/5"
                 style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
               >
                 <div className="flex items-start justify-between mb-3">
@@ -142,7 +142,7 @@ export default function CodingDocsPage() {
             <h2 className="text-xl font-bold text-gray-900 mb-6">Quick Reference</h2>
             <div className="grid md:grid-cols-2 gap-6">
               {/* Time Complexity */}
-              <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className="p-6 rounded-lg" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <h3 className="text-gray-900 font-semibold mb-4 flex items-center gap-2">
                   <Icon name="clock" size={18} className="text-green-400" />
                   Time Complexity Cheat Sheet
@@ -158,7 +158,7 @@ export default function CodingDocsPage() {
               </div>
 
               {/* Data Structures */}
-              <div className="p-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className="p-6 rounded-lg" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <h3 className="text-gray-900 font-semibold mb-4 flex items-center gap-2">
                   <Icon name="database" size={18} className="text-blue-400" />
                   When to Use What

@@ -60,7 +60,7 @@ const ASCEND_COLORS = {
   primaryHover: '#059669',
   primaryLight: 'rgba(16, 185, 129, 0.15)',
   primaryBorder: 'rgba(16, 185, 129, 0.25)',
-  gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+  gradient: '#10b981',
 };
 
 // Get API URL based on environment (Electron vs Web)
@@ -408,7 +408,7 @@ export default function DocsPage({ onBack }) {
           {/* Logo */}
           <div className="p-6">
             <a href="/prepare" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105" style={{ background: '#10b981' }}>
                 <Icon name="ascend" size={22} className="text-gray-900" />
               </div>
               <div>
@@ -483,7 +483,7 @@ export default function DocsPage({ onBack }) {
               <span className="text-sm font-semibold text-gray-900">Ascend Pro</span>
             </div>
             <p className="text-sm text-gray-400 mb-3">Get AI-powered practice with real-time feedback</p>
-            <a href="/app/coding" className="block text-center py-2 rounded-lg text-sm font-medium text-gray-900 transition-all hover:opacity-90" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+            <a href="/app/coding" className="block text-center py-2 rounded-lg text-sm font-medium text-gray-900 transition-all hover:opacity-90" style={{ background: '#10b981' }}>
               Try Free
             </a>
           </div>
@@ -533,7 +533,7 @@ export default function DocsPage({ onBack }) {
                   <a
                     href="/app"
                     className="px-4 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-90"
-                    style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff' }}
+                    style={{ background: '#10b981', color: '#fff' }}
                   >
                     Start Practice
                   </a>

@@ -24,7 +24,7 @@ export default function DocsSidebar({ activePage }) {
       {/* Logo */}
       <div className="p-5">
         <a href="/app" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#10b981' }}>
             <Icon name="ascend" size={20} className="text-gray-900" />
           </div>
           <span className="text-lg font-bold text-gray-900">Ascend</span>

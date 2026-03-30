@@ -13,7 +13,7 @@ function renderMarkdown(text) {
     str = str.replace(/__(.+?)__/g, '<strong style="color: #f1f5f9; font-weight: 600;">$1</strong>');
     str = str.replace(/\*(.+?)\*/g, '<em>$1</em>');
     str = str.replace(/_(.+?)_/g, '<em>$1</em>');
-    str = str.replace(/`([^`]+)`/g, '<code style="padding: 0 3px; background: rgba(45, 212, 191, 0.15); border-radius: 2px; color: #2dd4bf; font-family: monospace; font-size: 10px;">$1</code>');
+    str = str.replace(/`([^`]+)`/g, '<code style="padding: 0 3px; background: rgba(16, 185, 129, 0.15); border-radius: 2px; color: #10b981; font-family: monospace; font-size: 10px;">$1</code>');
     return str;
   };
 
@@ -1219,7 +1219,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
       >
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded-full flex items-center justify-center" style={{
-            background: isSpeaking ? '#2dd4bf' : isRecording ? '#ef4444' : '#2dd4bf'
+            background: isSpeaking ? '#10b981' : isRecording ? '#ef4444' : '#10b981'
           }}>
             <svg className="w-2.5 h-2.5" style={{ color: '#0c1322' }} fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
@@ -1243,7 +1243,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
           <button
             onClick={() => setShowHistory(!showHistory)}
             className="p-1.5 rounded-lg transition-colors hover:bg-gray-200"
-            style={{ color: showHistory ? '#2dd4bf' : '#94a3b8' }}
+            style={{ color: showHistory ? '#10b981' : '#94a3b8' }}
             title="Conversation History"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1281,7 +1281,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
           ) : (
             <div className="space-y-3">
               {[...conversationHistory].reverse().map((entry) => (
-                <div key={entry.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden animate-fadeIn">
+                <div key={entry.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden animate-fadeIn">
                   <div className="flex items-center justify-between py-2 px-3 border-b border-gray-200 bg-gray-100">
                     <span className="text-xs font-medium text-gray-600">
                       {new Date(entry.timestamp).toLocaleString()}
@@ -1534,7 +1534,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
           {!isRecording ? (
             <button
               onClick={startRecording}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
               style={{
                 background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                 color: '#ffffff',
@@ -1566,7 +1566,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
                     className="h-full transition-all duration-75 rounded-full"
                     style={{
                       width: `${Math.min(audioLevel * 100 * 3, 100)}%`,
-                      background: isSpeaking ? 'linear-gradient(90deg, #2dd4bf, #14b8a6)' : '#64748b'
+                      background: isSpeaking ? 'linear-gradient(90deg, #10b981, #059669)' : '#64748b'
                     }}
                   />
                 </div>
@@ -1714,7 +1714,7 @@ export default function AscendAssistantPanel({ onClose, provider, model, isDedic
       {/* BlackHole Setup Modal */}
       {showBlackholeSetup && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-50 rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200">
+          <div className="bg-gray-50 rounded-lg max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200">
             <div className="sticky top-0 bg-gray-50 px-5 py-4 border-b border-gray-200 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">BlackHole Setup Guide</h2>
               <button

@@ -68,7 +68,7 @@ const LANGUAGES = [
 ];
 
 const CATEGORIES = [
-  { id: 'all', label: 'All', color: '#2dd4bf' },
+  { id: 'all', label: 'All', color: '#10b981' },
   { id: 'frontend', label: 'Frontend', color: '#3b82f6' },
   { id: 'backend', label: 'Backend', color: '#8b5cf6' },
   { id: 'mobile', label: 'Mobile', color: '#ec4899' },
@@ -138,7 +138,7 @@ export default function LanguageSelectorModal({ isOpen, onClose, selectedLanguag
         {/* Gradient Header Bar */}
         <div
           className="h-1.5"
-          style={{ background: 'linear-gradient(90deg, #2dd4bf 0%, #3b82f6 50%, #8b5cf6 100%)' }}
+          style={{ background: 'linear-gradient(90deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%)' }}
         />
 
         {/* Header */}
@@ -184,7 +184,7 @@ export default function LanguageSelectorModal({ isOpen, onClose, selectedLanguag
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Type to search..."
-            className="w-full px-4 py-2.5 text-sm rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-brand-400/30 bg-gray-200 text-gray-800 border border-gray-200 placeholder-gray-400"
+            className="w-full px-4 py-2.5 text-sm rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-brand-400/30 bg-gray-200 text-gray-800 border border-gray-200 placeholder-gray-400"
             autoFocus
           />
         </div>
@@ -198,19 +198,19 @@ export default function LanguageSelectorModal({ isOpen, onClose, selectedLanguag
               e.stopPropagation();
               handleSelect('auto');
             }}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-4 transition-all hover:bg-gray-100"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-4 transition-all hover:bg-gray-100"
             style={{
               background: selectedLanguage === 'auto'
-                ? 'linear-gradient(135deg, rgba(45, 212, 191, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)'
+                ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)'
                 : 'rgba(30, 41, 59, 0.5)',
-              border: selectedLanguage === 'auto' ? '2px solid #2dd4bf' : '1px solid rgba(100, 116, 139, 0.3)',
+              border: selectedLanguage === 'auto' ? '2px solid #10b981' : '1px solid rgba(100, 116, 139, 0.3)',
             }}
           >
             <div
-              className="w-10 h-10 flex items-center justify-center rounded-xl text-lg"
+              className="w-10 h-10 flex items-center justify-center rounded-lg text-lg"
               style={{
                 background: selectedLanguage === 'auto'
-                  ? 'linear-gradient(135deg, #2dd4bf 0%, #3b82f6 100%)'
+                  ? 'linear-gradient(135deg, #10b981 0%, #3b82f6 100%)'
                   : 'linear-gradient(135deg, #334155 0%, #475569 100%)',
               }}
             >
@@ -235,13 +235,13 @@ export default function LanguageSelectorModal({ isOpen, onClose, selectedLanguag
                   e.stopPropagation();
                   handleSelect(lang.value);
                 }}
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-all hover:bg-gray-100 group"
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left transition-all hover:bg-gray-100 group"
                 style={{
                   background: selectedLanguage === lang.value
-                    ? `linear-gradient(135deg, ${activeCategoryData?.color || '#2dd4bf'}15 0%, ${activeCategoryData?.color || '#2dd4bf'}08 100%)`
+                    ? `linear-gradient(135deg, ${activeCategoryData?.color || '#10b981'}15 0%, ${activeCategoryData?.color || '#10b981'}08 100%)`
                     : 'rgba(30, 41, 59, 0.5)',
                   border: selectedLanguage === lang.value
-                    ? `2px solid ${activeCategoryData?.color || '#2dd4bf'}`
+                    ? `2px solid ${activeCategoryData?.color || '#10b981'}`
                     : '1px solid rgba(100, 116, 139, 0.2)',
                 }}
               >
@@ -249,7 +249,7 @@ export default function LanguageSelectorModal({ isOpen, onClose, selectedLanguag
                   className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold transition-all group-hover:scale-105"
                   style={{
                     background: selectedLanguage === lang.value
-                      ? activeCategoryData?.color || '#2dd4bf'
+                      ? activeCategoryData?.color || '#10b981'
                       : '#334155',
                     color: selectedLanguage === lang.value ? '#0c1322' : '#cbd5e1',
                   }}
@@ -258,7 +258,7 @@ export default function LanguageSelectorModal({ isOpen, onClose, selectedLanguag
                 </span>
                 <span className="text-sm font-medium text-gray-800 truncate flex-1">{lang.label}</span>
                 {selectedLanguage === lang.value && (
-                  <span className="text-sm font-bold flex-shrink-0" style={{ color: activeCategoryData?.color || '#2dd4bf' }}>✓</span>
+                  <span className="text-sm font-bold flex-shrink-0" style={{ color: activeCategoryData?.color || '#10b981' }}>✓</span>
                 )}
               </button>
             ))}

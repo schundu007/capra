@@ -1226,7 +1226,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
   return (
     <div className={containerClass}>
       {/* Modal wrapper - constrains size when in modal mode */}
-      <div className={isModal ? "flex w-[90vw] h-[90vh] rounded-xl overflow-hidden shadow-2xl" : "flex w-full h-full relative"}>
+      <div className={isModal ? "flex w-[90vw] h-[90vh] rounded-lg overflow-hidden shadow-2xl" : "flex w-full h-full relative"}>
       {/* Drag bar for dedicated window - spans entire top */}
       {isDedicatedWindow && !embedded && (
         <div
@@ -1329,7 +1329,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
             {activeCompany ? (
               <button
                 onClick={() => setShowCompanyDropdown(!showCompanyDropdown)}
-                className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-colors text-left"
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors text-left"
                 style={{ background: 'var(--nav-hover)', border: '1px solid var(--nav-border)' }}
               >
                 <div className="flex items-center gap-2 min-w-0">
@@ -1365,7 +1365,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                   setShowCompanyDropdown(true);
                 }}
                 className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium"
-                style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#ffffff', boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)' }}
+                style={{ background: '#10b981', color: '#ffffff', boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)' }}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -1376,7 +1376,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
 
             {/* Dropdown Menu */}
             {showCompanyDropdown && (
-              <div className="absolute top-full left-0 right-0 mt-1 py-1 rounded-xl shadow-xl z-10 max-h-64 overflow-y-auto" style={{ background: 'var(--nav-bg-secondary)', border: '1px solid var(--nav-border)' }}>
+              <div className="absolute top-full left-0 right-0 mt-1 py-1 rounded-lg shadow-xl z-10 max-h-64 overflow-y-auto" style={{ background: 'var(--nav-bg-secondary)', border: '1px solid var(--nav-border)' }}>
                 {/* Existing Companies */}
                 {companies.map((company) => (
                   <div
@@ -1666,7 +1666,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                   disabled={isGenerating || !hasInputs || completedSections === sections.length}
                   className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all disabled:opacity-50 flex items-center justify-center gap-2 ${completedSections === sections.length ? 'completed' : ''}`}
                   style={{
-                    background: completedSections === sections.length ? '#10b981' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    background: completedSections === sections.length ? '#10b981' : '#10b981',
                     color: '#ffffff',
                     boxShadow: '0 2px 6px rgba(16, 185, 129, 0.25)',
                   }}
@@ -1843,7 +1843,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
               </div>
               <button
                 onClick={() => setShowJDPopup(false)}
-                className="w-10 h-10 rounded-xl flex items-center justify-center transition-all hover:bg-gray-100"
+                className="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:bg-gray-100"
                 style={{ color: '#9ca3af' }}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1884,7 +1884,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
                     </p>
                     <button
                       onClick={() => { setShowJDPopup(false); setActiveTab('input'); }}
-                      className="px-4 py-2 rounded-xl text-sm font-medium text-gray-900 transition-all hover:opacity-90"
+                      className="px-4 py-2 rounded-lg text-sm font-medium text-gray-900 transition-all hover:opacity-90"
                       style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' }}
                     >
                       Add Job Description

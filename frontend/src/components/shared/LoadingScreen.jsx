@@ -3,8 +3,8 @@ export default function LoadingScreen() {
     <div className="h-screen flex items-center justify-center bg-white">
       <div className="flex flex-col items-center gap-4">
         <div
-          className="w-12 h-12 rounded-xl flex items-center justify-center"
-          style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
+          className="w-12 h-12 rounded-lg flex items-center justify-center"
+          style={{ background: '#10b981' }}
         >
           <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />

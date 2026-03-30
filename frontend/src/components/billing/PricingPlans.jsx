@@ -146,7 +146,7 @@ export default function PricingPlans({ isOpen, onClose }) {
       style={{ background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)' }}
     >
       <div
-        className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-xl"
+        className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-lg"
         style={{ background: '#ffffff', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)', border: '1px solid #e5e5e5' }}
       >
         {/* Close */}

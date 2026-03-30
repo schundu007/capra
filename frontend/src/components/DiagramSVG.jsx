@@ -2723,7 +2723,7 @@ export default function DiagramSVG({ template, className = '' }) {
 
   return (
     <div
-      className={`diagram-svg p-6 rounded-xl ${className}`}
+      className={`diagram-svg p-6 rounded-lg ${className}`}
       style={{
         background: 'rgba(15, 23, 42, 0.8)',
         border: '1px solid rgba(255,255,255,0.1)',

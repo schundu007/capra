@@ -14,7 +14,7 @@ const CODING_PLATFORMS = {
 
 const PREP_PLATFORMS = {
   techprep: { name: 'TechPrep', color: '#8b5cf6', url: 'techprep.app' },
-  algomaster: { name: 'AlgoMaster', color: '#14b8a6', url: 'algomaster.io' },
+  algomaster: { name: 'AlgoMaster', color: '#059669', url: 'algomaster.io' },
   neetcode: { name: 'NeetCode', color: '#f43f5e', url: 'neetcode.io' },
   designgurus: { name: 'DesignGurus', color: '#0ea5e9', url: 'designgurus.io' },
   educative: { name: 'Educative', color: '#22c55e', url: 'educative.io' },

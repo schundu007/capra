@@ -91,7 +91,7 @@ function CodeBlock({ code, language }) {
         <Icon name={copied ? 'check' : 'copy'} size={14} />
         {copied ? 'Copied!' : 'Copy'}
       </button>
-      <pre className="bg-[#0d1117] rounded-xl p-5 overflow-x-auto border border-gray-200">
+      <pre className="bg-[#0d1117] rounded-lg p-5 overflow-x-auto border border-gray-200">
         <code className="text-sm leading-relaxed font-mono text-gray-300 whitespace-pre">
           {code}
         </code>
@@ -105,7 +105,7 @@ function CodeBlock({ code, language }) {
  */
 function ExampleBlock({ example, index }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
       <div className="px-4 py-2.5 bg-gray-800/30 border-b border-gray-200">
         <span className="text-base font-semibold text-gray-900">Example {index + 1}</span>
       </div>
@@ -140,7 +140,7 @@ function HintCard({ hint, index }) {
   const [revealed, setRevealed] = useState(false);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
       <button
         onClick={() => setRevealed(!revealed)}
         className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-gray-800/30 transition-colors"
@@ -438,7 +438,7 @@ export default function ProblemPage({ slug, onBack }) {
                         ))}
                       </div>
                     ) : problem.isDynamic ? (
-                      <div className="bg-gray-800/50 border border-gray-200 rounded-xl p-5 text-center">
+                      <div className="bg-gray-800/50 border border-gray-200 rounded-lg p-5 text-center">
                         <Icon name="externalLink" size={32} className="mx-auto mb-3 text-gray-400" />
                         <p className="text-gray-300 mb-4">
                           This problem is not in our practice database yet.
@@ -447,7 +447,7 @@ export default function ProblemPage({ slug, onBack }) {
                           href={`https://leetcode.com/problemset/?search=${encodeURIComponent(problem.name)}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-900 rounded-xl font-medium transition-colors inline-flex items-center gap-2"
+                          className="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-900 rounded-lg font-medium transition-colors inline-flex items-center gap-2"
                         >
                           <Icon name="externalLink" size={16} />
                           Find on LeetCode
@@ -502,7 +502,7 @@ export default function ProblemPage({ slug, onBack }) {
 
                     {/* Approach */}
                     {problem.approach && (
-                      <div className="bg-white rounded-xl border border-gray-200 p-5">
+                      <div className="bg-white rounded-lg border border-gray-200 p-5">
                         <h3 className="text-base font-semibold text-gray-900 mb-3">Approach</h3>
                         <div className="prose prose-invert prose-sm max-w-none">
                           {problem.approach.split('\n').map((line, i) => {
