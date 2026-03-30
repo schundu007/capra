@@ -168,15 +168,18 @@ export function useSolve({ provider, model, autoSwitch, ascendMode, designDetail
 
   const solve = useCallback(
     async (problem, language, detailLevel = 'detailed') => {
-      // Abort any previous operation
-      abort();
+      // Abort any previous operation without flashing isLoading=false
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
       abortControllerRef.current = new AbortController();
       const signal = abortControllerRef.current.signal;
 
-      // Reset state
-      reset();
+      // Reset state — set loading first to prevent flicker
       setIsLoading(true);
       setLoadingType('solve');
+      reset();
 
       try {
         streamingTextRef.current = '';
