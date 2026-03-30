@@ -985,16 +985,16 @@ export default function DocsPage({ onBack }) {
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-2">
                       {[
-                        { letter: 'S', title: 'Situation', desc: 'Set the scene. Be specific about when and where.' },
-                        { letter: 'T', title: 'Task', desc: 'Describe your responsibility. Focus on YOUR role.' },
-                        { letter: 'A', title: 'Action', desc: 'Explain specific steps you took. Use "I" not "we".' },
-                        { letter: 'R', title: 'Result', desc: 'Share outcomes. Quantify when possible.' },
+                        { letter: 'S', title: 'Situation', desc: 'Set the scene. Be specific about when and where.', color: '#3b82f6', bg: '#eff6ff' },
+                        { letter: 'T', title: 'Task', desc: 'Describe your responsibility. Focus on YOUR role.', color: '#f59e0b', bg: '#fffbeb' },
+                        { letter: 'A', title: 'Action', desc: 'Explain specific steps you took. Use "I" not "we".', color: '#10b981', bg: '#ecfdf5' },
+                        { letter: 'R', title: 'Result', desc: 'Share outcomes. Quantify when possible.', color: '#ef4444', bg: '#fef2f2' },
                       ].map((step, i) => (
-                        <div key={i} className="flex items-start gap-2 p-2 rounded" style={{ background: '#f8fafc', border: '1px solid #f0f0f0' }}>
-                          <span className="w-5 h-5 rounded flex items-center justify-center text-xs font-bold text-gray-900 bg-emerald-500 flex-shrink-0">{step.letter}</span>
+                        <div key={i} className="flex items-start gap-2 p-2 rounded" style={{ background: step.bg, borderLeft: `3px solid ${step.color}` }}>
+                          <span className="w-6 h-6 rounded flex items-center justify-center text-xs font-extrabold text-white flex-shrink-0" style={{ background: step.color }}>{step.letter}</span>
                           <div>
-                            <div className="text-sm font-bold text-gray-900">{step.title}</div>
-                            <div className="text-xs text-gray-900">{step.desc}</div>
+                            <div className="text-sm font-extrabold" style={{ color: step.color }}>{step.title}</div>
+                            <div className="text-xs text-gray-700">{step.desc}</div>
                           </div>
                         </div>
                       ))}

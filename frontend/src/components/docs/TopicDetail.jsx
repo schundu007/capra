@@ -1197,62 +1197,50 @@ export default function TopicDetail({
               </div>
               <div className="grid md:grid-cols-2 gap-2 p-3">
                 {topicDetails.keyQuestions.map((item, index) => (
-                  <div key={index} className="p-3 rounded-lg hover:bg-gray-50 transition-colors" style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
+                  <div key={index} className="p-2.5 rounded-lg hover:bg-gray-50 transition-colors" style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
                     <div className="flex items-start gap-2">
-                      <span className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ background: `${topicDetails.color}25`, color: topicDetails.color }}>
-                        Q{index + 1}
+                      <span className="w-6 h-6 rounded flex items-center justify-center text-xs font-bold flex-shrink-0" style={{ background: `${topicDetails.color}25`, color: topicDetails.color }}>
+                        {index + 1}
                       </span>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-gray-900 font-semibold text-sm mb-2">{item.question}</h4>
-                        <div className="text-gray-900 leading-relaxed">
+                        <h4 className="text-gray-900 font-semibold text-xs mb-1">{item.question}</h4>
+                        <div className="text-gray-700 leading-snug text-xs">
                           {item.answer.split('\n').map((line, i) => {
                             const trimmedLine = line.trim();
-                            // Section headers like **Present**:
+                            if (!trimmedLine) return null;
+                            // STAR keywords
+                            const starMatch = trimmedLine.match(/^(Situation|Task|Action|Result)\s*[:–—-]\s*(.*)/i);
+                            if (starMatch) {
+                              const keyword = starMatch[1].charAt(0).toUpperCase() + starMatch[1].slice(1).toLowerCase();
+                              const starColors = { Situation: '#3b82f6', Task: '#f59e0b', Action: '#10b981', Result: '#ef4444' };
+                              const sc = starColors[keyword] || topicDetails.color;
+                              return <p key={i} className="mb-1 text-xs flex items-start gap-1.5"><span className="px-1 py-0.5 rounded text-[10px] font-extrabold text-white flex-shrink-0" style={{ background: sc }}>{keyword.charAt(0)}</span><span><strong style={{ color: sc }}>{keyword}:</strong> {starMatch[2]}</span></p>;
+                            }
+                            // Section headers
                             if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**')) {
-                              return <h5 key={i} className="text-gray-900 font-semibold mt-2 mb-2 text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full" style={{ background: topicDetails.color }}></span>{trimmedLine.replace(/\*\*/g, '')}</h5>;
+                              return <h5 key={i} className="text-gray-900 font-semibold mt-1.5 mb-0.5 text-xs flex items-center gap-1.5"><span className="w-1 h-1 rounded-full" style={{ background: topicDetails.color }}></span>{trimmedLine.replace(/\*\*/g, '')}</h5>;
                             }
-                            // Lines with bold text
-                            else if (trimmedLine.includes('**')) {
+                            if (trimmedLine.includes('**')) {
                               const parts = trimmedLine.split('**');
-                              return (
-                                <p key={i} className="mb-2 text-sm leading-relaxed">
-                                  {parts.map((part, j) => j % 2 === 1 ? <strong key={j} className="text-gray-900 font-medium">{part}</strong> : <span key={j}>{part}</span>)}
-                                </p>
-                              );
+                              return <p key={i} className="mb-1 text-xs leading-snug">{parts.map((part, j) => j % 2 === 1 ? <strong key={j} className="text-gray-900 font-medium">{part}</strong> : <span key={j}>{part}</span>)}</p>;
                             }
-                            // Quoted example speech - render as styled blockquote
-                            else if (trimmedLine.startsWith('"') && trimmedLine.endsWith('"')) {
-                              const quoteContent = trimmedLine.slice(1, -1);
-                              return (
-                                <div key={i} className="my-3 pl-4 py-2 text-sm italic text-gray-900" style={{ borderLeft: `3px solid ${topicDetails.color}40` }}>
-                                  {quoteContent}
-                                </div>
-                              );
+                            if (trimmedLine.startsWith('"') && trimmedLine.endsWith('"')) {
+                              return <div key={i} className="my-1 pl-3 py-1 text-xs italic text-gray-600" style={{ borderLeft: `2px solid ${topicDetails.color}40` }}>{trimmedLine.slice(1, -1)}</div>;
                             }
-                            // Inline quotes within the line
-                            else if (trimmedLine.includes('"') && /^[^"]*"[^"]{10,}"/.test(trimmedLine)) {
-                              const rendered = trimmedLine.replace(/"([^"]{10,})"/g, (_, content) => `<em>${content}</em>`);
-                              return (
-                                <p key={i} className="mb-2 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: rendered.replace(/<em>/g, '<em class="text-gray-900 italic">') }} />
-                              );
+                            if (trimmedLine.startsWith('✅') || trimmedLine.startsWith('❌')) {
+                              return <p key={i} className="mb-0.5 text-xs flex items-start gap-1.5"><span className="flex-shrink-0">{trimmedLine.substring(0, 2)}</span><span>{trimmedLine.substring(2)}</span></p>;
                             }
-                            else if (trimmedLine.startsWith('✅') || trimmedLine.startsWith('❌')) {
-                              return <p key={i} className="mb-2 text-sm flex items-start gap-2"><span className="flex-shrink-0">{trimmedLine.substring(0, 2)}</span><span>{trimmedLine.substring(2)}</span></p>;
-                            }
-                            else if (/^\d+\./.test(trimmedLine)) {
+                            if (/^\d+\./.test(trimmedLine)) {
                               const num = trimmedLine.match(/^(\d+)\./)[1];
-                              return <p key={i} className="mb-2 text-sm flex items-start gap-2"><span className="w-5 h-5 rounded-full flex items-center justify-center text-sm flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>{num}</span><span>{trimmedLine.replace(/^\d+\.\s*/, '')}</span></p>;
+                              return <p key={i} className="mb-0.5 text-xs flex items-start gap-1.5"><span className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0" style={{ background: `${topicDetails.color}20`, color: topicDetails.color }}>{num}</span><span>{trimmedLine.replace(/^\d+\.\s*/, '')}</span></p>;
                             }
-                            else if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('• ')) {
-                              return <p key={i} className="mb-1.5 text-sm flex items-start gap-2 ml-1"><span className="w-1 h-1 rounded-full mt-2 flex-shrink-0" style={{ background: topicDetails.color }}></span><span>{trimmedLine.substring(2)}</span></p>;
+                            if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('• ')) {
+                              return <p key={i} className="mb-0.5 text-xs flex items-start gap-1.5 ml-1"><span className="w-1 h-1 rounded-full mt-1.5 flex-shrink-0" style={{ background: topicDetails.color }}></span><span>{trimmedLine.substring(2)}</span></p>;
                             }
-                            else if (trimmedLine.toLowerCase().startsWith('example:')) {
-                              return <div key={i} className="mt-2 mb-2 p-4 rounded-lg text-sm italic" style={{ background: '#f9fafb', borderLeft: `3px solid ${topicDetails.color}` }}>{trimmedLine}</div>;
+                            if (trimmedLine.toLowerCase().startsWith('example:')) {
+                              return <div key={i} className="my-1 p-2 rounded text-xs italic" style={{ background: '#f9fafb', borderLeft: `2px solid ${topicDetails.color}` }}>{trimmedLine}</div>;
                             }
-                            else if (trimmedLine === '') {
-                              return <div key={i} className="h-2"></div>;
-                            }
-                            return <p key={i} className="mb-2 text-sm leading-relaxed">{trimmedLine}</p>;
+                            return <p key={i} className="mb-0.5 text-xs leading-snug">{trimmedLine}</p>;
                           })}
                         </div>
                       </div>
