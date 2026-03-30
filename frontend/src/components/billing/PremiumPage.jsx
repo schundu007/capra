@@ -139,22 +139,22 @@ export default function PremiumPage() {
       </nav>
 
       {/* Hero */}
-      <section className="flex flex-col items-center justify-center text-center px-6 pt-16 pb-12 md:pt-24 md:pb-16">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 border border-emerald-200 bg-emerald-50 rounded-full mb-8">
+      <section className="flex flex-col items-center justify-center text-center px-6 pt-10 pb-8 md:pt-14 md:pb-10">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 border border-emerald-200 bg-emerald-50 rounded-full mb-4">
           <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
           <span className="text-xs premium-mono text-emerald-700 tracking-wide">Premium Plans</span>
         </div>
 
-        <h1 className="premium-display font-extrabold leading-tight tracking-tight max-w-3xl">
+        <h1 className="premium-display font-extrabold leading-tight tracking-tight max-w-3xl sm:whitespace-nowrap">
           <span className="text-3xl md:text-4xl lg:text-5xl text-gray-900">Ace Your Next </span>
           <span className="text-3xl md:text-4xl lg:text-5xl bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Technical Interview</span>
         </h1>
 
-        <p className="mt-6 text-base md:text-lg text-gray-500 max-w-2xl leading-relaxed premium-body">
+        <p className="mt-3 text-base text-gray-500 max-w-2xl leading-relaxed premium-body">
           Choose a plan and start preparing with AI-powered tools for coding, system design, and behavioral interviews.
         </p>
 
-        <button onClick={() => scrollTo('plans')} className="mt-6 px-8 py-3 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors shadow-sm premium-body">
+        <button onClick={() => scrollTo('plans')} className="mt-4 px-8 py-2.5 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors shadow-sm premium-body">
           View Plans
         </button>
       </section>
@@ -163,11 +163,11 @@ export default function PremiumPage() {
       <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent" />
 
       {/* Pricing Cards */}
-      <section id="plans" className="px-6 md:px-12 py-16 md:py-20 bg-gray-50/50">
+      <section id="plans" className="px-6 md:px-12 py-8 md:py-10 bg-gray-50/50">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-5">
             <span className="premium-mono text-xs text-emerald-600 tracking-widest uppercase">Pricing</span>
-            <h2 className="premium-display font-bold text-2xl md:text-3xl mt-2 tracking-tight text-gray-900">
+            <h2 className="premium-display font-bold text-2xl md:text-3xl mt-1 tracking-tight text-gray-900 sm:whitespace-nowrap">
               Simple Plans. <span className="text-gray-400">No Surprises.</span>
             </h2>
           </div>
@@ -188,11 +188,11 @@ export default function PremiumPage() {
             </div>
           )}
 
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-3 gap-2.5">
             {plans.map((plan) => {
               const isFeatured = plan.id === 'quarterly_pro';
               return (
-                <div key={plan.id} className={`relative p-6 border rounded-lg bg-white flex flex-col transition-all hover:shadow-sm ${isFeatured ? 'border-emerald-300 ring-1 ring-emerald-200' : 'border-gray-200'}`}>
+                <div key={plan.id} className={`relative p-4 border rounded-lg bg-white flex flex-col transition-all hover:shadow-sm ${isFeatured ? 'border-emerald-300 ring-1 ring-emerald-200' : 'border-gray-200'}`}>
                   {plan.badge && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                       <span className="px-3 py-1 text-[10px] font-bold premium-mono uppercase tracking-wider rounded-full text-white" style={{ background: plan.color }}>
@@ -201,23 +201,23 @@ export default function PremiumPage() {
                     </div>
                   )}
 
-                  <div className="text-center mb-4">
-                    <div className={`w-10 h-10 border border-${plan.colorName}-200 bg-${plan.colorName}-50 rounded flex items-center justify-center mx-auto mb-3`}>
-                      <Icon name={plan.icon} size={18} style={{ color: plan.color }} />
+                  <div className="text-center mb-2">
+                    <div className={`w-8 h-8 border border-${plan.colorName}-200 bg-${plan.colorName}-50 rounded flex items-center justify-center mx-auto mb-2`}>
+                      <Icon name={plan.icon} size={16} style={{ color: plan.color }} />
                     </div>
-                    <h3 className="premium-display font-bold text-lg text-gray-900">{plan.name}</h3>
-                    <p className="text-xs text-gray-400 premium-mono mt-0.5">{plan.period}</p>
+                    <h3 className="premium-display font-bold text-base text-gray-900">{plan.name}</h3>
+                    <p className="text-[10px] text-gray-400 premium-mono">{plan.period}</p>
                   </div>
 
-                  <div className="text-center mb-4">
-                    <div className="flex items-baseline gap-2 justify-center">
+                  <div className="text-center mb-3">
+                    <div className="flex items-baseline gap-1.5 justify-center">
                       {plan.originalPrice && (
-                        <span className="text-xl text-gray-400 line-through">${plan.originalPrice}</span>
+                        <span className="text-lg text-gray-400 line-through">${plan.originalPrice}</span>
                       )}
-                      <span className="text-4xl font-extrabold text-gray-900 premium-display">${plan.price}</span>
+                      <span className="text-3xl font-extrabold text-gray-900 premium-display">${plan.price}</span>
                     </div>
                     {plan.savings && (
-                      <span className="inline-block mt-2 px-3 py-1 text-[10px] font-bold premium-mono uppercase tracking-wider rounded-full" style={{ background: `${plan.color}15`, color: plan.color }}>
+                      <span className="inline-block mt-1 px-2.5 py-0.5 text-[10px] font-bold premium-mono uppercase tracking-wider rounded-full" style={{ background: `${plan.color}15`, color: plan.color }}>
                         {plan.savings}
                       </span>
                     )}
@@ -226,15 +226,15 @@ export default function PremiumPage() {
                   <button
                     onClick={() => handleSubscribe(plan.id)}
                     disabled={!!loading}
-                    className="w-full py-2.5 text-sm font-semibold rounded transition-colors mb-4 premium-body"
+                    className="w-full py-2 text-sm font-semibold rounded transition-colors mb-3 premium-body"
                     style={{ background: plan.color, color: '#fff' }}
                   >
                     {loading === plan.id ? <Icon name="loader" size={18} className="animate-spin mx-auto" /> : plan.cta}
                   </button>
 
-                  <ul className="space-y-2 mt-auto">
+                  <ul className="space-y-1 mt-auto">
                     {plan.features.map((feature, j) => (
-                      <li key={j} className="flex items-start gap-2 text-sm text-gray-600 premium-body">
+                      <li key={j} className="flex items-start gap-1.5 text-xs text-gray-600 premium-body">
                         <svg className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: plan.color }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
@@ -247,34 +247,36 @@ export default function PremiumPage() {
             })}
           </div>
 
-          <p className="text-center text-xs text-gray-400 premium-mono mt-6 tracking-wide">
+          <p className="text-center text-xs text-gray-400 premium-mono mt-4 tracking-wide">
             30-day money-back guarantee · Secure payment via Stripe · No auto-renewal
           </p>
         </div>
       </section>
 
       {/* What's Included */}
-      <section id="features" className="px-6 md:px-12 py-16 md:py-20">
+      <section id="features" className="px-6 md:px-12 py-8 md:py-10">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-5">
             <span className="premium-mono text-xs text-emerald-600 tracking-widest uppercase">Included</span>
-            <h2 className="premium-display font-bold text-2xl md:text-3xl mt-2 tracking-tight text-gray-900">
+            <h2 className="premium-display font-bold text-2xl md:text-3xl mt-1 tracking-tight text-gray-900 sm:whitespace-nowrap">
               Everything You Need. <span className="text-gray-400">In Every Plan.</span>
             </h2>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
             {whatsIncluded.map((item, i) => (
-              <div key={i} className="p-5 border border-gray-200 rounded-lg bg-white hover:border-gray-300 hover:shadow-sm transition-all">
-                <div className="w-9 h-9 border border-emerald-200 bg-emerald-50 rounded flex items-center justify-center mb-3">
-                  <Icon name={item.icon} size={16} className="text-emerald-500" />
+              <div key={i} className="flex items-start gap-3 p-3 border border-gray-200 rounded-lg bg-white hover:border-gray-300 hover:shadow-sm transition-all">
+                <div className="w-8 h-8 border border-emerald-200 bg-emerald-50 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Icon name={item.icon} size={14} className="text-emerald-500" />
                 </div>
-                <h3 className="premium-display font-semibold text-base mb-1 text-gray-900">{item.title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed premium-body">{item.desc}</p>
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {item.tags.map(t => (
-                    <span key={t} className="text-[10px] premium-mono px-2 py-1 border border-gray-200 text-gray-400 rounded">{t}</span>
-                  ))}
+                <div className="min-w-0">
+                  <h3 className="premium-display font-semibold text-sm text-gray-900">{item.title}</h3>
+                  <p className="text-xs text-gray-500 leading-snug premium-body">{item.desc}</p>
+                  <div className="mt-1.5 flex flex-wrap gap-1">
+                    {item.tags.map(t => (
+                      <span key={t} className="text-[10px] premium-mono px-1.5 py-0.5 border border-gray-200 text-gray-400 rounded">{t}</span>
+                    ))}
+                  </div>
                 </div>
               </div>
             ))}
@@ -283,19 +285,19 @@ export default function PremiumPage() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="px-6 md:px-12 py-16 md:py-20 bg-gray-50/50">
+      <section id="faq" className="px-6 md:px-12 py-8 md:py-10 bg-gray-50/50">
         <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-5">
             <span className="premium-mono text-xs text-emerald-600 tracking-widest uppercase">FAQ</span>
-            <h2 className="premium-display font-bold text-2xl md:text-3xl mt-2 tracking-tight text-gray-900">
+            <h2 className="premium-display font-bold text-2xl md:text-3xl mt-1 tracking-tight text-gray-900">
               Common Questions
             </h2>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {faqItems.map((faq, i) => (
               <div key={i} className={`border rounded-lg bg-white transition-all ${expandedFaq === i ? 'border-gray-300 shadow-sm' : 'border-gray-200'}`}>
-                <button onClick={() => setExpandedFaq(expandedFaq === i ? null : i)} className="w-full px-5 py-4 flex items-center justify-between text-left">
+                <button onClick={() => setExpandedFaq(expandedFaq === i ? null : i)} className="w-full px-4 py-3 flex items-center justify-between text-left">
                   <span className="text-sm font-semibold text-gray-900 pr-4 premium-body">{faq.q}</span>
                   <svg className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform duration-200 ${expandedFaq === i ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                 </button>
@@ -311,7 +313,7 @@ export default function PremiumPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-100 px-6 md:px-12 py-6">
+      <footer className="border-t border-gray-100 px-6 md:px-12 py-4">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-emerald-500 flex items-center justify-center">
