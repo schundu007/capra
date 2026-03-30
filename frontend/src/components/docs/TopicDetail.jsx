@@ -475,8 +475,8 @@ export default function TopicDetail({
         </div>
       )}
 
-      {/* System Design Topic Detail */}
-      {activePage === 'system-design' && (topicDetails.concepts || topicDetails.requirements || topicDetails.introduction || topicDetails.primitives || topicDetails.problems || topicDetails.structures || topicDetails.coreEntities || topicDetails.implementation) && (
+      {/* System Design / LLD Problem Detail */}
+      {(activePage === 'system-design' || activePage === 'low-level') && (topicDetails.concepts || topicDetails.requirements || topicDetails.functionalRequirements || topicDetails.primitives || topicDetails.problems || topicDetails.structures || topicDetails.coreEntities || topicDetails.implementation) && (
         <div className="space-y-2">
           {/* Core Concept Topics - Key Concepts badges */}
           {topicDetails.concepts && !topicDetails.introduction && (
@@ -495,8 +495,8 @@ export default function TopicDetail({
             </div>
           )}
 
-          {/* Comprehensive System Design Content (Core Concepts and Common Designs) */}
-          {(topicDetails.requirements || topicDetails.introduction) && (
+          {/* Comprehensive System Design / LLD Problem Content */}
+          {(topicDetails.requirements || topicDetails.functionalRequirements || topicDetails.introduction) && (
             <>
               {/* Introduction (Comprehensive) */}
               {topicDetails.introduction && (
@@ -1169,7 +1169,7 @@ export default function TopicDetail({
       )}
 
       {/* Behavioral Topic Detail */}
-      {(activePage === 'behavioral' || activePage === 'low-level') && (topicDetails.sampleQuestions || topicDetails.starExample || topicDetails.introduction || topicDetails.keyQuestions) && (
+      {(activePage === 'behavioral' || (activePage === 'low-level' && !topicDetails.coreEntities && !topicDetails.implementation && !topicDetails.functionalRequirements)) && (topicDetails.sampleQuestions || topicDetails.starExample || topicDetails.introduction || topicDetails.keyQuestions) && (
         <div className="space-y-4">
           {/* Introduction */}
           {topicDetails.introduction && (() => {
