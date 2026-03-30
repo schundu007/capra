@@ -353,8 +353,8 @@ export default function MainApp() {
   // Extension SSE Listener
   // ---------------------------------------------------------------------------
   useEffect(() => {
-    // Skip extension SSE in Electron — not needed
-    if (isElectron) return;
+    // Extension SSE disabled — only useful with Chrome extension installed
+    return;
     let eventSource = null;
     let reconnectTimeout = null;
     let reconnectAttempts = 0;
