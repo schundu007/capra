@@ -95,6 +95,7 @@ export const schemas = {
     problem: Joi.string().allow('', null).max(50000),
     code: Joi.string().allow('', null).max(100000),
     pitch: Joi.string().allow('', null).max(10000),
+    context: Joi.string().allow('', null).max(10000),
     currentDesign: Joi.object().allow(null),
     provider: Joi.string().valid('claude', 'openai').default('claude'),
     model: Joi.string().allow('', null),

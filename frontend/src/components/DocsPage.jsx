@@ -136,6 +136,7 @@ export default function DocsPage({ onBack }) {
   const setSelectedTopic = (topic) => {
     setSelectedTopicState(topic);
     if (topic) {
+      setDocsSidebarOpen(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
