@@ -23,7 +23,7 @@ export default function OAuthLogin() {
   const navLinks = [
     { label: 'Preparation', href: '/prepare' },
     { label: 'Practice', href: '/app/coding' },
-    { label: 'Attend', href: 'https://lumora.cariara.com/dashboard' },
+    { label: 'Attend', href: 'https://lumora.cariara.com/app' },
     { label: 'Pricing', href: '/premium' },
   ];
 
@@ -205,7 +205,7 @@ export default function OAuthLogin() {
             {[
               { label: 'Preparation', href: '/prepare' },
               { label: 'Practice', href: '/app/coding' },
-              { label: 'Attend', href: 'https://lumora.cariara.com/dashboard' },
+              { label: 'Attend', href: 'https://lumora.cariara.com/app' },
               { label: 'Pricing', href: '/premium' },
               { label: 'Support', href: 'mailto:support@cariara.com' },
             ].map((link) => (

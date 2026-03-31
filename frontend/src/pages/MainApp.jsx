@@ -1042,7 +1042,7 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
           {[
             { label: 'Preparation', href: '/prepare' },
             { label: 'Practice', href: '/app/coding' },
-            { label: 'Attend', href: 'https://lumora.cariara.com/dashboard' },
+            { label: 'Attend', href: 'https://lumora.cariara.com/app' },
             { label: 'Pricing', href: '/premium' },
             { label: 'Support', href: 'mailto:support@cariara.com' },
           ].map((link) => (
