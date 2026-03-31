@@ -145,7 +145,7 @@ export default function PremiumPage() {
           <span className="text-xs landing-mono text-emerald-700 tracking-wide">Premium Plans</span>
         </div>
 
-        <h1 className="landing-display font-extrabold leading-tight tracking-tight max-w-3xl sm:whitespace-nowrap">
+        <h1 className="landing-display font-extrabold leading-tight tracking-tight max-w-3xl ">
           <span className="text-3xl md:text-4xl lg:text-5xl text-gray-900">Ace Your Next </span>
           <span className="text-3xl md:text-4xl lg:text-5xl bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Technical Interview</span>
         </h1>
@@ -167,7 +167,7 @@ export default function PremiumPage() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-5">
             <span className="landing-mono text-xs text-emerald-600 tracking-widest uppercase">Pricing</span>
-            <h2 className="landing-display font-bold text-2xl md:text-3xl mt-1 tracking-tight text-gray-900 sm:whitespace-nowrap">
+            <h2 className="landing-display font-bold text-2xl md:text-3xl mt-1 tracking-tight text-gray-900 ">
               Simple Plans. <span className="text-gray-400">No Surprises.</span>
             </h2>
           </div>
@@ -256,7 +256,7 @@ export default function PremiumPage() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-5">
             <span className="landing-mono text-xs text-emerald-600 tracking-widest uppercase">Included</span>
-            <h2 className="landing-display font-bold text-2xl md:text-3xl mt-1 tracking-tight text-gray-900 sm:whitespace-nowrap">
+            <h2 className="landing-display font-bold text-2xl md:text-3xl mt-1 tracking-tight text-gray-900 ">
               Everything You Need. <span className="text-gray-400">In Every Plan.</span>
             </h2>
           </div>

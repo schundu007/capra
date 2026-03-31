@@ -81,7 +81,7 @@ export default function OAuthLogin() {
           <span className="text-xs landing-mono text-emerald-700 tracking-wide">AI-Powered Interview Prep</span>
         </div>
 
-        <h1 className={`landing-display font-extrabold leading-tight tracking-tight max-w-4xl transition-all duration-700 delay-100 sm:whitespace-nowrap ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+        <h1 className={`landing-display font-extrabold leading-tight tracking-tight max-w-4xl transition-all duration-700 delay-100 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
           <span className="text-3xl md:text-4xl lg:text-5xl text-gray-900">Your Winning Edge in </span>
           <span className="text-3xl md:text-4xl lg:text-5xl bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Every Interview</span>
         </h1>
@@ -106,7 +106,7 @@ export default function OAuthLogin() {
       {/* Journey Highlighter */}
       <section className="px-6 md:px-12 py-10">
         <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
               { label: 'Apply', href: 'https://jobs.cariara.com', icon: 'briefcase', desc: 'Find your role', gradient: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', border: '#6ee7b7', badge: '#059669', iconColor: '#059669', glow: '0 0 20px #6ee7b740, 0 0 40px #6ee7b720' },
               { label: 'Prepare', href: '/prepare', icon: 'book', desc: 'Study & review', gradient: 'linear-gradient(135deg, #ecfeff 0%, #cffafe 100%)', border: '#67e8f9', badge: '#0891b2', iconColor: '#0891b2', glow: '0 0 20px #67e8f940, 0 0 40px #67e8f920' },
@@ -188,7 +188,7 @@ export default function OAuthLogin() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             {[
               { step: '01', title: 'Drop Your Problem In', desc: 'Text, screenshot, or LeetCode URL. Paste, snap, or speak it.', color: 'text-emerald-200' },
               { step: '02', title: 'AI Generates', desc: 'Code, explanations, diagrams, and edge cases in seconds.', color: 'text-cyan-200' },

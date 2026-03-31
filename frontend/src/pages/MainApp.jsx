@@ -1043,7 +1043,7 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
           </button>
         </div>
       ) : (
-        <div className="flex items-center gap-4" style={{ WebkitAppRegion: 'no-drag' }}>
+        <div className="hidden lg:flex items-center gap-3" style={{ WebkitAppRegion: 'no-drag' }}>
           {[
             { label: 'Apply', href: 'https://jobs.cariara.com' },
             { label: 'Prepare', href: '/prepare' },
@@ -1053,7 +1053,7 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
           ].map((link) => {
             const isHighlighted = ['Apply', 'Prepare', 'Practice'].includes(link.label);
             return (
-              <a key={link.label} href={link.href} className={`text-sm font-semibold transition-colors ${isHighlighted ? '' : 'text-gray-500 hover:text-gray-900'}`} style={isHighlighted ? { background: 'linear-gradient(90deg, #059669, #0891b2)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' } : undefined}>
+              <a key={link.label} href={link.href} className={`text-xs font-semibold transition-colors ${isHighlighted ? '' : 'text-gray-500 hover:text-gray-900'}`} style={isHighlighted ? { background: 'linear-gradient(90deg, #059669, #0891b2)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' } : undefined}>
                 {link.label}
               </a>
             );
@@ -1328,7 +1328,7 @@ function CodingLayout({
       <div className="h-full bg-white">
         <Allotment defaultSizes={showAscendAssistant ? [50, 50] : [40, 60]}>
           {/* LEFT PANEL — Problem input + Architecture diagram */}
-          <Allotment.Pane minSize={350}>
+          <Allotment.Pane minSize={250}>
             <div className="h-full flex flex-col overflow-hidden bg-white border-r border-gray-200">
               {/* Header */}
               <div className="flex-shrink-0 border-b border-gray-200">
@@ -1382,13 +1382,13 @@ function CodingLayout({
           </Allotment.Pane>
 
           {/* RIGHT PANEL — Design details (requirements, tradeoffs, components, etc.) */}
-          <Allotment.Pane minSize={400}>
+          <Allotment.Pane minSize={300}>
             {showAscendAssistant ? (
               <Allotment defaultSizes={[60, 40]}>
-                <Allotment.Pane minSize={300}>
+                <Allotment.Pane minSize={220}>
                   <DesignPane />
                 </Allotment.Pane>
-                <Allotment.Pane minSize={300}>
+                <Allotment.Pane minSize={220}>
                   <AscendAssistantPanel onClose={onCloseAscendAssistant} provider={provider} model={model} />
                 </Allotment.Pane>
               </Allotment>
@@ -1404,16 +1404,16 @@ function CodingLayout({
   return (
     <div className="h-full bg-white">
       <Allotment defaultSizes={showAscendAssistant ? [30, 40, 30] : [30, 70]}>
-        <Allotment.Pane minSize={300}>
+        <Allotment.Pane minSize={220}>
           <ProblemPane />
         </Allotment.Pane>
-        <Allotment.Pane minSize={400}>
+        <Allotment.Pane minSize={300}>
           <div className="h-full bg-gray-50 border-l border-gray-200">
             <CodePane />
           </div>
         </Allotment.Pane>
         {showAscendAssistant && (
-          <Allotment.Pane minSize={400}>
+          <Allotment.Pane minSize={300}>
             <AscendAssistantPanel onClose={onCloseAscendAssistant} provider={provider} model={model} />
           </Allotment.Pane>
         )}
