@@ -44,11 +44,14 @@ export default function OAuthLogin() {
         </a>
 
         <div className="hidden md:flex items-center gap-6">
-          {navLinks.map((link) => (
-            <a key={link.label} href={link.href} className="text-sm text-gray-500 hover:text-gray-900 transition-colors font-medium landing-body">
-              {link.label}
-            </a>
-          ))}
+          {navLinks.map((link) => {
+            const isHighlighted = ['Apply', 'Prepare', 'Practice'].includes(link.label);
+            return (
+              <a key={link.label} href={link.href} className={`text-sm font-semibold transition-colors landing-body ${isHighlighted ? '' : 'text-gray-500 hover:text-gray-900'}`} style={isHighlighted ? { background: 'linear-gradient(90deg, #059669, #0891b2)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' } : undefined}>
+                {link.label}
+              </a>
+            );
+          })}
           <a href="/prepare" className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors landing-body">
             Get Started
           </a>

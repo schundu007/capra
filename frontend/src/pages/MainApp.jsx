@@ -1050,11 +1050,14 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
             { label: 'Practice', href: '/app/coding' },
             { label: 'Attend', href: 'https://lumora.cariara.com/app' },
             { label: 'Pricing', href: '/premium' },
-          ].map((link) => (
-            <a key={link.label} href={link.href} className="text-sm text-gray-500 hover:text-gray-900 transition-colors font-medium">
-              {link.label}
-            </a>
-          ))}
+          ].map((link) => {
+            const isHighlighted = ['Apply', 'Prepare', 'Practice'].includes(link.label);
+            return (
+              <a key={link.label} href={link.href} className={`text-sm font-semibold transition-colors ${isHighlighted ? '' : 'text-gray-500 hover:text-gray-900'}`} style={isHighlighted ? { background: 'linear-gradient(90deg, #059669, #0891b2)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' } : undefined}>
+                {link.label}
+              </a>
+            );
+          })}
         </div>
       )}
 
