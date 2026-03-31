@@ -117,22 +117,22 @@ export default function PremiumPage() {
     <div className="min-h-screen text-gray-900 overflow-hidden landing-root" style={{ background: 'linear-gradient(180deg, #fdf2f8 0%, #ede9fe 50%, #e0e7ff 100%)' }}>
 
       {/* Nav */}
-      <nav className="flex items-center justify-between px-6 md:px-12 py-4 border-b border-white/30" style={{ background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(12px)' }}>
+      <nav className="sticky top-0 z-50 flex items-center justify-between px-6 md:px-12 py-4" style={{ background: '#111827' }}>
         <a href="/" className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-emerald-500 flex items-center justify-center">
+          <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
             <Icon name="ascend" size={16} className="text-white" />
           </div>
           <div>
-            <span className="landing-display font-bold text-lg tracking-tight text-gray-900">Ascend</span>
-            <span className="block text-[10px] landing-mono uppercase tracking-[0.2em] text-emerald-600 -mt-0.5">Interview AI</span>
+            <span className="landing-display font-bold text-lg tracking-tight text-white">Ascend</span>
+            <span className="block text-[10px] landing-mono uppercase tracking-[0.2em] text-emerald-400 -mt-0.5">Interview AI</span>
           </div>
         </a>
 
         <div className="hidden md:flex items-center gap-6">
-          <button onClick={() => scrollTo('plans')} className="text-sm text-gray-500 hover:text-gray-900 transition-colors font-medium">Plans</button>
-          <button onClick={() => scrollTo('features')} className="text-sm text-gray-500 hover:text-gray-900 transition-colors font-medium">Features</button>
-          <button onClick={() => scrollTo('faq')} className="text-sm text-gray-500 hover:text-gray-900 transition-colors font-medium">FAQ</button>
-          <a href="/" className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors">
+          <button onClick={() => scrollTo('plans')} className="text-sm text-gray-400 hover:text-white transition-colors font-medium">Plans</button>
+          <button onClick={() => scrollTo('features')} className="text-sm text-gray-400 hover:text-white transition-colors font-medium">Features</button>
+          <button onClick={() => scrollTo('faq')} className="text-sm text-gray-400 hover:text-white transition-colors font-medium">FAQ</button>
+          <a href="/" className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded-lg hover:bg-emerald-400 transition-colors">
             Back to Home
           </a>
         </div>
@@ -311,25 +311,26 @@ export default function PremiumPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/30 px-6 md:px-12 py-4" style={{ background: 'rgba(255,255,255,0.5)' }}>
+      <footer className="px-6 md:px-12 py-5" style={{ background: '#111827' }}>
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-emerald-500 flex items-center justify-center">
+          <a href="/" className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-emerald-500 rounded flex items-center justify-center">
               <Icon name="ascend" size={12} className="text-white" />
             </div>
-            <span className="landing-display font-bold text-sm text-gray-900">Ascend</span>
-          </div>
+            <span className="landing-display font-bold text-sm text-white">Ascend</span>
+          </a>
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
             {[
-              { label: 'Home', href: '/' },
+              { label: 'Apply', href: 'https://jobs.cariara.com' },
+              { label: 'Prepare', href: '/prepare' },
               { label: 'Practice', href: '/app/coding' },
-              { label: 'Preparation', href: '/prepare' },
+              { label: 'Attend', href: 'https://lumora.cariara.com/app' },
               { label: 'Support', href: 'mailto:support@cariara.com' },
             ].map((link) => (
-              <a key={link.label} href={link.href} className="text-xs text-gray-400 hover:text-gray-900 transition-colors landing-body font-medium">{link.label}</a>
+              <a key={link.label} href={link.href} className="text-xs text-gray-400 hover:text-emerald-400 transition-colors landing-body font-medium">{link.label}</a>
             ))}
           </div>
-          <p className="text-xs text-gray-400 landing-mono">
+          <p className="text-xs text-gray-500 landing-mono">
             &copy; {new Date().getFullYear()} Ascend by Cariara
           </p>
         </div>

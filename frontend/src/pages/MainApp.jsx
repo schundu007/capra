@@ -993,13 +993,14 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
   // ---- Desktop Header — light theme matching landing/premium ----
   return (
     <header
-      className="flex items-center justify-between gap-4 px-5 border-b border-gray-200"
+      className="flex items-center justify-between gap-4 px-5"
       style={{
         paddingLeft: (isMacElectron && !showSidebar) ? '80px' : '20px',
         WebkitAppRegion: 'drag',
         height: '56px',
-        background: 'rgba(255,255,255,0.95)',
-        backdropFilter: 'blur(12px)',
+        background: 'rgba(255,255,255,0.85)',
+        backdropFilter: 'blur(16px)',
+        borderBottom: '1px solid rgba(0,0,0,0.06)',
       }}
     >
       <div className="flex items-center gap-6" style={{ WebkitAppRegion: 'no-drag' }}>
@@ -1012,7 +1013,7 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
             {isLoading && <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />}
           </button>
         )}
-        <div className="flex items-center gap-1 p-1 rounded-lg border border-gray-200" style={{ background: '#f1f5f9' }}>
+        <div className="flex items-center gap-0.5 p-1 rounded-xl" style={{ background: 'rgba(0,0,0,0.04)' }}>
           {[
             { id: 'coding', label: 'Coding', icon: <CodeIcon /> },
             { id: 'system-design', label: 'Design', icon: <DesignIcon /> },
@@ -1022,10 +1023,10 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
               key={mode.id}
               onClick={() => onModeChange(mode.id)}
               aria-label={`Switch to ${mode.label} mode`}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${ascendMode === mode.id ? 'text-gray-900 shadow-md' : 'text-gray-500 hover:text-gray-900 hover:bg-white'}`}
-              style={ascendMode === mode.id ? { background: '#10b981' } : {}}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${ascendMode === mode.id ? 'text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 hover:bg-white/60'}`}
+              style={ascendMode === mode.id ? { background: '#059669', boxShadow: '0 1px 3px rgba(5,150,105,0.3)' } : {}}
             >
-              <span className="w-4 h-4">{mode.icon}</span>
+              <span className="w-3.5 h-3.5">{mode.icon}</span>
               {mode.label}
             </button>
           ))}
@@ -1043,22 +1044,7 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
           </button>
         </div>
       ) : (
-        <div className="hidden lg:flex items-center gap-3" style={{ WebkitAppRegion: 'no-drag' }}>
-          {[
-            { label: 'Apply', href: 'https://jobs.cariara.com' },
-            { label: 'Prepare', href: '/prepare' },
-            { label: 'Practice', href: '/app/coding' },
-            { label: 'Attend', href: 'https://lumora.cariara.com/app' },
-            { label: 'Pricing', href: '/premium' },
-          ].map((link) => {
-            const isHighlighted = ['Apply', 'Prepare', 'Practice'].includes(link.label);
-            return (
-              <a key={link.label} href={link.href} className={`text-xs font-semibold transition-colors ${isHighlighted ? '' : 'text-gray-500 hover:text-gray-900'}`} style={isHighlighted ? { background: 'linear-gradient(90deg, #059669, #0891b2)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' } : undefined}>
-                {link.label}
-              </a>
-            );
-          })}
-        </div>
+        <div style={{ WebkitAppRegion: 'no-drag' }} />
       )}
 
       <div className="flex items-center gap-1 sm:gap-3" style={{ WebkitAppRegion: 'no-drag' }}>
