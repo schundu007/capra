@@ -431,9 +431,12 @@ export default function DocsPage({ onBack }) {
         )}
 
         {/* Left Sidebar - Navigation */}
-        {/* Mobile: only render when open (overlay). Desktop: always visible (sticky) */}
-        {(!isMobile || docsSidebarOpen) && !selectedTopic && (
-        <div className={`${isMobile ? 'fixed inset-y-0 left-0 z-50 w-72 max-w-[80vw]' : 'w-72 flex-shrink-0 h-screen sticky top-0'} flex flex-col bg-white border-r border-gray-100`}>
+        {/* Mobile: hidden by default, shown only when hamburger opens. Desktop: always sticky */}
+        <div className={`
+          hidden md:flex md:w-72 md:flex-shrink-0 md:h-screen md:sticky md:top-0
+          ${isMobile && docsSidebarOpen && !selectedTopic ? '!fixed !inset-y-0 !left-0 !z-50 !flex !w-72 !max-w-[80vw]' : ''}
+          flex-col bg-white border-r border-gray-100
+        `}>
           {/* Logo */}
           <div className="p-6">
             <a href="/" className="flex items-center gap-3 group">
@@ -510,7 +513,6 @@ export default function DocsPage({ onBack }) {
             </div>
           </div>
         </div>
-        )}
 
         {/* Main Content Area + Right Sidebar */}
         <div className="flex-1 min-h-screen flex">
