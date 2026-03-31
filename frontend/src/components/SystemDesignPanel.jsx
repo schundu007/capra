@@ -554,25 +554,32 @@ export default function SystemDesignPanel({ systemDesign, eraserDiagram, autoGen
         {!systemDesign.focusedAnswer && (
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 auto-rows-min">
 
-            {/* Row 1: Explanation (spans 8) + Scalability (spans 4) */}
+            {/* Row 1: Explanation */}
             {systemDesign.overview && (
-              <div className={`rounded p-2 bg-gray-200/30 border border-gray-200 ${hasScalability ? 'col-span-full sm:col-span-8' : 'col-span-full'}`}>
+              <div className="col-span-full rounded p-2 bg-gray-200/30 border border-gray-200">
                 <h4 className="text-xs font-semibold uppercase tracking-wide mb-1 text-gray-500">Explanation</h4>
                 <p className="text-xs text-gray-900 leading-snug">{systemDesign.overview}</p>
               </div>
             )}
             {hasScalability && (
-              <div className="col-span-full sm:col-span-4 rounded p-2 bg-gray-200/30 border border-gray-200">
-                <h4 className="text-xs font-semibold uppercase tracking-wide mb-1 text-gray-500">Scalability</h4>
-                <div className="flex flex-wrap gap-1">
-                  {systemDesign.scalability.map((item, i) => (
-                    <span key={i} className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-brand-400/10 text-brand-400 text-xs rounded border border-brand-400/30" title={item}>
-                      <svg className="w-2.5 h-2.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                      </svg>
-                      {item.length > 20 ? item.substring(0, 18) + '...' : item}
-                    </span>
-                  ))}
+              <div className="col-span-full rounded p-2 bg-gray-200/30 border border-gray-200">
+                <div className="flex items-start gap-3">
+                  <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500 whitespace-nowrap pt-0.5 flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                    Scalability
+                  </h4>
+                  <div className="flex-1 columns-2 sm:columns-3 gap-x-3 gap-y-0.5">
+                    {systemDesign.scalability.map((item, i) => (
+                      <div key={i} className="break-inside-avoid mb-0.5">
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-brand-400/10 text-brand-400 text-xs rounded border border-brand-400/30" title={item}>
+                          <span className="w-1.5 h-1.5 rounded-full bg-brand-400 flex-shrink-0" />
+                          {item}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}

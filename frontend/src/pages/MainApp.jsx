@@ -249,6 +249,7 @@ export default function MainApp() {
     solve,
     reset: resetSolve,
     abort: abortSolve,
+    setIsLoading,
     setLoadingType,
   } = useSolve({ provider, model, autoSwitch, ascendMode, designDetailLevel });
 
@@ -506,6 +507,9 @@ export default function MainApp() {
         setError(err.message);
         setErrorType('solve');
       }
+    } finally {
+      setIsLoading(false);
+      setLoadingType(null);
     }
   }, [solve, ascendMode, designDetailLevel, autoGenerateEraser, autoTestAndFix, codingHistory, systemDesignStorage]);
 

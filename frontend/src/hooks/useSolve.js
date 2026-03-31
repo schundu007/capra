@@ -206,9 +206,15 @@ export function useSolve({ provider, model, autoSwitch, ascendMode, designDetail
           setSolution(result);
         }
 
+        // IMPORTANT: Do NOT set isLoading=false here. The caller (handleSolve) owns
+        // loading state and sets it false in its own finally block AFTER setSolution().
+        // Setting it here causes a blank page because isStreaming becomes false before
+        // the solution is set. This bug has recurred 4 times — do not reintroduce it.
         return result;
       } catch (err) {
         if (err.name === 'AbortError') {
+          setIsLoading(false);
+          setLoadingType(null);
           return null;
         }
         if (err.needCredits || err.freeTrialExhausted || err.subscriptionRequired) {
@@ -218,10 +224,9 @@ export function useSolve({ provider, model, autoSwitch, ascendMode, designDetail
           setError(err.message);
           setErrorType('solve');
         }
-        throw err;
-      } finally {
         setIsLoading(false);
         setLoadingType(null);
+        throw err;
       }
     },
     [provider, model, autoSwitch, ascendMode, designDetailLevel, reset, abort]
@@ -245,6 +250,7 @@ export function useSolve({ provider, model, autoSwitch, ascendMode, designDetail
     setSolution,
     setError,
     setErrorType,
+    setIsLoading,
     setLoadingType,
     setSwitchNotification,
   };
