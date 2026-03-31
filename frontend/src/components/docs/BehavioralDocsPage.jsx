@@ -46,7 +46,7 @@ export default function BehavioralDocsPage() {
     });
 
   return (
-    <div className="min-h-screen flex" style={{ background: '#ffffff', fontFamily: "'Source Sans 3', sans-serif" }}>
+    <div className="min-h-screen flex flex-col md:flex-row" style={{ background: '#ffffff', fontFamily: "'Source Sans 3', sans-serif" }}>
       {/* Sidebar */}
       <DocsSidebar activePage="behavioral" />
 

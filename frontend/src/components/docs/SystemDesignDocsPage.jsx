@@ -81,7 +81,7 @@ export default function SystemDesignDocsPage() {
   };
 
   return (
-    <div className="min-h-screen flex bg-white landing-root">
+    <div className="min-h-screen flex flex-col md:flex-row bg-white landing-root">
       <DocsSidebar activePage="system-design" />
 
       <div className="flex-1 min-h-screen overflow-y-auto">
