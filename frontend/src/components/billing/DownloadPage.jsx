@@ -66,7 +66,7 @@ export default function DownloadPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white landing-root">
+      <div className="min-h-screen flex items-center justify-center landing-root">
         <div className="text-center">
           <Icon name="loader" size={48} className="animate-spin text-emerald-500 mx-auto mb-4" />
           <p className="text-gray-500 landing-body">Checking download access...</p>
@@ -85,7 +85,7 @@ export default function DownloadPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white landing-root">
+      <div className="min-h-screen flex items-center justify-center landing-root">
         <div className="text-center max-w-md p-8 rounded-lg border border-red-200 bg-red-50">
           <Icon name="alertTriangle" size={48} className="text-red-500 mx-auto mb-4" />
           <h2 className="landing-display text-xl font-bold text-gray-900 mb-2">Error</h2>
@@ -111,7 +111,7 @@ export default function DownloadPage() {
 
   if (!downloadInfo?.hasAccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white landing-root">
+      <div className="min-h-screen flex items-center justify-center landing-root">
         <div className="text-center max-w-md p-8 rounded-lg border border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm">
           <Icon name="lock" size={48} className="text-yellow-500 mx-auto mb-4" />
           <h2 className="landing-display text-xl font-bold text-gray-900 mb-2">Purchase Required</h2>
@@ -150,7 +150,7 @@ export default function DownloadPage() {
   const recommended = getRecommendedDownload();
 
   return (
-    <div className="min-h-screen bg-white landing-root">
+    <div className="min-h-screen landing-root" style={{ background: 'linear-gradient(180deg, #fdf2f8 0%, #ede9fe 50%, #e0e7ff 100%)' }}>
       {/* Background gradient */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute w-[600px] h-[600px] rounded-full opacity-10 blur-3xl -top-[200px] -right-[100px] bg-emerald-400" />
