@@ -104,7 +104,8 @@ const corsOptions = {
 };
 
 // Use same CORS config for both preflight and actual requests
-app.options('*', cors(corsOptions));
+// Express 5: wildcard '*' replaced with '{*path}' for path-to-regexp v8
+app.options('{*path}', cors(corsOptions));
 app.use(cors(corsOptions));
 
 // Request ID tracking
