@@ -424,13 +424,13 @@ export default function DocsPage({ onBack }) {
       />
 
       <div className="relative flex">
-        {/* Mobile sidebar overlay */}
-        {isMobile && docsSidebarOpen && (
+        {/* Mobile sidebar overlay — hidden when viewing a topic on mobile */}
+        {isMobile && docsSidebarOpen && !selectedTopic && (
           <div className="fixed inset-0 z-40 bg-black/50" onClick={() => setDocsSidebarOpen(false)} />
         )}
 
-        {/* Left Sidebar - Navigation */}
-        <div className={`${isMobile ? 'fixed inset-y-0 left-0 z-50 w-72 max-w-[80vw] transition-transform duration-300' : 'w-72 flex-shrink-0 h-screen sticky top-0'} flex flex-col bg-white border-r border-gray-100 ${isMobile && !docsSidebarOpen ? '-translate-x-full' : 'translate-x-0'}`}>
+        {/* Left Sidebar - Navigation — completely hidden on mobile when a topic is selected */}
+        <div className={`${isMobile ? (selectedTopic ? 'hidden' : 'fixed inset-y-0 left-0 z-50 w-72 max-w-[80vw] transition-transform duration-300') : 'w-72 flex-shrink-0 h-screen sticky top-0'} flex flex-col bg-white border-r border-gray-100 ${isMobile && !docsSidebarOpen ? '-translate-x-full' : 'translate-x-0'}`}>
           {/* Logo */}
           <div className="p-6">
             <a href="/" className="flex items-center gap-3 group">
@@ -514,15 +514,25 @@ export default function DocsPage({ onBack }) {
           <div className={`flex-1 min-w-0 mx-auto max-w-full ${isMobile ? 'px-3' : 'px-10'}`}>
             {/* Top Bar */}
             <div className="sticky top-0 z-20 px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2 safe-top bg-white/90 backdrop-blur-md border-b border-gray-100">
-              {/* Mobile hamburger */}
+              {/* Mobile: back button when topic selected, hamburger otherwise */}
               {isMobile && (
-                <button
-                  onClick={() => setDocsSidebarOpen(true)}
-                  className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors"
-                  aria-label="Open navigation"
-                >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                </button>
+                selectedTopic ? (
+                  <button
+                    onClick={() => setSelectedTopic(null)}
+                    className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-emerald-700 bg-emerald-50 border border-emerald-200 font-semibold text-sm transition-colors active:bg-emerald-100"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                    {pageConfig.title}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setDocsSidebarOpen(true)}
+                    className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors"
+                    aria-label="Open navigation"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                  </button>
+                )
               )}
               {/* Breadcrumb */}
               <div className="flex items-center gap-2 text-sm min-w-0 flex-1">
