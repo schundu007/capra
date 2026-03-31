@@ -29,10 +29,10 @@ export default function OAuthLogin() {
   ];
 
   return (
-    <div className="min-h-screen text-gray-900 overflow-hidden landing-root" style={{ background: 'linear-gradient(180deg, #fdf2f8 0%, #ede9fe 50%, #e0e7ff 100%)' }}>
+    <div className="min-h-screen text-gray-900 overflow-hidden landing-root" style={{ background: 'linear-gradient(180deg, #fdf2f8 0%, #ede9fe 50%, #e0e7ff 100%)', paddingTop: '64px', paddingBottom: '52px' }}>
 
       {/* Nav */}
-      <nav className="sticky top-0 z-50 flex items-center justify-between px-6 md:px-12 py-4" style={{ background: '#111827' }}>
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-4" style={{ background: '#111827' }}>
         <a href="/" className="flex items-center gap-3">
           <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
             <Icon name="ascend" size={16} className="text-white" />
@@ -221,7 +221,7 @@ export default function OAuthLogin() {
       </section>
 
       {/* Footer */}
-      <footer className="px-6 md:px-12 py-5" style={{ background: '#111827' }}>
+      <footer className="fixed bottom-0 left-0 right-0 z-50 px-6 md:px-12 py-3" style={{ background: '#111827' }}>
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
           <a href="/" className="flex items-center gap-2">
             <div className="w-6 h-6 bg-emerald-500 rounded flex items-center justify-center">
