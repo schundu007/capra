@@ -213,90 +213,99 @@ Avoid special characters (/, +, =) as they cause URL encoding issues.`
       },
 
       // ── Back-of-Envelope Estimation ──
+      // Sources: Grokking the System Design Interview (Educative), systemdesign.one, ByteByteGo
       estimation: {
         title: 'Capacity Planning',
+        assumptions: '500M new URL shortenings per month. 100:1 read-to-write ratio. Average URL record ~500 bytes. 5-year retention.',
         calculations: [
-          { label: 'New URLs/day', value: '1M', detail: 'Assume 100:1 read/write ratio' },
-          { label: 'Redirects/day', value: '100M', detail: '1M × 100 read/write ratio' },
-          { label: 'Redirects/sec (avg)', value: '~1,150 QPS', detail: '100M / 86,400 seconds' },
-          { label: 'Peak QPS', value: '~10K', detail: '10× average for traffic spikes' },
-          { label: 'Storage (5 years)', value: '~1.8B URLs', detail: '1M/day × 365 × 5 years' },
-          { label: 'Storage size', value: '~900 GB', detail: '1.8B × 500 bytes per record' },
-          { label: 'Cache (20% hot)', value: '~170 GB', detail: '20% of daily redirects in memory' },
+          { label: 'Write QPS', value: '~200/s', detail: '500M per month ÷ (30 × 24 × 3600) ≈ 200 writes/sec' },
+          { label: 'Read QPS', value: '~20K/s', detail: '200 writes/s × 100:1 ratio = 20,000 redirects/sec' },
+          { label: 'URLs over 5 years', value: '30 billion', detail: '500M/month × 12 × 5 = 30B total URLs stored' },
+          { label: 'Storage needed', value: '~15 TB', detail: '30B URLs × 500 bytes per record = 15 TB' },
+          { label: 'Incoming bandwidth', value: '~100 KB/s', detail: '200 writes/s × 500 bytes = 100 KB/s ingress' },
+          { label: 'Outgoing bandwidth', value: '~10 MB/s', detail: '20K reads/s × 500 bytes = 10 MB/s egress' },
+          { label: 'Cache memory (20%)', value: '~170 GB', detail: '20% of 1.7B daily requests × 500 bytes (Pareto 80/20 rule)' },
         ]
       },
 
       // ── Algorithm Approaches ──
+      // Sources: systemdesign.one, Grokking SDI, System Design Primer (Donne Martin)
       algorithmApproaches: [
         {
-          name: 'Base62 Encoding',
-          description: 'Convert auto-increment ID to Base62 (a-z, A-Z, 0-9). 7 chars = 3.5 trillion possible URLs.',
-          pros: ['Simple to implement', 'Zero collisions', 'Sequential IDs produce short codes'],
-          cons: ['Predictable — users can guess next URL', 'Single counter is a bottleneck']
+          name: 'Base62 Counter Encoding',
+          description: 'Assign each URL an auto-incrementing integer ID, then encode it as a Base62 string using characters [a-z, A-Z, 0-9]. With 7 characters: 62^7 = 3,521,614,606,208 (~3.5 trillion) possible unique short URLs. Time complexity: O(1) for fixed-length conversion.',
+          pros: ['Simple implementation — just encode an integer', 'Zero collisions — each ID is unique', 'Short codes grow predictably with usage'],
+          cons: ['Predictable — users can enumerate sequential URLs', 'Requires a centralized counter or coordination service (ZooKeeper)', 'Counter is a single point of failure without distribution']
         },
         {
-          name: 'MD5/SHA256 Hashing',
-          description: 'Hash the long URL, take first 7 characters in Base62 encoding.',
-          pros: ['Idempotent — same URL always returns same code', 'No central counter needed'],
-          cons: ['Collision possible — needs resolution strategy', 'Slightly more complex implementation']
+          name: 'MD5 Hashing + Truncation',
+          description: 'Compute MD5 hash (128 bits) of the long URL. Base62-encode the result, which gives >21 characters, then take the first 6-7 characters. MD5 is deterministic: same input always produces same output. However, truncation introduces collision risk (~1 in 62^7 per pair).',
+          pros: ['Deterministic — same long URL always maps to same short code', 'No central counter needed — stateless generation', 'Works well for deduplication of identical URLs'],
+          cons: ['Truncation causes collisions — must handle with retry + append strategy', 'MD5 produces 21+ Base62 chars, truncating to 6-7 loses entropy', 'Collision resolution adds complexity and latency on write path']
         },
         {
           name: 'Pre-generated Key Service (KGS)',
-          description: 'Pre-generate millions of unique short codes. Pop a code from the pool on each request.',
-          pros: ['Zero collision handling', 'Very fast — just a DB read', 'Horizontally scalable'],
-          cons: ['Pool management overhead', 'Key service itself is a SPOF']
+          description: 'A dedicated service pre-generates millions of unique random keys and stores them in a database. On each URL creation request, atomically pop a key from the unused pool and move it to the used pool. Keys are allocated in ranges to app servers to reduce contention.',
+          pros: ['O(1) key generation — just a database read', 'No collision handling needed — all keys are unique by design', 'App servers can cache key ranges locally for fast, independent generation'],
+          cons: ['Requires managing a separate key database and service', 'KGS itself becomes a single point of failure (mitigate with replicas)', 'If an app server dies, its unused key range is lost (acceptable at 3.5T total)']
         }
       ],
 
       // ── High-Level Architecture Layers ──
+      // Source: systemdesign.one, ByteByteGo
       architectureLayers: [
-        { name: 'Clients', description: 'Browser, mobile app, API consumers' },
-        { name: 'CDN / Edge Cache', description: 'CloudFront caches popular redirects at the edge. 80% of traffic served here with <50ms latency.' },
-        { name: 'Load Balancer (ALB L7)', description: 'Distributes traffic across stateless API servers. Path-based routing for /shorten vs /{code}.' },
-        { name: 'API Servers (Stateless)', description: 'Handle shorten + redirect. Check cache first, then DB. Horizontally scalable.' },
-        { name: 'Redis Cache Cluster', description: 'Hot short_code → long_url mappings. LRU eviction. Target 95%+ cache hit rate.' },
-        { name: 'PostgreSQL (Sharded)', description: 'Persistent storage. Consistent hash sharding by short_code. Read replicas for redirect reads.' },
-        { name: 'Kafka → Analytics Pipeline', description: 'Async click event tracking. Don\'t block redirects. Batch process to ClickHouse for dashboards.' }
+        { name: 'DNS + Smart Routing', description: 'Route users to nearest data center using weighted, latency-based, or geolocation-based DNS (e.g., AWS Route 53). Critical for global <100ms redirect latency.' },
+        { name: 'CDN (Pull-based)', description: 'Content delivery network (CloudFront/Cloudflare) caches popular redirect responses at edge locations worldwide. Serves ~80% of redirect traffic with sub-50ms latency.' },
+        { name: 'Load Balancer', description: 'Active-active L7 load balancer (ALB/Nginx) with SSL termination. Distributes traffic across stateless API servers using round-robin or least-connections algorithm.' },
+        { name: 'API Servers (Stateless)', description: 'Horizontally scalable application servers. Write path: validate input → generate short code → store mapping. Read path: cache lookup → DB fallback → 301 redirect. No server-side session state.' },
+        { name: 'Cache Layer (Redis/Memcached)', description: 'In-memory cache with LRU eviction policy. Stores hot short_code→long_url mappings. Apply Pareto principle: 20% of URLs generate 80% of traffic. TTL: 1 day. Cache-aside pattern on read miss.' },
+        { name: 'Data Store (NoSQL/SQL)', description: 'Primary persistent storage. NoSQL (Cassandra/DynamoDB) preferred for high write throughput and horizontal scaling. Alternative: PostgreSQL with consistent hash sharding. 3x replication for durability.' },
+        { name: 'Analytics Pipeline (Async)', description: 'Kafka message queue captures click events (IP, User-Agent, Referer, timestamp) asynchronously — never blocks the redirect response. Batch processing via Spark/Hadoop to data warehouse (Redshift/Snowflake) for reporting dashboards.' }
       ],
 
       // ── Deep Dive Topics ──
+      // Sources: systemdesign.one, Grokking SDI
       deepDiveTopics: [
         {
           topic: 'Caching Strategy',
-          detail: 'Use Redis with cache-aside pattern. On redirect: check Redis first (O(1) lookup). On miss: query DB, populate cache. Set TTL to 24 hours for inactive URLs. For viral URLs, extend TTL dynamically. Target 95% hit rate = only 5% of requests hit DB.'
+          detail: 'Cache-aside pattern with Redis/Memcached. On redirect: check cache first (O(1)). On miss: query DB, populate cache with TTL of 1 day. Apply 80/20 rule — cache the top 20% most-accessed URLs to serve 80% of traffic. LRU eviction when memory full. Use bloom filter before cache lookup to avoid cache thrashing on single-access URLs. For ~20K read QPS, caching reduces DB load to ~4K QPS (80% hit rate).'
         },
         {
-          topic: 'Database Scaling',
-          detail: 'Shard by consistent hash of short_code. Start with 4 shards, pre-provision for 16. Each shard has 2 read replicas. Use PgBouncer for connection pooling (10K concurrent connections). Write throughput per shard: ~125 QPS (well within PostgreSQL capacity).'
+          topic: 'Database Partitioning',
+          detail: 'Range-based partitioning (by first character) causes hot partitions — avoid it. Use consistent hashing on the short_code as partition key. This distributes data and traffic uniformly across shards. Each shard maintains read replicas with leader-follower replication. Connection pooling (PgBouncer/ProxySQL) manages thousands of concurrent connections per shard. For 15TB over 5 years, start with 4 shards (~4TB each) and pre-provision for 16.'
         },
         {
-          topic: 'Rate Limiting',
-          detail: 'Token bucket per user: 100 shortens/hour, 1000 redirects/minute per IP. Implement at API gateway level (not application). Use Redis for distributed rate limit counters. This prevents DDoS and abuse at the edge before hitting application servers.'
+          topic: 'Rate Limiting & Security',
+          detail: 'Implement rate limiting at the API gateway layer (not in application code). Token bucket algorithm: limit URL creation to N requests/minute per API key or IP. Prevents DDoS and resource abuse. Security: scan submitted URLs against blacklists for malware/phishing (VirusTotal API). Sanitize input to prevent XSS injection in custom aliases. Use JWT tokens for authenticated endpoints. Apply principle of least privilege to all service accounts.'
         },
         {
-          topic: 'Click Analytics Pipeline',
-          detail: 'Don\'t write to DB on every click — kills redirect latency. Instead: publish click event to Kafka topic → consume with Spark Streaming → aggregate hourly → write summaries to ClickHouse. Dashboard queries against ClickHouse with <100ms p99 latency.'
+          topic: 'Analytics & Monitoring',
+          detail: 'Never write analytics synchronously on the redirect path — it would double redirect latency. Instead: publish click events to Kafka with metadata (IP for geolocation, User-Agent for device detection, Referer, timestamp). Batch process with Spark Streaming → aggregate hourly → write to data warehouse (Redshift/Snowflake). Archive cold data (>3 years, based on last_visited) to S3 object storage. Monitor: QPS, cache hit ratio, p99 latency, error rate. Use centralized logging (Datadog/ELK) with sidecar agents.'
         }
       ],
 
       // ── Trade-off Decisions ──
+      // Sources: systemdesign.one, Grokking SDI
       tradeoffDecisions: [
-        { choice: '301 vs 302 Redirect', picked: '301 (Permanent)', reason: 'Browser caches redirect → reduces load on our servers. Trade-off: can\'t update target URL later without cache busting.' },
-        { choice: 'SQL vs NoSQL for primary store', picked: 'PostgreSQL (SQL)', reason: 'ACID guarantees, mature tooling, JOINs for analytics. Trade-off: harder to shard than DynamoDB, but PgBouncer + consistent hashing solve this.' },
-        { choice: 'Sync vs Async analytics', picked: 'Async (Kafka)', reason: 'Redirect latency stays < 50ms by not writing to analytics DB on every click. Trade-off: analytics lag 5-10 minutes behind real-time.' },
-        { choice: 'Custom alias handling', picked: 'Check-then-insert', reason: 'Check Redis/DB for collision before inserting custom alias. Trade-off: extra round-trip (~5ms) on write path for custom URLs.' }
+        { choice: '301 vs 302 Redirect', picked: '301 Permanent Redirect', reason: '301 tells the browser to cache the redirect — subsequent visits skip our server entirely, reducing load. Trade-off: if the target URL changes, cached 301s in browsers won\'t update. Use 302 if you need server-side click analytics on every request (but 301 + async analytics is preferred).' },
+        { choice: 'NoSQL vs SQL for URL store', picked: 'NoSQL (Cassandra/DynamoDB)', reason: 'URL shortener data is non-relational (simple key-value lookup). NoSQL provides horizontal scaling, high write throughput, and flexible schema out of the box. Trade-off: no JOINs for complex analytics queries (solve with separate analytics data warehouse). SQL (PostgreSQL) is viable with sharding but requires more operational effort.' },
+        { choice: 'Sync vs Async Analytics', picked: 'Async via Kafka', reason: 'Redirect latency must be <100ms. Synchronous DB write on every click would add 5-20ms and become a bottleneck at 20K QPS. Kafka decouples click capture from processing. Trade-off: analytics data lags 5-10 minutes behind real-time (acceptable for dashboards, not for real-time abuse detection).' },
+        { choice: 'Consistency vs Availability', picked: 'Eventual Consistency (AP)', reason: 'Per CAP theorem, URL shortener prioritizes availability (the redirect must always work) over strong consistency. A short URL created in one region may take milliseconds to propagate to another region. Trade-off: brief window where a just-created URL returns 404 in other regions (mitigated by sticky sessions or direct-to-source routing for new URLs).' }
       ],
 
       // ── Common Follow-up Interview Questions ──
+      // Sources: Grokking SDI, ByteByteGo, system-design-primer
       interviewFollowups: [
-        { question: 'How do you handle duplicate long URLs?', answer: 'Hash the long_url and check if it already exists in a secondary index. If found, return existing short code instead of generating a new one. Reduces storage by 30-40% (many URLs get shortened multiple times).' },
-        { question: 'How do you prevent abuse?', answer: 'Multi-layer defense: rate limiting per user/IP at API gateway, URL blacklist checking against VirusTotal API, CAPTCHA after repeated failures, Kafka stream monitors for velocity anomalies (user suddenly shortens 1000x normal rate = auto-suspension).' },
-        { question: 'How do you scale to 1M QPS redirects?', answer: 'CDN handles 80% of reads. Redis cluster (256 nodes) handles 19%. Only 1% hits DB. Shard DB to 64 partitions. Geographic load balancing across 3+ regions. Estimated infra cost ~$3M/month at this scale.' },
-        { question: 'What if the primary database fails?', answer: 'Automated failover via Patroni: promote strongest replica within 30 seconds. Read traffic continues from other replicas. Writes queue to Redis and replay after recovery. RTO < 60 seconds, RPO < 1 second.' },
-        { question: 'How do you handle expired URLs?', answer: 'Lazy deletion: check expire_at on redirect, return 404 if expired. Background job cleans up expired rows nightly. Never recycle short codes to avoid confusion and broken external links.' }
+        { question: 'How do you handle duplicate long URLs?', answer: 'Store an inverted index (long_url → short_code) alongside the primary mapping. Before generating a new code, check if the long URL already exists. If found, return the existing short code. This deduplication can reduce storage by 30-40% since many URLs get shortened multiple times. Trade-off: 2x storage for the inverted index, but saves on total URL count.' },
+        { question: 'How do you prevent abuse and malicious URLs?', answer: 'Multi-layer defense: (1) Rate limiting at API gateway — N shortens/minute per API key or IP using token bucket algorithm. (2) URL scanning against malware/phishing blacklists (VirusTotal, Google Safe Browsing API) before creating short URL. (3) CAPTCHA after repeated failures from same source. (4) Anomaly detection on write patterns — flag accounts with sudden 100x spike in creation rate.' },
+        { question: 'How do you clean up expired URLs?', answer: 'Two approaches combined: (1) Lazy deletion — on redirect, check expires_at timestamp; return 404 if expired. This handles expired URLs that are still accessed. (2) Background cleanup service — runs during low-traffic hours (2-5 AM), queries for expired rows, deletes in batches to avoid lock contention. Optionally archive cold data (last_visited > 3 years) to S3 object storage for cost reduction. Never recycle short codes — reuse causes broken links and confusion.' },
+        { question: 'What happens when the database is down?', answer: 'For reads (redirects): the cache layer (Redis) serves 80%+ of traffic independently. Reads that miss cache return 503 Service Unavailable until DB recovers. For writes: queue new shorten requests in Kafka and process them when DB is back (with TTL to expire stale requests). Use leader-follower replication with automated failover (e.g., Patroni for PostgreSQL, or DynamoDB global tables). Target: RTO < 60 seconds, RPO near zero with synchronous replication.' },
+        { question: 'How do you scale from 200 to 200,000 write QPS?', answer: 'Progressive scaling: (1) Vertical scaling — bigger DB instance handles up to ~5K QPS. (2) Read replicas — offload redirect reads from primary. (3) Database sharding — consistent hash on short_code across N shards (each shard handles total_QPS/N). (4) KGS with pre-allocated key ranges — eliminates coordination overhead. (5) Geographic distribution — deploy in multiple regions with local databases and cross-region async replication. At each stage, benchmark first before adding complexity.' }
       ],
 
       // ── Code Implementations ──
+      // Note: These are simplified reference implementations showing the core shortening logic.
+      // Production systems would add error handling, connection pooling, input validation, and rate limiting.
       codeExamples: {
         python: `import hashlib, string, redis
 from fastapi import FastAPI, HTTPException, Response
