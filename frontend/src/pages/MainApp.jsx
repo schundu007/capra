@@ -1038,11 +1038,18 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
           </button>
         </div>
       ) : (
-        <div className="flex items-center" style={{ WebkitAppRegion: 'no-drag' }}>
-          <button onClick={onPricingClick} className="flex items-center gap-2 px-5 py-2 rounded font-semibold text-sm text-white transition-all duration-200 hover:bg-emerald-600" style={{ background: '#10b981' }}>
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-            Download Desktop App
-          </button>
+        <div className="flex items-center gap-4" style={{ WebkitAppRegion: 'no-drag' }}>
+          {[
+            { label: 'Preparation', href: '/prepare' },
+            { label: 'Practice', href: '/app/coding' },
+            { label: 'Attend', href: 'https://lumora.cariara.com/dashboard' },
+            { label: 'Pricing', href: '/premium' },
+            { label: 'Support', href: 'mailto:support@cariara.com' },
+          ].map((link) => (
+            <a key={link.label} href={link.href} className="text-sm text-gray-500 hover:text-gray-900 transition-colors font-medium">
+              {link.label}
+            </a>
+          ))}
         </div>
       )}
 
