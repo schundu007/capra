@@ -958,6 +958,164 @@ export default function TopicDetail({
                 </div>
               )}
 
+              {/* Back-of-Envelope Estimation */}
+              {topicDetails.estimation && (
+                <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
+                  <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-violet-50">
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-violet-100">
+                      <Icon name="hash" size={16} className="text-violet-700" />
+                    </div>
+                    <h3 className="text-sm font-bold text-violet-900 landing-display">{topicDetails.estimation.title || 'Capacity Planning'}</h3>
+                  </div>
+                  <div className="p-3 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+                    {topicDetails.estimation.calculations.map((calc, i) => (
+                      <div key={i} className="text-center p-2 rounded-lg bg-violet-50/50 border border-violet-100">
+                        <div className="font-bold text-violet-700 landing-mono text-base">{calc.value}</div>
+                        <div className="text-gray-700 text-xs font-semibold mt-0.5">{calc.label}</div>
+                        <div className="text-gray-400 text-xs hidden lg:block">{calc.detail}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Algorithm Approaches */}
+              {topicDetails.algorithmApproaches && (
+                <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
+                  <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-amber-50">
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-amber-100">
+                      <Icon name="zap" size={16} className="text-amber-700" />
+                    </div>
+                    <h3 className="text-sm font-bold text-amber-900 landing-display">Algorithm Approaches</h3>
+                  </div>
+                  <div className="p-3 grid grid-cols-1 md:grid-cols-3 gap-2">
+                    {topicDetails.algorithmApproaches.map((app, i) => (
+                      <div key={i} className="p-3 rounded-lg border border-gray-200 bg-gray-50/50">
+                        <h4 className="text-sm font-bold text-gray-900 mb-1 landing-display">{i + 1}. {app.name}</h4>
+                        <p className="text-gray-500 text-xs mb-2 landing-body leading-relaxed">{app.description}</p>
+                        <div className="space-y-0.5">
+                          {app.pros.map((p, j) => <div key={`p${j}`} className="text-xs text-gray-700 landing-body"><span className="text-emerald-600 font-bold mr-1">+</span>{p}</div>)}
+                          {app.cons.map((c, j) => <div key={`c${j}`} className="text-xs text-gray-700 landing-body"><span className="text-rose-600 font-bold mr-1">-</span>{c}</div>)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Architecture Layers */}
+              {topicDetails.architectureLayers && (
+                <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
+                  <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-teal-50">
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-teal-100">
+                      <Icon name="layers" size={16} className="text-teal-700" />
+                    </div>
+                    <h3 className="text-sm font-bold text-teal-900 landing-display">Architecture Layers</h3>
+                  </div>
+                  <div className="p-3 space-y-1.5">
+                    {topicDetails.architectureLayers.map((layer, i) => (
+                      <div key={i} className="flex items-start gap-3 p-2.5 rounded-lg bg-gray-50 border border-gray-100">
+                        <span className="w-6 h-6 rounded-md bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold flex-shrink-0">{i + 1}</span>
+                        <div><span className="text-sm font-bold text-gray-900 landing-display">{layer.name}</span><span className="text-gray-500 text-sm ml-2 landing-body">{layer.description}</span></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Deep Dive Topics */}
+              {topicDetails.deepDiveTopics && (
+                <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
+                  <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-sky-50">
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-sky-100">
+                      <Icon name="search" size={16} className="text-sky-700" />
+                    </div>
+                    <h3 className="text-sm font-bold text-sky-900 landing-display">Deep Dive Topics</h3>
+                  </div>
+                  <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {topicDetails.deepDiveTopics.map((item, i) => (
+                      <div key={i} className="p-3 rounded-lg bg-sky-50/30 border border-sky-100">
+                        <h4 className="text-sm font-bold text-gray-900 mb-1 landing-display">{item.topic}</h4>
+                        <p className="text-gray-500 text-xs landing-body leading-relaxed">{item.detail}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Trade-off Decisions */}
+              {topicDetails.tradeoffDecisions && (
+                <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
+                  <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-rose-50">
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-rose-100">
+                      <Icon name="gitBranch" size={16} className="text-rose-700" />
+                    </div>
+                    <h3 className="text-sm font-bold text-rose-900 landing-display">Trade-off Decisions</h3>
+                  </div>
+                  <div className="p-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                    {topicDetails.tradeoffDecisions.map((d, i) => (
+                      <div key={i} className="p-3 rounded-lg bg-gray-50 border border-gray-200">
+                        <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                          <span className="text-xs font-bold text-amber-700 landing-mono">{d.choice}</span>
+                          <span className="text-gray-300">→</span>
+                          <span className="text-xs font-bold text-emerald-700 landing-mono">{d.picked}</span>
+                        </div>
+                        <p className="text-gray-500 text-xs landing-body leading-relaxed">{d.reason}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Interview Follow-up Questions */}
+              {topicDetails.interviewFollowups && (
+                <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
+                  <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-orange-50">
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-orange-100">
+                      <Icon name="helpCircle" size={16} className="text-orange-700" />
+                    </div>
+                    <h3 className="text-sm font-bold text-orange-900 landing-display">Common Follow-up Questions</h3>
+                  </div>
+                  <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {topicDetails.interviewFollowups.map((item, i) => (
+                      <div key={i} className="rounded-lg border border-gray-200 overflow-hidden">
+                        <div className="flex items-start gap-2 px-3 py-2 bg-orange-50/30 border-b border-orange-100">
+                          <span className="text-xs font-bold text-orange-700 landing-mono flex-shrink-0">Q{i + 1}</span>
+                          <span className="text-sm font-semibold text-gray-900 landing-display">{item.question}</span>
+                        </div>
+                        <div className="px-3 py-2 pl-7"><p className="text-gray-500 text-xs landing-body leading-relaxed">{item.answer}</p></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Code Implementations (object format with language keys) */}
+              {topicDetails.codeExamples && typeof topicDetails.codeExamples === 'object' && !Array.isArray(topicDetails.codeExamples) && (
+                <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
+                  <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-emerald-50">
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-100">
+                      <Icon name="code" size={16} className="text-emerald-700" />
+                    </div>
+                    <h3 className="text-sm font-bold text-emerald-900 landing-display">Implementation Code</h3>
+                  </div>
+                  <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {Object.entries(topicDetails.codeExamples).map(([lang, code], i) => (
+                      <div key={i} className="rounded-lg border border-gray-200 overflow-hidden">
+                        <div className="flex items-center justify-between px-3 py-1.5 bg-gray-900">
+                          <div className="flex items-center gap-2">
+                            <div className="flex gap-1"><div className="w-2 h-2 rounded-full bg-red-400" /><div className="w-2 h-2 rounded-full bg-amber-400" /><div className="w-2 h-2 rounded-full bg-emerald-400" /></div>
+                            <span className="text-xs font-bold text-gray-400 landing-mono uppercase">{lang}</span>
+                          </div>
+                          <button onClick={() => navigator.clipboard.writeText(code)} className="text-xs text-gray-500 hover:text-gray-300 px-2 py-0.5 border border-gray-700 rounded hover:border-gray-500 transition-colors landing-mono">Copy</button>
+                        </div>
+                        <pre className="p-3 bg-[#0d1117] overflow-x-auto max-h-80 overflow-y-auto"><code className="text-sm landing-mono text-gray-300 leading-relaxed whitespace-pre">{code}</code></pre>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Components & Decisions - Side by Side */}
               {(!topicDetails.introduction && topicDetails.components) || topicDetails.keyDecisions ? (
                 <div className={`grid gap-2 ${(!topicDetails.introduction && topicDetails.components) && topicDetails.keyDecisions ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>

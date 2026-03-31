@@ -204,6 +204,227 @@ Avoid special characters (/, +, =) as they cause URL encoding issues.`
         ]
       },
 
+      // ── Back-of-Envelope Estimation ──
+      estimation: {
+        title: 'Capacity Planning',
+        calculations: [
+          { label: 'New URLs/day', value: '1M', detail: 'Assume 100:1 read/write ratio' },
+          { label: 'Redirects/day', value: '100M', detail: '1M × 100 read/write ratio' },
+          { label: 'Redirects/sec (avg)', value: '~1,150 QPS', detail: '100M / 86,400 seconds' },
+          { label: 'Peak QPS', value: '~10K', detail: '10× average for traffic spikes' },
+          { label: 'Storage (5 years)', value: '~1.8B URLs', detail: '1M/day × 365 × 5 years' },
+          { label: 'Storage size', value: '~900 GB', detail: '1.8B × 500 bytes per record' },
+          { label: 'Cache (20% hot)', value: '~170 GB', detail: '20% of daily redirects in memory' },
+        ]
+      },
+
+      // ── Algorithm Approaches ──
+      algorithmApproaches: [
+        {
+          name: 'Base62 Encoding',
+          description: 'Convert auto-increment ID to Base62 (a-z, A-Z, 0-9). 7 chars = 3.5 trillion possible URLs.',
+          pros: ['Simple to implement', 'Zero collisions', 'Sequential IDs produce short codes'],
+          cons: ['Predictable — users can guess next URL', 'Single counter is a bottleneck']
+        },
+        {
+          name: 'MD5/SHA256 Hashing',
+          description: 'Hash the long URL, take first 7 characters in Base62 encoding.',
+          pros: ['Idempotent — same URL always returns same code', 'No central counter needed'],
+          cons: ['Collision possible — needs resolution strategy', 'Slightly more complex implementation']
+        },
+        {
+          name: 'Pre-generated Key Service (KGS)',
+          description: 'Pre-generate millions of unique short codes. Pop a code from the pool on each request.',
+          pros: ['Zero collision handling', 'Very fast — just a DB read', 'Horizontally scalable'],
+          cons: ['Pool management overhead', 'Key service itself is a SPOF']
+        }
+      ],
+
+      // ── High-Level Architecture Layers ──
+      architectureLayers: [
+        { name: 'Clients', description: 'Browser, mobile app, API consumers' },
+        { name: 'CDN / Edge Cache', description: 'CloudFront caches popular redirects at the edge. 80% of traffic served here with <50ms latency.' },
+        { name: 'Load Balancer (ALB L7)', description: 'Distributes traffic across stateless API servers. Path-based routing for /shorten vs /{code}.' },
+        { name: 'API Servers (Stateless)', description: 'Handle shorten + redirect. Check cache first, then DB. Horizontally scalable.' },
+        { name: 'Redis Cache Cluster', description: 'Hot short_code → long_url mappings. LRU eviction. Target 95%+ cache hit rate.' },
+        { name: 'PostgreSQL (Sharded)', description: 'Persistent storage. Consistent hash sharding by short_code. Read replicas for redirect reads.' },
+        { name: 'Kafka → Analytics Pipeline', description: 'Async click event tracking. Don\'t block redirects. Batch process to ClickHouse for dashboards.' }
+      ],
+
+      // ── Deep Dive Topics ──
+      deepDiveTopics: [
+        {
+          topic: 'Caching Strategy',
+          detail: 'Use Redis with cache-aside pattern. On redirect: check Redis first (O(1) lookup). On miss: query DB, populate cache. Set TTL to 24 hours for inactive URLs. For viral URLs, extend TTL dynamically. Target 95% hit rate = only 5% of requests hit DB.'
+        },
+        {
+          topic: 'Database Scaling',
+          detail: 'Shard by consistent hash of short_code. Start with 4 shards, pre-provision for 16. Each shard has 2 read replicas. Use PgBouncer for connection pooling (10K concurrent connections). Write throughput per shard: ~125 QPS (well within PostgreSQL capacity).'
+        },
+        {
+          topic: 'Rate Limiting',
+          detail: 'Token bucket per user: 100 shortens/hour, 1000 redirects/minute per IP. Implement at API gateway level (not application). Use Redis for distributed rate limit counters. This prevents DDoS and abuse at the edge before hitting application servers.'
+        },
+        {
+          topic: 'Click Analytics Pipeline',
+          detail: 'Don\'t write to DB on every click — kills redirect latency. Instead: publish click event to Kafka topic → consume with Spark Streaming → aggregate hourly → write summaries to ClickHouse. Dashboard queries against ClickHouse with <100ms p99 latency.'
+        }
+      ],
+
+      // ── Trade-off Decisions ──
+      tradeoffDecisions: [
+        { choice: '301 vs 302 Redirect', picked: '301 (Permanent)', reason: 'Browser caches redirect → reduces load on our servers. Trade-off: can\'t update target URL later without cache busting.' },
+        { choice: 'SQL vs NoSQL for primary store', picked: 'PostgreSQL (SQL)', reason: 'ACID guarantees, mature tooling, JOINs for analytics. Trade-off: harder to shard than DynamoDB, but PgBouncer + consistent hashing solve this.' },
+        { choice: 'Sync vs Async analytics', picked: 'Async (Kafka)', reason: 'Redirect latency stays < 50ms by not writing to analytics DB on every click. Trade-off: analytics lag 5-10 minutes behind real-time.' },
+        { choice: 'Custom alias handling', picked: 'Check-then-insert', reason: 'Check Redis/DB for collision before inserting custom alias. Trade-off: extra round-trip (~5ms) on write path for custom URLs.' }
+      ],
+
+      // ── Common Follow-up Interview Questions ──
+      interviewFollowups: [
+        { question: 'How do you handle duplicate long URLs?', answer: 'Hash the long_url and check if it already exists in a secondary index. If found, return existing short code instead of generating a new one. Reduces storage by 30-40% (many URLs get shortened multiple times).' },
+        { question: 'How do you prevent abuse?', answer: 'Multi-layer defense: rate limiting per user/IP at API gateway, URL blacklist checking against VirusTotal API, CAPTCHA after repeated failures, Kafka stream monitors for velocity anomalies (user suddenly shortens 1000x normal rate = auto-suspension).' },
+        { question: 'How do you scale to 1M QPS redirects?', answer: 'CDN handles 80% of reads. Redis cluster (256 nodes) handles 19%. Only 1% hits DB. Shard DB to 64 partitions. Geographic load balancing across 3+ regions. Estimated infra cost ~$3M/month at this scale.' },
+        { question: 'What if the primary database fails?', answer: 'Automated failover via Patroni: promote strongest replica within 30 seconds. Read traffic continues from other replicas. Writes queue to Redis and replay after recovery. RTO < 60 seconds, RPO < 1 second.' },
+        { question: 'How do you handle expired URLs?', answer: 'Lazy deletion: check expire_at on redirect, return 404 if expired. Background job cleans up expired rows nightly. Never recycle short codes to avoid confusion and broken external links.' }
+      ],
+
+      // ── Code Implementations ──
+      codeExamples: {
+        python: `import hashlib, string, redis
+from fastapi import FastAPI, HTTPException, Response
+
+app = FastAPI()
+cache = redis.Redis(host='localhost', port=6379, decode_responses=True)
+CHARS = string.ascii_letters + string.digits  # Base62
+
+def encode_base62(num: int) -> str:
+    if num == 0: return CHARS[0]
+    result = []
+    while num > 0:
+        result.append(CHARS[num % 62])
+        num //= 62
+    return ''.join(reversed(result))
+
+def generate_short_code(long_url: str) -> str:
+    hash_hex = hashlib.md5(long_url.encode()).hexdigest()
+    return encode_base62(int(hash_hex[:12], 16))[:7]
+
+@app.post("/api/v1/shorten")
+async def shorten(long_url: str):
+    existing = cache.get(f"long:{long_url}")
+    if existing: return {"short_url": f"https://short.ly/{existing}"}
+    code = generate_short_code(long_url)
+    cache.set(f"short:{code}", long_url, ex=86400*30)
+    cache.set(f"long:{long_url}", code, ex=86400*30)
+    return {"short_url": f"https://short.ly/{code}"}
+
+@app.get("/{short_code}")
+async def redirect(short_code: str):
+    long_url = cache.get(f"short:{short_code}")
+    if not long_url: raise HTTPException(404, "URL not found")
+    return Response(status_code=301, headers={"Location": long_url})`,
+
+        javascript: `const express = require('express');
+const Redis = require('ioredis');
+const crypto = require('crypto');
+const app = express();
+const redis = new Redis();
+const CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+function encodeBase62(num) {
+  let result = '';
+  while (num > 0) { result = CHARS[num % 62] + result; num = Math.floor(num / 62); }
+  return result || CHARS[0];
+}
+function generateShortCode(longUrl) {
+  const hash = crypto.createHash('md5').update(longUrl).digest('hex');
+  return encodeBase62(parseInt(hash.substring(0, 12), 16)).substring(0, 7);
+}
+
+app.post('/api/v1/shorten', express.json(), async (req, res) => {
+  const { long_url } = req.body;
+  const existing = await redis.get(\`long:\${long_url}\`);
+  if (existing) return res.json({ short_url: \`https://short.ly/\${existing}\` });
+  const code = generateShortCode(long_url);
+  await redis.set(\`short:\${code}\`, long_url, 'EX', 30 * 86400);
+  await redis.set(\`long:\${long_url}\`, code, 'EX', 30 * 86400);
+  res.json({ short_url: \`https://short.ly/\${code}\` });
+});
+
+app.get('/:code', async (req, res) => {
+  const longUrl = await redis.get(\`short:\${req.params.code}\`);
+  if (!longUrl) return res.status(404).json({ error: 'Not found' });
+  res.redirect(301, longUrl);
+});
+app.listen(3000);`,
+
+        java: `import java.security.MessageDigest;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class URLShortener {
+    private static final String CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private final ConcurrentHashMap<String, String> shortToLong = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, String> longToShort = new ConcurrentHashMap<>();
+
+    public static String encodeBase62(long num) {
+        StringBuilder sb = new StringBuilder();
+        while (num > 0) { sb.insert(0, CHARS.charAt((int)(num % 62))); num /= 62; }
+        return sb.length() == 0 ? String.valueOf(CHARS.charAt(0)) : sb.toString();
+    }
+
+    public String shorten(String longUrl) throws Exception {
+        String existing = longToShort.get(longUrl);
+        if (existing != null) return "https://short.ly/" + existing;
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        byte[] digest = md.digest(longUrl.getBytes());
+        long hashVal = 0;
+        for (int i = 0; i < 6; i++) hashVal = (hashVal << 8) | (digest[i] & 0xFF);
+        String code = encodeBase62(hashVal).substring(0, 7);
+        shortToLong.put(code, longUrl);
+        longToShort.put(longUrl, code);
+        return "https://short.ly/" + code;
+    }
+
+    public String resolve(String code) {
+        return shortToLong.getOrDefault(code, null);
+    }
+}`,
+
+        cpp: `#include <string>
+#include <unordered_map>
+#include <openssl/md5.h>
+
+class URLShortener {
+    static const std::string CHARS;
+    std::unordered_map<std::string, std::string> shortToLong;
+    std::unordered_map<std::string, std::string> longToShort;
+public:
+    static std::string encodeBase62(uint64_t num) {
+        if (num == 0) return std::string(1, CHARS[0]);
+        std::string result;
+        while (num > 0) { result = CHARS[num % 62] + result; num /= 62; }
+        return result;
+    }
+    std::string shorten(const std::string& longUrl) {
+        auto it = longToShort.find(longUrl);
+        if (it != longToShort.end()) return "https://short.ly/" + it->second;
+        unsigned char digest[MD5_DIGEST_LENGTH];
+        MD5((unsigned char*)longUrl.c_str(), longUrl.size(), digest);
+        uint64_t hashVal = 0;
+        for (int i = 0; i < 6; i++) hashVal = (hashVal << 8) | digest[i];
+        std::string code = encodeBase62(hashVal).substr(0, 7);
+        shortToLong[code] = longUrl;
+        longToShort[longUrl] = code;
+        return "https://short.ly/" + code;
+    }
+    std::string resolve(const std::string& code) {
+        auto it = shortToLong.find(code);
+        return it != shortToLong.end() ? it->second : "";
+    }
+};
+const std::string URLShortener::CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";`
+      },
+
       discussionPoints: [
         {
           topic: 'Analytics',
