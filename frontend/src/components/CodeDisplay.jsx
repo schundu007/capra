@@ -161,7 +161,7 @@ const lightTheme = {
   },
 };
 
-const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, language, onLineHover, examples, onCodeUpdate, onExplanationsUpdate, isStreaming, autoRunOutput, ascendMode, systemDesign, eraserDiagram, autoGenerateEraser, onGenerateEraserDiagram, question, cloudProvider, codingLanguage, onLanguageChange, detailLevel, onDetailLevelChange, editorSettings, approaches, complexity: initialComplexity, onApproachChange }, ref) {
+const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, language, onLineHover, examples, onCodeUpdate, onExplanationsUpdate, isStreaming, autoRunOutput, ascendMode, systemDesign, eraserDiagram, autoGenerateEraser, onGenerateEraserDiagram, question, cloudProvider, codingLanguage, onLanguageChange, detailLevel, onDetailLevelChange, editorSettings, approaches, activeApproach = 0, onApproachChange }, ref) {
   const normalizedLanguage = language?.toLowerCase() || 'python';
   const [code, setCode] = useState(initialCode);
   const [copied, setCopied] = useState(false);
@@ -176,7 +176,6 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
   const [isResizing, setIsResizing] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [outputExpanded, setOutputExpanded] = useState(false);
-  const [activeApproach, setActiveApproach] = useState(0);
 
   // Handle Escape key to close expanded output modal
   useEffect(() => {
@@ -189,31 +188,14 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [outputExpanded]);
 
-  // Reset active approach when new approaches arrive
   useEffect(() => {
-    setActiveApproach(0);
-  }, [approaches]);
-
-  // When user switches approach tab, update the displayed code
-  const currentApproach = approaches?.[activeApproach];
-  const displayCode = currentApproach?.code || initialCode;
-  const displayComplexity = currentApproach?.complexity || initialComplexity;
-
-  useEffect(() => {
-    setCode(displayCode);
+    setCode(initialCode);
     setFixAttempts(0);
     // Don't reset output if we have auto-run output - it arrives at the same time as code
     if (!autoRunOutput) {
       setOutput(null);
     }
-  }, [displayCode]);
-
-  // Notify parent when approach changes (for ExplanationPanel sync)
-  useEffect(() => {
-    if (onApproachChange && currentApproach) {
-      onApproachChange(activeApproach, currentApproach);
-    }
-  }, [activeApproach, currentApproach]);
+  }, [initialCode]);
 
   // Display auto-run output when it arrives - this takes priority
   useEffect(() => {
@@ -428,7 +410,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
           {approaches.map((approach, i) => (
             <button
               key={i}
-              onClick={() => setActiveApproach(i)}
+              onClick={() => onApproachChange?.(i)}
               className={`px-3 py-1.5 text-xs font-medium transition-all border-b-2 whitespace-nowrap ${
                 activeApproach === i
                   ? 'border-emerald-500 text-emerald-700 bg-white'

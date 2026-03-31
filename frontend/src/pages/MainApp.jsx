@@ -1177,14 +1177,10 @@ function CodingLayout({
   qaHistory, isMobile,
 }) {
   const [mobileTab, setMobileTab] = useState('problem');
-  const [activeApproachData, setActiveApproachData] = useState(null);
+  const [activeApproach, setActiveApproach] = useState(0);
   const systemDesign = solution?.systemDesign || streamingContent.systemDesign;
   const hasSystemDesign = systemDesign && systemDesign.included;
   const approaches = solution?.approaches;
-
-  const handleApproachChange = useCallback((index, approach) => {
-    setActiveApproachData(approach);
-  }, []);
 
   // Auto-switch to code/design tab when solution arrives
   useEffect(() => {
@@ -1196,7 +1192,7 @@ function CodingLayout({
 
   // Reset approach selection when solution changes
   useEffect(() => {
-    setActiveApproachData(null);
+    setActiveApproach(0);
   }, [solution]);
 
   // ===========================================================================
@@ -1255,15 +1251,18 @@ function CodingLayout({
     </div>
   );
 
+  // Derive active approach data from lifted state
+  const currentApproachData = approaches?.[activeApproach];
+  const activeCode = currentApproachData?.code || solution?.code || streamingContent.code;
+  const activePitch = currentApproachData?.pitch || solution?.pitch || streamingContent.pitch;
+  const activeExplanations = currentApproachData?.explanations || solution?.explanations;
+  const activeComplexity = currentApproachData?.complexity || solution?.complexity || streamingContent.complexity;
+
   const CodePane = () => (
     <div className="h-full bg-gray-50">
-      <CodeDisplay ref={codeDisplayRef} code={solution?.code || streamingContent.code} language={solution?.language || streamingContent.language} complexity={solution?.complexity || streamingContent.complexity} onLineHover={onLineHover} examples={solution?.examples} isStreaming={isLoading && loadingType === 'solve' && !solution} autoRunOutput={autoRunOutput} onExplanationsUpdate={onExplanationsUpdate} ascendMode={ascendMode} codingLanguage={codingLanguage} onLanguageChange={ascendMode === 'coding' ? onLanguageChange : undefined} detailLevel={codingDetailLevel} onDetailLevelChange={ascendMode === 'coding' ? onCodingDetailLevelChange : undefined} editorSettings={editorSettings} systemDesign={solution?.systemDesign || streamingContent.systemDesign} eraserDiagram={eraserDiagram} autoGenerateEraser={autoGenerateEraser} question={currentProblem || loadedProblem} cloudProvider="auto" onGenerateEraserDiagram={onGenerateEraserDiagram} approaches={approaches} onApproachChange={handleApproachChange} />
+      <CodeDisplay ref={codeDisplayRef} code={activeCode} language={solution?.language || streamingContent.language} complexity={activeComplexity} onLineHover={onLineHover} examples={solution?.examples} isStreaming={isLoading && loadingType === 'solve' && !solution} autoRunOutput={activeApproach === 0 ? autoRunOutput : null} onExplanationsUpdate={onExplanationsUpdate} ascendMode={ascendMode} codingLanguage={codingLanguage} onLanguageChange={ascendMode === 'coding' ? onLanguageChange : undefined} detailLevel={codingDetailLevel} onDetailLevelChange={ascendMode === 'coding' ? onCodingDetailLevelChange : undefined} editorSettings={editorSettings} systemDesign={solution?.systemDesign || streamingContent.systemDesign} eraserDiagram={eraserDiagram} autoGenerateEraser={autoGenerateEraser} question={currentProblem || loadedProblem} cloudProvider="auto" onGenerateEraserDiagram={onGenerateEraserDiagram} approaches={approaches} activeApproach={activeApproach} onApproachChange={setActiveApproach} />
     </div>
   );
-
-  // Use active approach's pitch/explanations if user switched tabs, otherwise use solution defaults
-  const activePitch = activeApproachData?.pitch || solution?.pitch || streamingContent.pitch;
-  const activeExplanations = activeApproachData?.explanations || solution?.explanations;
 
   const ExplainPane = () => (
     <div className="h-full overflow-hidden bg-white">
