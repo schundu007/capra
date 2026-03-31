@@ -6,15 +6,7 @@ import { tmpdir } from 'os';
 import { randomUUID } from 'crypto';
 import { validate } from '../middleware/validators.js';
 import { AppError, ErrorCode } from '../middleware/errorHandler.js';
-
-// Safe logging that ignores EPIPE errors
-function safeLog(...args) {
-  try {
-    console.log(...args);
-  } catch {
-    // Ignore EPIPE and other write errors
-  }
-}
+import { safeLog } from '../services/utils.js';
 
 const router = Router();
 
@@ -23,6 +15,12 @@ const installedPackages = new Set();
 
 async function installPythonPackage(packageName) {
   if (installedPackages.has(packageName)) return true;
+
+  // Sanitize package name to prevent shell injection
+  if (!/^[a-z0-9@/_.-]+$/i.test(packageName)) {
+    safeLog(`[CodeRunner] Package name ${packageName} contains invalid characters, skipping`);
+    return false;
+  }
 
   // Common safe packages that can be auto-installed
   const safePackages = new Set([
@@ -83,6 +81,9 @@ const installedNpmPackages = new Set();
 
 async function installNpmPackage(packageName) {
   if (installedNpmPackages.has(packageName)) return true;
+
+  // Sanitize package name to prevent shell injection
+  if (!/^[a-z0-9@/_.-]+$/i.test(packageName)) return false;
 
   const safePackages = new Set([
     'axios', 'node-fetch', 'lodash', 'underscore', 'moment', 'dayjs',

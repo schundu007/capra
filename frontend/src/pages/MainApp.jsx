@@ -459,9 +459,6 @@ export default function MainApp() {
       return;
     }
 
-    abortControllerRef.current?.abort();
-    abortControllerRef.current = new AbortController();
-
     resetState();
     setProblemExpanded(false);
     setCurrentProblem(problem);
@@ -539,6 +536,8 @@ export default function MainApp() {
     } catch (err) {
       setError(err.message);
       setErrorType('fetch');
+      setIsLoading(false);
+      setLoadingType(null);
     }
   }, [handleSolve]);
 
@@ -570,6 +569,8 @@ export default function MainApp() {
     } catch (err) {
       setError(err.message);
       setErrorType('screenshot');
+      setIsLoading(false);
+      setLoadingType(null);
     }
   }, [provider, model, handleSolve]);
 

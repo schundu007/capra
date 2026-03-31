@@ -466,9 +466,6 @@ export default function App() {
       return;
     }
 
-    abortControllerRef.current?.abort();
-    abortControllerRef.current = new AbortController();
-
     resetState();
     setProblemExpanded(false); // Collapse text area when solve starts
     setCurrentProblem(problem);
@@ -566,6 +563,8 @@ export default function App() {
     } catch (err) {
       setError(err.message);
       setErrorType('fetch');
+      setIsLoading(false);
+      setLoadingType(null);
     }
   }, [handleSolve]);
 
@@ -602,6 +601,8 @@ export default function App() {
     } catch (err) {
       setError(err.message);
       setErrorType('screenshot');
+      setIsLoading(false);
+      setLoadingType(null);
     }
   }, [provider, model, handleSolve]);
 
@@ -1345,8 +1346,20 @@ function CodingLayout({
   codeDisplayRef, editorSettings, showAscendAssistant, onCloseAscendAssistant, provider, model,
   qaHistory,
 }) {
+  const [activeApproach, setActiveApproach] = useState(0);
   const systemDesign = solution?.systemDesign || streamingContent.systemDesign;
   const hasSystemDesign = systemDesign && systemDesign.included;
+  const approaches = solution?.approaches;
+
+  // Reset approach when solution changes
+  useEffect(() => { setActiveApproach(0); }, [solution]);
+
+  // Derive active approach data
+  const currentApproachData = approaches?.[activeApproach];
+  const activeCode = currentApproachData?.code || solution?.code || streamingContent.code;
+  const activePitch = currentApproachData?.pitch || solution?.pitch || streamingContent.pitch;
+  const activeExplanations = currentApproachData?.explanations || solution?.explanations;
+  const activeComplexity = currentApproachData?.complexity || solution?.complexity || streamingContent.complexity;
 
   // System Design Mode - Vertical Layout: Problem on top, SystemDesignPanel below
   if (ascendMode === 'system-design') {
@@ -1513,9 +1526,9 @@ function CodingLayout({
 
             <div className="flex-1 min-h-0 overflow-hidden">
               <ExplanationPanel
-                explanations={solution?.explanations}
+                explanations={activeExplanations}
                 highlightedLine={highlightedLine}
-                pitch={solution?.pitch || streamingContent.pitch}
+                pitch={activePitch}
                 systemDesign={solution?.systemDesign || streamingContent.systemDesign}
                 isStreaming={isLoading && loadingType === 'solve' && !solution}
                 onExpandSystemDesign={onExpandSystemDesign}
@@ -1532,9 +1545,9 @@ function CodingLayout({
           <div className="h-full bg-gray-50 border-l border-gray-200">
             <CodeDisplay
               ref={codeDisplayRef}
-              code={solution?.code || streamingContent.code}
+              code={activeCode}
               language={solution?.language || streamingContent.language}
-              complexity={solution?.complexity || streamingContent.complexity}
+              complexity={activeComplexity}
               onLineHover={onLineHover}
               examples={solution?.examples}
               isStreaming={isLoading && loadingType === 'solve' && !solution}
@@ -1552,6 +1565,9 @@ function CodingLayout({
               question={currentProblem || loadedProblem}
               cloudProvider="auto"
               onGenerateEraserDiagram={onGenerateEraserDiagram}
+              approaches={approaches}
+              activeApproach={activeApproach}
+              onApproachChange={setActiveApproach}
             />
           </div>
         </Allotment.Pane>

@@ -35,7 +35,7 @@ export const schemas = {
     fast: Joi.boolean().default(true),
     detailLevel: Joi.string().valid('basic', 'detailed', 'brief', 'high-level').default('detailed'),
     model: Joi.string().allow('', null),
-    ascendMode: Joi.string().valid('coding', 'system-design').default('coding'),
+    ascendMode: Joi.string().valid('coding', 'system-design', 'behavioral').default('coding'),
     designDetailLevel: Joi.string().valid('basic', 'full').default('basic'),
   }),
 
