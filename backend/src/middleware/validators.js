@@ -15,8 +15,22 @@ export const schemas = {
     }),
     provider: Joi.string().valid('claude', 'openai').default('claude'),
     language: Joi.string().valid(
-      'auto', 'python', 'bash', 'javascript', 'typescript',
-      'sql', 'terraform', 'jenkins', 'yaml', 'c', 'cpp', 'java', 'go', 'rust'
+      'auto',
+      // Languages
+      'python', 'python2', 'python3', 'javascript', 'typescript', 'java',
+      'c', 'cpp', 'csharp', 'go', 'rust', 'ruby', 'php', 'swift', 'kotlin',
+      'scala', 'bash', 'perl', 'lua', 'r', 'haskell', 'clojure', 'elixir',
+      'erlang', 'fsharp', 'ocaml', 'dart', 'julia', 'objectivec',
+      'coffeescript', 'vb', 'tcl',
+      // Databases
+      'sql', 'mysql', 'postgresql',
+      // Frameworks
+      'react', 'vue', 'angular', 'svelte', 'nextjs', 'html', 'nodejs',
+      'django', 'rails', 'spring',
+      // DevOps
+      'terraform', 'kubernetes', 'docker', 'jenkins', 'yaml',
+      // ML / Data
+      'pyspark', 'pytorch', 'tensorflow', 'scipy'
     ).default('auto'),
     fast: Joi.boolean().default(true),
     detailLevel: Joi.string().valid('basic', 'detailed', 'brief', 'high-level').default('detailed'),
@@ -51,8 +65,17 @@ export const schemas = {
       'any.required': 'Code is required',
     }),
     language: Joi.string().valid(
-      'auto', 'python', 'python3', 'bash', 'javascript', 'typescript', 'sql',
-      'terraform', 'jenkins', 'yaml', 'c', 'cpp', 'java', 'go', 'rust'
+      'auto',
+      'python', 'python2', 'python3', 'javascript', 'typescript', 'java',
+      'c', 'cpp', 'csharp', 'go', 'rust', 'ruby', 'php', 'swift', 'kotlin',
+      'scala', 'bash', 'perl', 'lua', 'r', 'haskell', 'clojure', 'elixir',
+      'erlang', 'fsharp', 'ocaml', 'dart', 'julia', 'objectivec',
+      'coffeescript', 'vb', 'tcl',
+      'sql', 'mysql', 'postgresql',
+      'react', 'vue', 'angular', 'svelte', 'nextjs', 'html', 'nodejs',
+      'django', 'rails', 'spring',
+      'terraform', 'kubernetes', 'docker', 'jenkins', 'yaml',
+      'pyspark', 'pytorch', 'tensorflow', 'scipy'
     ).required().messages({
       'any.only': 'Unsupported language',
       'any.required': 'Language is required',
