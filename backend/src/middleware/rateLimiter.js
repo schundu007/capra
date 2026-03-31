@@ -27,10 +27,7 @@ function createLimiter(options) {
     legacyHeaders: false,
     skipFailedRequests,
     skipSuccessfulRequests,
-    // Use req.ip which respects trust proxy setting for correct client IP
-    keyGenerator: (req) => {
-      return req.ip || 'unknown';
-    },
+    // Default keyGenerator uses req.ip with IPv6 normalization
     handler: (req, res, next, options) => {
       logger.warn({
         ip: req.ip,
