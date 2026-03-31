@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { getApiUrl } from '../../hooks/useElectron.js';
 import { Icon } from '../Icons.jsx';
@@ -10,6 +10,8 @@ export default function PremiumPage() {
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState('');
   const [expandedFaq, setExpandedFaq] = useState(null);
+
+  useEffect(() => { window.scrollTo(0, 0); }, []);
 
   const handleSubscribe = async (planId) => {
     setLoading(planId);

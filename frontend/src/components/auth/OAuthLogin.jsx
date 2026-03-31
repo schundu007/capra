@@ -18,7 +18,7 @@ export default function OAuthLogin() {
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => { setMounted(true); window.scrollTo(0, 0); }, []);
 
   const navLinks = [
     { label: 'Apply', href: 'https://jobs.cariara.com' },
@@ -108,19 +108,22 @@ export default function OAuthLogin() {
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { label: 'Apply', href: 'https://jobs.cariara.com', icon: 'briefcase', desc: 'Find your role', gradient: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', border: '#6ee7b7', badge: '#059669', iconColor: '#059669', glow: '0 0 20px #6ee7b740, 0 0 40px #6ee7b720' },
-              { label: 'Prepare', href: '/prepare', icon: 'book', desc: 'Study & review', gradient: 'linear-gradient(135deg, #ecfeff 0%, #cffafe 100%)', border: '#67e8f9', badge: '#0891b2', iconColor: '#0891b2', glow: '0 0 20px #67e8f940, 0 0 40px #67e8f920' },
-              { label: 'Practice', href: '/app/coding', icon: 'code', desc: 'Solve problems', gradient: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)', border: '#c4b5fd', badge: '#7c3aed', iconColor: '#7c3aed', glow: '0 0 20px #c4b5fd40, 0 0 40px #c4b5fd20' },
-              { label: 'Attend', href: 'https://lumora.cariara.com/app', icon: 'microphone', desc: 'Ace the interview', gradient: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', border: '#fcd34d', badge: '#d97706', iconColor: '#d97706', glow: '0 0 20px #fcd34d40, 0 0 40px #fcd34d20' },
+              { label: 'Apply', href: 'https://jobs.cariara.com', icon: 'briefcase', desc: 'Find your role', bg: '#ecfdf5', bgEnd: '#d1fae5', border: '#6ee7b7', borderEnd: '#34d399', badge: '#059669', iconColor: '#059669', glowColor: '16,185,129', slideFrom: 'left' },
+              { label: 'Prepare', href: '/prepare', icon: 'book', desc: 'Study & review', bg: '#ecfeff', bgEnd: '#cffafe', border: '#67e8f9', borderEnd: '#22d3ee', badge: '#0891b2', iconColor: '#0891b2', glowColor: '8,145,178', slideFrom: 'bottom' },
+              { label: 'Practice', href: '/app/coding', icon: 'code', desc: 'Solve problems', bg: '#f5f3ff', bgEnd: '#ede9fe', border: '#c4b5fd', borderEnd: '#a78bfa', badge: '#7c3aed', iconColor: '#7c3aed', glowColor: '124,58,237', slideFrom: 'bottom' },
+              { label: 'Attend', href: 'https://lumora.cariara.com/app', icon: 'microphone', desc: 'Ace the interview', bg: '#fffbeb', bgEnd: '#fef3c7', border: '#fcd34d', borderEnd: '#fbbf24', badge: '#d97706', iconColor: '#d97706', glowColor: '217,119,6', slideFrom: 'right' },
             ].map((item, i) => (
-              <a key={item.label} href={item.href} className={`journey-card journey-card-${i} group relative flex flex-col items-center gap-3 p-6 rounded-2xl transition-all duration-500 text-center`} style={{ background: item.gradient, border: `2px solid ${item.border}`, boxShadow: `0 4px 20px rgba(0,0,0,0.06), ${item.glow}`, animationDelay: `${i * 0.15}s` }}>
-                <div className="journey-badge absolute -top-3 left-5 px-2.5 py-1 rounded-full text-[11px] font-bold landing-mono text-white" style={{ background: item.badge, animationDelay: `${i * 0.15 + 0.5}s` }}>{i + 1}</div>
-                <div className="journey-icon w-14 h-14 rounded-xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3" style={{ background: 'white', boxShadow: `0 2px 12px ${item.border}40`, animationDelay: `${i * 0.2}s` }}>
+              <a key={item.label} href={item.href} className={`journey-card journey-card-${i} group relative flex flex-col items-center gap-3 p-6 rounded-2xl text-center overflow-hidden`} style={{ '--card-bg': item.bg, '--card-bg-end': item.bgEnd, '--card-border': item.border, '--card-border-end': item.borderEnd, '--card-glow': item.glowColor, animationDelay: `${i * 0.2}s` }}>
+                {/* Animated gradient border */}
+                <div className="journey-border-glow absolute inset-0 rounded-2xl pointer-events-none" style={{ animationDelay: `${i * 0.5}s` }} />
+                <div className="journey-badge absolute -top-3 left-5 px-2.5 py-1 rounded-full text-[11px] font-bold landing-mono text-white" style={{ background: item.badge, animationDelay: `${i * 0.2 + 0.6}s` }}>{i + 1}</div>
+                <div className="journey-icon w-14 h-14 rounded-xl flex items-center justify-center transition-all duration-500 group-hover:scale-115 group-hover:rotate-6" style={{ background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(8px)', boxShadow: `0 4px 16px rgba(${item.glowColor},0.2)`, animationDelay: `${i * 0.25}s` }}>
                   <Icon name={item.icon} size={26} style={{ color: item.iconColor }} />
                 </div>
                 <span className="text-base font-bold text-gray-900 landing-display">{item.label}</span>
                 <span className="text-xs text-gray-500 landing-body">{item.desc}</span>
-                <div className="journey-shimmer absolute inset-0 rounded-2xl overflow-hidden pointer-events-none" style={{ animationDelay: `${i * 0.4}s` }} />
+                {/* Shimmer + fade overlay */}
+                <div className="journey-shimmer absolute inset-0 rounded-2xl overflow-hidden pointer-events-none" style={{ animationDelay: `${i * 0.8}s` }} />
               </a>
             ))}
           </div>
@@ -270,65 +273,110 @@ export default function OAuthLogin() {
 
         html { scroll-behavior: smooth; }
 
-        /* Journey card entrance — slide up + fade in */
+        /* Journey card base — animated gradient background */
         .journey-card {
-          animation: journeySlideUp 0.6s ease-out both;
+          background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-bg-end) 50%, var(--card-bg) 100%);
+          background-size: 200% 200%;
+          border: 2px solid var(--card-border);
+          box-shadow: 0 4px 24px rgba(var(--card-glow), 0.12), 0 0 0 0 rgba(var(--card-glow), 0);
+          animation: journeySlideIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both, journeyGradientShift 6s ease-in-out infinite, journeyFloat 4s ease-in-out 1.5s infinite;
+          transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease, border-color 0.4s ease;
+        }
+
+        /* Staggered slide directions */
+        .journey-card-0 { animation: journeySlideLt 0.7s cubic-bezier(0.16,1,0.3,1) both, journeyGradientShift 6s ease-in-out infinite, journeyFloat 4s ease-in-out 1.2s infinite; }
+        .journey-card-1 { animation: journeySlideUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.15s both, journeyGradientShift 7s ease-in-out 0.5s infinite, journeyFloat 4.5s ease-in-out 1.4s infinite; }
+        .journey-card-2 { animation: journeySlideUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.3s both, journeyGradientShift 5.5s ease-in-out 1s infinite, journeyFloat 5s ease-in-out 1.6s infinite; }
+        .journey-card-3 { animation: journeySlideRt 0.7s cubic-bezier(0.16,1,0.3,1) 0.45s both, journeyGradientShift 6.5s ease-in-out 0.3s infinite, journeyFloat 4.2s ease-in-out 1.8s infinite; }
+
+        @keyframes journeySlideLt {
+          from { opacity: 0; transform: translateX(-60px) scale(0.9); filter: blur(4px); }
+          to   { opacity: 1; transform: translateX(0) scale(1); filter: blur(0); }
         }
         @keyframes journeySlideUp {
-          from { opacity: 0; transform: translateY(30px) scale(0.95); }
-          to   { opacity: 1; transform: translateY(0) scale(1); }
+          from { opacity: 0; transform: translateY(40px) scale(0.9); filter: blur(4px); }
+          to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+        @keyframes journeySlideRt {
+          from { opacity: 0; transform: translateX(60px) scale(0.9); filter: blur(4px); }
+          to   { opacity: 1; transform: translateX(0) scale(1); filter: blur(0); }
         }
 
-        /* Floating / breathing effect — each card floats at its own rhythm */
-        .journey-card-0 { animation: journeySlideUp 0.6s ease-out both, journeyFloat 4s ease-in-out 1s infinite; }
-        .journey-card-1 { animation: journeySlideUp 0.6s ease-out both, journeyFloat 4.5s ease-in-out 1.2s infinite; }
-        .journey-card-2 { animation: journeySlideUp 0.6s ease-out both, journeyFloat 5s ease-in-out 1.4s infinite; }
-        .journey-card-3 { animation: journeySlideUp 0.6s ease-out both, journeyFloat 4.2s ease-in-out 1.6s infinite; }
+        /* Background gradient shift */
+        @keyframes journeyGradientShift {
+          0%, 100% { background-position: 0% 0%; }
+          50%      { background-position: 100% 100%; }
+        }
+
+        /* Floating */
         @keyframes journeyFloat {
           0%, 100% { transform: translateY(0); }
-          50%      { transform: translateY(-6px); }
+          50%      { transform: translateY(-7px); }
         }
 
-        /* Hover override — stop floating, lift up */
+        /* Hover — lift + glow + border color shift */
         .journey-card:hover {
-          animation: none !important;
-          transform: translateY(-8px) scale(1.03) !important;
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          animation: journeyGradientShift 3s ease-in-out infinite !important;
+          transform: translateY(-10px) scale(1.04) !important;
+          border-color: var(--card-border-end) !important;
+          box-shadow: 0 12px 40px rgba(var(--card-glow), 0.25), 0 0 20px rgba(var(--card-glow), 0.15) !important;
         }
 
-        /* Badge bounce-in */
+        /* Animated border glow ring */
+        .journey-border-glow {
+          background: conic-gradient(from 0deg, var(--card-border), var(--card-border-end), var(--card-border), var(--card-border-end), var(--card-border));
+          opacity: 0;
+          animation: borderFadeIn 1s ease-out 0.8s both, borderRotate 4s linear infinite;
+          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          mask-composite: exclude;
+          -webkit-mask-composite: xor;
+          padding: 2px;
+        }
+        @keyframes borderFadeIn { from { opacity: 0; } to { opacity: 0.5; } }
+        @keyframes borderRotate { to { transform: rotate(360deg); } }
+        .journey-card:hover .journey-border-glow { opacity: 0.8; }
+
+        /* Badge bounce-in with overshoot */
         .journey-badge {
-          animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+          animation: badgePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
         @keyframes badgePop {
-          from { opacity: 0; transform: scale(0); }
-          to   { opacity: 1; transform: scale(1); }
+          from { opacity: 0; transform: scale(0) rotate(-20deg); }
+          to   { opacity: 1; transform: scale(1) rotate(0deg); }
         }
 
-        /* Icon pulse on load */
+        /* Icon — breathing glow + entrance scale */
         .journey-icon {
-          animation: iconPulse 2s ease-in-out infinite;
+          animation: iconEntrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both, iconGlow 3s ease-in-out 1s infinite;
         }
-        @keyframes iconPulse {
-          0%, 100% { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-          50%      { box-shadow: 0 4px 20px rgba(0,0,0,0.14); }
+        @keyframes iconEntrance {
+          from { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+          to   { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+        @keyframes iconGlow {
+          0%, 100% { box-shadow: 0 4px 16px rgba(var(--card-glow), 0.15); }
+          50%      { box-shadow: 0 6px 28px rgba(var(--card-glow), 0.3); }
         }
         .journey-card:hover .journey-icon {
           animation: none;
+          box-shadow: 0 8px 32px rgba(var(--card-glow), 0.35);
         }
 
-        /* Shimmer sweep across card */
+        /* Shimmer sweep — wider, brighter */
         .journey-shimmer::after {
           content: '';
           position: absolute;
-          top: 0; left: -100%; width: 60%; height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-          animation: shimmerSweep 3s ease-in-out infinite;
+          top: 0; left: -100%; width: 70%; height: 100%;
+          background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%);
+          animation: shimmerSweep 4s ease-in-out 1s infinite;
         }
         @keyframes shimmerSweep {
-          0%   { left: -100%; }
-          50%  { left: 150%; }
-          100% { left: 150%; }
+          0%   { left: -100%; opacity: 0; }
+          20%  { opacity: 1; }
+          60%  { left: 150%; opacity: 1; }
+          80%  { opacity: 0; }
+          100% { left: 150%; opacity: 0; }
         }
       `}</style>
     </div>
