@@ -21,7 +21,8 @@ export default function OAuthLogin() {
   useEffect(() => { setMounted(true); }, []);
 
   const navLinks = [
-    { label: 'Preparation', href: '/prepare' },
+    { label: 'Apply', href: 'https://jobs.cariara.com' },
+    { label: 'Prepare', href: '/prepare' },
     { label: 'Practice', href: '/app/coding' },
     { label: 'Attend', href: 'https://lumora.cariara.com/app' },
     { label: 'Pricing', href: '/premium' },
@@ -98,6 +99,29 @@ export default function OAuthLogin() {
 
       {/* Divider */}
       <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent" />
+
+      {/* Journey Highlighter */}
+      <section className="px-6 md:px-12 py-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { label: 'Apply', href: 'https://jobs.cariara.com', icon: 'briefcase', desc: 'Find your role', color: 'emerald' },
+              { label: 'Prepare', href: '/prepare', icon: 'book', desc: 'Study & review', color: 'cyan' },
+              { label: 'Practice', href: '/app/coding', icon: 'code', desc: 'Solve problems', color: 'violet' },
+              { label: 'Attend', href: 'https://lumora.cariara.com/app', icon: 'microphone', desc: 'Ace the interview', color: 'amber' },
+            ].map((item, i) => (
+              <a key={item.label} href={item.href} className="group relative flex flex-col items-center gap-2 p-5 rounded-xl border-2 border-white/60 bg-white/70 backdrop-blur-sm hover:border-emerald-300 hover:shadow-lg transition-all text-center">
+                <div className="absolute -top-2.5 left-4 px-2 py-0.5 rounded-full text-[10px] font-bold landing-mono bg-emerald-500 text-white">{i + 1}</div>
+                <div className={`w-10 h-10 rounded-lg border border-${item.color}-200 bg-${item.color}-50 flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                  <Icon name={item.icon} size={20} className={`text-${item.color}-500`} />
+                </div>
+                <span className="text-sm font-bold text-gray-900 landing-display">{item.label}</span>
+                <span className="text-xs text-gray-500 landing-body">{item.desc}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Features */}
       <section id="features" className="px-6 md:px-12 py-10 md:py-12 bg-gray-50/50">
@@ -203,7 +227,8 @@ export default function OAuthLogin() {
           </div>
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
             {[
-              { label: 'Preparation', href: '/prepare' },
+              { label: 'Apply', href: 'https://jobs.cariara.com' },
+              { label: 'Prepare', href: '/prepare' },
               { label: 'Practice', href: '/app/coding' },
               { label: 'Attend', href: 'https://lumora.cariara.com/app' },
               { label: 'Pricing', href: '/premium' },

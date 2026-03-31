@@ -1045,11 +1045,11 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
       ) : (
         <div className="flex items-center gap-4" style={{ WebkitAppRegion: 'no-drag' }}>
           {[
-            { label: 'Preparation', href: '/prepare' },
+            { label: 'Apply', href: 'https://jobs.cariara.com' },
+            { label: 'Prepare', href: '/prepare' },
             { label: 'Practice', href: '/app/coding' },
             { label: 'Attend', href: 'https://lumora.cariara.com/app' },
             { label: 'Pricing', href: '/premium' },
-            { label: 'Support', href: 'mailto:support@cariara.com' },
           ].map((link) => (
             <a key={link.label} href={link.href} className="text-sm text-gray-500 hover:text-gray-900 transition-colors font-medium">
               {link.label}
