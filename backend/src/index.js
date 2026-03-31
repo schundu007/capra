@@ -134,6 +134,11 @@ app.use('/static/diagrams', express.static(DIAGRAM_OUTPUT_DIR, {
   }
 }));
 
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ status: 'healthy', version: '1.0.0', platform: 'ascend' });
+});
+
 // Auth routes (no authentication required)
 app.use('/api/auth', authRouter);
 
