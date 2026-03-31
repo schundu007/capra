@@ -48,7 +48,11 @@ function FormattedText({ text }) {
           );
         }
 
-        const formatted = para
+        const escaped = para
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+        const formatted = escaped
           .split(/\n/)
           .join(' ')
           .replace(/\*\*(.+?)\*\*|__(.+?)__/g, '<strong class="font-semibold text-gray-900">$1$2</strong>')

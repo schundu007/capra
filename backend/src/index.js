@@ -79,8 +79,8 @@ const corsOptions = {
     if (ALLOWED_ORIGINS.includes(origin)) {
       return callback(null, true);
     }
-    // Allow Railway and Vercel preview deployments
-    if (origin.includes('railway.app') || origin.includes('vercel.app')) {
+    // Allow Railway and Vercel preview deployments (scoped to our projects)
+    if (origin.endsWith('.railway.app') || (origin.includes('vercel.app') && (origin.includes('ascend') || origin.includes('capra') || origin.includes('chundu')))) {
       return callback(null, true);
     }
     // Allow subdomains of cariara.com
