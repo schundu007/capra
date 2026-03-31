@@ -161,7 +161,7 @@ const lightTheme = {
   },
 };
 
-const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, language, onLineHover, examples, onCodeUpdate, onExplanationsUpdate, isStreaming, autoRunOutput, ascendMode, systemDesign, eraserDiagram, autoGenerateEraser, onGenerateEraserDiagram, question, cloudProvider, codingLanguage, onLanguageChange, detailLevel, onDetailLevelChange, editorSettings }, ref) {
+const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, language, onLineHover, examples, onCodeUpdate, onExplanationsUpdate, isStreaming, autoRunOutput, ascendMode, systemDesign, eraserDiagram, autoGenerateEraser, onGenerateEraserDiagram, question, cloudProvider, codingLanguage, onLanguageChange, detailLevel, onDetailLevelChange, editorSettings, approaches, complexity: initialComplexity, onApproachChange }, ref) {
   const normalizedLanguage = language?.toLowerCase() || 'python';
   const [code, setCode] = useState(initialCode);
   const [copied, setCopied] = useState(false);
@@ -176,6 +176,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
   const [isResizing, setIsResizing] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [outputExpanded, setOutputExpanded] = useState(false);
+  const [activeApproach, setActiveApproach] = useState(0);
 
   // Handle Escape key to close expanded output modal
   useEffect(() => {
@@ -188,14 +189,31 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [outputExpanded]);
 
+  // Reset active approach when new approaches arrive
   useEffect(() => {
-    setCode(initialCode);
+    setActiveApproach(0);
+  }, [approaches]);
+
+  // When user switches approach tab, update the displayed code
+  const currentApproach = approaches?.[activeApproach];
+  const displayCode = currentApproach?.code || initialCode;
+  const displayComplexity = currentApproach?.complexity || initialComplexity;
+
+  useEffect(() => {
+    setCode(displayCode);
     setFixAttempts(0);
     // Don't reset output if we have auto-run output - it arrives at the same time as code
     if (!autoRunOutput) {
       setOutput(null);
     }
-  }, [initialCode]);
+  }, [displayCode]);
+
+  // Notify parent when approach changes (for ExplanationPanel sync)
+  useEffect(() => {
+    if (onApproachChange && currentApproach) {
+      onApproachChange(activeApproach, currentApproach);
+    }
+  }, [activeApproach, currentApproach]);
 
   // Display auto-run output when it arrives - this takes priority
   useEffect(() => {
@@ -404,6 +422,31 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
   // CODING MODE: Full code display with all features
   return (
     <div className="h-full flex flex-col bg-white rounded-lg border border-gray-200">
+      {/* Approach Tabs */}
+      {approaches && approaches.length > 1 && (
+        <div className="flex items-center gap-0 border-b border-gray-200 bg-gray-50 px-2 flex-shrink-0" style={{ minHeight: '36px' }}>
+          {approaches.map((approach, i) => (
+            <button
+              key={i}
+              onClick={() => setActiveApproach(i)}
+              className={`px-3 py-1.5 text-xs font-medium transition-all border-b-2 whitespace-nowrap ${
+                activeApproach === i
+                  ? 'border-emerald-500 text-emerald-700 bg-white'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              {approach.name || `Approach ${i + 1}`}
+              {approach.complexity?.time && (
+                <span className={`ml-1.5 text-[10px] px-1.5 py-0.5 rounded ${
+                  activeApproach === i ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-200 text-gray-500'
+                }`}>
+                  {approach.complexity.time}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
       {/* Header - CoderPad style with Run button */}
       <div className="flex items-center justify-between px-2 sm:px-4 py-2 sm:py-3 border-b border-gray-200 bg-gray-50 gap-2" style={{ minHeight: '44px' }}>
         <div className="flex items-center gap-3">

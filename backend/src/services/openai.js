@@ -80,22 +80,36 @@ Complete it by ONLY filling in the inner function, keeping the exact structure!
 
 Supported languages: Python, JavaScript, TypeScript, C, C++, Java, Go, Rust, SQL, Bash, Terraform, Jenkins, YAML
 
-IMPORTANT: Respond with valid JSON in exactly this format:
+IMPORTANT: Respond with valid JSON. You MUST provide 3 DIFFERENT approaches:
 {
   "language": "python|javascript|bash|etc",
-  "code": "the complete runnable code with \\n for newlines",
-  "pitch": "A 1-2 minute verbal explanation of your approach.",
-  "examples": [
-    {"input": "example input", "expected": "expected output"}
+  "approaches": [
+    {
+      "name": "Approach name (e.g. Brute Force)",
+      "code": "complete runnable code with \\n for newlines",
+      "pitch": "Brief explanation of this approach",
+      "explanations": [{"line": 1, "code": "code line", "explanation": "what it does"}],
+      "complexity": {"time": "O(n^2)", "space": "O(1)"}
+    },
+    {
+      "name": "Second approach name",
+      "code": "different solution",
+      "pitch": "Brief explanation",
+      "explanations": [{"line": 1, "code": "...", "explanation": "..."}],
+      "complexity": {"time": "O(n log n)", "space": "O(n)"}
+    },
+    {
+      "name": "Third approach (most optimal)",
+      "code": "optimal solution",
+      "pitch": "Brief explanation",
+      "explanations": [{"line": 1, "code": "...", "explanation": "..."}],
+      "complexity": {"time": "O(n)", "space": "O(1)"}
+    }
   ],
-  "explanations": [
-    {"line": 1, "code": "code line", "explanation": "what it does"}
-  ],
-  "complexity": {
-    "time": "O(n)",
-    "space": "O(1)"
-  }
+  "examples": [{"input": "example input", "expected": "expected output"}]
 }
+
+Provide EXACTLY 3 different approaches ordered from simplest to most optimal. Each must have unique algorithm and complete runnable code.
 
 Rules:
 - Generate COMPLETE, RUNNABLE code

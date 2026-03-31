@@ -191,34 +191,57 @@ CODE STYLE REQUIREMENTS:
 
 Supported languages: Python, JavaScript, TypeScript, C, C++, Java, Go, Rust, SQL, Bash, Terraform, Jenkins, YAML
 
-IMPORTANT: Respond with valid JSON in exactly this format:
+IMPORTANT: Respond with valid JSON in exactly this format. You MUST provide 3 DIFFERENT approaches to solve the problem:
 {
   "language": "python|bash|terraform|jenkins|yaml|sql|javascript",
-  "code": "the complete code as a string with \\n for newlines - MUST include print statements",
-  "pitch": {
-    "opener": "One sentence hook to grab attention",
-    "approach": "Brief description of the solution strategy",
-    "keyPoints": ["Key point 1", "Key point 2", "Key point 3"],
-    "complexity": "Time O(n), Space O(1) - brief justification",
-    "tradeoffs": ["Tradeoff 1: e.g., chose hash map over array for O(1) lookup vs O(n) memory", "Tradeoff 2: e.g., iterative vs recursive approach"],
-    "edgeCases": ["Edge case 1: empty input", "Edge case 2: single element", "Edge case 3: large numbers/overflow", "Edge case 4: duplicates"]
-  },
+  "approaches": [
+    {
+      "name": "Short descriptive name (e.g. Brute Force, Hash Map, Two Pointers, Sorting, Dynamic Programming)",
+      "code": "complete runnable code with \\n for newlines - MUST include print statements",
+      "pitch": {
+        "opener": "One sentence hook to grab attention",
+        "approach": "Brief description of the solution strategy",
+        "keyPoints": ["Key point 1", "Key point 2", "Key point 3"],
+        "complexity": "Time O(n), Space O(1) - brief justification",
+        "tradeoffs": ["Tradeoff 1", "Tradeoff 2"],
+        "edgeCases": ["Edge case 1", "Edge case 2", "Edge case 3"]
+      },
+      "explanations": [
+        {"line": 1, "code": "first line of code", "explanation": "PLAIN TEXT explanation"},
+        {"line": 2, "code": "second line of code", "explanation": "PLAIN TEXT explanation"}
+      ],
+      "complexity": {"time": "O(n^2)", "space": "O(1)"}
+    },
+    {
+      "name": "Second approach name",
+      "code": "different solution code",
+      "pitch": { "opener": "...", "approach": "...", "keyPoints": [], "complexity": "...", "tradeoffs": [], "edgeCases": [] },
+      "explanations": [{"line": 1, "code": "...", "explanation": "..."}],
+      "complexity": {"time": "O(n log n)", "space": "O(n)"}
+    },
+    {
+      "name": "Third approach name (most optimal)",
+      "code": "most optimal solution code",
+      "pitch": { "opener": "...", "approach": "...", "keyPoints": [], "complexity": "...", "tradeoffs": [], "edgeCases": [] },
+      "explanations": [{"line": 1, "code": "...", "explanation": "..."}],
+      "complexity": {"time": "O(n)", "space": "O(1)"}
+    }
+  ],
   "examples": [
     {"input": "example input 1 from problem", "expected": "expected output 1"},
     {"input": "example input 2 from problem", "expected": "expected output 2"}
   ],
-  "explanations": [
-    {"line": 1, "code": "first line of code", "explanation": "PLAIN TEXT explanation - NO code blocks, NO markdown"},
-    {"line": 2, "code": "second line of code", "explanation": "PLAIN TEXT explanation - NO code blocks, NO markdown"}
-  ],
-  "complexity": {
-    "time": "O(n) or N/A for non-algorithmic",
-    "space": "O(n) or N/A for non-algorithmic"
-  },
   "systemDesign": {
     "included": false
   }
 }
+
+APPROACH RULES:
+- Provide EXACTLY 3 different approaches ordered from simplest to most optimal
+- Each approach MUST have a unique algorithm/strategy (not just minor tweaks)
+- Each approach MUST have its own complete runnable code
+- Name approaches clearly: "Brute Force", "Sorting + Binary Search", "Hash Map O(n)", etc.
+- All 3 codes must produce the SAME correct output for all test cases
 
 FOR SYSTEM DESIGN PROBLEMS: Do NOT generate code. Set "code": "", "examples": [], "explanations": [], and focus entirely on the systemDesign object. The pitch should explain your system design approach.
 
@@ -780,7 +803,7 @@ export async function* solveProblemStream(problemText, language = 'auto', detail
 
   const stream = await getClient().messages.stream({
     model,
-    max_tokens: ascendMode === 'system-design' ? 8192 : (isBrief ? 1024 : 4096),
+    max_tokens: ascendMode === 'system-design' ? 8192 : (isBrief ? 1024 : 8192),
     messages: [
       {
         role: 'user',

@@ -1177,8 +1177,14 @@ function CodingLayout({
   qaHistory, isMobile,
 }) {
   const [mobileTab, setMobileTab] = useState('problem');
+  const [activeApproachData, setActiveApproachData] = useState(null);
   const systemDesign = solution?.systemDesign || streamingContent.systemDesign;
   const hasSystemDesign = systemDesign && systemDesign.included;
+  const approaches = solution?.approaches;
+
+  const handleApproachChange = useCallback((index, approach) => {
+    setActiveApproachData(approach);
+  }, []);
 
   // Auto-switch to code/design tab when solution arrives
   useEffect(() => {
@@ -1187,6 +1193,11 @@ function CodingLayout({
       setMobileTab(ascendMode === 'system-design' ? 'design' : 'code');
     }
   }, [solution, isLoading, isMobile, ascendMode]);
+
+  // Reset approach selection when solution changes
+  useEffect(() => {
+    setActiveApproachData(null);
+  }, [solution]);
 
   // ===========================================================================
   // Shared sub-panels (used by both mobile and desktop)
@@ -1216,7 +1227,7 @@ function CodingLayout({
       </div>
       {ascendMode !== 'system-design' && (
         <div className="flex-1 min-h-0 overflow-hidden">
-          <ExplanationPanel explanations={solution?.explanations} highlightedLine={highlightedLine} pitch={solution?.pitch || streamingContent.pitch} systemDesign={solution?.systemDesign || streamingContent.systemDesign} isStreaming={isLoading && loadingType === 'solve' && !solution} onExpandSystemDesign={onExpandSystemDesign} canExpandSystemDesign={!!currentProblem && !isLoading} onFollowUpQuestion={onFollowUpQuestion} isProcessingFollowUp={isProcessingFollowUp} />
+          <ExplanationPanel explanations={activeExplanations} highlightedLine={highlightedLine} pitch={activePitch} systemDesign={solution?.systemDesign || streamingContent.systemDesign} isStreaming={isLoading && loadingType === 'solve' && !solution} onExpandSystemDesign={onExpandSystemDesign} canExpandSystemDesign={!!currentProblem && !isLoading} onFollowUpQuestion={onFollowUpQuestion} isProcessingFollowUp={isProcessingFollowUp} />
         </div>
       )}
     </div>
@@ -1246,13 +1257,17 @@ function CodingLayout({
 
   const CodePane = () => (
     <div className="h-full bg-gray-50">
-      <CodeDisplay ref={codeDisplayRef} code={solution?.code || streamingContent.code} language={solution?.language || streamingContent.language} complexity={solution?.complexity || streamingContent.complexity} onLineHover={onLineHover} examples={solution?.examples} isStreaming={isLoading && loadingType === 'solve' && !solution} autoRunOutput={autoRunOutput} onExplanationsUpdate={onExplanationsUpdate} ascendMode={ascendMode} codingLanguage={codingLanguage} onLanguageChange={ascendMode === 'coding' ? onLanguageChange : undefined} detailLevel={codingDetailLevel} onDetailLevelChange={ascendMode === 'coding' ? onCodingDetailLevelChange : undefined} editorSettings={editorSettings} systemDesign={solution?.systemDesign || streamingContent.systemDesign} eraserDiagram={eraserDiagram} autoGenerateEraser={autoGenerateEraser} question={currentProblem || loadedProblem} cloudProvider="auto" onGenerateEraserDiagram={onGenerateEraserDiagram} />
+      <CodeDisplay ref={codeDisplayRef} code={solution?.code || streamingContent.code} language={solution?.language || streamingContent.language} complexity={solution?.complexity || streamingContent.complexity} onLineHover={onLineHover} examples={solution?.examples} isStreaming={isLoading && loadingType === 'solve' && !solution} autoRunOutput={autoRunOutput} onExplanationsUpdate={onExplanationsUpdate} ascendMode={ascendMode} codingLanguage={codingLanguage} onLanguageChange={ascendMode === 'coding' ? onLanguageChange : undefined} detailLevel={codingDetailLevel} onDetailLevelChange={ascendMode === 'coding' ? onCodingDetailLevelChange : undefined} editorSettings={editorSettings} systemDesign={solution?.systemDesign || streamingContent.systemDesign} eraserDiagram={eraserDiagram} autoGenerateEraser={autoGenerateEraser} question={currentProblem || loadedProblem} cloudProvider="auto" onGenerateEraserDiagram={onGenerateEraserDiagram} approaches={approaches} onApproachChange={handleApproachChange} />
     </div>
   );
 
+  // Use active approach's pitch/explanations if user switched tabs, otherwise use solution defaults
+  const activePitch = activeApproachData?.pitch || solution?.pitch || streamingContent.pitch;
+  const activeExplanations = activeApproachData?.explanations || solution?.explanations;
+
   const ExplainPane = () => (
     <div className="h-full overflow-hidden bg-white">
-      <ExplanationPanel explanations={solution?.explanations} highlightedLine={highlightedLine} pitch={solution?.pitch || streamingContent.pitch} systemDesign={solution?.systemDesign || streamingContent.systemDesign} isStreaming={isLoading && loadingType === 'solve' && !solution} onExpandSystemDesign={onExpandSystemDesign} canExpandSystemDesign={!!currentProblem && !isLoading} onFollowUpQuestion={onFollowUpQuestion} isProcessingFollowUp={isProcessingFollowUp} />
+      <ExplanationPanel explanations={activeExplanations} highlightedLine={highlightedLine} pitch={activePitch} systemDesign={solution?.systemDesign || streamingContent.systemDesign} isStreaming={isLoading && loadingType === 'solve' && !solution} onExpandSystemDesign={onExpandSystemDesign} canExpandSystemDesign={!!currentProblem && !isLoading} onFollowUpQuestion={onFollowUpQuestion} isProcessingFollowUp={isProcessingFollowUp} />
     </div>
   );
 

@@ -194,6 +194,31 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
           logger.warn('result.code is not a string, converting');
           result.code = JSON.stringify(result.code);
         }
+
+        // Normalize multi-approach responses: populate top-level fields from first approach
+        if (result.approaches && Array.isArray(result.approaches) && result.approaches.length > 0) {
+          const first = result.approaches[0];
+          if (!result.code) result.code = first.code;
+          if (!result.pitch) result.pitch = first.pitch;
+          if (!result.explanations) result.explanations = first.explanations;
+          if (!result.complexity) result.complexity = first.complexity;
+          // Ensure each approach's code is a string
+          for (const approach of result.approaches) {
+            if (approach.code && typeof approach.code !== 'string') {
+              approach.code = JSON.stringify(approach.code);
+            }
+          }
+        }
+        // If no approaches array but has code (old format), wrap into single approach
+        else if (result.code && !result.approaches) {
+          result.approaches = [{
+            name: 'Solution',
+            code: result.code,
+            pitch: result.pitch,
+            explanations: result.explanations,
+            complexity: result.complexity,
+          }];
+        }
       }
 
       // Deduct usage for webapp users after successful completion
