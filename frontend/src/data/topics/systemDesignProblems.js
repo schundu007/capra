@@ -113,16 +113,24 @@ This covers two solutions: a basic implementation with scalability issues, and a
         endpoints: [
           {
             method: 'POST',
-            path: '/create-url',
-            params: 'longURL, customAlias? (optional)',
-            response: '201 Created, returns { shortUrl }',
-            notes: 'Creates a new short URL mapping'
+            path: '/api/v1/shorten',
+            params: '{ long_url: string, custom_alias?: string, expire_at?: string }',
+            response: '201 Created → { short_url: "https://short.ly/abc123", long_url, created_at, expire_at }',
+            notes: 'Creates a new short URL mapping. Check for custom alias collision. Rate limit: 100/hour per user.'
           },
           {
             method: 'GET',
-            path: '/{short-url}',
-            response: '301 Permanent Redirect',
-            notes: 'Redirects to the original long URL'
+            path: '/{short_code}',
+            params: 'short_code in URL path',
+            response: '301 Permanent Redirect → Location: https://original-long-url.com/path',
+            notes: 'Cache-first lookup (Redis → DB). Async log click event to Kafka. Return 404 if expired or not found.'
+          },
+          {
+            method: 'GET',
+            path: '/api/v1/stats/{short_code}',
+            params: 'short_code in URL path',
+            response: '200 OK → { total_clicks: 15420, unique_visitors: 8930, created_at, last_accessed, top_countries: [...] }',
+            notes: 'Read from analytics DB (ClickHouse). Data may lag 5-10 minutes behind real-time.'
           }
         ]
       },
