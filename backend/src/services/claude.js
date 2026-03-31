@@ -239,11 +239,15 @@ IMPORTANT: Respond with valid JSON in exactly this format. You MUST provide 3 DI
 APPROACH RULES:
 - Provide EXACTLY 3 different approaches ordered from simplest to most optimal
 - Each approach MUST have a unique algorithm/strategy (not just minor tweaks)
-- Each approach MUST have its own complete runnable code
+- Each approach MUST have its own complete, independently runnable code with print statements
+- Each approach MUST have its own pitch object with ALL fields filled (opener, approach, keyPoints, complexity, tradeoffs, edgeCases)
+- Each approach MUST have its own explanations array and complexity object
 - Name approaches clearly: "Brute Force", "Sorting + Binary Search", "Hash Map O(n)", etc.
 - All 3 codes must produce the SAME correct output for all test cases
+- DO NOT share code between approaches - each must be a complete standalone solution
+- If the problem is very simple (e.g. "add two numbers"), still provide 3 meaningfully different approaches (e.g. operator, function, bitwise/loop)
 
-FOR SYSTEM DESIGN PROBLEMS: Do NOT generate code. Set "code": "", "examples": [], "explanations": [], and focus entirely on the systemDesign object. The pitch should explain your system design approach.
+FOR SYSTEM DESIGN PROBLEMS: Do NOT generate approaches. Do NOT generate code. Set "approaches": [], "examples": [], and focus entirely on the systemDesign object.
 
 SYSTEM DESIGN - INCLUDE FULL SYSTEM DESIGN when the problem involves ANY of these:
 - Designing a system (URL shortener, chat app, rate limiter, cache, Twitter, Instagram, etc.)

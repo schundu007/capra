@@ -490,7 +490,12 @@ export default function App() {
           );
 
           setAutoRunOutput(output);
-          setSolution({ ...result, code: fixedCode, autoFixed: fixed, fixAttempts: attempts });
+          // Sync fixed code into approaches[0] so tab switching shows the fixed version
+          const updatedApproaches = result.approaches ? [...result.approaches] : [];
+          if (updatedApproaches.length > 0) {
+            updatedApproaches[0] = { ...updatedApproaches[0], code: fixedCode };
+          }
+          setSolution({ ...result, code: fixedCode, approaches: updatedApproaches, autoFixed: fixed, fixAttempts: attempts });
 
           if (ascendMode === 'coding' && fixedCode) {
             codingHistory.addEntry({

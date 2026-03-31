@@ -477,7 +477,12 @@ export default function MainApp() {
             result.code, result.language, result.examples, problem, setLoadingType
           );
           setAutoRunOutput(output);
-          setSolution({ ...result, code: fixedCode, autoFixed: fixed, fixAttempts: attempts });
+          // Sync fixed code into approaches[0] so tab switching shows the fixed version
+          const updatedApproaches = result.approaches ? [...result.approaches] : [];
+          if (updatedApproaches.length > 0) {
+            updatedApproaches[0] = { ...updatedApproaches[0], code: fixedCode };
+          }
+          setSolution({ ...result, code: fixedCode, approaches: updatedApproaches, autoFixed: fixed, fixAttempts: attempts });
           if (ascendMode === 'coding' && fixedCode) {
             codingHistory.addEntry({
               problem, language: result.language || language, code: fixedCode,
@@ -1260,7 +1265,7 @@ function CodingLayout({
 
   const CodePane = () => (
     <div className="h-full bg-gray-50">
-      <CodeDisplay ref={codeDisplayRef} code={activeCode} language={solution?.language || streamingContent.language} complexity={activeComplexity} onLineHover={onLineHover} examples={solution?.examples} isStreaming={isLoading && loadingType === 'solve' && !solution} autoRunOutput={activeApproach === 0 ? autoRunOutput : null} onExplanationsUpdate={onExplanationsUpdate} ascendMode={ascendMode} codingLanguage={codingLanguage} onLanguageChange={ascendMode === 'coding' ? onLanguageChange : undefined} detailLevel={codingDetailLevel} onDetailLevelChange={ascendMode === 'coding' ? onCodingDetailLevelChange : undefined} editorSettings={editorSettings} systemDesign={solution?.systemDesign || streamingContent.systemDesign} eraserDiagram={eraserDiagram} autoGenerateEraser={autoGenerateEraser} question={currentProblem || loadedProblem} cloudProvider="auto" onGenerateEraserDiagram={onGenerateEraserDiagram} approaches={approaches} activeApproach={activeApproach} onApproachChange={setActiveApproach} />
+      <CodeDisplay ref={codeDisplayRef} code={activeCode} language={solution?.language || streamingContent.language} complexity={activeComplexity} onLineHover={onLineHover} examples={solution?.examples} isStreaming={isLoading && loadingType === 'solve' && !solution} autoRunOutput={autoRunOutput} onExplanationsUpdate={onExplanationsUpdate} ascendMode={ascendMode} codingLanguage={codingLanguage} onLanguageChange={ascendMode === 'coding' ? onLanguageChange : undefined} detailLevel={codingDetailLevel} onDetailLevelChange={ascendMode === 'coding' ? onCodingDetailLevelChange : undefined} editorSettings={editorSettings} systemDesign={solution?.systemDesign || streamingContent.systemDesign} eraserDiagram={eraserDiagram} autoGenerateEraser={autoGenerateEraser} question={currentProblem || loadedProblem} cloudProvider="auto" onGenerateEraserDiagram={onGenerateEraserDiagram} approaches={approaches} activeApproach={activeApproach} onApproachChange={setActiveApproach} />
     </div>
   );
 

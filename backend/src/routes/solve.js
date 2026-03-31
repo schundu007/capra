@@ -197,17 +197,18 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
 
         // Normalize multi-approach responses: populate top-level fields from first approach
         if (result.approaches && Array.isArray(result.approaches) && result.approaches.length > 0) {
-          const first = result.approaches[0];
-          if (!result.code) result.code = first.code;
-          if (!result.pitch) result.pitch = first.pitch;
-          if (!result.explanations) result.explanations = first.explanations;
-          if (!result.complexity) result.complexity = first.complexity;
           // Ensure each approach's code is a string
           for (const approach of result.approaches) {
             if (approach.code && typeof approach.code !== 'string') {
               approach.code = JSON.stringify(approach.code);
             }
           }
+          // Always set top-level fields from first approach for backward compat
+          const first = result.approaches[0];
+          result.code = result.code || first.code;
+          result.pitch = result.pitch || first.pitch;
+          result.explanations = result.explanations || first.explanations;
+          result.complexity = result.complexity || first.complexity;
         }
         // If no approaches array but has code (old format), wrap into single approach
         else if (result.code && !result.approaches) {

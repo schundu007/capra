@@ -109,7 +109,7 @@ IMPORTANT: Respond with valid JSON. You MUST provide 3 DIFFERENT approaches:
   "examples": [{"input": "example input", "expected": "expected output"}]
 }
 
-Provide EXACTLY 3 different approaches ordered from simplest to most optimal. Each must have unique algorithm and complete runnable code.
+Provide EXACTLY 3 different approaches ordered from simplest to most optimal. Each must have unique algorithm, complete independently runnable code with print statements, and its own explanations and complexity. All 3 must produce the same correct output.
 
 Rules:
 - Generate COMPLETE, RUNNABLE code
@@ -469,7 +469,7 @@ export async function* solveProblemStream(problemText, language = 'auto', detail
         content: userMessage,
       },
     ],
-    max_tokens: ascendMode === 'system-design' ? 8192 : (isBrief ? 1024 : 4096),
+    max_tokens: ascendMode === 'system-design' ? 8192 : (isBrief ? 1024 : 8192),
     response_format: { type: 'json_object' },
     stream: true,
   });

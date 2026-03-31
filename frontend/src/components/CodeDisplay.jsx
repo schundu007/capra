@@ -191,10 +191,7 @@ const CodeDisplay = forwardRef(function CodeDisplay({ code: initialCode, languag
   useEffect(() => {
     setCode(initialCode);
     setFixAttempts(0);
-    // Don't reset output if we have auto-run output - it arrives at the same time as code
-    if (!autoRunOutput) {
-      setOutput(null);
-    }
+    setOutput(null);
   }, [initialCode]);
 
   // Display auto-run output when it arrives - this takes priority
