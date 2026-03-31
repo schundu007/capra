@@ -104,21 +104,21 @@ export default function OAuthLogin() {
       <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent" />
 
       {/* Journey Highlighter */}
-      <section className="px-6 md:px-12 py-8">
+      <section className="px-6 md:px-12 py-10">
         <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: 'Apply', href: 'https://jobs.cariara.com', icon: 'briefcase', desc: 'Find your role', color: 'emerald' },
-              { label: 'Prepare', href: '/prepare', icon: 'book', desc: 'Study & review', color: 'cyan' },
-              { label: 'Practice', href: '/app/coding', icon: 'code', desc: 'Solve problems', color: 'violet' },
-              { label: 'Attend', href: 'https://lumora.cariara.com/app', icon: 'microphone', desc: 'Ace the interview', color: 'amber' },
+              { label: 'Apply', href: 'https://jobs.cariara.com', icon: 'briefcase', desc: 'Find your role', gradient: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', border: '#6ee7b7', badge: '#059669', iconColor: '#059669' },
+              { label: 'Prepare', href: '/prepare', icon: 'book', desc: 'Study & review', gradient: 'linear-gradient(135deg, #ecfeff 0%, #cffafe 100%)', border: '#67e8f9', badge: '#0891b2', iconColor: '#0891b2' },
+              { label: 'Practice', href: '/app/coding', icon: 'code', desc: 'Solve problems', gradient: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)', border: '#c4b5fd', badge: '#7c3aed', iconColor: '#7c3aed' },
+              { label: 'Attend', href: 'https://lumora.cariara.com/app', icon: 'microphone', desc: 'Ace the interview', gradient: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', border: '#fcd34d', badge: '#d97706', iconColor: '#d97706' },
             ].map((item, i) => (
-              <a key={item.label} href={item.href} className="group relative flex flex-col items-center gap-2 p-5 rounded-xl border-2 border-white/60 bg-white/70 backdrop-blur-sm hover:border-emerald-300 hover:shadow-lg transition-all text-center">
-                <div className="absolute -top-2.5 left-4 px-2 py-0.5 rounded-full text-[10px] font-bold landing-mono bg-emerald-500 text-white">{i + 1}</div>
-                <div className={`w-10 h-10 rounded-lg border border-${item.color}-200 bg-${item.color}-50 flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                  <Icon name={item.icon} size={20} className={`text-${item.color}-500`} />
+              <a key={item.label} href={item.href} className="group relative flex flex-col items-center gap-3 p-6 rounded-2xl transition-all text-center hover:-translate-y-1" style={{ background: item.gradient, border: `2px solid ${item.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }} onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 8px 30px ${item.border}40`; }} onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.06)'; }}>
+                <div className="absolute -top-3 left-5 px-2.5 py-1 rounded-full text-[11px] font-bold landing-mono text-white" style={{ background: item.badge }}>{i + 1}</div>
+                <div className="w-14 h-14 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform" style={{ background: 'white', boxShadow: `0 2px 8px ${item.border}30` }}>
+                  <Icon name={item.icon} size={26} style={{ color: item.iconColor }} />
                 </div>
-                <span className="text-sm font-bold text-gray-900 landing-display">{item.label}</span>
+                <span className="text-base font-bold text-gray-900 landing-display">{item.label}</span>
                 <span className="text-xs text-gray-500 landing-body">{item.desc}</span>
               </a>
             ))}
