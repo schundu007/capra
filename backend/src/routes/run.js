@@ -96,7 +96,7 @@ async function installNpmPackage(packageName) {
   }
 
   try {
-    execSync(`npm install -g ${packageName}`, { timeout: 120000, stdio: 'pipe' });
+    execSync(`npm install --no-save ${packageName}`, { timeout: 120000, stdio: 'pipe', cwd: tmpdir() });
     installedNpmPackages.add(packageName);
     safeLog(`[CodeRunner] Installed npm package: ${packageName}`);
     return true;

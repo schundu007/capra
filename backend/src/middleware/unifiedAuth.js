@@ -20,7 +20,7 @@ import { logger } from './requestLogger.js';
 
 const JWT_SECRET = process.env.JWT_SECRET_KEY;
 const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'HS256';
-const ELECTRON_SECRET = process.env.ELECTRON_SECRET || 'electron-device-secret';
+const ELECTRON_SECRET = process.env.ELECTRON_SECRET || null;
 
 /**
  * Verify JWT token from Cariara OAuth

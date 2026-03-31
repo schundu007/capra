@@ -7,9 +7,10 @@ const sseClients = new Set();
 
 // SSE endpoint for frontend to listen for problems
 router.get('/events', (req, res) => {
-  // Set CORS headers explicitly for SSE (EventSource doesn't send credentials)
-  const origin = req.headers.origin || '*';
-  res.setHeader('Access-Control-Allow-Origin', origin);
+  // Set CORS headers for SSE — only allow known origins
+  const origin = req.headers.origin || '';
+  const allowed = origin.endsWith('.cariara.com') || origin === 'https://cariara.com' || origin.startsWith('chrome-extension://') || origin.startsWith('moz-extension://') || origin.startsWith('http://localhost');
+  res.setHeader('Access-Control-Allow-Origin', allowed ? origin : 'https://capra.cariara.com');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 

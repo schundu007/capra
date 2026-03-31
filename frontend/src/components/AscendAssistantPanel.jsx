@@ -8,7 +8,9 @@ const isElectron = window.electronAPI?.isElectron || false;
 function renderMarkdown(text) {
   if (!text) return null;
 
+  const escapeHtml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const processInline = (str) => {
+    str = escapeHtml(str);
     str = str.replace(/\*\*(.+?)\*\*/g, '<strong style="color: #f1f5f9; font-weight: 600;">$1</strong>');
     str = str.replace(/__(.+?)__/g, '<strong style="color: #f1f5f9; font-weight: 600;">$1</strong>');
     str = str.replace(/\*(.+?)\*/g, '<em>$1</em>');

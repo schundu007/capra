@@ -27,12 +27,9 @@ function createLimiter(options) {
     legacyHeaders: false,
     skipFailedRequests,
     skipSuccessfulRequests,
-    // Use X-Forwarded-For header for client IP (behind proxy)
+    // Use req.ip which respects trust proxy setting for correct client IP
     keyGenerator: (req) => {
-      return req.headers['x-forwarded-for']?.split(',')[0] ||
-             req.headers['x-real-ip'] ||
-             req.ip ||
-             'unknown';
+      return req.ip || 'unknown';
     },
     handler: (req, res, next, options) => {
       logger.warn({

@@ -38,6 +38,9 @@ initRedis();
 const app = express();
 const PORT = config.PORT;
 
+// Trust one level of proxy (Railway/Vercel ingress) for correct req.ip
+app.set('trust proxy', 1);
+
 // Security headers
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },

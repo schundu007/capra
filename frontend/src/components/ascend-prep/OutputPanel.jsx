@@ -105,6 +105,8 @@ function renderMarkdown(text) {
 // Process inline markdown (bold, italic, code, links)
 function processInline(str) {
   if (!str) return '';
+  // Escape HTML entities first to prevent XSS
+  str = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   // Bold: **text** or __text__
   str = str.replace(/\*\*(.+?)\*\*/g, '<strong style="color: #047857;">$1</strong>');
   str = str.replace(/__(.+?)__/g, '<strong style="color: #047857;">$1</strong>');
