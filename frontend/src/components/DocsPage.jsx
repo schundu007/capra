@@ -424,14 +424,16 @@ export default function DocsPage({ onBack }) {
         }}
       />
 
-      <div className="relative flex">
+      <div className={`relative ${isMobile ? 'flex flex-col' : 'flex'}`}>
         {/* Mobile sidebar overlay — hidden when viewing a topic on mobile */}
         {isMobile && docsSidebarOpen && !selectedTopic && (
           <div className="fixed inset-0 z-40 bg-black/50" onClick={() => setDocsSidebarOpen(false)} />
         )}
 
-        {/* Left Sidebar - Navigation — completely hidden on mobile when a topic is selected */}
-        <div className={`${isMobile ? (selectedTopic ? 'hidden' : 'fixed inset-y-0 left-0 z-50 w-72 max-w-[80vw] transition-transform duration-300') : 'w-72 flex-shrink-0 h-screen sticky top-0'} flex flex-col bg-white border-r border-gray-100 ${isMobile && !docsSidebarOpen ? '-translate-x-full' : 'translate-x-0'}`}>
+        {/* Left Sidebar - Navigation */}
+        {/* Mobile: only render when open (overlay). Desktop: always visible (sticky) */}
+        {(!isMobile || docsSidebarOpen) && !selectedTopic && (
+        <div className={`${isMobile ? 'fixed inset-y-0 left-0 z-50 w-72 max-w-[80vw]' : 'w-72 flex-shrink-0 h-screen sticky top-0'} flex flex-col bg-white border-r border-gray-100`}>
           {/* Logo */}
           <div className="p-6">
             <a href="/" className="flex items-center gap-3 group">
@@ -508,6 +510,7 @@ export default function DocsPage({ onBack }) {
             </div>
           </div>
         </div>
+        )}
 
         {/* Main Content Area + Right Sidebar */}
         <div className="flex-1 min-h-screen flex">
