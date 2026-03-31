@@ -803,7 +803,7 @@ export default function MainApp() {
   };
 
   return (
-    <div className={`h-screen-safe flex overflow-hidden landing-root bg-white text-gray-900`} style={isMobile ? { paddingBottom: 'calc(52px + env(safe-area-inset-bottom, 0px))' } : undefined}>
+    <div className={`h-screen-safe flex overflow-hidden landing-root text-gray-900`} style={{ background: 'linear-gradient(180deg, #fdf2f8 0%, #ede9fe 50%, #e0e7ff 100%)', ...(isMobile ? { paddingBottom: 'calc(52px + env(safe-area-inset-bottom, 0px))' } : {}) }}>
       {/* Sidebar — desktop: inline, mobile: overlay drawer */}
       {isMobile ? (
         <Sidebar {...sidebarProps} isOpen={mobileDrawerOpen} />

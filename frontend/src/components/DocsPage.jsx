@@ -405,7 +405,7 @@ export default function DocsPage({ onBack }) {
   const tableOfContents = getTableOfContents();
 
   return (
-    <div className="min-h-screen landing-root bg-white text-gray-900">
+    <div className="min-h-screen landing-root text-gray-900" style={{ background: 'linear-gradient(180deg, #fdf2f8 0%, #ede9fe 50%, #e0e7ff 100%)' }}>
       {/* Electron drag region */}
       {isElectron && (
         <div
