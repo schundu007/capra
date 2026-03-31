@@ -116,7 +116,7 @@ export default function OAuthLogin() {
               <a key={item.label} href={item.href} className={`journey-card journey-card-${i} group relative flex flex-col items-center gap-3 p-6 rounded-2xl text-center overflow-hidden`} style={{ '--card-bg': item.bg, '--card-bg-end': item.bgEnd, '--card-border': item.border, '--card-border-end': item.borderEnd, '--card-glow': item.glowColor, animationDelay: `${i * 0.2}s` }}>
                 {/* Animated gradient border */}
                 <div className="journey-border-glow absolute inset-0 rounded-2xl pointer-events-none" style={{ animationDelay: `${i * 0.5}s` }} />
-                <div className="journey-badge absolute -top-3 left-5 px-2.5 py-1 rounded-full text-[11px] font-bold landing-mono text-white" style={{ background: item.badge, animationDelay: `${i * 0.2 + 0.6}s` }}>{i + 1}</div>
+                <div className="journey-badge absolute -top-5 -right-3 w-10 h-10 rounded-full flex items-center justify-center text-base font-black landing-mono text-white z-10" style={{ background: `linear-gradient(135deg, ${item.border}, ${item.badge})`, boxShadow: `0 4px 14px rgba(${item.glowColor},0.4), inset 0 1px 2px rgba(255,255,255,0.3)`, animationDelay: `${i * 0.2 + 0.6}s` }}>{i + 1}</div>
                 <div className="journey-icon w-14 h-14 rounded-xl flex items-center justify-center transition-all duration-500 group-hover:scale-115 group-hover:rotate-6" style={{ background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(8px)', boxShadow: `0 4px 16px rgba(${item.glowColor},0.2)`, animationDelay: `${i * 0.25}s` }}>
                   <Icon name={item.icon} size={26} style={{ color: item.iconColor }} />
                 </div>
@@ -337,13 +337,19 @@ export default function OAuthLogin() {
         @keyframes borderRotate { to { transform: rotate(360deg); } }
         .journey-card:hover .journey-border-glow { opacity: 0.8; }
 
-        /* Badge bounce-in with overshoot */
+        /* Badge — bounce-in then subtle pulse */
         .journey-badge {
-          animation: badgePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+          animation: badgePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both, badgePulse 2.5s ease-in-out 1.5s infinite;
+          border: 2px solid rgba(255,255,255,0.5);
         }
         @keyframes badgePop {
-          from { opacity: 0; transform: scale(0) rotate(-20deg); }
+          from { opacity: 0; transform: scale(0) rotate(-30deg); }
+          60%  { transform: scale(1.2) rotate(5deg); }
           to   { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+        @keyframes badgePulse {
+          0%, 100% { transform: scale(1); box-shadow: 0 4px 14px rgba(0,0,0,0.15); }
+          50%      { transform: scale(1.1); box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
         }
 
         /* Icon — breathing glow + entrance scale */
