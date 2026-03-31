@@ -28,10 +28,10 @@ export default function OAuthLogin() {
   ];
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 overflow-hidden landing-root">
+    <div className="min-h-screen text-gray-900 overflow-hidden landing-root" style={{ background: 'linear-gradient(180deg, #fdf2f8 0%, #ede9fe 50%, #e0e7ff 100%)' }}>
 
       {/* Nav */}
-      <nav className="flex items-center justify-between px-6 md:px-12 py-4 border-b border-gray-100">
+      <nav className="flex items-center justify-between px-6 md:px-12 py-4 border-b border-white/30" style={{ background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(12px)' }}>
         <a href="/" className="flex items-center gap-3">
           <div className="w-8 h-8 bg-emerald-500 flex items-center justify-center">
             <Icon name="ascend" size={16} className="text-white" />
@@ -193,7 +193,7 @@ export default function OAuthLogin() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-100 px-6 md:px-12 py-4">
+      <footer className="border-t border-white/30 px-6 md:px-12 py-4" style={{ background: 'rgba(255,255,255,0.5)' }}>
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-emerald-500 flex items-center justify-center">
