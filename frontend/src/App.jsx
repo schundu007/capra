@@ -90,9 +90,9 @@ export default function App() {
   // Auth (webapp uses context, Electron skips auth)
   // ---------------------------------------------------------------------------
   const auth = useAuth();
-  const isAuthenticated = true;
+  const isAuthenticated = isElectron ? true : !!auth.user;
   const user = isElectron ? null : auth.user;
-  const authRequired = false;
+  const authRequired = !isElectron;
   const isAdmin = user?.role === 'admin' || user?.roles?.includes?.('admin');
 
   // ---------------------------------------------------------------------------
@@ -862,8 +862,10 @@ export default function App() {
   // ---------------------------------------------------------------------------
   if (isPremiumPage) return <PremiumPage />;
 
-  // OAuth disabled — allow all users through
-  // When re-enabling, restore auth check here
+  // Auth gate — redirect unauthenticated webapp users to landing/login page
+  if (authRequired && !isAuthenticated) {
+    return <OAuthLogin />;
+  }
 
   // ---------------------------------------------------------------------------
   // Render: Download Page

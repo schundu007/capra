@@ -1,7 +1,15 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { isElectron } from './constants';
+import { useAuth } from './contexts/AuthContext';
 import LoadingScreen from './components/shared/LoadingScreen';
+
+// Redirect to landing page if not authenticated
+function ProtectedRoute({ children }) {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/" replace />;
+  return children;
+}
 
 // Lazy-loaded pages
 const LandingPage = React.lazy(() => import('./pages/LandingPage'));
@@ -29,10 +37,10 @@ function AppRoutes() {
         <Route element={<AppShell />}>
           <Route path="/prepare/*" element={<DocsPage />} />
           <Route path="/problems/:slug" element={<ProblemPage />} />
-          <Route path="/app" element={<MainApp />} />
-          <Route path="/app/coding" element={<MainApp />} />
-          <Route path="/app/design" element={<MainApp />} />
-          <Route path="/app/prep" element={<MainApp />} />
+          <Route path="/app" element={<ProtectedRoute><MainApp /></ProtectedRoute>} />
+          <Route path="/app/coding" element={<ProtectedRoute><MainApp /></ProtectedRoute>} />
+          <Route path="/app/design" element={<ProtectedRoute><MainApp /></ProtectedRoute>} />
+          <Route path="/app/prep" element={<ProtectedRoute><MainApp /></ProtectedRoute>} />
         </Route>
 
         <Route path="*" element={<NotFound />} />

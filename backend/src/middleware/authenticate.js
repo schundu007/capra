@@ -144,22 +144,18 @@ export async function authenticate(req, res, next) {
     }
   }
 
-  // 4. No authentication provided
-  // OAuth is disabled — allow all requests through as guest
-  // TODO: Re-enable auth when OAuth is restored
-  if (!authHeader) {
+  // 4. No valid authentication found
+  // If no auth methods are configured (local dev), allow through
+  if (!isAuthEnabled() && !JWT_SECRET) {
     req.user = { id: 0, email: 'guest@ascend.app', role: 'user', source: 'guest' };
     return next();
   }
 
-  // If no auth methods are configured, allow through (local dev mode)
-  if (!isAuthEnabled() && !JWT_SECRET) {
-    return next();
-  }
-
-  // Invalid token — still allow through as guest while OAuth is disabled
-  req.user = { id: 0, email: 'guest@ascend.app', role: 'user', source: 'guest' };
-  return next();
+  // Require authentication — reject unauthenticated requests
+  return res.status(401).json({
+    error: 'Authentication required. Please sign in.',
+    code: 'AUTH_REQUIRED',
+  });
 }
 
 /**
