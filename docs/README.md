@@ -76,14 +76,15 @@ Download the native app for macOS and Windows
 
 ## Subscription Plans
 
-| Feature | Free Trial | Monthly | Quarterly Pro |
-|---------|------------|---------|---------------|
-| Coding Problems | 2 | Unlimited | Unlimited |
-| System Design | 2 | Unlimited | Unlimited |
-| Company Preps | 2 | Unlimited | Unlimited |
-| Desktop App | ❌ | ❌ | ✅ |
-| Priority Support | ❌ | ✅ | ✅ |
-| Price | Free | $49/mo | $300/qtr |
+| Feature | Free Trial | Interview Ready | FAANG Track | Elite |
+|---------|------------|-----------------|-------------|-------|
+| DSA Topics | Limited | All 300+ | All 300+ | All 300+ |
+| System Design | 2 | 15 | Unlimited | Unlimited |
+| AI Questions | Limited | 100/day | Unlimited | Unlimited |
+| Company Preps | No | 3 | All | All |
+| Desktop App | No | No | No | Early access |
+| Priority Support | No | No | No | Yes |
+| Price | Free | $29/mo | $59/mo | $99/mo |
 
 [View Pricing →](https://capra.cariara.com/pricing)
 
@@ -106,8 +107,8 @@ Download the native app for macOS and Windows
 2. Sign up with your email or OAuth
 3. Start solving problems!
 
-# For Desktop App (Quarterly Pro)
-1. Purchase Quarterly Pro subscription
+# For Desktop App (Elite)
+1. Purchase Elite subscription
 2. Download from the dashboard
 3. Install and sign in
 4. Start practicing offline!

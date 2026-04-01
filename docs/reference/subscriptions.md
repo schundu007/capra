@@ -6,19 +6,20 @@ Complete guide to Ascend subscription plans, billing, and account management.
 
 ## Plan Comparison
 
-| Feature | Free Trial | Monthly | Quarterly Pro |
-|---------|------------|---------|---------------|
-| **Price** | Free | $49/month | $300/quarter |
-| **Billing** | — | Monthly | Every 3 months |
-| **Coding Problems** | 2 | Unlimited | Unlimited |
-| **System Design** | 2 | Unlimited | Unlimited |
-| **Company Preps** | 2 | Unlimited | Unlimited |
-| **Follow-up Q&A** | Yes | Yes | Yes |
-| **Code Execution** | Yes | Yes | Yes |
-| **Desktop App** | No | No | Yes |
-| **Interview Assistant** | No | No | Yes |
-| **Stealth Mode** | No | No | Yes |
-| **Priority Support** | No | Yes | Yes |
+| Feature | Free Trial | Interview Ready | FAANG Track | Elite |
+|---------|------------|-----------------|-------------|-------|
+| **Price** | Free | $29/month | $59/month | $99/month |
+| **Billing** | — | Monthly | Monthly | Monthly |
+| **DSA Topics** | Limited | All 300+ | All 300+ | All 300+ |
+| **System Design** | 2 | 15 problems | Unlimited + diagrams | Unlimited + diagrams |
+| **AI Questions** | Limited | 100/day | Unlimited | Unlimited |
+| **Mock Interviews** | No | 5/month | Unlimited | Unlimited |
+| **Company Preps** | No | 3 | All | All |
+| **Lumora Sessions** | No | No | 3 included | 5 included |
+| **Custom Study Plan** | No | No | No | Yes |
+| **AI Resume Review** | No | No | No | Yes |
+| **Priority Support** | No | No | No | Yes |
+| **Desktop App** | No | No | No | Early access |
 
 ---
 
@@ -49,20 +50,21 @@ When you've used your free allowance:
 
 ---
 
-## Monthly Plan
+## Interview Ready ($29/month)
 
 ### Features
 
 Everything in Free Trial, plus:
 
-- **Unlimited** coding problems
-- **Unlimited** system designs
-- **Unlimited** company preps
-- **Priority support** — Faster response times
+- **All 300+ DSA topics**
+- **15 system design problems**
+- **100 AI questions/day**
+- **5 mock interviews/month**
+- **3 company preps**
 
 ### Pricing
 
-- **$49/month** billed monthly
+- **$29/month** billed monthly
 - Cancel anytime
 - No long-term commitment
 
@@ -74,25 +76,51 @@ Everything in Free Trial, plus:
 
 ---
 
-## Quarterly Pro
+## FAANG Track ($59/month)
 
 ### Features
 
-Everything in Monthly, plus:
+Everything in Interview Ready, plus:
 
-- **Desktop application** — Native macOS and Windows app
-- **Interview Assistant** — Real-time voice transcription
-- **Stealth Mode** — Minimal visibility overlay
-- **Offline capability** — Use without internet
-- **System integrations** — Screenshot capture, etc.
+- **Unlimited system design + diagrams**
+- **Unlimited AI questions**
+- **Unlimited mock interviews**
+- **All company preps**
+- **3 Lumora live sessions included**
 
 ### Pricing
 
-- **$300/quarter** ($100/month effective)
-- Billed every 3 months
-- **33% savings** vs. monthly
+- **$59/month** billed monthly
+- Cancel anytime
+- Best value for prep
 
-### Device Licensing
+### Best For
+
+- Serious FAANG interview preparation
+- Active job seekers
+- Users who want comprehensive prep coverage
+
+---
+
+## Elite ($99/month)
+
+### Features
+
+Everything in FAANG Track, plus:
+
+- **5 Lumora live sessions included**
+- **Custom weekly study plan**
+- **AI resume review**
+- **Priority support**
+- **Desktop app early access**
+
+### Pricing
+
+- **$99/month** billed monthly
+- Cancel anytime
+- Full-service interview preparation
+
+### Device Licensing (Desktop App)
 
 - **1 active device** at a time
 - Switch devices in Settings → Devices
@@ -100,9 +128,9 @@ Everything in Monthly, plus:
 
 ### Best For
 
-- Serious interview preparation
-- Active job seekers
+- Comprehensive interview preparation
 - Users who want live interview assistance
+- Those who need desktop stealth mode
 
 ---
 
@@ -157,8 +185,9 @@ Credits are used for specific premium features:
 | Plan | Monthly Credits |
 |------|-----------------|
 | Free Trial | First prep free |
-| Monthly | 5/month |
-| Quarterly Pro | 7/month (21/quarter) |
+| Interview Ready | 5/month |
+| FAANG Track | 10/month |
+| Elite | Included with subscription |
 
 ### Purchasing Additional Credits
 
@@ -168,9 +197,7 @@ Credits are used for specific premium features:
 
 | Package | Price | Per Credit |
 |---------|-------|------------|
-| 5 credits | $15 | $3.00 |
-| 10 credits | $25 | $2.50 |
-| 25 credits | $50 | $2.00 |
+| 3 credits | $30 | $10.00 |
 
 ### Credit Expiration
 
@@ -184,7 +211,7 @@ Credits are used for specific premium features:
 
 ### Eligibility
 
-Desktop app requires **Quarterly Pro** subscription.
+Desktop app requires **Elite** subscription.
 
 ### Installation
 
@@ -195,7 +222,7 @@ Desktop app requires **Quarterly Pro** subscription.
 
 ### Device Management
 
-Your Quarterly Pro license allows **one device** at a time:
+Your Elite license allows **one device** at a time:
 
 1. First sign-in registers the device
 2. To switch devices:

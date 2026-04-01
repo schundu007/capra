@@ -66,7 +66,6 @@ router.post('/checkout', jwtAuth, async (req, res) => {
       STRIPE_PRICES.MONTHLY,
       STRIPE_PRICES.QUARTERLY_PRO,
       STRIPE_PRICES.DESKTOP_LIFETIME,
-      STRIPE_PRICES.ADDON,
     ].filter(Boolean); // Filter out undefined prices
 
     if (!validPrices.includes(priceId)) {
@@ -100,9 +99,8 @@ router.post('/checkout', jwtAuth, async (req, res) => {
       );
     }
 
-    // Determine if this is a subscription or one-time purchase
-    // All three plans (monthly, quarterly_pro, desktop_lifetime) are now monthly subscriptions
-    const isOneTime = priceId === STRIPE_PRICES.ADDON;
+    // All three plans (Interview Ready, FAANG Track, Elite) are monthly subscriptions
+    const isOneTime = false;
 
     // For subscriptions, don't allow if already subscribed
     if (!isOneTime) {
@@ -122,9 +120,7 @@ router.post('/checkout', jwtAuth, async (req, res) => {
 
     // Determine purchase type for metadata
     let purchaseType = 'subscription';
-    if (priceId === STRIPE_PRICES.ADDON) {
-      purchaseType = 'addon';
-    } else if (priceId === STRIPE_PRICES.DESKTOP_LIFETIME) {
+    if (priceId === STRIPE_PRICES.DESKTOP_LIFETIME) {
       purchaseType = 'desktop_lifetime';
     }
 
@@ -412,19 +408,10 @@ async function handleCheckoutComplete(session) {
 
   logger.info({ userId, priceId, type }, 'Processing checkout completion');
 
-  if (type === 'addon') {
-    // Credit add-on purchase
-    await addCredits(
-      userId,
-      CREDITS_PER_PLAN.addon,
-      'addon',
-      'Credit add-on purchase',
-      session.id
-    );
-  } else if (type === 'subscription' || type === 'desktop_lifetime') {
+  if (type === 'subscription' || type === 'desktop_lifetime') {
     // Immediately activate plan on checkout completion (don't wait for subscription.updated)
-    let planType = 'monthly';
-    if (priceId === STRIPE_PRICES.QUARTERLY_PRO) planType = 'quarterly_pro';
+    let planType = 'monthly'; // Interview Ready
+    if (priceId === STRIPE_PRICES.QUARTERLY_PRO) planType = 'quarterly_pro'; // FAANG Track
     else if (priceId === STRIPE_PRICES.DESKTOP_LIFETIME) planType = 'quarterly_pro'; // Elite maps to quarterly_pro features
 
     await query(
@@ -433,7 +420,6 @@ async function handleCheckoutComplete(session) {
     );
     logger.info({ userId, planType, sessionId: session.id }, 'Plan activated on checkout');
   }
-  // Subscription credits are also added via invoice.paid
 }
 
 /**
@@ -454,18 +440,20 @@ async function handleInvoicePaid(invoice) {
     return;
   }
 
-  // Determine credits based on plan
+  // Plans are now feature-based (credit system deprecated)
+  // Still update subscription period below for plan renewal tracking
   const planType = subscription.plan_type;
-  const credits = CREDITS_PER_PLAN[planType] || 5;
+  const credits = CREDITS_PER_PLAN[planType] || 0;
 
-  // Add credits
-  await addCredits(
-    subscription.user_id,
-    credits,
-    'subscription',
-    `${planType} subscription renewal`,
-    invoice.id
-  );
+  if (credits > 0) {
+    await addCredits(
+      subscription.user_id,
+      credits,
+      'subscription',
+      `${planType} subscription renewal`,
+      invoice.id
+    );
+  }
 
   // Update subscription period
   const subscriptionId = invoice.subscription;
@@ -488,7 +476,7 @@ async function handleInvoicePaid(invoice) {
     );
   }
 
-  logger.info({ userId: subscription.user_id, credits }, 'Credits added for invoice');
+  logger.info({ userId: subscription.user_id, planType }, 'Invoice paid — subscription renewed');
 }
 
 /**

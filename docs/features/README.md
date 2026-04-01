@@ -17,16 +17,16 @@ Comprehensive guides to all Ascend features for interview preparation.
 
 ## Feature Comparison by Plan
 
-| Feature | Free Trial | Monthly | Quarterly Pro |
-|---------|------------|---------|---------------|
-| Coding Problems | 2 | Unlimited | Unlimited |
-| System Design | 2 | Unlimited | Unlimited |
-| Company Preps | 2 | Unlimited | Unlimited |
-| Follow-up Q&A | Yes | Yes | Yes |
-| Code Execution | Yes | Yes | Yes |
-| Voice Transcription | No | No | Yes |
-| Desktop App | No | No | Yes |
-| Stealth Mode | No | No | Yes |
+| Feature | Free Trial | Interview Ready ($29/mo) | FAANG Track ($59/mo) | Elite ($99/mo) |
+|---------|------------|--------------------------|----------------------|----------------|
+| DSA Topics | Limited | All 300+ | All 300+ | All 300+ |
+| System Design | 2 | 15 | Unlimited + diagrams | Unlimited + diagrams |
+| AI Questions | Limited | 100/day | Unlimited | Unlimited |
+| Mock Interviews | No | 5/month | Unlimited | Unlimited |
+| Company Preps | No | 3 | All | All |
+| Lumora Sessions | No | No | 3 included | 5 included |
+| AI Resume Review | No | No | No | Yes |
+| Desktop App | No | No | No | Early access |
 
 ---
 

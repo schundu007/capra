@@ -218,8 +218,9 @@ After your free prep:
 
 | Plan | Credits Included | Additional |
 |------|------------------|------------|
-| Monthly | 5/month | $3 per extra |
-| Quarterly Pro | 20/quarter | $2 per extra |
+| Interview Ready | 5/month | $10 per extra |
+| FAANG Track | 10/month | $10 per extra |
+| Elite | Included | $10 per extra |
 
 ### Viewing Credit Balance
 

@@ -183,31 +183,25 @@ export default function OnboardingModal({ isOpen, onComplete, onOpenPricing }) {
             <div
               className="p-4 rounded-lg text-center relative overflow-hidden bg-emerald-50 border border-emerald-200"
             >
-              <div className="text-2xl font-bold text-gray-900 landing-display">$99</div>
-              <div className="text-sm font-medium text-emerald-500 landing-body">Monthly</div>
-              <div className="text-xs mt-2 text-gray-400 landing-body">5 credits/mo</div>
+              <div className="text-2xl font-bold text-gray-900 landing-display">$29</div>
+              <div className="text-sm font-medium text-emerald-500 landing-body">Interview Ready</div>
+              <div className="text-xs mt-2 text-gray-400 landing-body">/month</div>
             </div>
             <div
               className="p-4 rounded-lg text-center relative overflow-hidden bg-cyan-50 border border-cyan-200"
             >
               <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500 text-white landing-mono">POPULAR</div>
-              <div className="text-2xl font-bold text-gray-900 landing-display">$300</div>
-              <div className="text-sm font-medium text-cyan-500 landing-body">Quarterly Pro</div>
-              <div className="text-xs mt-2 text-gray-400 landing-body">10 credits/qtr</div>
+              <div className="text-2xl font-bold text-gray-900 landing-display">$59</div>
+              <div className="text-sm font-medium text-cyan-500 landing-body">FAANG Track</div>
+              <div className="text-xs mt-2 text-gray-400 landing-body">/month</div>
             </div>
             <div
-              className="p-4 rounded-lg text-center bg-orange-50 border border-orange-200"
+              className="p-4 rounded-lg text-center bg-violet-50 border border-violet-200"
             >
-              <div className="text-2xl font-bold text-gray-900 landing-display">$300</div>
-              <div className="text-sm font-medium text-orange-400 landing-body">Desktop</div>
-              <div className="text-xs mt-2 text-gray-400 landing-body">Lifetime access</div>
+              <div className="text-2xl font-bold text-gray-900 landing-display">$99</div>
+              <div className="text-sm font-medium text-violet-400 landing-body">Elite</div>
+              <div className="text-xs mt-2 text-gray-400 landing-body">/month</div>
             </div>
-          </div>
-          <div
-            className="p-4 rounded-lg text-center bg-gray-50 border border-gray-200"
-          >
-            <span className="text-gray-500 landing-body">Need more? </span>
-            <span className="font-semibold text-gray-900 landing-body">$30 for 3 additional credits</span>
           </div>
         </div>
       ),

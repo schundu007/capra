@@ -11,18 +11,16 @@ export const stripe = stripeSecretKey
 
 // Price IDs from Stripe Dashboard
 export const STRIPE_PRICES = {
-  MONTHLY: process.env.STRIPE_PRICE_MONTHLY,
-  QUARTERLY_PRO: process.env.STRIPE_PRICE_QUARTERLY_PRO, // $300/quarter with jobs
-  DESKTOP_LIFETIME: process.env.STRIPE_PRICE_DESKTOP,    // $300 one-time
-  ADDON: process.env.STRIPE_PRICE_ADDON,                 // $30 for 3 credits
+  MONTHLY: process.env.STRIPE_PRICE_MONTHLY,              // $29/mo — Interview Ready
+  QUARTERLY_PRO: process.env.STRIPE_PRICE_QUARTERLY_PRO,  // $59/mo — FAANG Track (includes 3 Lumora sessions)
+  DESKTOP_LIFETIME: process.env.STRIPE_PRICE_DESKTOP,     // $99/mo — Elite (includes 5 Lumora sessions)
 };
 
-// Credits per plan
+// Feature flags per plan (credit system deprecated — plans are now feature-based)
 export const CREDITS_PER_PLAN = {
-  monthly: 5,
-  quarterly_pro: 10,
-  desktop_lifetime: 0, // Desktop users use own keys
-  addon: 3,
+  monthly: 0,           // Interview Ready — feature-gated, no credits
+  quarterly_pro: 0,     // FAANG Track — feature-gated, no credits
+  desktop_lifetime: 0,  // Elite — feature-gated, no credits
 };
 
 /**

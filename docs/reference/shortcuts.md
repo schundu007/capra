@@ -58,7 +58,7 @@ These shortcuts work from anywhere in the application.
 
 ## Interview Assistant Shortcuts
 
-> **Note:** Desktop app only (Quarterly Pro)
+> **Note:** Desktop app only (Elite plan)
 
 | Shortcut | Action |
 |----------|--------|

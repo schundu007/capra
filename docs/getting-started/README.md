@@ -75,7 +75,7 @@ After signing in, you'll see the main dashboard:
 
 ## Desktop App Installation
 
-> **📋 Requirement:** Desktop app requires a **Quarterly Pro** subscription.
+> **📋 Requirement:** Desktop app requires an **Elite** subscription.
 
 ### macOS Installation
 
@@ -126,7 +126,7 @@ After signing in, you'll see the main dashboard:
 
 ### Device Licensing
 
-Your Quarterly Pro subscription allows **one device** at a time:
+Your Elite subscription allows **one device** at a time:
 
 - First device is automatically registered on sign-in
 - To switch devices, deactivate the current one from **Settings → Devices**
@@ -275,7 +275,7 @@ Now that you're set up, explore these guides:
 <details>
 <summary><strong>Desktop app won't start</strong></summary>
 
-1. Ensure you have an active Quarterly Pro subscription
+1. Ensure you have an active Elite subscription
 2. Check your internet connection
 3. Try reinstalling the application
 4. Check if your device license is active

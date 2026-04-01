@@ -1,6 +1,6 @@
 # Interview Assistant
 
-The Interview Assistant provides real-time voice transcription, coaching, and answer suggestions during live interviews. Available exclusively with **Quarterly Pro** subscription.
+The Interview Assistant provides real-time voice transcription, coaching, and answer suggestions during live interviews. Available exclusively with **Elite** subscription.
 
 ---
 
@@ -36,7 +36,7 @@ Interview Assistant is your real-time companion during live interviews:
 
 ### Subscription
 
-- **Quarterly Pro** subscription required
+- **Elite** subscription required
 - Desktop app only (not available in web app)
 
 ### System Requirements
@@ -262,7 +262,7 @@ Before any interview:
 **Symptoms:** Hints not appearing
 
 **Solutions:**
-1. Ensure Quarterly Pro subscription active
+1. Ensure Elite subscription active
 2. Check internet connectivity
 3. Verify API keys configured (desktop)
 4. Contact support if persistent

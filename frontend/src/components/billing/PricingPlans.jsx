@@ -11,49 +11,33 @@ export default function PricingPlans({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  // Per credit allowances
-  const PER_CREDIT = {
-    codingProblems: 5,
-    systemDesigns: 2,
-    companyPreps: 1,
-    interviewMinutes: 30,
-  };
-
   const plans = [
     {
       id: 'monthly',
-      name: 'Monthly',
-      price: '$99',
+      name: 'Interview Ready',
+      price: '$29',
       period: '/mo',
-      credits: 5,
       popular: false,
+      features: ['All 300+ DSA topics', '15 system design problems', '100 AI questions/day', '5 mock interviews/month', '3 company preps'],
     },
     {
       id: 'quarterly_pro',
-      name: 'Quarterly Pro',
-      price: '$300',
-      period: '/qtr',
-      credits: 10,
+      name: 'FAANG Track',
+      price: '$59',
+      period: '/mo',
       popular: true,
-      features: ['Job Discovery', 'jobs.cariara.com access'],
+      features: ['Everything in Interview Ready', 'Unlimited system design + diagrams', 'Unlimited AI questions', 'All company preps', '3 Lumora live sessions'],
     },
     {
       id: 'desktop_lifetime',
-      name: 'Desktop App',
-      price: '$300',
-      period: 'one-time',
-      credits: 0,
+      name: 'Elite',
+      price: '$99',
+      period: '/mo',
       popular: false,
       isDesktop: true,
-      desktopFeatures: ['Lifetime access', 'Use your own API keys', 'Unlimited usage', 'No credits needed'],
+      features: ['Everything in FAANG Track', '5 Lumora live sessions', 'Custom weekly study plan', 'AI resume review', 'Priority support', 'Desktop app early access'],
     },
-  ].map(plan => ({
-    ...plan,
-    codingProblems: plan.credits * PER_CREDIT.codingProblems,
-    systemDesigns: plan.credits * PER_CREDIT.systemDesigns,
-    companyPreps: plan.credits * PER_CREDIT.companyPreps,
-    interviewHours: Math.round((plan.credits * PER_CREDIT.interviewMinutes) / 60 * 10) / 10,
-  }));
+  ];
 
   const handleSubscribe = async (planId) => {
     setLoading(planId);
@@ -71,35 +55,6 @@ export default function PricingPlans({ isOpen, onClose }) {
         body: JSON.stringify({
           priceId,
           successUrl: `${window.location.origin}?checkout=success&plan=${planId}`,
-          cancelUrl: `${window.location.origin}?checkout=canceled`,
-        }),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to create checkout');
-      }
-      const { url } = await res.json();
-      window.location.href = url;
-    } catch (err) {
-      setError(err.message);
-      setLoading(null);
-    }
-  };
-
-  const handleBuyCredits = async () => {
-    setLoading('addon');
-    setError('');
-    try {
-      const token = await getAccessToken();
-      if (!token) throw new Error('Please sign in first');
-      const pricesRes = await fetch(`${API_URL}/api/billing/prices`);
-      const prices = await pricesRes.json();
-      const res = await fetch(`${API_URL}/api/billing/checkout`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          priceId: prices.addon.priceId,
-          successUrl: `${window.location.origin}?checkout=success&plan=addon`,
           cancelUrl: `${window.location.origin}?checkout=canceled`,
         }),
       });
@@ -214,8 +169,8 @@ export default function PricingPlans({ isOpen, onClose }) {
                   key={plan.id}
                   className="relative rounded-lg p-5"
                   style={{
-                    background: plan.popular ? '#fafafa' : plan.isDesktop ? '#fff7ed' : '#fff',
-                    border: plan.popular ? '2px solid #10b981' : plan.isDesktop ? '2px solid #f97316' : '1px solid #e5e5e5',
+                    background: plan.popular ? '#fafafa' : plan.isDesktop ? '#f5f3ff' : '#fff',
+                    border: plan.popular ? '2px solid #10b981' : plan.isDesktop ? '2px solid #8b5cf6' : '1px solid #e5e5e5',
                   }}
                 >
                   {plan.popular && (
@@ -224,8 +179,8 @@ export default function PricingPlans({ isOpen, onClose }) {
                     </div>
                   )}
                   {plan.isDesktop && (
-                    <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-bold" style={{ background: '#f97316', color: 'white' }}>
-                      LIFETIME
+                    <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-bold" style={{ background: '#8b5cf6', color: 'white' }}>
+                      PREMIUM
                     </div>
                   )}
 
@@ -235,63 +190,16 @@ export default function PricingPlans({ isOpen, onClose }) {
                     <span className="text-sm" style={{ color: '#666' }}>{plan.period}</span>
                   </div>
 
-                  {!plan.isDesktop && (
-                    <div className="flex items-center gap-2 mb-3 p-2 rounded-lg" style={{ background: '#f0fdf4' }}>
-                      <svg className="w-4 h-4" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span className="text-sm font-medium" style={{ color: '#059669' }}>{plan.credits} credits</span>
-                    </div>
-                  )}
-
-                  {plan.isDesktop && (
-                    <div className="flex items-center gap-2 mb-3 p-2 rounded-lg" style={{ background: '#fff7ed' }}>
-                      <svg className="w-4 h-4" style={{ color: '#f97316' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                      </svg>
-                      <span className="text-sm font-medium" style={{ color: '#ea580c' }}>Desktop App</span>
-                    </div>
-                  )}
-
                   {/* Features list */}
-                  <div className="grid grid-cols-2 gap-1 mb-4 text-sm" style={{ color: '#333' }}>
-                    {plan.isDesktop ? (
-                      plan.desktopFeatures.map((feature, i) => (
-                        <div key={i} className="flex items-center gap-2">
-                          <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#f97316' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span>{feature}</span>
-                        </div>
-                      ))
-                    ) : (
-                      <>
-                        <div className="flex items-center gap-2">
-                          <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span>{plan.codingProblems} coding problems</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span>{plan.systemDesigns} system designs</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span>{plan.companyPreps} company prep{plan.companyPreps > 1 ? 's' : ''}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span>{plan.interviewHours} hrs interview session</span>
-                        </div>
-                      </>
-                    )}
+                  <div className="space-y-1 mb-4 text-sm" style={{ color: '#333' }}>
+                    {plan.features.map((feature, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <svg className="w-4 h-4 flex-shrink-0" style={{ color: plan.isDesktop ? '#8b5cf6' : '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>{feature}</span>
+                      </div>
+                    ))}
                   </div>
 
                   <button
@@ -299,50 +207,21 @@ export default function PricingPlans({ isOpen, onClose }) {
                     disabled={loading !== null}
                     className="w-full py-2.5 rounded-lg font-semibold text-sm transition-all disabled:opacity-50"
                     style={{
-                      background: plan.popular ? '#10b981' : plan.isDesktop ? '#f97316' : '#fff',
+                      background: plan.popular ? '#10b981' : plan.isDesktop ? '#8b5cf6' : '#fff',
                       color: plan.popular || plan.isDesktop ? '#fff' : '#000',
                       border: plan.popular || plan.isDesktop ? 'none' : '1px solid #e5e5e5',
                     }}
                   >
-                    {loading === plan.id ? 'Processing...' : plan.isDesktop ? 'Buy Now' : 'Subscribe'}
+                    {loading === plan.id ? 'Processing...' : 'Subscribe'}
                   </button>
                 </div>
               ))}
             </div>
           )}
 
-          {/* Add-on */}
-          <div className="p-4 rounded-lg" style={{ background: '#fafafa', border: '1px solid #e5e5e5' }}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#dbeafe' }}>
-                  <svg className="w-5 h-5" style={{ color: '#3b82f6' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="font-medium" style={{ color: '#000' }}>Need More Credits?</p>
-                  <p className="text-xs" style={{ color: '#666' }}>3 credits one-time</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-xl font-bold" style={{ color: '#000' }}>$30</span>
-                <button
-                  onClick={handleBuyCredits}
-                  disabled={loading !== null}
-                  className="px-4 py-2 rounded-lg font-medium text-sm disabled:opacity-50"
-                  style={{ background: '#3b82f6', color: 'white' }}
-                >
-                  {loading === 'addon' ? '...' : 'Buy'}
-                </button>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs" style={{ color: '#666' }}>
-              <span>15 coding</span>
-              <span>6 system design</span>
-              <span>3 company preps</span>
-              <span>1.5 hrs interview</span>
-            </div>
+          {/* 30-day guarantee */}
+          <div className="p-4 rounded-lg text-center" style={{ background: '#fafafa', border: '1px solid #e5e5e5' }}>
+            <p className="text-sm font-medium" style={{ color: '#333' }}>30-day money-back guarantee on all plans</p>
           </div>
 
           {/* Error */}
@@ -357,7 +236,7 @@ export default function PricingPlans({ isOpen, onClose }) {
 
           {/* Note */}
           <p className="mt-4 text-center text-xs" style={{ color: '#999' }}>
-            1 credit = 5 coding problems + 2 system designs + 1 company prep + 30 min interview
+            Secure payment via Stripe. Cancel anytime.
           </p>
         </div>
       </div>

@@ -260,7 +260,7 @@ Before diving into specific issues, try these quick fixes:
 1. Use keyboard shortcut `Cmd/Ctrl+Shift+H`
 2. Check if window is focused
 3. Restart the application
-4. Verify Quarterly Pro subscription is active
+4. Verify Elite subscription is active
 
 </details>
 

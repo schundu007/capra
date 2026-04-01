@@ -16,9 +16,10 @@ This guide walks you through setting up the OAuth, Stripe payments, and credit s
 
 | Plan | Price | Credits |
 |------|-------|---------|
-| Monthly | $99/month | 5 credits |
-| Quarterly | $200/quarter | 5 credits |
-| Add-on | $50 one-time | 5 credits |
+| Interview Ready (monthly) | $29/month | 5 credits |
+| FAANG Track (quarterly_pro) | $59/month | 10 credits |
+| Elite (desktop_lifetime) | $99/month | — (desktop app) |
+| Add-on | $30 one-time | 3 credits |
 
 **Credit Rules:**
 - 1 credit = 1 company interview preparation
@@ -81,19 +82,24 @@ In **Authentication > URL Configuration**:
 
 In **Products**, create three products:
 
-**Ascend Monthly:**
-- Name: "Ascend Monthly"
-- Pricing: $99/month recurring
+**Interview Ready (Monthly):**
+- Name: "Ascend Interview Ready"
+- Pricing: $29/month recurring
 - Copy the Price ID (starts with `price_`)
 
-**Ascend Quarterly:**
-- Name: "Ascend Quarterly"
-- Pricing: $200/quarter recurring
+**FAANG Track (Quarterly Pro):**
+- Name: "Ascend FAANG Track"
+- Pricing: $59/month recurring
+- Copy the Price ID
+
+**Elite (Desktop Lifetime):**
+- Name: "Ascend Elite"
+- Pricing: $99/month recurring
 - Copy the Price ID
 
 **Credit Add-on:**
-- Name: "Credit Add-on (5 Credits)"
-- Pricing: $50 one-time
+- Name: "Credit Add-on (3 Credits)"
+- Pricing: $30 one-time
 - Copy the Price ID
 
 ### 2.3 Configure Webhook
