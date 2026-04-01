@@ -7,16 +7,10 @@ import LoadingScreen from './components/shared/LoadingScreen';
 // Redirect to landing page if not authenticated (waits for auth to initialize)
 // Redirect to onboarding if not completed
 function ProtectedRoute({ children }) {
-  const { user, loading, onboardingCompleted } = useAuth();
-  const location = useLocation();
+  const { user, loading } = useAuth();
 
   if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/" replace />;
-
-  // Don't redirect if already on onboarding page
-  if (onboardingCompleted === false && location.pathname !== '/onboarding') {
-    return <Navigate to="/onboarding" />;
-  }
 
   return children;
 }
