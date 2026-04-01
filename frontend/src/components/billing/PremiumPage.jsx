@@ -160,11 +160,11 @@ export default function PremiumPage() {
           <button onClick={() => { scrollTo('features'); setMobileMenuOpen(false); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded transition-colors landing-body">Features</button>
           <a href="/" className="block px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded transition-colors landing-body">Home</a>
           {isAuthenticated ? (
-            <a href="/practice" className="block w-full mt-2 px-4 py-2.5 bg-emerald-500 text-white font-semibold text-sm text-center rounded hover:bg-emerald-600 transition-colors landing-body">
+            <a href="/practice" className="block w-full mt-2 px-4 py-2.5 bg-emerald-500 text-white font-semibold text-sm text-center rounded-lg hover:bg-emerald-600 transition-colors landing-body">
               Go to App
             </a>
           ) : (
-            <button onClick={() => signIn('google')} className="block w-full mt-2 px-4 py-2.5 bg-emerald-500 text-white font-semibold text-sm text-center rounded hover:bg-emerald-600 transition-colors landing-body">
+            <button onClick={() => signIn('google')} className="block w-full mt-2 px-4 py-2.5 bg-emerald-500 text-white font-semibold text-sm text-center rounded-lg hover:bg-emerald-600 transition-colors landing-body">
               Sign In with Google
             </button>
           )}
@@ -183,11 +183,11 @@ export default function PremiumPage() {
           <span className="text-3xl md:text-4xl lg:text-5xl bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Technical Interview</span>
         </h1>
 
-        <p className="mt-3 text-base text-gray-500 max-w-2xl leading-relaxed landing-body">
+        <p className="mt-3 text-base md:text-lg text-gray-500 max-w-2xl leading-relaxed landing-body">
           Choose a plan and start preparing with AI-powered tools for coding, system design, and behavioral interviews.
         </p>
 
-        <button onClick={() => scrollTo('plans')} className="mt-4 px-8 py-2.5 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors shadow-sm landing-body">
+        <button onClick={() => scrollTo('plans')} className="mt-4 px-8 py-2.5 bg-emerald-500 text-white font-semibold text-sm rounded-lg hover:bg-emerald-600 transition-colors shadow-sm landing-body">
           View Plans
         </button>
       </section>
@@ -257,7 +257,7 @@ export default function PremiumPage() {
                   <button
                     onClick={() => handleSubscribe(plan.id)}
                     disabled={!!loading}
-                    className="w-full py-2 text-sm font-semibold rounded transition-colors mb-3 landing-body"
+                    className="w-full py-2 text-sm font-semibold rounded-lg transition-colors mb-3 landing-body"
                     style={{ background: plan.color, color: '#fff' }}
                   >
                     {loading === plan.id ? <Icon name="loader" size={18} className="animate-spin mx-auto" /> : plan.cta}
@@ -382,8 +382,8 @@ export default function PremiumPage() {
               { label: 'Apply', href: 'https://jobs.cariara.com' },
               { label: 'Prepare', href: '/prepare' },
               { label: 'Practice', href: '/practice' },
-              { label: 'Pricing', href: '/premium' },
               { label: 'Attend', href: 'https://lumora.cariara.com/app' },
+              { label: 'Pricing', href: '/premium' },
               { label: 'Support', href: 'mailto:support@cariara.com' },
             ].map((link) => (
               <a key={link.label} href={link.href} className="text-xs text-gray-400 hover:text-emerald-400 transition-colors landing-body font-medium">{link.label}</a>

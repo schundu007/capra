@@ -99,7 +99,8 @@ const corsOptions = {
       return callback(null, true);
     }
     // Allow Railway and Vercel preview deployments (scoped to our projects)
-    if (origin.endsWith('.railway.app') || (origin.includes('vercel.app') && (origin.includes('ascend') || origin.includes('capra') || origin.includes('chundu')))) {
+    // SECURITY: Match only our specific Railway subdomain, not all *.railway.app
+    if ((origin.includes('capra-backend') && origin.endsWith('.railway.app')) || (origin.includes('vercel.app') && (origin.includes('ascend') || origin.includes('capra') || origin.includes('chundu')))) {
       return callback(null, true);
     }
     // Allow subdomains of cariara.com
@@ -302,8 +303,8 @@ app.use('/api/ascend', authenticate, aiLimiter, ascendRouter);
 app.use('/api/diagram', authenticate, aiLimiter, diagramRouter);
 app.use('/api/extract', authenticate, aiLimiter, extractRouter);
 
-// Onboarding routes
-app.use('/api/onboarding', apiLimiter, onboardingRouter);
+// Onboarding routes (require authentication)
+app.use('/api/onboarding', authenticate, apiLimiter, onboardingRouter);
 
 // Billing & Credits routes (JWT auth - uses cariara OAuth tokens)
 // Payment routes get strict rate limiting to prevent abuse

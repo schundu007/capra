@@ -5,12 +5,21 @@ import { useAuth } from './contexts/AuthContext';
 import LoadingScreen from './components/shared/LoadingScreen';
 
 // Redirect to landing page if not authenticated (waits for auth to initialize)
-// Redirect to onboarding if not completed
+// Saves the attempted URL so the user can be redirected back after login
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) return <LoadingScreen />;
-  if (!user) return <Navigate to="/" replace />;
+
+  if (!user) {
+    // Save the attempted URL so after login the user returns here
+    const attemptedUrl = location.pathname + location.search;
+    if (attemptedUrl && attemptedUrl !== '/') {
+      localStorage.setItem('ascend_auth_redirect', attemptedUrl);
+    }
+    return <Navigate to="/" replace />;
+  }
 
   return children;
 }

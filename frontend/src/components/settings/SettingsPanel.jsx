@@ -107,8 +107,11 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true">
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="settings-dialog-title"
         className="bg-white rounded-2xl shadow-2xl overflow-hidden w-full mx-6 border border-gray-200/60"
         style={{ maxWidth: '640px', maxHeight: '90vh' }}
         onClick={e => e.stopPropagation()}
@@ -123,7 +126,7 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900 tracking-tight">Settings</h2>
+              <h2 id="settings-dialog-title" className="text-lg font-bold text-gray-900 tracking-tight">Settings</h2>
               <p className="text-xs text-gray-400">Configure your workspace</p>
             </div>
           </div>

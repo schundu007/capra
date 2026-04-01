@@ -546,7 +546,33 @@ export default function DocsPage({ onBack }) {
             {/* Content */}
             <div className="px-4 py-4">
               {/* Show topic detail or list */}
-              {selectedTopic ? <TopicDetail activePage={activePage} selectedTopic={selectedTopic} topicDetails={topicDetails} pageConfig={pageConfig} completedTopics={completedTopics} starredTopics={starredTopics} toggleComplete={toggleComplete} toggleStar={toggleStar} showAskAI={showAskAI} setShowAskAI={setShowAskAI} aiQuestion={aiQuestion} setAiQuestion={setAiQuestion} aiAnswer={aiAnswer} aiLoading={aiLoading} handleAskAI={handleAskAI} showRoadmap={showRoadmap} setShowRoadmap={setShowRoadmap} expandedTheoryQuestions={expandedTheoryQuestions} setExpandedTheoryQuestions={setExpandedTheoryQuestions} setSelectedTopic={setSelectedTopic} generatingDiagram={generatingDiagram} diagramData={diagramData} diagramError={diagramError} diagramDetailLevel={diagramDetailLevel} setDiagramDetailLevel={setDiagramDetailLevel} diagramCloudProvider={diagramCloudProvider} setDiagramCloudProvider={setDiagramCloudProvider} generateDiagram={handleGenerateDiagram} codingTopics={codingTopics} systemDesignTopics={systemDesignTopics} systemDesigns={systemDesigns} behavioralTopics={behavioralTopics} filteredTopics={filteredTopics} /> : (
+              {selectedTopic && !topicDetails ? (
+                /* Topic not found state */
+                <div className="landing-root animate-fade-in">
+                  <button
+                    onClick={() => setSelectedTopic(null)}
+                    className="inline-flex items-center gap-2 text-gray-900 hover:text-gray-900 mb-4 transition-all hover:gap-2 group landing-body"
+                  >
+                    <Icon name="chevronLeft" size={18} className="transition-transform group-hover:-translate-x-0.5" />
+                    <span>Back to {pageConfig.title}</span>
+                  </button>
+                  <div className="flex flex-col items-center justify-center py-20 text-center">
+                    <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center mb-4">
+                      <Icon name="alertTriangle" size={32} className="text-amber-500" />
+                    </div>
+                    <h2 className="text-xl font-bold text-gray-900 landing-display mb-2">Topic not found</h2>
+                    <p className="text-sm text-gray-500 landing-body mb-6 max-w-md">
+                      The topic "{selectedTopic}" does not exist in {pageConfig.title}. It may have been moved or removed.
+                    </p>
+                    <button
+                      onClick={() => setSelectedTopic(null)}
+                      className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm rounded-lg transition-colors landing-body"
+                    >
+                      Browse all topics
+                    </button>
+                  </div>
+                </div>
+              ) : selectedTopic ? <TopicDetail activePage={activePage} selectedTopic={selectedTopic} topicDetails={topicDetails} pageConfig={pageConfig} completedTopics={completedTopics} starredTopics={starredTopics} toggleComplete={toggleComplete} toggleStar={toggleStar} showAskAI={showAskAI} setShowAskAI={setShowAskAI} aiQuestion={aiQuestion} setAiQuestion={setAiQuestion} aiAnswer={aiAnswer} aiLoading={aiLoading} handleAskAI={handleAskAI} showRoadmap={showRoadmap} setShowRoadmap={setShowRoadmap} expandedTheoryQuestions={expandedTheoryQuestions} setExpandedTheoryQuestions={setExpandedTheoryQuestions} setSelectedTopic={setSelectedTopic} generatingDiagram={generatingDiagram} diagramData={diagramData} diagramError={diagramError} diagramDetailLevel={diagramDetailLevel} setDiagramDetailLevel={setDiagramDetailLevel} diagramCloudProvider={diagramCloudProvider} setDiagramCloudProvider={setDiagramCloudProvider} generateDiagram={handleGenerateDiagram} codingTopics={codingTopics} systemDesignTopics={systemDesignTopics} systemDesigns={systemDesigns} behavioralTopics={behavioralTopics} filteredTopics={filteredTopics} /> : (
                 <>
                   {/* Page Hero */}
                   <div className="mb-6">
@@ -556,7 +582,7 @@ export default function DocsPage({ onBack }) {
                         {activePage === 'coding' ? 'Algorithms' : activePage === 'system-design' ? 'Architecture' : activePage === 'low-level' ? 'OOP & Patterns' : activePage === 'microservices' ? 'Microservices' : activePage === 'databases' ? 'Database Internals' : activePage === 'sql' ? 'SQL Mastery' : 'Soft Skills'}
                       </span>
                     </div>
-                    <h1 className="landing-display font-extrabold text-2xl md:text-3xl tracking-tight text-gray-900 mb-2">
+                    <h1 className="landing-display font-extrabold text-3xl md:text-4xl lg:text-5xl tracking-tight text-gray-900 mb-2">
                       {activePage === 'coding' && <>Data Structures &{' '}<span className="bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Algorithms</span></>}
                       {activePage === 'system-design' && <>Design Systems That{' '}<span className="bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Scale</span></>}
                       {activePage === 'low-level' && <>Master Object-Oriented{' '}<span className="bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Design</span></>}
@@ -565,7 +591,7 @@ export default function DocsPage({ onBack }) {
                       {activePage === 'databases' && <>Database{' '}<span className="bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">Internals</span></>}
                       {activePage === 'sql' && <>SQL for{' '}<span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Interviews</span></>}
                     </h1>
-                    <p className="text-sm text-gray-500 max-w-2xl leading-relaxed landing-body">
+                    <p className="text-base md:text-lg text-gray-500 max-w-2xl leading-relaxed landing-body">
                       {activePage === 'coding' && 'Master the fundamental data structures and algorithms needed to ace technical interviews at top tech companies.'}
                       {activePage === 'system-design' && 'Master distributed systems, scalability patterns, and architecture trade-offs. From fundamentals to real-world designs at top companies.'}
                       {activePage === 'low-level' && 'OOP principles, SOLID design, UML diagrams, and all 23 Gang of Four design patterns. Build clean, extensible object-oriented systems.'}

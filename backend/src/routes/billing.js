@@ -61,6 +61,31 @@ router.post('/checkout', jwtAuth, async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    // SECURITY: Validate redirect URLs against allowed domains to prevent open redirects
+    const ALLOWED_REDIRECT_DOMAINS = [
+      'capra.cariara.com',
+      'www.capra.cariara.com',
+      'cariara.com',
+      'www.cariara.com',
+      'localhost',
+      '127.0.0.1',
+    ];
+
+    function isAllowedRedirectUrl(url) {
+      try {
+        const parsed = new URL(url);
+        return ALLOWED_REDIRECT_DOMAINS.some(domain =>
+          parsed.hostname === domain || parsed.hostname.endsWith('.' + domain)
+        );
+      } catch {
+        return false;
+      }
+    }
+
+    if (!isAllowedRedirectUrl(successUrl) || !isAllowedRedirectUrl(cancelUrl)) {
+      return res.status(400).json({ error: 'Invalid redirect URL domain' });
+    }
+
     // Validate price ID
     const validPrices = [
       STRIPE_PRICES.MONTHLY,
@@ -171,6 +196,18 @@ router.post('/portal', jwtAuth, async (req, res) => {
 
     if (!returnUrl) {
       return res.status(400).json({ error: 'Missing return URL' });
+    }
+
+    // SECURITY: Validate returnUrl against allowed domains
+    try {
+      const parsed = new URL(returnUrl);
+      const allowedDomains = ['capra.cariara.com', 'www.capra.cariara.com', 'cariara.com', 'www.cariara.com', 'localhost', '127.0.0.1'];
+      const isAllowed = allowedDomains.some(d => parsed.hostname === d || parsed.hostname.endsWith('.' + d));
+      if (!isAllowed) {
+        return res.status(400).json({ error: 'Invalid return URL domain' });
+      }
+    } catch {
+      return res.status(400).json({ error: 'Invalid return URL' });
     }
 
     // Get Stripe customer ID

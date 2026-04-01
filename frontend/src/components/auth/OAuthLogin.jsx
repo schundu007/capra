@@ -246,7 +246,7 @@ export default function OAuthLogin() {
         <p className="mt-2 text-sm text-gray-500 max-w-lg mx-auto landing-body">
           Stop memorizing. Start understanding. Practice with AI that thinks like a senior engineer.
         </p>
-        <a href="/practice" className="inline-block mt-4 px-8 py-3 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors shadow-sm landing-body">
+        <a href="/practice" className="inline-block mt-4 px-8 py-3 bg-emerald-500 text-white font-semibold text-sm rounded-lg hover:bg-emerald-600 transition-colors shadow-sm landing-body">
           Start Practicing
         </a>
       </section>

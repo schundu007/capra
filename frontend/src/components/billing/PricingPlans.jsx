@@ -1,13 +1,56 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { getApiUrl } from '../../hooks/useElectron.js';
 
 const API_URL = getApiUrl();
 
 export default function PricingPlans({ isOpen, onClose }) {
-  const { getAccessToken, subscription } = useAuth();
+  const { getAccessToken, subscription, user } = useAuth();
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState('');
+  const dialogRef = useRef(null);
+  const previousFocusRef = useRef(null);
+
+  // Escape key to close
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  // Focus trap
+  useEffect(() => {
+    if (!isOpen) return;
+    previousFocusRef.current = document.activeElement;
+    // Focus the dialog container
+    const timer = setTimeout(() => {
+      dialogRef.current?.focus();
+    }, 0);
+    return () => {
+      clearTimeout(timer);
+      previousFocusRef.current?.focus();
+    };
+  }, [isOpen]);
+
+  const handleFocusTrap = useCallback((e) => {
+    if (!dialogRef.current) return;
+    const focusable = dialogRef.current.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }, []);
 
   if (!isOpen) return null;
 
@@ -40,6 +83,11 @@ export default function PricingPlans({ isOpen, onClose }) {
   ];
 
   const handleSubscribe = async (planId) => {
+    if (!user) {
+      // Redirect unauthenticated users to login
+      window.location.href = '/login';
+      return;
+    }
     setLoading(planId);
     setError('');
     try {
@@ -99,14 +147,24 @@ export default function PricingPlans({ isOpen, onClose }) {
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)' }}
+      onClick={onClose}
+      aria-hidden="true"
     >
       <div
-        className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-lg"
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pricing-dialog-title"
+        tabIndex={-1}
+        onKeyDown={handleFocusTrap}
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-lg focus:outline-none"
         style={{ background: '#ffffff', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)', border: '1px solid #e5e5e5' }}
       >
         {/* Close */}
         <button
           onClick={onClose}
+          aria-label="Close pricing dialog"
           className="absolute top-3 right-3 p-1.5 rounded-lg transition-all z-10"
           style={{ color: '#666', background: '#f5f5f5' }}
           onMouseEnter={(e) => { e.currentTarget.style.background = '#e5e5e5'; }}
@@ -131,7 +189,7 @@ export default function PricingPlans({ isOpen, onClose }) {
                 }}
               />
             </div>
-            <h2 className="text-xl font-bold" style={{ color: '#000' }}>Crack Interview with Pro Plans</h2>
+            <h2 id="pricing-dialog-title" className="text-xl font-bold" style={{ color: '#000' }}>Crack Interview with Pro Plans</h2>
           </div>
 
           {/* Active Subscription */}

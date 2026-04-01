@@ -2,11 +2,21 @@ import { Icon } from '../components/Icons.jsx';
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen landing-root flex flex-col items-center justify-center px-6" style={{ background: 'linear-gradient(180deg, #fdf2f8 0%, #ede9fe 50%, #e0e7ff 100%)' }}>
-      {/* Background blur accent */}
+    <div className="min-h-screen landing-root flex flex-col items-center justify-center px-6" style={{ background: 'linear-gradient(180deg, #ecfdf5 0%, #f0fdf4 50%, #f8fafc 100%)' }}>
+      {/* Background blur accents */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute w-[500px] h-[500px] rounded-full opacity-10 blur-3xl -top-[150px] -right-[100px] bg-emerald-400" />
+        <div className="absolute w-[400px] h-[400px] rounded-full opacity-10 blur-3xl -bottom-[100px] -left-[100px] bg-emerald-300" />
       </div>
+
+      {/* Subtle dot pattern background */}
+      <div
+        className="fixed inset-0 pointer-events-none opacity-20"
+        style={{
+          backgroundImage: 'radial-gradient(circle, #d1d5db 0.5px, transparent 0.5px)',
+          backgroundSize: '24px 24px'
+        }}
+      />
 
       <div className="relative z-10 text-center max-w-md">
         {/* Logo */}

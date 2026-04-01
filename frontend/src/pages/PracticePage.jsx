@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { Icon } from '../components/Icons.jsx';
 
 /* ──────────────────────────────── Data ──────────────────────────────── */
@@ -136,11 +137,21 @@ const MOCK_CATEGORIES = [
   { value: 'ai-ml', label: 'ML / AI' },
 ];
 
+const navLinks = [
+  { label: 'Apply', href: 'https://jobs.cariara.com' },
+  { label: 'Prepare', href: '/prepare' },
+  { label: 'Practice', href: '/practice' },
+  { label: 'Attend', href: 'https://lumora.cariara.com/app' },
+  { label: 'Pricing', href: '/premium' },
+];
+
 /* ────────────────────────────── Component ────────────────────────────── */
 
 export default function PracticePage() {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const [mounted, setMounted] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Mock interview state
   const [mockCategory, setMockCategory] = useState('system-design');
@@ -199,21 +210,79 @@ export default function PracticePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/30">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <div className="min-h-screen text-gray-900 overflow-hidden landing-root" style={{ background: 'linear-gradient(180deg, #fdf2f8 0%, #ede9fe 50%, #e0e7ff 100%)', paddingTop: '64px', paddingBottom: '52px' }}>
 
-        {/* ── Header ── */}
-        <div className={`text-center mb-10 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900">
-            Practice{' '}
-            <span className="bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">
-              Topics
-            </span>
-          </h1>
-          <p className="mt-3 text-base sm:text-lg text-gray-500 max-w-2xl mx-auto">
-            Prepare for your interviews with curated topics
-          </p>
+      {/* Nav */}
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-4" style={{ background: '#111827' }}>
+        <a href="/" className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
+            <Icon name="ascend" size={16} className="text-white" />
+          </div>
+          <div>
+            <span className="landing-display font-bold text-lg tracking-tight text-white">Ascend</span>
+            <span className="block text-[10px] landing-mono uppercase tracking-[0.2em] text-emerald-400 -mt-0.5">Interview AI</span>
+          </div>
+        </a>
+
+        <div className="hidden md:flex items-center gap-6">
+          {navLinks.map((link) => {
+            const isHighlighted = ['Apply', 'Prepare', 'Practice'].includes(link.label);
+            return (
+              <a key={link.label} href={link.href} className={`text-sm font-semibold transition-colors landing-body ${isHighlighted ? '' : 'text-gray-400 hover:text-white'}`} style={isHighlighted ? { background: 'linear-gradient(90deg, #34d399, #22d3ee)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' } : undefined}>
+                {link.label}
+              </a>
+            );
+          })}
         </div>
+
+        <div className="flex items-center gap-4">
+          {user ? (
+            <a href="/prepare" className="text-sm text-gray-300 hover:text-white transition-colors landing-body font-medium">Dashboard</a>
+          ) : !loading ? (
+            <a href="/login" className="text-sm text-gray-300 hover:text-white transition-colors landing-body font-medium">Sign in</a>
+          ) : null}
+          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-gray-400 hover:text-white transition-colors">
+            <Icon name={mobileMenuOpen ? 'close' : 'menu'} size={22} />
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile menu */}
+      {mobileMenuOpen && (
+        <div className="fixed top-16 left-0 right-0 z-40 md:hidden border-b border-gray-100 bg-white px-6 py-4 space-y-1">
+          {navLinks.map((link) => (
+            <a key={link.label} href={link.href} className="block px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded transition-colors landing-body">{link.label}</a>
+          ))}
+          {user ? (
+            <a href="/prepare" className="block px-4 py-2.5 text-sm font-medium text-emerald-600 hover:bg-emerald-50 rounded transition-colors landing-body">Dashboard</a>
+          ) : !loading ? (
+            <a href="/login" className="block w-full mt-2 px-4 py-2.5 text-sm font-medium text-emerald-600 hover:bg-emerald-50 rounded transition-colors landing-body text-left">Sign in</a>
+          ) : null}
+        </div>
+      )}
+
+      {/* Hero */}
+      <section className="flex flex-col items-center justify-center text-center px-6 pt-10 pb-8 md:pt-14 md:pb-10">
+        <div className={`inline-flex items-center gap-2 px-4 py-1.5 border border-emerald-200 bg-emerald-50 rounded-full mb-5 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+          <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+          <span className="text-xs landing-mono text-emerald-700 tracking-wide">Curated Interview Prep</span>
+        </div>
+
+        <h1 className={`landing-display font-extrabold leading-tight tracking-tight max-w-4xl transition-all duration-700 delay-100 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+          <span className="text-3xl md:text-4xl lg:text-5xl text-gray-900">Practice </span>
+          <span className="text-3xl md:text-4xl lg:text-5xl bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Topics</span>
+        </h1>
+
+        <p className={`mt-4 text-base md:text-lg text-gray-500 max-w-2xl leading-relaxed landing-body transition-all duration-700 delay-200 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+          Prepare for your interviews with curated topics across system design, coding, behavioral, and more.
+        </p>
+      </section>
+
+      {/* Divider */}
+      <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent" />
+
+      {/* Content */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
 
         {/* ── Topic Sections ── */}
         <div className="space-y-8">
@@ -228,7 +297,7 @@ export default function PracticePage() {
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${section.iconBg}`}>
                   <Icon name={section.icon} size={16} className={section.iconText} />
                 </div>
-                <h2 className="text-sm font-bold tracking-wide uppercase" style={{ color: section.color }}>
+                <h2 className="text-sm font-bold tracking-wide uppercase landing-mono" style={{ color: section.color }}>
                   {section.title}
                 </h2>
               </div>
@@ -250,10 +319,10 @@ export default function PracticePage() {
                         <Icon name={item.icon} size={14} />
                       </div>
                       <div className="min-w-0">
-                        <div className="text-sm font-semibold text-gray-900 group-hover:text-gray-800 truncate">
+                        <div className="text-sm font-semibold text-gray-900 group-hover:text-gray-800 truncate landing-body">
                           {item.label}
                         </div>
-                        <div className="text-xs text-gray-400 mt-0.5 line-clamp-1">
+                        <div className="text-xs text-gray-400 mt-0.5 line-clamp-1 landing-body">
                           {item.desc}
                         </div>
                       </div>
@@ -274,7 +343,7 @@ export default function PracticePage() {
             <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-900">
               <Icon name="timer" size={16} className="text-white" />
             </div>
-            <h2 className="text-sm font-bold tracking-wide uppercase text-gray-900">
+            <h2 className="text-sm font-bold tracking-wide uppercase text-gray-900 landing-mono">
               Mock Interview
             </h2>
           </div>
@@ -286,7 +355,7 @@ export default function PracticePage() {
                 <select
                   value={mockCategory}
                   onChange={(e) => setMockCategory(e.target.value)}
-                  className="flex-1 sm:flex-none sm:w-56 px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400 transition-colors"
+                  className="flex-1 sm:flex-none sm:w-56 px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400 transition-colors landing-body"
                 >
                   {MOCK_CATEGORIES.map((c) => (
                     <option key={c.value} value={c.value}>{c.label}</option>
@@ -294,7 +363,7 @@ export default function PracticePage() {
                 </select>
                 <button
                   onClick={startMock}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-500 text-white text-sm font-semibold rounded-lg hover:bg-emerald-600 transition-colors"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-500 text-white text-sm font-semibold rounded-lg hover:bg-emerald-600 transition-colors landing-body"
                 >
                   <Icon name="play" size={14} className="text-white" />
                   Start Mock Interview
@@ -305,11 +374,11 @@ export default function PracticePage() {
               <div className="space-y-4">
                 {/* Timer bar */}
                 <div className="flex items-center justify-between">
-                  <span className="inline-flex items-center gap-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <span className="inline-flex items-center gap-2 text-xs font-medium text-gray-500 uppercase tracking-wider landing-mono">
                     <Icon name="timer" size={14} className="text-emerald-500" />
                     {MOCK_CATEGORIES.find((c) => c.value === mockCategory)?.label}
                   </span>
-                  <span className="font-mono text-lg font-bold text-gray-900 tabular-nums">
+                  <span className="landing-mono text-lg font-bold text-gray-900 tabular-nums">
                     {formatTime(elapsed)}
                   </span>
                 </div>
@@ -317,10 +386,10 @@ export default function PracticePage() {
                 {/* Question card */}
                 {mockQuestion && (
                   <div className="p-5 rounded-lg bg-gradient-to-br from-gray-50 to-slate-50 border border-gray-100">
-                    <p className="text-base sm:text-lg font-semibold text-gray-900">
+                    <p className="text-base sm:text-lg font-semibold text-gray-900 landing-display">
                       {mockQuestion.label}
                     </p>
-                    <p className="text-sm text-gray-500 mt-1">{mockQuestion.desc}</p>
+                    <p className="text-sm text-gray-500 mt-1 landing-body">{mockQuestion.desc}</p>
                   </div>
                 )}
 
@@ -328,7 +397,7 @@ export default function PracticePage() {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={nextQuestion}
-                    className="inline-flex items-center gap-2 px-5 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                    className="inline-flex items-center gap-2 px-5 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors landing-body"
                   >
                     <Icon name="refresh" size={14} />
                     Next Question
@@ -338,14 +407,14 @@ export default function PracticePage() {
                       if (mockQuestion) handleTopicClick(mockQuestion.label);
                       stopMock();
                     }}
-                    className="inline-flex items-center gap-2 px-5 py-2 bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-600 transition-colors"
+                    className="inline-flex items-center gap-2 px-5 py-2 bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-600 transition-colors landing-body"
                   >
                     <Icon name="arrowRight" size={14} className="text-white" />
                     Practice This
                   </button>
                   <button
                     onClick={stopMock}
-                    className="inline-flex items-center gap-2 px-5 py-2 bg-red-50 text-red-600 text-sm font-medium rounded-lg hover:bg-red-100 transition-colors ml-auto"
+                    className="inline-flex items-center gap-2 px-5 py-2 bg-red-50 text-red-600 text-sm font-medium rounded-lg hover:bg-red-100 transition-colors ml-auto landing-body"
                   >
                     <Icon name="stop" size={14} />
                     Stop
@@ -356,6 +425,57 @@ export default function PracticePage() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="fixed bottom-0 left-0 right-0 z-50 px-6 md:px-12 py-3" style={{ background: '#111827' }}>
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+          <a href="/" className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-emerald-500 rounded flex items-center justify-center">
+              <Icon name="ascend" size={12} className="text-white" />
+            </div>
+            <span className="landing-display font-bold text-sm text-white">Ascend</span>
+          </a>
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+            {[
+              { label: 'Apply', href: 'https://jobs.cariara.com' },
+              { label: 'Prepare', href: '/prepare' },
+              { label: 'Practice', href: '/practice' },
+              { label: 'Attend', href: 'https://lumora.cariara.com/app' },
+              { label: 'Pricing', href: '/premium' },
+              { label: 'Support', href: 'mailto:support@cariara.com' },
+            ].map((link) => (
+              <a key={link.label} href={link.href} className="text-xs text-gray-400 hover:text-emerald-400 transition-colors landing-body font-medium">{link.label}</a>
+            ))}
+          </div>
+          <p className="text-xs text-gray-500 landing-mono">
+            &copy; {new Date().getFullYear()} Ascend by Cariara
+          </p>
+        </div>
+      </footer>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap');
+
+        .landing-root {
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+          font-family: 'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif;
+        }
+
+        .landing-display {
+          font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        }
+
+        .landing-body {
+          font-family: 'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif;
+        }
+
+        .landing-mono {
+          font-family: 'IBM Plex Mono', monospace;
+        }
+
+        html { scroll-behavior: smooth; }
+      `}</style>
     </div>
   );
 }

@@ -9,6 +9,8 @@ release/
 # Environment files
 .env
 .env.local
+.env.production
+.env.production.local
 .env.*.local
 
 # Logs

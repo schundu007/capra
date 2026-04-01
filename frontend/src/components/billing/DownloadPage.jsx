@@ -92,7 +92,7 @@ export default function DownloadPage() {
           <p className="text-gray-500 landing-body mb-4">{error}</p>
           <button
             onClick={() => window.location.href = '/prepare'}
-            className="px-6 py-2 rounded bg-emerald-500 text-white font-semibold text-sm hover:bg-emerald-600 transition-colors landing-body"
+            className="px-6 py-2 rounded-lg bg-emerald-500 text-white font-semibold text-sm hover:bg-emerald-600 transition-colors landing-body"
           >
             Go Home
           </button>
@@ -120,7 +120,7 @@ export default function DownloadPage() {
           </p>
           <button
             onClick={() => window.location.href = '/?pricing=true'}
-            className="px-6 py-3 rounded bg-emerald-500 text-white font-semibold text-sm hover:bg-emerald-600 transition-all hover:scale-105 landing-body"
+            className="px-6 py-3 rounded-lg bg-emerald-500 text-white font-semibold text-sm hover:bg-emerald-600 transition-all hover:scale-105 landing-body"
           >
             View Pricing
           </button>
@@ -187,7 +187,7 @@ export default function DownloadPage() {
               <h3 className="landing-display text-xl font-bold text-gray-900 mb-2">{recommended.label}</h3>
               <p className="text-gray-400 text-sm mb-4 landing-body">{recommended.size}</p>
               <button
-                className="px-8 py-3 rounded bg-emerald-500 text-white font-semibold text-sm hover:bg-emerald-600 transition-colors landing-body"
+                className="px-8 py-3 rounded-lg bg-emerald-500 text-white font-semibold text-sm hover:bg-emerald-600 transition-colors landing-body"
               >
                 <span className="flex items-center gap-2">
                   <Icon name="download" size={20} />

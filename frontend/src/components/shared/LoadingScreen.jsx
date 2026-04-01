@@ -3,16 +3,29 @@ export default function LoadingScreen() {
     <div className="h-screen flex items-center justify-center bg-white">
       <div className="flex flex-col items-center gap-4">
         <div
-          className="w-12 h-12 rounded-lg flex items-center justify-center"
+          className="w-12 h-12 rounded-xl flex items-center justify-center"
           style={{ background: '#10b981' }}
         >
-          <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-          </svg>
+          <img
+            src="/ascend-logo.png"
+            alt="Ascend"
+            className="h-7 w-auto object-contain filter brightness-0 invert"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.parentElement.innerHTML = '<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>';
+            }}
+          />
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" />
-          <span className="text-gray-600">Loading...</span>
+        <div className="flex flex-col items-center gap-2">
+          <span className="text-sm font-semibold text-gray-900 tracking-tight">Ascend</span>
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+            </div>
+            <span className="text-xs text-gray-400">Loading</span>
+          </div>
         </div>
       </div>
     </div>
