@@ -311,6 +311,9 @@ export default function TopicDetail({
             )}
           </div>
 
+          {/* Practice Problems + Theory Questions — side by side */}
+          {(topicDetails.commonProblems || topicDetails.theoryQuestions?.length > 0) && (
+          <div className={`grid gap-2 ${topicDetails.commonProblems && topicDetails.theoryQuestions?.length > 0 ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
           {/* Common Problems - Clickable to solve */}
           {topicDetails.commonProblems && (
             <div id="practice" className="rounded-lg overflow-hidden scroll-mt-24 border border-gray-200 bg-white">
@@ -355,7 +358,7 @@ export default function TopicDetail({
             </div>
           )}
 
-          {/* Theory Questions - Expandable with Answers */}
+          {/* Theory Questions */}
           {topicDetails.theoryQuestions && topicDetails.theoryQuestions.length > 0 && (
             <div id="theory" className="rounded-lg overflow-hidden scroll-mt-24 border border-gray-200 bg-white">
               <div className="px-3 py-1.5 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
@@ -400,6 +403,8 @@ export default function TopicDetail({
                 </div>
               </div>
             </div>
+          )}
+          </div>
           )}
 
           {/* Tips + Interview Tips - Side by Side */}
@@ -478,36 +483,38 @@ export default function TopicDetail({
       {/* System Design / LLD Problem Detail */}
       {(activePage === 'system-design' || activePage === 'low-level') && (topicDetails.concepts || topicDetails.requirements || topicDetails.functionalRequirements || topicDetails.primitives || topicDetails.problems || topicDetails.structures || topicDetails.coreEntities || topicDetails.implementation) && (
         <div className="space-y-2">
-          {/* Core Concept Topics - Key Concepts badges */}
-          {topicDetails.concepts && !topicDetails.introduction && (
-            <div className="p-3 rounded-xl bg-gray-50 border border-gray-200">
-              <h3 className="text-gray-900 font-semibold mb-2 flex items-center gap-2 landing-display">
-                <Icon name="puzzle" size={18} style={{ color: topicDetails.color }} />
-                Key Concepts
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {topicDetails.concepts.map((concept, i) => (
-                  <span key={i} className="px-3 py-1.5 rounded-lg text-sm landing-mono" style={{ background: `${topicDetails.color}15`, color: topicDetails.color }}>
-                    {concept}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Comprehensive System Design / LLD Problem Content */}
-          {(topicDetails.requirements || topicDetails.functionalRequirements || topicDetails.introduction) && (
+          {(topicDetails.requirements || topicDetails.functionalRequirements || topicDetails.introduction || topicDetails.concepts) && (
             <>
-              {/* Introduction */}
-              {topicDetails.introduction && (
-                <div id="overview" className="rounded-lg overflow-hidden scroll-mt-24 border border-gray-200 bg-white">
-                  <div className="px-3 py-1.5 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
-                    <Icon name="book" size={14} className="text-emerald-700" />
-                    <h2 className="text-xs font-bold text-gray-900 landing-display">Introduction</h2>
-                  </div>
-                  <div className="p-3">
-                    <FormattedContent content={topicDetails.introduction} color="blue" />
-                  </div>
+              {/* Introduction + Key Concepts — side by side */}
+              {(topicDetails.introduction || (topicDetails.concepts && !topicDetails.introduction)) && (
+                <div className={`grid gap-2 ${topicDetails.introduction && topicDetails.concepts ? 'lg:grid-cols-3' : 'grid-cols-1'}`}>
+                  {topicDetails.introduction && (
+                    <div id="overview" className={`rounded-lg overflow-hidden scroll-mt-24 border border-gray-200 bg-white ${topicDetails.concepts ? 'lg:col-span-2' : ''}`}>
+                      <div className="px-3 py-1.5 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
+                        <Icon name="book" size={14} className="text-emerald-700" />
+                        <h2 className="text-xs font-bold text-gray-900 landing-display">Introduction</h2>
+                      </div>
+                      <div className="p-3">
+                        <FormattedContent content={topicDetails.introduction} color="blue" />
+                      </div>
+                    </div>
+                  )}
+                  {topicDetails.concepts && (
+                    <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
+                      <div className="px-3 py-1.5 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
+                        <Icon name="puzzle" size={14} style={{ color: topicDetails.color }} />
+                        <h2 className="text-xs font-bold text-gray-900 landing-display">Key Concepts</h2>
+                      </div>
+                      <div className="p-2 flex flex-wrap gap-1.5">
+                        {topicDetails.concepts.map((concept, i) => (
+                          <span key={i} className="px-2 py-1 rounded text-xs landing-mono" style={{ background: `${topicDetails.color}15`, color: topicDetails.color }}>
+                            {concept}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -612,7 +619,7 @@ export default function TopicDetail({
                     <h3 className="text-xs font-bold text-gray-900 landing-display">Key Questions</h3>
                     <span className="text-[10px] landing-mono text-gray-400 ml-auto">{topicDetails.keyQuestions.length} topics</span>
                   </div>
-                  <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-2 p-3">
+                  <div className="grid md:grid-cols-2 gap-2 p-2">
                     {topicDetails.keyQuestions.map((q, i) => (
                       <div key={i} className="p-3 rounded-lg hover:bg-white/[0.02] transition-colors bg-gray-50 border border-gray-200">
                         <div className="flex items-start gap-2">
@@ -1262,45 +1269,50 @@ export default function TopicDetail({
       {/* Behavioral Topic Detail */}
       {(activePage === 'behavioral' || (activePage === 'low-level' && !topicDetails.coreEntities && !topicDetails.implementation && !topicDetails.functionalRequirements)) && (topicDetails.sampleQuestions || topicDetails.starExample || topicDetails.introduction || topicDetails.keyQuestions) && (
         <div className="space-y-2">
-          {/* Introduction */}
-          {topicDetails.introduction && (() => {
-            const quoteMatch = topicDetails.introduction.match(/^"([^"]+)"\s*(.*)/s);
-            if (quoteMatch) {
-              const [, quotedQuestion, restOfText] = quoteMatch;
-              return (
-                <div id="overview" className="scroll-mt-24 space-y-3">
-                  <div className="p-4 rounded-xl" style={{ background: `linear-gradient(135deg, ${topicDetails.color}15, ${topicDetails.color}05)`, borderLeft: `6px solid ${topicDetails.color}` }}>
-                    <p className="text-base font-semibold text-gray-900 italic landing-body leading-relaxed">"{quotedQuestion}"</p>
+          {/* Introduction + Key Principles — side by side */}
+          {(topicDetails.introduction || topicDetails.principles?.length > 0) && (
+            <div className={`grid gap-2 ${topicDetails.introduction && topicDetails.principles?.length > 0 ? 'lg:grid-cols-3' : 'grid-cols-1'}`}>
+              {/* Introduction */}
+              {topicDetails.introduction && (() => {
+                const quoteMatch = topicDetails.introduction.match(/^"([^"]+)"\s*(.*)/s);
+                return (
+                  <div id="overview" className={`scroll-mt-24 rounded-lg border border-gray-200 bg-white overflow-hidden ${topicDetails.principles?.length > 0 ? 'lg:col-span-2' : ''}`}>
+                    <div className="px-3 py-1.5 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
+                      <Icon name="book" size={14} style={{ color: topicDetails.color }} />
+                      <h2 className="text-xs font-bold text-gray-900 landing-display">Overview</h2>
+                    </div>
+                    <div className="p-3">
+                      {quoteMatch ? (
+                        <>
+                          <div className="p-3 rounded-lg mb-2" style={{ background: `${topicDetails.color}08`, borderLeft: `4px solid ${topicDetails.color}` }}>
+                            <p className="text-sm font-semibold text-gray-900 italic landing-body">"{quoteMatch[1]}"</p>
+                          </div>
+                          <p className="text-gray-500 text-xs leading-relaxed landing-body">{quoteMatch[2].trim()}</p>
+                        </>
+                      ) : (
+                        <p className="text-gray-500 text-xs leading-relaxed landing-body">{topicDetails.introduction}</p>
+                      )}
+                    </div>
                   </div>
-                  <div className="px-1">
-                    <p className="text-gray-500 text-sm leading-relaxed landing-body">{restOfText.trim()}</p>
-                  </div>
-                </div>
-              );
-            }
-            return (
-              <div id="overview" className="scroll-mt-24">
-                <p className="text-gray-500 text-sm leading-relaxed landing-body">{topicDetails.introduction}</p>
-              </div>
-            );
-          })()}
+                );
+              })()}
 
-          {/* Key Principles — always shown at top when available */}
-          {topicDetails.principles && topicDetails.principles.length > 0 && (
-            <div className="scroll-mt-24">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-5 h-5 rounded flex items-center justify-center" style={{ background: topicDetails.color }}>
-                  <Icon name="award" size={11} className="text-white" />
+              {/* Key Principles */}
+              {topicDetails.principles && topicDetails.principles.length > 0 && (
+                <div className="scroll-mt-24 rounded-lg border border-gray-200 bg-white overflow-hidden">
+                  <div className="px-3 py-1.5 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
+                    <Icon name="award" size={14} style={{ color: topicDetails.color }} />
+                    <h2 className="text-xs font-bold text-gray-900 landing-display">Key Principles</h2>
+                  </div>
+                  <div className="p-2 flex flex-wrap gap-1.5">
+                    {topicDetails.principles.map((principle, i) => (
+                      <span key={i} className="px-2 py-1 rounded-md landing-mono text-[10px] font-semibold" style={{ background: `${topicDetails.color}12`, color: topicDetails.color, border: `1px solid ${topicDetails.color}25` }}>
+                        {principle}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                <h3 className="text-xs font-bold text-gray-900 landing-display">Key Principles</h3>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {topicDetails.principles.map((principle, i) => (
-                  <span key={i} className="px-2 py-1 rounded-md landing-mono text-[10px] font-semibold" style={{ background: `${topicDetails.color}12`, color: topicDetails.color, border: `1px solid ${topicDetails.color}25` }}>
-                    {principle}
-                  </span>
-                ))}
-              </div>
+              )}
             </div>
           )}
 
