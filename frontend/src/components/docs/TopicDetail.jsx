@@ -619,9 +619,9 @@ export default function TopicDetail({
                     <h3 className="text-sm font-bold text-gray-900 landing-display">Key Questions</h3>
                     <span className="text-[10px] landing-mono text-gray-400 ml-auto">{topicDetails.keyQuestions.length} topics</span>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 p-2" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 p-2">
                     {topicDetails.keyQuestions.map((q, i) => (
-                      <div key={i} className="p-3 rounded-lg hover:bg-gray-50 transition-colors bg-white border border-gray-200">
+                      <div key={i} className={`p-3 rounded-lg hover:bg-gray-50 transition-colors bg-white border border-gray-200 ${i === topicDetails.keyQuestions.length - 1 && topicDetails.keyQuestions.length % 2 !== 0 ? 'md:col-span-2' : ''}`}>
                         <div className="flex items-start gap-2">
                           <span className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center text-xs text-gray-900 font-bold flex-shrink-0 landing-mono">{i + 1}</span>
                           <div className="flex-1 min-w-0">
