@@ -126,10 +126,14 @@ export default function DocsPage({ onBack }) {
     const params = new URLSearchParams(routerLocation.search);
     const rawPage = params.get('page') || (pathSegment || 'coding');
     const page = rawPage === 'dsa' ? 'coding' : rawPage === 'low-level-design' ? 'low-level' : rawPage;
-    if (page && page !== activePage) {
+    const topic = params.get('topic') || null;
+    if (page !== activePage) {
       setActivePageState(page);
       setSelectedTopicState(null);
       setActiveSection(page);
+    } else if (!topic && selectedTopic) {
+      // Sidebar clicked same page — clear topic to go back to list
+      setSelectedTopicState(null);
     }
   }, [routerLocation.pathname, routerLocation.search]); // eslint-disable-line react-hooks/exhaustive-deps
 
