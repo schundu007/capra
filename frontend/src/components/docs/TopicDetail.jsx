@@ -498,16 +498,12 @@ export default function TopicDetail({
           {/* Comprehensive System Design / LLD Problem Content */}
           {(topicDetails.requirements || topicDetails.functionalRequirements || topicDetails.introduction) && (
             <>
-              {/* Introduction (Comprehensive) */}
+              {/* Introduction */}
               {topicDetails.introduction && (
                 <div id="overview" className="rounded-lg overflow-hidden scroll-mt-24 border border-gray-200 bg-white">
-                  <div className="px-3 py-2 border-b border-gray-100 bg-gray-50">
-                    <h2 className="text-sm font-bold text-gray-900 flex items-center gap-2 landing-display">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-50">
-                        <Icon name="book" size={18} className="text-emerald-700" />
-                      </div>
-                      Introduction
-                    </h2>
+                  <div className="px-3 py-1.5 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
+                    <Icon name="book" size={14} className="text-emerald-700" />
+                    <h2 className="text-xs font-bold text-gray-900 landing-display">Introduction</h2>
                   </div>
                   <div className="p-3">
                     <FormattedContent content={topicDetails.introduction} color="blue" />
@@ -522,10 +518,8 @@ export default function TopicDetail({
                 {(topicDetails.functionalRequirements || topicDetails.requirements) && (
                 <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <div className="bg-emerald-50/50 border-b border-gray-100 px-3 py-2 flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
-                      <Icon name="check" size={16} className="text-emerald-700" />
-                    </div>
-                    <h3 className="text-sm font-bold text-gray-900 landing-display">Functional Requirements</h3>
+                    <Icon name="check" size={14} className="text-emerald-700" />
+                    <h3 className="text-xs font-bold text-gray-900 landing-display">Functional Requirements</h3>
                   </div>
                   <div className="p-3">
                     <ul className="grid grid-cols-2 lg:grid-cols-3 gap-1">
@@ -544,10 +538,8 @@ export default function TopicDetail({
                 {topicDetails.nonFunctionalRequirements && (
                   <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                     <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
-                        <Icon name="zap" size={16} className="text-emerald-700" />
-                      </div>
-                      <h3 className="text-sm font-bold text-gray-900 landing-display">Non-Functional Requirements</h3>
+                      <Icon name="zap" size={14} className="text-emerald-700" />
+                      <h3 className="text-xs font-bold text-gray-900 landing-display">Non-Functional Requirements</h3>
                     </div>
                     <div className="p-3">
                       <ul className="grid grid-cols-2 lg:grid-cols-3 gap-1">
@@ -564,34 +556,30 @@ export default function TopicDetail({
               </div>
               )}
 
-              {/* API Design + Data Model */}
+              {/* API Design + Data Model — side by side */}
               {(topicDetails.apiDesign?.endpoints || topicDetails.dataModel) && (
-                <div className="grid gap-2 scroll-mt-24 grid-cols-1">
-                  {/* API Design */}
+                <div className={`grid gap-2 scroll-mt-24 ${topicDetails.apiDesign?.endpoints && topicDetails.dataModel ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+                  {/* API Design — dense multi-column endpoint grid */}
                   {topicDetails.apiDesign && topicDetails.apiDesign.endpoints && (
                     <div id="api-design" className="rounded-lg overflow-hidden scroll-mt-24 border border-gray-200 bg-white">
-                      <div className="bg-emerald-50/50 border-b border-gray-100 px-3 py-2 flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
-                          <Icon name="code" size={16} className="text-emerald-700" />
-                        </div>
-                        <h3 className="text-sm font-bold text-gray-900 landing-display">API Design</h3>
+                      <div className="bg-emerald-50/50 border-b border-gray-100 px-3 py-1.5 flex items-center gap-2">
+                        <Icon name="code" size={14} className="text-emerald-700" />
+                        <h3 className="text-xs font-bold text-gray-900 landing-display">API Design</h3>
                       </div>
-                      <div className="p-3">
-                        <div className="grid md:grid-cols-2 gap-2">
+                      <div className="p-2">
+                        <div className={`grid gap-1.5 ${topicDetails.apiDesign.endpoints.length > 4 ? 'grid-cols-2 xl:grid-cols-3' : 'grid-cols-2'}`}>
                           {topicDetails.apiDesign.endpoints.map((endpoint, i) => (
-                            <div key={i} className="rounded-lg p-3 bg-gray-50 border border-gray-200">
-                              <div className="flex items-center gap-2 mb-2">
-                                <span className={`text-[10px] landing-mono px-1.5 py-0.5 rounded border font-bold uppercase ${
-                                  endpoint.method === 'GET' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                                  endpoint.method === 'POST' || endpoint.method === 'INSERT' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                                  endpoint.method === 'PUT' || endpoint.method === 'UPDATE' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                                  'bg-red-50 text-red-700 border-red-200'
-                                }`}>
-                                  {endpoint.method}
-                                </span>
-                                <code className="text-gray-900 landing-mono text-sm">{endpoint.path}</code>
+                            <div key={i} className="rounded-md px-2.5 py-2 bg-gray-50 border border-gray-200">
+                              <div className="flex items-center gap-1.5 mb-1">
+                                <span className={`text-[9px] landing-mono px-1 py-0.5 rounded font-bold uppercase leading-none ${
+                                  endpoint.method === 'GET' ? 'bg-emerald-50 text-emerald-700' :
+                                  endpoint.method === 'POST' || endpoint.method === 'INSERT' ? 'bg-amber-50 text-amber-700' :
+                                  endpoint.method === 'PUT' || endpoint.method === 'UPDATE' ? 'bg-blue-50 text-blue-700' :
+                                  'bg-red-50 text-red-700'
+                                }`}>{endpoint.method}</span>
+                                <code className="text-gray-900 landing-mono text-xs truncate">{endpoint.path}</code>
                               </div>
-                              <div className="text-gray-500 text-sm landing-body">{endpoint.response}</div>
+                              <div className="text-gray-400 text-xs landing-body truncate">{endpoint.response}</div>
                             </div>
                           ))}
                         </div>
@@ -599,24 +587,15 @@ export default function TopicDetail({
                     </div>
                   )}
 
-                  {/* Data Model */}
+                  {/* Data Model — compact code block */}
                   {topicDetails.dataModel && (
-                    <div id="data-model" className="rounded-xl overflow-hidden scroll-mt-24 border border-gray-200 bg-white">
-                      <div className="bg-emerald-50/50 border-b border-gray-100 px-3 py-2 flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-50">
-                          <Icon name="database" size={18} className="text-emerald-700" />
-                        </div>
-                        <h3 className="text-sm font-bold text-gray-900 landing-display">Data Model</h3>
+                    <div id="data-model" className="rounded-lg overflow-hidden scroll-mt-24 border border-gray-200 bg-white">
+                      <div className="bg-emerald-50/50 border-b border-gray-100 px-3 py-1.5 flex items-center gap-2">
+                        <Icon name="database" size={14} className="text-emerald-700" />
+                        <h3 className="text-xs font-bold text-gray-900 landing-display">Data Model</h3>
                       </div>
-                      <div className="overflow-x-auto bg-gray-50 border border-gray-200 rounded-md">
-                        <pre
-                          className="p-3 text-sm leading-7 text-emerald-700 landing-mono"
-                          style={{
-                            whiteSpace: 'pre',
-                            margin: 0,
-                            tabSize: 4
-                          }}
-                        >
+                      <div className="overflow-x-auto bg-gray-50 max-h-80 overflow-y-auto">
+                        <pre className="p-2.5 text-xs leading-5 text-emerald-700 landing-mono" style={{ whiteSpace: 'pre', margin: 0, tabSize: 4 }}>
                           {topicDetails.dataModel.schema}
                         </pre>
                       </div>
@@ -629,10 +608,8 @@ export default function TopicDetail({
               {topicDetails.keyQuestions && (
                 <div id="key-questions" className="rounded-xl overflow-hidden scroll-mt-24 border border-gray-200 bg-white">
                   <div className="bg-emerald-50/50 border-b border-gray-100 px-3 py-2 flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-50">
-                      <Icon name="messageSquare" size={18} className="text-emerald-700" />
-                    </div>
-                    <h3 className="text-sm font-bold text-gray-900 landing-display">Key Questions</h3>
+                    <Icon name="messageSquare" size={14} className="text-emerald-700" />
+                    <h3 className="text-xs font-bold text-gray-900 landing-display">Key Questions</h3>
                     <span className="text-[10px] landing-mono text-gray-400 ml-auto">{topicDetails.keyQuestions.length} topics</span>
                   </div>
                   <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-2 p-3">
@@ -655,15 +632,13 @@ export default function TopicDetail({
 
               {/* Basic + Advanced Implementation */}
               {(topicDetails.basicImplementation || topicDetails.advancedImplementation) && (
-                <div id="architecture" className="grid grid-cols-1 gap-2 scroll-mt-24">
+                <div id="architecture" className={`grid gap-2 scroll-mt-24 ${topicDetails.basicImplementation && topicDetails.advancedImplementation ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
                   {/* Basic Implementation */}
                   {topicDetails.basicImplementation && (
                     <div className="rounded-xl overflow-hidden border border-gray-200 bg-white">
                       <div className="bg-emerald-50/50 border-b border-gray-100 px-3 py-2 flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-50">
-                          <Icon name="layers" size={18} className="text-emerald-700" />
-                        </div>
-                        <h3 className="text-sm font-bold text-gray-900 landing-display">{topicDetails.basicImplementation.title || 'Basic Approach'}</h3>
+                        <Icon name="layers" size={14} className="text-emerald-700" />
+                        <h3 className="text-xs font-bold text-gray-900 landing-display">{topicDetails.basicImplementation.title || 'Basic Approach'}</h3>
                       </div>
                       <div className="p-3">
                         <p className="text-gray-500 text-sm mb-2 leading-relaxed landing-body">{topicDetails.basicImplementation.description}</p>
@@ -772,16 +747,14 @@ export default function TopicDetail({
               )}
 
               {/* Cloud Architecture Diagram + Tips */}
-              <div className="grid grid-cols-1 gap-2">
+              <div className="grid lg:grid-cols-2 gap-2">
                 {/* Cloud Architecture Diagram */}
                 {activePage === 'system-design' && topicDetails && (
                   <div className="rounded-xl overflow-hidden border border-gray-200 bg-white">
                     <div className="bg-emerald-50/50 border-b border-gray-100 px-3 py-2 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-50">
-                          <Icon name="layers" size={18} className="text-emerald-700" />
-                        </div>
-                        <h3 className="text-sm font-bold text-gray-900 landing-display">Architecture Diagram</h3>
+                        <Icon name="layers" size={14} className="text-emerald-700" />
+                        <h3 className="text-xs font-bold text-gray-900 landing-display">Architecture Diagram</h3>
                       </div>
                       <div className="flex items-center gap-2">
                         {/* Cloud Provider Selector */}
@@ -856,9 +829,7 @@ export default function TopicDetail({
                 {topicDetails.tips && (
                   <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                     <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-emerald-50/50">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
-                        <Icon name="star" size={16} className="text-emerald-700" />
-                      </div>
+                      <Icon name="star" size={16} className="text-emerald-700" />
                       <h3 className="text-sm font-bold text-gray-900 landing-display">Interview Tips</h3>
                     </div>
                     <div className="grid md:grid-cols-2 gap-1 p-3">
@@ -880,9 +851,7 @@ export default function TopicDetail({
                   {topicDetails.createFlow && (
                     <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                       <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
-                          <Icon name="arrowRight" size={16} className="text-emerald-700" />
-                        </div>
+                        <Icon name="arrowRight" size={16} className="text-emerald-700" />
                         <h3 className="text-sm font-bold text-gray-900 landing-display">{topicDetails.createFlow.title}</h3>
                       </div>
                       <div className="p-3">
@@ -904,9 +873,7 @@ export default function TopicDetail({
                   {topicDetails.redirectFlow && (
                     <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                       <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
-                          <Icon name="arrowLeft" size={16} className="text-emerald-700" />
-                        </div>
+                        <Icon name="arrowLeft" size={16} className="text-emerald-700" />
                         <h3 className="text-sm font-bold text-gray-900 landing-display">{topicDetails.redirectFlow.title}</h3>
                       </div>
                       <div className="p-3">
@@ -930,9 +897,7 @@ export default function TopicDetail({
               {topicDetails.discussionPoints && (
                 <div className="rounded-lg overflow-hidden bg-gray-50 border border-gray-200">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
-                      <Icon name="messageCircle" size={16} className="text-gray-900" />
-                    </div>
+                    <Icon name="messageCircle" size={16} className="text-gray-900" />
                     <h3 className="text-sm font-bold text-gray-900 landing-display">Discussion Points</h3>
                   </div>
                   <div className="p-3">
@@ -962,9 +927,7 @@ export default function TopicDetail({
               {topicDetails.estimation && (
                 <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-violet-50">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-violet-100">
-                      <Icon name="hash" size={16} className="text-violet-700" />
-                    </div>
+                    <Icon name="hash" size={16} className="text-violet-700" />
                     <h3 className="text-sm font-bold text-violet-900 landing-display">{topicDetails.estimation.title || 'Capacity Planning'}</h3>
                   </div>
                   <div className="p-3 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
@@ -983,9 +946,7 @@ export default function TopicDetail({
               {topicDetails.algorithmApproaches && (
                 <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-amber-50">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-amber-100">
-                      <Icon name="zap" size={16} className="text-amber-700" />
-                    </div>
+                    <Icon name="zap" size={16} className="text-amber-700" />
                     <h3 className="text-sm font-bold text-amber-900 landing-display">Algorithm Approaches</h3>
                   </div>
                   <div className="p-3 grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -1007,9 +968,7 @@ export default function TopicDetail({
               {topicDetails.architectureLayers && (
                 <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-teal-50">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-teal-100">
-                      <Icon name="layers" size={16} className="text-teal-700" />
-                    </div>
+                    <Icon name="layers" size={16} className="text-teal-700" />
                     <h3 className="text-sm font-bold text-teal-900 landing-display">Architecture Layers</h3>
                   </div>
                   <div className="p-3 space-y-1.5">
@@ -1027,9 +986,7 @@ export default function TopicDetail({
               {topicDetails.deepDiveTopics && (
                 <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-sky-50">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-sky-100">
-                      <Icon name="search" size={16} className="text-sky-700" />
-                    </div>
+                    <Icon name="search" size={16} className="text-sky-700" />
                     <h3 className="text-sm font-bold text-sky-900 landing-display">Deep Dive Topics</h3>
                   </div>
                   <div className="p-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
@@ -1047,9 +1004,7 @@ export default function TopicDetail({
               {topicDetails.tradeoffDecisions && (
                 <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-rose-50">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-rose-100">
-                      <Icon name="gitBranch" size={16} className="text-rose-700" />
-                    </div>
+                    <Icon name="gitBranch" size={16} className="text-rose-700" />
                     <h3 className="text-sm font-bold text-rose-900 landing-display">Trade-off Decisions</h3>
                   </div>
                   <div className="p-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
@@ -1071,9 +1026,7 @@ export default function TopicDetail({
               {topicDetails.interviewFollowups && (
                 <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-orange-50">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-orange-100">
-                      <Icon name="helpCircle" size={16} className="text-orange-700" />
-                    </div>
+                    <Icon name="helpCircle" size={16} className="text-orange-700" />
                     <h3 className="text-sm font-bold text-orange-900 landing-display">Common Follow-up Questions</h3>
                   </div>
                   <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -1094,9 +1047,7 @@ export default function TopicDetail({
               {topicDetails.codeExamples && typeof topicDetails.codeExamples === 'object' && !Array.isArray(topicDetails.codeExamples) && (
                 <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-emerald-50">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-100">
-                      <Icon name="code" size={16} className="text-emerald-700" />
-                    </div>
+                    <Icon name="code" size={16} className="text-emerald-700" />
                     <h3 className="text-sm font-bold text-emerald-900 landing-display">Implementation Code</h3>
                   </div>
                   <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -1123,9 +1074,7 @@ export default function TopicDetail({
                   {!topicDetails.introduction && topicDetails.components && (
                     <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                       <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
-                          <Icon name="layers" size={16} className="text-emerald-700" />
-                        </div>
+                        <Icon name="layers" size={16} className="text-emerald-700" />
                         <h3 className="text-sm font-bold text-gray-900 landing-display">System Components</h3>
                       </div>
                       <div className="p-4">
@@ -1144,9 +1093,7 @@ export default function TopicDetail({
                   {topicDetails.keyDecisions && (
                     <div className="rounded-lg overflow-hidden bg-gray-50 border border-gray-200">
                       <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-gray-50">
-                          <Icon name="lightbulb" size={16} className="text-gray-900" />
-                        </div>
+                        <Icon name="lightbulb" size={16} className="text-gray-900" />
                         <h3 className="text-sm font-bold text-gray-900 landing-display">Key Design Decisions</h3>
                       </div>
                       <div className="p-3">
@@ -1170,9 +1117,7 @@ export default function TopicDetail({
               {topicDetails.coreEntities && (
                 <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
-                      <Icon name="box" size={16} className="text-gray-900" />
-                    </div>
+                    <Icon name="box" size={16} className="text-gray-900" />
                     <h3 className="text-sm font-bold text-gray-900 landing-display">Core Entities</h3>
                   </div>
                   <div className="p-3">
@@ -1192,9 +1137,7 @@ export default function TopicDetail({
               {topicDetails.designPatterns && (
                 <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
-                      <Icon name="puzzle" size={16} className="text-gray-900" />
-                    </div>
+                    <Icon name="puzzle" size={16} className="text-gray-900" />
                     <h3 className="text-sm font-bold text-gray-900 landing-display">Design Patterns</h3>
                   </div>
                   <div className="p-4">
@@ -1214,9 +1157,7 @@ export default function TopicDetail({
               {topicDetails.implementation && (
                 <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
-                      <Icon name="code" size={16} className="text-emerald-700" />
-                    </div>
+                    <Icon name="code" size={16} className="text-emerald-700" />
                     <h3 className="text-sm font-bold text-gray-900 landing-display">Implementation</h3>
                   </div>
                   <div className="overflow-x-auto bg-gray-100">
@@ -1238,9 +1179,7 @@ export default function TopicDetail({
               {topicDetails.concepts && Array.isArray(topicDetails.concepts) && topicDetails.concepts[0]?.name && (
                 <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
-                      <Icon name="cpu" size={16} className="text-gray-900" />
-                    </div>
+                    <Icon name="cpu" size={16} className="text-gray-900" />
                     <h3 className="text-sm font-bold text-gray-900 landing-display">Core Concepts</h3>
                   </div>
                   <div className="p-4 grid md:grid-cols-2 gap-2">
@@ -1258,9 +1197,7 @@ export default function TopicDetail({
               {topicDetails.primitives && (
                 <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
-                      <Icon name="lock" size={16} className="text-emerald-700" />
-                    </div>
+                    <Icon name="lock" size={16} className="text-emerald-700" />
                     <h3 className="text-sm font-bold text-gray-900 landing-display">Synchronization Primitives</h3>
                   </div>
                   <div className="p-4 grid md:grid-cols-2 gap-2">
@@ -1281,9 +1218,7 @@ export default function TopicDetail({
               {topicDetails.problems && topicDetails.problems[0]?.solution && (
                 <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-gray-50">
-                      <Icon name="alertTriangle" size={16} className="text-gray-900" />
-                    </div>
+                    <Icon name="alertTriangle" size={16} className="text-gray-900" />
                     <h3 className="text-sm font-bold text-gray-900 landing-display">Classic Problems</h3>
                   </div>
                   <div className="grid md:grid-cols-2 gap-2 p-3">
@@ -1305,9 +1240,7 @@ export default function TopicDetail({
               {topicDetails.structures && (
                 <div className="rounded-lg overflow-hidden bg-gray-50 border border-gray-200">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50">
-                      <Icon name="database" size={16} className="text-gray-900" />
-                    </div>
+                    <Icon name="database" size={16} className="text-gray-900" />
                     <h3 className="text-sm font-bold text-gray-900 landing-display">Concurrent Data Structures</h3>
                   </div>
                   <div className="p-4 grid md:grid-cols-2 gap-2">
