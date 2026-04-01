@@ -1242,7 +1242,7 @@ export default function AscendPrepModal({ isOpen, onClose, provider, model, isDe
       <div className={`${isMobile ? 'fixed inset-y-0 left-0 z-50 w-72 transition-transform duration-300' : 'w-64'} flex flex-col prep-sidebar ${isDedicatedWindow && !embedded ? 'pt-7' : ''} ${isMobile && !prepSidebarOpen ? '-translate-x-full' : 'translate-x-0'}`}>
         {/* Header with Company Selector */}
         <div className="prep-header">
-          <div className="flex items-center justify-between mb-3">
+          <div className={`flex items-center justify-between mb-3 ${embedded ? 'hidden' : ''}`}>
             <h2 className="prep-header-title landing-display">Interview Prep</h2>
             <div className="flex items-center gap-2">
               {/* Cloud Sync Status (Electron only) */}
