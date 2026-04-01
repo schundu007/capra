@@ -104,9 +104,6 @@ export default function OAuthLogin() {
               Get Started with Google
             </button>
           )}
-          <a href="/practice" className="px-8 py-3 bg-white text-gray-700 font-semibold text-sm rounded border border-gray-200 hover:bg-gray-50 transition-colors shadow-sm landing-body">
-            Browse Free Content
-          </a>
         </div>
         {authError && (
           <div className={`mt-4 max-w-md mx-auto px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 landing-body transition-all duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
