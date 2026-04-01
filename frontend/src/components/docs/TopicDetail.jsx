@@ -242,7 +242,7 @@ export default function TopicDetail({
                 </div>
                 <div className="p-3">
                   <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
-                    {topicDetails.whenToUse.map((item, i) => (
+                    {topicDetails.whenToUse?.map((item, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm landing-body">
                         <span className="text-emerald-600 mt-0.5">→</span>
                         <span className="text-gray-700">{item}</span>
@@ -262,7 +262,7 @@ export default function TopicDetail({
                 </div>
                 <div className="p-3">
                   <div className="flex flex-wrap gap-1.5">
-                    {topicDetails.keyPatterns.map((pattern, i) => (
+                    {topicDetails.keyPatterns?.map((pattern, i) => (
                       <span key={i} className="px-2 py-1 rounded text-xs landing-mono" style={{ background: `${topicDetails.color}15`, color: topicDetails.color }}>
                         {pattern}
                       </span>
@@ -284,7 +284,7 @@ export default function TopicDetail({
                 </div>
                 <div className="p-2">
                   <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
-                    {topicDetails.approach.map((step, i) => (
+                    {topicDetails.approach?.map((step, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm landing-body">
                         <span className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 bg-emerald-500 text-white">{i + 1}</span>
                         <span className="text-gray-700">{step}</span>
@@ -304,7 +304,7 @@ export default function TopicDetail({
                 </div>
                 <div className="p-2">
                   <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
-                    {topicDetails.commonMistakes.map((mistake, i) => (
+                    {topicDetails.commonMistakes?.map((mistake, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm landing-body">
                         <span className="text-red-500 mt-0.5">✗</span>
                         <span className="text-gray-700">{mistake}</span>
@@ -329,7 +329,7 @@ export default function TopicDetail({
               </div>
               <div className="p-2">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
-                  {topicDetails.commonProblems.map((problem, i) => {
+                  {topicDetails.commonProblems?.map((problem, i) => {
                     const problemName = typeof problem === 'string' ? problem : problem.name;
                     const slug = generateSlug(problemName);
                     const problemData = getProblemBySlug(slug);
@@ -373,7 +373,7 @@ export default function TopicDetail({
               </div>
               <div className="p-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
-                  {topicDetails.theoryQuestions.map((q, i) => {
+                  {topicDetails.theoryQuestions?.map((q, i) => {
                     const questionKey = `${selectedTopic}-${i}`;
                     const isExpanded = expandedTheoryQuestions[questionKey];
                     return (
@@ -422,7 +422,7 @@ export default function TopicDetail({
                   <h3 className="text-sm font-bold text-emerald-800 landing-display">Tips & Tricks</h3>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1 p-2">
-                  {topicDetails.tips.map((tip, i) => (
+                  {topicDetails.tips?.map((tip, i) => (
                     <div key={i} className="px-2 py-1 flex items-start gap-1.5 rounded">
                       <span className="text-emerald-600 text-xs mt-0.5 flex-shrink-0">✓</span>
                       <span className="text-gray-700 text-sm landing-body">{tip}</span>
@@ -440,7 +440,7 @@ export default function TopicDetail({
                   <h3 className="text-sm font-bold text-indigo-800 landing-display">Interview Tips</h3>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1 p-2">
-                  {topicDetails.interviewTips.map((tip, i) => (
+                  {topicDetails.interviewTips?.map((tip, i) => (
                     <div key={i} className="px-2 py-1 flex items-start gap-1.5 rounded">
                       <span className="text-gray-400 text-xs mt-0.5 flex-shrink-0">★</span>
                       <span className="text-gray-700 text-sm landing-body">{tip}</span>
@@ -471,7 +471,7 @@ export default function TopicDetail({
                 <Icon name="code" size={14} className="text-emerald-700" />
                 Code Examples
               </h3>
-              {topicDetails.codeExamples.map((example, i) => (
+              {topicDetails.codeExamples?.map((example, i) => (
                 <div key={i} className="p-3 rounded-xl bg-gray-50 border border-gray-200">
                   <h4 className="text-gray-900 font-semibold mb-2 landing-display">{example.title}</h4>
                   {example.description && <p className="text-gray-500 text-sm mb-2 landing-body">{example.description}</p>}
@@ -512,7 +512,7 @@ export default function TopicDetail({
                         <h2 className="text-sm font-bold text-violet-800 landing-display">Key Concepts</h2>
                       </div>
                       <div className="p-2 flex flex-wrap gap-1.5">
-                        {topicDetails.concepts.map((concept, i) => (
+                        {topicDetails.concepts?.map((concept, i) => (
                           <span key={i} className="px-2 py-1 rounded text-xs landing-mono" style={{ background: `${topicDetails.color}15`, color: topicDetails.color }}>
                             {concept}
                           </span>
@@ -555,7 +555,7 @@ export default function TopicDetail({
                     </div>
                     <div className="p-3">
                       <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
-                        {topicDetails.nonFunctionalRequirements.map((req, i) => (
+                        {topicDetails.nonFunctionalRequirements?.map((req, i) => (
                           <li key={i} className="flex items-start gap-2 rounded hover:bg-gray-50 transition-colors">
                             <span className="w-4 h-4 rounded-full flex items-center justify-center text-xs flex-shrink-0 bg-emerald-50 text-emerald-700 mt-0.5">•</span>
                             <span className="text-gray-500 text-xs landing-body">{req}</span>
@@ -625,7 +625,7 @@ export default function TopicDetail({
                     <span className="text-[10px] landing-mono text-gray-400 ml-auto">{topicDetails.keyQuestions.length} topics</span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 p-2">
-                    {topicDetails.keyQuestions.map((q, i) => (
+                    {topicDetails.keyQuestions?.map((q, i) => (
                       <div key={i} className={`p-3 rounded-lg hover:bg-gray-50 transition-colors bg-white border border-gray-200 ${i === topicDetails.keyQuestions.length - 1 && topicDetails.keyQuestions.length % 2 !== 0 ? 'md:col-span-2' : ''}`}>
                         <div className="flex items-start gap-2">
                           <span className="w-7 h-7 rounded-lg bg-emerald-500 flex items-center justify-center text-xs text-white font-bold flex-shrink-0 landing-mono">{i + 1}</span>
@@ -845,7 +845,7 @@ export default function TopicDetail({
                       <h3 className="text-sm font-bold text-indigo-800 landing-display">Interview Tips</h3>
                     </div>
                     <div className="grid md:grid-cols-2 gap-1 p-3">
-                      {topicDetails.tips.map((tip, i) => (
+                      {topicDetails.tips?.map((tip, i) => (
                         <div key={i} className="px-3 py-2 flex items-center gap-2 hover:bg-gray-50 transition-colors rounded">
                           <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0 bg-emerald-50 text-emerald-700">★</span>
                           <span className="text-gray-500 text-sm landing-body">{tip}</span>
@@ -914,7 +914,7 @@ export default function TopicDetail({
                   </div>
                   <div className="p-3">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                      {topicDetails.discussionPoints.map((point, i) => (
+                      {topicDetails.discussionPoints?.map((point, i) => (
                         <div key={i} className="p-3 rounded-lg bg-white border border-gray-200">
                           <h4 className="text-gray-900 font-semibold mb-1.5 text-sm landing-display">{point.topic}</h4>
                           <ul className="space-y-0.5">
@@ -962,7 +962,7 @@ export default function TopicDetail({
                     <h3 className="text-sm font-bold text-amber-900 landing-display">Algorithm Approaches</h3>
                   </div>
                   <div className="p-3 grid grid-cols-1 md:grid-cols-3 gap-2">
-                    {topicDetails.algorithmApproaches.map((app, i) => (
+                    {topicDetails.algorithmApproaches?.map((app, i) => (
                       <div key={i} className="p-3 rounded-lg border border-gray-200 bg-gray-50/50">
                         <h4 className="text-sm font-bold text-amber-800 mb-1 landing-display">{i + 1}. {app.name}</h4>
                         <p className="text-gray-500 text-xs mb-2 landing-body leading-relaxed">{app.description}</p>
@@ -984,7 +984,7 @@ export default function TopicDetail({
                     <h3 className="text-sm font-bold text-teal-900 landing-display">Architecture Layers</h3>
                   </div>
                   <div className="p-3 space-y-1.5">
-                    {topicDetails.architectureLayers.map((layer, i) => (
+                    {topicDetails.architectureLayers?.map((layer, i) => (
                       <div key={i} className="flex items-start gap-3 p-2.5 rounded-lg bg-gray-50 border border-gray-100">
                         <span className="w-6 h-6 rounded-md bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold flex-shrink-0">{i + 1}</span>
                         <div><span className="text-sm font-bold text-teal-800 landing-display">{layer.name}</span><span className="text-gray-500 text-sm ml-2 landing-body">{layer.description}</span></div>
@@ -1002,7 +1002,7 @@ export default function TopicDetail({
                     <h3 className="text-sm font-bold text-sky-900 landing-display">Deep Dive Topics</h3>
                   </div>
                   <div className="p-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
-                    {topicDetails.deepDiveTopics.map((item, i) => (
+                    {topicDetails.deepDiveTopics?.map((item, i) => (
                       <div key={i} className="p-3 rounded-lg bg-sky-50/30 border border-sky-100">
                         <h4 className="text-sm font-bold text-sky-800 mb-1 landing-display">{item.topic}</h4>
                         <p className="text-gray-500 text-xs landing-body leading-relaxed">{item.detail}</p>
@@ -1020,7 +1020,7 @@ export default function TopicDetail({
                     <h3 className="text-sm font-bold text-rose-900 landing-display">Trade-off Decisions</h3>
                   </div>
                   <div className="p-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                    {topicDetails.tradeoffDecisions.map((d, i) => (
+                    {topicDetails.tradeoffDecisions?.map((d, i) => (
                       <div key={i} className="p-3 rounded-lg bg-gray-50 border border-gray-200">
                         <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                           <span className="text-xs font-bold text-amber-700 landing-mono">{d.choice}</span>
@@ -1042,7 +1042,7 @@ export default function TopicDetail({
                     <h3 className="text-sm font-bold text-orange-900 landing-display">Common Follow-up Questions</h3>
                   </div>
                   <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {topicDetails.interviewFollowups.map((item, i) => (
+                    {topicDetails.interviewFollowups?.map((item, i) => (
                       <div key={i} className="rounded-lg border border-gray-200 overflow-hidden">
                         <div className="flex items-start gap-2 px-3 py-2 bg-orange-50/30 border-b border-orange-100">
                           <span className="text-xs font-bold text-orange-700 landing-mono flex-shrink-0">Q{i + 1}</span>
@@ -1091,7 +1091,7 @@ export default function TopicDetail({
                       </div>
                       <div className="p-4">
                         <div className="flex flex-wrap gap-2">
-                          {topicDetails.components.map((comp, i) => (
+                          {topicDetails.components?.map((comp, i) => (
                             <span key={i} className="text-[10px] landing-mono px-1.5 py-0.5 rounded border bg-emerald-50 text-emerald-700 border-emerald-200">
                               {comp}
                             </span>
@@ -1110,7 +1110,7 @@ export default function TopicDetail({
                       </div>
                       <div className="p-3">
                         <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
-                          {topicDetails.keyDecisions.map((decision, i) => (
+                          {topicDetails.keyDecisions?.map((decision, i) => (
                             <li key={i} className="flex items-start gap-2 rounded hover:bg-gray-50 transition-colors">
                               <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-gray-50 text-gray-900 border border-amber-500/30 landing-mono">
                                 {i + 1}
@@ -1134,7 +1134,7 @@ export default function TopicDetail({
                   </div>
                   <div className="p-3">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {topicDetails.coreEntities.map((entity, i) => (
+                    {topicDetails.coreEntities?.map((entity, i) => (
                       <div key={i} className="flex items-start gap-2 p-3 rounded-lg bg-gray-50 border border-gray-200">
                         <code className="text-gray-900 landing-mono text-sm font-semibold whitespace-nowrap">{entity.name}</code>
                         <span className="text-gray-500 text-sm landing-body">{entity.description}</span>
@@ -1154,7 +1154,7 @@ export default function TopicDetail({
                   </div>
                   <div className="p-4">
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-                      {topicDetails.designPatterns.map((pattern, i) => (
+                      {topicDetails.designPatterns?.map((pattern, i) => (
                         <li key={i} className="flex items-start gap-2 rounded hover:bg-gray-50 transition-colors">
                           <span className="w-5 h-5 rounded-full flex items-center justify-center text-sm flex-shrink-0 bg-gray-50 text-gray-900 mt-0.5">✦</span>
                           <span className="text-gray-500 text-sm landing-body">{pattern}</span>
@@ -1195,7 +1195,7 @@ export default function TopicDetail({
                     <h3 className="text-sm font-bold text-blue-800 landing-display">Core Concepts</h3>
                   </div>
                   <div className="p-4 grid md:grid-cols-2 gap-2">
-                    {topicDetails.concepts.map((concept, i) => (
+                    {topicDetails.concepts?.map((concept, i) => (
                       <div key={i} className="flex items-start gap-2 p-3 rounded-lg bg-gray-50 border border-gray-200">
                         <code className="text-gray-900 landing-mono text-sm font-semibold whitespace-nowrap">{concept.name}</code>
                         <span className="text-gray-500 text-sm landing-body">{concept.description}</span>
@@ -1213,7 +1213,7 @@ export default function TopicDetail({
                     <h3 className="text-sm font-bold text-violet-800 landing-display">Synchronization Primitives</h3>
                   </div>
                   <div className="p-4 grid md:grid-cols-2 gap-2">
-                    {topicDetails.primitives.map((prim, i) => (
+                    {topicDetails.primitives?.map((prim, i) => (
                       <div key={i} className="p-3 rounded-lg bg-gray-50 border border-gray-200">
                         <div className="flex items-center gap-2 mb-1">
                           <code className="text-gray-900 landing-mono text-sm font-semibold">{prim.name}</code>
@@ -1234,7 +1234,7 @@ export default function TopicDetail({
                     <h3 className="text-sm font-bold text-amber-800 landing-display">Classic Problems</h3>
                   </div>
                   <div className="grid md:grid-cols-2 gap-2 p-3">
-                    {topicDetails.problems.map((problem, i) => (
+                    {topicDetails.problems?.map((problem, i) => (
                       <div key={i} className="p-4 rounded-lg bg-gray-50 border border-gray-200">
                         <h4 className="text-gray-900 font-semibold text-sm mb-2 landing-display">{problem.name}</h4>
                         <p className="text-gray-500 text-sm mb-2 landing-body">{problem.description}</p>
@@ -1256,7 +1256,7 @@ export default function TopicDetail({
                     <h3 className="text-sm font-bold text-blue-800 landing-display">Concurrent Data Structures</h3>
                   </div>
                   <div className="p-4 grid md:grid-cols-2 gap-2">
-                    {topicDetails.structures.map((struct, i) => (
+                    {topicDetails.structures?.map((struct, i) => (
                       <div key={i} className="flex items-start gap-2 p-3 rounded-lg bg-white border border-gray-200">
                         <code className="text-gray-900 landing-mono text-sm font-semibold whitespace-nowrap">{struct.name}</code>
                         <span className="text-gray-500 text-sm landing-body">{struct.description}</span>
@@ -1310,7 +1310,7 @@ export default function TopicDetail({
                     <h2 className="text-sm font-bold text-violet-800 landing-display">Key Principles</h2>
                   </div>
                   <div className="p-2 flex flex-wrap gap-1.5">
-                    {topicDetails.principles.map((principle, i) => (
+                    {topicDetails.principles?.map((principle, i) => (
                       <span key={i} className="px-2 py-1 rounded-md landing-mono text-[10px] font-semibold" style={{ background: `${topicDetails.color}12`, color: topicDetails.color, border: `1px solid ${topicDetails.color}25` }}>
                         {principle}
                       </span>
@@ -1332,7 +1332,7 @@ export default function TopicDetail({
                 <span className="text-[10px] landing-mono text-gray-400 ml-auto">{topicDetails.keyQuestions.length}Q</span>
               </div>
               <div className="p-2 space-y-2">
-                {topicDetails.keyQuestions.map((item, index) => {
+                {topicDetails.keyQuestions?.map((item, index) => {
                   const questionKey = `behavioral-${index}`;
                   const isExpanded = expandedTheoryQuestions[questionKey] === undefined ? index < 2 : expandedTheoryQuestions[questionKey];
                   return (
@@ -1551,7 +1551,7 @@ export default function TopicDetail({
                 <span className="text-[10px] landing-mono text-gray-400 ml-auto">{topicDetails.sampleQuestions.length}</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 p-2">
-                {topicDetails.sampleQuestions.map((q, i) => (
+                {topicDetails.sampleQuestions?.map((q, i) => (
                   <div key={i} className="flex items-start gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors group">
                     <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 landing-mono" style={{ background: `${topicDetails.color}12`, color: topicDetails.color }}>{i + 1}</span>
                     <span className="text-gray-700 text-sm landing-body group-hover:text-gray-900 transition-colors">{q}</span>
@@ -1574,7 +1574,7 @@ export default function TopicDetail({
                 <span className="text-[10px] landing-mono text-emerald-600 ml-auto">{topicDetails.tips.length} tips</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 p-3">
-                {topicDetails.tips.map((tip, i) => (
+                {topicDetails.tips?.map((tip, i) => (
                   <div key={i} className="flex items-start gap-2.5 px-3 py-2.5 rounded-lg bg-white/60 border border-emerald-100/60 hover:bg-white/80 transition-colors group">
                     <span className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 bg-emerald-500 text-white text-[10px] font-bold landing-mono mt-0.5">
                       {i + 1}
