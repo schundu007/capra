@@ -6,8 +6,8 @@ import { useIsMobile } from '../../hooks/useIsMobile.js';
 
 /**
  * Unified layout shell for all app routes.
- * Desktop: persistent left sidebar + main content.
- * Mobile: no sidebar, hamburger opens a drawer overlay.
+ * Desktop (>=768px): persistent left sidebar via CSS hidden/md:block.
+ * Mobile (<768px): NO sidebar in DOM. Hamburger opens overlay drawer.
  */
 export default function AppShell() {
   const { isMobile } = useIsMobile();
@@ -15,10 +15,10 @@ export default function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeSection, setActiveSection] = useState(null);
 
-  // Close drawer on any navigation (mobile)
+  // Close drawer on any navigation
   useEffect(() => {
-    if (isMobile) setSidebarOpen(false);
-  }, [location.pathname, location.search, isMobile]);
+    setSidebarOpen(false);
+  }, [location.pathname, location.search]);
 
   // Derive active section from URL
   useEffect(() => {
@@ -37,13 +37,13 @@ export default function AppShell() {
     }
   }, [location.pathname, location.search]);
 
-  // Lock body scroll when drawer is open on mobile
+  // Lock body scroll when drawer open
   useEffect(() => {
-    if (isMobile && sidebarOpen) {
+    if (sidebarOpen) {
       document.body.style.overflow = 'hidden';
       return () => { document.body.style.overflow = ''; };
     }
-  }, [isMobile, sidebarOpen]);
+  }, [sidebarOpen]);
 
   const ctx = {
     sidebarOpen,
@@ -57,16 +57,15 @@ export default function AppShell() {
   return (
     <AppShellContext.Provider value={ctx}>
       <div className="flex h-screen overflow-hidden">
-        {/* Desktop sidebar — always visible, never on mobile */}
-        {!isMobile && (
-          <div className="w-64 flex-shrink-0 h-screen border-r border-gray-100">
-            <ShellSidebar />
-          </div>
-        )}
 
-        {/* Mobile drawer overlay */}
-        {isMobile && sidebarOpen && (
-          <div className="fixed inset-0 z-40" onClick={ctx.closeSidebar}>
+        {/* Desktop sidebar — pure CSS: hidden on mobile, visible on md+ */}
+        <div className="hidden md:flex md:w-64 md:flex-shrink-0 h-screen border-r border-gray-100">
+          <ShellSidebar />
+        </div>
+
+        {/* Mobile drawer — only renders when open */}
+        {sidebarOpen && (
+          <div className="md:hidden fixed inset-0 z-40" onClick={ctx.closeSidebar}>
             <div className="absolute inset-0 bg-black/60" />
             <div
               className="absolute top-0 left-0 h-full w-72 max-w-[80vw] bg-white shadow-xl z-50"
@@ -77,7 +76,7 @@ export default function AppShell() {
           </div>
         )}
 
-        {/* Main content — Outlet renders the matched route */}
+        {/* Main content */}
         <div className="flex-1 overflow-auto min-w-0">
           <Outlet />
         </div>
