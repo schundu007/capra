@@ -95,7 +95,8 @@ router.get('/google/callback', async (req, res) => {
     }
 
     // Issue JWT
-    const jwtSecret = process.env.JWT_SECRET_KEY || process.env.JWT_SECRET || 'ascend-dev-secret';
+    const jwtSecret = process.env.JWT_SECRET_KEY || process.env.JWT_SECRET;
+    if (!jwtSecret) throw new Error('JWT_SECRET_KEY not configured');
     const accessToken = jwt.sign(
       { sub: userId, email: gUser.email, type: 'access' },
       jwtSecret,
@@ -103,10 +104,11 @@ router.get('/google/callback', async (req, res) => {
     );
 
     // Redirect to frontend with token in URL hash
-    res.redirect(`${FRONTEND_URL}/#access_token=${accessToken}&email=${encodeURIComponent(gUser.email)}&name=${encodeURIComponent(gUser.name || '')}&avatar=${encodeURIComponent(gUser.picture || '')}`);
+    // IMPORTANT: param names must match what AuthContext.parseAuthFromHash() expects
+    res.redirect(`${FRONTEND_URL}/#access_token=${accessToken}&user_id=${userId}&user_email=${encodeURIComponent(gUser.email)}&user_name=${encodeURIComponent(gUser.name || '')}&user_role=user`);
   } catch (err) {
     logger.error({ error: err.message }, 'Google OAuth failed');
-    res.redirect(`${FRONTEND_URL}?error=oauth_failed`);
+    res.redirect(`${FRONTEND_URL}/#error=oauth_failed`);
   }
 });
 
