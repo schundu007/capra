@@ -22,7 +22,7 @@ export default function PremiumPage() {
     try {
       if (!isAuthenticated) {
         localStorage.setItem('ascend_pending_plan', planId);
-        await signIn('google');
+        window.location.href = '/login';
         return;
       }
       const token = await getAccessToken();
@@ -142,7 +142,7 @@ export default function PremiumPage() {
               Go to App
             </a>
           ) : (
-            <button onClick={() => signIn('google')} className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded-lg hover:bg-emerald-400 transition-colors landing-body">
+            <button onClick={() => window.location.href = '/login'} className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded-lg hover:bg-emerald-400 transition-colors landing-body">
               Sign In
             </button>
           )}
@@ -164,7 +164,7 @@ export default function PremiumPage() {
               Go to App
             </a>
           ) : (
-            <button onClick={() => signIn('google')} className="block w-full mt-2 px-4 py-2.5 bg-emerald-500 text-white font-semibold text-sm text-center rounded-lg hover:bg-emerald-600 transition-colors landing-body">
+            <button onClick={() => window.location.href = '/login'} className="block w-full mt-2 px-4 py-2.5 bg-emerald-500 text-white font-semibold text-sm text-center rounded-lg hover:bg-emerald-600 transition-colors landing-body">
               Sign In with Google
             </button>
           )}
