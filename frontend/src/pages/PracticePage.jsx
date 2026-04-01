@@ -71,69 +71,62 @@ export default function PracticePage() {
         </p>
       </section>
 
-      {/* Sections Grid */}
-      <section className="px-6 md:px-12 pb-10 max-w-5xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* System Design, Technical, Behavioral */}
-          {PRACTICE_SECTIONS.map((section, si) => (
-            <div
-              key={section.key}
-              className={`bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-700 delay-${si * 100} ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-            >
-              <div className="h-1" style={{ background: section.color }} />
-              <div className="p-6">
-                <div className="flex items-center gap-2.5 mb-5">
-                  <Icon name={section.icon} size={18} style={{ color: section.color }} />
-                  <h2 className="landing-mono text-xs font-bold tracking-[0.15em] uppercase" style={{ color: section.color }}>
-                    {section.title}
-                  </h2>
-                </div>
-                <div className="flex flex-wrap gap-2.5">
-                  {section.items.map((item) => (
-                    <a
-                      key={item.label}
-                      href={item.href}
-                      className={`px-4 py-2 text-sm rounded-full border transition-colors landing-body ${section.chipBg} ${section.chipBorder} ${section.chipText} ${section.chipHover}`}
-                    >
-                      {item.label}
-                    </a>
-                  ))}
-                </div>
-              </div>
+      {/* Sections */}
+      <section className="px-6 md:px-12 pb-10 max-w-6xl mx-auto space-y-8">
+        {/* System Design, Technical, Behavioral */}
+        {PRACTICE_SECTIONS.map((section, si) => (
+          <div
+            key={section.key}
+            className={`text-center transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            style={{ transitionDelay: `${si * 100}ms` }}
+          >
+            <div className="flex items-center justify-center gap-2.5 mb-4">
+              <Icon name={section.icon} size={16} style={{ color: section.color }} />
+              <h2 className="landing-mono text-xs font-bold tracking-[0.15em] uppercase" style={{ color: section.color }}>
+                {section.title}
+              </h2>
             </div>
-          ))}
-
-          {/* Practice Coding — special section */}
-          <div className={`bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-700 delay-300 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <div className="h-1" style={{ background: '#8b5cf6' }} />
-            <div className="p-6">
-              <div className="flex items-center gap-2.5 mb-5">
-                <Icon name="code" size={18} style={{ color: '#8b5cf6' }} />
-                <h2 className="landing-mono text-xs font-bold tracking-[0.15em] uppercase" style={{ color: '#8b5cf6' }}>
-                  PRACTICE CODING
-                </h2>
-              </div>
-              <div className="flex flex-wrap gap-2.5">
-                {FREE_CODING.map((item) => (
-                  <a
-                    key={item.slug}
-                    href={`/problems/${item.slug}`}
-                    className="px-4 py-2 text-sm rounded-full border border-gray-200 bg-gray-50 text-gray-700 hover:bg-purple-50 hover:border-purple-200 transition-colors landing-body"
-                  >
-                    {item.label}
-                  </a>
-                ))}
-              </div>
-              <div className="mt-5 text-center">
+            <div className="flex flex-wrap justify-center gap-2.5">
+              {section.items.map((item) => (
                 <a
-                  href="/app/coding"
-                  className="inline-flex items-center gap-2 px-6 py-2.5 bg-purple-500 text-white text-sm font-semibold rounded-full hover:bg-purple-600 transition-colors landing-mono"
+                  key={item.label}
+                  href={item.href}
+                  className={`px-4 py-2 text-sm rounded-full border transition-colors landing-body ${section.chipBg} ${section.chipBorder} ${section.chipText} ${section.chipHover}`}
                 >
-                  <Icon name="code" size={14} className="text-white" />
-                  Open Coding IDE
+                  {item.label}
                 </a>
-              </div>
+              ))}
             </div>
+          </div>
+        ))}
+
+        {/* Practice Coding */}
+        <div className={`text-center transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ transitionDelay: '300ms' }}>
+          <div className="flex items-center justify-center gap-2.5 mb-4">
+            <Icon name="code" size={16} style={{ color: '#8b5cf6' }} />
+            <h2 className="landing-mono text-xs font-bold tracking-[0.15em] uppercase" style={{ color: '#8b5cf6' }}>
+              PRACTICE CODING
+            </h2>
+          </div>
+          <div className="flex flex-wrap justify-center gap-2.5">
+            {FREE_CODING.map((item) => (
+              <a
+                key={item.slug}
+                href={`/problems/${item.slug}`}
+                className="px-4 py-2 text-sm rounded-full border border-gray-200 bg-gray-50 text-gray-700 hover:bg-purple-50 hover:border-purple-200 transition-colors landing-body"
+              >
+                {item.label}
+              </a>
+            ))}
+          </div>
+          <div className="mt-5">
+            <a
+              href="/app/coding"
+              className="inline-flex items-center gap-2 px-6 py-2.5 bg-purple-500 text-white text-sm font-semibold rounded-full hover:bg-purple-600 transition-colors landing-mono"
+            >
+              <Icon name="code" size={14} className="text-white" />
+              Open Coding IDE
+            </a>
           </div>
         </div>
       </section>
