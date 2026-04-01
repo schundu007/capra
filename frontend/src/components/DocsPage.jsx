@@ -534,31 +534,54 @@ export default function DocsPage({ onBack }) {
             <div className="px-4 py-4">
               {/* Show topic detail or list */}
               {selectedTopic && !topicDetails ? (
-                /* Topic not found state */
-                <div className="landing-root animate-fade-in">
-                  <button
-                    onClick={() => setSelectedTopic(null)}
-                    className="inline-flex items-center gap-2 text-gray-900 hover:text-gray-900 mb-4 transition-all hover:gap-2 group landing-body"
-                  >
-                    <Icon name="chevronLeft" size={18} className="transition-transform group-hover:-translate-x-0.5" />
-                    <span>Back to {pageConfig.title}</span>
-                  </button>
-                  <div className="flex flex-col items-center justify-center py-20 text-center">
-                    <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center mb-4">
-                      <Icon name="alertTriangle" size={32} className="text-amber-500" />
+                /* Topic not found — try other categories or show helpful error */
+                (() => {
+                  const otherPage = findTopicPage(selectedTopic);
+                  if (otherPage && otherPage !== activePage) {
+                    // Topic exists in a different category — auto-switch
+                    setActivePageState(otherPage);
+                    setActiveSection(otherPage);
+                    return null;
+                  }
+                  return (
+                    <div className="landing-root animate-fade-in">
+                      <button
+                        onClick={() => setSelectedTopic(null)}
+                        className="inline-flex items-center gap-2 text-gray-900 hover:text-gray-900 mb-4 transition-all group landing-body"
+                      >
+                        <Icon name="chevronLeft" size={18} className="transition-transform group-hover:-translate-x-0.5" />
+                        <span>Back to {pageConfig.title}</span>
+                      </button>
+                      <div className="flex flex-col items-center justify-center py-16 text-center">
+                        <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center mb-4">
+                          <Icon name="alertTriangle" size={32} className="text-amber-500" />
+                        </div>
+                        <h2 className="text-xl font-bold text-gray-900 landing-display mb-2">Topic Not Found</h2>
+                        <p className="text-sm text-gray-500 landing-body mb-2 max-w-md">
+                          We couldn't find <span className="font-semibold text-gray-700">"{selectedTopic}"</span> in our content library.
+                        </p>
+                        <p className="text-xs text-gray-400 landing-body mb-6 max-w-sm">
+                          This topic may have been renamed, moved, or is coming soon. Try browsing the {pageConfig.title} section or search for a related topic.
+                        </p>
+                        <div className="flex flex-col sm:flex-row items-center gap-3">
+                          <button
+                            onClick={() => setSelectedTopic(null)}
+                            className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm rounded-lg transition-colors landing-body flex items-center gap-2"
+                          >
+                            <Icon name="search" size={14} />
+                            Browse {pageConfig.title}
+                          </button>
+                          <a
+                            href="/prepare"
+                            className="px-6 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold text-sm rounded-lg transition-colors landing-body"
+                          >
+                            Go to Dashboard
+                          </a>
+                        </div>
+                      </div>
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900 landing-display mb-2">Topic not found</h2>
-                    <p className="text-sm text-gray-500 landing-body mb-6 max-w-md">
-                      The topic "{selectedTopic}" does not exist in {pageConfig.title}. It may have been moved or removed.
-                    </p>
-                    <button
-                      onClick={() => setSelectedTopic(null)}
-                      className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm rounded-lg transition-colors landing-body"
-                    >
-                      Browse all topics
-                    </button>
-                  </div>
-                </div>
+                  );
+                })()
               ) : selectedTopic ? <TopicDetail activePage={activePage} selectedTopic={selectedTopic} topicDetails={topicDetails} pageConfig={pageConfig} completedTopics={completedTopics} starredTopics={starredTopics} toggleComplete={toggleComplete} toggleStar={toggleStar} showAskAI={showAskAI} setShowAskAI={setShowAskAI} aiQuestion={aiQuestion} setAiQuestion={setAiQuestion} aiAnswer={aiAnswer} aiLoading={aiLoading} handleAskAI={handleAskAI} showRoadmap={showRoadmap} setShowRoadmap={setShowRoadmap} expandedTheoryQuestions={expandedTheoryQuestions} setExpandedTheoryQuestions={setExpandedTheoryQuestions} setSelectedTopic={setSelectedTopic} generatingDiagram={generatingDiagram} diagramData={diagramData} diagramError={diagramError} diagramDetailLevel={diagramDetailLevel} setDiagramDetailLevel={setDiagramDetailLevel} diagramCloudProvider={diagramCloudProvider} setDiagramCloudProvider={setDiagramCloudProvider} generateDiagram={handleGenerateDiagram} codingTopics={codingTopics} systemDesignTopics={systemDesignTopics} systemDesigns={systemDesigns} behavioralTopics={behavioralTopics} filteredTopics={filteredTopics} /> : (
                 <>
                   {/* ── Overview Dashboard ── */}
