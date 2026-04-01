@@ -3,13 +3,16 @@ import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import AppRouter from './router.jsx';
 import { AuthProvider } from './contexts/AuthContext.jsx';
+import ErrorBoundary from './components/shared/ErrorBoundary.jsx';
 import { isElectron } from './constants';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <AuthProvider>
-      {isElectron ? <App /> : <AppRouter />}
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        {isElectron ? <App /> : <AppRouter />}
+      </AuthProvider>
+    </ErrorBoundary>
   </React.StrictMode>,
 );

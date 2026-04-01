@@ -504,9 +504,9 @@ export default function MainApp() {
       }
     } catch (err) {
       if (err.name === 'AbortError') return;
-      if (err.needCredits) {
+      if (err.needCredits || err.freeTrialExhausted || err.subscriptionRequired) {
         setShowPricingPlans(true);
-        setError('You need more credits to continue.');
+        setError(err.freeTrialExhausted ? 'Free trial exhausted. Upgrade to continue.' : 'You need a subscription to continue.');
         setErrorType('credits');
       } else {
         setError(err.message);
