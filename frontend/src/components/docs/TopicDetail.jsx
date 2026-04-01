@@ -28,7 +28,7 @@ export default function TopicDetail({
       </button>
 
       {/* Topic Header - Clean minimal design */}
-      <div className="rounded-xl p-3 mb-8 border border-gray-200 bg-white">
+      <div className="rounded-xl p-3 mb-3 border border-gray-200 bg-white">
         <div className="flex items-start gap-2">
           <div
             className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -198,7 +198,7 @@ export default function TopicDetail({
 
       {/* DSA Topic Detail */}
       {activePage === 'coding' && topicDetails.keyPatterns && (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {/* Overview + Complexity in one row */}
           <div className="grid lg:grid-cols-3 gap-2">
             {/* Introduction - Comprehensive Overview */}
@@ -1328,7 +1328,7 @@ export default function TopicDetail({
 
       {/* Behavioral Topic Detail */}
       {(activePage === 'behavioral' || (activePage === 'low-level' && !topicDetails.coreEntities && !topicDetails.implementation && !topicDetails.functionalRequirements)) && (topicDetails.sampleQuestions || topicDetails.starExample || topicDetails.introduction || topicDetails.keyQuestions) && (
-        <div className="space-y-4">
+        <div className="space-y-2">
           {/* Introduction */}
           {topicDetails.introduction && (() => {
             const quoteMatch = topicDetails.introduction.match(/^"([^"]+)"\s*(.*)/s);
@@ -1352,9 +1352,6 @@ export default function TopicDetail({
             );
           })()}
 
-          {/* Gradient Divider */}
-          {topicDetails.introduction && <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent" />}
-
           {/* Key Principles — always shown at top when available */}
           {topicDetails.principles && topicDetails.principles.length > 0 && (
             <div className="scroll-mt-24">
@@ -1373,9 +1370,6 @@ export default function TopicDetail({
               </div>
             </div>
           )}
-
-          {/* Gradient Divider */}
-          {topicDetails.principles && topicDetails.principles.length > 0 && <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent" />}
 
           {/* Key Questions — Expandable single-column cards */}
           {topicDetails.keyQuestions && topicDetails.keyQuestions.length > 0 && (
@@ -1511,10 +1505,11 @@ export default function TopicDetail({
             </div>
           )}
 
-          {/* Gradient Divider */}
-          {topicDetails.keyQuestions && topicDetails.keyQuestions.length > 0 && topicDetails.starExample && <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent" />}
+          {/* STAR + Example Response — side by side on large screens */}
+          {(topicDetails.starExample || topicDetails.exampleResponse) && (
+            <div className={`grid gap-2 ${topicDetails.starExample && topicDetails.exampleResponse ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
 
-          {/* STAR Framework Example — Hero visual, vertical flow */}
+          {/* STAR Framework Example */}
           {topicDetails.starExample && (
             <div id="star-example" className="rounded-lg overflow-hidden scroll-mt-24 border border-gray-200 bg-white">
               <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
@@ -1560,7 +1555,7 @@ export default function TopicDetail({
             </div>
           )}
 
-          {/* Example Response — rendered from data when available */}
+          {/* Example Response */}
           {topicDetails.exampleResponse && (
             <div id="example-response" className="rounded-lg overflow-hidden scroll-mt-24 border border-gray-200 bg-white">
               <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
@@ -1588,10 +1583,14 @@ export default function TopicDetail({
             </div>
           )}
 
-          {/* Gradient Divider */}
-          {(topicDetails.starExample || topicDetails.exampleResponse) && (topicDetails.sampleQuestions || topicDetails.tips) && <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent" />}
+            </div>
+          )}
 
-          {/* Practice Questions — always shown when available */}
+          {/* Practice Questions + Tips — side by side on large screens */}
+          {(topicDetails.sampleQuestions?.length > 0 || topicDetails.tips) && (
+            <div className={`grid gap-2 ${topicDetails.sampleQuestions?.length > 0 && topicDetails.tips ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+
+          {/* Practice Questions */}
           {topicDetails.sampleQuestions && topicDetails.sampleQuestions.length > 0 && (
             <div id="sample-questions" className="rounded-lg overflow-hidden scroll-mt-24 border border-gray-200 bg-white">
               <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
@@ -1612,10 +1611,7 @@ export default function TopicDetail({
             </div>
           )}
 
-          {/* Gradient Divider */}
-          {topicDetails.tips && <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent" />}
-
-          {/* Tips for Success — Modern card grid with numbering */}
+          {/* Tips for Success */}
           {topicDetails.tips && (
             <div id="tips" className="rounded-xl overflow-hidden scroll-mt-24 border border-emerald-200/60 bg-gradient-to-br from-emerald-50/80 to-cyan-50/40">
               <div className="px-4 py-2.5 border-b border-emerald-200/40 flex items-center gap-2">
@@ -1637,6 +1633,9 @@ export default function TopicDetail({
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
             </div>
           )}
         </div>
