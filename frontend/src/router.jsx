@@ -53,8 +53,8 @@ function AppRoutes() {
 
         {/* Shell routes — AppShell provides unified sidebar */}
         <Route element={<AppShell />}>
-          <Route path="/prepare/*" element={<DocsPage />} />
-          <Route path="/problems/:slug" element={<ProblemPage />} />
+          <Route path="/prepare/*" element={<ProtectedRoute><DocsPage /></ProtectedRoute>} />
+          <Route path="/problems/:slug" element={<ProtectedRoute><ProblemPage /></ProtectedRoute>} />
           <Route path="/app" element={<ProtectedRoute><MainApp /></ProtectedRoute>} />
           <Route path="/app/coding" element={<ProtectedRoute><MainApp /></ProtectedRoute>} />
           <Route path="/app/design" element={<ProtectedRoute><MainApp /></ProtectedRoute>} />
