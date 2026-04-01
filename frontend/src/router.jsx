@@ -42,7 +42,6 @@ function AppRoutes() {
         <Route path="/login" element={<Navigate to="/" replace />} />
         <Route path="/download" element={<DownloadPage />} />
         <Route path="/premium" element={<PremiumPage />} />
-        <Route path="/practice" element={<PracticePage />} />
         <Route path="/onboarding" element={
           <ProtectedRoute>
             <Suspense fallback={<LoadingScreen />}>
@@ -53,6 +52,7 @@ function AppRoutes() {
 
         {/* Shell routes — AppShell provides unified sidebar */}
         <Route element={<AppShell />}>
+          <Route path="/practice" element={<ProtectedRoute><PracticePage /></ProtectedRoute>} />
           <Route path="/prepare/*" element={<ProtectedRoute><DocsPage /></ProtectedRoute>} />
           <Route path="/problems/:slug" element={<ProtectedRoute><ProblemPage /></ProtectedRoute>} />
           <Route path="/app" element={<ProtectedRoute><MainApp /></ProtectedRoute>} />
