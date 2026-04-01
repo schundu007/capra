@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { getApiUrl } from '../../hooks/useElectron.js';
 import { Icon } from '../Icons.jsx';
+import CompetitorComparison from './CompetitorComparison.jsx';
 
 const API_URL = getApiUrl();
 
@@ -10,6 +11,7 @@ export default function PremiumPage() {
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState('');
   const [expandedFaq, setExpandedFaq] = useState(null);
+  const [showComparison, setShowComparison] = useState(false);
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -54,44 +56,43 @@ export default function PremiumPage() {
   const plans = [
     {
       id: 'monthly',
-      name: 'Monthly',
-      price: 99,
+      name: 'Interview Ready',
+      price: 29,
       originalPrice: null,
-      period: '1 month access',
-      icon: 'cloud',
+      period: '/month',
+      icon: 'code',
       color: '#3b82f6',
       colorName: 'blue',
       badge: null,
-      features: ['AI Coding + System Design', '5 credits/mo (25 problems)', 'Screenshot OCR solver', 'No auto-renewal'],
-      cta: 'Get Monthly',
+      features: ['All 300+ DSA topics', '15 system design problems', '100 AI questions/day', '5 mock interviews/month', '3 company preps'],
+      cta: 'Start Interview Ready',
     },
     {
       id: 'quarterly_pro',
-      name: 'Quarterly Pro',
-      price: 249,
-      originalPrice: 297,
-      period: '3 months access',
+      name: 'FAANG Track',
+      price: 59,
+      originalPrice: null,
+      period: '/month',
       icon: 'rocket',
       color: '#10b981',
       colorName: 'emerald',
       badge: 'POPULAR',
-      features: ['Everything in Monthly', 'Unlimited usage', 'Company prep + behavioral coaching', 'Live assistant + stealth mode', 'Resume & cover letter export'],
-      cta: 'Get Quarterly Pro',
-      savings: 'Save $48 vs Monthly',
+      features: ['Everything in Interview Ready', 'Unlimited system design + diagrams', 'Unlimited AI questions', 'Unlimited mock interviews', 'All company preps', '3 Lumora live sessions included'],
+      cta: 'Start FAANG Track',
+      savings: 'Best value for prep',
     },
     {
       id: 'desktop_lifetime',
-      name: 'Desktop Lifetime',
-      price: 300,
-      originalPrice: 500,
-      period: 'Forever access',
+      name: 'Elite',
+      price: 99,
+      originalPrice: null,
+      period: '/month',
       icon: 'terminal',
       color: '#8b5cf6',
       colorName: 'violet',
-      badge: 'BEST VALUE',
-      features: ['Everything in Quarterly Pro', 'Pay once, own forever', 'Your own API keys', 'Desktop app (Mac/Win/Linux)', 'Offline mode + free updates'],
-      cta: 'Get Lifetime',
-      savings: '40% OFF',
+      badge: 'PREMIUM',
+      features: ['Everything in FAANG Track', '5 Lumora live sessions included', 'Custom weekly study plan', 'AI resume review', 'Priority support', 'Desktop app early access'],
+      cta: 'Start Elite',
     },
   ];
 
@@ -133,6 +134,7 @@ export default function PremiumPage() {
         <div className="hidden md:flex items-center gap-6">
           <button onClick={() => scrollTo('plans')} className="text-sm text-gray-400 hover:text-white transition-colors font-medium">Plans</button>
           <button onClick={() => scrollTo('features')} className="text-sm text-gray-400 hover:text-white transition-colors font-medium">Features</button>
+          <button onClick={() => setShowComparison(true)} className="text-sm text-red-400 hover:text-red-300 transition-colors font-medium">Compare Us</button>
           <button onClick={() => scrollTo('faq')} className="text-sm text-gray-400 hover:text-white transition-colors font-medium">FAQ</button>
           <a href="/" className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded-lg hover:bg-emerald-400 transition-colors">
             Back to Home
@@ -252,6 +254,31 @@ export default function PremiumPage() {
           </p>
         </div>
       </section>
+
+      {/* Compare banner */}
+      <section className="px-6 md:px-12 py-6">
+        <div className="max-w-5xl mx-auto">
+          <button
+            onClick={() => setShowComparison(true)}
+            className="w-full p-4 rounded-xl text-center transition-all hover:shadow-md"
+            style={{ background: 'linear-gradient(135deg, #111827, #1f2937)', border: '1px solid #374151' }}
+          >
+            <div className="text-lg font-extrabold text-white landing-display">
+              Why Pay <span style={{ color: '#f87171', textDecoration: 'line-through' }}>$299/mo</span> When You Can Pay <span style={{ color: '#34d399' }}>$29-99/mo</span>?
+            </div>
+            <p className="text-sm mt-1" style={{ color: '#9ca3af' }}>
+              See how we compare to InterviewCoder, Educative, DesignGurus, and more
+            </p>
+            <span className="inline-flex items-center gap-1 mt-2 px-3 py-1 rounded-full text-xs font-bold" style={{ background: '#10b981', color: '#fff' }}>
+              View Full Comparison
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+            </span>
+          </button>
+        </div>
+      </section>
+
+      {/* Competitor Comparison Modal */}
+      <CompetitorComparison isOpen={showComparison} onClose={() => setShowComparison(false)} />
 
       {/* What's Included */}
       <section id="features" className="px-6 md:px-12 py-8 md:py-10">
