@@ -441,14 +441,7 @@ export default function DocsPage({ onBack }) {
         }}
       />
 
-      <div className="relative flex flex-col">
-
-        {/* Sidebar removed — now provided by AppShell */}
-
-        {/* Sidebar removed — provided by AppShell */}
-
-        {/* Main Content Area + Right Sidebar */}
-        <div className="flex-1 min-h-screen flex">
+      <div className="relative min-h-screen flex">
           {/* Center Content */}
           <div className={`flex-1 min-w-0 mx-auto max-w-full ${isMobile ? 'px-3' : 'px-10'}`}>
             {/* Top Bar */}
@@ -1310,8 +1303,6 @@ export default function DocsPage({ onBack }) {
             </>
           )}
         </div>
-          </div>
-
         </div>
 
         {/* ── Right Sidebar — Progress & TOC (visible when topic selected) ── */}
