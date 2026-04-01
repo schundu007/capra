@@ -40,6 +40,7 @@ import { useSolve, useAutoTestFix } from '../hooks/useSolve';
 import { useAuth } from '../contexts/AuthContext';
 import { getAuthHeaders, initDeviceId } from '../utils/authHeaders.js';
 import OAuthLogin from '../components/auth/OAuthLogin';
+import { useLocation } from 'react-router-dom';
 
 // Constants
 import { isElectron, isAscendPrepWindow, STORAGE_KEYS } from '../constants';
@@ -143,9 +144,10 @@ export default function MainApp() {
   const isAdmin = user?.role === 'admin' || user?.roles?.includes?.('admin');
 
   // ---------------------------------------------------------------------------
-  // URL-based mode detection
+  // URL-based mode detection (reactive to React Router navigation)
   // ---------------------------------------------------------------------------
-  const currentPath = window.location.pathname;
+  const routerLocation = useLocation();
+  const currentPath = routerLocation.pathname;
   const appModeFromPath = currentPath === '/app/design' ? 'system-design'
     : currentPath === '/app/prep' ? 'behavioral'
     : 'coding';
@@ -444,12 +446,12 @@ export default function MainApp() {
     }
   }, [ascendMode, abortSolve, handleClearAll]);
 
-  // Sync mode from URL path on mount
+  // Sync mode from URL path (reactive to sidebar navigation)
   useEffect(() => {
     if (appModeFromPath && appModeFromPath !== ascendMode) {
       setAscendMode(appModeFromPath);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [appModeFromPath]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---------------------------------------------------------------------------
   // Main Solve Handler

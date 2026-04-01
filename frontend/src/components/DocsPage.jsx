@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useAppShell } from './layout/AppShellContext';
 import { Icon } from './Icons.jsx';
@@ -97,12 +98,13 @@ const getApiUrl = () => {
 export default function DocsPage({ onBack }) {
   const { isMobile } = useIsMobile();
   const { openSidebar, setActiveSection } = useAppShell();
+  const routerLocation = useLocation();
   const isElectron = window.electronAPI?.isElectron || false;
   // Initialize state from URL params for persistence on refresh
   const getInitialState = () => {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(routerLocation.search);
     // Support both query param (?page=...) and path segment (/prepare/system-design)
-    const pathSegment = window.location.pathname.replace('/prepare', '').replace(/^\//, '');
+    const pathSegment = routerLocation.pathname.replace('/prepare', '').replace(/^\//, '');
     const rawPage = params.get('page') || (pathSegment || 'coding');
     // Support 'dsa' as alias for 'coding'
     const page = rawPage === 'dsa' ? 'coding' : rawPage === 'low-level-design' ? 'low-level' : rawPage;
@@ -120,8 +122,8 @@ export default function DocsPage({ onBack }) {
 
   // React to URL changes from AppShell sidebar navigation
   useEffect(() => {
-    const pathSegment = window.location.pathname.replace('/prepare', '').replace(/^\//, '');
-    const params = new URLSearchParams(window.location.search);
+    const pathSegment = routerLocation.pathname.replace('/prepare', '').replace(/^\//, '');
+    const params = new URLSearchParams(routerLocation.search);
     const rawPage = params.get('page') || (pathSegment || 'coding');
     const page = rawPage === 'dsa' ? 'coding' : rawPage === 'low-level-design' ? 'low-level' : rawPage;
     if (page && page !== activePage) {
@@ -129,7 +131,7 @@ export default function DocsPage({ onBack }) {
       setSelectedTopicState(null);
       setActiveSection(page);
     }
-  });
+  }, [routerLocation.pathname, routerLocation.search]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Sync URL with state via useEffect (avoids stale closure issues)
   useEffect(() => {
