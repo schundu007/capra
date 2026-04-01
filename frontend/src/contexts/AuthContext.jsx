@@ -84,6 +84,9 @@ function parseAuthFromHash() {
   return null;
 }
 
+// Refresh interval: 7 days in milliseconds (well before 30-day token expiry)
+const TOKEN_REFRESH_INTERVAL = 7 * 24 * 60 * 60 * 1000;
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
@@ -96,6 +99,56 @@ export function AuthProvider({ children }) {
 
   // Check if webapp auth is enabled (not in Electron)
   const isWebApp = !window.electronAPI?.isElectron;
+
+  /**
+   * Refresh the access token by calling POST /api/auth/refresh.
+   * On success, updates state and localStorage with the new token.
+   * On failure (401), clears auth to force re-login.
+   * Returns the new token on success, or null on failure.
+   */
+  const refreshAccessToken = useCallback(async (currentToken) => {
+    const tokenToRefresh = currentToken || accessToken;
+    if (!tokenToRefresh) return null;
+
+    try {
+      const res = await fetch(`${API_URL}/api/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${tokenToRefresh}`,
+        },
+      });
+
+      if (res.ok) {
+        const { accessToken: newToken } = await res.json();
+        // Update state
+        setAccessToken(newToken);
+        // Update localStorage
+        const storedAuth = getStoredAuth();
+        if (storedAuth) {
+          storeAuth({ ...storedAuth, accessToken: newToken });
+        }
+        return newToken;
+      }
+
+      // 401 means the token is truly invalid — force re-login
+      if (res.status === 401) {
+        console.warn('Token refresh failed (401), clearing auth');
+        storeAuth(null);
+        setUser(null);
+        setAccessToken(null);
+        setRefreshToken(null);
+        setCredits(null);
+        setSubscription(null);
+        setUsage(null);
+      }
+    } catch (error) {
+      console.error('Token refresh error:', error);
+      // Network errors — don't clear auth, just fail silently
+    }
+
+    return null;
+  }, [accessToken]);
 
   // Initialize auth state
   useEffect(() => {
@@ -279,6 +332,17 @@ export function AuthProvider({ children }) {
     initAuth();
   }, [isWebApp]);
 
+  // Set up periodic token refresh (every 7 days)
+  useEffect(() => {
+    if (!isWebApp || !accessToken) return;
+
+    const intervalId = setInterval(() => {
+      refreshAccessToken();
+    }, TOKEN_REFRESH_INTERVAL);
+
+    return () => clearInterval(intervalId);
+  }, [isWebApp, accessToken, refreshAccessToken]);
+
   // Fetch user's credits and subscription
   const fetchUserData = useCallback(async (token) => {
     if (!token) return;
@@ -292,7 +356,33 @@ export function AuthProvider({ children }) {
         const creditsData = await creditsRes.json();
         setCredits(creditsData);
       } else if (creditsRes.status === 401) {
-        // Token expired, clear auth
+        // Token expired — try refreshing once before giving up
+        const newToken = await refreshAccessToken(token);
+        if (newToken) {
+          // Retry with the refreshed token (non-recursive, single retry)
+          const retryHeaders = { Authorization: `Bearer ${newToken}` };
+          const retryRes = await fetch(`${API_URL}/api/credits`, { headers: retryHeaders });
+          if (retryRes.ok) {
+            const creditsData = await retryRes.json();
+            setCredits(creditsData);
+          } else {
+            throw new Error('Token expired');
+          }
+
+          // Also fetch subscription and usage with the new token
+          const subRes = await fetch(`${API_URL}/api/billing/subscription`, { headers: retryHeaders });
+          if (subRes.ok) {
+            const subData = await subRes.json();
+            setSubscription(subData.subscription);
+          }
+
+          const usageRes = await fetch(`${API_URL}/api/usage`, { headers: retryHeaders });
+          if (usageRes.ok) {
+            const usageData = await usageRes.json();
+            setUsage(usageData.usage);
+          }
+          return; // Successfully fetched with refreshed token
+        }
         throw new Error('Token expired');
       }
 
@@ -317,7 +407,7 @@ export function AuthProvider({ children }) {
         setAccessToken(null);
       }
     }
-  }, []);
+  }, [refreshAccessToken]);
 
   // Refresh user data (after purchase, etc.)
   const refreshUserData = useCallback(async () => {

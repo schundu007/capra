@@ -61,7 +61,6 @@ class SSEBroadcaster {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('X-Accel-Buffering', 'no');
-    res.setHeader('Access-Control-Allow-Origin', '*');
     res.flushHeaders();
 
     this.subscribers.set(id, { res, connected: true });

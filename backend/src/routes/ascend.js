@@ -111,6 +111,7 @@ router.post('/answer', async (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
   res.setHeader('X-Accel-Buffering', 'no');
+  req.setTimeout(120000);
 
   try {
     // Build context from provided documents

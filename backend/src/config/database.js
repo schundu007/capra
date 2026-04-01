@@ -13,6 +13,11 @@ if (process.env.DATABASE_URL) {
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 2000,
     });
+    if (pool) {
+      pool.on('error', (err) => {
+        console.error('Unexpected idle client error:', err.message);
+      });
+    }
   } catch (err) {
     console.warn('[Database] pg module not available, database features disabled');
   }
@@ -58,4 +63,5 @@ export async function initUser(userId) {
   await query('SELECT ascend_init_user($1)', [userId]);
 }
 
-export default { query, getClient, isDatabaseConfigured, initUser };
+export { pool };
+export default { query, getClient, isDatabaseConfigured, initUser, pool };

@@ -185,6 +185,47 @@ router.post('/login', authLimiter, async (req, res) => {
 });
 
 /**
+ * Refresh access token
+ * POST /api/auth/refresh
+ * Accepts an expired access token and issues a fresh one with the same claims.
+ */
+router.post('/refresh', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  const jwtSecret = process.env.JWT_SECRET_KEY || process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    return res.status(500).json({ error: 'Auth not configured' });
+  }
+
+  try {
+    // Verify token but allow expired ones
+    const payload = jwt.verify(token, jwtSecret, {
+      algorithms: [process.env.JWT_ALGORITHM || 'HS256'],
+      ignoreExpiration: true,
+    });
+
+    if (!payload.sub || payload.type !== 'access') {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    // Issue fresh token
+    const newToken = jwt.sign(
+      { sub: payload.sub, email: payload.email, type: 'access' },
+      jwtSecret,
+      { expiresIn: '30d' }
+    );
+
+    res.json({ accessToken: newToken });
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+});
+
+/**
  * Verify token / Get current user
  * GET /api/auth/me
  */

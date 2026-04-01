@@ -94,6 +94,7 @@ router.post('/stream', validate('solve'), async (req, res, next) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('X-Accel-Buffering', 'no');
+    req.setTimeout(120000);
 
     // Helper to stream from a provider
     async function streamFromProvider(service, providerName) {
@@ -323,6 +324,7 @@ router.post('/followup', validate('followup'), async (req, res, next) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('X-Accel-Buffering', 'no');
+    req.setTimeout(120000);
 
     let fullText = '';
 

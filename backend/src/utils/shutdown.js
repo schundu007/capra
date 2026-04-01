@@ -3,6 +3,8 @@
  */
 
 import { logger } from '../middleware/requestLogger.js';
+import { pool } from '../config/database.js';
+import { closeRedis } from '../services/redis.js';
 
 const FORCE_SHUTDOWN_TIMEOUT = 10000; // 10 seconds
 
@@ -44,6 +46,24 @@ export function setupGracefulShutdown(server) {
       }
     });
 
+    // Close database pool
+    try {
+      if (pool) {
+        await pool.end();
+        logger.info('Database pool closed');
+      }
+    } catch (err) {
+      logger.error({ error: err.message }, 'Error closing database pool');
+    }
+
+    // Close Redis connection
+    try {
+      await closeRedis();
+      logger.info('Redis connection closed');
+    } catch (err) {
+      logger.error({ error: err.message }, 'Error closing Redis connection');
+    }
+
     // Close existing connections gracefully
     logger.info({ activeConnections: connections.size }, 'Closing active connections');
 
@@ -83,10 +103,9 @@ export function setupGracefulShutdown(server) {
     shutdown('uncaughtException');
   });
 
-  // Handle unhandled promise rejections
-  process.on('unhandledRejection', (reason, promise) => {
-    logger.fatal({ reason, promise }, 'Unhandled promise rejection');
-    shutdown('unhandledRejection');
+  // Handle unhandled promise rejections (log only, do not shutdown)
+  process.on('unhandledRejection', (reason) => {
+    logger.error({ reason: reason?.message || reason }, 'Unhandled promise rejection');
   });
 }
 
