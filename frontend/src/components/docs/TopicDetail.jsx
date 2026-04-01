@@ -527,12 +527,12 @@ export default function TopicDetail({
                     </div>
                     <h3 className="text-sm font-bold text-gray-900 landing-display">Functional Requirements</h3>
                   </div>
-                  <div className="p-4">
-                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-1">
+                  <div className="p-3">
+                    <ul className="grid grid-cols-2 lg:grid-cols-3 gap-1">
                       {(topicDetails.functionalRequirements || topicDetails.requirements).map((req, i) => (
                         <li key={i} className="flex items-start gap-2 rounded hover:bg-gray-50 transition-colors">
-                          <span className="w-5 h-5 rounded-full flex items-center justify-center text-sm flex-shrink-0 bg-emerald-50 text-emerald-700 mt-0.5">✓</span>
-                          <span className="text-gray-500 text-sm landing-body">{req}</span>
+                          <span className="w-4 h-4 rounded-full flex items-center justify-center text-xs flex-shrink-0 bg-emerald-50 text-emerald-700 mt-0.5">✓</span>
+                          <span className="text-gray-500 text-xs landing-body">{req}</span>
                         </li>
                       ))}
                     </ul>
@@ -549,12 +549,12 @@ export default function TopicDetail({
                       </div>
                       <h3 className="text-sm font-bold text-gray-900 landing-display">Non-Functional Requirements</h3>
                     </div>
-                    <div className="p-4">
-                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-1">
+                    <div className="p-3">
+                      <ul className="grid grid-cols-2 lg:grid-cols-3 gap-1">
                         {topicDetails.nonFunctionalRequirements.map((req, i) => (
                           <li key={i} className="flex items-start gap-2 rounded hover:bg-gray-50 transition-colors">
-                            <span className="w-5 h-5 rounded-full flex items-center justify-center text-sm flex-shrink-0 bg-emerald-50 text-emerald-700 mt-0.5">•</span>
-                            <span className="text-gray-500 text-sm landing-body">{req}</span>
+                            <span className="w-4 h-4 rounded-full flex items-center justify-center text-xs flex-shrink-0 bg-emerald-50 text-emerald-700 mt-0.5">•</span>
+                            <span className="text-gray-500 text-xs landing-body">{req}</span>
                           </li>
                         ))}
                       </ul>
@@ -564,9 +564,9 @@ export default function TopicDetail({
               </div>
               )}
 
-              {/* API Design + Data Model - Side by Side Row */}
+              {/* API Design + Data Model */}
               {(topicDetails.apiDesign?.endpoints || topicDetails.dataModel) && (
-                <div className={`grid gap-2 scroll-mt-24 ${topicDetails.apiDesign?.endpoints && topicDetails.dataModel ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+                <div className="grid gap-2 scroll-mt-24 grid-cols-1">
                   {/* API Design */}
                   {topicDetails.apiDesign && topicDetails.apiDesign.endpoints && (
                     <div id="api-design" className="rounded-lg overflow-hidden scroll-mt-24 border border-gray-200 bg-white">
@@ -635,11 +635,11 @@ export default function TopicDetail({
                     <h3 className="text-sm font-bold text-gray-900 landing-display">Key Questions</h3>
                     <span className="text-[10px] landing-mono text-gray-400 ml-auto">{topicDetails.keyQuestions.length} topics</span>
                   </div>
-                  <div className="grid md:grid-cols-2 gap-2 p-3">
+                  <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-2 p-3">
                     {topicDetails.keyQuestions.map((q, i) => (
                       <div key={i} className="p-3 rounded-lg hover:bg-white/[0.02] transition-colors bg-gray-50 border border-gray-200">
                         <div className="flex items-start gap-2">
-                          <span className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center text-sm text-gray-900 font-bold flex-shrink-0 landing-mono">{i + 1}</span>
+                          <span className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center text-xs text-gray-900 font-bold flex-shrink-0 landing-mono">{i + 1}</span>
                           <div className="flex-1 min-w-0">
                             <h4 className="text-gray-900 font-semibold text-sm mb-2 landing-display">{q.question}</h4>
                             <div className="text-gray-500 landing-body">
@@ -655,7 +655,7 @@ export default function TopicDetail({
 
               {/* Basic + Advanced Implementation */}
               {(topicDetails.basicImplementation || topicDetails.advancedImplementation) && (
-                <div id="architecture" className="grid lg:grid-cols-2 gap-2 scroll-mt-24">
+                <div id="architecture" className="grid grid-cols-1 gap-2 scroll-mt-24">
                   {/* Basic Implementation */}
                   {topicDetails.basicImplementation && (
                     <div className="rounded-xl overflow-hidden border border-gray-200 bg-white">
@@ -772,7 +772,7 @@ export default function TopicDetail({
               )}
 
               {/* Cloud Architecture Diagram + Tips */}
-              <div className="grid lg:grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2">
                 {/* Cloud Architecture Diagram */}
                 {activePage === 'system-design' && topicDetails && (
                   <div className="rounded-xl overflow-hidden border border-gray-200 bg-white">
@@ -885,8 +885,8 @@ export default function TopicDetail({
                         </div>
                         <h3 className="text-sm font-bold text-gray-900 landing-display">{topicDetails.createFlow.title}</h3>
                       </div>
-                      <div className="p-4">
-                        <ol className="grid grid-cols-1 md:grid-cols-2 gap-1">
+                      <div className="p-3">
+                        <ol className="grid grid-cols-2 lg:grid-cols-3 gap-1">
                           {topicDetails.createFlow.steps.map((step, i) => (
                             <li key={i} className="flex items-start gap-2 rounded hover:bg-gray-50 transition-colors">
                               <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-emerald-50 text-emerald-700 border border-gray-200 landing-mono">
@@ -909,8 +909,8 @@ export default function TopicDetail({
                         </div>
                         <h3 className="text-sm font-bold text-gray-900 landing-display">{topicDetails.redirectFlow.title}</h3>
                       </div>
-                      <div className="p-4">
-                        <ol className="grid grid-cols-1 md:grid-cols-2 gap-1">
+                      <div className="p-3">
+                        <ol className="grid grid-cols-2 lg:grid-cols-3 gap-1">
                           {topicDetails.redirectFlow.steps.map((step, i) => (
                             <li key={i} className="flex items-start gap-2 rounded hover:bg-gray-50 transition-colors">
                               <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-emerald-50 text-emerald-700 border border-gray-200 landing-mono">
@@ -1032,7 +1032,7 @@ export default function TopicDetail({
                     </div>
                     <h3 className="text-sm font-bold text-sky-900 landing-display">Deep Dive Topics</h3>
                   </div>
-                  <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div className="p-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
                     {topicDetails.deepDiveTopics.map((item, i) => (
                       <div key={i} className="p-3 rounded-lg bg-sky-50/30 border border-sky-100">
                         <h4 className="text-sm font-bold text-gray-900 mb-1 landing-display">{item.topic}</h4>
@@ -1149,8 +1149,8 @@ export default function TopicDetail({
                         </div>
                         <h3 className="text-sm font-bold text-gray-900 landing-display">Key Design Decisions</h3>
                       </div>
-                      <div className="p-4">
-                        <ol className="grid grid-cols-1 md:grid-cols-2 gap-1">
+                      <div className="p-3">
+                        <ol className="grid grid-cols-2 lg:grid-cols-3 gap-1">
                           {topicDetails.keyDecisions.map((decision, i) => (
                             <li key={i} className="flex items-start gap-2 rounded hover:bg-gray-50 transition-colors">
                               <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-gray-50 text-gray-900 border border-amber-500/30 landing-mono">
