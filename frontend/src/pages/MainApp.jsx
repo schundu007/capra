@@ -160,9 +160,9 @@ export default function MainApp() {
   const [autoSwitch, setAutoSwitch] = useLocalStorage('ascend_auto_switch', false);
 
   // ---------------------------------------------------------------------------
-  // Mode State
+  // Mode State — URL is source of truth, no localStorage persistence
   // ---------------------------------------------------------------------------
-  const [ascendMode, setAscendMode] = useLocalStorage('ascend_mode', appModeFromPath || 'coding');
+  const [ascendMode, setAscendMode] = useState(appModeFromPath || 'coding');
   const [designDetailLevel, setDesignDetailLevel] = useLocalState('basic');
   const [codingDetailLevel, setCodingDetailLevel] = useLocalState('basic');
   const [codingLanguage, setCodingLanguage] = useLocalState('auto');
