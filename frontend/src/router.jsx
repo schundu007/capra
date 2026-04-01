@@ -23,6 +23,7 @@ const PremiumPage = React.lazy(() => import('./components/billing/PremiumPage'))
 const PracticePage = React.lazy(() => import('./pages/PracticePage'));
 const DocsPage = React.lazy(() => import('./components/DocsPage'));
 const ProblemPage = React.lazy(() => import('./components/ProblemPage'));
+const LoginPage = React.lazy(() => import('./pages/LoginPage'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
 const OnboardingPage = React.lazy(() => import('./pages/OnboardingPage.jsx'));
 const AppShell = React.lazy(() => import('./components/layout/AppShell'));
@@ -33,7 +34,7 @@ function AppRoutes() {
       <Routes>
         {/* Bare routes — no sidebar */}
         <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Navigate to="/" replace />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/download" element={<DownloadPage />} />
         <Route path="/premium" element={<PremiumPage />} />
         <Route path="/onboarding" element={
