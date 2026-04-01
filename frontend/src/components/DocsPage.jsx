@@ -240,6 +240,7 @@ export default function DocsPage({ onBack }) {
     const topics = activePage === 'coding' ? codingTopics :
       activePage === 'system-design' ? [...systemDesignTopics, ...systemDesigns, ...concurrencyTopics, ...systemDesignPatterns, ...microservicesPatterns, ...systemDesignTradeoffs, ...scalableSystemsTopics] :
       activePage === 'low-level' ? [...lldTopics, ...lldProblems] :
+      activePage === 'microservices' ? microservicesPatterns :
       activePage === 'databases' ? databaseTopics :
       activePage === 'sql' ? sqlTopics :
       [...behavioralTopics, ...companyPrep];
@@ -332,6 +333,7 @@ export default function DocsPage({ onBack }) {
   const navItems = [
     { id: 'coding', label: 'Data Structures & Algorithms', icon: 'code' },
     { id: 'system-design', label: 'System Design', icon: 'systemDesign' },
+    { id: 'microservices', label: 'Microservices', icon: 'grid' },
     { id: 'databases', label: 'Database Internals', icon: 'database' },
     { id: 'sql', label: 'SQL for Interviews', icon: 'terminal' },
     { id: 'low-level', label: 'Low-Level Design', icon: 'puzzle' },
@@ -346,6 +348,7 @@ export default function DocsPage({ onBack }) {
     else if (activePage === 'system-design') topics = systemDesignTopics;
     else if (activePage === 'low-level') topics = lldTopics;
     else if (activePage === 'behavioral') topics = behavioralTopics;
+    else if (activePage === 'microservices') topics = microservicesPatterns;
     else if (activePage === 'databases') topics = databaseTopics;
     else if (activePage === 'sql') topics = sqlTopics;
     else return [];
@@ -370,6 +373,7 @@ export default function DocsPage({ onBack }) {
       case 'system-design': return { title: 'System Design', color: '#3b82f6' };
       case 'low-level': return { title: 'Low-Level Design', color: '#8b5cf6' };
       case 'behavioral': return { title: 'Behavioral Interviews', color: '#a855f7' };
+      case 'microservices': return { title: 'Microservices Patterns', color: '#8b5cf6' };
       case 'databases': return { title: 'Database Internals', color: '#f59e0b' };
       case 'sql': return { title: 'SQL for Interviews', color: '#06b6d4' };
       default: return { title: 'Documentation', color: '#10b981' };
@@ -399,6 +403,7 @@ export default function DocsPage({ onBack }) {
       return behavioralTopics.find(t => t.id === selectedTopic) ||
              companyPrep.find(t => t.id === selectedTopic);
     }
+    if (activePage === 'microservices') return microservicesPatterns.find(t => t.id === selectedTopic);
     if (activePage === 'databases') return databaseTopics.find(t => t.id === selectedTopic);
     if (activePage === 'sql') return sqlTopics.find(t => t.id === selectedTopic);
     return null;
@@ -443,7 +448,7 @@ export default function DocsPage({ onBack }) {
       if (topicDetails.exampleResponse) toc.push({ id: 'example-response', label: 'Example Response' });
       if (topicDetails.sampleQuestions) toc.push({ id: 'sample-questions', label: 'Practice Questions' });
       if (topicDetails.tips) toc.push({ id: 'tips', label: 'Tips' });
-    } else if (activePage === 'databases' || activePage === 'sql') {
+    } else if (activePage === 'microservices' || activePage === 'databases' || activePage === 'sql') {
       if (topicDetails.introduction) toc.push({ id: 'overview', label: 'Overview' });
       if (topicDetails.keyQuestions) toc.push({ id: 'key-questions', label: 'Key Questions' });
       if (topicDetails.dataModel) toc.push({ id: 'data-model', label: 'Data Model' });
@@ -544,7 +549,7 @@ export default function DocsPage({ onBack }) {
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 border border-emerald-200 bg-emerald-50 rounded-full mb-4">
                       <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
                       <span className="text-xs landing-mono text-emerald-700 tracking-wide">
-                        {activePage === 'coding' ? 'Algorithms' : activePage === 'system-design' ? 'Architecture' : activePage === 'low-level' ? 'OOP & Patterns' : activePage === 'databases' ? 'Database Internals' : activePage === 'sql' ? 'SQL Mastery' : 'Soft Skills'}
+                        {activePage === 'coding' ? 'Algorithms' : activePage === 'system-design' ? 'Architecture' : activePage === 'low-level' ? 'OOP & Patterns' : activePage === 'microservices' ? 'Microservices' : activePage === 'databases' ? 'Database Internals' : activePage === 'sql' ? 'SQL Mastery' : 'Soft Skills'}
                       </span>
                     </div>
                     <h1 className="landing-display font-extrabold text-2xl md:text-3xl tracking-tight text-gray-900 mb-2">
@@ -552,6 +557,7 @@ export default function DocsPage({ onBack }) {
                       {activePage === 'system-design' && <>Design Systems That{' '}<span className="bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Scale</span></>}
                       {activePage === 'low-level' && <>Master Object-Oriented{' '}<span className="bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Design</span></>}
                       {activePage === 'behavioral' && <>Tell Your{' '}<span className="bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Best Story</span></>}
+                      {activePage === 'microservices' && <>Microservices{' '}<span className="bg-gradient-to-r from-purple-500 to-indigo-500 bg-clip-text text-transparent">Patterns</span></>}
                       {activePage === 'databases' && <>Database{' '}<span className="bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">Internals</span></>}
                       {activePage === 'sql' && <>SQL for{' '}<span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Interviews</span></>}
                     </h1>
@@ -560,6 +566,7 @@ export default function DocsPage({ onBack }) {
                       {activePage === 'system-design' && 'Master distributed systems, scalability patterns, and architecture trade-offs. From fundamentals to real-world designs at top companies.'}
                       {activePage === 'low-level' && 'OOP principles, SOLID design, UML diagrams, and all 23 Gang of Four design patterns. Build clean, extensible object-oriented systems.'}
                       {activePage === 'behavioral' && 'Prepare compelling stories and answers for behavioral interviews using proven frameworks like STAR.'}
+                      {activePage === 'microservices' && 'Service communication, resilience patterns, data management, and deployment strategies for distributed microservices architectures.'}
                       {activePage === 'databases' && 'Storage engines, indexing, transactions, replication, sharding, and consensus algorithms. Deep dive into how databases really work.'}
                       {activePage === 'sql' && 'From fundamentals to window functions. Master SQL queries, joins, subqueries, and complex interview problems.'}
                     </p>
@@ -1537,6 +1544,60 @@ export default function DocsPage({ onBack }) {
                           <p className="landing-body text-xs text-gray-500 leading-relaxed">{tip.desc}</p>
                         </div>
                       ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Microservices Content */}
+              {activePage === 'microservices' && (
+                <>
+                  <div className="mb-6">
+                    <div className="mb-4">
+                      <span className="landing-mono text-xs text-purple-600 tracking-widest uppercase">Architecture</span>
+                      <h2 className="landing-display font-bold text-xl mt-1 tracking-tight text-gray-900">Microservices Patterns</h2>
+                    </div>
+                    <div className="space-y-3">
+                    {microservicesCategories.map((category) => {
+                      const categoryTopics = filteredTopics.filter(t => microservicesCategoryMap[t.id] === category.id);
+                      if (categoryTopics.length === 0) return null;
+                      return (
+                        <div key={category.id} className="rounded-lg overflow-hidden border border-gray-200">
+                          <div className="px-4 py-2.5 flex items-center gap-2.5 bg-gray-50/80 border-b border-gray-100">
+                            <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: `${category.color}12` }}>
+                              <Icon name={category.icon} size={14} style={{ color: category.color }} />
+                            </div>
+                            <h3 className="text-sm font-semibold text-gray-900 landing-display">{category.name}</h3>
+                            <span className="text-[10px] landing-mono text-gray-400">{categoryTopics.length} patterns</span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white">
+                            {categoryTopics.map((topic) => (
+                              <div
+                                key={topic.id}
+                                onClick={() => setSelectedTopic(topic.id)}
+                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-all group border-b border-r border-gray-100"
+                              >
+                                <div className="flex items-center gap-2.5">
+                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? '#d1fae5' : `${topic.color}12` }}>
+                                    {completedTopics[topic.id] ? <Icon name="check" size={11} className="text-emerald-600" /> : <Icon name={topic.icon} size={11} style={{ color: topic.color }} />}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className={`text-sm landing-body font-medium group-hover:text-emerald-600 transition-colors ${completedTopics[topic.id] ? 'text-gray-400 line-through' : 'text-gray-900'}`}>{topic.title}</span>
+                                    {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-500" />}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] landing-mono px-1.5 py-0.5 rounded border border-gray-200 text-gray-400">
+                                    {topic.keyQuestions?.length || 0}Q
+                                  </span>
+                                  <Icon name="chevronRight" size={12} className="text-gray-300 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all" />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
                     </div>
                   </div>
                 </>
