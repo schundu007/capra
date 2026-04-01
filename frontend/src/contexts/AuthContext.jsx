@@ -42,13 +42,29 @@ function parseAuthFromHash() {
     return null;
   }
 
-  const params = new URLSearchParams(hash.substring(1));
-  const accessToken = params.get('access_token');
-  const refreshToken = params.get('refresh_token');
-  const userId = params.get('user_id');
-  const userEmail = params.get('user_email');
-  const userName = params.get('user_name');
-  const userRole = params.get('user_role');
+  // Parse hash fragment manually to avoid URLSearchParams treating '+' as space.
+  // Hash fragments are percent-encoded, not form-encoded, so we split on '&'
+  // and decode each value with decodeURIComponent.
+  const hashStr = hash.substring(1);
+  const paramMap = {};
+  for (const part of hashStr.split('&')) {
+    const eqIdx = part.indexOf('=');
+    if (eqIdx === -1) continue;
+    const key = part.substring(0, eqIdx);
+    const rawValue = part.substring(eqIdx + 1);
+    try {
+      paramMap[key] = decodeURIComponent(rawValue);
+    } catch {
+      paramMap[key] = rawValue;
+    }
+  }
+
+  const accessToken = paramMap['access_token'] || null;
+  const refreshToken = paramMap['refresh_token'] || null;
+  const userId = paramMap['user_id'] || null;
+  const userEmail = paramMap['user_email'] || null;
+  const userName = paramMap['user_name'] || null;
+  const userRole = paramMap['user_role'] || null;
 
   if (accessToken && userId) {
     return {
@@ -56,8 +72,8 @@ function parseAuthFromHash() {
       refreshToken,
       user: {
         id: parseInt(userId, 10),
-        email: userEmail ? decodeURIComponent(userEmail) : null,
-        name: userName ? decodeURIComponent(userName) : null,
+        email: userEmail || null,
+        name: userName || null,
         role: userRole || 'user',
       },
     };
@@ -71,6 +87,7 @@ export function AuthProvider({ children }) {
   const [accessToken, setAccessToken] = useState(null);
   const [refreshToken, setRefreshToken] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState(null);
   const [credits, setCredits] = useState(null);
   const [subscription, setSubscription] = useState(null);
   const [usage, setUsage] = useState(null);
@@ -88,6 +105,23 @@ export function AuthProvider({ children }) {
 
     const initAuth = async () => {
       try {
+        // Check for OAuth error in URL hash (e.g., #error=access_denied&message=...)
+        // Only treat as error if there's NO access_token (errors and tokens are mutually exclusive)
+        const hash = window.location.hash;
+        if (hash && hash.includes('error=') && !hash.includes('access_token=')) {
+          const errorParams = {};
+          for (const part of hash.substring(1).split('&')) {
+            const eqIdx = part.indexOf('=');
+            if (eqIdx === -1) continue;
+            errorParams[part.substring(0, eqIdx)] = decodeURIComponent(part.substring(eqIdx + 1));
+          }
+          const errorMsg = errorParams['message'] || errorParams['error_description'] || errorParams['error'] || 'Authentication failed';
+          setAuthError(errorMsg);
+          window.history.replaceState(null, '', window.location.pathname);
+          setLoading(false);
+          return;
+        }
+
         // First check URL hash for OAuth callback tokens
         const hashAuth = parseAuthFromHash();
         if (hashAuth) {
@@ -347,6 +381,7 @@ export function AuthProvider({ children }) {
     user,
     accessToken,
     loading,
+    authError,
     credits,
     subscription,
     usage,
