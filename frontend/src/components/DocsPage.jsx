@@ -333,6 +333,18 @@ export default function DocsPage({ onBack }) {
   const pageConfig = getPageConfig();
 
   // Find selected topic details
+  // Helper: find which page a topic belongs to (for cross-page navigation)
+  const findTopicPage = (topicId) => {
+    if (codingTopics.find(t => t.id === topicId)) return 'coding';
+    if (systemDesignTopics.find(t => t.id === topicId) || systemDesigns.find(t => t.id === topicId) || systemDesignPatterns.find(t => t.id === topicId) || systemDesignTradeoffs.find(t => t.id === topicId) || scalableSystemsTopics.find(t => t.id === topicId) || concurrencyTopics.find(t => t.id === topicId)) return 'system-design';
+    if (lldTopics.find(t => t.id === topicId) || lldProblems.find(t => t.id === topicId)) return 'low-level';
+    if (behavioralTopics.find(t => t.id === topicId) || companyPrep.find(t => t.id === topicId)) return 'behavioral';
+    if (microservicesPatterns.find(t => t.id === topicId)) return 'microservices';
+    if (databaseTopics.find(t => t.id === topicId)) return 'databases';
+    if (sqlTopics.find(t => t.id === topicId)) return 'sql';
+    return null;
+  };
+
   const getSelectedTopicDetails = () => {
     if (!selectedTopic) return null;
     if (activePage === 'coding') return codingTopics.find(t => t.id === selectedTopic);
@@ -343,7 +355,9 @@ export default function DocsPage({ onBack }) {
              systemDesignPatterns.find(t => t.id === selectedTopic) ||
              microservicesPatterns.find(t => t.id === selectedTopic) ||
              systemDesignTradeoffs.find(t => t.id === selectedTopic) ||
-             scalableSystemsTopics.find(t => t.id === selectedTopic);
+             scalableSystemsTopics.find(t => t.id === selectedTopic) ||
+             lldTopics.find(t => t.id === selectedTopic) ||
+             lldProblems.find(t => t.id === selectedTopic);
     }
     if (activePage === 'low-level') {
       return lldTopics.find(t => t.id === selectedTopic) ||
@@ -643,10 +657,10 @@ export default function DocsPage({ onBack }) {
                             <h2 className="landing-display font-bold text-lg tracking-tight text-gray-900 mb-3">Continue Where You Left Off</h2>
                             <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
                               {recentItems.map((topic) => (
-                                <a
+                                <button
                                   key={topic.id}
-                                  href={`/prepare?topic=${topic.id}`}
-                                  className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-all border-b border-gray-100 last:border-0 group"
+                                  onClick={() => { const page = findTopicPage(topic.id); if (page) { setActivePageState(page); setSelectedTopicState(topic.id); setActiveSection(page); window.history.replaceState({}, '', `/prepare?page=${page}&topic=${topic.id}`); } }}
+                                  className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-all border-b border-gray-100 last:border-0 group text-left"
                                 >
                                   <div className="flex items-center gap-3">
                                     <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}12` }}>
@@ -659,7 +673,7 @@ export default function DocsPage({ onBack }) {
                                     {completedTopics[topic.id] && <Icon name="check" size={10} className="text-emerald-500" />}
                                     <Icon name="chevronRight" size={12} className="text-gray-300 group-hover:text-emerald-500 transition-all" />
                                   </div>
-                                </a>
+                                </button>
                               ))}
                             </div>
                           </div>
@@ -1919,7 +1933,7 @@ export default function DocsPage({ onBack }) {
                     return (
                       <button
                         key={topicId}
-                        onClick={() => setSelectedTopic(topicId)}
+                        onClick={() => { const page = findTopicPage(topicId); if (page && page !== activePage) { setActivePageState(page); setActiveSection(page); } setSelectedTopicState(topicId); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                         className="w-full flex items-center gap-2 px-3 py-1.5 rounded text-xs text-left text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-all landing-body"
                       >
                         <Icon name="star5" size={10} className="text-yellow-500 flex-shrink-0" />
