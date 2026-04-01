@@ -260,15 +260,10 @@ export function AuthProvider({ children }) {
           // Fetch user data
           await fetchUserData(hashAuth.accessToken);
 
-          // Redirect based on onboarding status
-          if (hashAuth.onboardingCompleted) {
-            const savedRedirect = localStorage.getItem('ascend_auth_redirect');
-            localStorage.removeItem('ascend_auth_redirect');
-            window.location.replace(savedRedirect || '/');
-          } else {
-            localStorage.removeItem('ascend_auth_redirect');
-            window.location.replace('/onboarding');
-          }
+          // Redirect to saved page or landing page
+          const savedRedirect = localStorage.getItem('ascend_auth_redirect');
+          localStorage.removeItem('ascend_auth_redirect');
+          window.location.replace(savedRedirect || '/prepare');
           return;
         }
 
