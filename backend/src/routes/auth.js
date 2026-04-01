@@ -14,7 +14,7 @@ import {
   ROLES,
 } from '../services/users.js';
 import { authenticate, requireAdmin } from '../middleware/authenticate.js';
-import { query } from '../config/database.js';
+import { query, initUser } from '../config/database.js';
 import jwt from 'jsonwebtoken';
 
 const router = Router();
