@@ -14,8 +14,101 @@ import {
   ROLES,
 } from '../services/users.js';
 import { authenticate, requireAdmin } from '../middleware/authenticate.js';
+import { query } from '../config/database.js';
+import jwt from 'jsonwebtoken';
 
 const router = Router();
+
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '613343492889-3snli8cnfpib37d3v4gichargk236ae6.apps.googleusercontent.com';
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || '';
+const GOOGLE_REDIRECT_URI = process.env.NODE_ENV === 'production'
+  ? 'https://capra-backend.up.railway.app/api/auth/google/callback'
+  : 'http://localhost:3001/api/auth/google/callback';
+const FRONTEND_URL = process.env.NODE_ENV === 'production'
+  ? 'https://capra.cariara.com'
+  : 'http://localhost:5173';
+
+/**
+ * GET /api/auth/google/login — Redirect to Google OAuth
+ */
+router.get('/google/login', (req, res) => {
+  const params = new URLSearchParams({
+    client_id: GOOGLE_CLIENT_ID,
+    redirect_uri: GOOGLE_REDIRECT_URI,
+    response_type: 'code',
+    scope: 'openid email profile',
+    access_type: 'offline',
+    prompt: 'consent',
+  });
+  res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
+});
+
+/**
+ * GET /api/auth/google/callback — Handle Google OAuth callback
+ */
+router.get('/google/callback', async (req, res) => {
+  const { code } = req.query;
+  if (!code) return res.redirect(`${FRONTEND_URL}?error=no_code`);
+
+  try {
+    // Exchange code for tokens
+    const tokenResp = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code,
+        client_id: GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
+        redirect_uri: GOOGLE_REDIRECT_URI,
+        grant_type: 'authorization_code',
+      }),
+    });
+    const tokens = await tokenResp.json();
+    if (!tokens.access_token) throw new Error('No access token');
+
+    // Get user info
+    const userResp = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+      headers: { Authorization: `Bearer ${tokens.access_token}` },
+    });
+    const gUser = await userResp.json();
+    if (!gUser.email) throw new Error('No email from Google');
+
+    // Find or create user in Ascend DB
+    let userResult = await query('SELECT * FROM ascend_users WHERE email = $1', [gUser.email]);
+    let userId;
+
+    if (userResult.rows.length === 0) {
+      // Create new user
+      const insertResult = await query(
+        'INSERT INTO ascend_users (email, name, avatar, provider, is_active) VALUES ($1, $2, $3, $4, true) RETURNING id',
+        [gUser.email, gUser.name || gUser.email, gUser.picture || null, 'google']
+      );
+      userId = insertResult.rows[0].id;
+
+      // Create subscription record
+      await query(
+        'INSERT INTO ascend_subscriptions (user_id, plan_type, status) VALUES ($1, $2, $3)',
+        [userId, 'free', 'active']
+      );
+    } else {
+      userId = userResult.rows[0].id;
+    }
+
+    // Issue JWT
+    const jwtSecret = process.env.JWT_SECRET_KEY || process.env.JWT_SECRET || 'ascend-dev-secret';
+    const accessToken = jwt.sign(
+      { sub: userId, email: gUser.email, type: 'access' },
+      jwtSecret,
+      { expiresIn: '30d' }
+    );
+
+    // Redirect to frontend with token in URL hash
+    res.redirect(`${FRONTEND_URL}/#access_token=${accessToken}&email=${encodeURIComponent(gUser.email)}&name=${encodeURIComponent(gUser.name || '')}&avatar=${encodeURIComponent(gUser.picture || '')}`);
+  } catch (err) {
+    logger.error({ error: err.message }, 'Google OAuth failed');
+    res.redirect(`${FRONTEND_URL}?error=oauth_failed`);
+  }
+});
 
 /**
  * Register new user

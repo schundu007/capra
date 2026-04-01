@@ -4,6 +4,8 @@ import { getApiUrl } from '../hooks/useElectron.js';
 const AuthContext = createContext(null);
 
 const API_URL = getApiUrl();
+// Google OAuth client (shared with Lumora)
+const GOOGLE_CLIENT_ID = '935268333296-g5mfoojchp9r5i6dolh7n7vtgursrf52.apps.googleusercontent.com';
 const CARIARA_OAUTH_URL = 'https://cariara-backend.up.railway.app';
 const STORAGE_KEY = 'ascend_auth';
 
@@ -329,24 +331,14 @@ export function AuthProvider({ children }) {
     return accessToken;
   }, [accessToken]);
 
-  // Sign in with OAuth (redirect to cariara)
+  // Sign in with Google OAuth (direct, shared with Lumora)
   const signIn = useCallback(async (provider) => {
     if (!isWebApp) {
       throw new Error('OAuth not available');
     }
 
-    // Map provider names to cariara endpoints
-    const providerMap = {
-      google: 'google',
-      github: 'github',
-      linkedin_oidc: 'linkedin',
-      linkedin: 'linkedin',
-    };
-
-    const cariaraProvider = providerMap[provider] || provider;
-
-    // Redirect to cariara OAuth endpoint with ascend redirect
-    window.location.href = `${CARIARA_OAUTH_URL}/auth/${cariaraProvider}/login?redirect=ascend`;
+    // Use Ascend backend's Google OAuth endpoint
+    window.location.href = `${API_URL}/api/auth/google/login`;
   }, [isWebApp]);
 
   // Sign out
