@@ -109,7 +109,7 @@ export default function PremiumPage() {
   const faqItems = [
     { q: 'What is Ascend?', a: 'Ascend is an AI-powered interview preparation platform that covers the full pipeline — from resume generation to live interview assistance. It supports coding, system design, and behavioral interviews.' },
     { q: 'What is included in Ascend Premium?', a: 'Premium includes unlimited AI coding, system design with auto-diagrams, behavioral coaching, company-specific prep, live interview assistant, resume/cover letter generation, screenshot OCR solver, and code execution sandbox.' },
-    { q: 'What happens when my access expires?', a: 'For Monthly and Quarterly plans, you lose access to premium features when your period ends. Your saved work remains accessible. Desktop Lifetime never expires.' },
+    { q: 'What happens when my access expires?', a: 'All plans are monthly subscriptions. When your period ends, you lose access to premium features. Your saved work remains accessible. Resubscribe anytime to restore access.' },
     { q: 'Do you offer refunds?', a: 'Yes! 30-day money-back guarantee on all plans. Contact support@cariara.com for a full refund. No questions asked.' },
     { q: 'How is Ascend different from LeetCode?', a: 'Ascend covers the entire interview pipeline end-to-end: resume generation, interview prep, AND real-time live assistance during actual interviews. Plus stealth mode is 100% invisible during screen sharing.' },
     { q: 'What AI models power Ascend?', a: 'Claude (Opus & Sonnet) and GPT-4o for coding and reasoning, plus specialized models for diagram generation. Desktop users can choose their preferred AI provider.' },
@@ -137,9 +137,15 @@ export default function PremiumPage() {
           <button onClick={() => scrollTo('features')} className="text-sm text-gray-400 hover:text-white transition-colors font-medium landing-body">Features</button>
           <button onClick={() => setShowComparison(true)} className="text-sm text-red-400 hover:text-red-300 transition-colors font-medium landing-body">Compare Us</button>
           <button onClick={() => scrollTo('faq')} className="text-sm text-gray-400 hover:text-white transition-colors font-medium landing-body">FAQ</button>
-          <a href="/" className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded-lg hover:bg-emerald-400 transition-colors landing-body">
-            Back to Home
-          </a>
+          {isAuthenticated ? (
+            <a href="/app/coding" className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded-lg hover:bg-emerald-400 transition-colors landing-body">
+              Go to App
+            </a>
+          ) : (
+            <button onClick={() => signIn('google')} className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded-lg hover:bg-emerald-400 transition-colors landing-body">
+              Sign In
+            </button>
+          )}
         </div>
 
         <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-gray-400 hover:text-white transition-colors">
@@ -153,6 +159,15 @@ export default function PremiumPage() {
           <button onClick={() => { scrollTo('plans'); setMobileMenuOpen(false); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded transition-colors landing-body">Plans</button>
           <button onClick={() => { scrollTo('features'); setMobileMenuOpen(false); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded transition-colors landing-body">Features</button>
           <a href="/" className="block px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded transition-colors landing-body">Home</a>
+          {isAuthenticated ? (
+            <a href="/app/coding" className="block w-full mt-2 px-4 py-2.5 bg-emerald-500 text-white font-semibold text-sm text-center rounded hover:bg-emerald-600 transition-colors landing-body">
+              Go to App
+            </a>
+          ) : (
+            <button onClick={() => signIn('google')} className="block w-full mt-2 px-4 py-2.5 bg-emerald-500 text-white font-semibold text-sm text-center rounded hover:bg-emerald-600 transition-colors landing-body">
+              Sign In with Google
+            </button>
+          )}
         </div>
       )}
 

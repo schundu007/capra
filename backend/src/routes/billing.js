@@ -490,9 +490,11 @@ async function handleSubscriptionUpdated(subscription) {
   const priceId = subscription.items.data[0]?.price?.id;
 
   if (priceId === STRIPE_PRICES.MONTHLY) {
-    planType = 'monthly';
+    planType = 'monthly'; // Interview Ready
   } else if (priceId === STRIPE_PRICES.QUARTERLY_PRO) {
-    planType = 'quarterly_pro';
+    planType = 'quarterly_pro'; // FAANG Track
+  } else if (priceId === STRIPE_PRICES.DESKTOP_LIFETIME) {
+    planType = 'quarterly_pro'; // Elite maps to quarterly_pro features
   }
 
   // Map Stripe status to our status

@@ -116,7 +116,7 @@ export default function DownloadPage() {
           <Icon name="lock" size={48} className="text-yellow-500 mx-auto mb-4" />
           <h2 className="landing-display text-xl font-bold text-gray-900 mb-2">Purchase Required</h2>
           <p className="text-gray-500 landing-body mb-6">
-            You need to purchase the Desktop Lifetime plan to download the app.
+            You need an Elite subscription to download the desktop app.
           </p>
           <button
             onClick={() => window.location.href = '/?pricing=true'}

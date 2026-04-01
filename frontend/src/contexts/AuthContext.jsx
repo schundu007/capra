@@ -100,6 +100,7 @@ export function AuthProvider({ children }) {
           if (pendingPlan) {
             localStorage.removeItem('ascend_pending_plan');
             // Redirect to Stripe checkout immediately
+            let checkoutFailed = false;
             try {
               const pricesRes = await fetch(`${API_URL}/api/billing/prices`);
               const prices = await pricesRes.json();
@@ -109,7 +110,6 @@ export function AuthProvider({ children }) {
                 monthly: prices.monthly?.priceId,
                 quarterly_pro: prices.quarterly_pro?.priceId,
                 desktop_lifetime: prices.desktop_lifetime?.priceId,
-                addon: prices.addon?.priceId,
               };
 
               const priceId = priceMap[pendingPlan];
@@ -123,7 +123,7 @@ export function AuthProvider({ children }) {
                   body: JSON.stringify({
                     priceId,
                     successUrl: `${window.location.origin}?checkout=success&plan=${pendingPlan}`,
-                    cancelUrl: `${window.location.origin}?checkout=canceled`,
+                    cancelUrl: `${window.location.origin}/premium?checkout=canceled`,
                   }),
                 });
 
@@ -133,10 +133,26 @@ export function AuthProvider({ children }) {
                   storeAuth(hashAuth);
                   window.location.href = url;
                   return; // Don't set loading to false, we're redirecting
+                } else {
+                  checkoutFailed = true;
                 }
+              } else {
+                checkoutFailed = true;
               }
             } catch (error) {
               console.error('Failed to create checkout session:', error);
+              checkoutFailed = true;
+            }
+
+            // If checkout failed, store auth and redirect back to premium page
+            if (checkoutFailed) {
+              storeAuth(hashAuth);
+              setUser(hashAuth.user);
+              setAccessToken(hashAuth.accessToken);
+              setRefreshToken(hashAuth.refreshToken);
+              await fetchUserData(hashAuth.accessToken);
+              window.location.replace('/premium');
+              return;
             }
           }
 

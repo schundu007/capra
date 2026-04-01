@@ -18,19 +18,26 @@ import { verifyToken, isAuthEnabled } from '../services/users.js';
 import { initUser, query, isDatabaseConfigured } from '../config/database.js';
 import { logger } from './requestLogger.js';
 
-const JWT_SECRET = process.env.JWT_SECRET_KEY;
-const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'HS256';
+// IMPORTANT: Read env vars lazily (not at module load time) to avoid race
+// conditions where dotenv hasn't loaded yet when this module is first imported.
+function getJwtSecret() {
+  return process.env.JWT_SECRET_KEY;
+}
+function getJwtAlgorithm() {
+  return process.env.JWT_ALGORITHM || 'HS256';
+}
 const ELECTRON_SECRET = process.env.ELECTRON_SECRET || null;
 
 /**
  * Verify JWT token from Cariara OAuth
  */
 async function verifyJwtToken(token) {
-  if (!JWT_SECRET) return null;
+  const secret = getJwtSecret();
+  if (!secret) return null;
 
   try {
-    const payload = jwt.verify(token, JWT_SECRET, {
-      algorithms: [JWT_ALGORITHM],
+    const payload = jwt.verify(token, secret, {
+      algorithms: [getJwtAlgorithm()],
     });
 
     if (payload.type === 'access' && payload.sub) {

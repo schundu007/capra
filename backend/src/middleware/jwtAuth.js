@@ -2,15 +2,22 @@ import jwt from 'jsonwebtoken';
 import { query, initUser } from '../config/database.js';
 import { logger } from './requestLogger.js';
 
-const JWT_SECRET = process.env.JWT_SECRET_KEY;
-const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'HS256';
+// IMPORTANT: Read env vars lazily (not at module load time) to avoid race
+// conditions where dotenv hasn't loaded yet when this module is first imported.
+function getJwtSecret() {
+  return process.env.JWT_SECRET_KEY;
+}
+function getJwtAlgorithm() {
+  return process.env.JWT_ALGORITHM || 'HS256';
+}
 
 /**
  * JWT Authentication Middleware
  * Verifies JWT tokens from cariara OAuth backend
  */
 export async function jwtAuth(req, res, next) {
-  if (!JWT_SECRET) {
+  const secret = getJwtSecret();
+  if (!secret) {
     logger.warn('JWT_SECRET_KEY not configured');
     return res.status(500).json({
       error: 'Authentication not configured',
@@ -40,8 +47,8 @@ export async function jwtAuth(req, res, next) {
 
   try {
     // Verify token
-    const payload = jwt.verify(token, JWT_SECRET, {
-      algorithms: [JWT_ALGORITHM],
+    const payload = jwt.verify(token, secret, {
+      algorithms: [getJwtAlgorithm()],
     });
 
     // Check token type
@@ -103,7 +110,8 @@ export async function jwtAuth(req, res, next) {
  * Optional JWT auth - attaches user if token present, but doesn't require it
  */
 export async function optionalJwtAuth(req, res, next) {
-  if (!JWT_SECRET) {
+  const secret = getJwtSecret();
+  if (!secret) {
     return next();
   }
 
@@ -115,8 +123,8 @@ export async function optionalJwtAuth(req, res, next) {
       const token = parts[1];
 
       try {
-        const payload = jwt.verify(token, JWT_SECRET, {
-          algorithms: [JWT_ALGORITHM],
+        const payload = jwt.verify(token, secret, {
+          algorithms: [getJwtAlgorithm()],
         });
 
         if (payload.type === 'access' && payload.sub) {
@@ -149,12 +157,13 @@ export async function optionalJwtAuth(req, res, next) {
  * Returns user object with id, email, role or throws error
  */
 export async function verifyJWT(token) {
-  if (!JWT_SECRET) {
+  const secret = getJwtSecret();
+  if (!secret) {
     throw new Error('JWT_SECRET_KEY not configured');
   }
 
-  const payload = jwt.verify(token, JWT_SECRET, {
-    algorithms: [JWT_ALGORITHM],
+  const payload = jwt.verify(token, secret, {
+    algorithms: [getJwtAlgorithm()],
   });
 
   if (payload.type !== 'access' || !payload.sub) {

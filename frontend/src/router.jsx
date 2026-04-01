@@ -4,9 +4,10 @@ import { isElectron } from './constants';
 import { useAuth } from './contexts/AuthContext';
 import LoadingScreen from './components/shared/LoadingScreen';
 
-// Redirect to landing page if not authenticated
+// Redirect to landing page if not authenticated (waits for auth to initialize)
 function ProtectedRoute({ children }) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/" replace />;
   return children;
 }

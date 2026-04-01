@@ -3,18 +3,25 @@ import jwt from 'jsonwebtoken';
 import { initUser } from '../config/database.js';
 import { logger } from './requestLogger.js';
 
-const JWT_SECRET = process.env.JWT_SECRET_KEY;
-const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'HS256';
+// IMPORTANT: Read env vars lazily (not at module load time) to avoid race
+// conditions where dotenv hasn't loaded yet when this module is first imported.
+function getJwtSecret() {
+  return process.env.JWT_SECRET_KEY;
+}
+function getJwtAlgorithm() {
+  return process.env.JWT_ALGORITHM || 'HS256';
+}
 
 /**
  * Try to verify JWT token (for webapp users with Cariara OAuth)
  */
 async function tryJwtAuth(token) {
-  if (!JWT_SECRET) return null;
+  const secret = getJwtSecret();
+  if (!secret) return null;
 
   try {
-    const payload = jwt.verify(token, JWT_SECRET, {
-      algorithms: [JWT_ALGORITHM],
+    const payload = jwt.verify(token, secret, {
+      algorithms: [getJwtAlgorithm()],
     });
 
     if (payload.type === 'access' && payload.sub) {
@@ -146,7 +153,7 @@ export async function authenticate(req, res, next) {
 
   // 4. No valid authentication found
   // If no auth methods are configured (local dev), allow through
-  if (!isAuthEnabled() && !JWT_SECRET) {
+  if (!isAuthEnabled() && !getJwtSecret()) {
     req.user = { id: 0, email: 'guest@ascend.app', role: 'user', source: 'guest' };
     return next();
   }
@@ -213,16 +220,29 @@ export const requireAdmin = requireRole(ROLES.ADMIN);
 
 /**
  * Optional authentication - attaches user if token present, but doesn't require it
+ * Supports both JWT (Cariara OAuth) and local tokens
  */
-export function optionalAuth(req, res, next) {
+export async function optionalAuth(req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (authHeader) {
     const parts = authHeader.split(' ');
     if (parts.length === 2 && parts[0] === 'Bearer') {
-      const result = verifyToken(parts[1]);
-      if (result.valid) {
-        req.user = result.user;
+      const token = parts[1];
+
+      // Try JWT first (webapp users with Cariara OAuth)
+      const jwtUser = await tryJwtAuth(token);
+      if (jwtUser && !jwtUser.error) {
+        req.user = jwtUser;
+        return next();
+      }
+
+      // Fallback to local token verification
+      if (isAuthEnabled()) {
+        const result = verifyToken(token);
+        if (result.valid) {
+          req.user = { ...result.user, source: 'local' };
+        }
       }
     }
   }
