@@ -19,19 +19,25 @@ import jwt from 'jsonwebtoken';
 
 const router = Router();
 
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '613343492889-3snli8cnfpib37d3v4gichargk236ae6.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || '';
-const GOOGLE_REDIRECT_URI = process.env.NODE_ENV === 'production'
-  ? 'https://capra-backend.up.railway.app/api/auth/google/callback'
-  : 'http://localhost:3001/api/auth/google/callback';
-const FRONTEND_URL = process.env.NODE_ENV === 'production'
-  ? 'https://capra.cariara.com'
-  : 'http://localhost:5173';
+const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI
+  || (process.env.NODE_ENV === 'production'
+    ? 'https://capra-backend.up.railway.app/api/auth/google/callback'
+    : 'http://localhost:3001/api/auth/google/callback');
+const FRONTEND_URL = process.env.FRONTEND_URL
+  || (process.env.NODE_ENV === 'production'
+    ? 'https://capra.cariara.com'
+    : 'http://localhost:5173');
 
 /**
  * GET /api/auth/google/login — Redirect to Google OAuth
  */
 router.get('/google/login', (req, res) => {
+  if (!GOOGLE_CLIENT_ID) {
+    return res.status(503).json({ error: 'Google OAuth not configured' });
+  }
+
   const params = new URLSearchParams({
     client_id: GOOGLE_CLIENT_ID,
     redirect_uri: GOOGLE_REDIRECT_URI,
@@ -49,6 +55,17 @@ router.get('/google/login', (req, res) => {
 router.get('/google/callback', async (req, res) => {
   const { code } = req.query;
   if (!code) return res.redirect(`${FRONTEND_URL}?error=no_code`);
+
+  // SECURITY: Validate code parameter - must be a reasonable OAuth code string
+  if (typeof code !== 'string' || code.length > 2048 || !/^[a-zA-Z0-9\/_\-\.]+$/.test(code)) {
+    return res.redirect(`${FRONTEND_URL}?error=invalid_code`);
+  }
+
+  // SECURITY: Ensure Google OAuth is configured
+  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+    logger.error('Google OAuth not configured: missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET');
+    return res.redirect(`${FRONTEND_URL}?error=oauth_not_configured`);
+  }
 
   try {
     // Exchange code for tokens
@@ -102,10 +119,20 @@ router.get('/google/callback', async (req, res) => {
     const jwtSecret = process.env.JWT_SECRET_KEY || process.env.JWT_SECRET;
     if (!jwtSecret) throw new Error('JWT_SECRET_KEY not configured');
     const accessToken = jwt.sign(
-      { sub: userId, email: gUser.email, type: 'access' },
+      { sub: userId, email: gUser.email, name: gUser.name || '', picture: gUser.picture || '', type: 'access' },
       jwtSecret,
       { expiresIn: '30d' }
     );
+
+    // Set SSO cookie for cross-subdomain auth (Lumora reads this)
+    res.cookie('cariara_sso', accessToken, {
+      domain: '.cariara.com',
+      path: '/',
+      httpOnly: false,
+      secure: true,
+      sameSite: 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    });
 
     // Redirect to frontend with token in URL hash
     // IMPORTANT: param names must match what AuthContext.parseAuthFromHash() expects
@@ -216,15 +243,38 @@ router.post('/refresh', async (req, res) => {
 
     // Issue fresh token
     const newToken = jwt.sign(
-      { sub: payload.sub, email: payload.email, type: 'access' },
+      { sub: payload.sub, email: payload.email, name: payload.name || '', picture: payload.picture || '', type: 'access' },
       jwtSecret,
       { expiresIn: '30d' }
     );
+
+    res.cookie('cariara_sso', newToken, {
+      domain: '.cariara.com',
+      path: '/',
+      httpOnly: false,
+      secure: true,
+      sameSite: 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
 
     res.json({ accessToken: newToken });
   } catch (err) {
     return res.status(401).json({ error: 'Invalid token' });
   }
+});
+
+/**
+ * Logout — clear SSO cookie
+ * POST /api/auth/logout
+ */
+router.post('/logout', (req, res) => {
+  res.clearCookie('cariara_sso', {
+    domain: '.cariara.com',
+    path: '/',
+    secure: true,
+    sameSite: 'lax',
+  });
+  res.json({ success: true });
 });
 
 /**

@@ -36,6 +36,17 @@ function storeAuth(auth) {
 }
 
 /**
+ * Set SSO cookie for cross-subdomain auth (ascend.cariara.com <-> lumora.cariara.com)
+ */
+function setSSOCookie(token) {
+  document.cookie = `cariara_sso=${token}; domain=.cariara.com; path=/; max-age=${30*24*60*60}; secure; samesite=lax`;
+}
+
+function clearSSOCookie() {
+  document.cookie = 'cariara_sso=; domain=.cariara.com; path=/; max-age=0; secure; samesite=lax';
+}
+
+/**
  * Parse auth tokens from URL hash (cariara OAuth redirect)
  */
 function parseAuthFromHash() {
@@ -133,6 +144,8 @@ export function AuthProvider({ children }) {
         if (storedAuth) {
           storeAuth({ ...storedAuth, accessToken: newToken });
         }
+        // Update SSO cookie with refreshed token
+        setSSOCookie(newToken);
         return newToken;
       }
 
@@ -140,6 +153,7 @@ export function AuthProvider({ children }) {
       if (res.status === 401) {
         console.warn('Token refresh failed (401), clearing auth');
         storeAuth(null);
+        clearSSOCookie();
         setUser(null);
         setAccessToken(null);
         setRefreshToken(null);
@@ -225,6 +239,7 @@ export function AuthProvider({ children }) {
                   const { url } = await checkoutRes.json();
                   // Store auth before redirecting so user is logged in when they return
                   storeAuth(hashAuth);
+                  setSSOCookie(hashAuth.accessToken);
                   window.location.href = url;
                   return; // Don't set loading to false, we're redirecting
                 } else {
@@ -241,6 +256,7 @@ export function AuthProvider({ children }) {
             // If checkout failed, store auth and redirect back to premium page
             if (checkoutFailed) {
               storeAuth(hashAuth);
+              setSSOCookie(hashAuth.accessToken);
               setUser(hashAuth.user);
               setAccessToken(hashAuth.accessToken);
               setRefreshToken(hashAuth.refreshToken);
@@ -252,6 +268,7 @@ export function AuthProvider({ children }) {
 
           // No pending plan or checkout failed - proceed with normal login
           storeAuth(hashAuth);
+          setSSOCookie(hashAuth.accessToken);
           setUser(hashAuth.user);
           setAccessToken(hashAuth.accessToken);
           setRefreshToken(hashAuth.refreshToken);
@@ -304,6 +321,7 @@ export function AuthProvider({ children }) {
         // Otherwise check localStorage for existing session
         const storedAuth = getStoredAuth();
         if (storedAuth?.accessToken) {
+          setSSOCookie(storedAuth.accessToken);
           setUser(storedAuth.user);
           setAccessToken(storedAuth.accessToken);
           setRefreshToken(storedAuth.refreshToken);
@@ -416,6 +434,7 @@ export function AuthProvider({ children }) {
       console.error('Failed to fetch user data:', error);
       if (error.message === 'Token expired') {
         storeAuth(null);
+        clearSSOCookie();
         setUser(null);
         setAccessToken(null);
       }
@@ -440,8 +459,14 @@ export function AuthProvider({ children }) {
       throw new Error('OAuth not available');
     }
 
-    // Save current page URL so we can redirect back after OAuth
-    localStorage.setItem('ascend_auth_redirect', window.location.pathname + window.location.search);
+    // Save redirect URL for post-login navigation.
+    // If ProtectedRoute already saved the attempted URL (e.g. /prepare/coding),
+    // don't overwrite it with /login. Only save if no redirect is already pending.
+    const currentPath = window.location.pathname + window.location.search;
+    const existingRedirect = localStorage.getItem('ascend_auth_redirect');
+    if (!existingRedirect && currentPath !== '/login' && currentPath !== '/') {
+      localStorage.setItem('ascend_auth_redirect', currentPath);
+    }
 
     // Use Ascend backend's Google OAuth endpoint
     window.location.href = `${API_URL}/api/auth/google/login`;
@@ -450,6 +475,7 @@ export function AuthProvider({ children }) {
   // Sign out
   const signOut = useCallback(async () => {
     storeAuth(null);
+    clearSSOCookie();
     setUser(null);
     setAccessToken(null);
     setRefreshToken(null);
