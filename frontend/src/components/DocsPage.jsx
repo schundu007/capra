@@ -118,6 +118,19 @@ export default function DocsPage({ onBack }) {
   const [sortOrder, setSortOrder] = useState('a-z');
   const [selectedTopic, setSelectedTopicState] = useState(initialState.topic);
 
+  // React to URL changes from AppShell sidebar navigation
+  useEffect(() => {
+    const pathSegment = window.location.pathname.replace('/prepare', '').replace(/^\//, '');
+    const params = new URLSearchParams(window.location.search);
+    const rawPage = params.get('page') || (pathSegment || 'coding');
+    const page = rawPage === 'dsa' ? 'coding' : rawPage === 'low-level-design' ? 'low-level' : rawPage;
+    if (page && page !== activePage) {
+      setActivePageState(page);
+      setSelectedTopicState(null);
+      setActiveSection(page);
+    }
+  });
+
   // Sync URL with state via useEffect (avoids stale closure issues)
   useEffect(() => {
     const params = new URLSearchParams();
