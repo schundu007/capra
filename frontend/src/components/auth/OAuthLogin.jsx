@@ -61,15 +61,9 @@ export default function OAuthLogin() {
               </a>
             );
           })}
-          {user ? (
-            <a href="/prepare/coding" className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-400 transition-colors landing-body">
-              Start Learning
-            </a>
-          ) : !loading ? (
-            <button onClick={() => signIn('google')} className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-400 transition-colors landing-body">
-              Sign In
-            </button>
-          ) : null}
+          <a href="/prepare/coding" className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-400 transition-colors landing-body">
+            Start Learning
+          </a>
         </div>
 
         <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-gray-400 hover:text-white transition-colors">
@@ -83,15 +77,9 @@ export default function OAuthLogin() {
           {navLinks.map((link) => (
             <a key={link.label} href={link.href} className="block px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded transition-colors landing-body">{link.label}</a>
           ))}
-          {user ? (
-            <a href="/prepare/coding" className="block w-full mt-2 px-4 py-2.5 bg-emerald-500 text-white font-semibold text-sm text-center rounded hover:bg-emerald-600 transition-colors landing-body">
-              Start Learning
-            </a>
-          ) : !loading ? (
-            <button onClick={() => signIn('google')} className="block w-full mt-2 px-4 py-2.5 bg-emerald-500 text-white font-semibold text-sm text-center rounded hover:bg-emerald-600 transition-colors landing-body">
-              Sign In with Google
-            </button>
-          ) : null}
+          <a href="/prepare/coding" className="block w-full mt-2 px-4 py-2.5 bg-emerald-500 text-white font-semibold text-sm text-center rounded hover:bg-emerald-600 transition-colors landing-body">
+            Start Learning
+          </a>
         </div>
       )}
 

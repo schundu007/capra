@@ -264,7 +264,7 @@ export function AuthProvider({ children }) {
           if (hashAuth.onboardingCompleted) {
             const savedRedirect = localStorage.getItem('ascend_auth_redirect');
             localStorage.removeItem('ascend_auth_redirect');
-            window.location.replace(savedRedirect || '/app');
+            window.location.replace(savedRedirect || '/');
           } else {
             localStorage.removeItem('ascend_auth_redirect');
             window.location.replace('/onboarding');
