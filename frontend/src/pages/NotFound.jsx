@@ -1,16 +1,48 @@
+import { Icon } from '../components/Icons.jsx';
+
 export default function NotFound() {
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center p-8 rounded-xl bg-gray-50 border border-gray-200">
-        <h1 className="text-4xl font-bold text-gray-800 mb-2">404</h1>
-        <p className="text-gray-600 mb-6">Page not found</p>
+    <div className="min-h-screen landing-root flex flex-col items-center justify-center px-6" style={{ background: 'linear-gradient(180deg, #fdf2f8 0%, #ede9fe 50%, #e0e7ff 100%)' }}>
+      {/* Background blur accent */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute w-[500px] h-[500px] rounded-full opacity-10 blur-3xl -top-[150px] -right-[100px] bg-emerald-400" />
+      </div>
+
+      <div className="relative z-10 text-center max-w-md">
+        {/* Logo */}
+        <a href="/" className="inline-flex items-center gap-3 mb-10">
+          <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center">
+            <Icon name="ascend" size={20} className="text-white" />
+          </div>
+          <div className="text-left">
+            <span className="landing-display font-bold text-xl tracking-tight text-gray-900">Ascend</span>
+            <span className="block text-[10px] landing-mono uppercase tracking-[0.2em] text-emerald-600 -mt-0.5">Interview AI</span>
+          </div>
+        </a>
+
+        {/* 404 */}
+        <div className="landing-mono text-7xl font-extrabold text-emerald-200 mb-4">404</div>
+        <h1 className="landing-display text-2xl font-bold text-gray-900 mb-3">Page not found</h1>
+        <p className="landing-body text-gray-500 text-sm leading-relaxed mb-8">
+          The page you are looking for does not exist or has been moved. Head back home to continue your interview prep.
+        </p>
+
+        {/* CTA */}
         <a
           href="/"
-          className="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-gray-900 rounded-lg text-sm transition-colors inline-block"
+          className="inline-flex items-center gap-2 px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm rounded-lg transition-colors landing-body"
         >
           Go Home
         </a>
       </div>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap');
+        .landing-root { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-family: 'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif; }
+        .landing-display { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+        .landing-body { font-family: 'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif; }
+        .landing-mono { font-family: 'IBM Plex Mono', monospace; }
+      `}</style>
     </div>
   );
 }

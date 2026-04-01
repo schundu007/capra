@@ -29,7 +29,7 @@ export const CREDITS_PER_PLAN = {
  * Check if Stripe is configured
  */
 export function isStripeConfigured() {
-  return !!(stripeSecretKey && STRIPE_PRICES.QUARTERLY_PRO);
+  return !!(stripeSecretKey && (STRIPE_PRICES.MONTHLY || STRIPE_PRICES.QUARTERLY_PRO));
 }
 
 export default stripe;

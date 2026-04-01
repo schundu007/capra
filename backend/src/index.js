@@ -145,8 +145,8 @@ app.use('/api/auth', authRouter);
 // Extension routes (no authentication - comes from browser extension)
 app.use('/api/extension', extensionRouter);
 
-// Public diagram debug endpoint (for troubleshooting deployment)
-app.get('/api/diagram/debug', async (req, res) => {
+// Diagram debug endpoint (protected - exposes system info)
+app.get('/api/diagram/debug', authenticate, async (req, res) => {
   const { spawn } = await import('child_process');
   const results = {
     python: { available: false, version: null, error: null },
@@ -222,8 +222,8 @@ app.get('/api/diagram/debug', async (req, res) => {
   res.json(results);
 });
 
-// Test diagram generation endpoint (public for debugging)
-app.get('/api/diagram/test', async (req, res) => {
+// Test diagram generation endpoint (protected - exposes system info)
+app.get('/api/diagram/test', authenticate, async (req, res) => {
   const { spawn } = await import('child_process');
   const path = await import('path');
   const { fileURLToPath } = await import('url');

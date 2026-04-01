@@ -17,7 +17,6 @@ export default function TopicDetail({
   if (!topicDetails) return null;
 
   // Pages that use system-design-style rendering (concepts, keyQuestions, dataModel, etc.)
-  // Pages that use system-design-style rendering (concepts, keyQuestions, dataModel, etc.)
   const isSDStyle = ['system-design', 'microservices', 'databases'].includes(activePage);
   // SQL uses coding/DSA-style rendering (whenToUse, approach, commonProblems, etc.)
   const isCodingStyle = activePage === 'coding' || activePage === 'sql';
@@ -107,20 +106,20 @@ export default function TopicDetail({
       </div>
 
       {/* ── Interactive Toolbar (AlgoMaster-inspired) ── */}
-      <div className="flex items-center justify-between px-3 py-2.5 rounded-lg mb-2 bg-gray-50 border border-gray-200">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 rounded-lg mb-2 bg-gray-50 border border-gray-200">
         <div className="flex items-center gap-2">
           {/* Mark as Complete */}
           <button
             onClick={() => toggleComplete(selectedTopic)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all landing-body ${completedTopics[selectedTopic] ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'text-gray-900 hover:text-gray-900 hover:bg-gray-50 border border-gray-200'}`}
+            className={`flex items-center gap-2 px-2 sm:px-3 py-2 rounded-lg text-sm font-medium transition-all landing-body ${completedTopics[selectedTopic] ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'text-gray-900 hover:text-gray-900 hover:bg-gray-50 border border-gray-200'}`}
           >
             <Icon name={completedTopics[selectedTopic] ? 'checkCircle' : 'check'} size={16} />
-            {completedTopics[selectedTopic] ? 'Completed' : 'Mark as Complete'}
+            <span className="hidden sm:inline">{completedTopics[selectedTopic] ? 'Completed' : 'Mark as Complete'}</span>
           </button>
           {/* Star */}
           <button
             onClick={() => toggleStar(selectedTopic)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${starredTopics[selectedTopic] ? 'text-gray-900' : 'text-gray-900 hover:text-gray-900'}`}
+            className={`flex items-center gap-2 px-2 sm:px-3 py-2 rounded-lg text-sm transition-all ${starredTopics[selectedTopic] ? 'text-gray-900' : 'text-gray-900 hover:text-gray-900'}`}
           >
             <Icon name={starredTopics[selectedTopic] ? 'star5' : 'star'} size={16} />
           </button>
@@ -129,18 +128,18 @@ export default function TopicDetail({
           {/* Ask AI */}
           <button
             onClick={() => setShowAskAI(!showAskAI)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all landing-body ${showAskAI ? 'bg-emerald-50 text-gray-900 border border-gray-200' : 'text-gray-900 hover:text-gray-900 hover:bg-gray-50 border border-gray-200'}`}
+            className={`flex items-center gap-2 px-2 sm:px-3 py-2 rounded-lg text-sm font-medium transition-all landing-body ${showAskAI ? 'bg-emerald-50 text-gray-900 border border-gray-200' : 'text-gray-900 hover:text-gray-900 hover:bg-gray-50 border border-gray-200'}`}
           >
             <Icon name="sparkles" size={16} />
-            Ask AI
+            <span className="hidden sm:inline">Ask AI</span>
           </button>
           {/* Course Roadmap */}
           <button
             onClick={() => setShowRoadmap(!showRoadmap)}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-900 hover:text-gray-900 hover:bg-gray-50 border border-gray-200 transition-all landing-body"
+            className="flex items-center gap-2 px-2 sm:px-3 py-2 rounded-lg text-sm font-medium text-gray-900 hover:text-gray-900 hover:bg-gray-50 border border-gray-200 transition-all landing-body"
           >
             <Icon name="compass" size={16} />
-            Roadmap
+            <span className="hidden sm:inline">Roadmap</span>
           </button>
         </div>
       </div>
@@ -242,7 +241,7 @@ export default function TopicDetail({
                   <h3 className="text-sm font-bold text-emerald-800 landing-display">When to Use</h3>
                 </div>
                 <div className="p-3">
-                  <ul className="grid grid-cols-2 lg:grid-cols-3 gap-1">
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
                     {topicDetails.whenToUse.map((item, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm landing-body">
                         <span className="text-emerald-600 mt-0.5">→</span>
@@ -284,7 +283,7 @@ export default function TopicDetail({
                   <h3 className="text-sm font-bold text-emerald-800 landing-display">Step-by-Step Approach</h3>
                 </div>
                 <div className="p-2">
-                  <ol className="grid grid-cols-2 lg:grid-cols-3 gap-1">
+                  <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
                     {topicDetails.approach.map((step, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm landing-body">
                         <span className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 bg-emerald-500 text-white">{i + 1}</span>
@@ -304,7 +303,7 @@ export default function TopicDetail({
                   <h3 className="text-sm font-bold text-rose-800 landing-display">Common Mistakes</h3>
                 </div>
                 <div className="p-2">
-                  <ul className="grid grid-cols-2 lg:grid-cols-3 gap-1">
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
                     {topicDetails.commonMistakes.map((mistake, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm landing-body">
                         <span className="text-red-500 mt-0.5">✗</span>
@@ -329,7 +328,7 @@ export default function TopicDetail({
                 <span className="text-[10px] landing-mono text-gray-400 ml-auto">{topicDetails.commonProblems.length}</span>
               </div>
               <div className="p-2">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
                   {topicDetails.commonProblems.map((problem, i) => {
                     const problemName = typeof problem === 'string' ? problem : problem.name;
                     const slug = generateSlug(problemName);
@@ -422,7 +421,7 @@ export default function TopicDetail({
                   <Icon name="lightbulb" size={14} className="text-emerald-700" />
                   <h3 className="text-sm font-bold text-emerald-800 landing-display">Tips & Tricks</h3>
                 </div>
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-1 p-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1 p-2">
                   {topicDetails.tips.map((tip, i) => (
                     <div key={i} className="px-2 py-1 flex items-start gap-1.5 rounded">
                       <span className="text-emerald-600 text-xs mt-0.5 flex-shrink-0">✓</span>
@@ -440,7 +439,7 @@ export default function TopicDetail({
                   <Icon name="briefcase" size={14} className="text-gray-900" />
                   <h3 className="text-sm font-bold text-indigo-800 landing-display">Interview Tips</h3>
                 </div>
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-1 p-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1 p-2">
                   {topicDetails.interviewTips.map((tip, i) => (
                     <div key={i} className="px-2 py-1 flex items-start gap-1.5 rounded">
                       <span className="text-gray-400 text-xs mt-0.5 flex-shrink-0">★</span>
@@ -535,7 +534,7 @@ export default function TopicDetail({
                     <h3 className="text-sm font-bold text-emerald-800 landing-display">Functional Requirements</h3>
                   </div>
                   <div className="p-3">
-                    <ul className="grid grid-cols-2 lg:grid-cols-3 gap-1">
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
                       {(topicDetails.functionalRequirements || topicDetails.requirements).map((req, i) => (
                         <li key={i} className="flex items-start gap-2 rounded hover:bg-gray-50 transition-colors">
                           <span className="w-4 h-4 rounded-full flex items-center justify-center text-xs flex-shrink-0 bg-emerald-50 text-emerald-700 mt-0.5">✓</span>
@@ -555,7 +554,7 @@ export default function TopicDetail({
                       <h3 className="text-sm font-bold text-emerald-800 landing-display">Non-Functional Requirements</h3>
                     </div>
                     <div className="p-3">
-                      <ul className="grid grid-cols-2 lg:grid-cols-3 gap-1">
+                      <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
                         {topicDetails.nonFunctionalRequirements.map((req, i) => (
                           <li key={i} className="flex items-start gap-2 rounded hover:bg-gray-50 transition-colors">
                             <span className="w-4 h-4 rounded-full flex items-center justify-center text-xs flex-shrink-0 bg-emerald-50 text-emerald-700 mt-0.5">•</span>
@@ -580,7 +579,7 @@ export default function TopicDetail({
                         <h3 className="text-sm font-bold text-blue-800 landing-display">API Design</h3>
                       </div>
                       <div className="p-2">
-                        <div className={`grid gap-1.5 ${topicDetails.apiDesign.endpoints.length > 4 ? 'grid-cols-2 xl:grid-cols-3' : 'grid-cols-2'}`}>
+                        <div className={`grid gap-1.5 ${topicDetails.apiDesign.endpoints.length > 4 ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'}`}>
                           {topicDetails.apiDesign.endpoints.map((endpoint, i) => (
                             <div key={i} className="rounded-md px-2.5 py-2 bg-gray-50 border border-gray-200">
                               <div className="flex items-center gap-1.5 mb-1">
@@ -681,7 +680,7 @@ export default function TopicDetail({
                               <Icon name="alertTriangle" size={14} />
                               Issues:
                             </h4>
-                            <ul className="grid grid-cols-2 gap-1">
+                            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1">
                               {topicDetails.basicImplementation.problems.map((problem, i) => (
                                 <li key={i} className="flex items-start gap-2 text-gray-500 text-sm landing-body">
                                   <span className="text-red-500 mt-0.5">✗</span>
@@ -713,7 +712,7 @@ export default function TopicDetail({
                           />
                         )}
                         {topicDetails.advancedImplementation.architecture && !topicDetails.advancedImplementation.svgTemplate && (
-                          <div className="rounded-lg overflow-x-auto mb-2 bg-gray-50 border border-gray-200 rounded-md">
+                          <div className="rounded-lg overflow-x-auto mb-2 bg-gray-50 border border-gray-200">
                             <pre
                               className="p-3 text-sm leading-7 text-emerald-700 landing-mono"
                               style={{
@@ -729,7 +728,7 @@ export default function TopicDetail({
                         {topicDetails.advancedImplementation.keyPoints && (
                           <div className="mb-2">
                             <h4 className="text-gray-900 text-sm font-semibold mb-2 landing-display">Key Points:</h4>
-                            <ul className="grid grid-cols-2 gap-1">
+                            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1">
                               {topicDetails.advancedImplementation.keyPoints.map((point, i) => (
                                 <li key={i} className="flex items-start gap-2 text-gray-500 text-sm landing-body">
                                   <span className="text-emerald-600 mt-0.5">✓</span>
@@ -760,7 +759,7 @@ export default function TopicDetail({
               )}
 
               {/* Cloud Architecture Diagram + Tips */}
-              <div className="grid lg:grid-cols-2 gap-2">
+              <div className={`grid gap-2 ${isSDStyle ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
                 {/* Cloud Architecture Diagram */}
                 {isSDStyle && topicDetails && (
                   <div className="rounded-xl overflow-hidden border border-gray-200 bg-white">
@@ -868,7 +867,7 @@ export default function TopicDetail({
                         <h3 className="text-sm font-bold text-emerald-800 landing-display">{topicDetails.createFlow.title}</h3>
                       </div>
                       <div className="p-3">
-                        <ol className="grid grid-cols-2 lg:grid-cols-3 gap-1">
+                        <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
                           {topicDetails.createFlow.steps.map((step, i) => (
                             <li key={i} className="flex items-start gap-2 rounded hover:bg-gray-50 transition-colors">
                               <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-emerald-50 text-emerald-700 border border-gray-200 landing-mono">
@@ -890,7 +889,7 @@ export default function TopicDetail({
                         <h3 className="text-sm font-bold text-emerald-800 landing-display">{topicDetails.redirectFlow.title}</h3>
                       </div>
                       <div className="p-3">
-                        <ol className="grid grid-cols-2 lg:grid-cols-3 gap-1">
+                        <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
                           {topicDetails.redirectFlow.steps.map((step, i) => (
                             <li key={i} className="flex items-start gap-2 rounded hover:bg-gray-50 transition-colors">
                               <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-emerald-50 text-emerald-700 border border-gray-200 landing-mono">
@@ -1110,7 +1109,7 @@ export default function TopicDetail({
                         <h3 className="text-sm font-bold text-violet-800 landing-display">Key Design Decisions</h3>
                       </div>
                       <div className="p-3">
-                        <ol className="grid grid-cols-2 lg:grid-cols-3 gap-1">
+                        <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
                           {topicDetails.keyDecisions.map((decision, i) => (
                             <li key={i} className="flex items-start gap-2 rounded hover:bg-gray-50 transition-colors">
                               <span className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-gray-50 text-gray-900 border border-amber-500/30 landing-mono">
@@ -1154,7 +1153,7 @@ export default function TopicDetail({
                     <h3 className="text-sm font-bold text-violet-800 landing-display">Design Patterns</h3>
                   </div>
                   <div className="p-4">
-                    <ul className="grid grid-cols-2 gap-1">
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1">
                       {topicDetails.designPatterns.map((pattern, i) => (
                         <li key={i} className="flex items-start gap-2 rounded hover:bg-gray-50 transition-colors">
                           <span className="w-5 h-5 rounded-full flex items-center justify-center text-sm flex-shrink-0 bg-gray-50 text-gray-900 mt-0.5">✦</span>
@@ -1551,7 +1550,7 @@ export default function TopicDetail({
                 <h3 className="text-sm font-bold text-violet-800 landing-display">Practice Questions</h3>
                 <span className="text-[10px] landing-mono text-gray-400 ml-auto">{topicDetails.sampleQuestions.length}</span>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-1 p-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 p-2">
                 {topicDetails.sampleQuestions.map((q, i) => (
                   <div key={i} className="flex items-start gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors group">
                     <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 landing-mono" style={{ background: `${topicDetails.color}12`, color: topicDetails.color }}>{i + 1}</span>
@@ -1574,7 +1573,7 @@ export default function TopicDetail({
                 <h3 className="text-sm font-bold text-emerald-800 landing-display">Tips for Success</h3>
                 <span className="text-[10px] landing-mono text-emerald-600 ml-auto">{topicDetails.tips.length} tips</span>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 p-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 p-3">
                 {topicDetails.tips.map((tip, i) => (
                   <div key={i} className="flex items-start gap-2.5 px-3 py-2.5 rounded-lg bg-white/60 border border-emerald-100/60 hover:bg-white/80 transition-colors group">
                     <span className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 bg-emerald-500 text-white text-[10px] font-bold landing-mono mt-0.5">

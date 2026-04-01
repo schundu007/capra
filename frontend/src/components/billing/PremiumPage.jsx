@@ -12,6 +12,7 @@ export default function PremiumPage() {
   const [error, setError] = useState('');
   const [expandedFaq, setExpandedFaq] = useState(null);
   const [showComparison, setShowComparison] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -132,15 +133,28 @@ export default function PremiumPage() {
         </a>
 
         <div className="hidden md:flex items-center gap-6">
-          <button onClick={() => scrollTo('plans')} className="text-sm text-gray-400 hover:text-white transition-colors font-medium">Plans</button>
-          <button onClick={() => scrollTo('features')} className="text-sm text-gray-400 hover:text-white transition-colors font-medium">Features</button>
-          <button onClick={() => setShowComparison(true)} className="text-sm text-red-400 hover:text-red-300 transition-colors font-medium">Compare Us</button>
-          <button onClick={() => scrollTo('faq')} className="text-sm text-gray-400 hover:text-white transition-colors font-medium">FAQ</button>
-          <a href="/" className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded-lg hover:bg-emerald-400 transition-colors">
+          <button onClick={() => scrollTo('plans')} className="text-sm text-gray-400 hover:text-white transition-colors font-medium landing-body">Plans</button>
+          <button onClick={() => scrollTo('features')} className="text-sm text-gray-400 hover:text-white transition-colors font-medium landing-body">Features</button>
+          <button onClick={() => setShowComparison(true)} className="text-sm text-red-400 hover:text-red-300 transition-colors font-medium landing-body">Compare Us</button>
+          <button onClick={() => scrollTo('faq')} className="text-sm text-gray-400 hover:text-white transition-colors font-medium landing-body">FAQ</button>
+          <a href="/" className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded-lg hover:bg-emerald-400 transition-colors landing-body">
             Back to Home
           </a>
         </div>
+
+        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-gray-400 hover:text-white transition-colors">
+          <Icon name={mobileMenuOpen ? 'close' : 'menu'} size={22} />
+        </button>
       </nav>
+
+      {/* Mobile menu */}
+      {mobileMenuOpen && (
+        <div className="fixed top-16 left-0 right-0 z-40 md:hidden border-b border-gray-100 bg-white px-6 py-4 space-y-1">
+          <button onClick={() => { scrollTo('plans'); setMobileMenuOpen(false); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded transition-colors landing-body">Plans</button>
+          <button onClick={() => { scrollTo('features'); setMobileMenuOpen(false); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded transition-colors landing-body">Features</button>
+          <a href="/" className="block px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded transition-colors landing-body">Home</a>
+        </div>
+      )}
 
       {/* Hero */}
       <section className="flex flex-col items-center justify-center text-center px-6 pt-10 pb-8 md:pt-14 md:pb-10">
@@ -352,7 +366,8 @@ export default function PremiumPage() {
             {[
               { label: 'Apply', href: 'https://jobs.cariara.com' },
               { label: 'Prepare', href: '/prepare' },
-              { label: 'Practice', href: '/app/coding' },
+              { label: 'Practice', href: '/practice' },
+              { label: 'Pricing', href: '/premium' },
               { label: 'Attend', href: 'https://lumora.cariara.com/app' },
               { label: 'Support', href: 'mailto:support@cariara.com' },
             ].map((link) => (
@@ -370,6 +385,7 @@ export default function PremiumPage() {
 
         .landing-root {
           -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
           font-family: 'Work Sans', 'Plus Jakarta Sans', system-ui, sans-serif;
         }
 

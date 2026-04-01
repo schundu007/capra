@@ -1172,15 +1172,15 @@ export default function DocsPage({ onBack }) {
                         <span className="text-gray-400 font-normal text-sm landing-body">(45 min)</span>
                       </h3>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
                       {[
-                        { time: '5 min', step: 'Requirements', desc: 'Functional & non-functional requirements', num: '01', accent: 'emerald' },
-                        { time: '5 min', step: 'Estimations', desc: 'QPS, storage, bandwidth calculations', num: '02', accent: 'cyan' },
-                        { time: '20 min', step: 'High-Level', desc: 'Components, data flow, API design', num: '03', accent: 'emerald' },
-                        { time: '15 min', step: 'Deep Dive', desc: 'Database schema, scaling, trade-offs', num: '04', accent: 'cyan' },
+                        { time: '5 min', step: 'Requirements', desc: 'Functional & non-functional requirements', num: '01', accent: 'emerald', color: '#a7f3d0', hoverColor: '#6ee7b7' },
+                        { time: '5 min', step: 'Estimations', desc: 'QPS, storage, bandwidth calculations', num: '02', accent: 'cyan', color: '#a5f3fc', hoverColor: '#67e8f9' },
+                        { time: '20 min', step: 'High-Level', desc: 'Components, data flow, API design', num: '03', accent: 'emerald', color: '#a7f3d0', hoverColor: '#6ee7b7' },
+                        { time: '15 min', step: 'Deep Dive', desc: 'Database schema, scaling, trade-offs', num: '04', accent: 'cyan', color: '#a5f3fc', hoverColor: '#67e8f9' },
                       ].map((phase, i) => (
                         <div key={i} className="group p-3 rounded-lg border border-white/60 bg-white/70 hover:bg-white hover:shadow-sm transition-all">
-                          <span className={`landing-mono text-2xl font-black text-${phase.accent}-200 group-hover:text-${phase.accent}-300 transition-colors`}>
+                          <span className="landing-mono text-2xl font-black transition-colors" style={{ color: phase.color }}>
                             {phase.num}
                           </span>
                           <div className="landing-mono text-[10px] text-emerald-600 font-semibold mt-1.5 mb-1">{phase.time}</div>
@@ -1339,7 +1339,7 @@ export default function DocsPage({ onBack }) {
                             />
                           </div>
                           {/* Stats row */}
-                          <div className="grid grid-cols-4 gap-3">
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                             {[
                               { value: completedCount, label: 'Topics Done', total: totalTopics, color: '#10b981' },
                               { value: starredCount, label: 'Starred', total: null, color: '#f59e0b' },
@@ -1373,7 +1373,7 @@ export default function DocsPage({ onBack }) {
                       <div className="relative">
                         {/* Connection line */}
                         <div className="hidden md:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-300 via-amber-300 via-emerald-300 to-red-300 -translate-y-1/2 z-0 mx-12" />
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 relative z-10">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 relative z-10">
                           {[
                             { letter: 'S', title: 'Situation', desc: 'Set the scene — when, where, what was at stake.', color: '#3b82f6', timing: '15%' },
                             { letter: 'T', title: 'Task', desc: 'Your responsibility. What was expected of you?', color: '#f59e0b', timing: '10%' },
