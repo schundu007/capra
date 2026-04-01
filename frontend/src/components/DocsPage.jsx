@@ -213,6 +213,7 @@ export default function DocsPage({ onBack }) {
     setAiLoading(true);
     setAiAnswer('');
     try {
+      const API_URL = getApiUrl();
       const res = await fetch(`${API_URL}/api/solve/followup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
@@ -445,12 +446,18 @@ export default function DocsPage({ onBack }) {
       if (topicDetails.exampleResponse) toc.push({ id: 'example-response', label: 'Example Response' });
       if (topicDetails.sampleQuestions) toc.push({ id: 'sample-questions', label: 'Practice Questions' });
       if (topicDetails.tips) toc.push({ id: 'tips', label: 'Tips' });
-    } else if (activePage === 'microservices' || activePage === 'databases' || activePage === 'sql') {
+    } else if (activePage === 'microservices' || activePage === 'databases') {
       if (topicDetails.introduction) toc.push({ id: 'overview', label: 'Overview' });
       if (topicDetails.keyQuestions) toc.push({ id: 'key-questions', label: 'Key Questions' });
       if (topicDetails.dataModel) toc.push({ id: 'data-model', label: 'Data Model' });
       if (topicDetails.basicImplementation) toc.push({ id: 'architecture', label: 'Architecture' });
       if (topicDetails.tips) toc.push({ id: 'tips', label: 'Tips' });
+    } else if (activePage === 'sql') {
+      if (topicDetails.introduction) toc.push({ id: 'overview', label: 'Overview' });
+      if (topicDetails.whenToUse) toc.push({ id: 'when-to-use', label: 'When to Use' });
+      if (topicDetails.approach) toc.push({ id: 'approach', label: 'Approach' });
+      if (topicDetails.commonProblems) toc.push({ id: 'practice', label: 'Practice Problems' });
+      if (topicDetails.tips) toc.push({ id: 'tips', label: 'Interview Tips' });
     }
     return toc;
   };
@@ -1783,7 +1790,7 @@ export default function DocsPage({ onBack }) {
                 <div className="landing-mono text-[10px] text-emerald-600 tracking-widest uppercase mb-3">Favorites</div>
                 <div className="space-y-1">
                   {Object.keys(starredTopics).filter(k => starredTopics[k]).map((topicId) => {
-                    const t = [...codingTopics, ...systemDesignTopics, ...systemDesigns, ...behavioralTopics, ...systemDesignPatterns, ...microservicesPatterns, ...systemDesignTradeoffs, ...scalableSystemsTopics, ...databaseTopics, ...sqlTopics, ...concurrencyTopics].find(x => x.id === topicId);
+                    const t = [...codingTopics, ...systemDesignTopics, ...systemDesigns, ...behavioralTopics, ...systemDesignPatterns, ...microservicesPatterns, ...systemDesignTradeoffs, ...scalableSystemsTopics, ...databaseTopics, ...sqlTopics, ...concurrencyTopics, ...lldTopics, ...lldProblems, ...companyPrep].find(x => x.id === topicId);
                     if (!t) return null;
                     return (
                       <button

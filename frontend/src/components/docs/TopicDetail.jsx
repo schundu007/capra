@@ -17,7 +17,10 @@ export default function TopicDetail({
   if (!topicDetails) return null;
 
   // Pages that use system-design-style rendering (concepts, keyQuestions, dataModel, etc.)
-  const isSDStyle = ['system-design', 'microservices', 'databases', 'sql'].includes(activePage);
+  // Pages that use system-design-style rendering (concepts, keyQuestions, dataModel, etc.)
+  const isSDStyle = ['system-design', 'microservices', 'databases'].includes(activePage);
+  // SQL uses coding/DSA-style rendering (whenToUse, approach, commonProblems, etc.)
+  const isCodingStyle = activePage === 'coding' || activePage === 'sql';
 
   return (
     <div className="landing-root animate-fade-in">
@@ -182,7 +185,7 @@ export default function TopicDetail({
             <span className="text-gray-900 font-semibold text-sm landing-display">Course Roadmap — {pageConfig.title}</span>
           </div>
           <div className="grid md:grid-cols-2 gap-1">
-            {(activePage === 'coding' ? codingTopics : isSDStyle ? [...(filteredTopics || []), ...(systemDesigns || [])] : behavioralTopics).map((t, i) => (
+            {(isCodingStyle ? (filteredTopics || codingTopics) : isSDStyle ? (filteredTopics || []) : activePage === 'low-level' ? (filteredTopics || []) : behavioralTopics).map((t, i) => (
               <button
                 key={t.id}
                 onClick={() => { setSelectedTopic(t.id); setShowRoadmap(false); }}
@@ -200,7 +203,7 @@ export default function TopicDetail({
       )}
 
       {/* DSA Topic Detail */}
-      {activePage === 'coding' && topicDetails.keyPatterns && (
+      {isCodingStyle && topicDetails.keyPatterns && (
         <div className="space-y-3">
           {/* Overview + Complexity in one row */}
           <div className="grid lg:grid-cols-3 gap-2">
@@ -791,7 +794,7 @@ export default function TopicDetail({
                         {/* Detail Level */}
                         <div className="flex items-center gap-1">
                           <button
-                            onClick={() => handleGenerateDiagram(topicDetails.title || selectedTopic, 'overview', diagramCloudProvider)}
+                            onClick={() => generateDiagram(topicDetails.title || selectedTopic, 'overview', diagramCloudProvider)}
                             disabled={generatingDiagram}
                             className="px-2 py-1 text-sm font-medium rounded transition-all landing-body"
                             style={{
@@ -802,7 +805,7 @@ export default function TopicDetail({
                             {generatingDiagram && diagramDetailLevel === 'overview' ? '...' : 'Quick'}
                           </button>
                           <button
-                            onClick={() => handleGenerateDiagram(topicDetails.title || selectedTopic, 'detailed', diagramCloudProvider)}
+                            onClick={() => generateDiagram(topicDetails.title || selectedTopic, 'detailed', diagramCloudProvider)}
                             disabled={generatingDiagram}
                             className="px-2 py-1 text-sm font-medium rounded transition-all landing-body"
                             style={{
@@ -821,7 +824,7 @@ export default function TopicDetail({
                         loading={generatingDiagram}
                         error={diagramError}
                         cloudProvider={diagramData?.cloudProvider || 'auto'}
-                        onRetry={() => handleGenerateDiagram(topicDetails.title || selectedTopic, diagramDetailLevel)}
+                        onRetry={() => generateDiagram(topicDetails.title || selectedTopic, diagramDetailLevel)}
                       />
                       {diagramData && (
                         <div className="mt-2 flex items-center justify-between text-sm text-gray-400 landing-mono">
