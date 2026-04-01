@@ -619,14 +619,14 @@ export default function TopicDetail({
                     <h3 className="text-sm font-bold text-gray-900 landing-display">Key Questions</h3>
                     <span className="text-[10px] landing-mono text-gray-400 ml-auto">{topicDetails.keyQuestions.length} topics</span>
                   </div>
-                  <div className="grid md:grid-cols-2 gap-2 p-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 p-2" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
                     {topicDetails.keyQuestions.map((q, i) => (
-                      <div key={i} className="p-3 rounded-lg hover:bg-white/[0.02] transition-colors bg-gray-50 border border-gray-200">
+                      <div key={i} className="p-3 rounded-lg hover:bg-gray-50 transition-colors bg-white border border-gray-200">
                         <div className="flex items-start gap-2">
                           <span className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center text-xs text-gray-900 font-bold flex-shrink-0 landing-mono">{i + 1}</span>
                           <div className="flex-1 min-w-0">
                             <h4 className="text-gray-900 font-semibold text-sm mb-2 landing-display">{q.question}</h4>
-                            <div className="text-gray-500 landing-body">
+                            <div className="text-gray-700 landing-body">
                               <FormattedContent content={q.answer} color="emerald" />
                             </div>
                           </div>
