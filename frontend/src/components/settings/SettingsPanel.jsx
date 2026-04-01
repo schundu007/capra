@@ -17,48 +17,40 @@ const OPENAI_MODELS = [
   { id: 'o3-mini', name: 'o3-mini', description: 'Latest reasoning' },
 ];
 
-const TABS = [
-  { id: 'ai', label: 'AI Provider', icon: 'sparkles' },
-  { id: 'editor', label: 'Editor', icon: 'code' },
-  { id: 'keys', label: 'API Keys', icon: 'key' },
-];
-
 export default function SettingsPanel({ onClose, provider, model, onProviderChange, onModelChange, onOpenPlatforms, autoSwitch, onAutoSwitchChange, editorSettings, onEditorSettingsChange }) {
+  const isElectron = window.electronAPI?.isElectron;
+
+  // Tabs: AI + Editor always, Keys only on Electron
+  const tabs = [
+    { id: 'ai', label: 'AI Provider', icon: 'sparkles' },
+    { id: 'editor', label: 'Display', icon: 'code' },
+    ...(isElectron ? [{ id: 'keys', label: 'API Keys', icon: 'key' }] : []),
+  ];
+
   const [activeTab, setActiveTab] = useState('ai');
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [apiKeys, setApiKeys] = useState({
     anthropic: null, openai: null, eraser: null, deepgram: null,
     hasAnthropic: false, hasOpenai: false, hasEraser: false, hasDeepgram: false,
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!isElectron);
 
   const models = provider === 'openai' ? OPENAI_MODELS : CLAUDE_MODELS;
-  const isElectron = window.electronAPI?.isElectron;
 
   useEffect(() => {
-    async function loadSettings() {
-      if (window.electronAPI) {
-        const keys = await window.electronAPI.getApiKeys();
-        setApiKeys(keys);
-      } else {
-        const anthropic = localStorage.getItem('anthropic_api_key') || '';
-        const openai = localStorage.getItem('openai_api_key') || '';
-        const eraser = localStorage.getItem('eraser_api_key') || '';
-        const deepgram = localStorage.getItem('deepgram_api_key') || '';
-        setApiKeys({ anthropic, openai, eraser, deepgram, hasAnthropic: !!anthropic, hasOpenai: !!openai, hasEraser: !!eraser, hasDeepgram: !!deepgram });
-      }
+    if (!isElectron) return;
+    async function loadKeys() {
+      const keys = await window.electronAPI.getApiKeys();
+      setApiKeys(keys);
       setLoading(false);
     }
-    loadSettings();
-  }, []);
+    loadKeys();
+  }, [isElectron]);
 
   const handleSaveKey = async (providerName, key) => {
     if (window.electronAPI) {
       const updated = await window.electronAPI.setApiKeys({ [providerName]: key });
       setApiKeys(updated);
-    } else {
-      localStorage.setItem(`${providerName}_api_key`, key);
-      setApiKeys(prev => ({ ...prev, [providerName]: key, [`has${providerName.charAt(0).toUpperCase() + providerName.slice(1)}`]: true }));
     }
   };
 
@@ -66,9 +58,6 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
     if (window.electronAPI) {
       const updated = await window.electronAPI.setApiKeys({ [providerName]: null });
       setApiKeys(updated);
-    } else {
-      localStorage.removeItem(`${providerName}_api_key`);
-      setApiKeys(prev => ({ ...prev, [providerName]: '', [`has${providerName.charAt(0).toUpperCase() + providerName.slice(1)}`]: false }));
     }
   };
 
@@ -150,7 +139,7 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
 
         {/* Tabs */}
         <div className="flex px-8 pt-4 gap-1 border-b border-gray-100">
-          {TABS.map(tab => (
+          {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -168,7 +157,8 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
 
         {/* Content */}
         <div className="px-8 py-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 160px)' }}>
-          {/* AI Tab */}
+
+          {/* ── AI Provider Tab ── */}
           {activeTab === 'ai' && (
             <div className="space-y-6">
               {/* Provider */}
@@ -231,7 +221,7 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
                 <Toggle enabled={autoSwitch} onChange={() => onAutoSwitchChange && onAutoSwitchChange(!autoSwitch)} />
               </div>
 
-              {/* Platforms */}
+              {/* Platforms (Electron only) */}
               {isElectron && onOpenPlatforms && (
                 <button
                   onClick={() => { onClose(); onOpenPlatforms(); }}
@@ -251,90 +241,54 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
             </div>
           )}
 
-          {/* Editor Tab */}
+          {/* ── Display Tab (only functional settings) ── */}
           {activeTab === 'editor' && editorSettings && onEditorSettingsChange && (
             <div className="space-y-6">
-              {/* Theme & Key Bindings */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3 block">Theme</label>
-                  <div className="flex gap-2">
-                    {['dark', 'light'].map(theme => (
-                      <button
-                        key={theme}
-                        onClick={() => onEditorSettingsChange({ theme })}
-                        className={`flex-1 py-2.5 text-sm font-medium rounded-xl transition-all capitalize border-2 ${
-                          editorSettings.theme === theme
-                            ? 'bg-emerald-50 border-emerald-500 text-emerald-700'
-                            : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
-                        }`}
-                      >
-                        {theme}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3 block">Key Bindings</label>
-                  <div className="flex gap-2">
-                    {['standard', 'vim', 'emacs'].map(kb => (
-                      <button
-                        key={kb}
-                        onClick={() => onEditorSettingsChange({ keyBindings: kb })}
-                        className={`flex-1 py-2.5 text-sm font-medium rounded-xl transition-all capitalize border-2 ${
-                          editorSettings.keyBindings === kb
-                            ? 'bg-emerald-50 border-emerald-500 text-emerald-700'
-                            : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
-                        }`}
-                      >
-                        {kb === 'standard' ? 'Std' : kb}
-                      </button>
-                    ))}
-                  </div>
+              {/* Theme */}
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3 block">Theme</label>
+                <div className="flex gap-3">
+                  {[{ id: 'dark', label: 'Dark', desc: 'Easy on the eyes' }, { id: 'light', label: 'Light', desc: 'Clean & bright' }].map(theme => (
+                    <button
+                      key={theme.id}
+                      onClick={() => onEditorSettingsChange({ theme: theme.id })}
+                      className={`flex-1 py-3.5 px-4 rounded-xl text-sm font-semibold transition-all border-2 ${
+                        editorSettings.theme === theme.id
+                          ? 'bg-emerald-50 border-emerald-500 text-emerald-700'
+                          : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div>{theme.label}</div>
+                      <div className={`text-xs font-normal mt-0.5 ${editorSettings.theme === theme.id ? 'text-emerald-500' : 'text-gray-400'}`}>{theme.desc}</div>
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Font Size & Tab Size */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center justify-between px-5 py-4 rounded-xl bg-gray-50 border border-gray-200">
-                  <span className="text-sm font-semibold text-gray-800">Font Size</span>
-                  <select
-                    value={editorSettings.fontSize}
-                    onChange={(e) => onEditorSettingsChange({ fontSize: parseInt(e.target.value) })}
-                    className="px-3 py-1.5 text-sm rounded-lg cursor-pointer bg-white text-gray-700 border border-gray-200 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+              {/* Font Size */}
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3 block">Code Font Size</label>
+                <div className="flex items-center gap-3 px-5 py-4 rounded-xl bg-gray-50 border border-gray-200">
+                  <button
+                    onClick={() => onEditorSettingsChange({ fontSize: Math.max(10, (editorSettings.fontSize || 14) - 1) })}
+                    className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors text-lg font-medium"
                   >
-                    {[10, 11, 12, 13, 14, 16, 18, 20].map(size => (
-                      <option key={size} value={size}>{size}px</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex items-center justify-between px-5 py-4 rounded-xl bg-gray-50 border border-gray-200">
-                  <span className="text-sm font-semibold text-gray-800">Tab Size</span>
-                  <select
-                    value={editorSettings.tabSpacing}
-                    onChange={(e) => onEditorSettingsChange({ tabSpacing: parseInt(e.target.value) })}
-                    className="px-3 py-1.5 text-sm rounded-lg cursor-pointer bg-white text-gray-700 border border-gray-200 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                    -
+                  </button>
+                  <div className="flex-1 text-center">
+                    <span className="text-2xl font-bold text-gray-900">{editorSettings.fontSize || 14}</span>
+                    <span className="text-sm text-gray-400 ml-1">px</span>
+                  </div>
+                  <button
+                    onClick={() => onEditorSettingsChange({ fontSize: Math.min(24, (editorSettings.fontSize || 14) + 1) })}
+                    className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors text-lg font-medium"
                   >
-                    {[2, 4, 8].map(size => (
-                      <option key={size} value={size}>{size}</option>
-                    ))}
-                  </select>
+                    +
+                  </button>
                 </div>
               </div>
 
-              {/* Toggles */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center justify-between px-5 py-4 rounded-xl bg-gray-50 border border-gray-200">
-                  <span className="text-sm font-semibold text-gray-800">IntelliSense</span>
-                  <Toggle enabled={editorSettings.intelliSense} onChange={() => onEditorSettingsChange({ intelliSense: !editorSettings.intelliSense })} />
-                </div>
-                <div className="flex items-center justify-between px-5 py-4 rounded-xl bg-gray-50 border border-gray-200">
-                  <span className="text-sm font-semibold text-gray-800">Auto Brackets</span>
-                  <Toggle enabled={editorSettings.autoCloseBrackets} onChange={() => onEditorSettingsChange({ autoCloseBrackets: !editorSettings.autoCloseBrackets })} />
-                </div>
-              </div>
-
-              {/* Shortcuts */}
+              {/* Keyboard Shortcuts */}
               <button
                 onClick={() => setShowShortcuts(true)}
                 className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl text-sm font-semibold transition-all bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100"
@@ -347,8 +301,8 @@ export default function SettingsPanel({ onClose, provider, model, onProviderChan
             </div>
           )}
 
-          {/* Keys Tab */}
-          {activeTab === 'keys' && (
+          {/* ── API Keys Tab (Electron only) ── */}
+          {activeTab === 'keys' && isElectron && (
             <div className="space-y-4">
               <ApiKeyInput provider="anthropic" currentKey={apiKeys.anthropic} hasKey={apiKeys.hasAnthropic} onSave={(key) => handleSaveKey('anthropic', key)} onDelete={() => handleDeleteKey('anthropic')} />
               <ApiKeyInput provider="openai" currentKey={apiKeys.openai} hasKey={apiKeys.hasOpenai} onSave={(key) => handleSaveKey('openai', key)} onDelete={() => handleDeleteKey('openai')} />
