@@ -4,10 +4,6 @@ import { useIsMobile } from '../hooks/useIsMobile';
 import { useAppShell } from './layout/AppShellContext';
 import { Icon } from './Icons.jsx';
 import { getAuthHeaders } from '../utils/authHeaders.js';
-import DiagramSVG from './DiagramSVG.jsx';
-import { generateSlug, getProblemBySlug } from '../data/problems.js';
-import { getLeetCodeUrl } from '../data/leetcodeUrls.js';
-import problemsFull from '../data/problems-full.json';
 import { codingCategories, codingCategoryMap as _codingCategoryMap, codingTopics as _codingTopics } from '../data/topics/codingTopics.js';
 import { extraCodingCategoryMap, extraCodingTopics } from '../data/topics/codingTopicsExtra.js';
 import { systemDesignCategories, systemDesignCategoryMap, systemDesignTopics } from '../data/topics/systemDesignTopics.js';
@@ -35,54 +31,7 @@ const systemDesigns = [..._systemDesigns, ...extraSystemDesigns];
 const lldProblemCategoryMap = { ..._lldProblemCategoryMap, ...extraLldProblemCategoryMap };
 const lldProblems = [..._lldProblems, ...extraLldProblems];
 
-// Unified card styling - clean, minimal design with larger fonts
-import CloudArchitectureDiagram from './docs/CloudArchitectureDiagram.jsx';
-import FormattedContent from './docs/FormattedContent.jsx';
 import TopicDetail from './docs/TopicDetail.jsx';
-const CARD_STYLES = {
-  // Standard card with subtle border
-  card: {
-    background: '#ffffff',
-    border: '1px solid #e5e7eb',
-    borderRadius: '8px',
-  },
-  // Card header - uses Ascend emerald accent
-  header: {
-    background: '#f0fdf4',
-    borderBottom: '1px solid #d1fae5',
-    padding: '8px 12px',
-  },
-  // Card body
-  body: {
-    padding: '24px',
-  },
-  // Code block
-  code: {
-    background: '#0d1117',
-    border: '1px solid #e5e7eb',
-    borderRadius: '10px',
-  },
-};
-
-// Font size scale - increased for better readability
-const FONT_SIZES = {
-  xs: '14px',
-  sm: '16px',
-  base: '18px',
-  lg: '20px',
-  xl: '24px',
-  '2xl': '28px',
-  '3xl': '32px',
-};
-
-// Ascend brand colors - emerald green
-const ASCEND_COLORS = {
-  primary: '#10b981',
-  primaryHover: '#059669',
-  primaryLight: 'rgba(16, 185, 129, 0.15)',
-  primaryBorder: 'rgba(16, 185, 129, 0.25)',
-  gradient: '#10b981',
-};
 
 // Get API URL based on environment (Electron vs Web)
 const getApiUrl = () => {
