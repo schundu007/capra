@@ -98,10 +98,12 @@ router.post('/checkout', jwtAuth, async (req, res) => {
       });
       customerId = customer.id;
 
-      // Save customer ID
+      // Save customer ID (upsert — row may not exist for new users)
       await query(
-        'UPDATE ascend_subscriptions SET stripe_customer_id = $1 WHERE user_id = $2',
-        [customerId, userId]
+        `INSERT INTO ascend_subscriptions (user_id, stripe_customer_id, plan_type, status)
+         VALUES ($1, $2, 'free', 'active')
+         ON CONFLICT (user_id) DO UPDATE SET stripe_customer_id = $2`,
+        [userId, customerId]
       );
     }
 
@@ -340,14 +342,12 @@ router.post('/webhook', async (req, res) => {
   let event;
 
   try {
-    // Verify webhook signature
-    if (webhookSecret) {
-      event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
-    } else {
-      // For testing without webhook secret
-      event = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-      logger.warn('Webhook signature verification skipped - no secret configured');
+    // Verify webhook signature (required in production)
+    if (!webhookSecret) {
+      logger.error('STRIPE_WEBHOOK_SECRET not configured — rejecting webhook');
+      return res.status(500).json({ error: 'Webhook not configured' });
     }
+    event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
 
     // Check for idempotency
     const existingResult = await query(

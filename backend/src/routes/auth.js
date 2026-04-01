@@ -397,9 +397,9 @@ router.delete('/all', (req, res) => {
 router.post('/admin/grant-subscription', async (req, res) => {
   const { email, adminSecret } = req.body;
 
-  // Require admin secret from environment
-  const expectedSecret = process.env.ADMIN_SECRET || 'capra-admin-2024';
-  if (adminSecret !== expectedSecret) {
+  // Require admin secret from environment (no default — must be explicitly configured)
+  const expectedSecret = process.env.ADMIN_SECRET;
+  if (!expectedSecret || adminSecret !== expectedSecret) {
     return res.status(403).json({ error: 'Invalid admin secret' });
   }
 
