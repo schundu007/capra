@@ -31,7 +31,7 @@ function SimpleCodeEditor({ code, onChange, language, readOnly = false }) {
         value={code}
         onChange={(e) => onChange(e.target.value)}
         readOnly={readOnly}
-        className="w-full h-full bg-[#0d1117] text-gray-200 font-mono text-sm leading-relaxed p-4 resize-none outline-none border-none"
+        className="w-full h-full bg-gray-50 text-gray-800 font-mono text-sm leading-relaxed p-4 resize-none outline-none border-none"
         style={{ tabSize: 2 }}
         spellCheck={false}
         placeholder={readOnly ? '' : 'Write your code here...'}
@@ -45,17 +45,17 @@ function SimpleCodeEditor({ code, onChange, language, readOnly = false }) {
  */
 function TestCase({ testCase, index, isActive, onClick, result }) {
   const statusColor = result?.passed
-    ? 'bg-green-500/20 text-green-400 border-green-500/30'
+    ? 'bg-green-50 text-green-700 border-green-200'
     : result?.error
-    ? 'bg-red-500/20 text-red-400 border-red-500/30'
-    : 'bg-gray-800/50 text-gray-400 border-gray-200';
+    ? 'bg-red-50 text-red-700 border-red-200'
+    : 'bg-gray-50 text-gray-500 border-gray-200';
 
   return (
     <button
       onClick={onClick}
       className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
         isActive
-          ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
           : statusColor
       }`}
     >
@@ -64,7 +64,7 @@ function TestCase({ testCase, index, isActive, onClick, result }) {
         <Icon
           name={result.passed ? 'check' : 'x'}
           size={14}
-          className={`ml-2 inline ${result.passed ? 'text-green-400' : 'text-red-400'}`}
+          className={`ml-2 inline ${result.passed ? 'text-green-600' : 'text-red-600'}`}
         />
       )}
     </button>
@@ -87,13 +87,13 @@ function CodeBlock({ code, language }) {
     <div className="relative group">
       <button
         onClick={copyCode}
-        className="absolute top-3 right-3 px-3 py-1.5 rounded-lg bg-gray-700/50 text-gray-400 hover:text-gray-900 hover:bg-gray-700 transition-all opacity-0 group-hover:opacity-100 touch:opacity-100 text-sm flex items-center gap-2"
+        className="absolute top-3 right-3 px-3 py-1.5 rounded-lg bg-gray-100 text-gray-500 hover:text-gray-900 hover:bg-gray-200 transition-all opacity-0 group-hover:opacity-100 touch:opacity-100 text-sm flex items-center gap-2"
       >
         <Icon name={copied ? 'check' : 'copy'} size={14} />
         {copied ? 'Copied!' : 'Copy'}
       </button>
-      <pre className="bg-[#0d1117] rounded-lg p-5 overflow-x-auto border border-gray-200">
-        <code className="text-sm leading-relaxed font-mono text-gray-300 whitespace-pre">
+      <pre className="bg-gray-50 rounded-lg p-5 overflow-x-auto border border-gray-200">
+        <code className="text-sm leading-relaxed font-mono text-gray-800 whitespace-pre">
           {code}
         </code>
       </pre>
@@ -107,26 +107,26 @@ function CodeBlock({ code, language }) {
 function ExampleBlock({ example, index }) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-      <div className="px-4 py-2.5 bg-gray-800/30 border-b border-gray-200">
+      <div className="px-4 py-2.5 bg-gray-50 border-b border-gray-200">
         <span className="text-base font-semibold text-gray-900">Example {index + 1}</span>
       </div>
       <div className="p-4 space-y-3">
         <div>
           <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">Input</span>
-          <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-emerald-400 font-mono text-sm overflow-x-auto">
+          <pre className="mt-1.5 bg-gray-50 border border-gray-200 rounded-lg p-3 text-emerald-700 font-mono text-sm overflow-x-auto">
             {example.input}
           </pre>
         </div>
         <div>
           <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">Output</span>
-          <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-yellow-400 font-mono text-sm overflow-x-auto">
+          <pre className="mt-1.5 bg-gray-50 border border-gray-200 rounded-lg p-3 text-amber-700 font-mono text-sm overflow-x-auto">
             {example.output}
           </pre>
         </div>
         {example.explanation && (
           <div>
             <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">Explanation</span>
-            <p className="mt-1.5 text-gray-300 text-sm leading-relaxed">{example.explanation}</p>
+            <p className="mt-1.5 text-gray-600 text-sm leading-relaxed">{example.explanation}</p>
           </div>
         )}
       </div>
@@ -144,18 +144,18 @@ function HintCard({ hint, index }) {
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
       <button
         onClick={() => setRevealed(!revealed)}
-        className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-gray-800/30 transition-colors"
+        className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-gray-50 transition-colors"
       >
         <span className="font-medium text-gray-900">Hint {index + 1}</span>
         <Icon
           name={revealed ? 'eye' : 'eyeOff'}
           size={18}
-          className={revealed ? 'text-emerald-400' : 'text-gray-500'}
+          className={revealed ? 'text-emerald-600' : 'text-gray-500'}
         />
       </button>
       {revealed && (
         <div className="px-5 pb-4">
-          <p className="text-gray-300 text-sm leading-relaxed">{hint}</p>
+          <p className="text-gray-600 text-sm leading-relaxed">{hint}</p>
         </div>
       )}
     </div>
@@ -347,17 +347,17 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
   };
 
   return (
-    <div className="h-screen bg-[#0a0c10] flex flex-col">
+    <div className="h-screen bg-white flex flex-col">
       {/* Header */}
-      <div className="flex-shrink-0 bg-[#0a0c10] border-b border-gray-800">
+      <div className="flex-shrink-0 bg-white border-b border-gray-200">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button
                 onClick={onBack}
-                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <Icon name="arrowLeft" size={18} className="text-gray-400" />
+                <Icon name="arrowLeft" size={18} className="text-gray-900" />
               </button>
               <div className="flex items-center gap-3">
                 <span className="text-sm text-gray-500 font-mono">#{problem.id}</span>
@@ -373,7 +373,7 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
                   href={problem.leetcodeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                  className="px-3 py-1.5 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
                 >
                   <Icon name="externalLink" size={14} />
                   LeetCode
@@ -389,15 +389,15 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
         <Allotment>
           {/* Left Panel - Problem Description */}
           <Allotment.Pane minSize={300} preferredSize="45%">
-            <div className="h-full flex flex-col bg-[#0a0c10]">
+            <div className="h-full flex flex-col bg-white">
               {/* Tabs */}
-              <div className="flex-shrink-0 flex gap-1 px-4 pt-3 border-b border-gray-800">
+              <div className="flex-shrink-0 flex gap-1 px-4 pt-3 border-b border-gray-200">
                 <button
                   onClick={() => setActiveTab('description')}
                   className={`px-4 py-2 rounded-t-lg text-sm font-medium transition-colors ${
                     activeTab === 'description'
-                      ? 'bg-white text-emerald-400'
-                      : 'text-gray-400 hover:text-gray-900 hover:bg-gray-800/50'
+                      ? 'bg-emerald-50 text-emerald-700 border-b-2 border-emerald-500'
+                      : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
                   Description
@@ -406,8 +406,8 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
                   onClick={() => setActiveTab('solution')}
                   className={`px-4 py-2 rounded-t-lg text-sm font-medium transition-colors ${
                     activeTab === 'solution'
-                      ? 'bg-white text-emerald-400'
-                      : 'text-gray-400 hover:text-gray-900 hover:bg-gray-800/50'
+                      ? 'bg-emerald-50 text-emerald-700 border-b-2 border-emerald-500'
+                      : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
                   Solution
@@ -416,8 +416,8 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
                   onClick={() => setActiveTab('hints')}
                   className={`px-4 py-2 rounded-t-lg text-sm font-medium transition-colors ${
                     activeTab === 'hints'
-                      ? 'bg-white text-emerald-400'
-                      : 'text-gray-400 hover:text-gray-900 hover:bg-gray-800/50'
+                      ? 'bg-emerald-50 text-emerald-700 border-b-2 border-emerald-500'
+                      : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
                   Hints
@@ -429,12 +429,12 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
                 {activeTab === 'description' && (
                   <div className="space-y-5">
                     {/* Problem Description */}
-                    <div className="prose prose-invert max-w-none">
+                    <div className="prose max-w-none">
                       {problem.description.split('\n').map((paragraph, i) => (
-                        <p key={i} className="text-gray-300 text-sm leading-relaxed mb-3">
+                        <p key={i} className="text-gray-600 text-sm leading-relaxed mb-3">
                           {paragraph.split('`').map((part, j) =>
                             j % 2 === 1 ? (
-                              <code key={j} className="px-1.5 py-0.5 bg-gray-800 rounded text-emerald-400 font-mono text-sm">
+                              <code key={j} className="px-1.5 py-0.5 bg-emerald-50 rounded text-emerald-700 font-mono text-sm">
                                 {part}
                               </code>
                             ) : (
@@ -455,16 +455,16 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
                         ))}
                       </div>
                     ) : problem.isDynamic ? (
-                      <div className="bg-gray-800/50 border border-gray-200 rounded-lg p-5 text-center">
-                        <Icon name="externalLink" size={32} className="mx-auto mb-3 text-gray-400" />
-                        <p className="text-gray-300 mb-4">
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 text-center">
+                        <Icon name="externalLink" size={32} className="mx-auto mb-3 text-gray-500" />
+                        <p className="text-gray-600 mb-4">
                           This problem is not in our practice database yet.
                         </p>
                         <a
                           href={`https://leetcode.com/problemset/?search=${encodeURIComponent(problem.name)}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-900 rounded-lg font-medium transition-colors inline-flex items-center gap-2"
+                          className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors inline-flex items-center gap-2"
                         >
                           <Icon name="externalLink" size={16} />
                           Find on LeetCode
@@ -478,8 +478,8 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
                         <h3 className="text-base font-semibold text-gray-900 mb-3">Constraints</h3>
                         <ul className="space-y-1.5">
                           {problem.constraints.map((constraint, i) => (
-                            <li key={i} className="flex items-start gap-2 text-gray-300 text-sm">
-                              <span className="text-emerald-400 mt-0.5">•</span>
+                            <li key={i} className="flex items-start gap-2 text-gray-600 text-sm">
+                              <span className="text-emerald-600 mt-0.5">•</span>
                               <code className="font-mono text-sm">{constraint}</code>
                             </li>
                           ))}
@@ -490,7 +490,7 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
                     {/* Tags */}
                     <div className="flex flex-wrap gap-2 pt-2">
                       {problem.tags.map((tag, i) => (
-                        <span key={i} className="px-2.5 py-1 bg-gray-800 text-gray-400 text-xs rounded-lg">
+                        <span key={i} className="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs rounded-lg">
                           {tag}
                         </span>
                       ))}
@@ -508,8 +508,8 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
                           onClick={() => setSelectedLanguage(key)}
                           className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                             selectedLanguage === key
-                              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                              : 'bg-gray-800/50 text-gray-400 hover:text-gray-900 hover:bg-gray-800 border border-transparent'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : 'bg-gray-50 text-gray-500 hover:text-gray-900 hover:bg-gray-100 border border-transparent'
                           }`}
                         >
                           {lang.name}
@@ -521,17 +521,17 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
                     {problem.approach && (
                       <div className="bg-white rounded-lg border border-gray-200 p-5">
                         <h3 className="text-base font-semibold text-gray-900 mb-3">Approach</h3>
-                        <div className="prose prose-invert prose-sm max-w-none">
+                        <div className="prose prose-sm max-w-none">
                           {problem.approach.split('\n').map((line, i) => {
                             if (line.startsWith('**')) {
                               return (
-                                <h4 key={i} className="text-sm font-semibold text-emerald-400 mt-3 mb-2">
+                                <h4 key={i} className="text-sm font-semibold text-emerald-700 mt-3 mb-2">
                                   {line.replace(/\*\*/g, '')}
                                 </h4>
                               );
                             }
                             return line ? (
-                              <p key={i} className="text-gray-300 text-sm leading-relaxed mb-1.5">
+                              <p key={i} className="text-gray-600 text-sm leading-relaxed mb-1.5">
                                 {line}
                               </p>
                             ) : null;
@@ -546,11 +546,11 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
                         <div className="flex items-center justify-between mb-3">
                           <h3 className="text-base font-semibold text-gray-900">{LANGUAGE_CONFIG[selectedLanguage].name} Solution</h3>
                           <div className="flex gap-3 text-xs">
-                            <span className="text-gray-400">
-                              Time: <span className="text-emerald-400 font-mono">{solution.timeComplexity}</span>
+                            <span className="text-gray-500">
+                              Time: <span className="text-emerald-700 font-mono">{solution.timeComplexity}</span>
                             </span>
-                            <span className="text-gray-400">
-                              Space: <span className="text-emerald-400 font-mono">{solution.spaceComplexity}</span>
+                            <span className="text-gray-500">
+                              Space: <span className="text-emerald-700 font-mono">{solution.spaceComplexity}</span>
                             </span>
                           </div>
                         </div>
@@ -576,9 +576,9 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
             <Allotment vertical>
               {/* Code Editor */}
               <Allotment.Pane minSize={200} preferredSize="60%">
-                <div className="h-full flex flex-col bg-[#0d1117]">
+                <div className="h-full flex flex-col bg-gray-50">
                   {/* Editor Header */}
-                  <div className="flex-shrink-0 flex items-center justify-between px-4 py-2 bg-[#161b22] border-b border-gray-200">
+                  <div className="flex-shrink-0 flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200">
                     <div className="flex items-center gap-2">
                       {Object.entries(LANGUAGE_CONFIG).map(([key, lang]) => (
                         <button
@@ -586,8 +586,8 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
                           onClick={() => setSelectedLanguage(key)}
                           className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                             selectedLanguage === key
-                              ? 'bg-emerald-500/20 text-emerald-400'
-                              : 'text-gray-400 hover:text-gray-900'
+                              ? 'bg-emerald-50 text-emerald-700'
+                              : 'text-gray-500 hover:text-gray-900'
                           }`}
                         >
                           {lang.name}
@@ -600,7 +600,7 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
                           setUserCode(problem.solutions[selectedLanguage].code);
                         }
                       }}
-                      className="px-3 py-1 text-xs text-gray-400 hover:text-gray-900 transition-colors"
+                      className="px-3 py-1 text-xs text-gray-500 hover:text-gray-900 transition-colors"
                     >
                       Reset to Solution
                     </button>
@@ -627,8 +627,8 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
                         onClick={() => setBottomTab('testcase')}
                         className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                           bottomTab === 'testcase'
-                            ? 'bg-gray-700/50 text-gray-900'
-                            : 'text-gray-400 hover:text-gray-900'
+                            ? 'bg-emerald-50 text-emerald-700'
+                            : 'text-gray-500 hover:text-gray-900'
                         }`}
                       >
                         Test Cases
@@ -637,8 +637,8 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
                         onClick={() => setBottomTab('output')}
                         className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                           bottomTab === 'output'
-                            ? 'bg-gray-700/50 text-gray-900'
-                            : 'text-gray-400 hover:text-gray-900'
+                            ? 'bg-emerald-50 text-emerald-700'
+                            : 'text-gray-500 hover:text-gray-900'
                         }`}
                       >
                         Output
@@ -648,7 +648,7 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
                       <button
                         onClick={runCode}
                         disabled={isRunning}
-                        className="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-900 rounded text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
+                        className="px-4 py-1.5 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
                       >
                         {isRunning ? (
                           <Icon name="loader" size={14} className="animate-spin" />
@@ -660,7 +660,7 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
                       <button
                         onClick={runAllTests}
                         disabled={isRunning}
-                        className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-gray-900 rounded text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
+                        className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
                       >
                         Submit
                       </button>
@@ -692,13 +692,13 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
                               <div className="space-y-3">
                                 <div>
                                   <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">Input</span>
-                                  <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-emerald-400 font-mono text-sm overflow-x-auto">
+                                  <pre className="mt-1.5 bg-gray-50 border border-gray-200 rounded-lg p-3 text-emerald-700 font-mono text-sm overflow-x-auto">
                                     {problem.examples[activeTestCase].input}
                                   </pre>
                                 </div>
                                 <div>
                                   <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">Expected Output</span>
-                                  <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-yellow-400 font-mono text-sm overflow-x-auto">
+                                  <pre className="mt-1.5 bg-gray-50 border border-gray-200 rounded-lg p-3 text-amber-700 font-mono text-sm overflow-x-auto">
                                     {problem.examples[activeTestCase].output}
                                   </pre>
                                 </div>
@@ -720,24 +720,24 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
                         {output ? (
                           <>
                             {output.summary ? (
-                              <div className={`p-4 rounded-lg ${output.success ? 'bg-green-500/10 border border-green-500/30' : 'bg-red-500/10 border border-red-500/30'}`}>
+                              <div className={`p-4 rounded-lg ${output.success ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
                                 <div className="flex items-center gap-2">
-                                  <Icon name={output.success ? 'check' : 'x'} size={20} className={output.success ? 'text-green-400' : 'text-red-400'} />
-                                  <span className={`text-lg font-semibold ${output.success ? 'text-green-400' : 'text-red-400'}`}>
+                                  <Icon name={output.success ? 'check' : 'x'} size={20} className={output.success ? 'text-green-600' : 'text-red-600'} />
+                                  <span className={`text-lg font-semibold ${output.success ? 'text-green-700' : 'text-red-700'}`}>
                                     {output.output}
                                   </span>
                                 </div>
                               </div>
                             ) : (
                               <>
-                                <div className={`flex items-center gap-2 ${output.success ? 'text-green-400' : 'text-red-400'}`}>
+                                <div className={`flex items-center gap-2 ${output.success ? 'text-green-600' : 'text-red-600'}`}>
                                   <Icon name={output.success ? 'check' : 'x'} size={16} />
                                   <span className="font-medium">{output.success ? 'Accepted' : 'Error'}</span>
                                 </div>
                                 {output.input && (
                                   <div>
                                     <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">Input</span>
-                                    <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-emerald-400 font-mono text-sm overflow-x-auto">
+                                    <pre className="mt-1.5 bg-gray-50 border border-gray-200 rounded-lg p-3 text-emerald-700 font-mono text-sm overflow-x-auto">
                                       {output.input}
                                     </pre>
                                   </div>
@@ -746,14 +746,14 @@ export default function ProblemPage({ slug: slugProp, onBack }) {
                                   <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">
                                     {output.success ? 'Output' : 'Error'}
                                   </span>
-                                  <pre className={`mt-1.5 bg-[#0d1117] rounded-lg p-3 font-mono text-sm overflow-x-auto ${output.success ? 'text-gray-300' : 'text-red-400'}`}>
+                                  <pre className={`mt-1.5 bg-gray-50 border border-gray-200 rounded-lg p-3 font-mono text-sm overflow-x-auto ${output.success ? 'text-gray-800' : 'text-red-600'}`}>
                                     {output.output}
                                   </pre>
                                 </div>
                                 {output.expected && (
                                   <div>
                                     <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">Expected</span>
-                                    <pre className="mt-1.5 bg-[#0d1117] rounded-lg p-3 text-yellow-400 font-mono text-sm overflow-x-auto">
+                                    <pre className="mt-1.5 bg-gray-50 border border-gray-200 rounded-lg p-3 text-amber-700 font-mono text-sm overflow-x-auto">
                                       {output.expected}
                                     </pre>
                                   </div>
