@@ -16,7 +16,7 @@ function useInView(threshold = 0.2) {
 }
 
 export default function OAuthLogin() {
-  const { signIn, user, loading, authError } = useAuth();
+  const { signIn, signOut, user, loading, authError } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -62,9 +62,24 @@ export default function OAuthLogin() {
             );
           })}
           {user ? (
-            <a href="/app/coding" className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-400 transition-colors landing-body">
-              Go to App
-            </a>
+            <div className="flex items-center gap-3">
+              <a href="/app/coding" className="px-4 py-1.5 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-400 transition-colors landing-body">
+                Open App
+              </a>
+              <div className="flex items-center gap-2 pl-3 border-l border-gray-700">
+                {user.avatar ? (
+                  <img src={user.avatar} alt="" className="w-7 h-7 rounded-full" referrerPolicy="no-referrer" />
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">
+                    {(user.name || user.email || '?')[0].toUpperCase()}
+                  </div>
+                )}
+                <span className="text-sm text-gray-300 landing-body hidden lg:inline">{user.name || user.email}</span>
+                <button onClick={signOut} className="text-xs text-gray-500 hover:text-red-400 transition-colors landing-body ml-1" title="Sign out">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                </button>
+              </div>
+            </div>
           ) : !loading ? (
             <button onClick={() => signIn('google')} className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-400 transition-colors landing-body">
               Sign In

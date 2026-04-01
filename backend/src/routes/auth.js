@@ -107,7 +107,7 @@ router.get('/google/callback', async (req, res) => {
 
     // Redirect to frontend with token in URL hash
     // IMPORTANT: param names must match what AuthContext.parseAuthFromHash() expects
-    res.redirect(`${FRONTEND_URL}/#access_token=${accessToken}&user_id=${userId}&user_email=${encodeURIComponent(gUser.email)}&user_name=${encodeURIComponent(gUser.name || '')}&user_role=user`);
+    res.redirect(`${FRONTEND_URL}/#access_token=${accessToken}&user_id=${userId}&user_email=${encodeURIComponent(gUser.email)}&user_name=${encodeURIComponent(gUser.name || '')}&user_avatar=${encodeURIComponent(gUser.picture || '')}&user_role=user`);
   } catch (err) {
     logger.error({ error: err.message }, 'Google OAuth failed');
     res.redirect(`${FRONTEND_URL}/#error=oauth_failed`);

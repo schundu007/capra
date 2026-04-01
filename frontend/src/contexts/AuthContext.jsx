@@ -66,6 +66,7 @@ function parseAuthFromHash() {
   const userId = paramMap['user_id'] || null;
   const userEmail = paramMap['user_email'] || null;
   const userName = paramMap['user_name'] || null;
+  const userAvatar = paramMap['user_avatar'] || null;
   const userRole = paramMap['user_role'] || null;
 
   if (accessToken && userId) {
@@ -76,6 +77,7 @@ function parseAuthFromHash() {
         id: parseInt(userId, 10),
         email: userEmail || null,
         name: userName || null,
+        avatar: userAvatar || null,
         role: userRole || 'user',
       },
     };
