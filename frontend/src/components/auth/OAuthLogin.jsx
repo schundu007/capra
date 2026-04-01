@@ -22,13 +22,6 @@ export default function OAuthLogin() {
 
   useEffect(() => { setMounted(true); window.scrollTo(0, 0); }, []);
 
-  // Redirect authenticated users to /app (after auth finishes loading)
-  useEffect(() => {
-    if (!loading && user) {
-      window.location.replace('/app');
-    }
-  }, [loading, user]);
-
   const navLinks = [
     { label: 'Apply', href: 'https://jobs.cariara.com' },
     { label: 'Prepare', href: '/prepare' },

@@ -9,7 +9,7 @@ const PREPARE_ITEMS = [
   { id: 'system-design', label: 'System Design', icon: 'systemDesign', href: '/prepare/system-design' },
   { id: 'microservices', label: 'Microservices', icon: 'grid', href: '/prepare/microservices' },
   { id: 'databases', label: 'Database Internals', icon: 'database', href: '/prepare/databases' },
-  { id: 'sql', label: 'SQL for Interviews', icon: 'terminal', href: '/prepare/sql' },
+  { id: 'sql', label: 'SQL for Interviews', icon: 'database', href: '/prepare/sql' },
   { id: 'low-level', label: 'Low-Level Design', icon: 'layers', href: '/prepare/low-level-design' },
   { id: 'behavioral', label: 'Behavioral', icon: 'users', href: '/prepare/behavioral' },
 ];

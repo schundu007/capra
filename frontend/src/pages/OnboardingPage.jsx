@@ -272,7 +272,7 @@ export default function OnboardingPage() {
       }
 
       // Hard redirect to refresh auth state
-      window.location.href = '/app';
+      window.location.href = '/prepare';
     } catch (err) {
       setError(err.message || 'Something went wrong');
       setSubmitting(false);
