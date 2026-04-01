@@ -982,16 +982,8 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
         borderBottom: '1px solid rgba(0,0,0,0.06)',
       }}
     >
-      <div className="flex items-center gap-6" style={{ WebkitAppRegion: 'no-drag' }}>
-        {!showSidebar && (
-          <button onClick={onToggleSidebar} className="flex items-center gap-3 group transition-all duration-200" aria-label="Toggle sidebar">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform" style={{ background: '#10b981' }}>
-              <img src="/ascend-logo.png" alt="Ascend" className="h-5 w-auto object-contain filter brightness-0 invert" />
-            </div>
-            <span className="text-base font-bold text-gray-900 tracking-tight">Ascend</span>
-            {isLoading && <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />}
-          </button>
-        )}
+      <div className="flex items-center gap-4" style={{ WebkitAppRegion: 'no-drag' }}>
+        {isLoading && <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />}
         <div className="flex items-center gap-0.5 p-1 rounded-xl" style={{ background: 'rgba(0,0,0,0.04)' }}>
           {[
             { id: 'coding', label: 'Coding', icon: <CodeIcon /> },
