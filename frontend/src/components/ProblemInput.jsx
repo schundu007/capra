@@ -204,7 +204,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
       <div className="flex items-center justify-between gap-3 mb-3 flex-shrink-0">
         {/* Tabs */}
         <div className="flex items-center gap-2">
-          <div className="flex gap-1 p-1 rounded-lg bg-white border border-gray-200">
+          <div className="flex gap-0.5 p-1 rounded-xl border border-gray-200" style={{ background: '#f8fafc' }}>
             {tabs.map(tab => {
               const Icon = tab.icon;
               return (
@@ -212,10 +212,10 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
                   key={tab.id}
                   onClick={() => handleTabSwitch(tab.id)}
                   className={`
-                    flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200 min-h-[36px] touch:min-h-[40px]
+                    landing-body flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg transition-all duration-200 min-h-[36px] touch:min-h-[40px]
                     ${activeTab === tab.id
-                      ? 'bg-emerald-500 text-gray-900'
-                      : 'text-gray-500 hover:text-gray-800'
+                      ? 'bg-emerald-500 text-white shadow-sm'
+                      : 'text-gray-500 hover:text-gray-800 hover:bg-white'
                     }
                   `}
                 >
@@ -269,7 +269,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               value={problemText}
               onChange={(e) => setProblemText(e.target.value)}
               placeholder={ascendMode === 'system-design' ? 'Describe your system design problem...' : 'Paste coding problem...'}
-              className="w-full px-4 py-3 resize-none rounded-lg text-sm bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400/50 transition-all"
+              className="landing-body w-full px-4 py-3 resize-none rounded-xl text-sm bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/40 transition-all shadow-sm"
               style={{
                 minHeight: '60px',
                 maxHeight: window.matchMedia?.('(max-width: 1024px)')?.matches ? '40vh' : (expanded !== false ? '600px' : '400px'),
@@ -287,7 +287,7 @@ export default function ProblemInput({ onSubmit, onFetchUrl, onScreenshot, onCle
               <button
                 type="submit"
                 disabled={isLoading || !problemText.trim()}
-                className="px-5 py-2.5 text-sm font-semibold text-white rounded bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-brand-400/25 transition-all duration-200 hover:-translate-y-0.5 disabled:hover:translate-y-0 touch:min-h-[44px]"
+                className="landing-body px-6 py-2.5 text-sm font-bold text-white rounded-xl bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-emerald-500/25 disabled:hover:translate-y-0 disabled:hover:shadow-none touch:min-h-[44px]"
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">

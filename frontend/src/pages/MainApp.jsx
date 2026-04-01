@@ -794,7 +794,7 @@ export default function MainApp() {
   // Sidebar props removed — navigation handled by AppShell
 
   return (
-    <div className={`h-screen-safe flex overflow-hidden landing-root text-gray-900`} style={{ background: 'linear-gradient(180deg, #fdf2f8 0%, #ede9fe 50%, #e0e7ff 100%)', ...(isMobile ? { paddingBottom: 'calc(52px + env(safe-area-inset-bottom, 0px))' } : {}) }}>
+    <div className={`h-screen-safe flex overflow-hidden landing-root text-gray-900`} style={{ background: '#f8fafc', ...(isMobile ? { paddingBottom: 'calc(52px + env(safe-area-inset-bottom, 0px))' } : {}) }}>
       {/* Sidebar removed — AppShell provides unified navigation */}
 
       {/* Main Content */}
@@ -833,7 +833,7 @@ export default function MainApp() {
           <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="w-6 h-6 border-2 border-brand-400 border-t-transparent rounded-full animate-spin" /></div>}>
           <main className="flex-1 overflow-hidden relative z-10">
             {ascendMode === 'behavioral' ? (
-              <div className="h-full" style={{ background: '#ffffff' }}>
+              <div className="h-full" style={{ background: '#fafbfc' }}>
                 <AscendPrepModal isOpen={true} onClose={() => {}} provider={provider} model={model} embedded={true} />
               </div>
             ) : (
@@ -971,21 +971,29 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
     );
   }
 
-  // ---- Desktop Header — light theme matching landing/premium ----
-  const modeLabels = { coding: 'Coding', 'system-design': 'System Design', behavioral: 'Interview Prep' };
+  // ---- Desktop Header — landing page design system ----
+  const modeConfig = {
+    coding: { label: 'Coding', color: '#10b981', gradient: 'linear-gradient(90deg, #10b981, #06b6d4)' },
+    'system-design': { label: 'System Design', color: '#3b82f6', gradient: 'linear-gradient(90deg, #3b82f6, #8b5cf6)' },
+    behavioral: { label: 'Interview Prep', color: '#f59e0b', gradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
+  };
+  const currentMode = modeConfig[ascendMode] || modeConfig.coding;
 
   return (
     <header
-      className="flex items-center justify-between gap-4 px-5"
+      className="flex items-center justify-between gap-4 px-5 relative"
       style={{
         paddingLeft: (isMacElectron && !showSidebar) ? '80px' : '20px',
         WebkitAppRegion: 'drag',
         height: '52px',
-        background: 'rgba(255,255,255,0.92)',
-        backdropFilter: 'blur(16px)',
+        background: 'rgba(255,255,255,0.95)',
+        backdropFilter: 'blur(20px)',
         borderBottom: '1px solid rgba(0,0,0,0.06)',
       }}
     >
+      {/* Gradient accent line at top */}
+      <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: currentMode.gradient }} />
+
       {/* Left: mode tabs for Electron (no sidebar), mode label for webapp */}
       <div className="flex items-center gap-4" style={{ WebkitAppRegion: 'no-drag' }}>
         {isLoading && <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />}
@@ -1009,7 +1017,10 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
             ))}
           </div>
         ) : (
-          <span className="text-sm font-semibold text-gray-900 tracking-tight">{modeLabels[ascendMode] || 'Coding'}</span>
+          <div className="flex items-center gap-2.5">
+            <div className="w-2 h-2 rounded-full" style={{ background: currentMode.color }} />
+            <span className="landing-display text-sm font-bold text-gray-900 tracking-tight">{currentMode.label}</span>
+          </div>
         )}
       </div>
 
@@ -1036,8 +1047,8 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
             <span className="hidden sm:inline">Docs</span>
           </button>
         )}
-        <button onClick={onAssistantClick} aria-label="Toggle interview assistant" className={`flex items-center gap-2 p-2 sm:px-3 sm:py-1.5 rounded-lg text-sm font-medium transition-all duration-200 min-w-[36px] min-h-[36px] justify-center ${showAscendAssistant ? 'text-emerald-600 bg-emerald-50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'}`}>
-          <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+        <button onClick={onAssistantClick} aria-label="Toggle interview assistant" className={`landing-body flex items-center gap-2 p-2 sm:px-3 sm:py-1.5 rounded-lg text-sm font-medium transition-all duration-200 min-w-[36px] min-h-[36px] justify-center ${showAscendAssistant ? 'text-emerald-600 bg-emerald-50' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-50'}`}>
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
           <span className="hidden sm:inline">Assistant</span>
         </button>
         {isElectron && (
@@ -1175,14 +1186,14 @@ function CodingLayout({
   const modeSelectorProps = { ascendMode, designDetailLevel, onDetailLevelChange, autoGenerateEraser, onAutoGenerateEraserChange, codingLanguage, onLanguageChange, codingDetailLevel, onCodingDetailLevelChange };
 
   const ProblemPane = () => (
-    <div className="h-full flex flex-col overflow-y-auto bg-white">
+    <div className="h-full flex flex-col overflow-y-auto" style={{ background: '#fafbfc' }}>
       <div className="flex-shrink-0">
-        <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-200 bg-gray-50 gap-2 min-h-[44px] flex-wrap">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <div className="w-1 h-4 rounded-full flex-shrink-0" style={{ background: '#10b981' }} />
-            <h2 className="text-xs sm:text-sm font-semibold truncate text-gray-900">{ascendMode === 'system-design' ? 'System Design' : 'Problem'}</h2>
+        <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-gray-100 gap-2 min-h-[48px] flex-wrap" style={{ background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(12px)' }}>
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-1.5 h-5 rounded-full flex-shrink-0" style={{ background: ascendMode === 'system-design' ? '#3b82f6' : '#10b981' }} />
+            <h2 className="landing-display text-sm font-bold truncate text-gray-900">{ascendMode === 'system-design' ? 'System Design' : 'Problem'}</h2>
             {ascendMode === 'system-design' && (
-              <button onClick={onSavedDesignsClick} aria-label="View saved designs" className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium rounded-lg transition-all duration-200 ${savedDesignsCount > 0 ? 'bg-brand-400/10 text-brand-400 border border-brand-400/30' : 'bg-gray-100 text-gray-500 hover:text-gray-700'}`}>
+              <button onClick={onSavedDesignsClick} aria-label="View saved designs" className={`flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg transition-all duration-200 ${savedDesignsCount > 0 ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-gray-50 text-gray-500 hover:text-gray-700 border border-gray-200'}`}>
                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
                 Saved ({savedDesignsCount})
               </button>
@@ -1190,7 +1201,7 @@ function CodingLayout({
           </div>
           <AscendModeSelector {...modeSelectorProps} />
         </div>
-        <div className="p-3">
+        <div className="p-4">
           <ProblemInput {...problemInputProps} />
         </div>
       </div>
@@ -1203,22 +1214,25 @@ function CodingLayout({
   );
 
   const DesignPane = () => (
-    <div className="h-full overflow-auto p-3 bg-white">
+    <div className="h-full overflow-auto p-4" style={{ background: '#fafbfc' }}>
       {hasSystemDesign ? (
         <SystemDesignPanel systemDesign={systemDesign} eraserDiagram={eraserDiagram} autoGenerateEraser={autoGenerateEraser} onGenerateEraserDiagram={onGenerateEraserDiagram} question={currentProblem || loadedProblem} cloudProvider="auto" qaHistory={qaHistory || []} onFollowUpQuestion={onFollowUpQuestion} isProcessingFollowUp={isProcessingFollowUp} />
       ) : isLoading && loadingType === 'solve' ? (
-        <div className="flex flex-col items-center justify-center h-full text-gray-600">
-          <div className="flex gap-1 mb-2">
-            <span className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-            <span className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '150ms' }} />
-            <span className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+        <div className="flex flex-col items-center justify-center h-full">
+          <div className="flex gap-1.5 mb-3">
+            <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+            <span className="w-2.5 h-2.5 rounded-full bg-violet-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+            <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '300ms' }} />
           </div>
-          <span className="text-sm">Generating system design...</span>
+          <span className="landing-body text-sm font-medium text-gray-500">Generating system design...</span>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center h-full text-gray-400">
-          <svg className="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-          <span className="text-sm">Enter a system design question to get started</span>
+        <div className="flex flex-col items-center justify-center h-full">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-50 to-violet-50 border border-blue-100 flex items-center justify-center mb-4">
+            <svg className="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+          </div>
+          <span className="landing-body text-sm font-medium text-gray-400">Enter a system design question</span>
+          <span className="landing-body text-xs text-gray-300 mt-1">e.g. "Design a URL shortener like bit.ly"</span>
         </div>
       )}
     </div>
@@ -1232,7 +1246,7 @@ function CodingLayout({
   const activeComplexity = currentApproachData?.complexity || solution?.complexity || streamingContent.complexity;
 
   const CodePane = () => (
-    <div className="h-full bg-gray-50">
+    <div className="h-full" style={{ background: '#fafbfc' }}>
       <CodeDisplay ref={codeDisplayRef} code={activeCode} language={solution?.language || streamingContent.language} complexity={activeComplexity} onLineHover={onLineHover} examples={solution?.examples} isStreaming={isLoading && loadingType === 'solve' && !solution} autoRunOutput={autoRunOutput} onExplanationsUpdate={onExplanationsUpdate} ascendMode={ascendMode} codingLanguage={codingLanguage} onLanguageChange={ascendMode === 'coding' ? onLanguageChange : undefined} detailLevel={codingDetailLevel} onDetailLevelChange={ascendMode === 'coding' ? onCodingDetailLevelChange : undefined} editorSettings={editorSettings} systemDesign={solution?.systemDesign || streamingContent.systemDesign} eraserDiagram={eraserDiagram} autoGenerateEraser={autoGenerateEraser} question={currentProblem || loadedProblem} cloudProvider="auto" onGenerateEraserDiagram={onGenerateEraserDiagram} approaches={approaches} activeApproach={activeApproach} onApproachChange={setActiveApproach} />
     </div>
   );
