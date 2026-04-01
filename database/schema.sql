@@ -3,6 +3,15 @@
 -- This adds subscription, credits, and company prep tables that reference the existing users table
 
 -- =============================================================================
+-- ONBOARDING COLUMNS (added to shared users table)
+-- =============================================================================
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT false;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS job_roles JSONB DEFAULT NULL;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS resume_text TEXT DEFAULT NULL;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS technical_context TEXT DEFAULT NULL;
+
+-- =============================================================================
 -- SUBSCRIPTIONS
 -- =============================================================================
 

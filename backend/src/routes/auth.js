@@ -74,8 +74,9 @@ router.get('/google/callback', async (req, res) => {
     if (!gUser.email) throw new Error('No email from Google');
 
     // Find or create user in shared users table
-    let userResult = await query('SELECT id FROM users WHERE email = $1', [gUser.email]);
+    let userResult = await query('SELECT id, onboarding_completed FROM users WHERE email = $1', [gUser.email]);
     let userId;
+    let onboardingCompleted = false;
 
     if (userResult.rows.length === 0) {
       // Create new user in shared users table
@@ -86,6 +87,7 @@ router.get('/google/callback', async (req, res) => {
       userId = insertResult.rows[0].id;
     } else {
       userId = userResult.rows[0].id;
+      onboardingCompleted = userResult.rows[0].onboarding_completed || false;
     }
 
     // Initialize Ascend data (subscription, credits, free usage)
@@ -107,7 +109,7 @@ router.get('/google/callback', async (req, res) => {
 
     // Redirect to frontend with token in URL hash
     // IMPORTANT: param names must match what AuthContext.parseAuthFromHash() expects
-    res.redirect(`${FRONTEND_URL}/#access_token=${accessToken}&user_id=${userId}&user_email=${encodeURIComponent(gUser.email)}&user_name=${encodeURIComponent(gUser.name || '')}&user_avatar=${encodeURIComponent(gUser.picture || '')}&user_role=user`);
+    res.redirect(`${FRONTEND_URL}/#access_token=${accessToken}&user_id=${userId}&user_email=${encodeURIComponent(gUser.email)}&user_name=${encodeURIComponent(gUser.name || '')}&user_avatar=${encodeURIComponent(gUser.picture || '')}&user_role=user&onboarding_completed=${onboardingCompleted}`);
   } catch (err) {
     logger.error({ error: err.message }, 'Google OAuth failed');
     res.redirect(`${FRONTEND_URL}/#error=oauth_failed`);
@@ -229,11 +231,29 @@ router.post('/refresh', async (req, res) => {
  * Verify token / Get current user
  * GET /api/auth/me
  */
-router.get('/me', authenticate, (req, res) => {
-  res.json({
-    authenticated: true,
-    user: req.user,
-  });
+router.get('/me', authenticate, async (req, res) => {
+  try {
+    // Fetch onboarding data from DB
+    const result = await query(
+      'SELECT onboarding_completed, job_roles FROM users WHERE id = $1',
+      [req.user.id]
+    );
+    const dbUser = result.rows[0] || {};
+    res.json({
+      authenticated: true,
+      user: {
+        ...req.user,
+        onboarding_completed: dbUser.onboarding_completed || false,
+        job_roles: dbUser.job_roles || [],
+      },
+    });
+  } catch (error) {
+    // Fallback: return user without onboarding data if DB query fails
+    res.json({
+      authenticated: true,
+      user: req.user,
+    });
+  }
 });
 
 /**

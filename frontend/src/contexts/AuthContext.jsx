@@ -68,6 +68,7 @@ function parseAuthFromHash() {
   const userName = paramMap['user_name'] || null;
   const userAvatar = paramMap['user_avatar'] || null;
   const userRole = paramMap['user_role'] || null;
+  const onboardingCompleted = paramMap['onboarding_completed'] || null;
 
   if (accessToken && userId) {
     return {
@@ -80,6 +81,7 @@ function parseAuthFromHash() {
         avatar: userAvatar || null,
         role: userRole || 'user',
       },
+      onboardingCompleted: onboardingCompleted === 'true',
     };
   }
 
@@ -95,6 +97,7 @@ export function AuthProvider({ children }) {
   const [refreshToken, setRefreshToken] = useState(null);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
+  const [onboardingCompleted, setOnboardingCompleted] = useState(null);
   const [credits, setCredits] = useState(null);
   const [subscription, setSubscription] = useState(null);
   const [usage, setUsage] = useState(null);
@@ -252,18 +255,19 @@ export function AuthProvider({ children }) {
           setUser(hashAuth.user);
           setAccessToken(hashAuth.accessToken);
           setRefreshToken(hashAuth.refreshToken);
+          setOnboardingCompleted(hashAuth.onboardingCompleted || false);
 
           // Fetch user data
           await fetchUserData(hashAuth.accessToken);
 
-          // Redirect back to where the user was before OAuth
-          const savedRedirect = localStorage.getItem('ascend_auth_redirect');
-          localStorage.removeItem('ascend_auth_redirect');
-          if (savedRedirect) {
-            window.location.replace(savedRedirect);
+          // Redirect based on onboarding status
+          if (hashAuth.onboardingCompleted) {
+            const savedRedirect = localStorage.getItem('ascend_auth_redirect');
+            localStorage.removeItem('ascend_auth_redirect');
+            window.location.replace(savedRedirect || '/app');
           } else {
-            // No saved URL (e.g., direct OAuth link) — go to landing page
-            window.location.replace('/');
+            localStorage.removeItem('ascend_auth_redirect');
+            window.location.replace('/onboarding');
           }
           return;
         }
@@ -311,6 +315,18 @@ export function AuthProvider({ children }) {
 
           // Fetch user data (also validates token)
           await fetchUserData(storedAuth.accessToken);
+
+          // Check onboarding status
+          try {
+            const headers = { Authorization: `Bearer ${storedAuth.accessToken}` };
+            const onboardingRes = await fetch(`${API_URL}/api/onboarding/status`, { headers });
+            if (onboardingRes.ok) {
+              const onboardingData = await onboardingRes.json();
+              setOnboardingCompleted(onboardingData.onboarding_completed);
+            }
+          } catch (e) {
+            console.error('Failed to fetch onboarding status:', e);
+          }
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
@@ -472,6 +488,7 @@ export function AuthProvider({ children }) {
     credits,
     subscription,
     usage,
+    onboardingCompleted,
     isWebApp,
     isAuthenticated: !!user,
     signIn,

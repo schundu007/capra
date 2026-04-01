@@ -27,13 +27,29 @@ import companyPrepsRouter from './routes/companyPreps.js';
 import usageRouter from './routes/usage.js';
 import deviceRouter from './routes/device.js';
 import voiceRouter from './routes/voice.js';
+import onboardingRouter from './routes/onboarding.js';
 import { authenticate } from './middleware/authenticate.js';
-import { isDatabaseConfigured } from './config/database.js';
+import { isDatabaseConfigured, query } from './config/database.js';
 import { isStripeConfigured } from './config/stripe.js';
 import { initRedis } from './services/redis.js';
 
 // Initialize Redis for problem caching
 initRedis();
+
+// Run database migrations on startup (safe with IF NOT EXISTS)
+async function runMigrations() {
+  if (!isDatabaseConfigured()) return;
+  try {
+    await query('ALTER TABLE users ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT false');
+    await query('ALTER TABLE users ADD COLUMN IF NOT EXISTS job_roles JSONB DEFAULT NULL');
+    await query('ALTER TABLE users ADD COLUMN IF NOT EXISTS resume_text TEXT DEFAULT NULL');
+    await query('ALTER TABLE users ADD COLUMN IF NOT EXISTS technical_context TEXT DEFAULT NULL');
+    console.log('[Migrations] Onboarding columns ensured');
+  } catch (err) {
+    console.warn('[Migrations] Failed to run onboarding migration:', err.message);
+  }
+}
+runMigrations();
 
 const app = express();
 const PORT = config.PORT;
@@ -285,6 +301,9 @@ app.use('/api/ascend/prep', authenticate, apiLimiter, ascendPrepRouter);
 app.use('/api/ascend', authenticate, aiLimiter, ascendRouter);
 app.use('/api/diagram', authenticate, aiLimiter, diagramRouter);
 app.use('/api/extract', authenticate, aiLimiter, extractRouter);
+
+// Onboarding routes
+app.use('/api/onboarding', apiLimiter, onboardingRouter);
 
 // Billing & Credits routes (JWT auth - uses cariara OAuth tokens)
 // Payment routes get strict rate limiting to prevent abuse

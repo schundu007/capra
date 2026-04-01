@@ -62,8 +62,8 @@ export default function OAuthLogin() {
             );
           })}
           {user ? (
-            <a href="/app/coding" className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-400 transition-colors landing-body">
-              Open App
+            <a href="/prepare/coding" className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-400 transition-colors landing-body">
+              Start Learning
             </a>
           ) : !loading ? (
             <button onClick={() => signIn('google')} className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-400 transition-colors landing-body">
@@ -84,8 +84,8 @@ export default function OAuthLogin() {
             <a key={link.label} href={link.href} className="block px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded transition-colors landing-body">{link.label}</a>
           ))}
           {user ? (
-            <a href="/app/coding" className="block w-full mt-2 px-4 py-2.5 bg-emerald-500 text-white font-semibold text-sm text-center rounded hover:bg-emerald-600 transition-colors landing-body">
-              Go to App
+            <a href="/prepare/coding" className="block w-full mt-2 px-4 py-2.5 bg-emerald-500 text-white font-semibold text-sm text-center rounded hover:bg-emerald-600 transition-colors landing-body">
+              Start Learning
             </a>
           ) : !loading ? (
             <button onClick={() => signIn('google')} className="block w-full mt-2 px-4 py-2.5 bg-emerald-500 text-white font-semibold text-sm text-center rounded hover:bg-emerald-600 transition-colors landing-body">
@@ -113,8 +113,8 @@ export default function OAuthLogin() {
 
         <div className={`mt-5 flex flex-col sm:flex-row items-center gap-3 transition-all duration-700 delay-300 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
           {user ? (
-            <a href="/app/coding" className="px-8 py-3 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors shadow-sm landing-body">
-              Open App
+            <a href="/prepare/coding" className="px-8 py-3 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors shadow-sm landing-body">
+              Start Learning
             </a>
           ) : (
             <button onClick={() => signIn('google')} className="px-8 py-3 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors shadow-sm landing-body flex items-center gap-2">
@@ -176,7 +176,7 @@ export default function OAuthLogin() {
           <div className="grid md:grid-cols-3 gap-2.5">
             {[
               { icon: 'microphone', title: 'Live Interview', desc: 'Real-time AI answers during interviews. Completely invisible to screen share.', tags: ['Voice Capture', 'Stealth Mode', 'Streaming'], color: 'emerald', href: 'https://lumora.cariara.com/app' },
-              { icon: 'code', title: 'Coding Engine', desc: '20+ languages with explanations, auto-fix, and complexity analysis.', tags: ['Multi-Language', 'Auto-Fix', 'Complexity'], color: 'cyan', href: '/app/coding' },
+              { icon: 'code', title: 'Coding Engine', desc: '20+ languages with explanations, auto-fix, and complexity analysis.', tags: ['Multi-Language', 'Auto-Fix', 'Complexity'], color: 'cyan', href: '/prepare/coding' },
               { icon: 'systemDesign', title: 'System Design', desc: 'Architecture diagrams, scalability analysis, and tech justifications.', tags: ['Diagrams', 'Scale Math', 'Tradeoffs'], color: 'violet', href: '/app/design' },
             ].map((f) => (
               <a key={f.title} href={f.href} className="block p-4 border border-gray-200 rounded-lg bg-white hover:border-gray-300 hover:shadow-sm transition-all">
@@ -197,7 +197,7 @@ export default function OAuthLogin() {
           <div className="grid sm:grid-cols-3 gap-2.5 mt-2.5">
             {[
               { icon: 'briefcase', title: 'Company Prep', desc: 'Tailored pitch from your JD + resume.', color: 'amber', href: '/app/prep' },
-              { icon: 'resume', title: 'Resume Builder', desc: 'ATS-optimized with PDF and DOCX export.', color: 'cyan', href: '/app/coding' },
+              { icon: 'resume', title: 'Resume Builder', desc: 'ATS-optimized with PDF and DOCX export.', color: 'cyan', href: '/prepare/coding' },
               { icon: 'eyeOff', title: 'Stealth Mode', desc: 'Hidden from screen share, dock, and task manager.', color: 'rose', href: '/download' },
             ].map((f) => (
               <a key={f.title} href={f.href} className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg bg-white hover:border-gray-300 hover:shadow-sm transition-all">
