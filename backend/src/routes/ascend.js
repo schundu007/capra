@@ -4,6 +4,7 @@ import OpenAI from 'openai';
 import multer from 'multer';
 import { getApiKey as getClaudeKey } from '../services/claude.js';
 import { getApiKey as getOpenAIKey } from '../services/openai.js';
+import * as freeUsageService from '../services/freeUsageService.js';
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB limit
@@ -85,11 +86,24 @@ One sentence to speak. Max 20 words.
 router.post('/answer', async (req, res) => {
   const { question, context = '', provider = 'claude', model, jobDescription, resume, prepMaterial } = req.body;
 
-  console.log('[Ascend] Answer request received:', { questionLength: question?.length, provider, model, hasJD: !!jobDescription, hasResume: !!resume, hasPrep: !!prepMaterial });
-
   if (!question) {
-    console.log('[Ascend] No question provided');
     return res.status(400).json({ error: 'Question is required' });
+  }
+
+  // Check subscription/free usage
+  const webappUserId = req.user?.id;
+  if (webappUserId) {
+    try {
+      const canUse = await freeUsageService.canUseFeature(webappUserId, 'coding');
+      if (!canUse.allowed) {
+        return res.status(429).json({
+          error: canUse.reason || 'Free trial exhausted. Please subscribe.',
+          subscriptionRequired: true,
+        });
+      }
+    } catch (e) {
+      // Non-blocking — allow if check fails
+    }
   }
 
   // Set up SSE

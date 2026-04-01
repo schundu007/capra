@@ -15,6 +15,15 @@ router.post('/', validate('solve'), async (req, res, next) => {
   try {
     const { problem, provider = 'claude', language = 'auto', fast = true, model } = req.body;
 
+    // Check free usage for webapp users
+    const userId = req.user?.id;
+    if (userId) {
+      const canUse = await freeUsageService.canUseFeature(userId, 'coding');
+      if (!canUse.allowed) {
+        return res.status(429).json({ error: canUse.reason || 'Free trial exhausted.', subscriptionRequired: true });
+      }
+    }
+
     const service = provider === 'openai' ? openai : claude;
     const result = await service.solveProblem(problem, language, fast, model);
 
@@ -296,6 +305,15 @@ router.post('/followup', validate('followup'), async (req, res, next) => {
 
     if (!problem && !code && !pitch && !currentDesign) {
       return res.status(400).json({ error: 'Need problem context (problem, code, pitch, or currentDesign)' });
+    }
+
+    // Check free usage
+    const userId = req.user?.id;
+    if (userId) {
+      const canUse = await freeUsageService.canUseFeature(userId, 'coding');
+      if (!canUse.allowed) {
+        return res.status(429).json({ error: canUse.reason || 'Free trial exhausted.', subscriptionRequired: true });
+      }
     }
 
     const service = provider === 'openai' ? openai : claude;
