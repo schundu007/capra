@@ -24,18 +24,30 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+// Auto-reload on stale chunk errors (happens after deployment with new hashes)
+function lazyWithRetry(importFn) {
+  return React.lazy(() => importFn().catch(() => {
+    // Chunk failed to load — likely a new deployment. Force reload once.
+    if (!sessionStorage.getItem('chunk_reload')) {
+      sessionStorage.setItem('chunk_reload', '1');
+      window.location.reload();
+    }
+    return importFn(); // retry once more
+  }));
+}
+
 // Lazy-loaded pages
-const LandingPage = React.lazy(() => import('./pages/LandingPage'));
-const MainApp = React.lazy(() => import('./pages/MainApp'));
-const DownloadPage = React.lazy(() => import('./components/billing/DownloadPage'));
-const PremiumPage = React.lazy(() => import('./components/billing/PremiumPage'));
-const PracticePage = React.lazy(() => import('./pages/PracticePage'));
-const DocsPage = React.lazy(() => import('./components/DocsPage'));
-const ProblemPage = React.lazy(() => import('./components/ProblemPage'));
-const LoginPage = React.lazy(() => import('./pages/LoginPage'));
-const NotFound = React.lazy(() => import('./pages/NotFound'));
-const OnboardingPage = React.lazy(() => import('./pages/OnboardingPage.jsx'));
-const AppShell = React.lazy(() => import('./components/layout/AppShell'));
+const LandingPage = lazyWithRetry(() => import('./pages/LandingPage'));
+const MainApp = lazyWithRetry(() => import('./pages/MainApp'));
+const DownloadPage = lazyWithRetry(() => import('./components/billing/DownloadPage'));
+const PremiumPage = lazyWithRetry(() => import('./components/billing/PremiumPage'));
+const PracticePage = lazyWithRetry(() => import('./pages/PracticePage'));
+const DocsPage = lazyWithRetry(() => import('./components/DocsPage'));
+const ProblemPage = lazyWithRetry(() => import('./components/ProblemPage'));
+const LoginPage = lazyWithRetry(() => import('./pages/LoginPage'));
+const NotFound = lazyWithRetry(() => import('./pages/NotFound'));
+const OnboardingPage = lazyWithRetry(() => import('./pages/OnboardingPage.jsx'));
+const AppShell = lazyWithRetry(() => import('./components/layout/AppShell'));
 
 function AppRoutes() {
   return (
