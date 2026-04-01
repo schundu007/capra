@@ -4,15 +4,15 @@ import { useAppShell } from './AppShellContext.jsx';
 import { useIsMobile } from '../../hooks/useIsMobile.js';
 
 const PREPARE_ITEMS = [
-  { id: 'coding', label: 'DSA & Algorithms', icon: 'code', href: '/prepare/coding' },
+  { id: 'coding', label: 'DSA & Algorithms', icon: 'cpu', href: '/prepare/coding' },
   { id: 'system-design', label: 'System Design', icon: 'systemDesign', href: '/prepare/system-design' },
   { id: 'low-level', label: 'Low-Level Design', icon: 'layers', href: '/prepare/low-level-design' },
   { id: 'behavioral', label: 'Behavioral', icon: 'users', href: '/prepare/behavioral' },
 ];
 
 const PRACTICE_ITEMS = [
-  { id: 'app-coding', label: 'Coding', icon: 'code', href: '/app/coding' },
-  { id: 'app-design', label: 'System Design', icon: 'systemDesign', href: '/app/design' },
+  { id: 'app-coding', label: 'Coding', icon: 'terminal', href: '/app/coding' },
+  { id: 'app-design', label: 'System Design', icon: 'grid', href: '/app/design' },
   { id: 'app-prep', label: 'Interview Prep', icon: 'briefcase', href: '/app/prep' },
 ];
 

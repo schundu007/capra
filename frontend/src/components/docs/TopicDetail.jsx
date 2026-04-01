@@ -101,7 +101,7 @@ export default function TopicDetail({
       </div>
 
       {/* ── Interactive Toolbar (AlgoMaster-inspired) ── */}
-      <div className="flex items-center justify-between p-4 rounded-xl mb-2 bg-gray-50 border border-gray-200">
+      <div className="flex items-center justify-between px-3 py-2.5 rounded-lg mb-2 bg-gray-50 border border-gray-200">
         <div className="flex items-center gap-2">
           {/* Mark as Complete */}
           <button
@@ -456,7 +456,7 @@ export default function TopicDetail({
 
           {/* Multiple Code Examples */}
           {topicDetails.codeExamples && topicDetails.codeExamples.length > 0 && (
-            <div id="code-examples" className="space-y-3 scroll-mt-24">
+            <div id="code-examples" className="space-y-2 scroll-mt-24">
               <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 landing-display">
                 <Icon name="code" size={14} className="text-emerald-700" />
                 Code Examples
