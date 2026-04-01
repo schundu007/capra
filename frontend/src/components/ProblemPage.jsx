@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useParams } from 'react-router-dom';
 import { Allotment } from 'allotment';
 import 'allotment/dist/style.css';
 import { Icon } from './Icons.jsx';
@@ -187,7 +188,23 @@ function slugToName(slug) {
 /**
  * Main ProblemPage Component - LeetCode/TechPrep style problem viewer with code editor
  */
-export default function ProblemPage({ slug, onBack }) {
+export default function ProblemPage({ slug: slugProp, onBack }) {
+  const params = useParams();
+  const slug = slugProp || params.slug;
+
+  // Guard: if no slug, show error
+  if (!slug) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Problem not found</h2>
+          <p className="text-gray-500 mb-4">No problem specified.</p>
+          <a href="/practice" className="px-6 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600">Back to Practice</a>
+        </div>
+      </div>
+    );
+  }
+
   // State
   const [activeTab, setActiveTab] = useState('description');
   const [selectedLanguage, setSelectedLanguage] = useState('python');
