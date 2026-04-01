@@ -11,21 +11,21 @@ export default defineConfig({
     !isElectronBuild && VitePWA({
       registerType: 'autoUpdate',
       devOptions: { enabled: false },
-      includeAssets: ['ascend-logo.png', 'ascend-icon.png', 'vite.svg'],
+      includeAssets: ['ascend-logo.png', 'icon-192x192.png', 'icon-512x512.png', 'vite.svg'],
       manifest: {
-        name: 'Ascend — AI Coding Assistant',
+        name: 'Ascend — AI Interview Prep',
         short_name: 'Ascend',
-        description: 'AI-powered coding assistant for interviews',
-        theme_color: '#ffffff',
+        description: 'AI-powered coding, system design, and behavioral interview preparation',
+        theme_color: '#10b981',
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait-primary',
         start_url: '/',
         scope: '/',
         icons: [
-          { src: '/ascend-icon.png', sizes: '192x192', type: 'image/png' },
-          { src: '/ascend-icon.png', sizes: '512x512', type: 'image/png' },
-          { src: '/ascend-icon.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {
