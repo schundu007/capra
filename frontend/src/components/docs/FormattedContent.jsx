@@ -225,7 +225,7 @@ export default function FormattedContent({ content, color = 'emerald' }) {
             );
           } else {
             elements.push(
-              <div key={`h-${blockIdx}-${lineIdx}`} className="text-gray-900 font-bold text-sm mt-3 mb-1.5 first:mt-0 landing-display">
+              <div key={`h-${blockIdx}-${lineIdx}`} className="text-blue-900 font-bold text-sm mt-3 mb-1.5 first:mt-0 landing-display">
                 {headerText}
               </div>
             );
@@ -252,7 +252,7 @@ export default function FormattedContent({ content, color = 'emerald' }) {
         if (trimmed.endsWith(':') && trimmed.length < 50 && !trimmed.includes('.')) {
           flushList();
           elements.push(
-            <div key={`h-${blockIdx}-${lineIdx}`} className="text-gray-900 font-bold text-sm mt-3 mb-1.5 first:mt-0 landing-display">
+            <div key={`h-${blockIdx}-${lineIdx}`} className="text-blue-900 font-bold text-sm mt-3 mb-1.5 first:mt-0 landing-display">
               {trimmed}
             </div>
           );

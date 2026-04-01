@@ -206,7 +206,7 @@ export default function TopicDetail({
               <div id="overview" className="rounded-lg overflow-hidden scroll-mt-24 lg:col-span-2 border border-gray-200 bg-white">
                 <div className="px-3 py-1.5 border-b border-gray-100 flex items-center gap-2 bg-emerald-50/50">
                   <Icon name="book" size={14} className="text-emerald-700" />
-                  <h3 className="text-sm font-bold text-gray-900 landing-display">Overview</h3>
+                  <h3 className="text-sm font-bold text-emerald-800 landing-display">Overview</h3>
                 </div>
                 <div className="p-3">
                   <FormattedContent content={topicDetails.introduction} color="emerald" />
@@ -233,7 +233,7 @@ export default function TopicDetail({
               <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                 <div className="px-3 py-1.5 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
                   <Icon name="target" size={14} className="text-emerald-700" />
-                  <h3 className="text-sm font-bold text-gray-900 landing-display">When to Use</h3>
+                  <h3 className="text-sm font-bold text-emerald-800 landing-display">When to Use</h3>
                 </div>
                 <div className="p-3">
                   <ul className="grid grid-cols-2 lg:grid-cols-3 gap-1">
@@ -253,7 +253,7 @@ export default function TopicDetail({
               <div className="rounded-lg overflow-hidden" style={{ background: `linear-gradient(180deg, ${topicDetails.color}10 0%, transparent 100%)`, border: `1px solid ${topicDetails.color}30` }}>
                 <div className="px-3 py-1.5 border-b flex items-center gap-2" style={{ background: `${topicDetails.color}08`, borderColor: `${topicDetails.color}20` }}>
                   <Icon name="puzzle" size={14} style={{ color: topicDetails.color }} />
-                  <h3 className="text-sm font-bold text-gray-900 landing-display">Key Patterns</h3>
+                  <h3 className="text-sm font-bold text-emerald-800 landing-display">Key Patterns</h3>
                 </div>
                 <div className="p-3">
                   <div className="flex flex-wrap gap-1.5">
@@ -275,13 +275,13 @@ export default function TopicDetail({
               <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                 <div className="px-3 py-1.5 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
                   <Icon name="list" size={14} className="text-emerald-700" />
-                  <h3 className="text-sm font-bold text-gray-900 landing-display">Step-by-Step Approach</h3>
+                  <h3 className="text-sm font-bold text-emerald-800 landing-display">Step-by-Step Approach</h3>
                 </div>
                 <div className="p-2">
                   <ol className="grid grid-cols-2 lg:grid-cols-3 gap-1">
                     {topicDetails.approach.map((step, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm landing-body">
-                        <span className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 bg-emerald-50 text-emerald-700">{i + 1}</span>
+                        <span className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 bg-emerald-500 text-white">{i + 1}</span>
                         <span className="text-gray-700">{step}</span>
                       </li>
                     ))}
@@ -295,7 +295,7 @@ export default function TopicDetail({
               <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                 <div className="px-3 py-1.5 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
                   <Icon name="alertTriangle" size={14} className="text-gray-900" />
-                  <h3 className="text-sm font-bold text-gray-900 landing-display">Common Mistakes</h3>
+                  <h3 className="text-sm font-bold text-rose-800 landing-display">Common Mistakes</h3>
                 </div>
                 <div className="p-2">
                   <ul className="grid grid-cols-2 lg:grid-cols-3 gap-1">
@@ -319,7 +319,7 @@ export default function TopicDetail({
             <div id="practice" className="rounded-lg overflow-hidden scroll-mt-24 border border-gray-200 bg-white">
               <div className="bg-emerald-50/50 border-b border-gray-100 px-3 py-2 flex items-center gap-2">
                 <Icon name="star" size={14} className="text-emerald-700" />
-                <h3 className="text-sm font-bold text-gray-900 landing-display">Practice Problems</h3>
+                <h3 className="text-sm font-bold text-emerald-800 landing-display">Practice Problems</h3>
                 <span className="text-[10px] landing-mono text-gray-400 ml-auto">{topicDetails.commonProblems.length}</span>
               </div>
               <div className="p-2">
@@ -341,7 +341,7 @@ export default function TopicDetail({
                         href={href}
                         className={`flex items-center gap-2 px-2 py-1.5 rounded hover:bg-emerald-50 transition-colors cursor-pointer group ${!hasDescription ? 'border border-gray-200' : 'border border-transparent hover:border-emerald-200'}`}
                       >
-                        <span className="w-5 h-5 rounded flex items-center justify-center text-xs landing-mono bg-emerald-50 text-emerald-700 flex-shrink-0">{i + 1}</span>
+                        <span className="w-5 h-5 rounded flex items-center justify-center text-xs landing-mono bg-emerald-500 text-white flex-shrink-0">{i + 1}</span>
                         <span className={`text-xs flex-1 truncate group-hover:text-emerald-700 transition-colors landing-body ${hasDescription ? 'text-gray-900' : 'text-gray-900'}`}>{problemName}</span>
                         {difficulty && (
                           <span className={`text-[10px] landing-mono px-1.5 py-0.5 rounded border flex-shrink-0 ${
@@ -363,7 +363,7 @@ export default function TopicDetail({
             <div id="theory" className="rounded-lg overflow-hidden scroll-mt-24 border border-gray-200 bg-white">
               <div className="px-3 py-1.5 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
                 <Icon name="bookOpen" size={14} className="text-emerald-700" />
-                <h3 className="text-sm font-bold text-gray-900 landing-display">Theory Questions</h3>
+                <h3 className="text-sm font-bold text-blue-800 landing-display">Theory Questions</h3>
                 <span className="text-[10px] landing-mono text-gray-400 ml-auto">{topicDetails.theoryQuestions.length}</span>
               </div>
               <div className="p-3">
@@ -377,7 +377,7 @@ export default function TopicDetail({
                           onClick={() => setExpandedTheoryQuestions(prev => ({ ...prev, [questionKey]: !prev[questionKey] }))}
                           className="w-full flex items-center gap-2 p-3 hover:bg-gray-100 transition-colors text-left"
                         >
-                          <span className="w-6 h-6 rounded flex items-center justify-center text-sm landing-mono bg-emerald-50 text-emerald-700 flex-shrink-0">{i + 1}</span>
+                          <span className="w-6 h-6 rounded flex items-center justify-center text-sm landing-mono bg-blue-500 text-white flex-shrink-0">{i + 1}</span>
                           <span className="text-gray-900 text-sm font-medium flex-1 landing-body">{q.question}</span>
                           {q.difficulty && (
                             <span className={`text-[10px] landing-mono px-1.5 py-0.5 rounded border flex-shrink-0 ${
@@ -414,7 +414,7 @@ export default function TopicDetail({
               <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                 <div className="px-3 py-1.5 border-b border-gray-100 flex items-center gap-2 bg-emerald-50/50">
                   <Icon name="lightbulb" size={14} className="text-emerald-700" />
-                  <h3 className="text-sm font-bold text-gray-900 landing-display">Tips & Tricks</h3>
+                  <h3 className="text-sm font-bold text-emerald-800 landing-display">Tips & Tricks</h3>
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-1 p-2">
                   {topicDetails.tips.map((tip, i) => (
@@ -432,7 +432,7 @@ export default function TopicDetail({
               <div className="rounded-lg overflow-hidden bg-gray-50 border border-gray-200">
                 <div className="px-3 py-1.5 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
                   <Icon name="briefcase" size={14} className="text-gray-900" />
-                  <h3 className="text-sm font-bold text-gray-900 landing-display">Interview Tips</h3>
+                  <h3 className="text-sm font-bold text-indigo-800 landing-display">Interview Tips</h3>
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-1 p-2">
                   {topicDetails.interviewTips.map((tip, i) => (
@@ -462,7 +462,7 @@ export default function TopicDetail({
           {/* Multiple Code Examples */}
           {topicDetails.codeExamples && topicDetails.codeExamples.length > 0 && (
             <div id="code-examples" className="space-y-2 scroll-mt-24">
-              <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 landing-display">
+              <h3 className="text-sm font-bold text-emerald-800 flex items-center gap-2 landing-display">
                 <Icon name="code" size={14} className="text-emerald-700" />
                 Code Examples
               </h3>
@@ -493,7 +493,7 @@ export default function TopicDetail({
                     <div id="overview" className={`rounded-lg overflow-hidden scroll-mt-24 border border-gray-200 bg-white ${topicDetails.concepts ? 'lg:col-span-2' : ''}`}>
                       <div className="px-3 py-1.5 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
                         <Icon name="book" size={14} className="text-emerald-700" />
-                        <h2 className="text-sm font-bold text-gray-900 landing-display">Introduction</h2>
+                        <h2 className="text-sm font-bold text-blue-800 landing-display">Introduction</h2>
                       </div>
                       <div className="p-3">
                         <FormattedContent content={topicDetails.introduction} color="blue" />
@@ -504,7 +504,7 @@ export default function TopicDetail({
                     <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                       <div className="px-3 py-1.5 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
                         <Icon name="puzzle" size={14} style={{ color: topicDetails.color }} />
-                        <h2 className="text-sm font-bold text-gray-900 landing-display">Key Concepts</h2>
+                        <h2 className="text-sm font-bold text-violet-800 landing-display">Key Concepts</h2>
                       </div>
                       <div className="p-2 flex flex-wrap gap-1.5">
                         {topicDetails.concepts.map((concept, i) => (
@@ -526,7 +526,7 @@ export default function TopicDetail({
                 <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <div className="bg-emerald-50/50 border-b border-gray-100 px-3 py-2 flex items-center gap-2">
                     <Icon name="check" size={14} className="text-emerald-700" />
-                    <h3 className="text-sm font-bold text-gray-900 landing-display">Functional Requirements</h3>
+                    <h3 className="text-sm font-bold text-emerald-800 landing-display">Functional Requirements</h3>
                   </div>
                   <div className="p-3">
                     <ul className="grid grid-cols-2 lg:grid-cols-3 gap-1">
@@ -546,7 +546,7 @@ export default function TopicDetail({
                   <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                     <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
                       <Icon name="zap" size={14} className="text-emerald-700" />
-                      <h3 className="text-sm font-bold text-gray-900 landing-display">Non-Functional Requirements</h3>
+                      <h3 className="text-sm font-bold text-emerald-800 landing-display">Non-Functional Requirements</h3>
                     </div>
                     <div className="p-3">
                       <ul className="grid grid-cols-2 lg:grid-cols-3 gap-1">
@@ -571,7 +571,7 @@ export default function TopicDetail({
                     <div id="api-design" className="rounded-lg overflow-hidden scroll-mt-24 border border-gray-200 bg-white">
                       <div className="bg-emerald-50/50 border-b border-gray-100 px-3 py-1.5 flex items-center gap-2">
                         <Icon name="code" size={14} className="text-emerald-700" />
-                        <h3 className="text-sm font-bold text-gray-900 landing-display">API Design</h3>
+                        <h3 className="text-sm font-bold text-blue-800 landing-display">API Design</h3>
                       </div>
                       <div className="p-2">
                         <div className={`grid gap-1.5 ${topicDetails.apiDesign.endpoints.length > 4 ? 'grid-cols-2 xl:grid-cols-3' : 'grid-cols-2'}`}>
@@ -599,7 +599,7 @@ export default function TopicDetail({
                     <div id="data-model" className="rounded-lg overflow-hidden scroll-mt-24 border border-gray-200 bg-white">
                       <div className="bg-emerald-50/50 border-b border-gray-100 px-3 py-1.5 flex items-center gap-2">
                         <Icon name="database" size={14} className="text-emerald-700" />
-                        <h3 className="text-sm font-bold text-gray-900 landing-display">Data Model</h3>
+                        <h3 className="text-sm font-bold text-blue-800 landing-display">Data Model</h3>
                       </div>
                       <div className="overflow-x-auto bg-gray-50 max-h-80 overflow-y-auto">
                         <pre className="p-2.5 text-xs leading-5 text-emerald-700 landing-mono" style={{ whiteSpace: 'pre', margin: 0, tabSize: 4 }}>
@@ -616,16 +616,16 @@ export default function TopicDetail({
                 <div id="key-questions" className="rounded-xl overflow-hidden scroll-mt-24 border border-gray-200 bg-white">
                   <div className="bg-emerald-50/50 border-b border-gray-100 px-3 py-2 flex items-center gap-2">
                     <Icon name="messageSquare" size={14} className="text-emerald-700" />
-                    <h3 className="text-sm font-bold text-gray-900 landing-display">Key Questions</h3>
+                    <h3 className="text-sm font-bold text-emerald-800 landing-display">Key Questions</h3>
                     <span className="text-[10px] landing-mono text-gray-400 ml-auto">{topicDetails.keyQuestions.length} topics</span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 p-2">
                     {topicDetails.keyQuestions.map((q, i) => (
                       <div key={i} className={`p-3 rounded-lg hover:bg-gray-50 transition-colors bg-white border border-gray-200 ${i === topicDetails.keyQuestions.length - 1 && topicDetails.keyQuestions.length % 2 !== 0 ? 'md:col-span-2' : ''}`}>
                         <div className="flex items-start gap-2">
-                          <span className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center text-xs text-gray-900 font-bold flex-shrink-0 landing-mono">{i + 1}</span>
+                          <span className="w-7 h-7 rounded-lg bg-emerald-500 flex items-center justify-center text-xs text-white font-bold flex-shrink-0 landing-mono">{i + 1}</span>
                           <div className="flex-1 min-w-0">
-                            <h4 className="text-gray-900 font-semibold text-sm mb-2 landing-display">{q.question}</h4>
+                            <h4 className="text-blue-900 font-semibold text-sm mb-2 landing-display">{q.question}</h4>
                             <div className="text-gray-700 landing-body">
                               <FormattedContent content={q.answer} color="emerald" />
                             </div>
@@ -645,7 +645,7 @@ export default function TopicDetail({
                     <div className="rounded-xl overflow-hidden border border-gray-200 bg-white">
                       <div className="bg-emerald-50/50 border-b border-gray-100 px-3 py-2 flex items-center gap-2">
                         <Icon name="layers" size={14} className="text-emerald-700" />
-                        <h3 className="text-sm font-bold text-gray-900 landing-display">{topicDetails.basicImplementation.title || 'Basic Approach'}</h3>
+                        <h3 className="text-sm font-bold text-blue-800 landing-display">{topicDetails.basicImplementation.title || 'Basic Approach'}</h3>
                       </div>
                       <div className="p-3">
                         <p className="text-gray-500 text-sm mb-2 leading-relaxed landing-body">{topicDetails.basicImplementation.description}</p>
@@ -696,7 +696,7 @@ export default function TopicDetail({
                         <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-50">
                           <Icon name="zap" size={18} className="text-emerald-700" />
                         </div>
-                        <h3 className="text-sm font-bold text-gray-900 landing-display">{topicDetails.advancedImplementation.title || 'Scalable Solution'}</h3>
+                        <h3 className="text-sm font-bold text-violet-800 landing-display">{topicDetails.advancedImplementation.title || 'Scalable Solution'}</h3>
                       </div>
                       <div className="p-3">
                         <p className="text-gray-500 text-sm mb-2 leading-relaxed landing-body">{topicDetails.advancedImplementation.description}</p>
@@ -761,7 +761,7 @@ export default function TopicDetail({
                     <div className="bg-emerald-50/50 border-b border-gray-100 px-3 py-2 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Icon name="layers" size={14} className="text-emerald-700" />
-                        <h3 className="text-sm font-bold text-gray-900 landing-display">Architecture Diagram</h3>
+                        <h3 className="text-sm font-bold text-blue-800 landing-display">Architecture Diagram</h3>
                       </div>
                       <div className="flex items-center gap-2">
                         {/* Cloud Provider Selector */}
@@ -837,7 +837,7 @@ export default function TopicDetail({
                   <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                     <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-emerald-50/50">
                       <Icon name="star" size={16} className="text-emerald-700" />
-                      <h3 className="text-sm font-bold text-gray-900 landing-display">Interview Tips</h3>
+                      <h3 className="text-sm font-bold text-indigo-800 landing-display">Interview Tips</h3>
                     </div>
                     <div className="grid md:grid-cols-2 gap-1 p-3">
                       {topicDetails.tips.map((tip, i) => (
@@ -859,7 +859,7 @@ export default function TopicDetail({
                     <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                       <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
                         <Icon name="arrowRight" size={16} className="text-emerald-700" />
-                        <h3 className="text-sm font-bold text-gray-900 landing-display">{topicDetails.createFlow.title}</h3>
+                        <h3 className="text-sm font-bold text-emerald-800 landing-display">{topicDetails.createFlow.title}</h3>
                       </div>
                       <div className="p-3">
                         <ol className="grid grid-cols-2 lg:grid-cols-3 gap-1">
@@ -881,7 +881,7 @@ export default function TopicDetail({
                     <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                       <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
                         <Icon name="arrowLeft" size={16} className="text-emerald-700" />
-                        <h3 className="text-sm font-bold text-gray-900 landing-display">{topicDetails.redirectFlow.title}</h3>
+                        <h3 className="text-sm font-bold text-emerald-800 landing-display">{topicDetails.redirectFlow.title}</h3>
                       </div>
                       <div className="p-3">
                         <ol className="grid grid-cols-2 lg:grid-cols-3 gap-1">
@@ -905,7 +905,7 @@ export default function TopicDetail({
                 <div className="rounded-lg overflow-hidden bg-gray-50 border border-gray-200">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
                     <Icon name="messageCircle" size={16} className="text-gray-900" />
-                    <h3 className="text-sm font-bold text-gray-900 landing-display">Discussion Points</h3>
+                    <h3 className="text-sm font-bold text-indigo-800 landing-display">Discussion Points</h3>
                   </div>
                   <div className="p-3">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
@@ -959,7 +959,7 @@ export default function TopicDetail({
                   <div className="p-3 grid grid-cols-1 md:grid-cols-3 gap-2">
                     {topicDetails.algorithmApproaches.map((app, i) => (
                       <div key={i} className="p-3 rounded-lg border border-gray-200 bg-gray-50/50">
-                        <h4 className="text-sm font-bold text-gray-900 mb-1 landing-display">{i + 1}. {app.name}</h4>
+                        <h4 className="text-sm font-bold text-amber-800 mb-1 landing-display">{i + 1}. {app.name}</h4>
                         <p className="text-gray-500 text-xs mb-2 landing-body leading-relaxed">{app.description}</p>
                         <div className="space-y-0.5">
                           {app.pros.map((p, j) => <div key={`p${j}`} className="text-xs text-gray-700 landing-body"><span className="text-emerald-600 font-bold mr-1">+</span>{p}</div>)}
@@ -982,7 +982,7 @@ export default function TopicDetail({
                     {topicDetails.architectureLayers.map((layer, i) => (
                       <div key={i} className="flex items-start gap-3 p-2.5 rounded-lg bg-gray-50 border border-gray-100">
                         <span className="w-6 h-6 rounded-md bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold flex-shrink-0">{i + 1}</span>
-                        <div><span className="text-sm font-bold text-gray-900 landing-display">{layer.name}</span><span className="text-gray-500 text-sm ml-2 landing-body">{layer.description}</span></div>
+                        <div><span className="text-sm font-bold text-teal-800 landing-display">{layer.name}</span><span className="text-gray-500 text-sm ml-2 landing-body">{layer.description}</span></div>
                       </div>
                     ))}
                   </div>
@@ -999,7 +999,7 @@ export default function TopicDetail({
                   <div className="p-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
                     {topicDetails.deepDiveTopics.map((item, i) => (
                       <div key={i} className="p-3 rounded-lg bg-sky-50/30 border border-sky-100">
-                        <h4 className="text-sm font-bold text-gray-900 mb-1 landing-display">{item.topic}</h4>
+                        <h4 className="text-sm font-bold text-sky-800 mb-1 landing-display">{item.topic}</h4>
                         <p className="text-gray-500 text-xs landing-body leading-relaxed">{item.detail}</p>
                       </div>
                     ))}
@@ -1082,7 +1082,7 @@ export default function TopicDetail({
                     <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                       <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
                         <Icon name="layers" size={16} className="text-emerald-700" />
-                        <h3 className="text-sm font-bold text-gray-900 landing-display">System Components</h3>
+                        <h3 className="text-sm font-bold text-blue-800 landing-display">System Components</h3>
                       </div>
                       <div className="p-4">
                         <div className="flex flex-wrap gap-2">
@@ -1101,7 +1101,7 @@ export default function TopicDetail({
                     <div className="rounded-lg overflow-hidden bg-gray-50 border border-gray-200">
                       <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
                         <Icon name="lightbulb" size={16} className="text-gray-900" />
-                        <h3 className="text-sm font-bold text-gray-900 landing-display">Key Design Decisions</h3>
+                        <h3 className="text-sm font-bold text-violet-800 landing-display">Key Design Decisions</h3>
                       </div>
                       <div className="p-3">
                         <ol className="grid grid-cols-2 lg:grid-cols-3 gap-1">
@@ -1125,7 +1125,7 @@ export default function TopicDetail({
                 <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
                     <Icon name="box" size={16} className="text-gray-900" />
-                    <h3 className="text-sm font-bold text-gray-900 landing-display">Core Entities</h3>
+                    <h3 className="text-sm font-bold text-blue-800 landing-display">Core Entities</h3>
                   </div>
                   <div className="p-3">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -1145,7 +1145,7 @@ export default function TopicDetail({
                 <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
                     <Icon name="puzzle" size={16} className="text-gray-900" />
-                    <h3 className="text-sm font-bold text-gray-900 landing-display">Design Patterns</h3>
+                    <h3 className="text-sm font-bold text-violet-800 landing-display">Design Patterns</h3>
                   </div>
                   <div className="p-4">
                     <ul className="grid grid-cols-2 gap-1">
@@ -1165,7 +1165,7 @@ export default function TopicDetail({
                 <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
                     <Icon name="code" size={16} className="text-emerald-700" />
-                    <h3 className="text-sm font-bold text-gray-900 landing-display">Implementation</h3>
+                    <h3 className="text-sm font-bold text-emerald-800 landing-display">Implementation</h3>
                   </div>
                   <div className="overflow-x-auto bg-gray-100">
                     <pre
@@ -1187,7 +1187,7 @@ export default function TopicDetail({
                 <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
                     <Icon name="cpu" size={16} className="text-gray-900" />
-                    <h3 className="text-sm font-bold text-gray-900 landing-display">Core Concepts</h3>
+                    <h3 className="text-sm font-bold text-blue-800 landing-display">Core Concepts</h3>
                   </div>
                   <div className="p-4 grid md:grid-cols-2 gap-2">
                     {topicDetails.concepts.map((concept, i) => (
@@ -1205,7 +1205,7 @@ export default function TopicDetail({
                 <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
                     <Icon name="lock" size={16} className="text-emerald-700" />
-                    <h3 className="text-sm font-bold text-gray-900 landing-display">Synchronization Primitives</h3>
+                    <h3 className="text-sm font-bold text-violet-800 landing-display">Synchronization Primitives</h3>
                   </div>
                   <div className="p-4 grid md:grid-cols-2 gap-2">
                     {topicDetails.primitives.map((prim, i) => (
@@ -1226,7 +1226,7 @@ export default function TopicDetail({
                 <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
                     <Icon name="alertTriangle" size={16} className="text-gray-900" />
-                    <h3 className="text-sm font-bold text-gray-900 landing-display">Classic Problems</h3>
+                    <h3 className="text-sm font-bold text-amber-800 landing-display">Classic Problems</h3>
                   </div>
                   <div className="grid md:grid-cols-2 gap-2 p-3">
                     {topicDetails.problems.map((problem, i) => (
@@ -1248,7 +1248,7 @@ export default function TopicDetail({
                 <div className="rounded-lg overflow-hidden bg-gray-50 border border-gray-200">
                   <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
                     <Icon name="database" size={16} className="text-gray-900" />
-                    <h3 className="text-sm font-bold text-gray-900 landing-display">Concurrent Data Structures</h3>
+                    <h3 className="text-sm font-bold text-blue-800 landing-display">Concurrent Data Structures</h3>
                   </div>
                   <div className="p-4 grid md:grid-cols-2 gap-2">
                     {topicDetails.structures.map((struct, i) => (
@@ -1279,7 +1279,7 @@ export default function TopicDetail({
                   <div id="overview" className={`scroll-mt-24 rounded-lg border border-gray-200 bg-white overflow-hidden ${topicDetails.principles?.length > 0 ? 'lg:col-span-2' : ''}`}>
                     <div className="px-3 py-1.5 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
                       <Icon name="book" size={14} style={{ color: topicDetails.color }} />
-                      <h2 className="text-sm font-bold text-gray-900 landing-display">Overview</h2>
+                      <h2 className="text-sm font-bold text-blue-800 landing-display">Overview</h2>
                     </div>
                     <div className="p-3">
                       {quoteMatch ? (
@@ -1302,7 +1302,7 @@ export default function TopicDetail({
                 <div className="scroll-mt-24 rounded-lg border border-gray-200 bg-white overflow-hidden">
                   <div className="px-3 py-1.5 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
                     <Icon name="award" size={14} style={{ color: topicDetails.color }} />
-                    <h2 className="text-sm font-bold text-gray-900 landing-display">Key Principles</h2>
+                    <h2 className="text-sm font-bold text-violet-800 landing-display">Key Principles</h2>
                   </div>
                   <div className="p-2 flex flex-wrap gap-1.5">
                     {topicDetails.principles.map((principle, i) => (
@@ -1323,7 +1323,7 @@ export default function TopicDetail({
                 <div className="w-6 h-6 rounded flex items-center justify-center" style={{ background: topicDetails.color }}>
                   <Icon name="messageSquare" size={12} className="text-white" />
                 </div>
-                <h3 className="text-sm font-bold text-gray-900 landing-display">Questions & Answers</h3>
+                <h3 className="text-sm font-bold text-violet-800 landing-display">Questions & Answers</h3>
                 <span className="text-[10px] landing-mono text-gray-400 ml-auto">{topicDetails.keyQuestions.length}Q</span>
               </div>
               <div className="p-2 space-y-2">
@@ -1421,7 +1421,7 @@ export default function TopicDetail({
                               }
                               // STAR Example header
                               if (block.type === 'star-header') {
-                                return <div key={bi} className="flex items-center gap-2 mt-1"><span className="text-[10px] font-bold text-white px-2 py-0.5 rounded landing-mono" style={{ background: topicDetails.color }}>STAR</span><span className="text-sm font-bold text-gray-900 landing-display">Example</span></div>;
+                                return <div key={bi} className="flex items-center gap-2 mt-1"><span className="text-[10px] font-bold text-white px-2 py-0.5 rounded landing-mono" style={{ background: topicDetails.color }}>STAR</span><span className="text-sm font-bold text-blue-800 landing-display">Example</span></div>;
                               }
                               // Numbered step or section header
                               const numMatch = h.replace(/\*\*/g, '').match(/^(\d+)\.\s*(.*)/);
@@ -1430,8 +1430,8 @@ export default function TopicDetail({
                                 <div className="px-3 py-2.5">
                                   <div className="flex items-center gap-2">
                                     {numMatch
-                                      ? <><span className="w-6 h-6 rounded flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0 landing-mono" style={{ background: topicDetails.color }}>{numMatch[1]}</span><span className="text-sm font-bold text-gray-900 landing-display">{numMatch[2].replace(/:$/, '')}</span></>
-                                      : <><span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: topicDetails.color }} /><span className="text-sm font-bold text-gray-900 landing-display">{sectionTitle}</span></>
+                                      ? <><span className="w-6 h-6 rounded flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0 landing-mono" style={{ background: topicDetails.color }}>{numMatch[1]}</span><span className="text-sm font-bold text-blue-800 landing-display">{numMatch[2].replace(/:$/, '')}</span></>
+                                      : <><span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: topicDetails.color }} /><span className="text-sm font-bold text-blue-800 landing-display">{sectionTitle}</span></>
                                     }
                                   </div>
                                   {block.children.length > 0 && <div className="mt-1.5 ml-8 space-y-1">{block.children.map((c, ci) => renderLine(c, ci))}</div>}
@@ -1459,7 +1459,7 @@ export default function TopicDetail({
             <div id="star-example" className="rounded-lg overflow-hidden scroll-mt-24 border border-gray-200 bg-white">
               <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
                 <Icon name="target" size={14} className="text-emerald-700" />
-                <h3 className="text-sm font-bold text-gray-900 landing-display">STAR Framework Example</h3>
+                <h3 className="text-sm font-bold text-blue-800 landing-display">STAR Framework Example</h3>
               </div>
               <div className="p-4">
                 <div className="relative">
@@ -1507,7 +1507,7 @@ export default function TopicDetail({
                 <div className="w-6 h-6 rounded flex items-center justify-center bg-emerald-50">
                   <Icon name="messageSquare" size={12} className="text-emerald-700" />
                 </div>
-                <h3 className="text-sm font-bold text-gray-900 landing-display">Example Response</h3>
+                <h3 className="text-sm font-bold text-emerald-800 landing-display">Example Response</h3>
                 <span className="text-[10px] landing-mono text-emerald-600 ml-auto px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200">Ready to use</span>
               </div>
               <div className="p-4">
@@ -1542,7 +1542,7 @@ export default function TopicDetail({
                 <div className="w-6 h-6 rounded flex items-center justify-center" style={{ background: `${topicDetails.color}15` }}>
                   <Icon name="helpCircle" size={12} style={{ color: topicDetails.color }} />
                 </div>
-                <h3 className="text-sm font-bold text-gray-900 landing-display">Practice Questions</h3>
+                <h3 className="text-sm font-bold text-violet-800 landing-display">Practice Questions</h3>
                 <span className="text-[10px] landing-mono text-gray-400 ml-auto">{topicDetails.sampleQuestions.length}</span>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-1 p-2">
@@ -1565,7 +1565,7 @@ export default function TopicDetail({
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <h3 className="text-sm font-bold text-gray-900 landing-display">Tips for Success</h3>
+                <h3 className="text-sm font-bold text-emerald-800 landing-display">Tips for Success</h3>
                 <span className="text-[10px] landing-mono text-emerald-600 ml-auto">{topicDetails.tips.length} tips</span>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2 p-3">
