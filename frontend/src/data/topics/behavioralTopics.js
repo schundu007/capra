@@ -73,6 +73,14 @@ export const topicCategoryMap = {
     'asking-questions': 'fundamentals',
     'professionalism': 'fundamentals',
     'following-up': 'fundamentals',
+    // Adaptability & Growth
+    'adaptability-questions': 'growth',
+    'work-life-balance': 'growth',
+    // Career & Fundamentals
+    'salary-negotiation': 'fundamentals',
+    'questions-to-ask-interviewer': 'fundamentals',
+    // Problem Solving
+    'managing-constraints': 'problem-solving',
   };
 
 export const behavioralTopics = [
@@ -3406,6 +3414,509 @@ Best,
         'Don\'t ask about decisions in thank-you notes',
         'Follow up once after their stated timeline passes',
         'Respond graciously to rejections—bridges matter'
+      ]
+    },
+    {
+      id: 'adaptability-questions',
+      title: 'Adaptability & Change',
+      icon: 'refreshCw',
+      color: '#06b6d4',
+      questions: 5,
+      description: 'Handling change, pivoting priorities, and adapting to new processes or tools.',
+
+      introduction: `Adaptability is one of the most valued traits in tech. Companies evolve rapidly: strategies shift, reorgs happen, tech stacks change, and priorities pivot mid-sprint. Interviewers ask adaptability questions to assess whether you can thrive in ambiguity, embrace change constructively, and help your team navigate transitions without losing productivity or morale.`,
+
+      keyQuestions: [
+        {
+          question: 'Tell me about a time you had to adapt to a major change at work.',
+          answer: `**STAR Framework**
+
+**Situation**: "Our company was acquired, and the acquiring company mandated we migrate our entire backend from a monolith on AWS to microservices on GCP within 6 months."
+
+**Task**: "As the tech lead, I needed to keep the team productive and morale high while learning an entirely new infrastructure platform and rearchitecting our services."
+
+**Action**:
+- "I spent the first week doing a rapid assessment: which services were critical path, which could migrate as-is, and which needed rearchitecting"
+- "Created a phased migration plan with weekly milestones so the team could see progress"
+- "Paired team members who were GCP-experienced (from the acquiring company) with our engineers for knowledge transfer"
+- "Ran weekly retros specifically focused on the migration to surface blockers early"
+- "Volunteered to migrate the most complex service myself to build expertise I could share"
+
+**Result**: "We completed the migration in 5 months. Two engineers who initially resisted the change became GCP advocates. We actually improved our deployment pipeline in the process, reducing deploy times from 45 minutes to 8 minutes."
+
+**Key Insight**: "I framed the change as an opportunity rather than a burden. People adapt faster when they can see personal growth in the transition."`
+        },
+        {
+          question: 'How do you handle shifting priorities mid-project?',
+          answer: `**Framework for Priority Changes**
+
+**1. Understand the Why**
+- Ask questions to understand the business reason: "What changed? What's the urgency?"
+- Avoid emotional reactions: "This always happens" or "We wasted two weeks"
+- Reframe internally: priorities shift because the business learned something new
+
+**2. Assess the Impact**
+- What can be paused vs. what must be finished?
+- Are there dependencies other teams are counting on?
+- What is the minimum viable deliverable for the current work?
+
+**3. Communicate Transparently**
+- Tell stakeholders what the shift means: "If we pivot to X, Y will be delayed by 2 weeks"
+- Don't silently absorb scope: overcommitting leads to burnout and missed deadlines
+- Document the decision so there's a record of the trade-off
+
+**4. Execute the Pivot**
+- Create a clean handoff for paused work (notes, branch state, next steps)
+- Time-box ramp-up on the new priority
+- Maintain a backlog of paused items so they don't get lost
+
+**Example**: "In my last role, we were two weeks into a search infrastructure rewrite when leadership shifted our priority to an urgent integration with a new partner. I documented the search work state, estimated the integration at 3 weeks, and committed to resuming search after. We delivered the integration on time, and the documented state made resuming search seamless."`
+        },
+        {
+          question: 'Describe a time you had to learn a new tool or process quickly.',
+          answer: `**STAR Example**
+
+**Situation**: "Our team adopted Kubernetes after years of deploying to bare EC2 instances. I had no container orchestration experience, and we had a production deployment target in 3 weeks."
+
+**Task**: "I needed to become proficient enough in K8s to lead our first production deployment and support the on-call team."
+
+**Action**:
+- "I dedicated mornings to structured learning: official docs, a Udemy course, and the Kubernetes in Action book"
+- "Afternoons I applied what I learned by containerizing our staging services"
+- "Created a runbook for the team covering the 20% of K8s commands that cover 80% of daily operations"
+- "Ran a lunch-and-learn where I deployed a service live and walked through troubleshooting"
+- "Set up a sandbox cluster where the team could experiment safely"
+
+**Result**: "Our first K8s production deployment went smoothly. The runbook I created became the team's go-to reference and was later adopted by two other teams. Within a month, I was comfortable debugging production K8s issues on call."
+
+**Key Takeaway**: "I don't need to be an expert before starting. I learn fastest by combining structured study with hands-on application, and I multiply the value by teaching others."`
+        }
+      ],
+
+      tips: [
+        'Frame changes as opportunities, not obstacles',
+        'Show that you take initiative during transitions rather than waiting for instructions',
+        'Demonstrate empathy for teammates who struggle with change',
+        'Highlight specific learning strategies you use to ramp up quickly',
+        'Always quantify the positive outcome that resulted from adapting'
+      ]
+    },
+    {
+      id: 'work-life-balance',
+      title: 'Work-Life Balance',
+      icon: 'battery',
+      color: '#22c55e',
+      questions: 4,
+      description: 'Sustainable pace, preventing burnout, setting boundaries, and managing energy.',
+
+      introduction: `Work-life balance questions assess your self-awareness, sustainability, and maturity. Companies increasingly recognize that engineers who burn out deliver worse results. Interviewers want to know that you can maintain high performance over the long term, set healthy boundaries, and model sustainable practices for your team.
+
+These questions also reveal your management style: do you expect 60-hour weeks from reports, or do you protect their time? Your answer signals what kind of culture you create.`,
+
+      keyQuestions: [
+        {
+          question: 'How do you maintain work-life balance in a demanding role?',
+          answer: `**My Sustainability Framework**
+
+**Energy Management Over Time Management**
+- I identify my peak hours (mornings for deep work, afternoons for meetings and reviews)
+- I protect 2-3 hours of uninterrupted focus time daily
+- I recognize early signs of burnout: declining code quality, irritability in reviews, dreading standups
+
+**Deliberate Boundaries**
+- I don't check Slack after 7pm unless I'm on call
+- I block my calendar for lunch: eating at my desk feels productive but isn't
+- I take all my PTO: I came back from a week off and solved a bug in 20 minutes that I'd been stuck on for days
+
+**Sustainable Intensity**
+- Sprints should be sustainable: if every sprint feels like a crunch, the planning is broken
+- I distinguish between real emergencies (production down, data breach) and artificial urgency (someone wants it sooner)
+- I push back on unrealistic timelines with data: "This is a 3-week project. We can deliver an MVP in 1 week or the full scope in 3."
+
+**Example**: "During a product launch, I noticed my team working weekends for three weeks straight. I called it out in our retro, identified the root cause (scope creep from a stakeholder adding features mid-sprint), and set up a change request process. The next launch was completed in normal hours with better quality."`
+        },
+        {
+          question: 'Tell me about a time you experienced burnout. How did you handle it?',
+          answer: `**STAR Example**
+
+**Situation**: "I was leading a critical migration while also being the on-call primary for our legacy system. I was context-switching between migration work during the day and incident response at night for about six weeks."
+
+**Task**: "I needed to recognize and address my own burnout before it affected the team and the project."
+
+**Action**:
+- "I acknowledged it to myself first: I was making more mistakes in code review, getting frustrated in meetings, and dreading mornings"
+- "I had an honest conversation with my manager: 'I'm stretched too thin and the quality of both responsibilities is suffering'"
+- "We agreed to hand off on-call to another engineer and hire a contractor for part of the migration"
+- "I took three consecutive days off—not vacation, just decompression"
+- "When I returned, I established firmer boundaries: no meetings before 10am, on-call rotation with a backup"
+
+**Result**: "Within two weeks, my productivity recovered. The migration was delivered on schedule. More importantly, my manager started checking in with the whole team about workload, and we formalized the rule that no one carries two critical responsibilities simultaneously."
+
+**Key Insight**: "Burnout isn't a personal failing: it's a signal that the system is asking too much. Raising it early is a leadership act, not a weakness."`
+        },
+        {
+          question: 'How do you handle a colleague or report who is burning out?',
+          answer: `**Framework for Supporting Others**
+
+**1. Notice the Signs**
+- Decline in code quality or responsiveness
+- Withdrawal from team activities, camera off in meetings
+- Cynicism or negativity that's out of character
+- Working long hours but shipping less
+
+**2. Have the Conversation**
+- Private, empathetic, specific: "I've noticed you seem stressed lately. How are you doing?"
+- Don't diagnose: "You're burned out." Instead: "I want to make sure you're supported."
+- Listen more than you talk
+
+**3. Take Action**
+- Reduce scope: "Let's deprioritize the docs update this sprint"
+- Share the load: redistribute tasks temporarily
+- Remove blockers: "I'll handle the stakeholder meeting so you can focus"
+- Encourage time off: "Take Friday off. The codebase will be here Monday."
+
+**4. Address the System**
+- If one person is burning out, the system might be broken
+- Raise workload concerns in planning: "We're consistently overcommitting"
+- Advocate for realistic timelines and staffing
+
+**Example**: "A junior engineer on my team was working until midnight but was too afraid to say anything because they thought it was expected. I noticed their commit timestamps, had a 1:1, and learned they were struggling with a task. I paired with them for an afternoon, we broke the task into smaller pieces, and I reassured them that asking for help early is a strength."`
+        }
+      ],
+
+      tips: [
+        'Show self-awareness: interviewers want to see you recognize your own limits',
+        'Frame boundaries as a performance strategy, not laziness',
+        'Demonstrate that you protect your team\'s sustainability, not just your own',
+        'Have a specific example of preventing or recovering from burnout',
+        'Avoid extremes: neither "I work all the time" nor "I never work past 5"'
+      ]
+    },
+    {
+      id: 'salary-negotiation',
+      title: 'Salary Negotiation',
+      icon: 'dollarSign',
+      color: '#eab308',
+      questions: 5,
+      description: 'Total compensation, counter-offers, market research, and negotiation frameworks.',
+
+      introduction: `Salary negotiation is one of the highest-ROI skills in your career. A single negotiation can be worth tens or hundreds of thousands of dollars over the course of a job. Yet most engineers skip it out of discomfort or fear of having the offer rescinded (which almost never happens at reputable companies).
+
+Understanding total compensation (base, equity, bonus, sign-on, benefits), having market data, and using a structured negotiation framework transforms an uncomfortable conversation into a professional discussion.`,
+
+      keyQuestions: [
+        {
+          question: 'How should I approach salary negotiation?',
+          answer: `**The Negotiation Framework**
+
+**1. Research Before You Negotiate**
+- Use levels.fyi, Glassdoor, Blind, and Payscale for market data
+- Know the company's pay bands if possible (some states require disclosure)
+- Understand your leverage: competing offers, rare skills, strong interview performance
+
+**2. Never Name a Number First**
+- If asked for expectations: "I'd like to understand the full scope of the role before discussing compensation. What's the range for this position?"
+- If pressed: give a range based on research, with your target as the bottom: "Based on my research, similar roles in this market pay $180K-$210K base"
+
+**3. Negotiate the Whole Package**
+- Base salary, equity/RSUs, annual bonus, sign-on bonus, relocation, PTO, remote flexibility
+- If base is capped: "I understand the base is firm. Can we discuss a sign-on bonus to bridge the gap?"
+- Equity vesting schedule and refresh grants matter enormously at public companies
+
+**4. Use Competing Offers Professionally**
+- "I'm very excited about this role. I also have an offer from [Company] at [total comp]. Is there flexibility to match?"
+- Never bluff about offers you don't have
+- Competing offers are the single strongest negotiation lever
+
+**5. Get It in Writing**
+- Verbal promises mean nothing: get the final offer letter before accepting
+- Review stock details: vesting schedule, cliff, refresh policy, strike price (for options)`
+        },
+        {
+          question: 'What are common negotiation mistakes?',
+          answer: `**Mistakes That Cost You Money**
+
+**Accepting the First Offer**
+- First offers almost always have room: companies budget for negotiation
+- Even a "final" offer often isn't: politely push back once
+
+**Negotiating Only Base Salary**
+- Equity can be 30-60% of total comp at senior levels
+- Sign-on bonuses are often the easiest to increase
+- Annual bonus percentages are usually fixed by level, but base affects the dollar amount
+
+**Being Apologetic**
+- Don't say: "I hate to ask, but..." or "I know this is a lot..."
+- Do say: "I'm excited about the role. Based on my experience and market data, I believe [X] better reflects the value I'll bring."
+
+**Revealing Your Current Salary**
+- In many states, it's illegal for them to ask
+- If asked: "I'd prefer to focus on the value of this role rather than my current compensation"
+- Your current salary is irrelevant to what this role should pay
+
+**Not Having a Walk-Away Number**
+- Know your minimum before negotiations start
+- If the offer is below your minimum, say so: "I appreciate the offer, but I'd need at least [X] to make the move"
+
+**Negotiating Over Email When a Call Would Be Better**
+- Complex negotiations benefit from real-time conversation
+- Email is fine for simple counters; use a call for multi-variable negotiations`
+        },
+        {
+          question: 'How do I evaluate total compensation?',
+          answer: `**Total Compensation Breakdown**
+
+**Annual Cash = Base Salary + Bonus**
+- Base: your guaranteed monthly paycheck
+- Bonus: typically 10-20% of base; may be discretionary or formulaic
+- Ask: "What was the average bonus payout last year as a percentage of target?"
+
+**Equity**
+- RSUs (Restricted Stock Units): shares that vest over time, typically 4-year schedule with 1-year cliff
+- Stock Options: right to buy shares at a strike price; only valuable if stock price exceeds strike
+- Annual refresh grants: new RSUs granted each year on top of your initial grant
+- Calculate annual equity value: total grant / vesting years for RSUs, or estimate for options
+
+**One-Time Components**
+- Sign-on bonus: cash paid at start, often with 1-year clawback if you leave
+- Relocation package: moving expenses, temporary housing
+- These don't recur, so don't weight them too heavily
+
+**Benefits With Real Value**
+- 401(k) match: a 6% match on a $200K salary is $12K/year free money
+- Health insurance: employer contribution can be $10K-$20K/year
+- PTO: an extra week of vacation has a calculable dollar value
+
+**Example Comparison**:
+- Offer A: $190K base + $40K/yr RSUs + 15% bonus = ~$258K total
+- Offer B: $210K base + $20K/yr RSUs + 10% bonus = ~$251K total
+- Offer A is actually higher despite lower base`
+        }
+      ],
+
+      tips: [
+        'Always negotiate: the worst outcome is they say the offer is firm',
+        'Use levels.fyi and Blind for real compensation data at specific companies',
+        'Negotiate after you have the offer in hand, never during interviews',
+        'Consider total compensation, not just base salary',
+        'Practice your negotiation script out loud before the call'
+      ]
+    },
+    {
+      id: 'questions-to-ask-interviewer',
+      title: 'Questions to Ask Interviewers',
+      icon: 'helpCircle',
+      color: '#8b5cf6',
+      questions: 4,
+      description: 'Smart questions tailored for each interview round (recruiter, technical, hiring manager, VP).',
+
+      introduction: `The questions you ask are as important as the answers you give. They demonstrate your critical thinking, reveal your priorities, and help you evaluate whether the company and role are right for you. Different interview rounds call for different types of questions: a recruiter expects process questions, a technical interviewer appreciates engineering depth, and a hiring manager wants to see strategic thinking.
+
+Always prepare more questions than you think you'll need: 5-7 per round. Some will be answered during the conversation, so you need backups.`,
+
+      keyQuestions: [
+        {
+          question: 'What questions should I ask the recruiter?',
+          answer: `**Recruiter Round Questions**
+
+The recruiter screen is about mutual fit and logistics. Focus on understanding the role, process, and timeline.
+
+**Role Clarity**
+- "Can you walk me through what a typical day looks like for this role?"
+- "What are the top 2-3 priorities for this hire in the first 6 months?"
+- "How large is the team, and what's the seniority distribution?"
+
+**Process & Timeline**
+- "What does the interview process look like from here?"
+- "How many rounds should I expect, and what's the typical timeline?"
+- "Are there any specific topics or technologies I should review?"
+
+**Company & Culture**
+- "What's the company's current growth stage and trajectory?"
+- "How would you describe the engineering culture?"
+- "What's the remote/hybrid policy?"
+
+**Questions to Avoid with Recruiters**
+- Deep technical questions (they likely can't answer)
+- Salary demands (wait for the offer stage, though ranges are fair to ask)
+- Negative questions about the company's competitors or challenges`
+        },
+        {
+          question: 'What questions should I ask the technical interviewer?',
+          answer: `**Technical Round Questions**
+
+Your technical interviewer is usually a peer or senior engineer on the team. Ask about the actual engineering work.
+
+**Technical Depth**
+- "What does your tech stack look like, and how do you make technology decisions?"
+- "What's the testing strategy? What percentage of code is covered by automated tests?"
+- "How do you handle technical debt? Is there dedicated time for it?"
+- "What does your CI/CD pipeline look like? How often do you deploy?"
+
+**Engineering Culture**
+- "How does the code review process work? What's the average review turnaround?"
+- "How are architectural decisions made? Is there an ADR process?"
+- "What's the on-call rotation like? How many incidents does the team handle per month?"
+
+**Growth & Challenges**
+- "What's the most interesting technical challenge the team has tackled recently?"
+- "What's the biggest pain point in the current system?"
+- "If you could change one thing about the engineering practices here, what would it be?"
+
+**Why This Matters**: These questions show you care about engineering excellence, not just getting the job. They also give you critical information about whether you'll enjoy the day-to-day work.`
+        },
+        {
+          question: 'What questions should I ask the hiring manager?',
+          answer: `**Hiring Manager Round Questions**
+
+The hiring manager evaluates leadership potential and team fit. Ask about expectations, growth, and team dynamics.
+
+**Expectations & Success**
+- "What does success look like for this role in the first 90 days? First year?"
+- "What's the biggest challenge the team is facing that this hire will help address?"
+- "How do you measure performance? What does the review process look like?"
+
+**Team & Leadership**
+- "How do you run your team? What's your management style?"
+- "How do you handle disagreements between engineers on technical direction?"
+- "Can you give an example of someone who has grown significantly on this team?"
+
+**Strategic Direction**
+- "What's on the team's roadmap for the next 6-12 months?"
+- "How does this team's work connect to the company's broader goals?"
+- "What's the team's relationship with product and design?"
+
+**Red Flag Detection**
+- "How long have the current team members been here?" (high turnover signal)
+- "What happened to the person who previously held this role?"
+- "How often do priorities change? How does the team handle that?"
+
+**This round is mutual**: you're evaluating whether this manager will invest in your growth and create an environment where you can do your best work.`
+        },
+        {
+          question: 'What questions should I ask a VP or skip-level interviewer?',
+          answer: `**Executive/VP Round Questions**
+
+A VP or director interview is about strategic alignment and culture. Ask big-picture questions that show you think beyond your immediate scope.
+
+**Vision & Strategy**
+- "What's the engineering organization's biggest priority this year?"
+- "How do you balance investing in new features versus platform reliability?"
+- "Where do you see this team/product in 2-3 years?"
+
+**Culture & Values**
+- "What's one thing about the engineering culture here that you're most proud of?"
+- "How does the company invest in engineer growth and development?"
+- "How are cross-team dependencies managed? Is there a platform team?"
+
+**Organizational Health**
+- "How do you handle situations where business priorities conflict with engineering quality?"
+- "What's the biggest lesson the engineering org learned in the past year?"
+- "How transparent is the company about its financial health and strategic direction?"
+
+**Your Career**
+- "What does the career ladder look like for senior engineers here? Is there a strong IC track?"
+- "How do you identify and develop future tech leads and architects?"
+
+**Tone**: Be confident but not aggressive. Executives appreciate thoughtful questions that show you're thinking about the company's success, not just your own role.`
+        }
+      ],
+
+      tips: [
+        'Prepare 5-7 questions per round; some will be answered naturally',
+        'Tailor questions to the interviewer\'s role and seniority',
+        'Never say "I don\'t have any questions" — it signals disinterest',
+        'Use questions to evaluate the company, not just to impress',
+        'Take notes on answers; reference them in follow-up emails'
+      ]
+    },
+    {
+      id: 'managing-constraints',
+      title: 'Managing Constraints',
+      icon: 'sliders',
+      color: '#f43f5e',
+      questions: 4,
+      description: 'Working with limited resources, scope reduction, MVP thinking, and creative solutions.',
+
+      introduction: `Every engineering team operates under constraints: limited time, limited budget, limited headcount, incomplete requirements, or legacy systems that can't be replaced overnight. Interviewers ask about constraints to see if you can deliver value despite imperfect conditions, rather than waiting for ideal circumstances that never arrive.
+
+The best engineers don't just cope with constraints: they use them as a forcing function for creativity. Constraints drive simplicity, prioritization, and focus on what actually matters.`,
+
+      keyQuestions: [
+        {
+          question: 'Tell me about a time you delivered results with limited resources.',
+          answer: `**STAR Example**
+
+**Situation**: "Our team of 3 engineers was asked to build a real-time analytics dashboard that a competitor had built with a team of 12. We had 8 weeks and no budget for additional hires or new infrastructure."
+
+**Task**: "I needed to find a way to deliver a compelling analytics product with a fraction of the resources."
+
+**Action**:
+- "I started by analyzing what the competitor built vs. what our users actually needed. 60% of their features had low usage."
+- "Proposed an MVP scope: 5 core metrics with real-time updates, deferring 15 nice-to-have metrics to phase 2"
+- "Instead of building a custom streaming pipeline, I leveraged our existing PostgreSQL with materialized views refreshed every 30 seconds — 'near real-time' that was good enough for our use case"
+- "Used an open-source charting library instead of building custom visualizations"
+- "Each engineer owned 1-2 complete features end-to-end, minimizing coordination overhead"
+
+**Result**: "We shipped the dashboard in 6 weeks. It covered the top 5 metrics that drove 80% of user decisions. Customer feedback was overwhelmingly positive. We added the deferred metrics over the next quarter with zero urgency, because the MVP turned out to be sufficient for most users."
+
+**Key Lesson**: "Constraints force you to separate what's essential from what's nice-to-have. The 3-person team made faster decisions because there were fewer people to align."`
+        },
+        {
+          question: 'How do you decide what to cut when scope exceeds capacity?',
+          answer: `**Scope Reduction Framework**
+
+**1. Categorize by Impact vs. Effort**
+- Plot features on a 2x2 matrix: high impact/low effort (do first), high impact/high effort (plan carefully), low impact/low effort (do if time), low impact/high effort (cut)
+- Be honest about impact: "Users want this" is different from "Users need this"
+
+**2. Define the MVP Rigorously**
+- "What is the minimum functionality that solves the user's core problem?"
+- The MVP is not a worse version of the full product: it's a focused version of the most important part
+- Example: MVP of a search feature is keyword search with relevant results. Filters, autocomplete, and "did you mean" are enhancements.
+
+**3. Negotiate with Stakeholders**
+- Present options, not just cuts: "We can deliver A+B in 4 weeks or A+B+C in 7 weeks"
+- Make trade-offs explicit: "Adding feature C delays the launch by 3 weeks and delays the revenue impact"
+- Let the business decide the priority order; your job is to make the trade-offs clear
+
+**4. Defer, Don't Delete**
+- Maintain a "Phase 2" backlog of deferred items
+- Document why each item was deferred and the conditions for including it
+- This reassures stakeholders that their needs aren't being ignored
+
+**5. Revisit After Launch**
+- Measure actual usage of the MVP features
+- Often, deferred features turn out to be unnecessary based on real user behavior
+- This retroactively validates the scope cut`
+        },
+        {
+          question: 'Describe a creative solution you found when the obvious approach wasn\'t feasible.',
+          answer: `**STAR Example**
+
+**Situation**: "We needed to implement full-text search across 50 million product listings. The obvious solution was Elasticsearch, but our ops team had no experience with it, and we had no budget for a managed service."
+
+**Task**: "Find a search solution that was good enough for our needs without introducing a new complex system."
+
+**Action**:
+- "I researched alternatives and discovered PostgreSQL's built-in full-text search with tsvector/tsquery"
+- "Ran benchmarks: for our query patterns (simple keyword search with category filtering), PostgreSQL FTS handled 500 queries/sec with p99 under 200ms"
+- "Added GIN indexes on the search columns and a materialized view for the search index"
+- "Implemented search ranking using ts_rank with weight boosting for title matches over description matches"
+- "Set up a monitoring dashboard so we'd know when to upgrade to a dedicated search engine"
+
+**Result**: "PostgreSQL FTS served us for 18 months. When we finally outgrew it (needed fuzzy matching and synonyms), we had the time and team expertise to properly evaluate Elasticsearch vs. Meilisearch. We chose Meilisearch, which was simpler to operate. The PostgreSQL bridge saved us 6 months of premature optimization and let us ship the feature 8 weeks ahead of what an Elasticsearch setup would have required."
+
+**Key Takeaway**: "The best solution isn't always the most sophisticated. Sometimes the boring technology you already have is the right answer. The creative part is recognizing when 'good enough' truly is good enough."`
+        }
+      ],
+
+      tips: [
+        'Frame constraints positively: they force better prioritization and simpler designs',
+        'Always present options with trade-offs rather than just saying "we can\'t"',
+        'Show that you differentiate between essential complexity and accidental complexity',
+        'Demonstrate MVP thinking: what is the minimum that delivers real value?',
+        'Have an example where a constraint led to a better outcome than unlimited resources would have'
       ]
     },
   ];

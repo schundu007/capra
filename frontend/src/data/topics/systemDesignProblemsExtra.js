@@ -27,6 +27,12 @@ export const extraSystemDesignProblemCategoryMap = {
   'ci-cd-pipeline': 'async',
   'calendar-system': 'specialized',
   'online-chess': 'specialized',
+  'recommendation-engine': 'specialized',
+  'chatgpt-llm-system': 'specialized',
+  'deployment-system': 'async',
+  'distributed-search': 'infrastructure',
+  'blob-store': 'storage',
+  'distributed-task-scheduler': 'async',
 };
 
 export const extraSystemDesigns = [
@@ -4952,6 +4958,1875 @@ After 6 months inactive: RD increases back toward 350 (uncertainty grows)
       'Glicko-2 rating system with rating deviation for uncertainty tracking',
       'Redis-backed active game state with crash recovery via checkpointing',
       'Separate spectator fan-out via pub/sub to avoid impacting gameplay latency'
+    ]
+  },
+
+  // ─── 21. Recommendation Engine ──────────────────────────────────────
+  {
+    id: 'recommendation-engine',
+    isNew: true,
+    title: 'Recommendation Engine',
+    subtitle: 'YouTube/Netflix-Style Recommendations',
+    icon: 'thumbsUp',
+    color: '#e11d48',
+    difficulty: 'Hard',
+    description: 'Design a large-scale recommendation system using collaborative filtering, content-based, and hybrid approaches for platforms like YouTube or Netflix.',
+
+    introduction: `Recommendation engines are the invisible backbone of every major content platform. Whether it is Netflix suggesting your next binge, YouTube autoplaying the perfect video, or Spotify creating Discover Weekly, the underlying system must sift through millions of items and billions of user signals to surface a personalized ranked list in under 200 milliseconds.
+
+The core challenge is balancing three competing concerns: relevance (show the user things they will love), diversity (avoid filter bubbles and repetitive suggestions), and freshness (surface new content before it has engagement signals). The system must handle the cold-start problem for new users and new items, the popularity bias that drowns out niche content, and the real-time feedback loop where a single click changes the next set of recommendations.
+
+From an infrastructure perspective, the system must serve recommendations at massive scale (millions of QPS), retrain models on petabytes of interaction data, and maintain low-latency feature stores that bridge the offline training world with the online serving world.`,
+
+    functionalRequirements: [
+      'Generate personalized ranked recommendations for each user',
+      'Support multiple recommendation surfaces (home feed, "more like this", search re-ranking)',
+      'Collaborative filtering: users who liked X also liked Y',
+      'Content-based filtering: recommend items similar to those the user engaged with',
+      'Hybrid approach combining collaborative and content-based signals',
+      'Handle cold-start for new users (no history) and new items (no engagement)',
+      'Real-time incorporation of user feedback (clicks, watches, skips)',
+      'A/B testing framework for comparing recommendation models'
+    ],
+
+    nonFunctionalRequirements: [
+      'Recommendation serving latency < 200ms at p99',
+      'Support 10M+ concurrent users requesting recommendations',
+      'Model retraining on full dataset completes within 6 hours',
+      'Near-real-time feature updates (< 5 minute lag for user signals)',
+      '99.99% availability for recommendation serving',
+      'Graceful degradation: fall back to popularity-based if ML models are unavailable'
+    ],
+
+    estimation: {
+      users: '500M DAU, 10M concurrent peak, each user requests recommendations ~50 times/day',
+      storage: '100B+ interaction events/day (~10TB/day raw); item catalog ~50M items; user embeddings ~500M vectors',
+      bandwidth: '~200KB per recommendation response * 25B requests/day = ~60PB/day egress',
+      qps: '~5M recommendation requests/sec peak, ~2M feature lookups/sec, model training reads ~100TB/day'
+    },
+
+    apiDesign: {
+      description: 'Internal microservice APIs for recommendation serving and feedback ingestion',
+      endpoints: [
+        { method: 'GET', path: '/api/recommendations/:userId', params: 'surface=home|similar|search, context, count=30, excludeIds[]', response: '{ items[{id, score, reason}], modelVersion }' },
+        { method: 'POST', path: '/api/feedback', params: '{ userId, itemId, action: click|watch|skip|like|dislike, duration?, context }', response: '202 { acknowledged }' },
+        { method: 'GET', path: '/api/similar/:itemId', params: 'count=20, userId?', response: '{ items[{id, score, similarity}] }' },
+        { method: 'POST', path: '/api/experiments', params: '{ modelA, modelB, trafficSplit, metrics[] }', response: '201 { experimentId }' },
+        { method: 'GET', path: '/api/explain/:userId/:itemId', params: '', response: '{ reasons[], topFeatures[], similarUsers[] }' }
+      ]
+    },
+
+    dataModel: {
+      description: 'User profiles, item metadata, interaction logs, and embedding stores',
+      schema: `users {
+  id: bigint PK
+  signup_date: timestamp
+  demographics: jsonb  -- age_bucket, country, language
+  subscription_tier: enum(free, premium)
+}
+
+items {
+  id: bigint PK
+  type: enum(video, movie, song, article)
+  title: varchar
+  genres: text[]
+  tags: text[]
+  creator_id: bigint FK
+  content_embedding: float[512]  -- from content analysis (visual, audio, text)
+  popularity_score: float
+  freshness_score: float
+  created_at: timestamp
+}
+
+interactions {
+  user_id: bigint
+  item_id: bigint
+  action: enum(impression, click, watch, complete, like, dislike, skip)
+  watch_duration_ms: int nullable
+  watch_percentage: float nullable
+  context: jsonb  -- {surface, position, session_id, device}
+  timestamp: timestamp
+  PK(user_id, item_id, action, timestamp)
+  -- Partitioned by date for efficient batch processing
+}
+
+user_embeddings (feature store) {
+  user_id: bigint PK
+  collaborative_vector: float[256]  -- learned from interaction patterns
+  content_preference_vector: float[256]  -- aggregated from liked item embeddings
+  recent_interests: jsonb  -- short-term session-based signals
+  last_updated: timestamp
+}
+
+item_embeddings (feature store) {
+  item_id: bigint PK
+  collaborative_vector: float[256]  -- learned from user co-interactions
+  content_vector: float[512]  -- from content analysis
+  engagement_features: jsonb  -- {ctr, avg_watch_pct, like_rate}
+  last_updated: timestamp
+}`
+    },
+
+    basicImplementation: {
+      title: 'Basic Architecture',
+      description: 'A single recommendation service computes suggestions by querying a database of user-item interactions, applying simple collaborative filtering (item-item similarity based on co-occurrence), and ranking by a weighted score. Models are retrained nightly in batch.',
+      problems: [
+        'Batch-only retraining means recommendations are stale for up to 24 hours',
+        'Single-model approach cannot handle cold-start users or items',
+        'Item-item similarity matrix grows quadratically and does not fit in memory',
+        'No separation between candidate generation and ranking limits personalization quality',
+        'No real-time feature pipeline means user actions during a session are ignored'
+      ]
+    },
+
+    advancedImplementation: {
+      title: 'Multi-Stage Recommendation Pipeline with Real-Time Features',
+      description: 'A three-stage pipeline: (1) Candidate Generation narrows millions of items to ~1000 using multiple retrieval strategies (collaborative ANN, content-based ANN, trending, social graph); (2) Ranking scores each candidate with a deep neural network using rich user/item/context features; (3) Re-ranking applies business rules (diversity, freshness boost, deduplication). A real-time feature pipeline via Kafka + Flink updates user signals within seconds.',
+      keyPoints: [
+        'Multiple candidate generators run in parallel: collaborative filtering ANN, content-based ANN, trending, editorial curated',
+        'Two-tower model for candidate generation: user tower and item tower produce embeddings, ANN search finds nearest items',
+        'Ranking model: deep neural network (Wide & Deep or DCN) with hundreds of features including user history, item features, and cross-features',
+        'Real-time feature pipeline: Kafka ingests clicks/watches -> Flink computes session features -> Feature Store updated in < 1 minute',
+        'Feature Store (Redis + DynamoDB): serves pre-computed features at low latency during online inference',
+        'Model serving via TensorFlow Serving or Triton with GPU inference, batched requests for throughput'
+      ],
+      databaseChoice: 'Feature Store (Redis for hot features, DynamoDB for warm); Vector DB (Milvus/Pinecone) for ANN retrieval; Hive/Spark for batch training data; Kafka + Flink for real-time stream processing; PostgreSQL for experiment configuration',
+      caching: 'Pre-computed recommendation lists cached in Redis for users with stable preferences (TTL 15 min); candidate sets cached per retrieval strategy; feature vectors cached in Feature Store with tiered TTLs (real-time features: 1 min, batch features: 6 hours)'
+    },
+
+    tips: [
+      'Start by clarifying the scale and type of content (videos, products, articles) as this affects the approach',
+      'The two-phase architecture (candidate generation + ranking) is essential -- explain why single-phase does not scale',
+      'Discuss the cold-start problem explicitly: new users get popularity/trending, new items get content-based boosting',
+      'Emphasize the feedback loop: impressions -> interactions -> model updates -> better impressions',
+      'Mention the exploration-exploitation tradeoff: always showing "safe" recommendations creates filter bubbles',
+      'A/B testing is critical: discuss how you measure recommendation quality (CTR, watch time, retention, diversity)'
+    ],
+
+    keyQuestions: [
+      {
+        question: 'How does collaborative filtering work at scale?',
+        answer: `**Core Idea**: Users who interacted with similar items have similar preferences.
+
+**Matrix Factorization Approach**:
+- Build a user-item interaction matrix (sparse: most entries are missing)
+- Factorize into two lower-rank matrices: User matrix (N x k) and Item matrix (M x k)
+- Each user and item is represented as a k-dimensional vector (embedding)
+- Predicted score = dot product of user and item vectors
+
+**Training** (Alternating Least Squares or SGD):
+\`\`\`
+For each known interaction (user_i, item_j, rating):
+  Minimize: (rating - dot(user_vec_i, item_vec_j))^2 + regularization
+\`\`\`
+
+**Scaling to Billions of Interactions**:
+- **Distributed training**: Spark MLlib or parameter server architecture
+- Partition the interaction matrix by user shards
+- Each worker processes its shard, synchronizes embeddings periodically
+- Training on 100B interactions takes ~4 hours on a 100-node Spark cluster
+
+**Serving** (Approximate Nearest Neighbor):
+- Once trained, each user has a fixed embedding vector
+- To get recommendations: find the top-K item vectors nearest to the user vector
+- Use ANN index (HNSW, IVF) for sub-millisecond retrieval from millions of items
+- Libraries: Faiss (Facebook), ScaNN (Google), Milvus (open source)
+
+**Implicit Feedback** (more realistic than explicit ratings):
+- Weighted by engagement: watch_completion > click > impression
+- One-class problem: we observe positive signals but "no interaction" is ambiguous (not interested vs. never seen)
+- Bayesian Personalized Ranking (BPR): optimize relative ordering of items per user`
+      },
+      {
+        question: 'How do you handle the cold-start problem?',
+        answer: `**Cold-Start Users** (no interaction history):
+
+**Onboarding Signals**:
+- Explicit preferences during signup (genre picks, favorite creators)
+- Demographic features: age bucket, country, language -> demographic cohort recommendations
+- Device/platform signals: iOS vs. Android, time zone
+
+**Bandit-Based Exploration**:
+- Treat new user's first N sessions as exploration
+- Thompson Sampling: show items from diverse categories, observe reactions
+- Each interaction rapidly narrows the user's preference estimate
+- Transition to full personalization after ~20-30 interactions
+
+**Cold-Start Items** (no engagement data):
+
+**Content-Based Bootstrapping**:
+- Extract content features: visual (CNN), audio (spectrogram), text (BERT embeddings)
+- Find nearest existing items by content similarity
+- "Borrow" engagement predictions from similar items
+- Boost exposure in candidate generation to accumulate real signals
+
+**Exploration Budget**:
+- Reserve 5-10% of recommendation slots for cold-start items
+- Distribute new items across diverse user segments to gather broad signal
+- Use contextual bandits: show new item to users most likely to engage (based on content match)
+
+**Measuring Cold-Start Performance**:
+- Track "time to first meaningful engagement" for new users
+- Track "impressions needed to reach stable CTR prediction" for new items
+- Target: new users get personalized recommendations within 5 interactions; new items get stable predictions within 1000 impressions`
+      },
+      {
+        question: 'How does the real-time feature pipeline work?',
+        answer: `**Why Real-Time Matters**:
+- User watches a cooking video -> next recommendations should reflect this immediately
+- Without real-time: user sees stale recommendations until next batch retrain (hours later)
+- Goal: user actions reflected in recommendations within 1-5 minutes
+
+**Architecture**:
+\`\`\`
+User action -> API -> Kafka (interaction events)
+                         |
+                    Flink jobs (stream processing)
+                         |
+                    Feature Store (Redis)
+                         |
+                    Recommendation Service reads updated features
+\`\`\`
+
+**Feature Types by Freshness**:
+- **Real-time (< 1 min)**: session features (last 10 items viewed, current category distribution), active device
+- **Near-real-time (< 1 hour)**: user engagement rates updated with recent actions, trending scores
+- **Batch (6-24 hours)**: user/item embeddings from full model retrain, long-term preference vectors
+
+**Flink Processing Examples**:
+\`\`\`
+// Sliding window: user's genre distribution in last 30 minutes
+SELECT user_id,
+       genre,
+       COUNT(*) as genre_count,
+       AVG(watch_percentage) as avg_watch_pct
+FROM interactions
+WHERE timestamp > now() - INTERVAL 30 MINUTES
+GROUP BY user_id, genre
+\`\`\`
+
+**Feature Store Design**:
+- **Write path**: Flink outputs -> Redis (real-time features) + DynamoDB (durable backup)
+- **Read path**: Recommendation service batch-fetches features for all candidates
+  - Single round-trip via Redis MGET for user + candidate features
+  - Latency budget: 10-20ms for feature retrieval
+- **Fallback**: if real-time features are unavailable, use last-known batch features (slightly stale but always available)
+
+**Consistency**:
+- Features are eventually consistent (acceptable for recommendations)
+- Version each feature update to prevent out-of-order writes
+- Monitor feature freshness: alert if any feature type lags beyond its SLA`
+      }
+    ],
+
+    requirements: ['Personalized ranking', 'Collaborative filtering', 'Content-based filtering', 'Cold-start handling', 'Real-time feature pipeline', 'A/B testing'],
+    components: ['Recommendation Service', 'Candidate Generators', 'Ranking Model (TF Serving)', 'Feature Store (Redis + DynamoDB)', 'Kafka + Flink (real-time pipeline)', 'Vector DB (Milvus)', 'Spark (batch training)', 'Experiment Platform'],
+    keyDecisions: [
+      'Multi-stage pipeline (candidate generation -> ranking -> re-ranking) for scalable personalization',
+      'Two-tower embedding model for candidate generation enabling sub-millisecond ANN retrieval',
+      'Real-time feature pipeline via Kafka + Flink for session-aware recommendations',
+      'Feature Store with tiered freshness (real-time, near-real-time, batch) for optimal latency',
+      'Exploration budget (5-10% of slots) with contextual bandits for cold-start items',
+      'Offline-online consistency: same feature definitions used in training and serving to prevent skew'
+    ]
+  },
+
+  // ─── 22. ChatGPT / LLM System ──────────────────────────────────────
+  {
+    id: 'chatgpt-llm-system',
+    isNew: true,
+    title: 'ChatGPT / LLM System',
+    subtitle: 'Large Language Model Serving Platform',
+    icon: 'cpu',
+    color: '#10a37f',
+    difficulty: 'Hard',
+    description: 'Design an LLM serving platform with inference optimization, conversation management, and GPU cluster orchestration similar to ChatGPT.',
+
+    introduction: `Serving large language models at scale is one of the most challenging distributed systems problems in modern computing. Unlike traditional web services where request processing takes milliseconds, a single LLM inference request can take 10-60 seconds, consume gigabytes of GPU memory, and generate output token-by-token in an autoregressive loop.
+
+The system must manage GPU clusters worth hundreds of millions of dollars, balance request queues across heterogeneous hardware (A100, H100, different memory configurations), and implement sophisticated inference optimizations (KV-cache management, continuous batching, speculative decoding) to maximize throughput while maintaining acceptable latency.
+
+Beyond raw inference, the platform must handle conversation history (multi-turn context windows), streaming token delivery to clients, content safety filtering, rate limiting per user and organization, and graceful degradation when demand exceeds capacity. The cost of GPU compute makes efficiency not just a performance concern but an existential business requirement.`,
+
+    functionalRequirements: [
+      'Accept text prompts and return generated completions (chat and completion modes)',
+      'Multi-turn conversation with persistent context',
+      'Streaming token-by-token response delivery via SSE',
+      'Support multiple model sizes (GPT-4-class, GPT-3.5-class, fine-tuned variants)',
+      'System prompts, temperature, max_tokens, and other generation parameters',
+      'Function calling / tool use capabilities',
+      'Content safety filtering on inputs and outputs',
+      'Organization and API key management with usage tracking'
+    ],
+
+    nonFunctionalRequirements: [
+      'Time-to-first-token (TTFT) < 2 seconds at p95',
+      'Token generation throughput > 30 tokens/sec per request',
+      'Support 1M+ concurrent conversations',
+      'GPU utilization > 70% across the cluster',
+      '99.9% availability (with graceful degradation under overload)',
+      'Cost-efficient: maximize tokens generated per GPU-hour'
+    ],
+
+    estimation: {
+      users: '100M weekly users, 10M concurrent conversations at peak',
+      storage: '~2KB avg per conversation turn * 1B turns/day = ~2TB/day conversation data; model weights: 500GB-1TB per model',
+      bandwidth: '~500 bytes/token * 50 tokens/sec * 10M concurrent = ~250GB/sec peak output bandwidth',
+      qps: '~500K new requests/sec peak, each generating 200-2000 tokens over 5-30 seconds'
+    },
+
+    apiDesign: {
+      description: 'REST API for chat completions with SSE streaming, plus management endpoints',
+      endpoints: [
+        { method: 'POST', path: '/v1/chat/completions', params: '{ model, messages[{role, content}], stream?, temperature, max_tokens, tools[]? }', response: 'SSE stream: data: {choices[{delta:{content}}]}\n or JSON {choices[{message}]}' },
+        { method: 'POST', path: '/v1/completions', params: '{ model, prompt, max_tokens, temperature, stop[] }', response: '{ choices[{text}], usage }' },
+        { method: 'GET', path: '/v1/models', params: '', response: '{ data[{id, created, owned_by, context_length}] }' },
+        { method: 'POST', path: '/v1/moderations', params: '{ input }', response: '{ results[{flagged, categories}] }' },
+        { method: 'GET', path: '/v1/usage', params: 'start_date, end_date, org_id?', response: '{ daily[{date, tokens_input, tokens_output, cost}] }' }
+      ]
+    },
+
+    dataModel: {
+      description: 'Conversations, usage tracking, model registry, and inference metadata',
+      schema: `conversations {
+  id: uuid PK
+  user_id: bigint FK
+  org_id: bigint FK nullable
+  model: varchar(50)
+  system_prompt: text nullable
+  created_at: timestamp
+  last_active_at: timestamp
+  total_tokens: bigint
+}
+
+messages {
+  id: uuid PK
+  conversation_id: uuid FK
+  role: enum(system, user, assistant, tool)
+  content: text
+  tool_calls: jsonb nullable
+  token_count: int
+  model_version: varchar
+  latency_ms: int
+  created_at: timestamp
+}
+
+api_keys {
+  id: uuid PK
+  org_id: bigint FK
+  key_hash: varchar(64) unique
+  name: varchar
+  rate_limit_rpm: int
+  rate_limit_tpm: int
+  created_at: timestamp
+  revoked_at: timestamp nullable
+}
+
+usage_records {
+  id: bigint PK
+  org_id: bigint FK
+  api_key_id: uuid FK
+  model: varchar(50)
+  input_tokens: int
+  output_tokens: int
+  cost_cents: int
+  request_id: uuid
+  timestamp: timestamp
+  -- Partitioned by date + org_id
+}
+
+model_registry {
+  id: varchar PK  -- e.g., "gpt-4-turbo-2024-04-09"
+  base_model: varchar
+  context_length: int
+  gpu_memory_gb: float
+  min_gpus: int
+  tensor_parallel_degree: int
+  status: enum(active, deprecated, canary)
+  deployed_at: timestamp
+}`
+    },
+
+    basicImplementation: {
+      title: 'Basic Architecture',
+      description: 'Requests hit an API gateway that routes to a pool of GPU servers, each running a single model instance. One request occupies one GPU until completion. Conversations are stored in a database and the full history is sent with each request.',
+      problems: [
+        'One-request-per-GPU utilization is extremely wasteful (GPU idle during I/O and between tokens)',
+        'No batching means throughput is limited to single-digit requests per GPU',
+        'Sending full conversation history with each request wastes input processing time',
+        'No KV-cache reuse means redundant computation for every turn in a conversation',
+        'Single model size per server prevents mixing workloads for optimal utilization'
+      ]
+    },
+
+    advancedImplementation: {
+      title: 'Optimized LLM Serving with Continuous Batching and KV-Cache Management',
+      description: 'An inference engine (like vLLM) implements continuous batching: new requests are inserted into a running batch as slots become available, maximizing GPU utilization. PagedAttention manages KV-cache memory like virtual memory pages, preventing fragmentation. A global scheduler routes requests to the optimal GPU based on model affinity, current load, and KV-cache availability. Tensor parallelism splits large models across multiple GPUs.',
+      keyPoints: [
+        'Continuous batching (iteration-level scheduling): unlike static batching, new requests join mid-batch as others complete, keeping GPUs saturated',
+        'PagedAttention (vLLM): KV-cache stored in non-contiguous memory pages, allocated on demand, enabling 2-4x more concurrent requests per GPU',
+        'Prefix caching: shared system prompts and repeated conversation prefixes reuse cached KV blocks across requests',
+        'Speculative decoding: small draft model generates candidate tokens, large model verifies in parallel, reducing latency by 2-3x for some workloads',
+        'Tensor parallelism for large models: split model layers across 4-8 GPUs with NVLink interconnect for low-latency all-reduce',
+        'Global request scheduler: routes based on model affinity (warm weights), GPU memory availability, queue depth, and SLO tier'
+      ],
+      databaseChoice: 'PostgreSQL for conversations and usage records; Redis for rate limiting, session state, and request queue management; S3 for model weight storage; etcd for cluster coordination and model registry; ClickHouse for usage analytics',
+      caching: 'GPU KV-cache for active conversations (PagedAttention); prefix cache for common system prompts; Redis for conversation metadata and rate limit counters; CDN for static model documentation and API responses'
+    },
+
+    tips: [
+      'Clarify the scope: focus on the inference serving infrastructure, not the model training pipeline',
+      'Continuous batching is the single most important optimization -- explain how it differs from static batching',
+      'KV-cache management is the key memory bottleneck -- discuss PagedAttention or similar approaches',
+      'Discuss the prefill vs. decode phases: prefill is compute-bound, decode is memory-bandwidth-bound',
+      'Mention GPU cluster economics: a single H100 costs ~$30K, so utilization is critical',
+      'Content safety as a separate pipeline: moderation model checks input before inference and output before delivery'
+    ],
+
+    keyQuestions: [
+      {
+        question: 'How does continuous batching work?',
+        answer: `**Problem with Static Batching**:
+- Collect N requests, process as a batch, wait for ALL to finish
+- Short requests (20 tokens) wait for long requests (2000 tokens) in the same batch
+- GPU idle time while waiting for the batch to fill
+- Throughput: ~5-10 requests/sec per GPU
+
+**Continuous Batching (Iteration-Level Scheduling)**:
+\`\`\`
+Iteration 1: [Req_A(token 1), Req_B(token 1), Req_C(token 1)]
+Iteration 2: [Req_A(token 2), Req_B(DONE), Req_C(token 2)]
+             -> Req_B slot freed, Req_D joins immediately
+Iteration 3: [Req_A(token 3), Req_D(token 1), Req_C(token 3)]
+\`\`\`
+
+**How It Works**:
+1. Maintain a running batch of active requests
+2. Each iteration: generate one token for each request in the batch
+3. When any request completes (hits stop token or max_tokens):
+   - Remove it from the batch
+   - Immediately insert the next waiting request
+4. New requests start generating within one iteration (~50ms)
+
+**Benefits**:
+- GPU never idles waiting for batch to fill
+- Short requests complete quickly without being blocked by long ones
+- Throughput: ~50-200 requests/sec per GPU (10-20x improvement)
+- TTFT reduced because requests do not wait for a full batch
+
+**Memory Management Challenge**:
+- Each request in the batch needs KV-cache memory
+- Batch size limited by total GPU memory available for KV-cache
+- PagedAttention solves this by eliminating memory fragmentation
+
+**Prefill vs. Decode Phases**:
+- Prefill (processing input tokens): compute-bound, benefits from parallelism
+- Decode (generating output tokens): memory-bandwidth-bound, one token at a time
+- Advanced systems separate prefill and decode into different GPU pools`
+      },
+      {
+        question: 'How do you manage KV-cache memory efficiently?',
+        answer: `**The KV-Cache Problem**:
+- For each token in the context, the model stores Key and Value tensors for every attention layer
+- GPT-4 class model: ~1-2MB of KV-cache per token per request
+- 4096 token context: ~4-8GB of KV-cache per request
+- A single 80GB A100 can only hold 10-20 concurrent requests!
+
+**Traditional Approach (Wasteful)**:
+- Pre-allocate max_context_length of KV-cache per request
+- If max is 8192 but actual context is 500 tokens: 94% of allocated memory is wasted
+- Result: far fewer concurrent requests than GPU memory allows
+
+**PagedAttention (vLLM)**:
+\`\`\`
+Physical GPU memory divided into fixed-size "pages" (e.g., 16 tokens each)
+
+Request A (200 tokens): Pages [P1, P2, ..., P13] (allocated on demand)
+Request B (50 tokens):  Pages [P14, P15, P16, P17]
+Request C (300 tokens): Pages [P18, ..., P37]
+
+As Request B generates more tokens:
+  New pages allocated: P38, P39, ... (non-contiguous, that is fine!)
+
+When Request A completes:
+  Pages [P1-P13] freed immediately, available for new requests
+\`\`\`
+
+**Benefits**:
+- Near-zero memory waste (only last page may have unused slots)
+- 2-4x more concurrent requests compared to pre-allocation
+- Pages can be shared across requests (prefix caching)
+
+**Prefix Caching**:
+- Many requests share the same system prompt (e.g., "You are a helpful assistant...")
+- Compute KV-cache for the system prompt once, share pages across all requests
+- For a 500-token system prompt: saves 500-1000MB of KV-cache per request
+- Particularly valuable for function-calling prompts (large tool definitions)
+
+**Eviction Policy** (when GPU memory is full):
+- Priority queue: premium tier users kept in GPU memory, free tier swapped
+- Swap KV-cache to CPU memory (10x slower but cheaper than recomputation)
+- Last resort: preempt lowest-priority request, recompute from scratch later`
+      },
+      {
+        question: 'How do you handle GPU cluster scheduling and routing?',
+        answer: `**Cluster Topology**:
+\`\`\`
+GPU Cluster (thousands of GPUs):
+  ├── Model Pool: GPT-4 (8x H100 per instance, tensor parallel)
+  │     ├── Instance 1: [GPU 0-7] - 12 active requests
+  │     ├── Instance 2: [GPU 8-15] - 8 active requests (has capacity)
+  │     └── Instance 3: [GPU 16-23] - 15 active requests (at capacity)
+  ├── Model Pool: GPT-3.5 (1x A100 per instance)
+  │     ├── Instance 1-50: varying load
+  │     └── ...
+  └── Model Pool: Fine-tuned variants (mixed hardware)
+\`\`\`
+
+**Global Request Scheduler**:
+1. Request arrives at API Gateway
+2. Scheduler selects target instance based on:
+   - **Model match**: route to instances running the requested model
+   - **KV-cache affinity**: if this is a multi-turn conversation, route to the instance that has the KV-cache from the previous turn (avoid recomputation)
+   - **Load balancing**: prefer instances with lower queue depth
+   - **SLO tier**: premium users routed to less-loaded instances
+   - **Memory availability**: check if instance has enough KV-cache memory for the request
+
+**Autoscaling**:
+- Scale based on queue depth and average TTFT, not just GPU utilization
+- Scale-up is slow (loading model weights takes 2-5 minutes for large models)
+- Keep warm spare capacity: always maintain 10-15% idle instances
+- Predictive scaling: use historical traffic patterns (traffic doubles during US business hours)
+
+**Handling Overload**:
+- Priority queuing: premium requests skip ahead of free-tier
+- Request shedding: reject lowest-priority requests with 429 status when queue exceeds threshold
+- Graceful degradation: offer smaller/faster model as fallback ("GPT-4 is busy, GPT-3.5 available")
+- Token budget management: limit max_tokens for free-tier during peak to increase throughput
+
+**Fault Tolerance**:
+- GPU failure detection via heartbeat (5-second timeout)
+- Running requests on failed GPU: client receives error, retries on different instance
+- KV-cache is ephemeral: loss means re-prefill (extra latency but not data loss)
+- Model weight replication: weights stored in shared storage (S3), loaded on demand`
+      }
+    ],
+
+    requirements: ['Chat completions API', 'Streaming token delivery', 'Conversation management', 'GPU cluster orchestration', 'Rate limiting and billing', 'Content safety'],
+    components: ['API Gateway', 'Global Request Scheduler', 'Inference Engine (vLLM)', 'GPU Clusters (H100/A100)', 'KV-Cache Manager (PagedAttention)', 'PostgreSQL (conversations)', 'Redis (rate limits + queues)', 'Model Registry (etcd)'],
+    keyDecisions: [
+      'Continuous batching at the iteration level for 10-20x throughput improvement over static batching',
+      'PagedAttention for KV-cache memory management eliminating fragmentation waste',
+      'Prefix caching for shared system prompts reducing per-request memory and compute',
+      'KV-cache affinity routing for multi-turn conversations avoiding redundant prefill',
+      'Separate prefill and decode GPU pools for workload-specific optimization',
+      'Priority-based request scheduling with graceful degradation under overload'
+    ]
+  },
+
+  // ─── 23. Deployment System ──────────────────────────────────────────
+  {
+    id: 'deployment-system',
+    isNew: true,
+    title: 'Deployment System',
+    subtitle: 'CI/CD at Scale',
+    icon: 'upload',
+    color: '#6366f1',
+    difficulty: 'Hard',
+    description: 'Design a deployment system supporting blue-green, canary, and rolling deployments with CI/CD pipelines at scale.',
+
+    introduction: `A deployment system is the bridge between source code and production. At scale, companies deploy thousands of times per day across hundreds of microservices, and a bad deployment can take down the entire platform. The system must provide both velocity (developers ship fast) and safety (bad code is caught before it reaches all users).
+
+The core challenge is managing the lifecycle of a deployment: building the artifact (container image), running tests, gradually rolling out to production instances, monitoring health metrics, and automatically rolling back if something goes wrong. Each deployment strategy (blue-green, canary, rolling) offers different tradeoffs between speed, resource cost, and risk.
+
+Beyond the mechanics of placing containers on servers, the system must handle dependency management (service A depends on service B version >= 2.0), configuration management (feature flags, environment variables), and observability integration (connecting deployment events to metrics dashboards for impact correlation).`,
+
+    functionalRequirements: [
+      'CI pipeline: build, test, and produce deployment artifacts (container images)',
+      'Multiple deployment strategies: blue-green, canary, rolling update',
+      'Automatic rollback on health check failure or metric degradation',
+      'Deployment pipeline with approval gates (staging -> canary -> production)',
+      'Configuration and secret management per environment',
+      'Deployment history, audit log, and diff visualization',
+      'Feature flag integration for decoupling deployment from release',
+      'Multi-region deployment orchestration'
+    ],
+
+    nonFunctionalRequirements: [
+      'Zero-downtime deployments (no dropped requests during rollout)',
+      'Canary analysis detects regressions within 5 minutes',
+      'Rollback completes in < 60 seconds',
+      'Support 500+ microservices with 2000+ deployments per day',
+      'Build pipeline completes in < 10 minutes for 95% of services',
+      '99.99% availability of the deployment platform itself'
+    ],
+
+    estimation: {
+      users: '5000 engineers, 500 microservices, ~2000 deployments/day, ~100 concurrent builds',
+      storage: '~500MB avg container image * 2000 builds/day = ~1TB/day of artifacts (with layer deduplication ~200GB/day net new)',
+      bandwidth: '~50GB/hour during peak deployment windows (image pulls across regions)',
+      qps: '~100 build triggers/min peak, ~50 deployments/min peak, ~10K health check probes/sec'
+    },
+
+    apiDesign: {
+      description: 'REST API for pipeline management, webhooks for CI triggers, gRPC for agent communication',
+      endpoints: [
+        { method: 'POST', path: '/api/pipelines/:serviceId/trigger', params: '{ commitSha, branch, triggeredBy }', response: '201 { pipelineId, status: building }' },
+        { method: 'POST', path: '/api/deployments', params: '{ serviceId, imageTag, strategy: blue-green|canary|rolling, regions[], config }', response: '201 { deploymentId, status: pending }' },
+        { method: 'POST', path: '/api/deployments/:deploymentId/promote', params: '{ targetPercentage }', response: '200 { status: promoting }' },
+        { method: 'POST', path: '/api/deployments/:deploymentId/rollback', params: '{ reason }', response: '200 { status: rolling_back, targetVersion }' },
+        { method: 'GET', path: '/api/deployments/:deploymentId/status', params: '', response: '{ status, percentage, healthMetrics, canaryAnalysis }' },
+        { method: 'GET', path: '/api/services/:serviceId/history', params: 'limit, cursor', response: '{ deployments[], currentVersion }' }
+      ]
+    },
+
+    dataModel: {
+      description: 'Services, pipelines, deployments, and health metrics',
+      schema: `services {
+  id: varchar PK  -- e.g., "payment-service"
+  team_id: bigint FK
+  repo_url: varchar
+  default_strategy: enum(blue_green, canary, rolling)
+  health_check_path: varchar
+  min_instances: int
+  max_instances: int
+  regions: text[]
+  config_template: jsonb
+  created_at: timestamp
+}
+
+pipelines {
+  id: uuid PK
+  service_id: varchar FK
+  commit_sha: varchar(40)
+  branch: varchar
+  status: enum(building, testing, artifact_ready, failed)
+  image_tag: varchar nullable
+  build_duration_ms: int nullable
+  test_results: jsonb nullable
+  triggered_by: varchar
+  created_at: timestamp
+}
+
+deployments {
+  id: uuid PK
+  service_id: varchar FK
+  pipeline_id: uuid FK
+  image_tag: varchar
+  strategy: enum(blue_green, canary, rolling)
+  status: enum(pending, in_progress, canary_analysis, promoting, complete, rolled_back, failed)
+  current_percentage: int  -- % of traffic on new version
+  previous_version: varchar
+  regions: text[]
+  config_snapshot: jsonb
+  approved_by: varchar nullable
+  started_at: timestamp
+  completed_at: timestamp nullable
+}
+
+deployment_events {
+  id: bigint PK
+  deployment_id: uuid FK
+  event_type: enum(started, health_check_pass, health_check_fail, canary_pass, canary_fail, promoted, rolled_back)
+  details: jsonb
+  timestamp: timestamp
+}
+
+canary_metrics {
+  deployment_id: uuid FK
+  metric_name: varchar  -- e.g., "error_rate", "p99_latency", "cpu_usage"
+  canary_value: float
+  baseline_value: float
+  verdict: enum(pass, fail, inconclusive)
+  sample_size: int
+  measured_at: timestamp
+  PK(deployment_id, metric_name, measured_at)
+}`
+    },
+
+    basicImplementation: {
+      title: 'Basic Architecture',
+      description: 'A CI server builds container images on commit, pushes to a registry, and a deployment controller replaces all running instances with the new version. Health checks run after replacement. If health checks fail, the previous version is redeployed.',
+      problems: [
+        'All-at-once replacement causes downtime during the switch',
+        'No canary analysis: problems are only caught after full rollout',
+        'Single-region deployment does not account for region-specific failures',
+        'No automated rollback: operators must manually trigger revert',
+        'Build queue bottleneck: sequential builds block deployments during peak hours'
+      ]
+    },
+
+    advancedImplementation: {
+      title: 'Progressive Delivery Platform with Automated Canary Analysis',
+      description: 'A deployment controller manages progressive rollouts: canary (1% -> 5% -> 25% -> 100%) with automated statistical analysis at each stage. Traffic splitting is done at the service mesh level (Envoy/Istio) by adjusting routing weights. A canary analysis engine compares real-time metrics between the canary and baseline using statistical tests (Mann-Whitney U). Blue-green deployments maintain two full environments with instant traffic switch via DNS or load balancer.',
+      keyPoints: [
+        'Service mesh (Envoy/Istio) handles traffic splitting: route X% to canary pods based on weighted routing rules',
+        'Canary analysis engine: compares error rate, latency percentiles, and custom metrics between canary and baseline using Mann-Whitney U test',
+        'Blue-green via dual target groups: both versions running simultaneously, ALB switches traffic atomically',
+        'Rolling update with surge capacity: deploy to N+1 instances, drain connections from old instance, then terminate',
+        'Multi-region orchestration: deploy to staging region first, then roll out to production regions sequentially with bake time between regions',
+        'GitOps model: desired state stored in Git, deployment controller reconciles actual state to match'
+      ],
+      databaseChoice: 'PostgreSQL for deployment history and service configuration; Redis for deployment locks and real-time status; S3 for build artifacts and container images; etcd for service mesh configuration; Prometheus/ClickHouse for canary metrics',
+      caching: 'Container image layer caching in registry (deduplication saves 60-80% storage); build cache per service (dependency cache, compilation cache); DNS TTL management for blue-green switches (low TTL before switch, raise after)'
+    },
+
+    tips: [
+      'Start by clarifying the deployment strategy focus: canary vs. blue-green vs. rolling have very different architectures',
+      'Zero-downtime is non-negotiable: discuss connection draining and health check timing',
+      'Canary analysis is the differentiator: explain statistical comparison of canary vs. baseline metrics',
+      'Discuss the rollback mechanism in detail: how fast, what triggers it, what happens to in-flight requests',
+      'Multi-region adds complexity: discuss deployment ordering, bake time, and blast radius containment',
+      'Mention feature flags as complementary: deploy code dark, enable via flag independently of deployment'
+    ],
+
+    keyQuestions: [
+      {
+        question: 'How does canary deployment with automated analysis work?',
+        answer: `**Canary Deployment Flow**:
+\`\`\`
+1. Deploy canary (1 instance with new version alongside N baseline instances)
+2. Route 1% of traffic to canary via service mesh weighted routing
+3. Collect metrics for 5 minutes (error rate, p50/p99 latency, CPU, custom business metrics)
+4. Canary Analysis Engine compares canary vs. baseline
+5. If pass: promote to 5% -> 25% -> 50% -> 100% (with analysis at each stage)
+6. If fail at any stage: automatic rollback to 0% canary traffic, terminate canary instances
+\`\`\`
+
+**Canary Analysis Engine**:
+\`\`\`python
+def analyze_canary(deployment_id, metric_name):
+    canary_samples = get_metric_samples(deployment_id, "canary", metric_name, window="5m")
+    baseline_samples = get_metric_samples(deployment_id, "baseline", metric_name, window="5m")
+
+    # Mann-Whitney U test (non-parametric, no normality assumption)
+    statistic, p_value = mannwhitneyu(canary_samples, baseline_samples, alternative='greater')
+
+    if p_value < 0.05:  # canary is statistically worse
+        return Verdict.FAIL
+    elif len(canary_samples) < MIN_SAMPLE_SIZE:
+        return Verdict.INCONCLUSIVE  # need more data, extend analysis window
+    else:
+        return Verdict.PASS
+\`\`\`
+
+**Metrics Compared**:
+- **Error rate**: canary error rate should not be statistically higher than baseline
+- **Latency (p50, p99)**: canary should not be slower
+- **Resource usage**: CPU/memory should not spike (indicates potential leak or inefficiency)
+- **Custom business metrics**: conversion rate, checkout success, etc.
+
+**Traffic Splitting via Service Mesh**:
+\`\`\`yaml
+# Istio VirtualService
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+spec:
+  http:
+  - route:
+    - destination:
+        host: payment-service
+        subset: stable
+      weight: 95
+    - destination:
+        host: payment-service
+        subset: canary
+      weight: 5
+\`\`\`
+
+**Handling Edge Cases**:
+- **Low traffic services**: extend analysis window (30 min instead of 5 min) or use synthetic load
+- **Flaky metrics**: use rolling averages and require consecutive failures before rollback
+- **Regional differences**: analyze canary independently per region, not globally aggregated`
+      },
+      {
+        question: 'How does blue-green deployment achieve zero-downtime?',
+        answer: `**Blue-Green Architecture**:
+\`\`\`
+Load Balancer / DNS
+       |
+  ┌────┴────┐
+  ▼         ▼
+ BLUE      GREEN
+(v1.2)    (v1.3)   <- new version deployed here while blue handles traffic
+ active    standby
+
+After validation: switch traffic from BLUE -> GREEN
+GREEN becomes active, BLUE becomes standby
+\`\`\`
+
+**Deployment Steps**:
+1. **Prepare Green**: deploy new version to Green environment (identical to Blue in capacity)
+2. **Validate Green**: run smoke tests, synthetic traffic, health checks against Green
+3. **Switch Traffic**: update load balancer target group (ALB) or DNS record to point to Green
+4. **Drain Blue**: wait for in-flight requests on Blue to complete (connection draining, 30-60 seconds)
+5. **Monitor**: watch Green metrics for 15-30 minutes (bake time)
+6. **Cleanup**: Blue can be kept warm for instant rollback or terminated to save cost
+
+**Traffic Switch Methods**:
+- **Load Balancer (instant)**: ALB target group swap, traffic shifts within seconds
+- **DNS (slower)**: update DNS record, depends on TTL propagation (set TTL to 60s before switch)
+- **Service Mesh (granular)**: weighted routing allows gradual blue->green shift
+
+**Rollback** (the key advantage):
+- Blue environment is still running (or can be restarted from same image)
+- Switch traffic back: load balancer points to Blue again
+- Rollback time: < 30 seconds (just a target group change)
+- No need to rebuild, redeploy, or re-download anything
+
+**Cost Tradeoff**:
+- Requires 2x infrastructure during deployment (both Blue and Green running)
+- Mitigation: keep standby environment at reduced capacity, scale up before switch
+- For stateless services: auto-scaling handles this naturally
+- For services with warm caches: pre-warm Green cache before traffic switch
+
+**Database Considerations**:
+- Blue-green is easy for stateless services but hard when database schema changes
+- Strategy: make DB changes backward-compatible (additive only), deploy DB change first, then application
+- Never drop columns or rename tables during blue-green: both versions must work with same schema`
+      },
+      {
+        question: 'How do you handle rollback safely?',
+        answer: `**Rollback Triggers** (automated):
+1. Health check failures exceed threshold (3 consecutive failures)
+2. Canary analysis verdict: FAIL on any critical metric
+3. Error rate spike > 2x baseline within 2 minutes of promotion
+4. Alerting system fires P1/P2 alert correlated with deployment window
+
+**Rollback Triggers** (manual):
+5. Engineer clicks "Rollback" button with reason
+6. On-call engineer triggers via CLI: \`deploy rollback --service payment --reason "elevated 5xx"\`
+
+**Rollback Mechanics by Strategy**:
+
+**Blue-Green Rollback** (fastest: < 30 seconds):
+- Switch load balancer back to old environment
+- Old environment was never touched, still running previous version
+- In-flight requests to new version may error (acceptable, clients retry)
+
+**Canary Rollback** (fast: < 60 seconds):
+- Set canary traffic weight to 0% in service mesh
+- Terminate canary instances
+- 100% traffic goes to stable baseline (which was always serving)
+- Minimal user impact since canary was serving small % of traffic
+
+**Rolling Update Rollback** (slower: 2-5 minutes):
+- Some instances already running new version
+- Reverse the rolling update: deploy old version back to updated instances
+- During rollback, mixed versions are serving (both old and new)
+- Requires backward-compatible versions to avoid issues during transition
+
+**Safe Rollback Patterns**:
+- **Deployment locks**: only one deployment per service at a time (prevents rollback-during-rollback)
+- **Rollback version pinning**: always roll back to last-known-good, not just "previous" (which may also be bad)
+- **Database migration rollback**: if the new version ran DB migrations, rollback code must handle both old and new schema
+- **In-flight request handling**: connection draining ensures requests complete before instance termination
+
+**Post-Rollback**:
+- Auto-create incident ticket with deployment context
+- Capture canary metrics snapshot for debugging
+- Lock service from re-deployment until incident is resolved
+- Notify team channel with rollback details and link to metrics dashboard`
+      }
+    ],
+
+    requirements: ['CI/CD pipeline', 'Blue-green deployment', 'Canary deployment', 'Rolling updates', 'Automated rollback', 'Multi-region orchestration'],
+    components: ['CI Build Farm', 'Container Registry', 'Deployment Controller', 'Service Mesh (Envoy/Istio)', 'Canary Analysis Engine', 'PostgreSQL (deployment history)', 'Redis (locks + status)', 'Prometheus (metrics)'],
+    keyDecisions: [
+      'Service mesh weighted routing for fine-grained canary traffic splitting',
+      'Statistical canary analysis (Mann-Whitney U) for automated promotion/rollback decisions',
+      'Blue-green with load balancer target group swap for instant rollback capability',
+      'GitOps model: deployment desired state in Git for auditability and reproducibility',
+      'Multi-region sequential rollout with bake time for blast radius containment',
+      'Feature flags decoupled from deployment for independent release control'
+    ]
+  },
+
+  // ─── 24. Distributed Search ─────────────────────────────────────────
+  {
+    id: 'distributed-search',
+    isNew: true,
+    title: 'Distributed Search',
+    subtitle: 'Elasticsearch-Like Search Engine',
+    icon: 'search',
+    color: '#f59e0b',
+    difficulty: 'Hard',
+    description: 'Design a distributed search system with inverted indexing, ranking, crawling, and real-time search capabilities similar to Elasticsearch.',
+
+    introduction: `Distributed search is one of the foundational building blocks of modern infrastructure. Whether powering a site search for an e-commerce platform, log analytics for a DevOps team, or full-text search across a social network, the underlying system must ingest documents, build inverted indices, and serve queries with sub-second latency across billions of documents.
+
+The core data structure is the inverted index: a mapping from every unique term to the list of documents containing that term. Building, updating, and querying this index in a distributed setting is where the complexity lies. Documents must be analyzed (tokenized, stemmed, normalized), indexed across shards for parallelism, and queries must be scattered to relevant shards then gathered and merged.
+
+Beyond basic keyword matching, a production search system needs relevance ranking (BM25, TF-IDF), faceted aggregations, fuzzy matching, near-real-time indexing (documents searchable within seconds of ingestion), and the ability to scale horizontally as data grows from gigabytes to petabytes.`,
+
+    functionalRequirements: [
+      'Index documents with arbitrary JSON fields',
+      'Full-text search with relevance ranking (BM25)',
+      'Filtered queries (range, term, bool combinations)',
+      'Faceted aggregations (counts by category, date histograms)',
+      'Near-real-time indexing (document searchable within 1 second)',
+      'Fuzzy matching and typo tolerance',
+      'Highlighting of matched terms in results',
+      'Index management: create, update mapping, reindex, delete'
+    ],
+
+    nonFunctionalRequirements: [
+      'Query latency < 100ms at p95 for simple queries, < 500ms for complex aggregations',
+      'Indexing throughput > 100K documents/sec sustained',
+      'Support 1T+ documents across the cluster',
+      'Near-real-time: document searchable within 1 second of indexing',
+      '99.99% query availability with replica failover',
+      'Horizontal scaling: add nodes to increase capacity linearly'
+    ],
+
+    estimation: {
+      users: '10K query users, ~50K queries/sec peak; 100K+ data sources ingesting documents',
+      storage: '~1KB avg document * 1T documents = ~1PB raw data; inverted index ~30% of raw = ~300TB index',
+      bandwidth: '~100K docs/sec * 1KB = ~100MB/sec ingest; ~50K queries/sec * 10KB response = ~500MB/sec query',
+      qps: '~50K search queries/sec, ~100K index operations/sec, ~5K aggregation queries/sec'
+    },
+
+    apiDesign: {
+      description: 'REST API modeled after Elasticsearch DSL for indexing and querying',
+      endpoints: [
+        { method: 'PUT', path: '/:index/_doc/:id', params: '{ field1: value1, field2: value2, ... }', response: '201 { _id, _version, result: created }' },
+        { method: 'POST', path: '/:index/_bulk', params: 'NDJSON: {action}\n{document}\n...', response: '200 { items[], errors: bool }' },
+        { method: 'POST', path: '/:index/_search', params: '{ query: {bool: {must, filter, should}}, size, from, sort, aggs, highlight }', response: '{ hits: {total, hits[]}, aggregations }' },
+        { method: 'PUT', path: '/:index', params: '{ mappings: {properties: {field: {type, analyzer}}}, settings: {shards, replicas} }', response: '200 { acknowledged }' },
+        { method: 'POST', path: '/:index/_refresh', params: '', response: '200 { _shards: {successful} }' }
+      ]
+    },
+
+    dataModel: {
+      description: 'Inverted index structure, document store, and cluster metadata',
+      schema: `-- Logical structure of the inverted index (per shard)
+
+inverted_index {
+  term: varchar  -- normalized token (e.g., "distributed")
+  field: varchar  -- which document field (e.g., "title", "body")
+  posting_list: [  -- sorted list of documents containing this term
+    {
+      doc_id: int,
+      term_frequency: int,     -- how many times term appears in this doc
+      positions: int[],         -- positions for phrase queries
+      field_length: int         -- total terms in field (for BM25 normalization)
+    }
+  ]
+  document_frequency: int  -- number of docs containing this term (for IDF)
+}
+
+document_store {
+  doc_id: int PK
+  _source: jsonb  -- original document (for retrieval)
+  _version: bigint
+  field_norms: map<field, float>  -- pre-computed field length norms
+}
+
+-- Cluster metadata (stored in dedicated master nodes)
+cluster_state {
+  indices: [{
+    name: varchar,
+    uuid: uuid,
+    mappings: jsonb,         -- field name -> type + analyzer
+    settings: jsonb,         -- shard count, replica count
+    shards: [{
+      shard_id: int,
+      primary_node: varchar,
+      replica_nodes: varchar[],
+      status: enum(started, initializing, relocating)
+    }]
+  }]
+  nodes: [{
+    node_id: varchar,
+    address: varchar,
+    roles: enum[](master, data, ingest, coordinating),
+    disk_usage: float,
+    heap_usage: float
+  }]
+}`
+    },
+
+    basicImplementation: {
+      title: 'Basic Architecture',
+      description: 'A single node maintains an inverted index in memory, accepts documents for indexing, and serves search queries. Documents are analyzed (tokenized, lowercased) and added to the inverted index. Queries look up terms in the index, intersect posting lists, and rank by TF-IDF.',
+      problems: [
+        'Single node limits both index size (memory) and query throughput',
+        'No replication means any node failure causes data loss and downtime',
+        'Full index rebuild required on restart (no durable index storage)',
+        'Cannot handle concurrent indexing and querying without lock contention',
+        'No distributed coordination: cannot scatter queries across shards'
+      ]
+    },
+
+    advancedImplementation: {
+      title: 'Distributed Search Cluster with Near-Real-Time Indexing',
+      description: 'Documents are routed to shards by hash(doc_id) % num_shards. Each shard is a self-contained inverted index with a primary copy and N replicas. Writes go to the primary, which replicates to replicas before acknowledging. Queries are scattered to one copy of each shard (primary or replica), each shard returns its top-K results, and the coordinating node merges and re-ranks the final result. Near-real-time indexing uses an in-memory buffer that is periodically "refreshed" into a searchable segment.',
+      keyPoints: [
+        'Shard routing: hash(doc_id) % num_shards determines which shard stores a document',
+        'Scatter-gather query: coordinating node sends query to one copy of each shard, merges top-K results',
+        'Segment-based indexing: new documents buffered in memory, periodically flushed to immutable segments (like LSM-tree)',
+        'Near-real-time refresh: every 1 second, in-memory buffer becomes a searchable segment (no full reindex needed)',
+        'Segment merging: background process merges small segments into larger ones (reduces file handles and improves query speed)',
+        'Replica promotion: if primary shard fails, a replica is promoted to primary within seconds'
+      ],
+      databaseChoice: 'Custom inverted index storage (Lucene-based segment files) for search data; ZooKeeper/etcd for cluster coordination and master election; translog (write-ahead log) for durability between flushes',
+      caching: 'Node-level query cache (LRU, keyed by query hash, invalidated on segment refresh); field data cache for aggregations and sorting; OS filesystem cache for memory-mapped segment files (often the biggest performance factor); request-level cache for identical repeated queries'
+    },
+
+    tips: [
+      'Start with the inverted index data structure: explain how terms map to posting lists',
+      'Scatter-gather is the core query pattern: describe how coordination works across shards',
+      'Near-real-time indexing is a key feature: explain the refresh interval and segment buffer mechanism',
+      'BM25 ranking needs per-shard statistics: discuss how distributed scoring works (and its inaccuracies)',
+      'Discuss shard sizing: too many small shards = overhead, too few large shards = hotspots and slow queries',
+      'Mention the split-brain problem: how master election prevents inconsistent cluster state'
+    ],
+
+    keyQuestions: [
+      {
+        question: 'How does the inverted index work and how are queries executed?',
+        answer: `**Inverted Index Structure**:
+\`\`\`
+Document 1: "the quick brown fox"
+Document 2: "the lazy brown dog"
+Document 3: "quick fox jumps"
+
+Inverted Index:
+  "the"   -> [doc1(pos:0), doc2(pos:0)]
+  "quick" -> [doc1(pos:1), doc3(pos:0)]
+  "brown" -> [doc1(pos:2), doc2(pos:2)]
+  "fox"   -> [doc1(pos:3), doc3(pos:1)]
+  "lazy"  -> [doc2(pos:1)]
+  "dog"   -> [doc2(pos:3)]
+  "jumps" -> [doc3(pos:2)]
+\`\`\`
+
+**Query Execution: "quick brown"**:
+1. Look up "quick" -> posting list [doc1, doc3]
+2. Look up "brown" -> posting list [doc1, doc2]
+3. For OR query: union -> [doc1, doc2, doc3]
+4. For AND query: intersection -> [doc1]
+5. Score each result using BM25
+
+**BM25 Scoring**:
+\`\`\`
+score(doc, query) = Σ for each term t in query:
+  IDF(t) * (tf(t,doc) * (k1 + 1)) / (tf(t,doc) + k1 * (1 - b + b * fieldLen/avgFieldLen))
+
+Where:
+  IDF(t) = log((N - df(t) + 0.5) / (df(t) + 0.5) + 1)
+  tf(t,doc) = term frequency in document
+  N = total documents, df(t) = documents containing term
+  k1 = 1.2 (term frequency saturation), b = 0.75 (field length normalization)
+\`\`\`
+
+**Distributed Query (Scatter-Gather)**:
+1. Coordinating node receives query
+2. Sends query to one copy of each shard (primary or replica)
+3. Each shard executes locally: look up posting lists, score, return top-K
+4. Coordinating node merges sorted results from all shards
+5. Fetch full documents (_source) for the final top-N results
+
+**Optimization**:
+- Skip lists in posting lists for fast intersection
+- Block-Max WAND algorithm: skips low-scoring documents early
+- Query rewriting: "quick brown" as phrase query requires position matching`
+      },
+      {
+        question: 'How does near-real-time indexing work?',
+        answer: `**The Segment Model** (inspired by Lucene):
+
+**Write Path**:
+\`\`\`
+1. Document arrives at primary shard
+2. Written to translog (WAL) for durability
+3. Added to in-memory buffer (indexing buffer)
+4. Response returned to client (document NOT yet searchable)
+
+Every 1 second (refresh interval):
+5. In-memory buffer flushed to a new segment (immutable, on disk)
+6. New segment is opened for searching
+7. Document is now searchable! (this is the "near-real-time" part)
+
+Periodically (every 30 minutes or when translog is large):
+8. Full flush: all in-memory data written to segments
+9. Translog is cleared (segments are now the durable copy)
+\`\`\`
+
+**What Is a Segment?**:
+- An immutable, self-contained inverted index
+- Once written, never modified (append-only architecture)
+- Each segment has its own: inverted index, document store, field norms, deletion bitset
+- A shard = collection of segments + in-memory buffer
+
+**Why Immutability?**:
+- No locking needed for reads (segments never change)
+- Concurrent reads and writes without contention
+- Crash recovery: replay translog to reconstruct in-memory buffer
+
+**Segment Merging** (background process):
+\`\`\`
+Before: [seg1: 100 docs] [seg2: 100 docs] [seg3: 50 docs] [seg4: 200 docs] [seg5: 80 docs]
+After merge: [seg1_2_3: 250 docs] [seg4_5: 280 docs]
+\`\`\`
+- Merge combines small segments into larger ones
+- Deleted documents are purged during merge (previously just marked in bitset)
+- Reduces number of segments that need to be searched per query
+- Tiered merge policy: small segments merge frequently, large segments merge rarely
+
+**Tuning Trade-offs**:
+- Lower refresh interval (100ms) = faster searchability but more small segments = slower queries
+- Higher refresh interval (30s) = better indexing throughput but longer delay to searchability
+- For bulk loading: disable refresh, index all data, then refresh once`
+      },
+      {
+        question: 'How do you handle distributed scoring and relevance?',
+        answer: `**The Problem with Distributed BM25**:
+- BM25 needs global statistics: total document count (N), document frequency (df) per term
+- Each shard only knows its local statistics
+- Shard 1 has 1M docs, shard 2 has 1M docs: each thinks N=1M but true N=2M
+- If term "rare_word" appears in 100 docs on shard 1 and 0 docs on shard 2:
+  - Shard 1 IDF: calculated with df=100 (correct locally)
+  - Shard 2 IDF: term not found locally, very high IDF if document is somehow present
+  - Scores are inconsistent across shards!
+
+**Solution 1: DFS_QUERY_THEN_FETCH** (Elasticsearch approach):
+\`\`\`
+Phase 1 (Distributed Frequency Scatter):
+  - Coordinating node sends query to all shards
+  - Each shard returns local statistics: {term: df, total_docs: N}
+  - Coordinating node aggregates into global statistics
+
+Phase 2 (Query with Global Stats):
+  - Coordinating node sends query + global stats to all shards
+  - Each shard scores using global stats -> consistent scores
+  - Returns top-K doc IDs + scores
+
+Phase 3 (Fetch):
+  - Coordinating node determines final top-N across all shards
+  - Fetches full documents from relevant shards
+\`\`\`
+
+**Solution 2: Shard-Local Scoring (default, good enough)**:
+- With enough documents per shard (~10K+), local statistics approximate global
+- Law of large numbers: term distributions converge across shards
+- Much faster (2 phases vs. 3), acceptable for most use cases
+
+**When Local Scoring Fails**:
+- Very small indices (< 1000 docs per shard)
+- Highly skewed data distribution (one shard has all docs of a certain type)
+- Precise ranking is critical (e-commerce product search)
+
+**Advanced Ranking**:
+- **Learning to Rank (LTR)**: train ML model to predict relevance, use BM25 as one feature among many
+- **Personalized ranking**: boost results based on user history (requires user context in query)
+- **Freshness boost**: multiply score by recency factor for time-sensitive searches
+- **Function scoring**: combine BM25 with custom scoring functions (popularity, location proximity)`
+      }
+    ],
+
+    requirements: ['Full-text search', 'Inverted indexing', 'BM25 ranking', 'Near-real-time indexing', 'Faceted aggregations', 'Horizontal scaling'],
+    components: ['Coordinating Nodes', 'Data Nodes (shards)', 'Master Nodes (cluster state)', 'Inverted Index (Lucene segments)', 'Translog (WAL)', 'ZooKeeper/etcd (coordination)', 'Query Cache', 'Segment Merger'],
+    keyDecisions: [
+      'Scatter-gather query execution across shards for parallel search',
+      'Segment-based immutable index with periodic refresh for near-real-time searchability',
+      'Hash-based shard routing for even document distribution',
+      'Primary-replica model with replica promotion for high availability',
+      'Tiered segment merging to balance query performance and indexing throughput',
+      'DFS_QUERY_THEN_FETCH for globally consistent BM25 scoring when precision matters'
+    ]
+  },
+
+  // ─── 25. Blob Store ─────────────────────────────────────────────────
+  {
+    id: 'blob-store',
+    isNew: true,
+    title: 'Blob Store',
+    subtitle: 'S3-Like Object Storage',
+    icon: 'database',
+    color: '#059669',
+    difficulty: 'Hard',
+    description: 'Design an object storage system similar to S3 with chunking, deduplication, and 11-nines durability.',
+
+    introduction: `Object storage (blob storage) is the foundational storage layer of the cloud. Amazon S3 alone stores over 350 trillion objects, and virtually every modern application depends on some form of blob storage for images, videos, backups, logs, and data lake storage. Designing such a system requires solving some of the hardest problems in distributed systems: achieving 99.999999999% (11-nines) durability, scaling to exabytes of data, and maintaining strong read-after-write consistency.
+
+Unlike file systems that use hierarchical directories and support in-place modifications, object storage uses a flat namespace (bucket + key) and treats objects as immutable blobs. This simplification enables massive horizontal scaling: objects can be distributed across thousands of storage nodes without complex locking or directory traversal.
+
+The core challenges include: efficiently chunking and distributing large objects across nodes, implementing erasure coding for durability without 3x storage overhead, maintaining a metadata layer that can handle trillions of keys with low-latency lookups, and providing strong consistency guarantees in a geo-distributed setting.`,
+
+    functionalRequirements: [
+      'PUT and GET objects (up to 5TB per object)',
+      'Multipart upload for large objects (parallel chunk upload)',
+      'Bucket creation and management with access policies',
+      'Object versioning (keep previous versions)',
+      'Object listing with prefix filtering and pagination',
+      'Presigned URLs for time-limited direct access',
+      'Lifecycle policies (transition to cold storage, auto-delete after N days)',
+      'Cross-region replication for disaster recovery'
+    ],
+
+    nonFunctionalRequirements: [
+      'Durability: 99.999999999% (11-nines) annual',
+      'Availability: 99.99% for reads, 99.9% for writes',
+      'Read-after-write consistency for PUTs (strong consistency)',
+      'Support exabytes of total storage',
+      'First-byte latency < 100ms for small objects',
+      'Throughput: handle 100K+ requests/sec per partition'
+    ],
+
+    estimation: {
+      users: '1M+ active buckets, trillions of objects total, 100K+ req/sec',
+      storage: '~100EB total data; ~10PB/day new data ingested; metadata: ~500 bytes per object * 1T objects = ~500TB metadata',
+      bandwidth: '~100K requests/sec * 1MB avg object = ~100GB/sec sustained; peak egress: ~500GB/sec',
+      qps: '~100K PUT/sec, ~500K GET/sec, ~20K LIST/sec, ~50K HEAD/sec'
+    },
+
+    apiDesign: {
+      description: 'REST API compatible with S3-style interface',
+      endpoints: [
+        { method: 'PUT', path: '/:bucket/:key', params: 'Body: binary, Headers: Content-Type, x-storage-class', response: '200 { ETag, VersionId }' },
+        { method: 'GET', path: '/:bucket/:key', params: 'Headers: Range (byte range), versionId?', response: '200 Body: binary, Headers: Content-Length, ETag' },
+        { method: 'POST', path: '/:bucket/:key?uploads', params: '', response: '200 { UploadId }  -- initiate multipart' },
+        { method: 'PUT', path: '/:bucket/:key?partNumber=N&uploadId=X', params: 'Body: chunk binary', response: '200 { ETag }  -- upload part' },
+        { method: 'POST', path: '/:bucket/:key?uploadId=X', params: '{ parts: [{partNumber, ETag}] }', response: '200 { ETag, VersionId }  -- complete multipart' },
+        { method: 'GET', path: '/:bucket?prefix=X&delimiter=/&marker=Y&max-keys=1000', params: '', response: '200 { Contents[], CommonPrefixes[], NextMarker }' }
+      ]
+    },
+
+    dataModel: {
+      description: 'Metadata layer (key-value) and data layer (chunks stored on storage nodes)',
+      schema: `-- Metadata layer (distributed key-value store, sharded by bucket+key)
+
+object_metadata {
+  bucket: varchar
+  key: varchar
+  version_id: uuid  -- for versioned buckets
+  size: bigint
+  etag: varchar(32)  -- MD5 of content (or of parts for multipart)
+  content_type: varchar
+  storage_class: enum(standard, infrequent, glacier)
+  chunk_manifest: [  -- ordered list of chunks that compose this object
+    {
+      chunk_id: uuid,
+      offset: bigint,
+      length: int,
+      checksum: varchar(64),  -- SHA-256
+      storage_nodes: varchar[]  -- nodes holding this chunk's erasure-coded fragments
+    }
+  ]
+  user_metadata: map<varchar, varchar>
+  created_at: timestamp
+  delete_marker: boolean  -- for versioned delete
+  PK(bucket, key, version_id)
+}
+
+bucket_metadata {
+  name: varchar PK
+  owner_id: bigint
+  region: varchar
+  versioning: enum(disabled, enabled, suspended)
+  lifecycle_rules: jsonb
+  replication_config: jsonb nullable
+  acl: jsonb
+  created_at: timestamp
+}
+
+-- Data layer: chunks stored on storage nodes with erasure coding
+
+chunk_placement {
+  chunk_id: uuid PK
+  erasure_scheme: varchar  -- e.g., "8+3" (8 data + 3 parity fragments)
+  fragment_locations: [  -- one entry per fragment
+    {
+      fragment_index: int,
+      node_id: varchar,
+      disk_id: varchar,
+      offset: bigint  -- offset within the disk's data file
+    }
+  ]
+  checksum: varchar(64)
+  size: int
+  created_at: timestamp
+}`
+    },
+
+    basicImplementation: {
+      title: 'Basic Architecture',
+      description: 'Objects are stored as files on a distributed file system with 3-way replication. A centralized metadata service maps bucket+key to the file location. Clients upload to an API gateway which writes to the storage nodes and updates the metadata.',
+      problems: [
+        '3x replication wastes 200% extra storage (a 100PB system needs 300PB of disk)',
+        'Centralized metadata becomes a bottleneck and single point of failure',
+        'Large objects stored as single files cannot be written in parallel',
+        'No deduplication: identical files stored multiple times',
+        'Consistency is hard: metadata and data can become out of sync during failures'
+      ]
+    },
+
+    advancedImplementation: {
+      title: 'Distributed Object Storage with Erasure Coding and Tiered Metadata',
+      description: 'Objects are chunked (64-128MB per chunk), and each chunk is erasure-coded (e.g., 8+3 Reed-Solomon: 8 data fragments + 3 parity, tolerating any 3 node failures with only 1.375x storage overhead). The metadata layer is a distributed key-value store sharded by hash(bucket+key), with a separate partition index for LIST operations. Strong consistency is achieved via a consensus protocol on the metadata layer.',
+      keyPoints: [
+        'Erasure coding (8+3 RS): 11-nines durability with only 37.5% storage overhead vs 200% for 3-way replication',
+        'Chunking: large objects split into 64-128MB chunks, each independently erasure-coded and distributed',
+        'Metadata sharding: hash(bucket, key) determines metadata shard; each shard is a Raft group for strong consistency',
+        'Multipart upload: chunks uploaded in parallel to different storage nodes, assembled on completion',
+        'Data integrity: SHA-256 checksum per chunk verified on write and periodically scrubbed; corrupted fragments auto-repaired from parity',
+        'Storage tiering: hot data on SSD, warm on HDD, cold on tape/archival with transparent retrieval'
+      ],
+      databaseChoice: 'Custom distributed KV store (Raft-based) for object metadata; raw disk management (bypass filesystem) for data chunks; RocksDB on each storage node for local chunk index; etcd for cluster membership and placement decisions',
+      caching: 'Read cache: frequently accessed small objects cached in memory on gateway nodes; metadata cache: bucket ACLs and recent key lookups cached per gateway (TTL 5 seconds with invalidation); prefetch: sequential read pattern detected -> prefetch next chunks'
+    },
+
+    tips: [
+      'Start with the two-layer architecture: metadata layer (key->chunk mapping) and data layer (chunk storage)',
+      'Erasure coding is the key differentiator over simple replication: explain the durability math',
+      'Discuss the consistency model: read-after-write for PUTs, eventual consistency for LIST (why?)',
+      'Multipart upload is essential for large objects: explain parallel chunk upload and the complete operation',
+      'Mention the durability verification process: background scrubbing and repair of corrupted fragments',
+      'Storage cost optimization is critical: discuss tiering (hot/warm/cold) and lifecycle policies'
+    ],
+
+    keyQuestions: [
+      {
+        question: 'How does erasure coding achieve 11-nines durability?',
+        answer: `**Erasure Coding Basics (Reed-Solomon)**:
+- Split data into k data fragments, generate m parity fragments
+- Can tolerate loss of any m fragments (out of k+m total)
+- Storage overhead: (k+m)/k instead of replication's 3x
+
+**Example: 8+3 Reed-Solomon**:
+\`\`\`
+64MB chunk -> split into 8 x 8MB data fragments
+           -> generate 3 x 8MB parity fragments
+           -> 11 fragments total, stored on 11 different nodes
+           -> can lose ANY 3 nodes and still reconstruct the chunk
+           -> storage overhead: 11/8 = 1.375x (vs. 3x for replication)
+\`\`\`
+
+**Durability Calculation**:
+- Assume annual node failure rate: 2% (industry average for disks)
+- For data loss, need 4+ simultaneous failures among 11 fragments (before repair)
+- Repair time: detect failure + reconstruct from remaining 8 fragments: ~2 hours
+- P(4 failures in 2 hours among 11 nodes) ≈ 10^-11 per chunk per year
+- This gives 99.999999999% (11-nines) durability per chunk
+
+**Why Not Just Use 3x Replication?**:
+- 3 copies: lose data if 3 specific nodes fail simultaneously
+- P(3 failures in repair window among 3 nodes) ≈ 10^-6 per year (only 6-nines)
+- To match 11-nines with replication: need 5-6 copies (5-6x overhead)
+- Erasure coding achieves better durability with less storage
+
+**Background Integrity Verification (Scrubbing)**:
+\`\`\`
+Every 30 days for each chunk:
+1. Read all 11 fragments
+2. Verify SHA-256 checksum of each fragment
+3. If any fragment is corrupted or missing:
+   a. Reconstruct from remaining healthy fragments
+   b. Write repaired fragment to a new healthy node
+   c. Update chunk_placement metadata
+4. Report: chunks_scrubbed, fragments_repaired, data_at_risk
+\`\`\`
+
+**Protection Against Correlated Failures**:
+- Place fragments across different racks, power domains, and availability zones
+- Rack-aware placement: no 2 fragments of the same chunk on the same rack
+- AZ-aware: distribute across 3 AZs (4+4+3 fragments) for zone-level resilience`
+      },
+      {
+        question: 'How does the metadata layer work at trillion-object scale?',
+        answer: `**The Challenge**:
+- Trillions of objects = trillions of key-value entries
+- Each GET needs a metadata lookup: must be fast (< 10ms)
+- LIST operations need range scans by prefix: requires ordered storage
+- Strong consistency for PUT (read-after-write): requires consensus
+
+**Architecture: Sharded Raft KV Store**:
+\`\`\`
+Metadata Cluster:
+  Shard 1 (Raft group: 3 nodes): keys with hash 0-999
+  Shard 2 (Raft group: 3 nodes): keys with hash 1000-1999
+  ...
+  Shard N (Raft group: 3 nodes): keys with hash (N-1)*1000 - N*1000-1
+
+Each shard stores:
+  - Object metadata: bucket+key -> {size, etag, chunk_manifest, ...}
+  - Backed by RocksDB (LSM-tree) for sorted key storage
+\`\`\`
+
+**Key Operations**:
+
+**PUT metadata** (on object upload completion):
+1. Route to correct shard by hash(bucket, key)
+2. Raft leader writes to local RocksDB + replicates to 2 followers
+3. Acknowledged after majority (2/3) confirm
+4. Guarantees read-after-write consistency
+
+**GET metadata** (on object read):
+1. Route to correct shard by hash(bucket, key)
+2. Read from Raft leader (for strong consistency) or any replica (for eventual)
+3. Return object metadata including chunk manifest
+
+**LIST by prefix** (the hard part):
+- Hash-based sharding destroys key ordering!
+- Solution: maintain a secondary prefix index
+  - Separate shard groups ordered by (bucket, key_prefix)
+  - Updated asynchronously on PUT/DELETE
+  - LIST reads from prefix-ordered shards (range scan)
+  - Slightly eventual (new objects may take 1-2 seconds to appear in LIST)
+  - This is why S3 had eventual consistency for LIST even after adding strong consistency for GET
+
+**Scaling**:
+- Each shard handles ~1M keys
+- 1T objects = 1M shards
+- Shards automatically split when they exceed size threshold
+- Shard rebalancing: migrate shard replicas to new nodes as cluster grows`
+      },
+      {
+        question: 'How does multipart upload work for large objects?',
+        answer: `**Why Multipart?**:
+- Single PUT has a practical limit (~5GB): network timeouts, no resume on failure
+- A 1TB object would take hours on a single connection
+- Multipart enables: parallel upload, resumable upload, and streaming
+
+**Multipart Upload Flow**:
+\`\`\`
+Step 1: Initiate
+  POST /bucket/key?uploads -> { uploadId: "abc123" }
+  Server creates upload session in metadata store
+
+Step 2: Upload Parts (parallel)
+  PUT /bucket/key?partNumber=1&uploadId=abc123  Body: [64MB chunk]  -> { ETag: "aaa" }
+  PUT /bucket/key?partNumber=2&uploadId=abc123  Body: [64MB chunk]  -> { ETag: "bbb" }
+  PUT /bucket/key?partNumber=3&uploadId=abc123  Body: [64MB chunk]  -> { ETag: "ccc" }
+  ... (parts can be uploaded in any order, from multiple clients)
+
+  Each part:
+  1. Written to storage nodes with erasure coding (just like a regular small object)
+  2. Part metadata stored: {uploadId, partNumber, size, etag, chunk_ids}
+  3. Acknowledged independently
+
+Step 3: Complete
+  POST /bucket/key?uploadId=abc123
+  Body: { parts: [{1, "aaa"}, {2, "bbb"}, {3, "ccc"}] }
+
+  Server:
+  1. Verifies all parts exist and ETags match
+  2. Assembles chunk manifest: ordered list of all chunks from all parts
+  3. Writes final object metadata atomically
+  4. Object is now readable as a single entity
+  5. Cleans up upload session state
+
+Step 4 (optional): Abort
+  DELETE /bucket/key?uploadId=abc123
+  Server: marks all uploaded parts for garbage collection
+\`\`\`
+
+**Parallel Upload Optimization**:
+\`\`\`
+Client with 1Gbps connection uploading 1TB file:
+  Sequential: 1TB / 125MB/s = ~2.2 hours
+  Parallel (8 connections): 1TB / (125MB/s * 8) = ~17 minutes
+  Parallel (32 connections): 1TB / (125MB/s * 32) = ~4 minutes
+\`\`\`
+
+**Failure Handling**:
+- Part upload fails: retry just that part (other parts already stored)
+- Client crash: incomplete upload persists, cleaned up after configurable timeout (7 days default)
+- Network issue: client can resume by re-uploading only missing part numbers
+- Server crash: parts stored on durable storage nodes survive; session metadata replicated via Raft
+
+**Deduplication** (optional, storage optimization):
+- Compute content hash (SHA-256) per chunk
+- Before storing: check if chunk with same hash already exists
+- If yes: reference existing chunk (copy-on-write metadata update)
+- Saves storage for backup workloads where many versions of similar files exist`
+      }
+    ],
+
+    requirements: ['Object PUT/GET/DELETE', 'Multipart upload', '11-nines durability', 'Strong read-after-write consistency', 'Prefix-based listing', 'Storage tiering'],
+    components: ['API Gateway', 'Metadata Service (Raft KV store)', 'Storage Nodes (erasure-coded chunks)', 'Placement Service', 'Garbage Collector', 'Background Scrubber', 'Replication Manager', 'Lifecycle Policy Engine'],
+    keyDecisions: [
+      'Erasure coding (8+3 RS) for 11-nines durability at 1.375x storage overhead',
+      'Two-layer architecture: Raft-based metadata store + distributed chunk storage',
+      'Chunking (64-128MB) for parallel I/O and independent fault tolerance per chunk',
+      'Rack and AZ-aware fragment placement for correlated failure protection',
+      'Strong consistency via Raft for metadata, background scrubbing for data integrity',
+      'Separate prefix index for LIST operations since hash-sharded metadata is unordered'
+    ]
+  },
+
+  // ─── 26. Distributed Task Scheduler ─────────────────────────────────
+  {
+    id: 'distributed-task-scheduler',
+    isNew: true,
+    title: 'Distributed Task Scheduler',
+    subtitle: 'Job Queuing and Execution Platform',
+    icon: 'layers',
+    color: '#7c3aed',
+    difficulty: 'Hard',
+    description: 'Design a distributed task scheduling system with job queuing, priority management, retry logic, and dead letter queues.',
+
+    introduction: `Distributed task schedulers are the workhorses behind every large-scale application. From sending millions of push notifications, to processing image thumbnails, to running daily ETL pipelines, virtually every operation that does not need to happen synchronously in a request path is handled by a task scheduling system.
+
+The fundamental challenge is reliable execution: ensuring that every submitted task is eventually executed exactly once, even in the face of worker crashes, network partitions, and queue backlogs. This "exactly-once" guarantee is deceptively difficult in a distributed setting, and the system must handle subtle failure modes like a worker that processes a task but crashes before acknowledging completion.
+
+Beyond reliability, the system must support priorities (high-priority tasks skip ahead of low-priority), scheduling (run at a specific time or on a cron schedule), task dependencies (task B runs only after task A succeeds), rate limiting (do not overwhelm downstream APIs), and observability (where is my task, why is it stuck, how long will it take?).`,
+
+    functionalRequirements: [
+      'Submit tasks for immediate or scheduled execution',
+      'Priority queues: critical, high, normal, low',
+      'Cron-style recurring task scheduling',
+      'Task dependencies and workflows (DAG execution)',
+      'Configurable retry policies (max retries, exponential backoff, jitter)',
+      'Dead letter queue for permanently failed tasks',
+      'Task status tracking and progress reporting',
+      'Rate limiting per task type and per downstream dependency'
+    ],
+
+    nonFunctionalRequirements: [
+      'At-least-once execution guarantee (with idempotency support for exactly-once semantics)',
+      'Task pickup latency < 100ms for immediate tasks',
+      'Support 1M+ tasks/hour throughput',
+      'Worker fleet: 10K+ workers across multiple data centers',
+      'Scheduled task accuracy: execute within 1 second of scheduled time',
+      '99.99% availability for task submission and queue management'
+    ],
+
+    estimation: {
+      users: '500+ internal services submitting tasks, 10K worker instances, 1M+ tasks/hour peak',
+      storage: '~2KB avg task payload * 25M tasks/day = ~50GB/day task data; task history retention: 30 days = ~1.5TB',
+      bandwidth: '~25M tasks/day * 5KB (payload + metadata + result) = ~125GB/day',
+      qps: '~300 task submissions/sec, ~300 task completions/sec, ~1K status queries/sec, ~10K heartbeats/sec'
+    },
+
+    apiDesign: {
+      description: 'REST API for task submission and management, gRPC for worker communication',
+      endpoints: [
+        { method: 'POST', path: '/api/tasks', params: '{ type, payload, priority, scheduledAt?, idempotencyKey?, retryPolicy?, deadline? }', response: '201 { taskId, status: queued }' },
+        { method: 'POST', path: '/api/tasks/batch', params: '{ tasks: [{type, payload, priority}], workflow?: {dependencies} }', response: '201 { taskIds[], workflowId? }' },
+        { method: 'GET', path: '/api/tasks/:taskId', params: '', response: '{ taskId, status, attempts, result?, error?, createdAt, startedAt?, completedAt? }' },
+        { method: 'POST', path: '/api/schedules', params: '{ type, payload, cronExpression, timezone }', response: '201 { scheduleId }' },
+        { method: 'GET', path: '/api/dlq', params: 'taskType?, limit, cursor', response: '{ tasks[], total }' },
+        { method: 'POST', path: '/api/dlq/:taskId/retry', params: '', response: '200 { taskId, status: requeued }' }
+      ]
+    },
+
+    dataModel: {
+      description: 'Task queue, schedule definitions, and execution history',
+      schema: `tasks {
+  id: uuid PK
+  idempotency_key: varchar unique nullable  -- for exactly-once submission
+  type: varchar  -- e.g., "send_email", "generate_thumbnail"
+  payload: jsonb
+  priority: enum(critical, high, normal, low)  -- maps to priority value 0-3
+  status: enum(queued, scheduled, running, completed, failed, dead_lettered)
+  scheduled_at: timestamp  -- null for immediate, future timestamp for delayed
+  deadline: timestamp nullable  -- task expires if not completed by this time
+  retry_policy: jsonb  -- {maxRetries: 3, backoffMs: 1000, backoffMultiplier: 2, maxBackoffMs: 60000}
+  attempt_count: int default 0
+  max_attempts: int default 3
+  last_error: text nullable
+  worker_id: varchar nullable  -- which worker is processing this
+  locked_until: timestamp nullable  -- visibility timeout
+  result: jsonb nullable
+  created_at: timestamp
+  started_at: timestamp nullable
+  completed_at: timestamp nullable
+}
+
+schedules {
+  id: uuid PK
+  type: varchar
+  payload: jsonb
+  cron_expression: varchar  -- e.g., "0 */5 * * *" (every 5 hours)
+  timezone: varchar
+  next_run_at: timestamp
+  last_run_at: timestamp nullable
+  last_task_id: uuid nullable
+  enabled: boolean
+  created_at: timestamp
+}
+
+dead_letter_queue {
+  id: bigint PK
+  original_task_id: uuid FK
+  type: varchar
+  payload: jsonb
+  error_history: jsonb[]  -- [{attempt, error, timestamp}]
+  total_attempts: int
+  dead_lettered_at: timestamp
+  requeued_at: timestamp nullable
+}
+
+task_metrics {
+  type: varchar
+  window_start: timestamp
+  submitted_count: bigint
+  completed_count: bigint
+  failed_count: bigint
+  avg_latency_ms: float
+  p99_latency_ms: float
+  PK(type, window_start)
+}`
+    },
+
+    basicImplementation: {
+      title: 'Basic Architecture',
+      description: 'Tasks are inserted into a database table. Workers poll the table for unclaimed tasks, lock a row using SELECT FOR UPDATE, process it, and update the status. A cron job checks for scheduled tasks whose time has arrived and moves them to the ready queue.',
+      problems: [
+        'Database polling is inefficient and adds latency (polling interval vs. task pickup speed)',
+        'SELECT FOR UPDATE creates lock contention under high concurrency',
+        'No priority support: all tasks are treated equally in the polling query',
+        'Worker crash while holding a lock: task is stuck until lock timeout expires',
+        'Single database becomes the bottleneck for both reads and writes'
+      ]
+    },
+
+    advancedImplementation: {
+      title: 'Distributed Task Scheduler with Priority Queues and Exactly-Once Semantics',
+      description: 'Tasks are submitted to a partitioned queue (Kafka or Redis Streams) organized by priority. A scheduler service manages delayed and cron tasks using a time-ordered priority queue (backed by Redis sorted sets with score = scheduled_time). Workers pull tasks via a consumer group pattern with visibility timeouts. A lease-based protocol ensures at-most-one active execution: the worker must renew its lease periodically, and if it fails to do so, the task becomes available for another worker.',
+      keyPoints: [
+        'Priority queues: separate queues per priority level, workers always check critical before high before normal',
+        'Visibility timeout (lease): when a worker picks a task, it becomes invisible to other workers for T seconds; worker must heartbeat to extend the lease',
+        'Delayed task scheduler: Redis sorted set with score=scheduled_timestamp; background thread checks for tasks where score <= now() and moves them to the ready queue',
+        'Exactly-once via idempotency: each task has an idempotency_key; workers check a deduplication store before processing',
+        'Dead letter queue: after max_attempts exhausted, task moved to DLQ with full error history for manual inspection',
+        'Rate limiting: token bucket per task type; workers check rate limit before executing, back off if limit reached'
+      ],
+      databaseChoice: 'Redis Streams (or Kafka) for primary task queues; Redis sorted sets for delayed task scheduling; PostgreSQL for task history and DLQ persistence; Redis for rate limiting counters and distributed locks',
+      caching: 'Worker-side task type config cache (retry policies, rate limits) with 1-minute TTL; schedule metadata cached in scheduler service memory; rate limit token buckets maintained in Redis with atomic MULTI/EXEC operations'
+    },
+
+    tips: [
+      'Start by clarifying the exactly-once semantics: it is really at-least-once + idempotent handlers',
+      'The visibility timeout pattern is critical: explain how it handles worker crashes without losing tasks',
+      'Priority queues add complexity: discuss weighted fair queuing vs. strict priority and starvation prevention',
+      'Discuss the cron scheduling mechanism: time-wheel or sorted set approach for efficient scheduled task management',
+      'Rate limiting is often overlooked: explain why unconstrained task execution can overwhelm downstream services',
+      'Observability matters: discuss how you track task latency, queue depth, and worker utilization'
+    ],
+
+    keyQuestions: [
+      {
+        question: 'How do you achieve exactly-once task execution?',
+        answer: `**The Reality: At-Least-Once + Idempotency = Exactly-Once Semantics**
+
+True exactly-once in a distributed system is impossible (FLP impossibility). What we achieve:
+- **At-least-once delivery**: guaranteed by the queue + retry mechanism
+- **Exactly-once processing**: guaranteed by making task handlers idempotent
+
+**At-Least-Once Delivery via Visibility Timeout**:
+\`\`\`
+1. Worker pulls task from queue
+2. Task becomes "invisible" to other workers for 60 seconds (visibility timeout)
+3. Worker processes task:
+   a. Success: worker sends ACK, task permanently removed from queue
+   b. Worker crashes: no ACK, visibility timeout expires after 60s
+   c. Task reappears in queue, another worker picks it up
+4. Worker taking too long: heartbeat extends visibility timeout before it expires
+\`\`\`
+
+**Problem: Duplicate Execution**:
+\`\`\`
+Worker A picks task, processes it, sends ACK
+ACK is lost due to network issue
+Visibility timeout expires -> task reappears
+Worker B picks the same task -> processes it AGAIN
+\`\`\`
+
+**Solution: Idempotency Key + Deduplication Store**:
+\`\`\`python
+def process_task(task):
+    dedup_key = f"task:{task.idempotency_key}"
+
+    # Check if already processed (Redis SET NX with TTL)
+    if redis.set(dedup_key, "processing", nx=True, ex=86400):
+        # First time: process the task
+        result = execute_task_logic(task)
+        redis.set(dedup_key, json.dumps(result), ex=86400)
+        return result
+    else:
+        # Already processed: return cached result
+        return json.loads(redis.get(dedup_key))
+\`\`\`
+
+**Making Task Handlers Idempotent**:
+- **Sending email**: check if email already sent for this event (dedup by event_id)
+- **Charging payment**: use Stripe's idempotency_key parameter
+- **Updating database**: use upsert (INSERT ON CONFLICT UPDATE) instead of blind INSERT
+- **Generating thumbnail**: check if output already exists in storage before processing
+
+**Idempotency Key Generation**:
+- Must be deterministic for the same logical task
+- Example: \`send_email:{userId}:{eventType}:{eventId}\`
+- Caller provides it at submission time (not auto-generated UUID)`
+      },
+      {
+        question: 'How does the retry mechanism with dead letter queues work?',
+        answer: `**Retry Policy Configuration**:
+\`\`\`json
+{
+  "maxRetries": 5,
+  "initialBackoffMs": 1000,
+  "backoffMultiplier": 2,
+  "maxBackoffMs": 60000,
+  "jitterPercent": 25,
+  "retryableErrors": ["TIMEOUT", "SERVICE_UNAVAILABLE", "RATE_LIMITED"],
+  "nonRetryableErrors": ["INVALID_INPUT", "UNAUTHORIZED"]
+}
+\`\`\`
+
+**Retry Flow**:
+\`\`\`
+Attempt 1: execute task
+  -> fails with TIMEOUT
+  -> delay = 1000ms + random(0, 250ms) = ~1.1s
+  -> requeue with scheduled_at = now + 1.1s
+
+Attempt 2: execute task (after 1.1s delay)
+  -> fails with SERVICE_UNAVAILABLE
+  -> delay = 2000ms + random(0, 500ms) = ~2.3s
+  -> requeue with scheduled_at = now + 2.3s
+
+Attempt 3: execute task (after 2.3s delay)
+  -> fails with TIMEOUT
+  -> delay = 4000ms + random(0, 1000ms) = ~4.7s
+  -> requeue with scheduled_at = now + 4.7s
+
+...
+
+Attempt 5: execute task
+  -> fails with TIMEOUT
+  -> max retries exhausted -> move to Dead Letter Queue
+\`\`\`
+
+**Why Jitter?**:
+- Without jitter: if 1000 tasks fail at the same time, all retry at the same time -> thundering herd
+- With 25% jitter: retries spread across a time window, reducing downstream load spike
+
+**Dead Letter Queue (DLQ)**:
+\`\`\`python
+def handle_task_failure(task, error):
+    task.attempt_count += 1
+
+    if error.type in task.retry_policy.non_retryable_errors:
+        move_to_dlq(task, error, reason="non_retryable_error")
+        return
+
+    if task.attempt_count >= task.retry_policy.max_retries:
+        move_to_dlq(task, error, reason="max_retries_exhausted")
+        return
+
+    if task.deadline and now() > task.deadline:
+        move_to_dlq(task, error, reason="deadline_exceeded")
+        return
+
+    # Calculate next retry delay
+    delay = min(
+        task.retry_policy.initial_backoff * (task.retry_policy.multiplier ** task.attempt_count),
+        task.retry_policy.max_backoff
+    )
+    jitter = delay * random.uniform(0, task.retry_policy.jitter_percent / 100)
+    task.scheduled_at = now() + delay + jitter
+    requeue(task)
+\`\`\`
+
+**DLQ Management**:
+- Dashboard shows all dead-lettered tasks with error history
+- Operators can: inspect, retry individual tasks, retry all tasks of a type, purge
+- Auto-alerting: if DLQ size exceeds threshold for a task type, page the owning team
+- DLQ retention: 30 days, then archived to cold storage for compliance`
+      },
+      {
+        question: 'How does priority scheduling prevent starvation?',
+        answer: `**Strict Priority (Simple but Dangerous)**:
+\`\`\`
+Queue: CRITICAL -> HIGH -> NORMAL -> LOW
+Worker always checks CRITICAL first, then HIGH, etc.
+
+Problem: if CRITICAL queue always has tasks, NORMAL and LOW never execute
+This is "starvation"
+\`\`\`
+
+**Weighted Fair Queuing (Better)**:
+\`\`\`
+Priority weights:
+  CRITICAL: 50%
+  HIGH:     30%
+  NORMAL:   15%
+  LOW:       5%
+
+For every 100 tasks a worker processes:
+  ~50 from CRITICAL
+  ~30 from HIGH
+  ~15 from NORMAL
+  ~5 from LOW
+\`\`\`
+
+**Implementation with Weighted Random Selection**:
+\`\`\`python
+def pick_next_task(worker):
+    # Check if any CRITICAL tasks exist (always priority)
+    if critical_queue.size() > 0 and critical_queue.oldest_age() > MAX_WAIT:
+        return critical_queue.dequeue()
+
+    # Weighted random selection
+    weights = {
+        'critical': 50 * critical_queue.size_factor(),
+        'high': 30 * high_queue.size_factor(),
+        'normal': 15 * normal_queue.size_factor(),
+        'low': 5 * low_queue.size_factor()
+    }
+    selected_queue = weighted_random_choice(weights)
+    return selected_queue.dequeue()
+
+def size_factor(queue):
+    # Boost weight for queues that are backing up
+    if queue.size() > queue.threshold:
+        return min(queue.size() / queue.threshold, 3.0)  # cap at 3x
+    return 1.0
+\`\`\`
+
+**Anti-Starvation Mechanisms**:
+1. **Age-based promotion**: tasks waiting longer than threshold get promoted
+   - NORMAL task waiting > 5 minutes -> promoted to HIGH
+   - LOW task waiting > 15 minutes -> promoted to NORMAL
+2. **Minimum guarantees**: reserve 5% of worker capacity for LOW priority
+   - Even under heavy CRITICAL load, LOW tasks make progress
+3. **Deadline awareness**: tasks with approaching deadlines get boosted regardless of priority
+
+**Dynamic Priority Adjustment**:
+\`\`\`
+Scenario: payment processing tasks are NORMAL priority, but at month-end the queue backs up
+
+Monitor detects:
+  - payment_processing queue depth: 50K (threshold: 10K)
+  - avg wait time: 45 minutes (SLA: 15 minutes)
+
+Auto-adjustment:
+  - Temporarily promote payment_processing to HIGH priority
+  - Scale up worker pool for payment_processing type
+  - Alert team: "payment_processing queue backed up, auto-promoted to HIGH"
+  - Revert when queue depth drops below threshold
+\`\`\`
+
+**Worker Specialization**:
+- Some workers only process specific task types (GPU workers for ML tasks)
+- Generic workers handle all types with priority weighting
+- Dedicated worker pools for CRITICAL tasks ensure they are never starved by volume of lower-priority work`
+      }
+    ],
+
+    requirements: ['Task queuing', 'Priority scheduling', 'Retry with backoff', 'Dead letter queues', 'Cron scheduling', 'Exactly-once semantics'],
+    components: ['Task Queue (Redis Streams / Kafka)', 'Scheduler Service', 'Worker Fleet', 'DLQ Manager', 'Rate Limiter', 'PostgreSQL (task history)', 'Redis (delayed tasks + locks)', 'Monitoring Dashboard'],
+    keyDecisions: [
+      'Visibility timeout with heartbeat for crash-safe task processing without lost tasks',
+      'At-least-once delivery plus idempotency keys for exactly-once processing semantics',
+      'Weighted fair queuing with age-based promotion to prevent priority starvation',
+      'Redis sorted sets for efficient delayed and cron task scheduling',
+      'Dead letter queue with full error history for diagnosable failure handling',
+      'Per-task-type rate limiting with token buckets to protect downstream services'
     ]
   },
 ];

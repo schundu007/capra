@@ -24,6 +24,17 @@ export const extraCodingCategoryMap = {
   'string-dp': 'dp',
   'grid-dp': 'dp',
   'segment-tree': 'advanced',
+  'cyclic-sort': 'searching',
+  'island-matrix-traversal': 'trees',
+  'palindromic-subsequence-dp': 'dp',
+  'fibonacci-dp': 'dp',
+  'ordered-set': 'advanced',
+  'multi-threaded-coding': 'advanced',
+  'custom-data-structures': 'advanced',
+  'knowing-what-to-track': 'arrays',
+  'matrix-graphs': 'trees',
+  'shortest-path-algorithms': 'trees',
+  'minimum-spanning-tree': 'trees',
 };
 
 export const extraCodingTopics = [
@@ -1793,6 +1804,858 @@ Segment trees appear in hard interview and competitive programming problems wher
       'Explain the time complexity: "Build is O(n), and each query or update is O(log n)"',
       'For hard problems, describe the high-level approach using segment tree as a black box before diving into implementation',
       'Compare with prefix sums: "Prefix sums give O(1) query but O(n) update; segment tree gives O(log n) for both"'
+    ],
+  },
+
+  // ─── 24. Cyclic Sort ──────────────────────────────────────────────
+  {
+    id: 'cyclic-sort',
+    title: 'Cyclic Sort',
+    icon: 'refreshCw',
+    color: '#f59e0b',
+    questions: 5,
+    description: 'Index-based placement sort for finding missing or duplicate numbers in bounded ranges.',
+
+    introduction: `Cyclic Sort is a specialized in-place sorting technique that works when the input consists of numbers in a known contiguous range, typically [1, n] or [0, n]. The core idea is deceptively simple: iterate through the array and place each number at its "correct" index (i.e., the value i should sit at index i-1). When a number is not at its correct position, you swap it there. After one pass of such placements, any index whose value does not match reveals a missing or duplicate number.
+
+**Why This Matters:**
+Many interview problems ask you to find missing numbers, duplicate numbers, or corrupt pairs in an array of integers in the range [1, n]. The brute-force approach uses a hash set for O(n) time and O(n) space. Sorting gives O(n log n) time. Cyclic Sort achieves O(n) time with O(1) space by leveraging the fact that each value has a predetermined "home" index.
+
+**Key Insight:** Because the values are bounded within a known range that maps directly to array indices, you can treat the array itself as a hash table. Each swap places at least one element in its final position, so the total number of swaps across the entire pass is at most n, giving O(n) overall time despite the nested-looking while loop.`,
+
+    whenToUse: [
+      'Array contains numbers in a contiguous range [1, n] or [0, n]',
+      'Finding one or more missing numbers in such a range',
+      'Finding one or more duplicate numbers in such a range',
+      'Finding the smallest missing positive integer',
+      'Identifying corrupt pairs (one missing, one duplicated)',
+      'Any problem where values naturally map to indices and you need O(1) extra space'
+    ],
+
+    keyPatterns: [
+      'Place each number at index (value - 1): while nums[i] != i + 1, swap nums[i] with nums[nums[i] - 1]',
+      'After placement pass, scan for mismatches: if nums[i] != i + 1, then i + 1 is missing',
+      'Skip duplicates during placement: if nums[i] == nums[nums[i] - 1], skip to avoid infinite loop',
+      'For 0-indexed ranges, place value i at index i instead of i-1',
+      'For smallest missing positive, ignore values <= 0 or > n during the placement phase'
+    ],
+
+    timeComplexity: 'O(n)',
+    spaceComplexity: 'O(1)',
+
+    approach: [
+      'Start at index 0 and examine the current element',
+      'If the element is not at its correct index, swap it to its correct position',
+      'Continue swapping at the current index until the current element is correct or is a duplicate',
+      'Move to the next index and repeat until you reach the end of the array',
+      'Make a second pass: any index where the value does not match the expected value reveals a missing or duplicate number',
+      'For smallest missing positive, first partition or ignore non-positive and out-of-range values, then apply cyclic sort on the rest'
+    ],
+
+    commonProblems: [
+      { name: 'Find Missing Number', difficulty: 'Easy' },
+      { name: 'Find All Missing Numbers', difficulty: 'Easy' },
+      { name: 'Find Duplicate Number', difficulty: 'Medium' },
+      { name: 'Find Corrupt Pair', difficulty: 'Medium' },
+      { name: 'Smallest Missing Positive', difficulty: 'Hard' },
+    ],
+
+    commonMistakes: [
+      'Causing an infinite loop by not checking if the target position already holds the correct value (duplicate detection)',
+      'Off-by-one errors when mapping values to indices (value 1 goes to index 0, not index 1)',
+      'Forgetting to handle values outside the valid range (negatives, zeros, or values > n)',
+      'Using i++ unconditionally inside the loop instead of only advancing when the current position is settled'
+    ],
+
+    tips: [
+      'The inner while loop looks O(n^2) but each swap places one element in its final position, so total swaps across all iterations is at most n',
+      'For Find Duplicate Number, after cyclic sort the duplicate will be at the wrong index; alternatively use the Floyd cycle detection approach',
+      'Smallest Missing Positive is the hardest variant; preprocess by ignoring non-positive values and values > n',
+      'This pattern is a direct alternative to hash set approaches when O(1) space is required',
+      'Practice distinguishing when to use cyclic sort vs. XOR-based missing number vs. math-based sum approaches'
+    ],
+
+    interviewTips: [
+      'Explain the key invariant: "Each value i belongs at index i-1, and each swap fixes at least one element"',
+      'Walk through a small example to show how swaps cascade and then stop',
+      'Mention the O(n) time proof: total swaps across all iterations cannot exceed n',
+      'Compare with hash set approach and explain why cyclic sort uses O(1) extra space'
+    ],
+  },
+
+  // ─── 25. Island / Matrix Traversal ────────────────────────────────
+  {
+    id: 'island-matrix-traversal',
+    title: 'Island / Matrix Traversal',
+    icon: 'grid',
+    color: '#10b981',
+    questions: 6,
+    description: 'Grid-based DFS/BFS for connected component discovery, flood fill, and boundary analysis.',
+
+    introduction: `Island and Matrix Traversal problems represent a major category of graph problems where the graph is implicitly defined by a 2D grid. Each cell is a node, and edges connect adjacent cells (typically 4-directional: up, down, left, right). The fundamental operation is traversing connected components: starting from a cell, visit all reachable cells that satisfy some condition, marking them as visited along the way.
+
+**Why This Matters:**
+Grid traversal problems are among the most common medium-difficulty interview questions. They test your ability to translate a visual 2D problem into a graph traversal, handle boundaries correctly, and choose between DFS and BFS based on the problem requirements. The "Number of Islands" problem alone is one of the top 10 most asked questions at major tech companies.
+
+**Key Insight:** Every grid traversal follows the same skeleton: iterate over all cells, and when you find an unvisited cell meeting the starting condition, launch a DFS or BFS to explore its entire connected component. The difference between problems lies in what counts as "connected," what you track during traversal (size, perimeter, boundary status), and whether you need shortest path (BFS) or just reachability (DFS or BFS).`,
+
+    whenToUse: [
+      'Counting connected components in a grid (number of islands)',
+      'Finding the size or perimeter of connected regions',
+      'Flood fill operations (changing colors of connected regions)',
+      'Determining if regions are closed (fully surrounded by another value)',
+      'Multi-source BFS problems (rotting oranges, nearest distance)',
+      'Problems requiring simultaneous traversal from multiple starting points (Pacific Atlantic water flow)',
+      'Any grid problem where adjacency defines connectivity'
+    ],
+
+    keyPatterns: [
+      'DFS/BFS from each unvisited land cell; mark visited by modifying grid or using a visited set',
+      'Four-directional movement using dx/dy arrays: directions = [[0,1],[0,-1],[1,0],[-1,0]]',
+      'Boundary check: 0 <= newRow < rows && 0 <= newCol < cols',
+      'Multi-source BFS: enqueue all starting cells first, then BFS level by level',
+      'Track component properties during traversal: size, perimeter, boundary touching',
+      'For closed islands, mark border-connected components first, then count remaining'
+    ],
+
+    timeComplexity: 'O(m * n) where m and n are grid dimensions',
+    spaceComplexity: 'O(m * n) for visited set or recursion stack in worst case',
+
+    approach: [
+      'Parse the grid and identify what constitutes a "starting cell" for traversal (e.g., land cell with value 1)',
+      'Create a visited tracking mechanism: either a separate boolean grid or modify the input grid in-place',
+      'For each unvisited starting cell, launch DFS or BFS to explore the entire connected component',
+      'During traversal, mark cells as visited and accumulate any required metrics (area, perimeter, etc.)',
+      'After traversal completes, process the accumulated information (count components, find max area, etc.)',
+      'For multi-source problems, initialize the BFS queue with all source cells before beginning level-order traversal'
+    ],
+
+    commonProblems: [
+      { name: 'Number of Islands', difficulty: 'Medium' },
+      { name: 'Biggest Island', difficulty: 'Medium' },
+      { name: 'Flood Fill', difficulty: 'Easy' },
+      { name: 'Closed Islands', difficulty: 'Medium' },
+      { name: 'Number of Enclaves', difficulty: 'Medium' },
+      { name: 'Pacific Atlantic Water Flow', difficulty: 'Medium' },
+    ],
+
+    commonMistakes: [
+      'Forgetting to mark cells as visited before adding to the queue (BFS), causing duplicate processing and TLE',
+      'Stack overflow with DFS on very large grids; consider iterative DFS or BFS for grids up to 10^3 x 10^3',
+      'Off-by-one errors in boundary checks, especially with 0-indexed grids',
+      'Not handling the case where the grid is empty or has no land/water cells',
+      'For Pacific Atlantic, traversing from interior cells outward instead of from ocean borders inward (much less efficient)'
+    ],
+
+    tips: [
+      'Modifying the grid in-place (e.g., setting visited land to "0") saves space but destroys input; ask the interviewer if this is acceptable',
+      'Use BFS when you need shortest distance; use DFS when you only need reachability or component membership',
+      'For "Closed Islands," first eliminate all border-connected components, then count remaining islands',
+      'Multi-source BFS is the key to "Rotting Oranges" type problems: enqueue all rotten cells initially',
+      'Pacific Atlantic Water Flow reverses the problem: start BFS from each ocean border and find cells reachable from both',
+      'Union-Find is an alternative to DFS/BFS for counting components and can be more efficient for dynamic connectivity'
+    ],
+
+    interviewTips: [
+      'Start by clarifying connectivity: 4-directional or 8-directional?',
+      'Mention the time complexity is O(m*n) because each cell is visited at most once',
+      'For BFS, emphasize that you mark visited when enqueuing, not when dequeuing',
+      'Draw the grid and trace through a small example before coding'
+    ],
+  },
+
+  // ─── 26. Palindromic Subsequence DP ───────────────────────────────
+  {
+    id: 'palindromic-subsequence-dp',
+    title: 'Palindromic Subsequence DP',
+    icon: 'repeat',
+    color: '#8b5cf6',
+    questions: 5,
+    description: 'Dynamic programming techniques for palindromic substring and subsequence problems.',
+
+    introduction: `Palindromic DP encompasses a family of dynamic programming problems centered on finding, counting, or transforming palindromes within strings. The two fundamental variants are palindromic substrings (contiguous characters) and palindromic subsequences (characters that maintain relative order but need not be contiguous). Both share a common DP structure where you build solutions for longer strings from solutions to shorter ones.
+
+**Why This Matters:**
+Palindrome problems are interview favorites because they elegantly demonstrate the power of dynamic programming. The Longest Palindromic Subsequence problem illustrates the gap between subsequences and substrings. The Minimum Deletions to Make Palindrome problem shows how LPS relates to edit distance. Palindromic Partitioning combines palindrome detection with interval DP, making it a challenging but instructive problem.
+
+**Key Insight:** For subsequences, define dp[i][j] as the length of the longest palindromic subsequence in s[i..j]. If s[i] == s[j], the characters can bookend a palindrome: dp[i][j] = dp[i+1][j-1] + 2. Otherwise, dp[i][j] = max(dp[i+1][j], dp[i][j-1]). This recurrence covers all palindromic subsequence variants. For substrings, dp[i][j] is a boolean indicating whether s[i..j] is a palindrome: true if s[i] == s[j] and dp[i+1][j-1] is true.`,
+
+    whenToUse: [
+      'Finding the longest palindromic subsequence in a string',
+      'Finding the longest palindromic substring',
+      'Counting all palindromic substrings or subsequences',
+      'Minimum deletions or insertions to make a string a palindrome',
+      'Partitioning a string into the minimum number of palindromic parts',
+      'Any string problem where symmetry around a center is the key constraint'
+    ],
+
+    keyPatterns: [
+      'Subsequence DP: dp[i][j] = LPS length of s[i..j]; expand when s[i]==s[j], else max of excluding either end',
+      'Substring DP: dp[i][j] = true if s[i]==s[j] and dp[i+1][j-1] is true (or j-i <= 2)',
+      'Expand around center for substrings: for each center (and each gap), expand outward while characters match',
+      'Minimum deletions to palindrome = n - LPS(s)',
+      'Palindromic partitioning: dp[i] = min cuts for s[0..i]; precompute isPalin[i][j] boolean table'
+    ],
+
+    timeComplexity: 'O(n^2) for most variants',
+    spaceComplexity: 'O(n^2) for the DP table, optimizable to O(n) for some variants',
+
+    approach: [
+      'Choose the right DP formulation: subsequence (LPS) vs substring vs partitioning',
+      'For LPS: fill dp table for increasing lengths; base case dp[i][i] = 1 for all i',
+      'For palindromic substrings: either use the dp[i][j] boolean table or expand-around-center approach',
+      'For minimum deletions: compute LPS and subtract from string length',
+      'For palindromic partitioning: precompute which substrings are palindromes, then use a 1D DP for minimum cuts',
+      'Consider space optimization: many palindrome DPs only need the previous row/diagonal'
+    ],
+
+    commonProblems: [
+      { name: 'Longest Palindromic Subsequence', difficulty: 'Medium' },
+      { name: 'Longest Palindromic Substring', difficulty: 'Medium' },
+      { name: 'Count Palindromic Substrings', difficulty: 'Medium' },
+      { name: 'Minimum Deletions to Make Palindrome', difficulty: 'Medium' },
+      { name: 'Palindromic Partitioning', difficulty: 'Hard' },
+    ],
+
+    commonMistakes: [
+      'Confusing subsequence (non-contiguous) with substring (contiguous) and using the wrong recurrence',
+      'Filling the DP table in the wrong order: for interval DP, iterate by increasing length, not by increasing i',
+      'Off-by-one in base cases: single characters are palindromes (length 1), and adjacent equal characters form length-2 palindromes',
+      'For palindromic partitioning, not precomputing the isPalindrome table, leading to O(n^3) instead of O(n^2)'
+    ],
+
+    tips: [
+      'LPS of a string s equals LCS of s and reverse(s) -- this gives an alternative O(n^2) approach',
+      'Manacher\'s algorithm finds all palindromic substrings in O(n) but is rarely expected in interviews; mention it as an optimization',
+      'For counting palindromic substrings, expand-around-center is often simpler than the DP table approach',
+      'Minimum insertions to make a palindrome equals minimum deletions, which equals n - LPS(s)',
+      'Space optimization: the LPS DP only needs two rows at a time, reducing space from O(n^2) to O(n)'
+    ],
+
+    interviewTips: [
+      'Clarify whether the problem asks for substrings or subsequences -- the approaches differ significantly',
+      'For LPS, draw the DP table for a small example like "bbbab" and fill it in to verify the recurrence',
+      'Mention the connection: "Minimum deletions to make a palindrome equals n minus the longest palindromic subsequence"',
+      'For palindromic partitioning, explain the two-phase approach: precompute palindromes, then compute min cuts'
+    ],
+  },
+
+  // ─── 27. Fibonacci DP ─────────────────────────────────────────────
+  {
+    id: 'fibonacci-dp',
+    title: 'Fibonacci DP',
+    icon: 'layers',
+    color: '#8b5cf6',
+    questions: 5,
+    description: 'Fibonacci-like recurrence patterns for counting ways, minimum cost, and optimization problems.',
+
+    introduction: `Fibonacci DP refers to a broad class of dynamic programming problems where the recurrence relation has a Fibonacci-like structure: each state depends on a small, fixed number of previous states. The classic Fibonacci sequence (F(n) = F(n-1) + F(n-2)) is the simplest example, but this pattern extends to problems like counting the number of ways to climb stairs, computing minimum costs along a sequence, and deciding whether to include or skip elements.
+
+**Why This Matters:**
+Fibonacci-style DP problems are the gentlest introduction to dynamic programming and appear frequently in interviews at all levels. They build intuition for the DP thought process: identify the state, write the recurrence, determine base cases, and optimize space. Once you recognize the pattern, problems like Climbing Stairs, House Robber, and Jump Game become straightforward applications of the same template.
+
+**Key Insight:** The defining characteristic is that each state depends on only a constant number of prior states (typically 1-3). This means the DP can always be space-optimized from O(n) to O(1) by keeping only the needed previous values in variables, similar to how you compute Fibonacci numbers with just two variables.`,
+
+    whenToUse: [
+      'Counting the number of ways to reach a target using fixed step sizes',
+      'Computing minimum or maximum cost along a linear sequence of decisions',
+      'Problems where at each step you choose from a small set of options that depend on recent history',
+      'House Robber style problems: include or exclude the current element based on what you chose for neighbors',
+      'Jump game variants where you decide how far to advance',
+      'Any problem where dp[i] depends on dp[i-1], dp[i-2], ... dp[i-k] for small constant k'
+    ],
+
+    keyPatterns: [
+      'Basic Fibonacci: dp[i] = dp[i-1] + dp[i-2] for counting paths/ways',
+      'Include/exclude: dp[i] = max(dp[i-2] + val[i], dp[i-1]) for House Robber',
+      'Multi-step: dp[i] = sum of dp[i-j] for j in allowed step sizes (Number Factors)',
+      'Min cost: dp[i] = min(dp[i-1], dp[i-2]) + cost[i]',
+      'Space optimization: replace the dp array with 2-3 rolling variables'
+    ],
+
+    timeComplexity: 'O(n) for standard variants, O(n * k) when there are k step sizes',
+    spaceComplexity: 'O(1) after space optimization (O(n) before)',
+
+    approach: [
+      'Identify the state: typically dp[i] represents the answer for the first i elements or for reaching position i',
+      'Write the recurrence: determine which previous states dp[i] depends on and how they combine',
+      'Establish base cases: dp[0] and dp[1] (or sometimes dp[0], dp[1], dp[2]) based on the problem',
+      'Implement bottom-up: fill the DP table from base cases forward',
+      'Optimize space: since each state depends on only a few previous states, replace the array with rolling variables',
+      'Verify with small examples: trace through n=0,1,2,3 to confirm the recurrence matches expected results'
+    ],
+
+    commonProblems: [
+      { name: 'Climbing Stairs', difficulty: 'Easy' },
+      { name: 'Number Factors', difficulty: 'Medium' },
+      { name: 'Minimum Jumps to End', difficulty: 'Medium' },
+      { name: 'House Thief / Robber', difficulty: 'Medium' },
+      { name: 'Jump Game with Fee', difficulty: 'Medium' },
+    ],
+
+    commonMistakes: [
+      'Forgetting base cases or getting them wrong (e.g., dp[0] = 1 vs dp[0] = 0 matters a lot for counting problems)',
+      'Not recognizing that House Robber is Fibonacci DP with an include/exclude structure',
+      'Using O(n) space when O(1) suffices -- interviewers expect the optimization for this pattern',
+      'Confusing "number of ways" (addition) with "minimum cost" (min operation) in the recurrence'
+    ],
+
+    tips: [
+      'Always start by solving the problem with a full dp array, then optimize to O(1) space',
+      'Climbing Stairs with step sizes {1, 2} is literally Fibonacci; with {1, 2, 3} it is Tribonacci',
+      'House Robber on a circular array: run the linear algorithm twice, once excluding the first house and once excluding the last',
+      'For problems with large n (10^9+), consider matrix exponentiation to compute the n-th Fibonacci-like value in O(log n)',
+      'Map the problem to the pattern: "what is my state, and what are the transitions?" Once mapped, implementation is mechanical'
+    ],
+
+    interviewTips: [
+      'Start with the brute-force recursive solution, then show how memoization leads to DP',
+      'Explicitly mention the space optimization: "Since dp[i] only depends on dp[i-1] and dp[i-2], I can use two variables"',
+      'For House Robber, explain the include/exclude decision clearly: "If I rob house i, I add its value to dp[i-2]; if I skip it, I take dp[i-1]"',
+      'Mention that this is the foundational DP pattern and that more advanced DP builds on the same principles'
+    ],
+  },
+
+  // ─── 28. Ordered Set ──────────────────────────────────────────────
+  {
+    id: 'ordered-set',
+    title: 'Ordered Set',
+    icon: 'list',
+    color: '#8b5cf6',
+    questions: 4,
+    description: 'TreeSet / SortedList patterns for maintaining dynamic sorted order with efficient lookups.',
+
+    introduction: `An Ordered Set (also called a TreeSet in Java or SortedList in Python's sortedcontainers) is a data structure that maintains elements in sorted order while supporting efficient insertion, deletion, and lookup operations -- all in O(log n) time. It also supports order-based queries like finding the predecessor/successor of a value, range queries, and rank queries that are impossible with hash sets.
+
+**Why This Matters:**
+A category of interview problems requires maintaining a dynamically changing collection where you need sorted-order access. Problems like "132 Pattern" need to efficiently find the largest element smaller than a threshold. Calendar scheduling problems need to quickly determine if a new interval overlaps any existing interval. Sliding window problems with sorted-order constraints need fast insertion and removal as the window moves.
+
+**Key Insight:** The ordered set sits between the hash set (O(1) access but no order) and a sorted array (sorted order but O(n) insertion/deletion). When a problem needs both dynamic updates and sorted-order queries, the ordered set provides the balanced O(log n) trade-off. In languages without a built-in sorted set with rank queries (like Python), the sortedcontainers library or a balanced BST serves this role.`,
+
+    whenToUse: [
+      'Need to maintain a dynamic collection in sorted order',
+      'Finding predecessor/successor (floor/ceiling) of a value efficiently',
+      'Sliding window problems requiring sorted access within the window',
+      'Interval scheduling and overlap detection',
+      'Problems requiring rank queries (how many elements are smaller than X)',
+      'Any scenario needing both fast insertion/deletion and ordered iteration'
+    ],
+
+    keyPatterns: [
+      'TreeSet/SortedList: insert, delete, floor, ceiling all in O(log n)',
+      'Sliding window + ordered set: maintain sorted elements in current window, remove expired elements',
+      '132 Pattern: iterate right-to-left, maintaining an ordered set of suffix elements',
+      'Calendar overlap: use ordered set of intervals, check predecessor/successor on insert',
+      'Rank queries: how many elements are less than a given value in O(log n)'
+    ],
+
+    timeComplexity: 'O(log n) per insert, delete, and query',
+    spaceComplexity: 'O(n) for storing the elements',
+
+    approach: [
+      'Identify that the problem needs both dynamic updates (add/remove) and sorted-order queries',
+      'Choose the right data structure: TreeSet (Java), SortedList (Python sortedcontainers), or std::set (C++)',
+      'For sliding window problems, add new elements as the window expands and remove old elements as it shrinks',
+      'Use floor/ceiling operations to find the nearest elements above or below a threshold',
+      'For interval problems, store intervals sorted by start time and check for overlaps using predecessor/successor',
+      'Consider whether a simpler approach (like sorting + binary search on a static collection) suffices before reaching for an ordered set'
+    ],
+
+    commonProblems: [
+      { name: '132 Pattern', difficulty: 'Medium' },
+      { name: 'My Calendar I', difficulty: 'Medium' },
+      { name: 'Longest Continuous Subarray', difficulty: 'Medium' },
+      { name: 'Merge Similar Items', difficulty: 'Easy' },
+    ],
+
+    commonMistakes: [
+      'Using a hash set when sorted order is needed, then sorting repeatedly (O(n log n) per operation instead of O(log n))',
+      'Forgetting that Python does not have a built-in TreeSet; you need sortedcontainers.SortedList or bisect with a list',
+      'Not handling duplicate values correctly: TreeSet does not allow duplicates; use a TreeMap with counts or a multiset',
+      'For sliding window, forgetting to remove elements that have left the window before performing queries'
+    ],
+
+    tips: [
+      'In Python, use "from sortedcontainers import SortedList" for a production-quality ordered set with O(log n) operations',
+      'Java TreeSet provides floor(), ceiling(), higher(), lower() methods for predecessor/successor queries',
+      'C++ std::set with lower_bound/upper_bound iterators is the fastest option in competitive programming',
+      'For the 132 Pattern, a monotonic stack approach is actually O(n) and preferred, but ordered set gives a clean O(n log n) solution',
+      'When you need ordered set with rank queries, Java TreeMap or Python SortedList.bisect_left gives the rank'
+    ],
+
+    interviewTips: [
+      'Explain why a hash set is insufficient: "I need to find the nearest value above/below X, which requires sorted order"',
+      'Mention the time complexity trade-off: "Ordered set gives O(log n) for all operations instead of O(n) for insertion into a sorted array"',
+      'For Python interviews, mention sortedcontainers upfront and confirm the interviewer is okay with it',
+      'If the interviewer disallows external libraries, explain how you would use bisect.insort (O(n) insertion but O(log n) search)'
+    ],
+  },
+
+  // ─── 29. Multi-Threaded Coding ────────────────────────────────────
+  {
+    id: 'multi-threaded-coding',
+    title: 'Multi-Threaded Coding',
+    icon: 'cpu',
+    color: '#8b5cf6',
+    questions: 5,
+    description: 'Concurrency interview problems involving synchronization, ordering, and thread safety.',
+
+    introduction: `Multi-threaded coding problems test your understanding of concurrent programming primitives: mutexes, semaphores, condition variables, and barriers. Unlike typical algorithmic problems, these require you to coordinate multiple threads of execution that run simultaneously and may interleave unpredictably. The challenge is ensuring correctness (no deadlocks, no race conditions, correct ordering) while maximizing parallelism.
+
+**Why This Matters:**
+Concurrency questions are increasingly common at top tech companies, especially for senior and systems-focused roles. Problems like "Print FizzBuzz" and "Print in Order" test whether you truly understand synchronization mechanisms beyond just using them in frameworks. "Dining Philosophers" is a classic deadlock-avoidance problem that tests your knowledge of resource ordering. "Web Crawler Multithreaded" tests practical producer-consumer design.
+
+**Key Insight:** Most concurrency interview problems reduce to one of a few coordination patterns: (1) ordering -- ensuring events happen in a specific sequence across threads, (2) mutual exclusion -- ensuring only one thread accesses a shared resource at a time, (3) producer-consumer -- safely passing data between threads, or (4) resource allocation -- preventing deadlock when multiple threads need multiple resources. Identify which pattern applies, then choose the simplest synchronization primitive that solves it.`,
+
+    whenToUse: [
+      'Problems explicitly requiring multiple threads to cooperate on a task',
+      'Enforcing a specific execution order across concurrent threads',
+      'Implementing producer-consumer or bounded buffer patterns',
+      'Avoiding deadlock when multiple resources must be acquired',
+      'Rate limiting or controlling the degree of parallelism',
+      'Building thread-safe data structures (concurrent queues, caches, etc.)'
+    ],
+
+    keyPatterns: [
+      'Semaphore for ordering: initialize to 0 for "wait" state, release to signal another thread to proceed',
+      'Mutex + condition variable for complex conditions: wait until a predicate is true, signal when it changes',
+      'Barrier for synchronization points: all threads wait until everyone reaches the barrier',
+      'Resource ordering to prevent deadlock: always acquire locks in the same global order',
+      'Producer-consumer with bounded queue: use semaphores for "full" and "empty" slots plus a mutex for the queue'
+    ],
+
+    timeComplexity: 'Problem-dependent; focus is on correctness, not asymptotic complexity',
+    spaceComplexity: 'O(number of synchronization primitives + shared data)',
+
+    approach: [
+      'Identify the coordination pattern: ordering, mutual exclusion, producer-consumer, or resource allocation',
+      'Choose the simplest synchronization primitive that solves the problem (semaphore > condition variable > busy waiting)',
+      'Design the shared state and determine which variables need protection',
+      'Implement the solution with clear acquire/release pairs for all locks',
+      'Verify absence of deadlock: ensure consistent lock ordering and no circular wait conditions',
+      'Test with edge cases: what happens if threads arrive in different orders? What if one thread is much faster?'
+    ],
+
+    commonProblems: [
+      { name: 'Print FizzBuzz', difficulty: 'Medium' },
+      { name: 'Print in Order', difficulty: 'Easy' },
+      { name: 'Building H2O', difficulty: 'Medium' },
+      { name: 'Dining Philosophers', difficulty: 'Medium' },
+      { name: 'Web Crawler Multithreaded', difficulty: 'Medium' },
+    ],
+
+    commonMistakes: [
+      'Busy-waiting (spin locks) instead of using proper blocking synchronization primitives',
+      'Deadlock from inconsistent lock ordering: thread A locks resource 1 then 2, thread B locks resource 2 then 1',
+      'Race conditions from forgetting to protect shared state with a mutex',
+      'Not handling spurious wakeups when using condition variables (always use while loops, not if statements)',
+      'Over-synchronizing: using a single global lock eliminates parallelism and defeats the purpose'
+    ],
+
+    tips: [
+      'For ordering problems (Print in Order), use n-1 semaphores initialized to 0; each thread releases the next semaphore after completing its work',
+      'For Building H2O, use semaphores: hydrogen semaphore with capacity 2, oxygen semaphore with capacity 1, plus a barrier of size 3',
+      'For Dining Philosophers, the simplest deadlock prevention is resource ordering: always pick up the lower-numbered fork first',
+      'In Python, use threading.Semaphore, threading.Lock, threading.Condition, and threading.Barrier',
+      'For Web Crawler, use a thread-safe queue (collections.deque with a lock, or queue.Queue) and a visited set protected by a lock'
+    ],
+
+    interviewTips: [
+      'Start by explaining the coordination pattern before writing code: "This is an ordering problem, so I will use semaphores"',
+      'Explicitly state your deadlock prevention strategy',
+      'Mention that you use while (not if) with condition variables to handle spurious wakeups',
+      'For Dining Philosophers, discuss multiple solutions: resource ordering, arbitrator, or Chandy-Misra'
+    ],
+  },
+
+  // ─── 30. Custom Data Structures ───────────────────────────────────
+  {
+    id: 'custom-data-structures',
+    title: 'Custom Data Structures',
+    icon: 'box',
+    color: '#8b5cf6',
+    questions: 6,
+    description: 'Designing specialized data structures with specific time complexity guarantees.',
+
+    introduction: `Custom Data Structure problems ask you to design a class that supports a specific set of operations, each with a required time complexity. These problems test your knowledge of how standard data structures (hash maps, doubly linked lists, heaps, stacks) can be combined to achieve guarantees that no single structure provides alone. For example, an LRU Cache needs O(1) get and put, which requires combining a hash map (for O(1) key lookup) with a doubly linked list (for O(1) eviction of the least recently used item).
+
+**Why This Matters:**
+Design-a-data-structure problems are extremely popular in interviews at FAANG companies. LRU Cache is arguably the single most-asked design question. These problems test a deeper understanding than just using built-in data structures: you must understand the internal mechanics well enough to compose them into something new. They also test your ability to handle edge cases, maintain invariants across operations, and write clean object-oriented code under pressure.
+
+**Key Insight:** The secret to these problems is identifying which primitive operations each method requires and choosing a combination of data structures that covers all of them. O(1) random access means hash map. O(1) insertion/deletion at known positions means doubly linked list. O(1) min/max means maintaining an auxiliary stack or heap. O(1) random selection means array-based storage. The art is combining these without breaking any of the time guarantees.`,
+
+    whenToUse: [
+      'The problem asks you to design a class with specific method signatures and time complexities',
+      'You need O(1) for multiple operations that no single data structure supports alone',
+      'Cache design: LRU, LFU, or TTL-based eviction policies',
+      'Stack/queue variants with O(1) min/max operations',
+      'Problems requiring O(1) insert, delete, and getRandom',
+      'Any scenario where you must compose multiple data structures to meet time complexity constraints'
+    ],
+
+    keyPatterns: [
+      'Hash map + doubly linked list: O(1) key lookup plus O(1) ordered insertion/deletion (LRU Cache)',
+      'Hash map + min-heap + doubly linked list: O(1) get, O(log n) or O(1) put with frequency tracking (LFU Cache)',
+      'Stack + auxiliary min-stack: push min alongside each element for O(1) getMin',
+      'Hash map + array + swap-to-end: O(1) insert, delete, and getRandom',
+      'Two stacks to implement a queue, or two queues to implement a stack',
+      'Bucket sort structure: group items by frequency/count in linked buckets for O(1) access to extremes'
+    ],
+
+    timeComplexity: 'Varies by problem; the goal is O(1) for all required operations',
+    spaceComplexity: 'O(n) where n is the number of stored elements',
+
+    approach: [
+      'List all required operations and their target time complexities from the problem statement',
+      'For each operation, identify which primitive data structure operation it maps to',
+      'Find a combination of data structures where each operation can be performed in the target time',
+      'Design the internal state: what does each data structure store, and how are they linked?',
+      'Implement each method, carefully maintaining invariants across all data structures',
+      'Handle edge cases: empty structure, duplicate keys, capacity limits, eviction policies'
+    ],
+
+    commonProblems: [
+      { name: 'LRU Cache', difficulty: 'Medium' },
+      { name: 'LFU Cache', difficulty: 'Hard' },
+      { name: 'Min Stack', difficulty: 'Medium' },
+      { name: 'Max Stack', difficulty: 'Hard' },
+      { name: 'All O(1) Data Structure', difficulty: 'Hard' },
+      { name: 'Insert Delete GetRandom O(1)', difficulty: 'Medium' },
+    ],
+
+    commonMistakes: [
+      'Not maintaining consistency between the hash map and linked list after insertions/deletions in LRU Cache',
+      'Forgetting to handle the edge case of updating an existing key in put() for LRU Cache',
+      'For Insert Delete GetRandom, using a list with linear delete instead of swap-to-end for O(1) delete',
+      'For Min Stack, popping from the min stack when the main stack value does not match the min stack top',
+      'Not using sentinel/dummy head and tail nodes in the doubly linked list, leading to verbose null checks'
+    ],
+
+    tips: [
+      'For LRU Cache, use dummy head and tail sentinel nodes in the doubly linked list to simplify edge cases dramatically',
+      'In Python, collections.OrderedDict implements LRU Cache in one line with move_to_end and popitem, but interviewers usually want the manual implementation',
+      'For Insert Delete GetRandom O(1), the key trick is swapping the element to delete with the last element in the array, then popping the end',
+      'For LFU Cache, maintain a hash map from frequency to a doubly linked list of nodes at that frequency; track the current minimum frequency',
+      'All O(1) Data Structure uses a doubly linked list of frequency buckets, each containing a set of keys at that frequency',
+      'Always draw the internal state diagram before coding: show the hash map, linked list nodes, and their connections'
+    ],
+
+    interviewTips: [
+      'Start by listing the operations and their time requirements, then propose the combination of data structures',
+      'Draw the internal state for a small example before writing code',
+      'For LRU Cache, explain: "HashMap gives O(1) lookup, doubly linked list gives O(1) move-to-front and evict-from-back"',
+      'Mention sentinel nodes proactively: "I use dummy head and tail to avoid null-check edge cases"',
+      'Implement the doubly linked list helper methods (addToFront, removeNode, moveToFront) as separate methods for clarity'
+    ],
+  },
+
+  // ─── 31. Knowing What to Track ────────────────────────────────────
+  {
+    id: 'knowing-what-to-track',
+    title: 'Knowing What to Track',
+    icon: 'search',
+    color: '#f59e0b',
+    questions: 5,
+    description: 'Frequency counting and state tracking with hash maps to solve pattern-matching and constraint problems.',
+
+    introduction: `"Knowing What to Track" is a meta-pattern that appears across many problems involving frequency counting, character matching, and constraint validation. The core technique is maintaining a hash map (or array for fixed alphabets) that tracks the frequency or state of relevant elements as you process the input. The insight is recognizing what information you need to track and how to update it efficiently as your window or pointer moves.
+
+**Why This Matters:**
+A large class of string and array problems -- including anagram detection, permutation checking, minimum window substring, and valid sudoku -- all reduce to the same fundamental operation: maintaining and comparing frequency maps. These problems appear constantly in interviews and are often solved with the sliding window pattern, but the key differentiator is knowing exactly what state to track and how to compare it efficiently.
+
+**Key Insight:** Instead of rebuilding the frequency map from scratch each time your window or search position changes, maintain it incrementally: add the new element entering your scope and remove the element leaving it. To compare two frequency maps efficiently, maintain a counter of "matched" categories that updates in O(1) with each addition or removal. This avoids the O(26) or O(k) comparison that would otherwise dominate the inner loop.`,
+
+    whenToUse: [
+      'Finding all anagrams of a pattern in a string',
+      'Checking if one string is a permutation of another',
+      'Finding the minimum window containing all characters of a target',
+      'Grouping strings by shared character frequencies (group anagrams)',
+      'Validating constraints that depend on element frequencies (valid sudoku)',
+      'Any problem where the answer depends on counting or tracking element occurrences'
+    ],
+
+    keyPatterns: [
+      'Frequency map: count occurrences of each element using a hash map or fixed-size array',
+      'Matched count: track how many distinct characters have met their required frequency, avoiding full map comparison',
+      'Sliding window + frequency map: add right element, remove left element, check match condition',
+      'Canonical form: sort characters or use frequency tuple as a hash key for grouping anagrams',
+      'Multi-dimensional tracking: for sudoku, maintain three maps (row, column, box) simultaneously'
+    ],
+
+    timeComplexity: 'O(n) for sliding window variants, O(n * k) for grouping where k is element length',
+    spaceComplexity: 'O(k) where k is the alphabet/key size',
+
+    approach: [
+      'Build a frequency map of the target pattern or required elements',
+      'Initialize a sliding window (or traversal) with its own frequency map',
+      'As you expand the window, increment the count for the new element and check if it now matches the required count',
+      'As you shrink the window, decrement the count and check if it drops below the required count',
+      'Maintain a "matched" counter that equals the number of distinct elements meeting their requirement; when matched equals the total required, you have a valid window',
+      'Record the result (position, length, validity) and continue'
+    ],
+
+    commonProblems: [
+      { name: 'Find All Anagrams', difficulty: 'Medium' },
+      { name: 'Permutation in String', difficulty: 'Medium' },
+      { name: 'Minimum Window Substring', difficulty: 'Hard' },
+      { name: 'Group Anagrams Extended', difficulty: 'Medium' },
+      { name: 'Valid Sudoku', difficulty: 'Medium' },
+    ],
+
+    commonMistakes: [
+      'Comparing entire frequency maps at every step instead of maintaining an incremental matched count',
+      'Off-by-one in the sliding window: the window size for anagrams should be exactly len(pattern)',
+      'Not handling characters in the text that do not appear in the pattern (they should be ignored or handled carefully)',
+      'For Minimum Window Substring, shrinking the window too aggressively and missing valid results'
+    ],
+
+    tips: [
+      'For fixed alphabets (lowercase English letters), use an array of size 26 instead of a hash map for faster access',
+      'The "matched count" trick is crucial: instead of comparing two maps (O(26)), track how many characters have the exact required count (O(1) per update)',
+      'Group Anagrams: use sorted string or frequency tuple as the hash key; sorted string is simpler, frequency tuple avoids O(k log k) sorting',
+      'For Valid Sudoku, the box index for cell (r, c) is (r // 3) * 3 + c // 3',
+      'Minimum Window Substring combines tracking with a two-pointer approach: expand right to find a valid window, then shrink left to minimize it'
+    ],
+
+    interviewTips: [
+      'Explain the matched count optimization: "Instead of comparing maps each step, I track how many characters meet their requirement"',
+      'For anagram problems, mention that the window size is fixed at len(pattern), making it a fixed-size sliding window',
+      'Walk through one window slide step-by-step: "I add the new character, check if it matches, remove the old character, check if it unmatches"',
+      'For Minimum Window, explain the two-phase approach: "Expand right until valid, then shrink left until invalid, recording the best valid window"'
+    ],
+  },
+
+  // ─── 32. Matrix as Graph ──────────────────────────────────────────
+  {
+    id: 'matrix-graphs',
+    title: 'Matrix as Graph',
+    icon: 'gitBranch',
+    color: '#10b981',
+    questions: 5,
+    description: 'Treating matrices as implicit graphs for shortest path, multi-source BFS, and distance problems.',
+
+    introduction: `Matrix-as-Graph problems go beyond simple connected component discovery (covered in Island Traversal) to focus on shortest paths, minimum distances, and level-order propagation in grids. The key distinction is that these problems typically require BFS because they involve finding the minimum number of steps, the shortest path to an exit, or propagating a "wavefront" from multiple sources simultaneously.
+
+**Why This Matters:**
+While Island Traversal problems only need reachability (DFS or BFS both work), Matrix-as-Graph problems specifically require BFS for correctness because BFS naturally finds shortest paths in unweighted graphs. Multi-source BFS, where you start from multiple cells simultaneously, is a particularly powerful technique that appears in problems like "01 Matrix" (nearest 0 for each cell) and "Rotting Oranges" (minimum time to rot all oranges).
+
+**Key Insight:** In an unweighted grid graph, BFS from a single source finds shortest paths from that source. Multi-source BFS (initializing the queue with all source cells at distance 0) finds shortest distances from the nearest source for every cell. This runs in O(m*n) -- the same as single-source BFS -- because each cell is still processed exactly once. For weighted grids, you need Dijkstra's algorithm with a priority queue instead of a regular queue.`,
+
+    whenToUse: [
+      'Finding the shortest path from a source to a destination in a grid',
+      'Computing the minimum distance from every cell to the nearest special cell (multi-source BFS)',
+      'Level-order propagation: spreading a condition one step at a time (rotting oranges, fire spreading)',
+      'Finding the nearest exit from a given starting position',
+      'Building bridges between components with minimum cost',
+      'Any grid problem where the answer involves minimum steps or distances'
+    ],
+
+    keyPatterns: [
+      'Single-source BFS: start from one cell, explore level by level to find shortest path to target',
+      'Multi-source BFS: enqueue all source cells at distance 0, then BFS; each cell gets distance to nearest source',
+      'Shortest Bridge: BFS from one island to find minimum distance to the other island',
+      '0-1 BFS: use a deque, add 0-weight edges to front and 1-weight edges to back for shortest path in 0/1 weighted grid',
+      'Level tracking: process all cells at current distance before moving to the next distance',
+      'Visited at enqueue time: mark cells when adding to queue, not when dequeuing, to avoid duplicate processing'
+    ],
+
+    timeComplexity: 'O(m * n) for BFS on a grid',
+    spaceComplexity: 'O(m * n) for the queue and visited/distance arrays',
+
+    approach: [
+      'Determine whether the problem needs single-source or multi-source BFS',
+      'For multi-source BFS, identify all source cells and enqueue them all with distance 0',
+      'Process the BFS queue level by level, incrementing the distance at each level boundary',
+      'For each dequeued cell, examine its four (or eight) neighbors; if unvisited and valid, mark as visited, record distance, and enqueue',
+      'For Shortest Bridge, first use DFS to find and mark one island, then BFS from all its border cells to reach the other island',
+      'Return the answer: shortest path length, distance matrix, or number of levels until the queue empties'
+    ],
+
+    commonProblems: [
+      { name: 'Shortest Bridge', difficulty: 'Medium' },
+      { name: '01 Matrix', difficulty: 'Medium' },
+      { name: 'Shortest Path in Binary Matrix', difficulty: 'Medium' },
+      { name: 'Nearest Exit', difficulty: 'Medium' },
+      { name: 'Rotting Oranges', difficulty: 'Medium' },
+    ],
+
+    commonMistakes: [
+      'Using DFS instead of BFS for shortest path problems, which does not guarantee minimum distance',
+      'Marking cells as visited when dequeuing instead of when enqueuing, causing cells to be added to the queue multiple times',
+      'For 01 Matrix, starting BFS from each 1-cell individually (O(m^2 * n^2)) instead of multi-source BFS from all 0-cells (O(m*n))',
+      'Forgetting to handle the case where the start cell itself is an exit or target',
+      'Not counting levels correctly: off-by-one between number of BFS levels and actual distance'
+    ],
+
+    tips: [
+      'Multi-source BFS is the same as single-source BFS but with multiple starting cells in the initial queue',
+      'For 01 Matrix, reverse the perspective: BFS from all 0-cells outward to fill in distances for 1-cells',
+      'Shortest Bridge: DFS to find one island, then BFS from its perimeter to the other island; the BFS depth is the answer',
+      'For Shortest Path in Binary Matrix, allow 8-directional movement and check that both start and end cells are 0',
+      'Rotting Oranges: multi-source BFS from all initially rotten oranges; the answer is the number of BFS levels minus 1 (or -1 if fresh oranges remain)'
+    ],
+
+    interviewTips: [
+      'Explain why BFS gives shortest paths: "BFS explores all cells at distance d before any cell at distance d+1"',
+      'For multi-source BFS, explain it as: "Imagine all source cells start simultaneously and expand outward in lockstep"',
+      'Draw the BFS wavefront expanding level by level to make the approach intuitive',
+      'Mention the time complexity: "Each cell is visited exactly once, so it is O(m * n)"'
+    ],
+  },
+
+  // ─── 33. Shortest Path Algorithms ─────────────────────────────────
+  {
+    id: 'shortest-path-algorithms',
+    title: 'Shortest Path Algorithms',
+    icon: 'navigation',
+    color: '#10b981',
+    questions: 4,
+    description: 'Dijkstra, Bellman-Ford, and Floyd-Warshall for weighted graph shortest path problems.',
+
+    introduction: `Shortest Path Algorithms solve the fundamental problem of finding minimum-cost paths in weighted graphs. The three classic algorithms each address different scenarios: Dijkstra's algorithm handles single-source shortest paths in graphs with non-negative edge weights (O((V+E) log V) with a priority queue). Bellman-Ford handles single-source shortest paths even with negative weights and can detect negative cycles (O(V*E)). Floyd-Warshall computes all-pairs shortest paths (O(V^3)).
+
+**Why This Matters:**
+Weighted graph shortest path problems are a staple of technical interviews, especially at senior levels. "Network Delay Time" directly tests Dijkstra's algorithm. "Cheapest Flights Within K Stops" adds a constraint that requires modified Bellman-Ford or BFS. "Path with Maximum Probability" twists the standard problem by maximizing a product instead of minimizing a sum. Understanding which algorithm applies to which scenario is as important as knowing the implementations.
+
+**Key Insight:** The choice of algorithm depends on the graph properties and the question being asked. Non-negative weights and single source? Use Dijkstra. Negative weights or bounded relaxation steps? Use Bellman-Ford. All-pairs shortest paths? Use Floyd-Warshall. Many interview problems disguise themselves as generic graph problems but reduce to one of these three once you identify the weight structure and query type.`,
+
+    whenToUse: [
+      'Finding the shortest (minimum cost) path from a source to all other nodes in a weighted graph',
+      'Graphs with non-negative edge weights (Dijkstra)',
+      'Graphs with negative edge weights or requiring negative cycle detection (Bellman-Ford)',
+      'Problems with a constraint on the number of edges/stops in the path (modified Bellman-Ford or BFS with states)',
+      'All-pairs shortest path queries (Floyd-Warshall)',
+      'Problems involving maximum probability, minimum bottleneck, or other path optimization metrics'
+    ],
+
+    keyPatterns: [
+      'Dijkstra with min-heap: greedily process the nearest unvisited node, relax its neighbors',
+      'Bellman-Ford: relax all edges V-1 times; detect negative cycles with a V-th pass',
+      'Modified Bellman-Ford with K iterations for "at most K stops" problems',
+      'Floyd-Warshall: dp[i][j] = min(dp[i][j], dp[i][k] + dp[k][j]) for each intermediate node k',
+      'Priority queue optimization: use (distance, node) pairs; skip stale entries where distance exceeds known shortest',
+      'State augmentation: add extra state dimensions (e.g., stops remaining) to Dijkstra or BFS'
+    ],
+
+    timeComplexity: 'Dijkstra: O((V+E) log V); Bellman-Ford: O(V*E); Floyd-Warshall: O(V^3)',
+    spaceComplexity: 'Dijkstra: O(V+E); Bellman-Ford: O(V); Floyd-Warshall: O(V^2)',
+
+    approach: [
+      'Build the adjacency list from the input edges (handle directed vs undirected)',
+      'Determine which algorithm to use based on edge weight properties and the query type',
+      'For Dijkstra: initialize distance array to infinity, source to 0; use a min-heap; relax neighbors of each popped node',
+      'For Bellman-Ford: initialize distances, then perform V-1 rounds of relaxation over all edges; for K-stop problems, use only K+1 rounds',
+      'For Floyd-Warshall: initialize the distance matrix from the adjacency matrix, then run the triple nested loop with k as the outermost variable',
+      'Return the result: shortest distances, or -1/infinity for unreachable nodes'
+    ],
+
+    commonProblems: [
+      { name: 'Network Delay Time', difficulty: 'Medium' },
+      { name: 'Cheapest Flights Within K Stops', difficulty: 'Medium' },
+      { name: 'Path with Maximum Probability', difficulty: 'Medium' },
+      { name: 'Swim in Rising Water', difficulty: 'Hard' },
+    ],
+
+    commonMistakes: [
+      'Using Dijkstra on graphs with negative edge weights, which produces incorrect results',
+      'Not handling the stale entry problem in Dijkstra: when you pop a node whose distance is already worse than the known shortest, skip it',
+      'In Bellman-Ford with K stops, modifying the distance array in-place during a round (use a copy of the previous round\'s distances)',
+      'Forgetting that Floyd-Warshall\'s outermost loop must be over the intermediate node k, not the source or destination',
+      'For Swim in Rising Water, not recognizing it as a modified Dijkstra where the "distance" is the maximum elevation along the path'
+    ],
+
+    tips: [
+      'Network Delay Time is a direct application of Dijkstra; the answer is the maximum shortest distance to any node',
+      'Cheapest Flights Within K Stops: use Bellman-Ford with K+1 relaxation rounds, copying the distance array between rounds',
+      'Path with Maximum Probability: use Dijkstra with a max-heap and multiply probabilities instead of adding distances',
+      'Swim in Rising Water: use Dijkstra where the cost of a path is the maximum cell value along it (min-heap on max elevation)',
+      'In Python, use heapq for Dijkstra; note that heapq is a min-heap, so negate values for max-heap behavior',
+      'For sparse graphs (E << V^2), Dijkstra is much faster than Floyd-Warshall'
+    ],
+
+    interviewTips: [
+      'Explain your algorithm choice: "The weights are non-negative, so I will use Dijkstra with a min-heap"',
+      'For Cheapest Flights, explain why standard Dijkstra fails: "It does not account for the stop constraint, so I need to augment the state or use Bellman-Ford with limited rounds"',
+      'Mention the complexity and compare algorithms: "Dijkstra is O((V+E)log V), better than Bellman-Ford\'s O(VE) for sparse graphs with non-negative weights"',
+      'For maximum probability, explain the transformation: "Maximizing product of probabilities is equivalent to minimizing negative log, but it is simpler to just use a max-heap directly"'
+    ],
+  },
+
+  // ─── 34. Minimum Spanning Tree ────────────────────────────────────
+  {
+    id: 'minimum-spanning-tree',
+    title: 'Minimum Spanning Tree',
+    icon: 'share2',
+    color: '#10b981',
+    questions: 4,
+    description: 'Kruskal and Prim algorithms for finding minimum-cost spanning trees in weighted graphs.',
+
+    introduction: `A Minimum Spanning Tree (MST) is a subset of edges in a connected, weighted, undirected graph that connects all vertices with the minimum total edge weight and without forming any cycles. Two classic algorithms solve this problem: Kruskal's algorithm sorts all edges by weight and greedily adds them using Union-Find to avoid cycles (O(E log E)). Prim's algorithm grows the MST from a starting vertex, always adding the cheapest edge that connects a new vertex (O((V+E) log V) with a priority queue).
+
+**Why This Matters:**
+MST problems test your understanding of greedy algorithms and graph structure. While the core MST problem is straightforward, interview variants add twists: connecting points in 2D space (where you must construct the edges), finding critical edges whose removal would increase the MST cost, or distributing resources to minimize total connection cost. These problems combine MST algorithms with Union-Find and sometimes binary search or edge enumeration.
+
+**Key Insight:** Both Kruskal's and Prim's are greedy algorithms but approach the problem differently. Kruskal's is edge-centric: sort edges globally and add the cheapest non-cycle-forming edge. It pairs naturally with Union-Find for cycle detection. Prim's is vertex-centric: grow a tree from a seed vertex by always adding the cheapest edge to an unvisited vertex. Kruskal's is often simpler to implement for interview problems because Union-Find is a well-known pattern, and many problems provide an edge list rather than an adjacency list.`,
+
+    whenToUse: [
+      'Connecting all nodes in a graph with minimum total edge weight',
+      'Connecting points in 2D/3D space with minimum total distance (construct edges from coordinates)',
+      'Finding the minimum cost to provide connectivity to all nodes (network, water, electricity)',
+      'Identifying critical or pseudo-critical edges in an MST',
+      'Problems where you need a spanning subgraph with minimum total cost',
+      'Variants involving thresholds: minimum bottleneck spanning tree or constrained MST'
+    ],
+
+    keyPatterns: [
+      'Kruskal: sort edges by weight, iterate in order, add edge if it connects two different components (Union-Find)',
+      'Prim: start from any vertex, use a min-heap of (weight, neighbor) pairs, always pick the cheapest edge to an unvisited vertex',
+      'Union-Find with path compression and union by rank for O(alpha(n)) per operation in Kruskal\'s',
+      'For 2D point problems: compute all pairwise distances as edges, then run Kruskal or Prim',
+      'Critical edge detection: remove each edge and check if MST cost increases',
+      'MST property: the heaviest edge in any cycle is never in the MST (cycle property)'
+    ],
+
+    timeComplexity: 'Kruskal: O(E log E); Prim: O((V+E) log V)',
+    spaceComplexity: 'O(V + E) for storing the graph and Union-Find / priority queue',
+
+    approach: [
+      'Build the edge list (or adjacency list for Prim) from the input',
+      'For Kruskal: sort edges by weight; initialize Union-Find with V components; iterate through edges, adding each edge that connects two different components',
+      'For Prim: initialize a min-heap with edges from the starting vertex; repeatedly extract the minimum edge, add the vertex if unvisited, and enqueue its edges',
+      'Stop when V-1 edges have been added (MST of V vertices has exactly V-1 edges)',
+      'For 2D point problems, generate all O(V^2) pairwise edges first, then run the algorithm',
+      'For critical edge problems, run MST once to get the baseline cost, then test each edge by temporarily removing or forcing it'
+    ],
+
+    commonProblems: [
+      { name: 'Min Cost to Connect All Points', difficulty: 'Medium' },
+      { name: 'Connecting Cities With Minimum Cost', difficulty: 'Medium' },
+      { name: 'Find Critical Edges in MST', difficulty: 'Hard' },
+      { name: 'Optimize Water Distribution', difficulty: 'Hard' },
+    ],
+
+    commonMistakes: [
+      'Forgetting that MST requires an undirected graph; if the input is directed, MST algorithms do not directly apply',
+      'Not using Union-Find path compression and union by rank, leading to O(V) per union instead of near-O(1)',
+      'For Min Cost to Connect All Points, generating edges incorrectly (Manhattan distance, not Euclidean, depending on the problem)',
+      'In Prim\'s algorithm, adding edges to visited vertices to the heap and not skipping them when dequeued',
+      'For Optimize Water Distribution, not recognizing the trick: add a virtual node connected to each city by its well cost, then run standard MST'
+    ],
+
+    tips: [
+      'Kruskal with Union-Find is usually simpler to implement in interviews than Prim',
+      'For Min Cost to Connect All Points, use Manhattan distance: |x1-x2| + |y1-y2|',
+      'Optimize Water Distribution: create a virtual node 0 connected to city i with weight wells[i], then run MST on the augmented graph',
+      'For critical edges: an edge is critical if removing it increases the MST weight; an edge is pseudo-critical if it can be part of some MST',
+      'If the graph is dense (E close to V^2), Prim with an adjacency matrix is O(V^2) which beats Kruskal\'s O(E log E)',
+      'The MST is unique if all edge weights are distinct; with duplicate weights, multiple MSTs may exist'
+    ],
+
+    interviewTips: [
+      'Explain your algorithm choice: "I will use Kruskal because the problem gives an edge list and Union-Find makes cycle detection easy"',
+      'State the MST property: "A spanning tree with V vertices has exactly V-1 edges, and the MST has the minimum total weight among all spanning trees"',
+      'For Optimize Water Distribution, explain the virtual node trick clearly: "I model each well as an edge from a virtual source node to the city"',
+      'Mention the Union-Find optimizations: "Path compression and union by rank give near-constant time per operation"'
     ],
   },
 ];

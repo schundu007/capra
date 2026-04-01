@@ -4846,6 +4846,1354 @@ If only one branch modified a file, take that branch's version (no conflict). If
       'Implement log as a reverse traversal of the commit chain following parent pointers'
     ]
   },
+  {
+    id: 'airline-management',
+    title: 'Airline Management System',
+    subtitle: 'Flight Operations & Booking Platform',
+    icon: 'navigation',
+    color: '#0ea5e9',
+    difficulty: 'Hard',
+    description: 'Design an airline management system handling flights, bookings, seat assignments, passengers, check-in, and boarding processes.',
+
+    introduction: `An airline management system coordinates the end-to-end lifecycle of air travel: defining flight schedules, selling and managing seat inventory, processing passenger bookings, handling check-in (online and at kiosk/counter), and orchestrating the boarding process at the gate.
+
+The design must handle concurrency challenges like multiple passengers booking the same seat simultaneously, overbooking strategies with bump logic, dynamic pricing based on demand, and real-time status updates when flights are delayed or canceled. The system interacts with payment gateways, notification services, and airport infrastructure systems.`,
+
+    coreEntities: [
+      { name: 'Flight', description: 'Scheduled flight with route (origin/destination), aircraft assignment, departure/arrival times, and status (scheduled, delayed, boarding, departed, arrived, canceled)' },
+      { name: 'Aircraft', description: 'Physical plane with model, registration number, seat map layout, and maintenance status' },
+      { name: 'Seat', description: 'Individual seat on an aircraft with class (economy, business, first), position (window, middle, aisle), and availability status' },
+      { name: 'Passenger', description: 'Traveler with personal details, passport/ID info, frequent flyer number, and special requirements (meal, wheelchair)' },
+      { name: 'Booking', description: 'Reservation linking passengers to flights with seat assignments, fare class, payment status, and booking reference (PNR)' },
+      { name: 'BoardingPass', description: 'Issued after check-in with seat, gate, boarding group, barcode, and boarding sequence number' },
+      { name: 'CheckInService', description: 'Handles passenger check-in (online/kiosk/counter), validates documents, assigns seats, issues boarding passes' },
+      { name: 'BoardingManager', description: 'Manages gate operations: boarding group sequencing, passenger scanning, and manifest reconciliation' }
+    ],
+
+    designPatterns: [
+      'State Pattern: Flight lifecycle (scheduled -> boarding -> departed -> arrived) and booking lifecycle (reserved -> confirmed -> checked-in -> boarded -> completed/canceled)',
+      'Strategy Pattern: Pricing strategies (advance purchase, last-minute, dynamic yield management) and seat assignment strategies (random, window-first, balanced load)',
+      'Observer Pattern: Notify passengers when flight status changes (delays, gate changes, cancellations)',
+      'Command Pattern: Booking operations (reserve, confirm, cancel, modify) as undoable commands for handling failures and refunds',
+      'Template Method: Check-in workflow varies by channel (online, kiosk, counter) but follows the same validation steps'
+    ],
+
+    implementation: `from enum import Enum
+from datetime import datetime
+from typing import Optional
+import uuid
+
+class FlightStatus(Enum):
+    SCHEDULED = "scheduled"
+    DELAYED = "delayed"
+    BOARDING = "boarding"
+    DEPARTED = "departed"
+    ARRIVED = "arrived"
+    CANCELED = "canceled"
+
+class BookingStatus(Enum):
+    RESERVED = "reserved"
+    CONFIRMED = "confirmed"
+    CHECKED_IN = "checked_in"
+    BOARDED = "boarded"
+    COMPLETED = "completed"
+    CANCELED = "canceled"
+
+class SeatClass(Enum):
+    ECONOMY = "economy"
+    BUSINESS = "business"
+    FIRST = "first"
+
+class Seat:
+    def __init__(self, row: int, letter: str, seat_class: SeatClass):
+        self.row = row
+        self.letter = letter
+        self.seat_class = seat_class
+        self.is_available = True
+
+    @property
+    def code(self) -> str:
+        return f"{self.row}{self.letter}"
+
+class Aircraft:
+    def __init__(self, registration: str, model: str, seats: list[Seat]):
+        self.registration = registration
+        self.model = model
+        self.seats = {s.code: s for s in seats}
+
+    def available_seats(self, seat_class: SeatClass = None) -> list[Seat]:
+        return [s for s in self.seats.values()
+                if s.is_available and (seat_class is None or s.seat_class == seat_class)]
+
+class Passenger:
+    def __init__(self, name: str, passport_number: str, email: str):
+        self.id = str(uuid.uuid4())
+        self.name = name
+        self.passport_number = passport_number
+        self.email = email
+        self.frequent_flyer_id: Optional[str] = None
+
+class Flight:
+    def __init__(self, flight_number: str, origin: str, destination: str,
+                 departure: datetime, arrival: datetime, aircraft: Aircraft):
+        self.flight_number = flight_number
+        self.origin = origin
+        self.destination = destination
+        self.departure = departure
+        self.arrival = arrival
+        self.aircraft = aircraft
+        self.status = FlightStatus.SCHEDULED
+        self._observers = []
+
+    def add_observer(self, observer):
+        self._observers.append(observer)
+
+    def update_status(self, new_status: FlightStatus):
+        self.status = new_status
+        for observer in self._observers:
+            observer.on_flight_status_change(self, new_status)
+
+class Booking:
+    def __init__(self, passenger: Passenger, flight: Flight, seat: Seat, fare: float):
+        self.pnr = self._generate_pnr()
+        self.passenger = passenger
+        self.flight = flight
+        self.seat = seat
+        self.fare = fare
+        self.status = BookingStatus.RESERVED
+        self.boarding_pass: Optional[BoardingPass] = None
+
+    def _generate_pnr(self) -> str:
+        return uuid.uuid4().hex[:6].upper()
+
+    def confirm(self):
+        self.status = BookingStatus.CONFIRMED
+        self.seat.is_available = False
+
+    def cancel(self):
+        self.status = BookingStatus.CANCELED
+        self.seat.is_available = True
+
+class BoardingPass:
+    def __init__(self, booking: Booking, gate: str, boarding_group: int):
+        self.booking = booking
+        self.gate = gate
+        self.boarding_group = boarding_group
+        self.barcode = uuid.uuid4().hex[:12].upper()
+        self.issued_at = datetime.now()
+
+class BookingService:
+    def __init__(self):
+        self.bookings: dict[str, Booking] = {}
+        self._lock = __import__('threading').Lock()
+
+    def create_booking(self, passenger: Passenger, flight: Flight,
+                       seat_code: str, fare: float) -> Booking:
+        with self._lock:
+            seat = flight.aircraft.seats.get(seat_code)
+            if not seat or not seat.is_available:
+                raise ValueError(f"Seat {seat_code} is not available")
+            booking = Booking(passenger, flight, seat, fare)
+            booking.confirm()
+            self.bookings[booking.pnr] = booking
+            return booking
+
+    def cancel_booking(self, pnr: str) -> float:
+        booking = self.bookings.get(pnr)
+        if not booking or booking.status == BookingStatus.CANCELED:
+            raise ValueError("Booking not found or already canceled")
+        booking.cancel()
+        return booking.fare * 0.8  # 80% refund
+
+class CheckInService:
+    def check_in(self, booking: Booking, gate: str) -> BoardingPass:
+        if booking.status != BookingStatus.CONFIRMED:
+            raise ValueError("Booking must be confirmed to check in")
+        boarding_group = self._assign_boarding_group(booking)
+        boarding_pass = BoardingPass(booking, gate, boarding_group)
+        booking.boarding_pass = boarding_pass
+        booking.status = BookingStatus.CHECKED_IN
+        return boarding_pass
+
+    def _assign_boarding_group(self, booking: Booking) -> int:
+        if booking.seat.seat_class == SeatClass.FIRST:
+            return 1
+        elif booking.seat.seat_class == SeatClass.BUSINESS:
+            return 2
+        return 3  # Economy`,
+
+    keyQuestions: [
+      {
+        question: 'How do you handle concurrent seat bookings to prevent double-selling?',
+        answer: `Use pessimistic locking at the seat level. When a passenger selects a seat, acquire a lock on that seat row in the database (SELECT ... FOR UPDATE). Validate availability, create the booking, mark the seat as taken, then release the lock. This prevents two transactions from reading the seat as available simultaneously.
+
+For high-throughput systems, optimistic locking with versioning works better: each seat has a version number. The booking transaction reads the version, processes payment, then updates the seat with a WHERE version = read_version clause. If the version changed (someone else booked it), the transaction fails and the passenger is prompted to choose a different seat. This avoids holding locks during the slow payment step.`
+      },
+      {
+        question: 'How would you implement an overbooking strategy?',
+        answer: `Airlines overbook because a percentage of passengers (historically 5-15%) don't show up. The system maintains a virtual inventory that is larger than physical capacity. For a 200-seat plane with a 7% no-show rate, you might sell up to 214 seats.
+
+The overbooking limit is calculated using historical no-show data per route, day-of-week, and season. When the flight is overbooked and all passengers show up, the system triggers a bump process: first seek volunteers with compensation offers (escalating from vouchers to cash), then involuntarily deny boarding based on check-in time, fare class, and frequent flyer status, while complying with regulations (e.g., EU261 compensation rules).`
+      },
+      {
+        question: 'How do you handle flight cancellations and cascading rebookings?',
+        answer: `When a flight is canceled, the system must rebook all affected passengers. First, notify all passengers via the Observer pattern. Then run a rebooking algorithm: find alternative flights on the same route within a time window (e.g., 24 hours), prioritize by fare class and frequent flyer tier, check seat availability on alternatives, and auto-rebook where possible.
+
+For passengers who cannot be automatically rebooked (no available flights, connecting itineraries), escalate to a manual rebooking queue. The system must also handle refund processing, hotel accommodation for overnight delays, and meal vouchers. All rebooking operations must be idempotent to handle retries safely.`
+      }
+    ],
+
+    tips: [
+      'Use State pattern for both flight and booking lifecycles to enforce valid transitions',
+      'Implement seat locking with a short TTL (5-10 minutes) during the booking flow to prevent abandoned reservations from blocking seats',
+      'Separate read and write models: seat availability queries are high-frequency reads that benefit from caching',
+      'Design the PNR (booking reference) as a short alphanumeric code that is easy to communicate verbally',
+      'Handle timezone complexity carefully: store all times in UTC, display in local airport timezone'
+    ]
+  },
+  {
+    id: 'online-stock-brokerage',
+    title: 'Online Stock Brokerage',
+    subtitle: 'Trading Platform & Order Matching',
+    icon: 'trendingUp',
+    color: '#22c55e',
+    difficulty: 'Hard',
+    description: 'Design an online stock brokerage system with trading, order management (market/limit/stop), portfolios, market data feeds, and an order matching engine.',
+
+    introduction: `An online stock brokerage enables users to buy and sell financial instruments (stocks, ETFs, options). The core challenge is building a reliable order matching engine that pairs buy and sell orders fairly and efficiently, while maintaining real-time portfolio valuations and streaming market data to thousands of concurrent users.
+
+The system must handle strict ordering guarantees (price-time priority), support multiple order types (market, limit, stop, stop-limit), manage partial fills, and provide an accurate audit trail for regulatory compliance. Latency is critical: professional trading platforms target sub-millisecond order processing.`,
+
+    coreEntities: [
+      { name: 'Order', description: 'Trade instruction with type (market/limit/stop), side (buy/sell), symbol, quantity, price, status, and timestamps' },
+      { name: 'OrderBook', description: 'Per-symbol structure maintaining sorted buy (bid) and sell (ask) orders with price-time priority' },
+      { name: 'MatchingEngine', description: 'Core engine that matches incoming orders against the order book and produces trades' },
+      { name: 'Trade', description: 'Executed transaction recording buyer, seller, price, quantity, and execution timestamp' },
+      { name: 'Portfolio', description: 'User holdings with positions (symbol, quantity, avg cost), cash balance, and real-time P&L' },
+      { name: 'MarketDataFeed', description: 'Real-time streaming of quotes (bid/ask), last trade price, volume, and candlestick data' },
+      { name: 'Account', description: 'Brokerage account with user info, buying power, margin requirements, and order history' },
+      { name: 'RiskManager', description: 'Pre-trade validation: sufficient funds, position limits, margin requirements, and circuit breakers' }
+    ],
+
+    designPatterns: [
+      'Command Pattern: Each order is a command object that can be submitted, modified, or canceled with full audit logging',
+      'Observer Pattern: Market data subscribers receive real-time price updates when trades execute',
+      'Strategy Pattern: Different order types (market, limit, stop) use different matching strategies',
+      'Mediator Pattern: The matching engine mediates between buy and sell orders without them knowing about each other',
+      'Event Sourcing: Store every order event (placed, partially filled, fully filled, canceled) as an immutable log for audit and replay'
+    ],
+
+    implementation: `from enum import Enum
+from datetime import datetime
+from collections import defaultdict
+from sortedcontainers import SortedList
+import uuid
+import threading
+
+class OrderSide(Enum):
+    BUY = "buy"
+    SELL = "sell"
+
+class OrderType(Enum):
+    MARKET = "market"
+    LIMIT = "limit"
+    STOP = "stop"
+
+class OrderStatus(Enum):
+    PENDING = "pending"
+    OPEN = "open"
+    PARTIALLY_FILLED = "partially_filled"
+    FILLED = "filled"
+    CANCELED = "canceled"
+
+class Order:
+    def __init__(self, account_id: str, symbol: str, side: OrderSide,
+                 order_type: OrderType, quantity: int, price: float = None):
+        self.id = str(uuid.uuid4())
+        self.account_id = account_id
+        self.symbol = symbol
+        self.side = side
+        self.order_type = order_type
+        self.quantity = quantity
+        self.price = price
+        self.filled_quantity = 0
+        self.status = OrderStatus.PENDING
+        self.created_at = datetime.now()
+
+    @property
+    def remaining(self) -> int:
+        return self.quantity - self.filled_quantity
+
+class Trade:
+    def __init__(self, buy_order: Order, sell_order: Order,
+                 price: float, quantity: int):
+        self.id = str(uuid.uuid4())
+        self.buy_order_id = buy_order.id
+        self.sell_order_id = sell_order.id
+        self.symbol = buy_order.symbol
+        self.price = price
+        self.quantity = quantity
+        self.executed_at = datetime.now()
+
+class OrderBook:
+    """Per-symbol order book with price-time priority."""
+    def __init__(self, symbol: str):
+        self.symbol = symbol
+        # Bids sorted by price DESC, then time ASC
+        self.bids: list[Order] = []  # Buy orders
+        # Asks sorted by price ASC, then time ASC
+        self.asks: list[Order] = []  # Sell orders
+
+    def add_order(self, order: Order):
+        if order.side == OrderSide.BUY:
+            self.bids.append(order)
+            self.bids.sort(key=lambda o: (-o.price, o.created_at))
+        else:
+            self.asks.append(order)
+            self.asks.sort(key=lambda o: (o.price, o.created_at))
+
+    def best_bid(self) -> float:
+        return self.bids[0].price if self.bids else 0
+
+    def best_ask(self) -> float:
+        return self.asks[0].price if self.asks else float('inf')
+
+class MatchingEngine:
+    def __init__(self):
+        self.order_books: dict[str, OrderBook] = {}
+        self.trades: list[Trade] = []
+        self._lock = threading.Lock()
+        self._observers = []
+
+    def _get_order_book(self, symbol: str) -> OrderBook:
+        if symbol not in self.order_books:
+            self.order_books[symbol] = OrderBook(symbol)
+        return self.order_books[symbol]
+
+    def submit_order(self, order: Order) -> list[Trade]:
+        with self._lock:
+            book = self._get_order_book(order.symbol)
+            trades = self._match(order, book)
+            if order.remaining > 0 and order.order_type == OrderType.LIMIT:
+                order.status = OrderStatus.OPEN
+                book.add_order(order)
+            for trade in trades:
+                self._notify_observers(trade)
+            return trades
+
+    def _match(self, order: Order, book: OrderBook) -> list[Trade]:
+        trades = []
+        opposite = book.asks if order.side == OrderSide.BUY else book.bids
+
+        while order.remaining > 0 and opposite:
+            best = opposite[0]
+            if order.side == OrderSide.BUY:
+                if order.order_type == OrderType.LIMIT and order.price < best.price:
+                    break  # No match at this price
+            else:
+                if order.order_type == OrderType.LIMIT and order.price > best.price:
+                    break
+
+            fill_qty = min(order.remaining, best.remaining)
+            fill_price = best.price  # Price-time priority: resting order's price
+
+            trade = Trade(
+                buy_order=order if order.side == OrderSide.BUY else best,
+                sell_order=best if order.side == OrderSide.BUY else order,
+                price=fill_price, quantity=fill_qty
+            )
+            trades.append(trade)
+
+            order.filled_quantity += fill_qty
+            best.filled_quantity += fill_qty
+
+            if best.remaining == 0:
+                best.status = OrderStatus.FILLED
+                opposite.pop(0)
+            else:
+                best.status = OrderStatus.PARTIALLY_FILLED
+
+        if order.filled_quantity == order.quantity:
+            order.status = OrderStatus.FILLED
+        elif order.filled_quantity > 0:
+            order.status = OrderStatus.PARTIALLY_FILLED
+        return trades
+
+    def add_observer(self, observer):
+        self._observers.append(observer)
+
+    def _notify_observers(self, trade: Trade):
+        for obs in self._observers:
+            obs.on_trade(trade)
+
+class Portfolio:
+    def __init__(self, account_id: str, cash: float):
+        self.account_id = account_id
+        self.cash = cash
+        self.positions: dict[str, dict] = {}  # symbol -> {quantity, avg_cost}
+
+    def update_on_trade(self, trade: Trade, side: OrderSide):
+        symbol = trade.symbol
+        if symbol not in self.positions:
+            self.positions[symbol] = {"quantity": 0, "avg_cost": 0.0}
+        pos = self.positions[symbol]
+        if side == OrderSide.BUY:
+            total_cost = pos["avg_cost"] * pos["quantity"] + trade.price * trade.quantity
+            pos["quantity"] += trade.quantity
+            pos["avg_cost"] = total_cost / pos["quantity"] if pos["quantity"] else 0
+            self.cash -= trade.price * trade.quantity
+        else:
+            pos["quantity"] -= trade.quantity
+            self.cash += trade.price * trade.quantity`,
+
+    keyQuestions: [
+      {
+        question: 'How does the order matching engine ensure fairness?',
+        answer: `The matching engine uses price-time priority (also called FIFO within price level). Orders are first ranked by price: the highest bid and lowest ask get priority. Among orders at the same price, the one that arrived first gets filled first. This is the standard used by most stock exchanges.
+
+When a new order arrives, it is matched against the opposite side of the book. A market buy order matches against the lowest-priced sell order. A limit buy at $50 matches against any sell order at $50 or lower. The trade executes at the resting order's price (the order already in the book), which ensures the incoming order gets at least as good a price as requested. Partial fills occur when the incoming order is larger than the best resting order.`
+      },
+      {
+        question: 'How do you handle stop orders and stop-limit orders?',
+        answer: `A stop order becomes a market order when the market price reaches the stop price. A stop-limit order becomes a limit order when triggered. The system maintains a separate list of stop orders per symbol, sorted by trigger price. After each trade execution, check if the trade price has crossed any stop prices.
+
+For a stop-loss sell at $45: when the market price drops to $45 or below, convert it to a market sell order and submit it to the matching engine. For a stop-limit sell at stop=$45, limit=$44: when triggered, it becomes a limit sell at $44 (it won't execute below $44, protecting against slippage in a fast-moving market). Stop orders must be evaluated atomically after each trade to prevent race conditions.`
+      },
+      {
+        question: 'How do you ensure the system handles high throughput reliably?',
+        answer: `The matching engine is the bottleneck and must be single-threaded per symbol to guarantee ordering. Partition order books by symbol across multiple matching engine instances (symbol-level sharding). Each instance processes orders sequentially for its assigned symbols, avoiding lock contention.
+
+Use an event-sourced architecture: every order submission, modification, cancellation, and trade is an immutable event in a log (e.g., Kafka). The matching engine reads from this log and writes trade events back. This enables replay for disaster recovery, audit compliance, and building read-optimized projections (portfolio values, market data feeds). Market data and portfolio updates are downstream consumers that can scale independently.`
+      }
+    ],
+
+    tips: [
+      'Keep the matching engine single-threaded per symbol for correctness; shard across symbols for throughput',
+      'Use price-time priority (FIFO within price level) as the default matching algorithm',
+      'Validate orders before they reach the matching engine: sufficient funds, position limits, valid price',
+      'Separate the hot path (order matching) from cold paths (market data fan-out, portfolio updates)',
+      'Event source all order and trade events for regulatory audit trails and system recovery'
+    ]
+  },
+  {
+    id: 'hotel-management-lld',
+    title: 'Hotel Management System',
+    subtitle: 'Reservations, Billing & Operations',
+    icon: 'home',
+    color: '#a855f7',
+    difficulty: 'Medium',
+    description: 'Design a hotel management system covering rooms, reservations, billing, housekeeping, room types, and seasonal pricing.',
+
+    introduction: `A hotel management system (Property Management System or PMS) is the operational backbone of a hotel. It coordinates room inventory, guest reservations, check-in/check-out, billing, housekeeping schedules, and pricing. The system must handle complex scenarios like overbooking, group bookings, room upgrades, early check-in/late check-out, and dynamic pricing based on occupancy and seasonality.
+
+Key design challenges include managing room state transitions (available -> reserved -> occupied -> cleaning -> available), calculating charges with multiple rate plans and add-on services, and ensuring accurate real-time availability across multiple booking channels (direct, OTAs like Booking.com/Expedia).`,
+
+    coreEntities: [
+      { name: 'Room', description: 'Physical room with number, floor, type, status (available, reserved, occupied, maintenance, cleaning), and amenities list' },
+      { name: 'RoomType', description: 'Category like Standard, Deluxe, Suite with base rate, max occupancy, bed configuration, and description' },
+      { name: 'Reservation', description: 'Booking with guest, room type, check-in/check-out dates, status, special requests, and payment info' },
+      { name: 'Guest', description: 'Customer with personal details, loyalty tier, stay history, and preferences' },
+      { name: 'Invoice', description: 'Itemized bill with room charges, taxes, services (minibar, room service, spa), and payment records' },
+      { name: 'HousekeepingTask', description: 'Cleaning assignment with room, priority, assigned staff, status, and completion time' },
+      { name: 'PricingEngine', description: 'Calculates room rates based on room type, season, occupancy level, length of stay, and promotions' },
+      { name: 'BookingChannel', description: 'Source of reservation (direct, OTA, corporate, travel agent) with commission rates' }
+    ],
+
+    designPatterns: [
+      'State Pattern: Room status transitions (available -> reserved -> occupied -> cleaning -> available) with validation rules for each transition',
+      'Strategy Pattern: Multiple pricing strategies (seasonal, occupancy-based, length-of-stay discount, corporate rate, loyalty discount)',
+      'Observer Pattern: Notify housekeeping when a room is checked out, notify front desk when cleaning is complete',
+      'Factory Pattern: Create different room types with appropriate amenities, rates, and configurations',
+      'Decorator Pattern: Add-on services (breakfast, airport transfer, late checkout) layered onto the base reservation'
+    ],
+
+    implementation: `from enum import Enum
+from datetime import datetime, date, timedelta
+from typing import Optional
+import uuid
+
+class RoomStatus(Enum):
+    AVAILABLE = "available"
+    RESERVED = "reserved"
+    OCCUPIED = "occupied"
+    CLEANING = "cleaning"
+    MAINTENANCE = "maintenance"
+
+class ReservationStatus(Enum):
+    CONFIRMED = "confirmed"
+    CHECKED_IN = "checked_in"
+    CHECKED_OUT = "checked_out"
+    CANCELED = "canceled"
+    NO_SHOW = "no_show"
+
+class RoomType:
+    def __init__(self, name: str, base_rate: float, max_occupancy: int,
+                 bed_config: str, amenities: list[str]):
+        self.name = name
+        self.base_rate = base_rate
+        self.max_occupancy = max_occupancy
+        self.bed_config = bed_config
+        self.amenities = amenities
+
+class Room:
+    def __init__(self, number: str, floor: int, room_type: RoomType):
+        self.number = number
+        self.floor = floor
+        self.room_type = room_type
+        self.status = RoomStatus.AVAILABLE
+
+    def transition_to(self, new_status: RoomStatus):
+        valid = {
+            RoomStatus.AVAILABLE: [RoomStatus.RESERVED, RoomStatus.MAINTENANCE],
+            RoomStatus.RESERVED: [RoomStatus.OCCUPIED, RoomStatus.AVAILABLE],
+            RoomStatus.OCCUPIED: [RoomStatus.CLEANING],
+            RoomStatus.CLEANING: [RoomStatus.AVAILABLE, RoomStatus.MAINTENANCE],
+            RoomStatus.MAINTENANCE: [RoomStatus.AVAILABLE],
+        }
+        if new_status not in valid.get(self.status, []):
+            raise ValueError(f"Cannot transition from {self.status} to {new_status}")
+        self.status = new_status
+
+class Guest:
+    def __init__(self, name: str, email: str, phone: str):
+        self.id = str(uuid.uuid4())
+        self.name = name
+        self.email = email
+        self.phone = phone
+        self.loyalty_points = 0
+        self.stay_history: list[str] = []
+
+class PricingEngine:
+    def __init__(self):
+        self.seasonal_multipliers: dict[str, float] = {}  # "2024-12": 1.5
+
+    def set_seasonal_rate(self, month_key: str, multiplier: float):
+        self.seasonal_multipliers[month_key] = multiplier
+
+    def calculate_rate(self, room_type: RoomType, check_in: date,
+                       check_out: date, occupancy_pct: float) -> float:
+        nights = (check_out - check_in).days
+        total = 0.0
+        current = check_in
+        for _ in range(nights):
+            month_key = current.strftime("%Y-%m")
+            seasonal = self.seasonal_multipliers.get(month_key, 1.0)
+            # Occupancy surge: +20% when above 85% occupancy
+            occupancy_adj = 1.2 if occupancy_pct > 0.85 else 1.0
+            daily_rate = room_type.base_rate * seasonal * occupancy_adj
+            total += daily_rate
+            current += timedelta(days=1)
+        return round(total, 2)
+
+class Reservation:
+    def __init__(self, guest: Guest, room: Room, check_in: date,
+                 check_out: date, rate: float):
+        self.id = str(uuid.uuid4())
+        self.confirmation_number = uuid.uuid4().hex[:8].upper()
+        self.guest = guest
+        self.room = room
+        self.check_in = check_in
+        self.check_out = check_out
+        self.nightly_rate = rate / (check_out - check_in).days
+        self.total_rate = rate
+        self.status = ReservationStatus.CONFIRMED
+        self.charges: list[dict] = []
+        self.room.transition_to(RoomStatus.RESERVED)
+
+    def add_charge(self, description: str, amount: float):
+        self.charges.append({
+            "description": description,
+            "amount": amount,
+            "timestamp": datetime.now()
+        })
+
+    def total_bill(self) -> float:
+        extra = sum(c["amount"] for c in self.charges)
+        return self.total_rate + extra
+
+class HousekeepingTask:
+    def __init__(self, room: Room, priority: int = 1):
+        self.id = str(uuid.uuid4())
+        self.room = room
+        self.priority = priority
+        self.assigned_to: Optional[str] = None
+        self.completed = False
+
+    def complete(self):
+        self.completed = True
+        self.room.transition_to(RoomStatus.AVAILABLE)
+
+class HotelService:
+    def __init__(self, pricing_engine: PricingEngine):
+        self.rooms: dict[str, Room] = {}
+        self.reservations: dict[str, Reservation] = {}
+        self.housekeeping_queue: list[HousekeepingTask] = []
+        self.pricing = pricing_engine
+
+    def check_in(self, reservation_id: str):
+        res = self.reservations[reservation_id]
+        res.status = ReservationStatus.CHECKED_IN
+        res.room.transition_to(RoomStatus.OCCUPIED)
+
+    def check_out(self, reservation_id: str) -> float:
+        res = self.reservations[reservation_id]
+        res.status = ReservationStatus.CHECKED_OUT
+        res.room.transition_to(RoomStatus.CLEANING)
+        task = HousekeepingTask(res.room)
+        self.housekeeping_queue.append(task)
+        return res.total_bill()`,
+
+    keyQuestions: [
+      {
+        question: 'How do you implement dynamic seasonal pricing?',
+        answer: `Dynamic pricing uses multiple factors layered together. The base layer is the room type rate. On top of that, apply a seasonal multiplier (e.g., 1.5x for December holidays, 0.8x for off-season January). Then apply occupancy-based adjustments: when occupancy exceeds 85%, increase rates by 15-25%. Length-of-stay discounts (e.g., 10% off for 7+ nights) can offset the increase for longer bookings.
+
+Store pricing rules as a strategy pattern with a chain of adjustments. Each PricingRule takes the current rate and context (date, occupancy, guest loyalty tier) and returns an adjusted rate. This makes it easy to add new rules (flash sales, corporate rates, loyalty discounts) without modifying the core pricing logic. Cache computed rates for common date ranges and invalidate when rules change.`
+      },
+      {
+        question: 'How do you handle overbooking and room assignment?',
+        answer: `Hotels commonly overbook by 5-10% because of cancellations and no-shows. Reservations are made against room types, not specific rooms. Specific room assignment happens at check-in time, giving the hotel flexibility to manage inventory.
+
+When a guest arrives and no room of the booked type is available, the system attempts an upgrade: assign a higher-tier room at no extra charge. If no rooms are available at all, the system triggers a walk protocol: find the guest a room at a nearby partner hotel, cover the cost difference, and offer compensation (future stay credit, loyalty points). Track overbooking rates and actual walk rates to calibrate the overbooking percentage per room type and season.`
+      },
+      {
+        question: 'How do you coordinate housekeeping efficiently?',
+        answer: `Housekeeping tasks are generated automatically on checkout and prioritized by urgency. Priority 1: rooms with incoming same-day reservations. Priority 2: checkout rooms without same-day reservations. Priority 3: stay-over rooms needing daily service. Priority 4: deep cleaning rotation.
+
+Assign tasks based on proximity (rooms on the same floor assigned to the same housekeeper), staff skill level (suites assigned to senior housekeepers), and workload balance. The system tracks average cleaning time per room type to estimate completion times. When a housekeeper marks a room clean, an Observer notification updates the room status to available and alerts the front desk if a guest is waiting for that room type.`
+      }
+    ],
+
+    tips: [
+      'Separate reservation (room type) from room assignment (specific room) for maximum flexibility',
+      'Use State pattern with strict transition validation to prevent invalid room status changes',
+      'Implement pricing as composable rules that can be stacked and reordered',
+      'Track housekeeping metrics (avg cleaning time, rooms per shift) to optimize staffing',
+      'Design for multi-channel availability: keep a single source of truth for inventory that all channels query'
+    ]
+  },
+  {
+    id: 'blackjack-card-game',
+    title: 'Blackjack Card Game',
+    subtitle: 'Casino Card Game Simulation',
+    icon: 'square',
+    color: '#ef4444',
+    difficulty: 'Medium',
+    description: 'Design a Blackjack game with deck management, hand evaluation, dealer AI, betting, and player actions (hit, stand, split, double down).',
+
+    introduction: `Blackjack (Twenty-One) is one of the most popular casino card games and a classic OOD interview problem. The player competes against the dealer, trying to get a hand value as close to 21 as possible without exceeding it. The design must model cards, decks (often a shoe of 6-8 decks), hand evaluation (with Ace counting as 1 or 11), dealer behavior (fixed rules: hit on 16 or below, stand on 17+), and player actions (hit, stand, split pairs, double down).
+
+Key design challenges include correctly handling Aces (which can be 1 or 11 dynamically as cards are added), implementing split logic (creating new hands from pairs), managing the betting lifecycle (bet -> play -> payout), and simulating a multi-deck shoe with cut card and reshuffling.`,
+
+    coreEntities: [
+      { name: 'Card', description: 'Playing card with suit (hearts, diamonds, clubs, spades) and rank (2-10, J, Q, K, A) with value calculation' },
+      { name: 'Deck', description: 'Standard 52-card deck with shuffle capability' },
+      { name: 'Shoe', description: 'Container of multiple decks (typically 6-8) with a cut card indicating when to reshuffle' },
+      { name: 'Hand', description: 'Collection of cards with value calculation, soft/hard distinction, and blackjack detection' },
+      { name: 'Player', description: 'Participant with name, chip balance, current hands (can have multiple after split), and bet amounts' },
+      { name: 'Dealer', description: 'Special player with fixed strategy (hit below 17, stand on 17+) and one card face-down during play' },
+      { name: 'BlackjackGame', description: 'Game controller managing rounds: deal, player turns, dealer turn, payout' },
+      { name: 'BettingManager', description: 'Handles bet placement, validation, and payout calculation (1:1, 3:2 for blackjack, push)' }
+    ],
+
+    designPatterns: [
+      'Strategy Pattern: Player actions (hit, stand, split, double) as strategies; dealer uses a fixed strategy',
+      'State Pattern: Round phases (betting -> dealing -> player_turn -> dealer_turn -> payout) as states',
+      'Iterator Pattern: Shoe deals cards sequentially; reshuffles when cut card is reached',
+      'Observer Pattern: UI observers notified of game events (card dealt, bust, blackjack, payout)',
+      'Factory Pattern: Create standard 52-card decks and assemble them into shoes'
+    ],
+
+    implementation: `from enum import Enum
+import random
+
+class Suit(Enum):
+    HEARTS = "hearts"
+    DIAMONDS = "diamonds"
+    CLUBS = "clubs"
+    SPADES = "spades"
+
+class Rank(Enum):
+    TWO = 2; THREE = 3; FOUR = 4; FIVE = 5
+    SIX = 6; SEVEN = 7; EIGHT = 8; NINE = 9; TEN = 10
+    JACK = 11; QUEEN = 12; KING = 13; ACE = 14
+
+class Card:
+    def __init__(self, rank: Rank, suit: Suit):
+        self.rank = rank
+        self.suit = suit
+
+    @property
+    def value(self) -> int:
+        if self.rank in (Rank.JACK, Rank.QUEEN, Rank.KING):
+            return 10
+        if self.rank == Rank.ACE:
+            return 11  # Adjusted dynamically in Hand
+        return self.rank.value
+
+    def __repr__(self):
+        return f"{self.rank.name} of {self.suit.name}"
+
+class Shoe:
+    def __init__(self, num_decks: int = 6):
+        self.num_decks = num_decks
+        self.cards: list[Card] = []
+        self.cut_position = 0
+        self._build_and_shuffle()
+
+    def _build_and_shuffle(self):
+        self.cards = [Card(rank, suit)
+                      for _ in range(self.num_decks)
+                      for suit in Suit
+                      for rank in Rank]
+        random.shuffle(self.cards)
+        # Cut card at ~75% depth
+        self.cut_position = int(len(self.cards) * 0.75)
+
+    def deal_card(self) -> Card:
+        if not self.cards:
+            self._build_and_shuffle()
+        return self.cards.pop()
+
+    def needs_reshuffle(self) -> bool:
+        return len(self.cards) <= (self.num_decks * 52 - self.cut_position)
+
+class Hand:
+    def __init__(self):
+        self.cards: list[Card] = []
+
+    def add_card(self, card: Card):
+        self.cards.append(card)
+
+    @property
+    def value(self) -> int:
+        total = sum(c.value for c in self.cards)
+        aces = sum(1 for c in self.cards if c.rank == Rank.ACE)
+        while total > 21 and aces > 0:
+            total -= 10  # Count Ace as 1 instead of 11
+            aces -= 1
+        return total
+
+    @property
+    def is_soft(self) -> bool:
+        """A hand is soft if it contains an Ace counted as 11."""
+        total = sum(c.value for c in self.cards)
+        aces = sum(1 for c in self.cards if c.rank == Rank.ACE)
+        while total > 21 and aces > 0:
+            total -= 10
+            aces -= 1
+        return aces > 0 and total <= 21
+
+    @property
+    def is_blackjack(self) -> bool:
+        return len(self.cards) == 2 and self.value == 21
+
+    @property
+    def is_bust(self) -> bool:
+        return self.value > 21
+
+    @property
+    def can_split(self) -> bool:
+        return len(self.cards) == 2 and self.cards[0].value == self.cards[1].value
+
+class Player:
+    def __init__(self, name: str, chips: float = 1000):
+        self.name = name
+        self.chips = chips
+        self.hands: list[Hand] = []
+        self.bets: list[float] = []
+
+    def place_bet(self, amount: float) -> bool:
+        if amount > self.chips:
+            return False
+        self.chips -= amount
+        self.hands = [Hand()]
+        self.bets = [amount]
+        return True
+
+    def split(self, hand_index: int = 0):
+        hand = self.hands[hand_index]
+        if not hand.can_split or self.chips < self.bets[hand_index]:
+            raise ValueError("Cannot split")
+        new_hand = Hand()
+        new_hand.add_card(hand.cards.pop())
+        self.hands.insert(hand_index + 1, new_hand)
+        self.chips -= self.bets[hand_index]
+        self.bets.insert(hand_index + 1, self.bets[hand_index])
+
+    def double_down(self, hand_index: int = 0):
+        if self.chips < self.bets[hand_index]:
+            raise ValueError("Insufficient chips to double down")
+        self.chips -= self.bets[hand_index]
+        self.bets[hand_index] *= 2
+
+class Dealer:
+    def __init__(self):
+        self.hand = Hand()
+
+    def should_hit(self) -> bool:
+        return self.hand.value < 17
+
+    def reset(self):
+        self.hand = Hand()
+
+class BlackjackGame:
+    def __init__(self, num_decks: int = 6):
+        self.shoe = Shoe(num_decks)
+        self.dealer = Dealer()
+        self.players: list[Player] = []
+
+    def deal_initial(self):
+        self.dealer.reset()
+        for _ in range(2):
+            for player in self.players:
+                for hand in player.hands:
+                    hand.add_card(self.shoe.deal_card())
+            self.dealer.hand.add_card(self.shoe.deal_card())
+
+    def player_hit(self, player: Player, hand_index: int = 0):
+        hand = player.hands[hand_index]
+        hand.add_card(self.shoe.deal_card())
+        return hand.is_bust
+
+    def dealer_play(self):
+        while self.dealer.should_hit():
+            self.dealer.hand.add_card(self.shoe.deal_card())
+
+    def resolve_bets(self):
+        dealer_val = self.dealer.hand.value
+        dealer_bust = self.dealer.hand.is_bust
+        for player in self.players:
+            for i, hand in enumerate(player.hands):
+                bet = player.bets[i]
+                if hand.is_bust:
+                    continue  # Player already lost
+                if hand.is_blackjack and not self.dealer.hand.is_blackjack:
+                    player.chips += bet * 2.5  # 3:2 payout
+                elif dealer_bust or hand.value > dealer_val:
+                    player.chips += bet * 2    # 1:1 payout
+                elif hand.value == dealer_val:
+                    player.chips += bet        # Push
+                # else: player loses (bet already deducted)`,
+
+    keyQuestions: [
+      {
+        question: 'How do you handle the dynamic value of Aces?',
+        answer: `Aces are always initially valued at 11. The Hand's value property sums all card values (with Aces as 11), then iteratively reduces Aces from 11 to 1 whenever the total exceeds 21. This greedy approach is optimal because reducing an Ace from 11 to 1 always brings the total down by exactly 10, and you never want to reduce more Aces than necessary.
+
+A hand is called "soft" if it contains an Ace still counted as 11 (meaning the player can safely hit without busting, since the Ace can be reduced). For example, Ace + 6 = soft 17. If the next card is an 8, the total would be 25, but the Ace reduces to 1, making it 15 (hard 15). This distinction matters for dealer rules: some casinos require the dealer to hit on soft 17.`
+      },
+      {
+        question: 'How do you implement the split action correctly?',
+        answer: `When a player splits, the original hand's two cards are separated into two independent hands, each receiving one additional card. The player must place an equal bet on the new hand. Each hand is then played independently in sequence.
+
+Edge cases to handle: splitting Aces typically allows only one additional card per hand (no further hits). Re-splitting is allowed if the new card forms another pair (up to a maximum of 4 hands). A 21 after a split is NOT a blackjack (it pays 1:1, not 3:2). Doubling after split may or may not be allowed depending on house rules. The implementation uses a list of hands per player, with the split operation inserting a new Hand at the next index.`
+      },
+      {
+        question: 'Why use a Shoe instead of a single deck, and how does the cut card work?',
+        answer: `A shoe with 6-8 decks makes card counting significantly harder. With a single deck, a skilled counter can gain a meaningful edge by tracking which cards have been played. Multiple decks dilute this advantage because removing a few cards has a smaller effect on the remaining deck composition.
+
+The cut card is placed at approximately 75% depth in the shoe. When the cut card is reached during a round, the current round completes normally, and then the shoe is reshuffled before the next round. This prevents players from knowing the exact composition of the remaining cards. The penetration depth (how far into the shoe before reshuffling) is a configurable parameter that balances game pace against card counting countermeasures.`
+      }
+    ],
+
+    tips: [
+      'Model Ace values dynamically in the Hand class, not in the Card class',
+      'Use a State pattern for round phases to prevent invalid actions (no hitting during the betting phase)',
+      'Keep the dealer logic as a simple strategy with no decision-making: hit below 17, stand on 17+',
+      'Handle split as creating a new Hand from the second card, preserving the first card in the original hand',
+      'Track the shoe penetration and reshuffle threshold as configurable game rules'
+    ]
+  },
+  {
+    id: 'movie-ticket-booking',
+    title: 'Movie Ticket Booking',
+    subtitle: 'Theater Seat Reservation System',
+    icon: 'film',
+    color: '#ec4899',
+    difficulty: 'Hard',
+    description: 'Design a movie ticket booking system with theaters, shows, seat selection, concurrency control (seat locking), payment processing, and cancellation.',
+
+    introduction: `A movie ticket booking system (like BookMyShow or Fandango) lets users browse movies, select showtimes, choose seats, and purchase tickets. The primary technical challenge is concurrency: when hundreds of users try to book seats for a popular show simultaneously, the system must prevent double-booking while providing a smooth user experience.
+
+The design must handle seat selection with temporary locks (so a user has time to complete payment without losing their seats), graceful expiry of abandoned selections, multiple theaters with different seating layouts, dynamic pricing (premium seats, peak hours), and reliable payment integration with rollback on failure.`,
+
+    coreEntities: [
+      { name: 'Movie', description: 'Film with title, duration, genre, rating, release date, and poster' },
+      { name: 'Theater', description: 'Venue with name, location, and multiple screens' },
+      { name: 'Screen', description: 'Auditorium within a theater with seat layout (rows, columns, categories) and equipment (IMAX, Dolby, standard)' },
+      { name: 'Show', description: 'Specific screening of a movie on a screen at a date/time with its own seat availability and pricing' },
+      { name: 'Seat', description: 'Individual seat with row, number, category (standard, premium, VIP), and per-show availability status' },
+      { name: 'SeatLock', description: 'Temporary hold on selected seats with expiry timestamp, preventing others from booking during payment' },
+      { name: 'Booking', description: 'Confirmed reservation with user, show, seats, total price, payment reference, and cancellation policy' },
+      { name: 'PaymentTransaction', description: 'Payment record with amount, method, status (pending, completed, refunded), and gateway reference' }
+    ],
+
+    designPatterns: [
+      'State Pattern: Seat availability per show (available -> locked -> booked -> canceled) with timed transitions',
+      'Strategy Pattern: Pricing strategies per seat category, show time (matinee vs evening), and day (weekday vs weekend)',
+      'Observer Pattern: Notify users on waitlist when canceled seats become available',
+      'Repository Pattern: Separate data access for movies, shows, bookings with caching for read-heavy queries',
+      'Saga Pattern: Multi-step booking (lock seats -> charge payment -> confirm booking) with compensation on failure'
+    ],
+
+    implementation: `from enum import Enum
+from datetime import datetime, timedelta
+from typing import Optional
+import uuid
+import threading
+
+class SeatStatus(Enum):
+    AVAILABLE = "available"
+    LOCKED = "locked"
+    BOOKED = "booked"
+
+class SeatCategory(Enum):
+    STANDARD = "standard"
+    PREMIUM = "premium"
+    VIP = "vip"
+
+class Movie:
+    def __init__(self, title: str, duration_min: int, genre: str, rating: str):
+        self.id = str(uuid.uuid4())
+        self.title = title
+        self.duration_min = duration_min
+        self.genre = genre
+        self.rating = rating
+
+class Seat:
+    def __init__(self, row: str, number: int, category: SeatCategory):
+        self.row = row
+        self.number = number
+        self.category = category
+
+    @property
+    def code(self) -> str:
+        return f"{self.row}{self.number}"
+
+class ShowSeat:
+    """Seat availability for a specific show."""
+    def __init__(self, seat: Seat, price: float):
+        self.seat = seat
+        self.price = price
+        self.status = SeatStatus.AVAILABLE
+        self.locked_by: Optional[str] = None
+        self.lock_expiry: Optional[datetime] = None
+
+class Screen:
+    def __init__(self, name: str, seats: list[Seat]):
+        self.name = name
+        self.seats = seats
+
+class Show:
+    def __init__(self, movie: Movie, screen: Screen, start_time: datetime,
+                 pricing: dict):  # {SeatCategory: price}
+        self.id = str(uuid.uuid4())
+        self.movie = movie
+        self.screen = screen
+        self.start_time = start_time
+        self.show_seats: dict[str, ShowSeat] = {}
+        for seat in screen.seats:
+            price = pricing.get(seat.category, 10.0)
+            self.show_seats[seat.code] = ShowSeat(seat, price)
+
+class SeatLockManager:
+    LOCK_DURATION = timedelta(minutes=8)
+
+    def __init__(self):
+        self._lock = threading.Lock()
+
+    def lock_seats(self, show: Show, seat_codes: list[str],
+                   user_id: str) -> bool:
+        with self._lock:
+            now = datetime.now()
+            # First, expire any stale locks
+            for code in seat_codes:
+                ss = show.show_seats[code]
+                if (ss.status == SeatStatus.LOCKED and
+                        ss.lock_expiry and ss.lock_expiry < now):
+                    ss.status = SeatStatus.AVAILABLE
+                    ss.locked_by = None
+                    ss.lock_expiry = None
+
+            # Check all seats are available
+            for code in seat_codes:
+                ss = show.show_seats[code]
+                if ss.status != SeatStatus.AVAILABLE:
+                    return False
+
+            # Lock all seats atomically
+            expiry = now + self.LOCK_DURATION
+            for code in seat_codes:
+                ss = show.show_seats[code]
+                ss.status = SeatStatus.LOCKED
+                ss.locked_by = user_id
+                ss.lock_expiry = expiry
+            return True
+
+    def release_locks(self, show: Show, seat_codes: list[str], user_id: str):
+        with self._lock:
+            for code in seat_codes:
+                ss = show.show_seats[code]
+                if ss.locked_by == user_id:
+                    ss.status = SeatStatus.AVAILABLE
+                    ss.locked_by = None
+                    ss.lock_expiry = None
+
+    def confirm_seats(self, show: Show, seat_codes: list[str],
+                      user_id: str) -> bool:
+        with self._lock:
+            for code in seat_codes:
+                ss = show.show_seats[code]
+                if ss.locked_by != user_id or ss.status != SeatStatus.LOCKED:
+                    return False
+            for code in seat_codes:
+                ss = show.show_seats[code]
+                ss.status = SeatStatus.BOOKED
+                ss.locked_by = None
+                ss.lock_expiry = None
+            return True
+
+class Booking:
+    def __init__(self, user_id: str, show: Show, seat_codes: list[str]):
+        self.id = str(uuid.uuid4())
+        self.user_id = user_id
+        self.show = show
+        self.seat_codes = seat_codes
+        self.total_price = sum(show.show_seats[c].price for c in seat_codes)
+        self.status = "confirmed"
+        self.created_at = datetime.now()
+
+    def cancel(self) -> float:
+        hours_until_show = (self.show.start_time - datetime.now()).total_seconds() / 3600
+        if hours_until_show < 2:
+            raise ValueError("Cannot cancel within 2 hours of showtime")
+        self.status = "canceled"
+        for code in self.seat_codes:
+            self.show.show_seats[code].status = SeatStatus.AVAILABLE
+        # Refund policy: 100% if >24h, 50% if 2-24h
+        refund_pct = 1.0 if hours_until_show > 24 else 0.5
+        return self.total_price * refund_pct
+
+class BookingService:
+    def __init__(self):
+        self.seat_lock_mgr = SeatLockManager()
+        self.bookings: dict[str, Booking] = {}
+
+    def initiate_booking(self, show: Show, seat_codes: list[str],
+                         user_id: str) -> bool:
+        return self.seat_lock_mgr.lock_seats(show, seat_codes, user_id)
+
+    def complete_booking(self, show: Show, seat_codes: list[str],
+                         user_id: str, payment_ref: str) -> Booking:
+        if not self.seat_lock_mgr.confirm_seats(show, seat_codes, user_id):
+            raise ValueError("Seats no longer locked for this user")
+        booking = Booking(user_id, show, seat_codes)
+        self.bookings[booking.id] = booking
+        return booking
+
+    def cancel_booking(self, booking_id: str) -> float:
+        booking = self.bookings.get(booking_id)
+        if not booking:
+            raise ValueError("Booking not found")
+        return booking.cancel()`,
+
+    keyQuestions: [
+      {
+        question: 'How do you prevent two users from booking the same seat?',
+        answer: `Use a two-phase locking mechanism. Phase 1 (Selection): when a user selects seats, acquire a temporary lock with a TTL (e.g., 8 minutes). The lock is stored with the user ID and expiry timestamp. Other users see these seats as unavailable. Phase 2 (Confirmation): after successful payment, convert the lock to a permanent booking.
+
+At the database level, use SELECT ... FOR UPDATE on the seat rows to get an exclusive lock during the check-and-set operation. The lock acquisition must be atomic: either all requested seats are locked or none are (to prevent partial bookings). If any seat is already locked or booked, the entire request fails. Expired locks are lazily cleaned up: check the expiry timestamp when another user tries to lock the seat.`
+      },
+      {
+        question: 'What happens if payment fails after seats are locked?',
+        answer: `Implement the Saga pattern with compensation. The booking flow is: (1) lock seats, (2) charge payment, (3) confirm booking. If step 2 fails, the compensation action releases the seat locks immediately so other users can book them. If step 3 fails after payment succeeds, initiate a payment refund and release locks.
+
+Additionally, every lock has a TTL. If the user abandons the flow entirely (closes the browser), the locks expire automatically after the timeout. A background cleanup job periodically scans for expired locks and releases them. The system should also handle idempotency: if a user retries payment, the second attempt should detect the existing lock and proceed rather than creating a duplicate.`
+      },
+      {
+        question: 'How do you handle high-demand shows where thousands of users compete for seats?',
+        answer: `For extremely popular shows (e.g., opening night of a blockbuster), use a virtual waiting room. When demand exceeds a threshold, incoming users are placed in a queue and admitted in batches. This prevents the system from being overwhelmed and gives each admitted user a fair window to complete their booking.
+
+At the infrastructure level, cache show and seat data aggressively (seat availability changes are pushed via WebSocket). Use Redis for seat locks instead of the database to handle the lock/unlock throughput. Partition the seat locking by screen to reduce lock contention. Pre-compute the seat layout and pricing so the selection page loads instantly. Rate-limit the booking API per user to prevent bots from hoarding seats.`
+      }
+    ],
+
+    tips: [
+      'Use temporary seat locks with TTL rather than immediate booking to give users time to pay',
+      'Make the lock acquisition atomic: all seats or none, preventing partial holds',
+      'Implement the Saga pattern for the multi-step booking flow with compensation on failure',
+      'Cache seat availability and push updates via WebSocket for real-time seat maps',
+      'Design cancellation policies as configurable rules based on time-to-showtime'
+    ]
+  },
+  {
+    id: 'amazon-shopping-lld',
+    title: 'Amazon Shopping System',
+    subtitle: 'E-Commerce Platform Design',
+    icon: 'shoppingCart',
+    color: '#f97316',
+    difficulty: 'Hard',
+    description: 'Design an e-commerce system like Amazon with cart, product catalog, inventory management, orders, shipping, recommendations, and reviews.',
+
+    introduction: `An e-commerce platform like Amazon is one of the most comprehensive OOD problems, touching nearly every design pattern and architectural concern. The system manages a massive product catalog with search and filtering, shopping carts with real-time price updates, inventory tracking across multiple warehouses, order processing with payment and fulfillment, shipping logistics, a recommendation engine, and a user review system.
+
+The design must handle eventual consistency (inventory counts across warehouses), high read throughput (millions of product page views), write contention (popular items with limited stock), and complex business logic (pricing rules, promotions, tax calculation, shipping cost estimation). The key is decomposing the monolith into cohesive services with clear responsibilities.`,
+
+    coreEntities: [
+      { name: 'Product', description: 'Item in the catalog with title, description, images, price, category, and attributes (size, color, weight)' },
+      { name: 'Seller', description: 'Merchant listing products with seller rating, shipping policies, and return policies' },
+      { name: 'Inventory', description: 'Stock levels per product per warehouse, with reserved quantity tracking for in-progress orders' },
+      { name: 'Cart', description: 'User shopping cart with items, quantities, applied coupons, and computed totals' },
+      { name: 'Order', description: 'Placed order with items, shipping address, payment, status lifecycle, and tracking info' },
+      { name: 'Review', description: 'User review with rating (1-5), text, verified purchase flag, helpfulness votes, and images' },
+      { name: 'ShippingService', description: 'Calculates shipping options/costs, generates labels, and tracks delivery status' },
+      { name: 'RecommendationEngine', description: 'Suggests products based on browsing history, purchase history, and collaborative filtering' }
+    ],
+
+    designPatterns: [
+      'Repository Pattern: Data access layer for products, orders, users with caching and database abstraction',
+      'Observer Pattern: Inventory changes trigger cart price updates, low-stock alerts, and recommendation retraining',
+      'Strategy Pattern: Shipping cost calculation (weight-based, distance-based, flat rate, free tier), tax calculation by jurisdiction',
+      'State Pattern: Order lifecycle (placed -> confirmed -> shipped -> delivered -> returned) with allowed transitions',
+      'Decorator Pattern: Price modifiers stacked on base price (coupon, loyalty discount, bulk discount, tax)',
+      'Command Pattern: Cart operations (add, remove, update quantity) as undoable commands for cart history'
+    ],
+
+    implementation: `from enum import Enum
+from datetime import datetime
+from typing import Optional
+import uuid
+
+class OrderStatus(Enum):
+    PLACED = "placed"
+    CONFIRMED = "confirmed"
+    PROCESSING = "processing"
+    SHIPPED = "shipped"
+    DELIVERED = "delivered"
+    CANCELED = "canceled"
+    RETURNED = "returned"
+
+class Product:
+    def __init__(self, name: str, description: str, price: float,
+                 category: str, seller_id: str, weight_kg: float = 0.5):
+        self.id = str(uuid.uuid4())
+        self.name = name
+        self.description = description
+        self.price = price
+        self.category = category
+        self.seller_id = seller_id
+        self.weight_kg = weight_kg
+        self.average_rating = 0.0
+        self.review_count = 0
+
+class InventoryManager:
+    def __init__(self):
+        self._stock: dict[str, int] = {}        # product_id -> available
+        self._reserved: dict[str, int] = {}      # product_id -> reserved for pending orders
+        self._lock = __import__('threading').Lock()
+
+    def add_stock(self, product_id: str, quantity: int):
+        with self._lock:
+            self._stock[product_id] = self._stock.get(product_id, 0) + quantity
+
+    def reserve(self, product_id: str, quantity: int) -> bool:
+        with self._lock:
+            available = self._stock.get(product_id, 0) - self._reserved.get(product_id, 0)
+            if available < quantity:
+                return False
+            self._reserved[product_id] = self._reserved.get(product_id, 0) + quantity
+            return True
+
+    def confirm_reservation(self, product_id: str, quantity: int):
+        with self._lock:
+            self._stock[product_id] -= quantity
+            self._reserved[product_id] -= quantity
+
+    def release_reservation(self, product_id: str, quantity: int):
+        with self._lock:
+            self._reserved[product_id] = max(0, self._reserved.get(product_id, 0) - quantity)
+
+    def available_quantity(self, product_id: str) -> int:
+        return self._stock.get(product_id, 0) - self._reserved.get(product_id, 0)
+
+class CartItem:
+    def __init__(self, product: Product, quantity: int):
+        self.product = product
+        self.quantity = quantity
+
+    @property
+    def subtotal(self) -> float:
+        return self.product.price * self.quantity
+
+class Cart:
+    def __init__(self, user_id: str):
+        self.user_id = user_id
+        self.items: dict[str, CartItem] = {}  # product_id -> CartItem
+        self.coupon_code: Optional[str] = None
+        self.coupon_discount: float = 0.0
+
+    def add_item(self, product: Product, quantity: int = 1):
+        if product.id in self.items:
+            self.items[product.id].quantity += quantity
+        else:
+            self.items[product.id] = CartItem(product, quantity)
+
+    def remove_item(self, product_id: str):
+        self.items.pop(product_id, None)
+
+    def update_quantity(self, product_id: str, quantity: int):
+        if quantity <= 0:
+            self.remove_item(product_id)
+        elif product_id in self.items:
+            self.items[product_id].quantity = quantity
+
+    def apply_coupon(self, code: str, discount_pct: float):
+        self.coupon_code = code
+        self.coupon_discount = discount_pct
+
+    @property
+    def subtotal(self) -> float:
+        return sum(item.subtotal for item in self.items.values())
+
+    @property
+    def total(self) -> float:
+        discount = self.subtotal * (self.coupon_discount / 100)
+        return round(self.subtotal - discount, 2)
+
+class OrderItem:
+    def __init__(self, product_id: str, name: str, price: float, quantity: int):
+        self.product_id = product_id
+        self.name = name
+        self.price_at_purchase = price
+        self.quantity = quantity
+
+class Order:
+    def __init__(self, user_id: str, items: list[OrderItem],
+                 shipping_address: str, total: float):
+        self.id = str(uuid.uuid4())
+        self.user_id = user_id
+        self.items = items
+        self.shipping_address = shipping_address
+        self.total = total
+        self.status = OrderStatus.PLACED
+        self.tracking_number: Optional[str] = None
+        self.created_at = datetime.now()
+
+    def transition_to(self, new_status: OrderStatus):
+        valid = {
+            OrderStatus.PLACED: [OrderStatus.CONFIRMED, OrderStatus.CANCELED],
+            OrderStatus.CONFIRMED: [OrderStatus.PROCESSING, OrderStatus.CANCELED],
+            OrderStatus.PROCESSING: [OrderStatus.SHIPPED, OrderStatus.CANCELED],
+            OrderStatus.SHIPPED: [OrderStatus.DELIVERED],
+            OrderStatus.DELIVERED: [OrderStatus.RETURNED],
+        }
+        if new_status not in valid.get(self.status, []):
+            raise ValueError(f"Cannot transition from {self.status} to {new_status}")
+        self.status = new_status
+
+class Review:
+    def __init__(self, user_id: str, product_id: str, rating: int,
+                 text: str, verified_purchase: bool = False):
+        self.id = str(uuid.uuid4())
+        self.user_id = user_id
+        self.product_id = product_id
+        self.rating = max(1, min(5, rating))
+        self.text = text
+        self.verified_purchase = verified_purchase
+        self.helpful_votes = 0
+        self.created_at = datetime.now()
+
+class RecommendationEngine:
+    def __init__(self):
+        self.purchase_history: dict[str, list[str]] = {}  # user -> [product_ids]
+        self.product_categories: dict[str, str] = {}      # product_id -> category
+
+    def record_purchase(self, user_id: str, product_id: str, category: str):
+        self.purchase_history.setdefault(user_id, []).append(product_id)
+        self.product_categories[product_id] = category
+
+    def get_recommendations(self, user_id: str, catalog: list[Product],
+                            limit: int = 10) -> list[Product]:
+        purchased = set(self.purchase_history.get(user_id, []))
+        # Category affinity: recommend from categories user buys most
+        cat_counts: dict[str, int] = {}
+        for pid in purchased:
+            cat = self.product_categories.get(pid, "")
+            cat_counts[cat] = cat_counts.get(cat, 0) + 1
+        top_cats = sorted(cat_counts, key=cat_counts.get, reverse=True)[:3]
+
+        recs = [p for p in catalog
+                if p.id not in purchased and p.category in top_cats]
+        recs.sort(key=lambda p: p.average_rating, reverse=True)
+        return recs[:limit]
+
+class OrderService:
+    def __init__(self, inventory: InventoryManager):
+        self.inventory = inventory
+        self.orders: dict[str, Order] = {}
+
+    def place_order(self, cart: Cart, shipping_address: str) -> Order:
+        # Reserve inventory for all items
+        reserved = []
+        for item in cart.items.values():
+            if not self.inventory.reserve(item.product.id, item.quantity):
+                # Rollback previous reservations
+                for pid, qty in reserved:
+                    self.inventory.release_reservation(pid, qty)
+                raise ValueError(f"Insufficient stock for {item.product.name}")
+            reserved.append((item.product.id, item.quantity))
+
+        order_items = [
+            OrderItem(item.product.id, item.product.name,
+                      item.product.price, item.quantity)
+            for item in cart.items.values()
+        ]
+        order = Order(cart.user_id, order_items, shipping_address, cart.total)
+        self.orders[order.id] = order
+
+        # Confirm inventory deduction
+        for pid, qty in reserved:
+            self.inventory.confirm_reservation(pid, qty)
+        order.transition_to(OrderStatus.CONFIRMED)
+        cart.items.clear()
+        return order
+
+    def cancel_order(self, order_id: str):
+        order = self.orders[order_id]
+        order.transition_to(OrderStatus.CANCELED)
+        for item in order.items:
+            self.inventory.add_stock(item.product_id, item.quantity)`,
+
+    keyQuestions: [
+      {
+        question: 'How do you handle inventory for high-demand products with limited stock?',
+        answer: `Use a reserve-then-confirm pattern. When a user adds items to their cart and proceeds to checkout, reserve the inventory (decrement available count without actually removing stock). If payment succeeds, confirm the reservation (permanently deduct stock). If payment fails or the reservation expires, release it back.
+
+For flash sales with extreme contention, use Redis atomic decrements (DECRBY) for the available count. If the result is negative, the item is sold out and the operation is rejected. This avoids database row-level lock contention. Additionally, implement a queue-based checkout for viral products: users join a virtual queue and are admitted in order, preventing thundering herd problems on the inventory service.`
+      },
+      {
+        question: 'How would you design the recommendation engine?',
+        answer: `Start with three complementary strategies. (1) Collaborative filtering: "Users who bought X also bought Y." Build a user-item interaction matrix and find similar users (user-based) or similar items (item-based) using cosine similarity. (2) Content-based filtering: recommend products with similar attributes (category, brand, price range) to what the user has browsed or purchased. (3) Popularity-based: recommend trending items in the user's preferred categories.
+
+Combine these strategies with a scoring function that weights recency, relevance, and diversity. Cache recommendations per user and invalidate on new purchases. For cold-start users (new accounts), rely on popularity and trending items. Pre-compute recommendations in batch (hourly) for most users, and compute on-the-fly only for very active users whose behavior has changed significantly since the last batch.`
+      },
+      {
+        question: 'How do you ensure the order total is accurate when prices can change?',
+        answer: `Snapshot the price at the moment of purchase. The OrderItem stores price_at_purchase rather than referencing the current product price. This ensures the order total is immutable once placed, even if the seller changes the price afterward.
+
+During checkout, re-validate prices against the current catalog (in case the price changed while the item sat in the cart). If the price increased, notify the user and ask for confirmation. If the price decreased, apply the lower price automatically. The cart total is always computed dynamically from current prices, but the order total is frozen at checkout time. This separation between cart (dynamic) and order (static) pricing is crucial for accurate billing and dispute resolution.`
+      }
+    ],
+
+    tips: [
+      'Separate cart pricing (dynamic, always current) from order pricing (frozen at purchase time)',
+      'Use the reserve-then-confirm pattern for inventory to handle concurrent checkout without overselling',
+      'Model order status as a state machine with explicit valid transitions',
+      'Store review ratings denormalized on the product (average_rating, review_count) for fast reads',
+      'Design recommendations as a pluggable strategy so you can A/B test different algorithms'
+    ]
+  },
 ];
 
 export const extraLldProblemCategoryMap = {
@@ -4874,4 +6222,10 @@ export const extraLldProblemCategoryMap = {
   'rate-limiter-lld': 'utilities',
   'in-memory-filesystem': 'systems',
   'version-control': 'systems',
+  'airline-management': 'systems',
+  'online-stock-brokerage': 'systems',
+  'hotel-management-lld': 'systems',
+  'blackjack-card-game': 'games',
+  'movie-ticket-booking': 'systems',
+  'amazon-shopping-lld': 'systems',
 };

@@ -6,6 +6,8 @@ import { useIsMobile } from '../../hooks/useIsMobile.js';
 const PREPARE_ITEMS = [
   { id: 'coding', label: 'DSA & Algorithms', icon: 'cpu', href: '/prepare/coding' },
   { id: 'system-design', label: 'System Design', icon: 'systemDesign', href: '/prepare/system-design' },
+  { id: 'databases', label: 'Database Internals', icon: 'database', href: '/prepare/databases' },
+  { id: 'sql', label: 'SQL for Interviews', icon: 'terminal', href: '/prepare/sql' },
   { id: 'low-level', label: 'Low-Level Design', icon: 'layers', href: '/prepare/low-level-design' },
   { id: 'behavioral', label: 'Behavioral', icon: 'users', href: '/prepare/behavioral' },
 ];

@@ -10,19 +10,28 @@ import { getLeetCodeUrl } from '../data/leetcodeUrls.js';
 import problemsFull from '../data/problems-full.json';
 import { codingCategories, codingCategoryMap as _codingCategoryMap, codingTopics as _codingTopics } from '../data/topics/codingTopics.js';
 import { extraCodingCategoryMap, extraCodingTopics } from '../data/topics/codingTopicsExtra.js';
-import { systemDesignCategories, systemDesignCategoryMap, systemDesignTopics } from '../data/topics/systemDesignTopics.js';
+import { systemDesignCategories, systemDesignCategoryMap as _sdCategoryMap, systemDesignTopics as _sdTopics } from '../data/topics/systemDesignTopics.js';
+import { systemDesignFundamentalsExtra, systemDesignFundamentalsCategoryMap } from '../data/topics/systemDesignFundamentals.js';
 import { systemDesignProblemCategories as _sdProblemCategories, systemDesignProblemCategoryMap as _sdProblemCategoryMap, systemDesigns as _systemDesigns, lldProblemCategories, lldProblemCategoryMap as _lldProblemCategoryMap } from '../data/topics/systemDesignProblems.js';
 import { extraSystemDesignProblemCategories, extraSystemDesignProblemCategoryMap, extraSystemDesigns } from '../data/topics/systemDesignProblemsExtra.js';
 import { lldProblems as _lldProblems } from '../data/topics/lldProblems.js';
 import { extraLldProblems, extraLldProblemCategoryMap } from '../data/topics/lldProblemsExtra.js';
 import { lldCategories, lldCategoryMap, lldTopics } from '../data/topics/lldTopics.js';
 import { concurrencyTopics } from '../data/topics/concurrencyTopics.js';
+import { systemDesignPatternCategories, systemDesignPatternCategoryMap, systemDesignPatterns } from '../data/topics/systemDesignPatterns.js';
+import { microservicesCategories, microservicesCategoryMap, microservicesPatterns } from '../data/topics/microservicesPatterns.js';
+import { tradeoffCategories, tradeoffCategoryMap, systemDesignTradeoffs } from '../data/topics/systemDesignTradeoffs.js';
+import { scalableSystemsCategories, scalableSystemsCategoryMap, scalableSystemsTopics } from '../data/topics/scalableSystemsTopics.js';
+import { databaseCategories, databaseCategoryMap, databaseTopics } from '../data/topics/databaseTopics.js';
+import { sqlCategories, sqlCategoryMap, sqlTopics } from '../data/topics/sqlTopics.js';
 import { behavioralCategories, topicCategoryMap, behavioralTopics } from '../data/topics/behavioralTopics.js';
 import { companyPrep } from '../data/topics/companyPrep.js';
 
 // Merge extra topics into base arrays
 const codingCategoryMap = { ..._codingCategoryMap, ...extraCodingCategoryMap };
 const codingTopics = [..._codingTopics, ...extraCodingTopics];
+const systemDesignCategoryMap = { ..._sdCategoryMap, ...systemDesignFundamentalsCategoryMap };
+const systemDesignTopics = [..._sdTopics, ...systemDesignFundamentalsExtra];
 const systemDesignProblemCategories = [..._sdProblemCategories, ...extraSystemDesignProblemCategories];
 const systemDesignProblemCategoryMap = { ..._sdProblemCategoryMap, ...extraSystemDesignProblemCategoryMap };
 const systemDesigns = [..._systemDesigns, ...extraSystemDesigns];
@@ -107,7 +116,8 @@ export default function DocsPage({ onBack }) {
     const pathSegment = routerLocation.pathname.replace('/prepare', '').replace(/^\//, '');
     const rawPage = params.get('page') || (pathSegment || 'coding');
     // Support 'dsa' as alias for 'coding'
-    const page = rawPage === 'dsa' ? 'coding' : rawPage === 'low-level-design' ? 'low-level' : rawPage;
+    const pageAliases = { dsa: 'coding', 'low-level-design': 'low-level' };
+    const page = pageAliases[rawPage] || rawPage;
     return {
       page,
       topic: params.get('topic') || null,
@@ -125,7 +135,8 @@ export default function DocsPage({ onBack }) {
     const pathSegment = routerLocation.pathname.replace('/prepare', '').replace(/^\//, '');
     const params = new URLSearchParams(routerLocation.search);
     const rawPage = params.get('page') || (pathSegment || 'coding');
-    const page = rawPage === 'dsa' ? 'coding' : rawPage === 'low-level-design' ? 'low-level' : rawPage;
+    const pageAliases = { dsa: 'coding', 'low-level-design': 'low-level' };
+    const page = pageAliases[rawPage] || rawPage;
     const topic = params.get('topic') || null;
     setActivePageState(page);
     setSelectedTopicState(topic);
@@ -227,8 +238,10 @@ export default function DocsPage({ onBack }) {
   // Calculate progress
   const getProgress = () => {
     const topics = activePage === 'coding' ? codingTopics :
-      activePage === 'system-design' ? [...systemDesignTopics, ...systemDesigns, ...concurrencyTopics] :
+      activePage === 'system-design' ? [...systemDesignTopics, ...systemDesigns, ...concurrencyTopics, ...systemDesignPatterns, ...microservicesPatterns, ...systemDesignTradeoffs, ...scalableSystemsTopics] :
       activePage === 'low-level' ? [...lldTopics, ...lldProblems] :
+      activePage === 'databases' ? databaseTopics :
+      activePage === 'sql' ? sqlTopics :
       [...behavioralTopics, ...companyPrep];
     const total = topics.length;
     const completed = topics.filter(t => completedTopics[t.id]).length;
@@ -319,6 +332,8 @@ export default function DocsPage({ onBack }) {
   const navItems = [
     { id: 'coding', label: 'Data Structures & Algorithms', icon: 'code' },
     { id: 'system-design', label: 'System Design', icon: 'systemDesign' },
+    { id: 'databases', label: 'Database Internals', icon: 'database' },
+    { id: 'sql', label: 'SQL for Interviews', icon: 'terminal' },
     { id: 'low-level', label: 'Low-Level Design', icon: 'puzzle' },
     { id: 'behavioral', label: 'Behavioral', icon: 'users' },
   ];
@@ -331,6 +346,8 @@ export default function DocsPage({ onBack }) {
     else if (activePage === 'system-design') topics = systemDesignTopics;
     else if (activePage === 'low-level') topics = lldTopics;
     else if (activePage === 'behavioral') topics = behavioralTopics;
+    else if (activePage === 'databases') topics = databaseTopics;
+    else if (activePage === 'sql') topics = sqlTopics;
     else return [];
 
     return topics
@@ -353,6 +370,8 @@ export default function DocsPage({ onBack }) {
       case 'system-design': return { title: 'System Design', color: '#3b82f6' };
       case 'low-level': return { title: 'Low-Level Design', color: '#8b5cf6' };
       case 'behavioral': return { title: 'Behavioral Interviews', color: '#a855f7' };
+      case 'databases': return { title: 'Database Internals', color: '#f59e0b' };
+      case 'sql': return { title: 'SQL for Interviews', color: '#06b6d4' };
       default: return { title: 'Documentation', color: '#10b981' };
     }
   };
@@ -366,7 +385,11 @@ export default function DocsPage({ onBack }) {
     if (activePage === 'system-design') {
       return systemDesignTopics.find(t => t.id === selectedTopic) ||
              systemDesigns.find(t => t.id === selectedTopic) ||
-             concurrencyTopics.find(t => t.id === selectedTopic);
+             concurrencyTopics.find(t => t.id === selectedTopic) ||
+             systemDesignPatterns.find(t => t.id === selectedTopic) ||
+             microservicesPatterns.find(t => t.id === selectedTopic) ||
+             systemDesignTradeoffs.find(t => t.id === selectedTopic) ||
+             scalableSystemsTopics.find(t => t.id === selectedTopic);
     }
     if (activePage === 'low-level') {
       return lldTopics.find(t => t.id === selectedTopic) ||
@@ -376,6 +399,8 @@ export default function DocsPage({ onBack }) {
       return behavioralTopics.find(t => t.id === selectedTopic) ||
              companyPrep.find(t => t.id === selectedTopic);
     }
+    if (activePage === 'databases') return databaseTopics.find(t => t.id === selectedTopic);
+    if (activePage === 'sql') return sqlTopics.find(t => t.id === selectedTopic);
     return null;
   };
 
@@ -417,6 +442,12 @@ export default function DocsPage({ onBack }) {
       if (topicDetails.starExample) toc.push({ id: 'star-example', label: 'STAR Example' });
       if (topicDetails.exampleResponse) toc.push({ id: 'example-response', label: 'Example Response' });
       if (topicDetails.sampleQuestions) toc.push({ id: 'sample-questions', label: 'Practice Questions' });
+      if (topicDetails.tips) toc.push({ id: 'tips', label: 'Tips' });
+    } else if (activePage === 'databases' || activePage === 'sql') {
+      if (topicDetails.introduction) toc.push({ id: 'overview', label: 'Overview' });
+      if (topicDetails.keyQuestions) toc.push({ id: 'key-questions', label: 'Key Questions' });
+      if (topicDetails.dataModel) toc.push({ id: 'data-model', label: 'Data Model' });
+      if (topicDetails.basicImplementation) toc.push({ id: 'architecture', label: 'Architecture' });
       if (topicDetails.tips) toc.push({ id: 'tips', label: 'Tips' });
     }
     return toc;
@@ -513,7 +544,7 @@ export default function DocsPage({ onBack }) {
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 border border-emerald-200 bg-emerald-50 rounded-full mb-4">
                       <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
                       <span className="text-xs landing-mono text-emerald-700 tracking-wide">
-                        {activePage === 'coding' ? 'Algorithms' : activePage === 'system-design' ? 'Architecture' : activePage === 'low-level' ? 'OOP & Patterns' : 'Soft Skills'}
+                        {activePage === 'coding' ? 'Algorithms' : activePage === 'system-design' ? 'Architecture' : activePage === 'low-level' ? 'OOP & Patterns' : activePage === 'databases' ? 'Database Internals' : activePage === 'sql' ? 'SQL Mastery' : 'Soft Skills'}
                       </span>
                     </div>
                     <h1 className="landing-display font-extrabold text-2xl md:text-3xl tracking-tight text-gray-900 mb-2">
@@ -521,12 +552,16 @@ export default function DocsPage({ onBack }) {
                       {activePage === 'system-design' && <>Design Systems That{' '}<span className="bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Scale</span></>}
                       {activePage === 'low-level' && <>Master Object-Oriented{' '}<span className="bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Design</span></>}
                       {activePage === 'behavioral' && <>Tell Your{' '}<span className="bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Best Story</span></>}
+                      {activePage === 'databases' && <>Database{' '}<span className="bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">Internals</span></>}
+                      {activePage === 'sql' && <>SQL for{' '}<span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Interviews</span></>}
                     </h1>
                     <p className="text-sm text-gray-500 max-w-2xl leading-relaxed landing-body">
                       {activePage === 'coding' && 'Master the fundamental data structures and algorithms needed to ace technical interviews at top tech companies.'}
                       {activePage === 'system-design' && 'Master distributed systems, scalability patterns, and architecture trade-offs. From fundamentals to real-world designs at top companies.'}
                       {activePage === 'low-level' && 'OOP principles, SOLID design, UML diagrams, and all 23 Gang of Four design patterns. Build clean, extensible object-oriented systems.'}
                       {activePage === 'behavioral' && 'Prepare compelling stories and answers for behavioral interviews using proven frameworks like STAR.'}
+                      {activePage === 'databases' && 'Storage engines, indexing, transactions, replication, sharding, and consensus algorithms. Deep dive into how databases really work.'}
+                      {activePage === 'sql' && 'From fundamentals to window functions. Master SQL queries, joins, subqueries, and complex interview problems.'}
                     </p>
                   </div>
                   {/* Gradient Divider */}
@@ -867,6 +902,210 @@ export default function DocsPage({ onBack }) {
                                 </div>
                               );
                             })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    </div>
+                  </div>
+
+                  {/* Gradient Divider */}
+                  <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-6" />
+
+                  {/* Distributed System Patterns Section */}
+                  <div className="mb-6">
+                    <div className="mb-4">
+                      <span className="landing-mono text-xs text-blue-600 tracking-widest uppercase">Advanced</span>
+                      <h2 className="landing-display font-bold text-xl mt-1 tracking-tight text-gray-900">Distributed System Patterns</h2>
+                      <p className="text-sm text-gray-500 landing-body mt-1">Consistency, availability, and data integrity patterns for distributed systems</p>
+                    </div>
+                    <div className="space-y-3">
+                    {systemDesignPatternCategories.map((category) => {
+                      const categoryTopics = systemDesignPatterns.filter(t => systemDesignPatternCategoryMap[t.id] === category.id);
+                      if (categoryTopics.length === 0) return null;
+                      return (
+                        <div key={category.id} className="rounded-lg overflow-hidden border border-gray-200">
+                          <div className="px-4 py-2.5 flex items-center gap-2.5 bg-gray-50/80 border-b border-gray-100">
+                            <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: `${category.color}12` }}>
+                              <Icon name={category.icon} size={14} style={{ color: category.color }} />
+                            </div>
+                            <h3 className="text-sm font-semibold text-gray-900 landing-display">{category.name}</h3>
+                            <span className="text-[10px] landing-mono text-gray-400">{categoryTopics.length} patterns</span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white">
+                            {categoryTopics.map((topic) => (
+                              <div
+                                key={topic.id}
+                                onClick={() => setSelectedTopic(topic.id)}
+                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-all group border-b border-r border-gray-100"
+                              >
+                                <div className="flex items-center gap-2.5">
+                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}12` }}>
+                                    <Icon name={topic.icon} size={11} style={{ color: topic.color }} />
+                                  </div>
+                                  <span className="text-gray-900 text-sm landing-body font-medium group-hover:text-emerald-600 transition-colors">{topic.title}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] landing-mono px-1.5 py-0.5 rounded border border-gray-200 text-gray-400">
+                                    {topic.keyQuestions?.length || 0}Q
+                                  </span>
+                                  <Icon name="chevronRight" size={12} className="text-gray-300 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all" />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    </div>
+                  </div>
+
+                  {/* Gradient Divider */}
+                  <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-6" />
+
+                  {/* Microservices Patterns Section */}
+                  <div className="mb-6">
+                    <div className="mb-4">
+                      <span className="landing-mono text-xs text-purple-600 tracking-widest uppercase">Architecture</span>
+                      <h2 className="landing-display font-bold text-xl mt-1 tracking-tight text-gray-900">Microservices Patterns</h2>
+                      <p className="text-sm text-gray-500 landing-body mt-1">Service communication, resilience, data management, and deployment patterns</p>
+                    </div>
+                    <div className="space-y-3">
+                    {microservicesCategories.map((category) => {
+                      const categoryTopics = microservicesPatterns.filter(t => microservicesCategoryMap[t.id] === category.id);
+                      if (categoryTopics.length === 0) return null;
+                      return (
+                        <div key={category.id} className="rounded-lg overflow-hidden border border-gray-200">
+                          <div className="px-4 py-2.5 flex items-center gap-2.5 bg-gray-50/80 border-b border-gray-100">
+                            <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: `${category.color}12` }}>
+                              <Icon name={category.icon} size={14} style={{ color: category.color }} />
+                            </div>
+                            <h3 className="text-sm font-semibold text-gray-900 landing-display">{category.name}</h3>
+                            <span className="text-[10px] landing-mono text-gray-400">{categoryTopics.length} patterns</span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white">
+                            {categoryTopics.map((topic) => (
+                              <div
+                                key={topic.id}
+                                onClick={() => setSelectedTopic(topic.id)}
+                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-all group border-b border-r border-gray-100"
+                              >
+                                <div className="flex items-center gap-2.5">
+                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}12` }}>
+                                    <Icon name={topic.icon} size={11} style={{ color: topic.color }} />
+                                  </div>
+                                  <span className="text-gray-900 text-sm landing-body font-medium group-hover:text-emerald-600 transition-colors">{topic.title}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] landing-mono px-1.5 py-0.5 rounded border border-gray-200 text-gray-400">
+                                    {topic.keyQuestions?.length || 0}Q
+                                  </span>
+                                  <Icon name="chevronRight" size={12} className="text-gray-300 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all" />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    </div>
+                  </div>
+
+                  {/* Gradient Divider */}
+                  <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-6" />
+
+                  {/* System Design Trade-offs Section */}
+                  <div className="mb-6">
+                    <div className="mb-4">
+                      <span className="landing-mono text-xs text-amber-600 tracking-widest uppercase">Critical</span>
+                      <h2 className="landing-display font-bold text-xl mt-1 tracking-tight text-gray-900">System Design Trade-offs</h2>
+                      <p className="text-sm text-gray-500 landing-body mt-1">Key architectural decisions and when to choose each approach</p>
+                    </div>
+                    <div className="space-y-3">
+                    {tradeoffCategories.map((category) => {
+                      const categoryTopics = systemDesignTradeoffs.filter(t => tradeoffCategoryMap[t.id] === category.id);
+                      if (categoryTopics.length === 0) return null;
+                      return (
+                        <div key={category.id} className="rounded-lg overflow-hidden border border-gray-200">
+                          <div className="px-4 py-2.5 flex items-center gap-2.5 bg-gray-50/80 border-b border-gray-100">
+                            <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: `${category.color}12` }}>
+                              <Icon name={category.icon} size={14} style={{ color: category.color }} />
+                            </div>
+                            <h3 className="text-sm font-semibold text-gray-900 landing-display">{category.name}</h3>
+                            <span className="text-[10px] landing-mono text-gray-400">{categoryTopics.length} topics</span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white">
+                            {categoryTopics.map((topic) => (
+                              <div
+                                key={topic.id}
+                                onClick={() => setSelectedTopic(topic.id)}
+                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-all group border-b border-r border-gray-100"
+                              >
+                                <div className="flex items-center gap-2.5">
+                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}12` }}>
+                                    <Icon name={topic.icon} size={11} style={{ color: topic.color }} />
+                                  </div>
+                                  <span className="text-gray-900 text-sm landing-body font-medium group-hover:text-emerald-600 transition-colors">{topic.title}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] landing-mono px-1.5 py-0.5 rounded border border-gray-200 text-gray-400">
+                                    {topic.keyQuestions?.length || 0}Q
+                                  </span>
+                                  <Icon name="chevronRight" size={12} className="text-gray-300 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all" />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    </div>
+                  </div>
+
+                  {/* Gradient Divider */}
+                  <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-6" />
+
+                  {/* Scalable Systems Section */}
+                  <div className="mb-6">
+                    <div className="mb-4">
+                      <span className="landing-mono text-xs text-orange-600 tracking-widest uppercase">Senior</span>
+                      <h2 className="landing-display font-bold text-xl mt-1 tracking-tight text-gray-900">Scalable Systems</h2>
+                      <p className="text-sm text-gray-500 landing-body mt-1">Advanced caching, networking, data, and operational patterns for production systems</p>
+                    </div>
+                    <div className="space-y-3">
+                    {scalableSystemsCategories.map((category) => {
+                      const categoryTopics = scalableSystemsTopics.filter(t => scalableSystemsCategoryMap[t.id] === category.id);
+                      if (categoryTopics.length === 0) return null;
+                      return (
+                        <div key={category.id} className="rounded-lg overflow-hidden border border-gray-200">
+                          <div className="px-4 py-2.5 flex items-center gap-2.5 bg-gray-50/80 border-b border-gray-100">
+                            <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: `${category.color}12` }}>
+                              <Icon name={category.icon} size={14} style={{ color: category.color }} />
+                            </div>
+                            <h3 className="text-sm font-semibold text-gray-900 landing-display">{category.name}</h3>
+                            <span className="text-[10px] landing-mono text-gray-400">{categoryTopics.length} topics</span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white">
+                            {categoryTopics.map((topic) => (
+                              <div
+                                key={topic.id}
+                                onClick={() => setSelectedTopic(topic.id)}
+                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-all group border-b border-r border-gray-100"
+                              >
+                                <div className="flex items-center gap-2.5">
+                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}12` }}>
+                                    <Icon name={topic.icon} size={11} style={{ color: topic.color }} />
+                                  </div>
+                                  <span className="text-gray-900 text-sm landing-body font-medium group-hover:text-emerald-600 transition-colors">{topic.title}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] landing-mono px-1.5 py-0.5 rounded border border-gray-200 text-gray-400">
+                                    {topic.keyQuestions?.length || 0}Q
+                                  </span>
+                                  <Icon name="chevronRight" size={12} className="text-gray-300 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all" />
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       );
@@ -1302,6 +1541,114 @@ export default function DocsPage({ onBack }) {
                   </div>
                 </>
               )}
+
+              {/* Database Internals Content */}
+              {activePage === 'databases' && (
+                <>
+                  <div className="mb-6">
+                    <div className="mb-4">
+                      <span className="landing-mono text-xs text-amber-600 tracking-widest uppercase">Deep Dive</span>
+                      <h2 className="landing-display font-bold text-xl mt-1 tracking-tight text-gray-900">Database Internals</h2>
+                    </div>
+                    <div className="space-y-3">
+                    {databaseCategories.map((category) => {
+                      const categoryTopics = filteredTopics.filter(t => databaseCategoryMap[t.id] === category.id);
+                      if (categoryTopics.length === 0) return null;
+                      return (
+                        <div key={category.id} className="rounded-lg overflow-hidden border border-gray-200">
+                          <div className="px-4 py-2.5 flex items-center gap-2.5 bg-gray-50/80 border-b border-gray-100">
+                            <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: `${category.color}12` }}>
+                              <Icon name={category.icon} size={14} style={{ color: category.color }} />
+                            </div>
+                            <h3 className="text-sm font-semibold text-gray-900 landing-display">{category.name}</h3>
+                            <span className="text-[10px] landing-mono text-gray-400">{categoryTopics.length} topics</span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white">
+                            {categoryTopics.map((topic) => (
+                              <div
+                                key={topic.id}
+                                onClick={() => setSelectedTopic(topic.id)}
+                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-all group border-b border-r border-gray-100"
+                              >
+                                <div className="flex items-center gap-2.5">
+                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? '#d1fae5' : `${topic.color}12` }}>
+                                    {completedTopics[topic.id] ? <Icon name="check" size={11} className="text-emerald-600" /> : <Icon name={topic.icon} size={11} style={{ color: topic.color }} />}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className={`text-sm landing-body font-medium group-hover:text-emerald-600 transition-colors ${completedTopics[topic.id] ? 'text-gray-400 line-through' : 'text-gray-900'}`}>{topic.title}</span>
+                                    {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-500" />}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] landing-mono px-1.5 py-0.5 rounded border border-gray-200 text-gray-400">
+                                    {topic.keyQuestions?.length || topic.questions || 0}Q
+                                  </span>
+                                  <Icon name="chevronRight" size={12} className="text-gray-300 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all" />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* SQL for Interviews Content */}
+              {activePage === 'sql' && (
+                <>
+                  <div className="mb-6">
+                    <div className="mb-4">
+                      <span className="landing-mono text-xs text-cyan-600 tracking-widest uppercase">Query Mastery</span>
+                      <h2 className="landing-display font-bold text-xl mt-1 tracking-tight text-gray-900">SQL Topics</h2>
+                    </div>
+                    <div className="space-y-3">
+                    {sqlCategories.map((category) => {
+                      const categoryTopics = filteredTopics.filter(t => sqlCategoryMap[t.id] === category.id);
+                      if (categoryTopics.length === 0) return null;
+                      return (
+                        <div key={category.id} className="rounded-lg overflow-hidden border border-gray-200">
+                          <div className="px-4 py-2.5 flex items-center gap-2.5 bg-gray-50/80 border-b border-gray-100">
+                            <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: `${category.color}12` }}>
+                              <Icon name={category.icon} size={14} style={{ color: category.color }} />
+                            </div>
+                            <h3 className="text-sm font-semibold text-gray-900 landing-display">{category.name}</h3>
+                            <span className="text-[10px] landing-mono text-gray-400">{categoryTopics.length} topics</span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white">
+                            {categoryTopics.map((topic) => (
+                              <div
+                                key={topic.id}
+                                onClick={() => setSelectedTopic(topic.id)}
+                                className="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-all group border-b border-r border-gray-100"
+                              >
+                                <div className="flex items-center gap-2.5">
+                                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0" style={{ background: completedTopics[topic.id] ? '#d1fae5' : `${topic.color}12` }}>
+                                    {completedTopics[topic.id] ? <Icon name="check" size={11} className="text-emerald-600" /> : <Icon name={topic.icon} size={11} style={{ color: topic.color }} />}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className={`text-sm landing-body font-medium group-hover:text-emerald-600 transition-colors ${completedTopics[topic.id] ? 'text-gray-400 line-through' : 'text-gray-900'}`}>{topic.title}</span>
+                                    {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-500" />}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] landing-mono px-1.5 py-0.5 rounded border border-gray-200 text-gray-400">
+                                    {topic.keyQuestions?.length || topic.questions || 0}Q
+                                  </span>
+                                  <Icon name="chevronRight" size={12} className="text-gray-300 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all" />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    </div>
+                  </div>
+                </>
+              )}
             </>
           )}
         </div>
@@ -1378,7 +1725,7 @@ export default function DocsPage({ onBack }) {
                 <div className="landing-mono text-[10px] text-emerald-600 tracking-widest uppercase mb-3">Favorites</div>
                 <div className="space-y-1">
                   {Object.keys(starredTopics).filter(k => starredTopics[k]).map((topicId) => {
-                    const t = [...codingTopics, ...systemDesignTopics, ...systemDesigns, ...behavioralTopics].find(x => x.id === topicId);
+                    const t = [...codingTopics, ...systemDesignTopics, ...systemDesigns, ...behavioralTopics, ...systemDesignPatterns, ...microservicesPatterns, ...systemDesignTradeoffs, ...scalableSystemsTopics, ...databaseTopics, ...sqlTopics, ...concurrencyTopics].find(x => x.id === topicId);
                     if (!t) return null;
                     return (
                       <button
