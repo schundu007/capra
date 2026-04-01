@@ -13,6 +13,7 @@ const SECTIONS = [
     color: '#10b981',        // emerald
     border: 'border-emerald-200',
     bg: 'hover:bg-emerald-50',
+    hoverBorder: 'hover:border-emerald-300',
     iconBg: 'bg-emerald-100',
     iconText: 'text-emerald-600',
     cols: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
@@ -32,6 +33,7 @@ const SECTIONS = [
     color: '#06b6d4',
     border: 'border-cyan-200',
     bg: 'hover:bg-cyan-50',
+    hoverBorder: 'hover:border-cyan-300',
     iconBg: 'bg-cyan-100',
     iconText: 'text-cyan-600',
     cols: 'grid-cols-1 sm:grid-cols-2',
@@ -49,6 +51,7 @@ const SECTIONS = [
     color: '#f59e0b',
     border: 'border-amber-200',
     bg: 'hover:bg-amber-50',
+    hoverBorder: 'hover:border-amber-300',
     iconBg: 'bg-amber-100',
     iconText: 'text-amber-600',
     cols: 'grid-cols-1 sm:grid-cols-2',
@@ -66,6 +69,7 @@ const SECTIONS = [
     color: '#f43f5e',
     border: 'border-rose-200',
     bg: 'hover:bg-rose-50',
+    hoverBorder: 'hover:border-rose-300',
     iconBg: 'bg-rose-100',
     iconText: 'text-rose-600',
     cols: 'grid-cols-1 sm:grid-cols-3',
@@ -82,6 +86,7 @@ const SECTIONS = [
     color: '#3b82f6',
     border: 'border-blue-200',
     bg: 'hover:bg-blue-50',
+    hoverBorder: 'hover:border-blue-300',
     iconBg: 'bg-blue-100',
     iconText: 'text-blue-600',
     cols: 'grid-cols-1 sm:grid-cols-3',
@@ -98,6 +103,7 @@ const SECTIONS = [
     color: '#14b8a6',
     border: 'border-teal-200',
     bg: 'hover:bg-teal-50',
+    hoverBorder: 'hover:border-teal-300',
     iconBg: 'bg-teal-100',
     iconText: 'text-teal-600',
     cols: 'grid-cols-1 sm:grid-cols-3',
@@ -114,6 +120,7 @@ const SECTIONS = [
     color: '#8b5cf6',
     border: 'border-violet-200',
     bg: 'hover:bg-violet-50',
+    hoverBorder: 'hover:border-violet-300',
     iconBg: 'bg-violet-100',
     iconText: 'text-violet-600',
     cols: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
@@ -301,7 +308,7 @@ export default function PracticePage() {
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${section.iconBg}`}>
                   <Icon name={section.icon} size={16} className={section.iconText} />
                 </div>
-                <h2 className="text-sm font-bold tracking-wide uppercase landing-mono" style={{ color: section.color }}>
+                <h2 className="landing-mono text-xs font-bold tracking-[0.15em] uppercase" style={{ color: section.color }}>
                   {section.title}
                 </h2>
               </div>
@@ -312,21 +319,19 @@ export default function PracticePage() {
                   <button
                     key={item.label}
                     onClick={() => handleTopicClick(item)}
-                    className={`group text-left p-4 rounded-lg border border-gray-100 transition-all duration-200 ${section.bg} hover:border-current hover:shadow-sm`}
-                    style={{ '--tw-border-opacity': 0.3 }}
+                    className={`group text-left p-4 rounded-xl border border-gray-200 bg-white transition-all duration-200 ${section.bg} ${section.hoverBorder} hover:shadow-sm`}
                   >
                     <div className="flex items-start gap-3">
                       <div
-                        className="mt-0.5 w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 transition-colors duration-200"
-                        style={{ backgroundColor: section.color + '15', color: section.color }}
+                        className={`mt-0.5 w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 transition-colors duration-200 ${section.iconBg} ${section.iconText}`}
                       >
                         <Icon name={item.icon} size={14} />
                       </div>
                       <div className="min-w-0">
-                        <div className="text-sm font-semibold text-gray-900 group-hover:text-gray-800 truncate landing-body">
+                        <div className="text-sm font-semibold text-gray-900 group-hover:text-gray-800 truncate landing-display">
                           {item.label}
                         </div>
-                        <div className="text-xs text-gray-400 mt-0.5 line-clamp-1 landing-body">
+                        <div className="text-xs text-gray-500 mt-0.5 line-clamp-1 landing-body">
                           {item.desc}
                         </div>
                       </div>
@@ -347,7 +352,7 @@ export default function PracticePage() {
             <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-100">
               <Icon name="timer" size={16} className="text-emerald-600" />
             </div>
-            <h2 className="text-sm font-bold tracking-wide uppercase text-gray-900 landing-mono">
+            <h2 className="landing-mono text-xs font-bold tracking-[0.15em] uppercase text-emerald-600">
               Mock Interview
             </h2>
           </div>
@@ -389,7 +394,7 @@ export default function PracticePage() {
 
                 {/* Question card */}
                 {mockQuestion && (
-                  <div className="p-5 rounded-lg bg-gradient-to-br from-gray-50 to-slate-50 border border-gray-100">
+                  <div className="p-5 rounded-xl bg-gradient-to-br from-gray-50 to-slate-50 border border-gray-200">
                     <p className="text-base sm:text-lg font-semibold text-gray-900 landing-display">
                       {mockQuestion.label}
                     </p>
@@ -426,6 +431,42 @@ export default function PracticePage() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* Premium Upsell */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+        <div
+          className={`rounded-xl overflow-hidden transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+          style={{ background: 'linear-gradient(135deg, #111827 0%, #1e293b 100%)' }}
+        >
+          <div className="px-6 sm:px-8 py-8 sm:py-10 text-center">
+            <span className="landing-mono text-xs font-bold tracking-[0.15em] uppercase text-emerald-400">
+              Unlock Full Access
+            </span>
+            <h2 className="landing-display font-bold text-2xl md:text-3xl mt-3 tracking-tight text-white">
+              Go Further with{' '}
+              <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Ascend Premium</span>
+            </h2>
+            <p className="mt-3 text-sm text-gray-400 max-w-lg mx-auto leading-relaxed landing-body">
+              Unlimited practice sessions, company-specific prep, mock interviews with AI feedback, and priority support.
+            </p>
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <a
+                href="/premium"
+                className="inline-flex items-center gap-2 px-8 py-3 bg-emerald-500 text-white font-semibold text-sm rounded-lg hover:bg-emerald-600 transition-colors shadow-sm landing-body"
+              >
+                View Plans
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+              </a>
+              <a
+                href="/login"
+                className="inline-flex items-center gap-2 px-8 py-3 text-gray-300 font-semibold text-sm rounded-lg border border-gray-600 hover:bg-gray-800 transition-colors landing-body"
+              >
+                Start Free
+              </a>
+            </div>
           </div>
         </div>
       </div>
