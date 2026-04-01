@@ -344,8 +344,8 @@ export default function PracticePage() {
           style={{ transitionDelay: `${SECTIONS.length * 80}ms` }}
         >
           <div className="px-5 sm:px-6 pt-5 pb-3 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-900">
-              <Icon name="timer" size={16} className="text-white" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-100">
+              <Icon name="timer" size={16} className="text-emerald-600" />
             </div>
             <h2 className="text-sm font-bold tracking-wide uppercase text-gray-900 landing-mono">
               Mock Interview
