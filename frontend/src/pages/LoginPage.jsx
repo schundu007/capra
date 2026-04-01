@@ -73,7 +73,7 @@ export default function LoginPage() {
         {/* Terms */}
         <p className="mt-5 text-center text-xs text-gray-400 landing-body leading-relaxed">
           By continuing, you agree to our{' '}
-          <a href="/terms" className="text-gray-500 hover:text-gray-700 underline underline-offset-2">
+          <a href="mailto:support@cariara.com" className="text-gray-500 hover:text-gray-700 underline underline-offset-2">
             Terms of Service
           </a>
         </p>
