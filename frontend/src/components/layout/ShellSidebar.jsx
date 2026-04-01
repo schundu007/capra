@@ -5,6 +5,7 @@ import { useIsMobile } from '../../hooks/useIsMobile.js';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 
 const PREPARE_ITEMS = [
+  { id: 'overview', label: 'Dashboard', icon: 'home', href: '/prepare' },
   { id: 'coding', label: 'DSA & Algorithms', icon: 'cpu', href: '/prepare/coding' },
   { id: 'system-design', label: 'System Design', icon: 'systemDesign', href: '/prepare/system-design' },
   { id: 'microservices', label: 'Microservices', icon: 'grid', href: '/prepare/microservices' },

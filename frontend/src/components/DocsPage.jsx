@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useAppShell } from './layout/AppShellContext';
+import { useAuth } from '../contexts/AuthContext';
 import { Icon } from './Icons.jsx';
 import { getAuthHeaders } from '../utils/authHeaders.js';
 import { codingCategories, codingCategoryMap as _codingCategoryMap, codingTopics as _codingTopics } from '../data/topics/codingTopics.js';
@@ -53,6 +54,7 @@ const getApiUrl = () => {
 export default function DocsPage({ onBack }) {
   const { isMobile } = useIsMobile();
   const { openSidebar, setActiveSection } = useAppShell();
+  const { user } = useAuth();
   const routerLocation = useLocation();
   const isElectron = window.electronAPI?.isElectron || false;
   // Initialize state from URL params for persistence on refresh
@@ -60,7 +62,7 @@ export default function DocsPage({ onBack }) {
     const params = new URLSearchParams(routerLocation.search);
     // Support both query param (?page=...) and path segment (/prepare/system-design)
     const pathSegment = routerLocation.pathname.replace('/prepare', '').replace(/^\//, '');
-    const rawPage = params.get('page') || (pathSegment || 'coding');
+    const rawPage = params.get('page') || (pathSegment || 'overview');
     // Support 'dsa' as alias for 'coding'
     const pageAliases = { dsa: 'coding', 'low-level-design': 'low-level' };
     const page = pageAliases[rawPage] || rawPage;
@@ -80,7 +82,7 @@ export default function DocsPage({ onBack }) {
   useEffect(() => {
     const pathSegment = routerLocation.pathname.replace('/prepare', '').replace(/^\//, '');
     const params = new URLSearchParams(routerLocation.search);
-    const rawPage = params.get('page') || (pathSegment || 'coding');
+    const rawPage = params.get('page') || (pathSegment || 'overview');
     const pageAliases = { dsa: 'coding', 'low-level-design': 'low-level' };
     const page = pageAliases[rawPage] || rawPage;
     const topic = params.get('topic') || null;
@@ -92,7 +94,7 @@ export default function DocsPage({ onBack }) {
   // Sync URL with component state (for in-page topic clicks, not sidebar navigation)
   useEffect(() => {
     const params = new URLSearchParams();
-    if (activePage && activePage !== 'coding') params.set('page', activePage);
+    if (activePage && activePage !== 'overview') params.set('page', activePage);
     if (selectedTopic) params.set('topic', selectedTopic);
     const queryString = params.toString();
     const newURL = queryString ? `/prepare?${queryString}` : '/prepare';
@@ -316,6 +318,7 @@ export default function DocsPage({ onBack }) {
   // Get page title and color
   const getPageConfig = () => {
     switch (activePage) {
+      case 'overview': return { title: 'Prepare', color: '#10b981' };
       case 'coding': return { title: 'Data Structures & Algorithms', color: '#10b981' };
       case 'system-design': return { title: 'System Design', color: '#3b82f6' };
       case 'low-level': return { title: 'Low-Level Design', color: '#8b5cf6' };
@@ -357,6 +360,27 @@ export default function DocsPage({ onBack }) {
   };
 
   const topicDetails = getSelectedTopicDetails();
+
+  // ── Overview dashboard data ──
+  const overviewCategories = (() => {
+    const cats = [
+      { id: 'coding', href: 'coding', title: 'DSA & Algorithms', icon: 'cpu', color: '#10b981', topics: codingTopics },
+      { id: 'system-design', href: 'system-design', title: 'System Design', icon: 'systemDesign', color: '#3b82f6', topics: [...systemDesignTopics, ...systemDesigns, ...concurrencyTopics, ...systemDesignPatterns, ...microservicesPatterns, ...systemDesignTradeoffs, ...scalableSystemsTopics] },
+      { id: 'microservices', href: 'microservices', title: 'Microservices', icon: 'grid', color: '#8b5cf6', topics: microservicesPatterns },
+      { id: 'databases', href: 'databases', title: 'Database Internals', icon: 'database', color: '#f59e0b', topics: databaseTopics },
+      { id: 'sql', href: 'sql', title: 'SQL for Interviews', icon: 'database', color: '#06b6d4', topics: sqlTopics },
+      { id: 'low-level', href: 'low-level-design', title: 'Low-Level Design', icon: 'layers', color: '#8b5cf6', topics: [...lldTopics, ...lldProblems] },
+      { id: 'behavioral', href: 'behavioral', title: 'Behavioral', icon: 'users', color: '#a855f7', topics: [...behavioralTopics, ...companyPrep] },
+    ];
+    return cats.map(c => {
+      const count = c.topics.length;
+      const completed = c.topics.filter(t => completedTopics[t.id]).length;
+      const progress = count > 0 ? Math.round((completed / count) * 100) : 0;
+      return { ...c, count, completed, progress };
+    });
+  })();
+  const overviewTotalTopics = overviewCategories.reduce((sum, c) => sum + c.count, 0);
+  const overviewTotalCompleted = overviewCategories.reduce((sum, c) => sum + c.completed, 0);
 
   // Render topic detail view
 
@@ -523,7 +547,129 @@ export default function DocsPage({ onBack }) {
                 </div>
               ) : selectedTopic ? <TopicDetail activePage={activePage} selectedTopic={selectedTopic} topicDetails={topicDetails} pageConfig={pageConfig} completedTopics={completedTopics} starredTopics={starredTopics} toggleComplete={toggleComplete} toggleStar={toggleStar} showAskAI={showAskAI} setShowAskAI={setShowAskAI} aiQuestion={aiQuestion} setAiQuestion={setAiQuestion} aiAnswer={aiAnswer} aiLoading={aiLoading} handleAskAI={handleAskAI} showRoadmap={showRoadmap} setShowRoadmap={setShowRoadmap} expandedTheoryQuestions={expandedTheoryQuestions} setExpandedTheoryQuestions={setExpandedTheoryQuestions} setSelectedTopic={setSelectedTopic} generatingDiagram={generatingDiagram} diagramData={diagramData} diagramError={diagramError} diagramDetailLevel={diagramDetailLevel} setDiagramDetailLevel={setDiagramDetailLevel} diagramCloudProvider={diagramCloudProvider} setDiagramCloudProvider={setDiagramCloudProvider} generateDiagram={handleGenerateDiagram} codingTopics={codingTopics} systemDesignTopics={systemDesignTopics} systemDesigns={systemDesigns} behavioralTopics={behavioralTopics} filteredTopics={filteredTopics} /> : (
                 <>
-                  {/* Page Hero */}
+                  {/* ── Overview Dashboard ── */}
+                  {activePage === 'overview' && (
+                    <>
+                      {/* Welcome + Stats */}
+                      <div className="mb-6">
+                        <h1 className="landing-display font-extrabold text-2xl md:text-3xl tracking-tight text-gray-900 mb-2">
+                          Welcome back{user?.name ? `, ${user.name.split(' ')[0]}` : ''}
+                        </h1>
+                        <p className="text-sm text-gray-500 landing-body">
+                          Your interview preparation dashboard. {overviewTotalTopics}+ topics across {overviewCategories.length} categories.
+                        </p>
+                      </div>
+
+                      {/* Progress Stats Row */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                        <div className="rounded-xl border border-gray-200 bg-white p-4">
+                          <div className="text-2xl font-bold text-emerald-600 landing-display">{overviewTotalCompleted}</div>
+                          <div className="text-xs text-gray-500 landing-body">Topics Completed</div>
+                        </div>
+                        <div className="rounded-xl border border-gray-200 bg-white p-4">
+                          <div className="text-2xl font-bold text-gray-900 landing-display">{overviewTotalTopics}</div>
+                          <div className="text-xs text-gray-500 landing-body">Total Topics</div>
+                        </div>
+                        <div className="rounded-xl border border-gray-200 bg-white p-4">
+                          <div className="text-2xl font-bold text-blue-600 landing-display">{overviewCategories.length}</div>
+                          <div className="text-xs text-gray-500 landing-body">Categories</div>
+                        </div>
+                        <div className="rounded-xl border border-gray-200 bg-white p-4">
+                          <div className="text-2xl font-bold text-purple-600 landing-display">{overviewTotalTopics > 0 ? Math.round((overviewTotalCompleted / overviewTotalTopics) * 100) : 0}%</div>
+                          <div className="text-xs text-gray-500 landing-body">Complete</div>
+                        </div>
+                      </div>
+
+                      {/* Category Cards Grid */}
+                      <div className="mb-6">
+                        <h2 className="landing-display font-bold text-lg tracking-tight text-gray-900 mb-3">Categories</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                          {overviewCategories.map(cat => (
+                            <a key={cat.id} href={`/prepare/${cat.href}`} className="group rounded-xl border border-gray-200 bg-white p-5 hover:border-emerald-300 hover:shadow-md transition-all">
+                              <div className="flex items-center gap-3 mb-3">
+                                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: `${cat.color}15` }}>
+                                  <Icon name={cat.icon} size={20} style={{ color: cat.color }} />
+                                </div>
+                                <div>
+                                  <h3 className="text-sm font-semibold text-gray-900 landing-display group-hover:text-emerald-600 transition-colors">{cat.title}</h3>
+                                  <span className="text-[10px] text-gray-400 landing-mono">{cat.count} topics</span>
+                                </div>
+                              </div>
+                              {/* Progress bar */}
+                              <div className="w-full h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                                <div className="h-full rounded-full transition-all" style={{ width: `${cat.progress}%`, background: cat.color }} />
+                              </div>
+                              <div className="flex justify-between mt-1.5">
+                                <span className="text-[10px] text-gray-400 landing-mono">{cat.completed}/{cat.count} done</span>
+                                <span className="text-[10px] font-medium landing-mono" style={{ color: cat.color }}>{cat.progress}%</span>
+                              </div>
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Recommended Learning Path */}
+                      <div className="mb-6">
+                        <h2 className="landing-display font-bold text-lg tracking-tight text-gray-900 mb-3">Recommended Path</h2>
+                        <div className="rounded-xl border border-emerald-200 bg-gradient-to-br from-emerald-50/80 to-cyan-50/40 p-5">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                            {[
+                              { step: '01', title: 'DSA Fundamentals', desc: 'Arrays, strings, trees, graphs', href: '/prepare/coding', accent: 'emerald' },
+                              { step: '02', title: 'System Design', desc: 'Scalability, databases, caching', href: '/prepare/system-design', accent: 'blue' },
+                              { step: '03', title: 'Low-Level Design', desc: 'OOP, SOLID, design patterns', href: '/prepare/low-level-design', accent: 'purple' },
+                              { step: '04', title: 'Behavioral', desc: 'STAR method, leadership stories', href: '/prepare/behavioral', accent: 'amber' },
+                            ].map((phase) => (
+                              <a key={phase.step} href={phase.href} className="group p-3 rounded-lg border border-white/60 bg-white/70 hover:bg-white hover:shadow-sm transition-all">
+                                <span className="landing-mono text-2xl font-black text-gray-200 group-hover:text-emerald-300 transition-colors">{phase.step}</span>
+                                <div className="text-gray-900 font-semibold text-sm landing-display mt-1 mb-0.5">{phase.title}</div>
+                                <div className="text-gray-500 text-xs landing-body">{phase.desc}</div>
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Recently Completed / Starred */}
+                      {(() => {
+                        const allTopicsList = [...codingTopics, ...systemDesignTopics, ...systemDesigns, ...concurrencyTopics, ...systemDesignPatterns, ...microservicesPatterns, ...systemDesignTradeoffs, ...scalableSystemsTopics, ...databaseTopics, ...sqlTopics, ...lldTopics, ...lldProblems, ...behavioralTopics, ...companyPrep];
+                        const starredIds = Object.keys(starredTopics).filter(k => starredTopics[k]);
+                        const completedIds = Object.keys(completedTopics).filter(k => completedTopics[k]);
+                        const recentItems = [...new Set([...starredIds, ...completedIds])].slice(0, 5)
+                          .map(id => allTopicsList.find(t => t.id === id))
+                          .filter(Boolean);
+                        if (recentItems.length === 0) return null;
+                        return (
+                          <div className="mb-6">
+                            <h2 className="landing-display font-bold text-lg tracking-tight text-gray-900 mb-3">Continue Where You Left Off</h2>
+                            <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+                              {recentItems.map((topic) => (
+                                <a
+                                  key={topic.id}
+                                  href={`/prepare?topic=${topic.id}`}
+                                  className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-all border-b border-gray-100 last:border-0 group"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${topic.color}12` }}>
+                                      <Icon name={topic.icon} size={13} style={{ color: topic.color }} />
+                                    </div>
+                                    <span className="text-sm font-medium text-gray-900 landing-body group-hover:text-emerald-600 transition-colors">{topic.title}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    {starredTopics[topic.id] && <Icon name="star5" size={10} className="text-yellow-500" />}
+                                    {completedTopics[topic.id] && <Icon name="check" size={10} className="text-emerald-500" />}
+                                    <Icon name="chevronRight" size={12} className="text-gray-300 group-hover:text-emerald-500 transition-all" />
+                                  </div>
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </>
+                  )}
+
+                  {/* Page Hero (non-overview pages) */}
+                  {activePage !== 'overview' && (
                   <div className="mb-6">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 border border-emerald-200 bg-emerald-50 rounded-full mb-4">
                       <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
@@ -550,10 +696,12 @@ export default function DocsPage({ onBack }) {
                       {activePage === 'sql' && 'From fundamentals to window functions. Master SQL queries, joins, subqueries, and complex interview problems.'}
                     </p>
                   </div>
+                  )}
                   {/* Gradient Divider */}
-                  <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent mb-6" />
+                  {activePage !== 'overview' && <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent mb-6" />}
 
                   {/* Search and Filters */}
+                  {activePage !== 'overview' && (
                   <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
                     <div className="relative flex-1 sm:max-w-md">
                       <Icon name="search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -581,6 +729,7 @@ export default function DocsPage({ onBack }) {
                       </span>
                     </div>
                   </div>
+                  )}
 
               {/* DSA Content */}
               {activePage === 'coding' && (
