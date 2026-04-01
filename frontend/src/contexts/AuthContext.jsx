@@ -456,6 +456,8 @@ export function AuthProvider({ children }) {
     setCredits(null);
     setSubscription(null);
     setUsage(null);
+    // Always redirect to landing page on logout
+    window.location.replace('/');
   }, []);
 
   // Check if user can create company
