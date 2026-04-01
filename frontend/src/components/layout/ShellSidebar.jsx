@@ -153,6 +153,20 @@ export default function ShellSidebar() {
           {!isCollapsed && <span>Upgrade</span>}
         </Link>
 
+        {/* Lumora cross-sell */}
+        {!isCollapsed && (
+          <a
+            href="https://lumora.cariara.com/app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium text-amber-600 hover:bg-amber-50 transition-all"
+          >
+            <Icon name="microphone" size={15} className="text-amber-500" />
+            <span>Lumora — Live AI</span>
+            <svg className="w-3 h-3 ml-auto text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+          </a>
+        )}
+
         {/* Collapse toggle — desktop only */}
         {!isMobile && (
           <button
