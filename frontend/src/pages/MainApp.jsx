@@ -970,40 +970,48 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
   }
 
   // ---- Desktop Header — light theme matching landing/premium ----
+  const modeLabels = { coding: 'Coding', 'system-design': 'System Design', behavioral: 'Interview Prep' };
+
   return (
     <header
       className="flex items-center justify-between gap-4 px-5"
       style={{
         paddingLeft: (isMacElectron && !showSidebar) ? '80px' : '20px',
         WebkitAppRegion: 'drag',
-        height: '56px',
-        background: 'rgba(255,255,255,0.85)',
+        height: '52px',
+        background: 'rgba(255,255,255,0.92)',
         backdropFilter: 'blur(16px)',
         borderBottom: '1px solid rgba(0,0,0,0.06)',
       }}
     >
+      {/* Left: mode tabs for Electron (no sidebar), mode label for webapp */}
       <div className="flex items-center gap-4" style={{ WebkitAppRegion: 'no-drag' }}>
         {isLoading && <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />}
-        <div className="flex items-center gap-0.5 p-1 rounded-xl" style={{ background: 'rgba(0,0,0,0.04)' }}>
-          {[
-            { id: 'coding', label: 'Coding', icon: <CodeIcon /> },
-            { id: 'system-design', label: 'Design', icon: <DesignIcon /> },
-            { id: 'behavioral', label: 'Prep', icon: <PrepIcon /> },
-          ].map((mode) => (
-            <button
-              key={mode.id}
-              onClick={() => onModeChange(mode.id)}
-              aria-label={`Switch to ${mode.label} mode`}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${ascendMode === mode.id ? 'text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 hover:bg-white/60'}`}
-              style={ascendMode === mode.id ? { background: '#059669', boxShadow: '0 1px 3px rgba(5,150,105,0.3)' } : {}}
-            >
-              <span className="w-3.5 h-3.5">{mode.icon}</span>
-              {mode.label}
-            </button>
-          ))}
-        </div>
+        {isElectron ? (
+          <div className="flex items-center gap-0.5 p-1 rounded-xl" style={{ background: 'rgba(0,0,0,0.04)' }}>
+            {[
+              { id: 'coding', label: 'Coding', icon: <CodeIcon /> },
+              { id: 'system-design', label: 'Design', icon: <DesignIcon /> },
+              { id: 'behavioral', label: 'Prep', icon: <PrepIcon /> },
+            ].map((mode) => (
+              <button
+                key={mode.id}
+                onClick={() => onModeChange(mode.id)}
+                aria-label={`Switch to ${mode.label} mode`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${ascendMode === mode.id ? 'text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 hover:bg-white/60'}`}
+                style={ascendMode === mode.id ? { background: '#059669', boxShadow: '0 1px 3px rgba(5,150,105,0.3)' } : {}}
+              >
+                <span className="w-3.5 h-3.5">{mode.icon}</span>
+                {mode.label}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <span className="text-sm font-semibold text-gray-900 tracking-tight">{modeLabels[ascendMode] || 'Coding'}</span>
+        )}
       </div>
 
+      {/* Center: stealth toggle (Electron only) */}
       {isElectron ? (
         <div className="flex items-center" style={{ WebkitAppRegion: 'no-drag' }}>
           <button onClick={onStealthModeToggle} aria-label="Toggle stealth mode" className={`flex items-center gap-2.5 px-4 py-2 rounded-lg transition-all duration-200 border ${stealthMode ? 'text-emerald-600 border-emerald-500/30' : 'text-gray-500 hover:text-gray-900 bg-gray-50 border-gray-200'}`} style={stealthMode ? { background: 'rgba(16,185,129,0.08)' } : {}}>
@@ -1018,26 +1026,24 @@ function Header({ ascendMode, onModeChange, stealthMode, onStealthModeToggle, sh
         <div style={{ WebkitAppRegion: 'no-drag' }} />
       )}
 
-      <div className="flex items-center gap-1 sm:gap-3" style={{ WebkitAppRegion: 'no-drag' }}>
-        {isElectron && onDocsClick ? (
-          <button onClick={onDocsClick} aria-label="Open documentation" className="flex items-center gap-2 p-2 sm:px-4 sm:py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200 min-w-[44px] min-h-[44px] justify-center">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+      {/* Right: action buttons */}
+      <div className="flex items-center gap-1 sm:gap-2" style={{ WebkitAppRegion: 'no-drag' }}>
+        {isElectron && onDocsClick && (
+          <button onClick={onDocsClick} aria-label="Open documentation" className="flex items-center gap-2 p-2 sm:px-3 sm:py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200 min-w-[36px] min-h-[36px] justify-center">
+            <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
             <span className="hidden sm:inline">Docs</span>
           </button>
-        ) : !isElectron && (
-          <a href="/prepare" aria-label="Interview prep guides" className="flex items-center gap-2 p-2 sm:px-4 sm:py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200 min-w-[44px] min-h-[44px] justify-center">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-            <span className="hidden sm:inline">Prep</span>
-          </a>
         )}
-        <button onClick={onAssistantClick} aria-label="Toggle interview assistant" className={`flex items-center gap-2 p-2 sm:px-4 sm:py-2 rounded-lg text-sm font-medium transition-all duration-200 min-w-[44px] min-h-[44px] justify-center ${showAscendAssistant ? 'text-emerald-600 bg-emerald-50' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`}>
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+        <button onClick={onAssistantClick} aria-label="Toggle interview assistant" className={`flex items-center gap-2 p-2 sm:px-3 sm:py-1.5 rounded-lg text-sm font-medium transition-all duration-200 min-w-[36px] min-h-[36px] justify-center ${showAscendAssistant ? 'text-emerald-600 bg-emerald-50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'}`}>
+          <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
           <span className="hidden sm:inline">Assistant</span>
         </button>
-        <button onClick={onSettingsClick} aria-label="Open settings" className="flex items-center gap-2 p-2 sm:px-4 sm:py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200 min-w-[44px] min-h-[44px] justify-center">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-          <span className="hidden sm:inline">Settings</span>
-        </button>
+        {isElectron && (
+          <button onClick={onSettingsClick} aria-label="Open settings" className="flex items-center gap-2 p-2 sm:px-3 sm:py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200 min-w-[36px] min-h-[36px] justify-center">
+            <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+            <span className="hidden sm:inline">Settings</span>
+          </button>
+        )}
         <CreditBalance onUpgrade={onPricingClick} compact={true} />
       </div>
     </header>
