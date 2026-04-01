@@ -73,25 +73,27 @@ router.get('/google/callback', async (req, res) => {
     const gUser = await userResp.json();
     if (!gUser.email) throw new Error('No email from Google');
 
-    // Find or create user in Ascend DB
-    let userResult = await query('SELECT * FROM ascend_users WHERE email = $1', [gUser.email]);
+    // Find or create user in shared users table
+    let userResult = await query('SELECT id FROM users WHERE email = $1', [gUser.email]);
     let userId;
 
     if (userResult.rows.length === 0) {
-      // Create new user
+      // Create new user in shared users table
       const insertResult = await query(
-        'INSERT INTO ascend_users (email, name, avatar, provider, is_active) VALUES ($1, $2, $3, $4, true) RETURNING id',
+        'INSERT INTO users (email, name, avatar, provider, is_active) VALUES ($1, $2, $3, $4, true) RETURNING id',
         [gUser.email, gUser.name || gUser.email, gUser.picture || null, 'google']
       );
       userId = insertResult.rows[0].id;
-
-      // Create subscription record
-      await query(
-        'INSERT INTO ascend_subscriptions (user_id, plan_type, status) VALUES ($1, $2, $3)',
-        [userId, 'free', 'active']
-      );
     } else {
       userId = userResult.rows[0].id;
+    }
+
+    // Initialize Ascend data (subscription, credits, free usage)
+    try {
+      await initUser(userId);
+    } catch (initErr) {
+      // Non-fatal — user can still log in
+      logger.warn({ error: initErr.message, userId }, 'Failed to init Ascend user data');
     }
 
     // Issue JWT
