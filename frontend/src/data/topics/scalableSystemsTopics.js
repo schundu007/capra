@@ -15,7 +15,7 @@ export const scalableSystemsCategoryMap = {
   'gslb-geodns-anycast': 'networking',
   'pagination-strategies': 'networking',
   'idempotency': 'data',
-  'sql-isolation-levels': 'data',
+  'sql-isolation-levels-deep-dive': 'data',
   'wal-durability': 'data',
   'mvcc': 'data',
   'delivery-semantics': 'data',
@@ -1904,8 +1904,8 @@ Idempotency Key Lifecycle:
   // 8. SQL Isolation Levels (data)
   // ─────────────────────────────────────────────────────────
   {
-    id: 'sql-isolation-levels',
-    title: 'SQL Isolation Levels',
+    id: 'sql-isolation-levels-deep-dive',
+    title: 'SQL Isolation Levels Deep Dive',
     icon: 'layers',
     color: '#8b5cf6',
     questions: 8,

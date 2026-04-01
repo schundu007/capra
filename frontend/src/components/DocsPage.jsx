@@ -10,8 +10,7 @@ import { getLeetCodeUrl } from '../data/leetcodeUrls.js';
 import problemsFull from '../data/problems-full.json';
 import { codingCategories, codingCategoryMap as _codingCategoryMap, codingTopics as _codingTopics } from '../data/topics/codingTopics.js';
 import { extraCodingCategoryMap, extraCodingTopics } from '../data/topics/codingTopicsExtra.js';
-import { systemDesignCategories, systemDesignCategoryMap as _sdCategoryMap, systemDesignTopics as _sdTopics } from '../data/topics/systemDesignTopics.js';
-import { systemDesignFundamentalsExtra, systemDesignFundamentalsCategoryMap } from '../data/topics/systemDesignFundamentals.js';
+import { systemDesignCategories, systemDesignCategoryMap, systemDesignTopics } from '../data/topics/systemDesignTopics.js';
 import { systemDesignProblemCategories as _sdProblemCategories, systemDesignProblemCategoryMap as _sdProblemCategoryMap, systemDesigns as _systemDesigns, lldProblemCategories, lldProblemCategoryMap as _lldProblemCategoryMap } from '../data/topics/systemDesignProblems.js';
 import { extraSystemDesignProblemCategories, extraSystemDesignProblemCategoryMap, extraSystemDesigns } from '../data/topics/systemDesignProblemsExtra.js';
 import { lldProblems as _lldProblems } from '../data/topics/lldProblems.js';
@@ -30,8 +29,6 @@ import { companyPrep } from '../data/topics/companyPrep.js';
 // Merge extra topics into base arrays
 const codingCategoryMap = { ..._codingCategoryMap, ...extraCodingCategoryMap };
 const codingTopics = [..._codingTopics, ...extraCodingTopics];
-const systemDesignCategoryMap = { ..._sdCategoryMap, ...systemDesignFundamentalsCategoryMap };
-const systemDesignTopics = [..._sdTopics, ...systemDesignFundamentalsExtra];
 const systemDesignProblemCategories = [..._sdProblemCategories, ...extraSystemDesignProblemCategories];
 const systemDesignProblemCategoryMap = { ..._sdProblemCategoryMap, ...extraSystemDesignProblemCategoryMap };
 const systemDesigns = [..._systemDesigns, ...extraSystemDesigns];

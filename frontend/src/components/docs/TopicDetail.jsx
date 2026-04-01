@@ -16,6 +16,9 @@ export default function TopicDetail({
 }) {
   if (!topicDetails) return null;
 
+  // Pages that use system-design-style rendering (concepts, keyQuestions, dataModel, etc.)
+  const isSDStyle = ['system-design', 'microservices', 'databases', 'sql'].includes(activePage);
+
   return (
     <div className="landing-root animate-fade-in">
       {/* Back button */}
@@ -55,7 +58,7 @@ export default function TopicDetail({
                 </span>
               )}
               {/* Design in App button for system design topics */}
-              {activePage === 'system-design' && (
+              {isSDStyle && (
                 <a
                   href={`/app?problem=${encodeURIComponent(`Design ${topicDetails.title}. ${topicDetails.description || topicDetails.subtitle || ''}`)}&mode=system-design&autosolve=true`}
                   className="ml-auto px-3 py-1.5 rounded-lg text-sm font-medium bg-emerald-500 text-white hover:bg-emerald-600 transition-colors flex items-center gap-2 flex-shrink-0 landing-body"
@@ -70,7 +73,7 @@ export default function TopicDetail({
               <p className="text-gray-500 text-sm mt-1 landing-body">{topicDetails.subtitle}</p>
             )}
             {/* Behavioral meta badges — reading time, question count, tips count */}
-            {(activePage === 'behavioral' || activePage === 'low-level') && (
+            {(activePage === 'behavioral' || activePage === 'low-level' || isSDStyle) && (
               <div className="flex items-center gap-3 mt-2.5">
                 {topicDetails.keyQuestions && (
                   <span className="flex items-center gap-1 text-[10px] landing-mono text-gray-400">
@@ -179,7 +182,7 @@ export default function TopicDetail({
             <span className="text-gray-900 font-semibold text-sm landing-display">Course Roadmap — {pageConfig.title}</span>
           </div>
           <div className="grid md:grid-cols-2 gap-1">
-            {(activePage === 'coding' ? codingTopics : activePage === 'system-design' ? [...systemDesignTopics, ...systemDesigns] : behavioralTopics).map((t, i) => (
+            {(activePage === 'coding' ? codingTopics : isSDStyle ? [...(filteredTopics || []), ...(systemDesigns || [])] : behavioralTopics).map((t, i) => (
               <button
                 key={t.id}
                 onClick={() => { setSelectedTopic(t.id); setShowRoadmap(false); }}
@@ -481,7 +484,7 @@ export default function TopicDetail({
       )}
 
       {/* System Design / LLD Problem Detail */}
-      {(activePage === 'system-design' || activePage === 'low-level') && (topicDetails.concepts || topicDetails.requirements || topicDetails.functionalRequirements || topicDetails.primitives || topicDetails.problems || topicDetails.structures || topicDetails.coreEntities || topicDetails.implementation) && (
+      {(isSDStyle || activePage === 'low-level') && (topicDetails.concepts || topicDetails.requirements || topicDetails.functionalRequirements || topicDetails.primitives || topicDetails.problems || topicDetails.structures || topicDetails.coreEntities || topicDetails.implementation) && (
         <div className="space-y-3">
           {/* Comprehensive System Design / LLD Problem Content */}
           {(topicDetails.requirements || topicDetails.functionalRequirements || topicDetails.introduction || topicDetails.concepts) && (
@@ -756,7 +759,7 @@ export default function TopicDetail({
               {/* Cloud Architecture Diagram + Tips */}
               <div className="grid lg:grid-cols-2 gap-2">
                 {/* Cloud Architecture Diagram */}
-                {activePage === 'system-design' && topicDetails && (
+                {isSDStyle && topicDetails && (
                   <div className="rounded-xl overflow-hidden border border-gray-200 bg-white">
                     <div className="bg-emerald-50/50 border-b border-gray-100 px-3 py-2 flex items-center justify-between">
                       <div className="flex items-center gap-2">
