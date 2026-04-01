@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Icon } from '../Icons.jsx';
-import DocsSidebar from './DocsSidebar.jsx';
+// DocsSidebar removed — navigation handled by AppShell
 
 /**
  * Behavioral Documentation Page
@@ -48,7 +48,7 @@ export default function BehavioralDocsPage() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row" style={{ background: '#ffffff', fontFamily: "'Source Sans 3', sans-serif" }}>
       {/* Sidebar */}
-      <DocsSidebar activePage="behavioral" />
+      {/* Sidebar provided by AppShell */}
 
       {/* Main Content */}
       <div className="flex-1 min-h-screen">

@@ -9,7 +9,8 @@ import CodeDisplay from '../components/CodeDisplay';
 import ExplanationPanel from '../components/ExplanationPanel';
 import CreditBalance from '../components/billing/CreditBalance';
 import AscendModeSelector from '../components/AscendModeSelector';
-import Sidebar from '../components/Sidebar';
+// Sidebar removed — navigation now handled by AppShell
+import { useAppShell } from '../components/layout/AppShellContext';
 import MobileBottomNav from '../components/layout/MobileBottomNav';
 import MobileTabView from '../components/layout/MobileTabView';
 import ErrorBoundary from '../components/shared/ErrorBoundary';
@@ -734,15 +735,18 @@ export default function MainApp() {
     // OAuth disabled
   }, [auth]);
 
-  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const { toggleSidebar: toggleAppShellSidebar } = useAppShell();
 
   const toggleSidebar = useCallback(() => {
-    if (isMobile) {
-      setMobileDrawerOpen(prev => !prev);
-    } else {
-      setSidebarCollapsed(prev => !prev);
-    }
-  }, [isMobile]);
+    toggleAppShellSidebar();
+  }, [toggleAppShellSidebar]);
+
+  // Listen for settings open event from ShellSidebar
+  useEffect(() => {
+    const handler = () => setShowSettings(true);
+    window.addEventListener('ascend:open-settings', handler);
+    return () => window.removeEventListener('ascend:open-settings', handler);
+  }, []);
 
   // ---------------------------------------------------------------------------
   // Render: Loading State
@@ -785,37 +789,11 @@ export default function MainApp() {
   // Main App Render
   // ---------------------------------------------------------------------------
   const isMacElectron = isElectron && navigator.platform.toLowerCase().includes('mac');
-  const showSidebar = !isMobile && !sidebarCollapsed && ascendMode !== 'ascend-prep';
-
-  const sidebarProps = {
-    savedDesigns: systemDesignStorage.getAllSessions(),
-    codingHistory: codingHistory.getAllEntries(),
-    onLoadDesign: handleLoadSavedSession,
-    onLoadHistory: handleLoadHistoryEntry,
-    onDeleteDesign: systemDesignStorage.deleteSession,
-    onDeleteHistory: codingHistory.deleteEntry,
-    onCollapse: isMobile ? () => setMobileDrawerOpen(false) : toggleSidebar,
-    onViewAllDesigns: () => setShowSavedDesigns(true),
-    onViewAllHistory: () => {},
-    isLoading,
-    showAscendAssistant,
-    onToggleAscendAssistant: () => setShowAscendAssistant(!showAscendAssistant),
-    user,
-    isAdmin,
-    authRequired,
-    onLogout: handleLogout,
-    onOpenAdminPanel: () => setShowAdminPanel(true),
-    theme: editorSettings.theme,
-  };
+  // Sidebar props removed — navigation handled by AppShell
 
   return (
     <div className={`h-screen-safe flex overflow-hidden landing-root text-gray-900`} style={{ background: 'linear-gradient(180deg, #fdf2f8 0%, #ede9fe 50%, #e0e7ff 100%)', ...(isMobile ? { paddingBottom: 'calc(52px + env(safe-area-inset-bottom, 0px))' } : {}) }}>
-      {/* Sidebar — desktop: inline, mobile: overlay drawer */}
-      {isMobile ? (
-        <Sidebar {...sidebarProps} isOpen={mobileDrawerOpen} />
-      ) : (
-        showSidebar && <Sidebar {...sidebarProps} />
-      )}
+      {/* Sidebar removed — AppShell provides unified navigation */}
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -825,7 +803,7 @@ export default function MainApp() {
           onModeChange={handleModeChange}
           stealthMode={stealthMode}
           onStealthModeToggle={() => window.electronAPI?.setStealthMode?.(!stealthMode)}
-          showSidebar={showSidebar}
+          showSidebar={false}
           onToggleSidebar={toggleSidebar}
           isLoading={isLoading}
           isMacElectron={isMacElectron}

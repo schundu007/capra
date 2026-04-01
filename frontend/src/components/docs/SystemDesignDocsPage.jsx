@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Icon } from '../Icons.jsx';
-import DocsSidebar from './DocsSidebar.jsx';
+// DocsSidebar removed — navigation handled by AppShell
 
 function useInView(threshold = 0.15) {
   const ref = useRef(null);
@@ -82,7 +82,7 @@ export default function SystemDesignDocsPage() {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-white landing-root">
-      <DocsSidebar activePage="system-design" />
+      {/* Sidebar provided by AppShell */}
 
       <div className="flex-1 min-h-screen overflow-y-auto">
         {/* Top Nav Bar */}
