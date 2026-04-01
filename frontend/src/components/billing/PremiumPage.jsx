@@ -138,7 +138,7 @@ export default function PremiumPage() {
           <button onClick={() => setShowComparison(true)} className="text-sm text-red-400 hover:text-red-300 transition-colors font-medium landing-body">Compare Us</button>
           <button onClick={() => scrollTo('faq')} className="text-sm text-gray-400 hover:text-white transition-colors font-medium landing-body">FAQ</button>
           {isAuthenticated ? (
-            <a href="/app/coding" className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded-lg hover:bg-emerald-400 transition-colors landing-body">
+            <a href="/practice" className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded-lg hover:bg-emerald-400 transition-colors landing-body">
               Go to App
             </a>
           ) : (
@@ -160,7 +160,7 @@ export default function PremiumPage() {
           <button onClick={() => { scrollTo('features'); setMobileMenuOpen(false); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded transition-colors landing-body">Features</button>
           <a href="/" className="block px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded transition-colors landing-body">Home</a>
           {isAuthenticated ? (
-            <a href="/app/coding" className="block w-full mt-2 px-4 py-2.5 bg-emerald-500 text-white font-semibold text-sm text-center rounded hover:bg-emerald-600 transition-colors landing-body">
+            <a href="/practice" className="block w-full mt-2 px-4 py-2.5 bg-emerald-500 text-white font-semibold text-sm text-center rounded hover:bg-emerald-600 transition-colors landing-body">
               Go to App
             </a>
           ) : (

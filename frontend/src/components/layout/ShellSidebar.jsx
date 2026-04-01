@@ -15,9 +15,7 @@ const PREPARE_ITEMS = [
 ];
 
 const PRACTICE_ITEMS = [
-  { id: 'app-coding', label: 'Coding', icon: 'terminal', href: '/app/coding' },
-  { id: 'app-design', label: 'System Design', icon: 'grid', href: '/app/design' },
-  { id: 'app-prep', label: 'Interview Prep', icon: 'briefcase', href: '/app/prep' },
+  { id: 'practice', label: 'Practice', icon: 'code', href: '/practice' },
 ];
 
 /**

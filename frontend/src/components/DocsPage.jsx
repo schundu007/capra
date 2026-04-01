@@ -534,7 +534,7 @@ export default function DocsPage({ onBack }) {
               {!selectedTopic && (
                 <div className="flex items-center gap-3">
                   <a
-                    href="/app"
+                    href="/practice"
                     className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors landing-body"
                   >
                     Start Practice
