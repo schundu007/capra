@@ -23,7 +23,7 @@ export default function OAuthLogin() {
   const navLinks = [
     { label: 'Apply', href: 'https://jobs.cariara.com' },
     { label: 'Prepare', href: '/prepare' },
-    { label: 'Practice', href: '/app/coding' },
+    { label: 'Practice', href: '/practice' },
     { label: 'Attend', href: 'https://lumora.cariara.com/app' },
     { label: 'Pricing', href: '/premium' },
   ];
@@ -52,7 +52,7 @@ export default function OAuthLogin() {
               </a>
             );
           })}
-          <a href="/prepare" className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded-lg hover:bg-emerald-400 transition-colors landing-body">
+          <a href="/practice" className="px-5 py-2 bg-emerald-500 text-white font-semibold text-sm rounded-lg hover:bg-emerald-400 transition-colors landing-body">
             Get Started
           </a>
         </div>
@@ -68,7 +68,7 @@ export default function OAuthLogin() {
           {navLinks.map((link) => (
             <a key={link.label} href={link.href} className="block px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded transition-colors landing-body">{link.label}</a>
           ))}
-          <a href="/prepare" className="block w-full mt-2 px-4 py-2.5 bg-emerald-500 text-white font-semibold text-sm text-center rounded hover:bg-emerald-600 transition-colors landing-body">
+          <a href="/practice" className="block w-full mt-2 px-4 py-2.5 bg-emerald-500 text-white font-semibold text-sm text-center rounded hover:bg-emerald-600 transition-colors landing-body">
             Get Started
           </a>
         </div>
@@ -91,7 +91,7 @@ export default function OAuthLogin() {
         </p>
 
         <div className={`mt-5 flex flex-col sm:flex-row items-center gap-3 transition-all duration-700 delay-300 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-          <a href="/app/coding" className="px-8 py-3 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors shadow-sm landing-body">
+          <a href="/practice" className="px-8 py-3 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors shadow-sm landing-body">
             Start Practicing
           </a>
           <a href="#features" className="px-8 py-3 border border-gray-300 text-gray-600 font-medium text-sm rounded hover:border-gray-400 hover:text-gray-900 transition-colors landing-body">
@@ -110,7 +110,7 @@ export default function OAuthLogin() {
             {[
               { label: 'Apply', href: 'https://jobs.cariara.com', icon: 'briefcase', desc: 'Find your role', bg: '#ecfdf5', bgEnd: '#d1fae5', border: '#6ee7b7', borderEnd: '#34d399', badge: '#059669', iconColor: '#059669', glowColor: '16,185,129', slideFrom: 'left' },
               { label: 'Prepare', href: '/prepare', icon: 'book', desc: 'Study & review', bg: '#ecfeff', bgEnd: '#cffafe', border: '#67e8f9', borderEnd: '#22d3ee', badge: '#0891b2', iconColor: '#0891b2', glowColor: '8,145,178', slideFrom: 'bottom' },
-              { label: 'Practice', href: '/app/coding', icon: 'code', desc: 'Solve problems', bg: '#f5f3ff', bgEnd: '#ede9fe', border: '#c4b5fd', borderEnd: '#a78bfa', badge: '#7c3aed', iconColor: '#7c3aed', glowColor: '124,58,237', slideFrom: 'bottom' },
+              { label: 'Practice', href: '/practice', icon: 'code', desc: 'Solve problems', bg: '#f5f3ff', bgEnd: '#ede9fe', border: '#c4b5fd', borderEnd: '#a78bfa', badge: '#7c3aed', iconColor: '#7c3aed', glowColor: '124,58,237', slideFrom: 'bottom' },
               { label: 'Attend', href: 'https://lumora.cariara.com/app', icon: 'microphone', desc: 'Ace the interview', bg: '#fffbeb', bgEnd: '#fef3c7', border: '#fcd34d', borderEnd: '#fbbf24', badge: '#d97706', iconColor: '#d97706', glowColor: '217,119,6', slideFrom: 'right' },
             ].map((item, i) => (
               <a key={item.label} href={item.href} className={`journey-card journey-card-${i} group relative flex flex-col items-center gap-3 p-6 rounded-2xl text-center`} style={{ '--card-bg': item.bg, '--card-bg-end': item.bgEnd, '--card-border': item.border, '--card-border-end': item.borderEnd, '--card-glow': item.glowColor, animationDelay: `${i * 0.2}s` }}>
@@ -218,7 +218,7 @@ export default function OAuthLogin() {
         <p className="mt-2 text-sm text-gray-500 max-w-lg mx-auto landing-body">
           Stop memorizing. Start understanding. Practice with AI that thinks like a senior engineer.
         </p>
-        <a href="/app/coding" className="inline-block mt-4 px-8 py-3 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors shadow-sm landing-body">
+        <a href="/practice" className="inline-block mt-4 px-8 py-3 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors shadow-sm landing-body">
           Start Practicing
         </a>
       </section>
@@ -236,7 +236,7 @@ export default function OAuthLogin() {
             {[
               { label: 'Apply', href: 'https://jobs.cariara.com' },
               { label: 'Prepare', href: '/prepare' },
-              { label: 'Practice', href: '/app/coding' },
+              { label: 'Practice', href: '/practice' },
               { label: 'Attend', href: 'https://lumora.cariara.com/app' },
               { label: 'Pricing', href: '/premium' },
               { label: 'Support', href: 'mailto:support@cariara.com' },
