@@ -208,7 +208,7 @@ export function AuthProvider({ children }) {
             localStorage.removeItem('postLoginRedirect');
             window.location.replace(savedRedirect);
           } else {
-            window.location.replace('/app');
+            window.location.replace('/app/coding');
           }
           return;
         }

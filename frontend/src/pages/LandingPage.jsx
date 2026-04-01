@@ -10,7 +10,7 @@ export default function LandingPage() {
   if (loading) return <LoadingScreen />;
 
   // Redirect authenticated users to the main app
-  if (user) return <Navigate to="/app" replace />;
+  if (user) return <Navigate to="/app/coding" replace />;
 
   return <OAuthLogin />;
 }
