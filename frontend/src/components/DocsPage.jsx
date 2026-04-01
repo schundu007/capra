@@ -127,24 +127,22 @@ export default function DocsPage({ onBack }) {
     const rawPage = params.get('page') || (pathSegment || 'coding');
     const page = rawPage === 'dsa' ? 'coding' : rawPage === 'low-level-design' ? 'low-level' : rawPage;
     const topic = params.get('topic') || null;
-    if (page !== activePage) {
-      setActivePageState(page);
-      setSelectedTopicState(null);
-      setActiveSection(page);
-    } else if (!topic && selectedTopic) {
-      // Sidebar clicked same page — clear topic to go back to list
-      setSelectedTopicState(null);
-    }
+    setActivePageState(page);
+    setSelectedTopicState(topic);
+    setActiveSection(page);
   }, [routerLocation.pathname, routerLocation.search]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Sync URL with state via useEffect (avoids stale closure issues)
+  // Sync URL with component state (for in-page topic clicks, not sidebar navigation)
   useEffect(() => {
     const params = new URLSearchParams();
     if (activePage && activePage !== 'coding') params.set('page', activePage);
     if (selectedTopic) params.set('topic', selectedTopic);
     const queryString = params.toString();
     const newURL = queryString ? `/prepare?${queryString}` : '/prepare';
-    window.history.replaceState({}, '', newURL);
+    const currentURL = window.location.pathname + window.location.search;
+    if (currentURL !== newURL) {
+      window.history.replaceState({}, '', newURL);
+    }
   }, [activePage, selectedTopic]);
 
   // Wrapped setters
