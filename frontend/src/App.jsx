@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { Allotment } from 'allotment';
 import 'allotment/dist/style.css';
 
@@ -11,8 +11,8 @@ import PricingPlans from './components/billing/PricingPlans';
 import CreditBalance from './components/billing/CreditBalance';
 import DownloadPage from './components/billing/DownloadPage';
 import PremiumPage from './components/billing/PremiumPage';
-import DocsPage from './components/DocsPage';
-import ProblemPage from './components/ProblemPage';
+const DocsPage = lazy(() => import('./components/DocsPage'));
+const ProblemPage = lazy(() => import('./components/ProblemPage'));
 import OnboardingModal, { hasCompletedOnboarding } from './components/onboarding/OnboardingModal';
 import AdminPanel from './components/AdminPanel';
 import SettingsPanel from './components/settings/SettingsPanel';
@@ -830,24 +830,30 @@ export default function App() {
   if (isProblemPage || showProblem) {
     const currentSlug = showProblem || problemSlug;
     return (
-      <ProblemPage
-        slug={currentSlug}
-        onBack={() => {
-          if (isElectron) {
-            setShowProblem(null);
-            setShowDocs(true);
-          } else {
-            window.history.back();
-          }
-        }}
-      />
+      <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" /></div>}>
+        <ProblemPage
+          slug={currentSlug}
+          onBack={() => {
+            if (isElectron) {
+              setShowProblem(null);
+              setShowDocs(true);
+            } else {
+              window.history.back();
+            }
+          }}
+        />
+      </Suspense>
     );
   }
 
   // ---------------------------------------------------------------------------
   // Render: Docs Page (webapp + Electron)
   // ---------------------------------------------------------------------------
-  if (isDocsPage || showDocs) return <DocsPage onBack={isElectron ? () => setShowDocs(false) : null} />;
+  if (isDocsPage || showDocs) return (
+    <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" /></div>}>
+      <DocsPage onBack={isElectron ? () => setShowDocs(false) : null} />
+    </Suspense>
+  );
 
   // ---------------------------------------------------------------------------
   // Render: Landing / Auth

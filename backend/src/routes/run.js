@@ -1,336 +1,130 @@
 import { Router } from 'express';
-import { spawn, execSync } from 'child_process';
-import { writeFile, unlink } from 'fs/promises';
-import { join } from 'path';
-import { tmpdir } from 'os';
-import { randomUUID } from 'crypto';
 import { validate } from '../middleware/validators.js';
 import { AppError, ErrorCode } from '../middleware/errorHandler.js';
 import { safeLog } from '../services/utils.js';
 
 const router = Router();
 
-const TIMEOUT = 30000; // 30 seconds for code execution
-const installedPackages = new Set();
+const PISTON_API_URL = 'https://emkc.org/api/v2/piston/execute';
+const RUN_TIMEOUT = 10000; // 10 seconds for code execution
+const MAX_CODE_SIZE = 100_000; // 100KB max code size
 
-async function installPythonPackage(packageName) {
-  if (installedPackages.has(packageName)) return true;
-
-  // Sanitize package name to prevent shell injection
-  if (!/^[a-z0-9@/_.-]+$/i.test(packageName)) {
-    safeLog(`[CodeRunner] Package name ${packageName} contains invalid characters, skipping`);
-    return false;
-  }
-
-  // Common safe packages that can be auto-installed
-  const safePackages = new Set([
-    'requests', 'numpy', 'pandas', 'beautifulsoup4', 'bs4', 'lxml',
-    'sortedcontainers', 'aiohttp', 'httpx', 'pillow', 'matplotlib',
-    'scipy', 'sklearn', 'networkx', 'sympy', 'cryptography', 'pyyaml',
-  ]);
-
-  if (!safePackages.has(packageName.toLowerCase())) {
-    safeLog(`[CodeRunner] Package ${packageName} not in safe list, skipping auto-install`);
-    return false;
-  }
-
-  // Try different pip install strategies using system python
-  const strategies = [
-    `/usr/bin/python3 -m pip install --user --quiet ${packageName}`,
-    `/usr/bin/pip3 install --user --quiet ${packageName}`,
-  ];
-
-  for (const cmd of strategies) {
-    try {
-      execSync(cmd, { timeout: 120000, stdio: 'pipe' });
-      installedPackages.add(packageName);
-      safeLog(`[CodeRunner] Installed ${packageName}`);
-      return true;
-    } catch (err) {
-      continue;
-    }
-  }
-
-  safeLog(`[CodeRunner] Failed to install ${packageName}`);
-  return false;
-}
-
-function extractMissingModule(error, language) {
-  // Python
-  if (language === 'python') {
-    const match = error.match(/ModuleNotFoundError: No module named '([^']+)'/);
-    if (match) return { name: match[1].split('.')[0], language: 'python' };
-  }
-
-  // JavaScript/TypeScript - various error formats
-  if (language === 'javascript' || language === 'typescript') {
-    // Cannot find module 'xxx'
-    let match = error.match(/Cannot find module '([^']+)'/);
-    if (match && !match[1].startsWith('.') && !match[1].startsWith('/')) {
-      return { name: match[1], language: 'node' };
-    }
-    // Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'xxx'
-    match = error.match(/Cannot find package '([^']+)'/);
-    if (match) return { name: match[1], language: 'node' };
-  }
-
-  return null;
-}
-
-const installedNpmPackages = new Set();
-
-async function installNpmPackage(packageName) {
-  if (installedNpmPackages.has(packageName)) return true;
-
-  // Sanitize package name to prevent shell injection
-  if (!/^[a-z0-9@/_.-]+$/i.test(packageName)) return false;
-
-  const safePackages = new Set([
-    'axios', 'node-fetch', 'lodash', 'underscore', 'moment', 'dayjs',
-    'uuid', 'chalk', 'commander', 'inquirer', 'ora', 'got',
-  ]);
-
-  if (!safePackages.has(packageName.toLowerCase())) {
-    safeLog(`[CodeRunner] npm package ${packageName} not in safe list`);
-    return false;
-  }
-
-  try {
-    execSync(`npm install --no-save ${packageName}`, { timeout: 120000, stdio: 'pipe', cwd: tmpdir() });
-    installedNpmPackages.add(packageName);
-    safeLog(`[CodeRunner] Installed npm package: ${packageName}`);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-const RUNNERS = {
-  python: {
-    ext: '.py',
-    cmd: '/usr/bin/python3',
-    args: (file, cliArgs) => [file, ...cliArgs],
-  },
-  bash: {
-    ext: '.sh',
-    cmd: 'bash',
-    args: (file, cliArgs) => [file, ...cliArgs],
-  },
-  javascript: {
-    ext: '.js',
-    cmd: 'node',
-    args: (file, cliArgs) => [file, ...cliArgs],
-  },
-  typescript: {
-    ext: '.ts',
-    cmd: 'npx',
-    args: (file, cliArgs) => ['tsx', file, ...cliArgs],
-  },
-  sql: {
-    ext: '.sql',
-    cmd: 'sqlite3',
-    args: (file, cliArgs) => [':memory:', '-init', file, '.quit'],
-  },
-  c: {
-    ext: '.c',
-    compile: true,
-    compileCmd: 'gcc',
-    compileArgs: (file, outFile) => [file, '-o', outFile, '-lm'],
-    cmd: (outFile) => outFile,
-    args: (file, cliArgs) => cliArgs,
-  },
-  cpp: {
-    ext: '.cpp',
-    compile: true,
-    compileCmd: 'g++',
-    compileArgs: (file, outFile) => [file, '-o', outFile, '-std=c++17'],
-    cmd: (outFile) => outFile,
-    args: (file, cliArgs) => cliArgs,
-  },
-  java: {
-    ext: '.java',
-    compile: true,
-    compileCmd: 'javac',
-    compileArgs: (file) => [file],
-    cmd: () => 'java',
-    args: (file, cliArgs, className) => ['-cp', join(tmpdir()), className, ...cliArgs],
-    extractClassName: (code) => {
-      const match = code.match(/public\s+class\s+(\w+)/);
-      return match ? match[1] : 'Main';
-    },
-  },
-  go: {
-    ext: '.go',
-    cmd: 'go',
-    args: (file, cliArgs) => ['run', file, ...cliArgs],
-  },
-  rust: {
-    ext: '.rs',
-    compile: true,
-    compileCmd: 'rustc',
-    compileArgs: (file, outFile) => [file, '-o', outFile],
-    cmd: (outFile) => outFile,
-    args: (file, cliArgs) => cliArgs,
-  },
+// Language whitelist with Piston language identifiers and versions
+const SUPPORTED_LANGUAGES = {
+  python: { language: 'python', version: '3.10.0' },
+  javascript: { language: 'javascript', version: '18.15.0' },
+  typescript: { language: 'typescript', version: '5.0.3' },
+  bash: { language: 'bash', version: '5.2.0' },
+  c: { language: 'c', version: '10.2.0' },
+  cpp: { language: 'c++', version: '10.2.0' },
+  java: { language: 'java', version: '15.0.2' },
+  go: { language: 'go', version: '1.16.2' },
+  rust: { language: 'rust', version: '1.68.2' },
+  sql: { language: 'sqlite3', version: '3.36.0' },
 };
 
-async function compileCode(runner, filepath, outFile, className) {
-  return new Promise((resolve) => {
-    const compileArgs = runner.compileArgs(filepath, outFile, className);
-    const proc = spawn(runner.compileCmd, compileArgs, {
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-
-    let stderr = '';
-    proc.stderr.on('data', (data) => {
-      stderr += data.toString();
-    });
-
-    const timer = setTimeout(() => {
-      proc.kill('SIGKILL');
-      resolve({ success: false, error: 'Compilation timeout (30s limit)' });
-    }, 30000);
-
-    proc.on('close', (exitCode) => {
-      clearTimeout(timer);
-      if (exitCode === 0) {
-        resolve({ success: true });
-      } else {
-        resolve({ success: false, error: stderr || `Compilation failed with exit code: ${exitCode}` });
-      }
-    });
-
-    proc.on('error', (err) => {
-      clearTimeout(timer);
-      resolve({ success: false, error: `Compiler not found: ${err.message}` });
-    });
-  });
-}
-
-async function executeCode(code, language, input = '', args = [], retryCount = 0) {
-  const runner = RUNNERS[language];
-  if (!runner) {
-    return { success: false, error: `Unsupported language: ${language}` };
+/**
+ * Execute code via the Piston API (sandboxed remote execution).
+ * No local execution is performed — all code runs in Piston's isolated containers.
+ */
+async function executeCode(code, language, input = '') {
+  const langConfig = SUPPORTED_LANGUAGES[language];
+  if (!langConfig) {
+    return {
+      success: false,
+      error: `Unsupported language: ${language}. Supported: ${Object.keys(SUPPORTED_LANGUAGES).join(', ')}`,
+    };
   }
 
-  const uuid = randomUUID();
-  const filename = `code_${uuid}${runner.ext}`;
-  const filepath = join(tmpdir(), filename);
-  const outFile = join(tmpdir(), `code_${uuid}`);
-
-  let processedCode = code.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-
-  if (language === 'bash' && !processedCode.startsWith('#!')) {
-    processedCode = '#!/bin/bash\n' + processedCode;
+  if (!code || typeof code !== 'string') {
+    return { success: false, error: 'No code provided' };
   }
 
-  // For Java, extract class name and rename file
-  let className = null;
-  let javaFilepath = filepath;
-  if (language === 'java' && runner.extractClassName) {
-    className = runner.extractClassName(processedCode);
-    javaFilepath = join(tmpdir(), `${className}.java`);
+  if (code.length > MAX_CODE_SIZE) {
+    return { success: false, error: `Code exceeds maximum size of ${MAX_CODE_SIZE} characters` };
   }
-
-  const actualFilepath = language === 'java' ? javaFilepath : filepath;
 
   try {
-    await writeFile(actualFilepath, processedCode);
+    const controller = new AbortController();
+    const fetchTimeout = setTimeout(() => controller.abort(), 30000); // 30s network timeout
 
-    // Handle compiled languages
-    if (runner.compile) {
-      const compileResult = await compileCode(runner, actualFilepath, outFile, className);
-      if (!compileResult.success) {
-        await unlink(actualFilepath).catch(() => {});
-        return compileResult;
-      }
+    const response = await fetch(PISTON_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
+      body: JSON.stringify({
+        language: langConfig.language,
+        version: '*',
+        files: [{ content: code }],
+        stdin: input || '',
+        run_timeout: RUN_TIMEOUT,
+        compile_timeout: RUN_TIMEOUT,
+        compile_memory_limit: 256_000_000, // 256MB
+        run_memory_limit: 256_000_000,     // 256MB
+      }),
+    });
+
+    clearTimeout(fetchTimeout);
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      safeLog(`[CodeRunner] Piston API error: ${response.status} - ${errorText}`);
+      return {
+        success: false,
+        error: `Code execution service returned an error (HTTP ${response.status}). Please try again later.`,
+      };
     }
 
-    return new Promise((resolve) => {
-      const cmd = runner.compile ? runner.cmd(outFile) : runner.cmd;
-      const runArgs = runner.compile
-        ? runner.args(actualFilepath, args, className)
-        : runner.args(actualFilepath, args);
+    const result = await response.json();
 
-      const proc = spawn(cmd, runArgs, {
-        stdio: ['pipe', 'pipe', 'pipe'],
-      });
+    // Piston returns { run: { stdout, stderr, code, signal, output }, compile?: { ... } }
+    // Check for compilation errors first
+    if (result.compile && result.compile.code !== 0) {
+      return {
+        success: false,
+        error: result.compile.stderr || result.compile.output || 'Compilation failed',
+      };
+    }
 
-      let stdout = '';
-      let stderr = '';
+    const run = result.run;
+    if (!run) {
+      return { success: false, error: 'Unexpected response from code execution service' };
+    }
 
-      proc.stdout.on('data', (data) => {
-        stdout += data.toString();
-      });
+    if (run.signal === 'SIGKILL') {
+      return { success: false, error: 'Execution timeout or memory limit exceeded' };
+    }
 
-      proc.stderr.on('data', (data) => {
-        stderr += data.toString();
-      });
+    if (run.code !== 0) {
+      return {
+        success: false,
+        error: run.stderr || run.output || `Exit code: ${run.code}`,
+      };
+    }
 
-      if (input) {
-        proc.stdin.write(input);
-      }
-      proc.stdin.end();
-
-      const timer = setTimeout(() => {
-        proc.kill('SIGKILL');
-        resolve({ success: false, error: 'Execution timeout (30s limit)' });
-      }, TIMEOUT);
-
-      proc.on('close', async (exitCode) => {
-        clearTimeout(timer);
-        unlink(actualFilepath).catch(() => {});
-        if (runner.compile) {
-          unlink(outFile).catch(() => {});
-          if (language === 'java') {
-            unlink(join(tmpdir(), `${className}.class`)).catch(() => {});
-          }
-        }
-
-        if (exitCode === 0) {
-          resolve({ success: true, output: stdout || '(no output)' });
-        } else {
-          // Try to auto-install missing packages
-          if (retryCount < 3) {
-            const missing = extractMissingModule(stderr, language);
-            if (missing) {
-              let installed = false;
-              if (missing.language === 'python') {
-                installed = await installPythonPackage(missing.name);
-              } else if (missing.language === 'node') {
-                installed = await installNpmPackage(missing.name);
-              }
-              if (installed) {
-                const retryResult = await executeCode(code, language, input, args, retryCount + 1);
-                resolve(retryResult);
-                return;
-              }
-            }
-          }
-          resolve({ success: false, error: stderr || `Exit code: ${exitCode}` });
-        }
-      });
-
-      proc.on('error', (err) => {
-        clearTimeout(timer);
-        unlink(actualFilepath).catch(() => {});
-        if (runner.compile) unlink(outFile).catch(() => {});
-        resolve({ success: false, error: err.message });
-      });
-    });
+    return {
+      success: true,
+      output: run.stdout || run.output || '(no output)',
+    };
   } catch (err) {
-    await unlink(actualFilepath).catch(() => {});
-    if (runner.compile) await unlink(outFile).catch(() => {});
-    return { success: false, error: err.message };
+    if (err.name === 'AbortError') {
+      safeLog('[CodeRunner] Piston API request timed out');
+      return { success: false, error: 'Code execution service timed out. Please try again later.' };
+    }
+
+    safeLog(`[CodeRunner] Piston API request failed: ${err.message}`);
+    return {
+      success: false,
+      error: 'Code execution service is currently unavailable. Please try again later.',
+    };
   }
 }
 
 router.post('/', validate('run'), async (req, res, next) => {
   try {
-    const { code, language, input, args = [] } = req.body;
+    const { code, language, input } = req.body;
 
-    const cliArgs = Array.isArray(args) ? args : args.split(' ').filter(Boolean);
-    const result = await executeCode(code, language, input, cliArgs);
+    const result = await executeCode(code, language, input);
     res.json(result);
   } catch (error) {
     next(new AppError(

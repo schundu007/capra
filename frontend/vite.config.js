@@ -61,6 +61,43 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'topics-coding': [
+            './src/data/topics/codingTopics.js',
+            './src/data/topics/codingTopicsExtra.js',
+          ],
+          'topics-system-design': [
+            './src/data/topics/systemDesignTopics.js',
+            './src/data/topics/systemDesignProblems.js',
+            './src/data/topics/systemDesignProblemsExtra.js',
+            './src/data/topics/systemDesignPatterns.js',
+            './src/data/topics/systemDesignTradeoffs.js',
+            './src/data/topics/scalableSystemsTopics.js',
+          ],
+          'topics-microservices': [
+            './src/data/topics/microservicesPatterns.js',
+          ],
+          'topics-database-sql': [
+            './src/data/topics/databaseTopics.js',
+            './src/data/topics/sqlTopics.js',
+          ],
+          'topics-lld': [
+            './src/data/topics/lldTopics.js',
+            './src/data/topics/lldProblems.js',
+            './src/data/topics/lldProblemsExtra.js',
+          ],
+          'topics-behavioral': [
+            './src/data/topics/behavioralTopics.js',
+            './src/data/topics/companyPrep.js',
+            './src/data/topics/concurrencyTopics.js',
+          ],
+        },
+      },
+    },
+  },
   // Vitest configuration
   test: {
     globals: true,
