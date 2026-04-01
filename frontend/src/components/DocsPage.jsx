@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useIsMobile } from '../hooks/useIsMobile';
+import { useAppShell } from './layout/AppShellContext';
 import { Icon } from './Icons.jsx';
 import { getAuthHeaders } from '../utils/authHeaders.js';
 import DiagramSVG from './DiagramSVG.jsx';
@@ -95,7 +96,7 @@ const getApiUrl = () => {
  */
 export default function DocsPage({ onBack }) {
   const { isMobile } = useIsMobile();
-  const [docsSidebarOpen, setDocsSidebarOpen] = useState(false);
+  const { openSidebar, setActiveSection } = useAppShell();
   const isElectron = window.electronAPI?.isElectron || false;
   // Initialize state from URL params for persistence on refresh
   const getInitialState = () => {
@@ -131,12 +132,13 @@ export default function DocsPage({ onBack }) {
   const setActivePage = (page) => {
     setActivePageState(page);
     setSelectedTopicState(null);
+    setActiveSection(page);
   };
 
   const setSelectedTopic = (topic) => {
     setSelectedTopicState(topic);
     if (topic) {
-      setDocsSidebarOpen(false);
+      /* sidebar close handled by AppShell */;
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -424,95 +426,11 @@ export default function DocsPage({ onBack }) {
         }}
       />
 
-      <div className={`relative ${isMobile ? 'flex flex-col' : 'flex'}`}>
-        {/* Mobile sidebar overlay — hidden when viewing a topic on mobile */}
-        {isMobile && docsSidebarOpen && !selectedTopic && (
-          <div className="fixed inset-0 z-40 bg-black/50" onClick={() => setDocsSidebarOpen(false)} />
-        )}
+      <div className="relative flex flex-col">
 
-        {/* Left Sidebar - Navigation */}
-        {/* Mobile: hidden by default, shown only when hamburger opens. Desktop: always sticky */}
-        <div className={`
-          hidden md:flex md:w-72 md:flex-shrink-0 md:h-screen md:sticky md:top-0
-          ${isMobile && docsSidebarOpen && !selectedTopic ? '!fixed !inset-y-0 !left-0 !z-50 !flex !w-72 !max-w-[80vw]' : ''}
-          flex-col bg-white border-r border-gray-100
-        `}>
-          {/* Logo */}
-          <div className="p-6">
-            <a href="/" className="flex items-center gap-3 group">
-              <div className="w-8 h-8 bg-emerald-500 flex items-center justify-center transition-transform group-hover:scale-105">
-                <Icon name="ascend" size={16} className="text-white" />
-              </div>
-              <div>
-                <span className="landing-display font-bold text-lg tracking-tight text-gray-900">Ascend</span>
-                <span className="block text-[10px] landing-mono uppercase tracking-[0.2em] text-emerald-600 -mt-0.5">Interview AI</span>
-              </div>
-            </a>
-          </div>
+        {/* Sidebar removed — now provided by AppShell */}
 
-          {/* Category Navigation */}
-          <nav className="flex-1 px-4 py-2 overflow-y-auto">
-            <div className="landing-mono text-[10px] text-emerald-600 tracking-widest uppercase px-3 mb-3">Learning Tracks</div>
-            {navItems.map((item) => {
-              const isActive = activePage === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => { setActivePage(item.id); if (isMobile) setDocsSidebarOpen(false); }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-all mb-1 landing-body ${
-                    isActive ? 'text-emerald-700 font-semibold bg-emerald-50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 font-medium'
-                  }`}
-                >
-                  <Icon name={item.icon} size={18} className={isActive ? 'text-emerald-500' : 'text-gray-400'} />
-                  <div className="flex-1 text-left">
-                    <span className="block">{item.label}</span>
-                    <span className="text-xs text-gray-400 landing-mono">
-                      {item.id === 'coding' ? `${codingTopics.length} topics` :
-                       item.id === 'system-design' ? `${systemDesignTopics.length + systemDesigns.length + concurrencyTopics.length} topics` :
-                       item.id === 'low-level' ? `${lldTopics.length + lldProblems.length} topics` :
-                       `${behavioralTopics.length} topics`}
-                    </span>
-                  </div>
-                  {isActive && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />}
-                </button>
-              );
-            })}
-
-            {/* Practice Links */}
-            <div className="mx-5 h-px bg-gradient-to-r from-transparent via-emerald-200 to-transparent mt-6 mb-4" />
-            <div className="landing-mono text-[10px] text-emerald-600 tracking-widest uppercase px-3 mb-3">Practice</div>
-            {[
-              { href: '/app/coding', label: 'Coding', icon: 'code', color: '#10b981' },
-              { href: '/app/design', label: 'Design', icon: 'systemDesign', color: '#3b82f6' },
-              { href: '/app/prep', label: 'Interview Prep', icon: 'briefcase', color: '#a855f7' },
-            ].map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all hover:bg-gray-50 mb-0.5 landing-body font-medium"
-                style={{ color: link.color }}
-              >
-                <Icon name={link.icon} size={16} />
-                <span>{link.label}</span>
-              </a>
-            ))}
-          </nav>
-
-          {/* Pro Badge */}
-          <div className="mx-4 mb-4">
-            <div className="h-px bg-gradient-to-r from-transparent via-emerald-200 to-transparent mb-4" />
-            <div className="p-4 rounded-lg border border-emerald-200 bg-emerald-50/50">
-              <div className="flex items-center gap-2 mb-2">
-                <Icon name="crown" size={14} className="text-emerald-600" />
-                <span className="text-sm font-semibold text-gray-900 landing-display">Ascend Pro</span>
-              </div>
-              <p className="text-xs text-gray-500 mb-3 landing-body">AI-powered practice with real-time feedback</p>
-              <a href="/app/coding" className="block text-center py-2 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors landing-body">
-                Try Free
-              </a>
-            </div>
-          </div>
-        </div>
+        {/* Sidebar removed — provided by AppShell */}
 
         {/* Main Content Area + Right Sidebar */}
         <div className="flex-1 min-h-screen flex">
@@ -532,7 +450,7 @@ export default function DocsPage({ onBack }) {
                   </button>
                 ) : (
                   <button
-                    onClick={() => setDocsSidebarOpen(true)}
+                    onClick={() => openSidebar()}
                     className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors"
                     aria-label="Open navigation"
                   >
