@@ -88,9 +88,6 @@ export default function OAuthLogin() {
           <a href="/practice" className="px-8 py-3 bg-emerald-500 text-white font-semibold text-sm rounded hover:bg-emerald-600 transition-colors shadow-sm landing-body">
             Start Practicing
           </a>
-          <a href="#features" className="px-8 py-3 border border-gray-300 text-gray-600 font-medium text-sm rounded hover:border-gray-400 hover:text-gray-900 transition-colors landing-body">
-            See Features
-          </a>
         </div>
       </section>
 
