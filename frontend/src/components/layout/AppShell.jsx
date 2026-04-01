@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { AppShellContext } from './AppShellContext.jsx';
 import ShellSidebar from './ShellSidebar.jsx';
@@ -6,7 +6,7 @@ import { useIsMobile } from '../../hooks/useIsMobile.js';
 
 /**
  * Unified layout shell for all app routes.
- * Desktop (>=768px): persistent left sidebar via CSS hidden/md:block.
+ * Desktop (>=768px): persistent left sidebar (collapsible to icon rail).
  * Mobile (<768px): NO sidebar in DOM. Hamburger opens overlay drawer.
  */
 export default function AppShell() {
@@ -14,6 +14,17 @@ export default function AppShell() {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeSection, setActiveSection] = useState(null);
+  const [collapsed, setCollapsed] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('ascend_sidebar_collapsed')) || false; } catch { return false; }
+  });
+
+  const toggleCollapsed = useCallback(() => {
+    setCollapsed(prev => {
+      const next = !prev;
+      try { localStorage.setItem('ascend_sidebar_collapsed', JSON.stringify(next)); } catch {}
+      return next;
+    });
+  }, []);
 
   // Close drawer on any navigation
   useEffect(() => {
@@ -52,14 +63,19 @@ export default function AppShell() {
     toggleSidebar: () => setSidebarOpen(v => !v),
     activeSection,
     setActiveSection,
+    collapsed,
+    toggleCollapsed,
   };
 
   return (
     <AppShellContext.Provider value={ctx}>
       <div className="flex h-screen overflow-hidden">
 
-        {/* Desktop sidebar — pure CSS: hidden on mobile, visible on md+ */}
-        <div className="hidden md:flex md:w-64 md:flex-shrink-0 h-screen border-r border-gray-100">
+        {/* Desktop sidebar — collapsible */}
+        <div
+          className="hidden md:flex md:flex-shrink-0 h-screen border-r border-gray-100 transition-all duration-200"
+          style={{ width: collapsed ? 56 : 256 }}
+        >
           <ShellSidebar />
         </div>
 

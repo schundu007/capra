@@ -17,15 +17,18 @@ const PRACTICE_ITEMS = [
 ];
 
 /**
- * Unified sidebar content — used by AppShell on desktop (inline) and mobile (drawer).
+ * Unified sidebar — expanded (labels + icons) or collapsed (icons only).
+ * Mobile drawer always shows expanded.
  */
 export default function ShellSidebar() {
   const { isMobile } = useIsMobile();
   const location = useLocation();
   const navigate = useNavigate();
-  const { activeSection, setActiveSection, closeSidebar } = useAppShell();
+  const { activeSection, setActiveSection, closeSidebar, collapsed, toggleCollapsed } = useAppShell();
 
   const isOnPrepare = location.pathname.startsWith('/prepare');
+  // Mobile drawer is always expanded
+  const isCollapsed = !isMobile && collapsed;
 
   const handleNav = (href, sectionId) => {
     navigate(href);
@@ -33,21 +36,39 @@ export default function ShellSidebar() {
     if (isMobile) closeSidebar();
   };
 
+  const handleSettingsClick = () => {
+    // Settings panel lives in MainApp — navigate there first if needed
+    if (!location.pathname.startsWith('/app')) {
+      navigate('/app/coding');
+      // Delay to let MainApp mount and register the event listener
+      setTimeout(() => window.dispatchEvent(new CustomEvent('ascend:open-settings')), 100);
+    } else {
+      window.dispatchEvent(new CustomEvent('ascend:open-settings'));
+    }
+    if (isMobile) closeSidebar();
+  };
+
   const isPracticeActive = (href) => location.pathname === href || location.pathname.startsWith(href + '/');
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-white w-full">
       {/* Logo */}
-      <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-        <a href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-          <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
+      <div className={`border-b border-gray-100 flex items-center ${isCollapsed ? 'justify-center px-2 py-4' : 'justify-between px-5 py-4'}`}>
+        {isCollapsed ? (
+          <a href="/" className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center hover:scale-105 transition-transform">
             <Icon name="ascend" size={16} className="text-white" />
-          </div>
-          <div>
-            <span className="font-bold text-base tracking-tight text-gray-900">Ascend</span>
-            <span className="block text-[9px] font-mono uppercase tracking-[0.2em] text-emerald-600 -mt-0.5">Interview AI</span>
-          </div>
-        </a>
+          </a>
+        ) : (
+          <a href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
+              <Icon name="ascend" size={16} className="text-white" />
+            </div>
+            <div>
+              <span className="font-bold text-base tracking-tight text-gray-900">Ascend</span>
+              <span className="block text-[9px] font-mono uppercase tracking-[0.2em] text-emerald-600 -mt-0.5">Interview AI</span>
+            </div>
+          </a>
+        )}
         {isMobile && (
           <button onClick={closeSidebar} className="p-2 text-gray-400 hover:text-gray-900 transition-colors">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -57,68 +78,96 @@ export default function ShellSidebar() {
         )}
       </div>
 
-      <nav className="flex-1 px-3 py-3 overflow-y-auto">
+      <nav className={`flex-1 py-3 overflow-y-auto ${isCollapsed ? 'px-1.5' : 'px-3'}`}>
         {/* Prepare */}
-        <div className="text-[10px] font-semibold text-gray-400 tracking-widest uppercase px-3 mb-2">Prepare</div>
+        {!isCollapsed && <div className="text-[10px] font-semibold text-gray-400 tracking-widest uppercase px-3 mb-2">Prepare</div>}
         {PREPARE_ITEMS.map((item) => {
           const isActive = isOnPrepare && activeSection === item.id;
           return (
             <button
               key={item.id}
               onClick={() => handleNav(item.href, item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] transition-all mb-0.5 ${
+              title={isCollapsed ? item.label : undefined}
+              className={`w-full flex items-center rounded-lg transition-all mb-0.5 ${
+                isCollapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2.5'
+              } ${
                 isActive
-                  ? 'text-emerald-700 font-semibold bg-emerald-50 border-l-2 border-emerald-500'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-medium border-l-2 border-transparent'
+                  ? `text-emerald-700 font-semibold bg-emerald-50 ${isCollapsed ? '' : 'border-l-2 border-emerald-500'}`
+                  : `text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-medium ${isCollapsed ? '' : 'border-l-2 border-transparent'}`
               }`}
             >
-              <Icon name={item.icon} size={16} className={isActive ? 'text-emerald-500' : 'text-gray-400'} />
-              <span className="flex-1 text-left">{item.label}</span>
+              <Icon name={item.icon} size={isCollapsed ? 18 : 16} className={isActive ? 'text-emerald-500' : 'text-gray-400'} />
+              {!isCollapsed && <span className="flex-1 text-left text-[13px]">{item.label}</span>}
             </button>
           );
         })}
 
         {/* Divider */}
-        <div className="mx-4 h-px bg-gray-100 my-3" />
+        <div className={`h-px bg-gray-100 my-3 ${isCollapsed ? 'mx-1' : 'mx-4'}`} />
 
         {/* Practice */}
-        <div className="text-[10px] font-semibold text-gray-400 tracking-widest uppercase px-3 mb-2">Practice</div>
+        {!isCollapsed && <div className="text-[10px] font-semibold text-gray-400 tracking-widest uppercase px-3 mb-2">Practice</div>}
         {PRACTICE_ITEMS.map((item) => {
           const isActive = isPracticeActive(item.href);
           return (
             <button
               key={item.id}
               onClick={() => handleNav(item.href)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] transition-all mb-0.5 ${
+              title={isCollapsed ? item.label : undefined}
+              className={`w-full flex items-center rounded-lg transition-all mb-0.5 ${
+                isCollapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2.5'
+              } ${
                 isActive
-                  ? 'text-emerald-700 font-semibold bg-emerald-50 border-l-2 border-emerald-500'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-medium border-l-2 border-transparent'
+                  ? `text-emerald-700 font-semibold bg-emerald-50 ${isCollapsed ? '' : 'border-l-2 border-emerald-500'}`
+                  : `text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-medium ${isCollapsed ? '' : 'border-l-2 border-transparent'}`
               }`}
             >
-              <Icon name={item.icon} size={16} className={isActive ? 'text-emerald-500' : 'text-gray-400'} />
-              <span className="flex-1 text-left">{item.label}</span>
+              <Icon name={item.icon} size={isCollapsed ? 18 : 16} className={isActive ? 'text-emerald-500' : 'text-gray-400'} />
+              {!isCollapsed && <span className="flex-1 text-left text-[13px]">{item.label}</span>}
             </button>
           );
         })}
       </nav>
 
       {/* Bottom utility */}
-      <div className="px-3 py-3 border-t border-gray-100">
+      <div className={`border-t border-gray-100 ${isCollapsed ? 'px-1.5 py-2' : 'px-3 py-3'}`}>
         <button
-          onClick={() => { window.dispatchEvent(new CustomEvent('ascend:open-settings')); if (isMobile) closeSidebar(); }}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-all font-medium"
+          onClick={handleSettingsClick}
+          title={isCollapsed ? 'Settings' : undefined}
+          className={`w-full flex items-center rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-all font-medium ${
+            isCollapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2 text-[13px]'
+          }`}
         >
-          <Icon name="settings" size={15} className="text-gray-400" />
-          <span>Settings</span>
+          <Icon name="settings" size={isCollapsed ? 18 : 15} className="text-gray-400" />
+          {!isCollapsed && <span>Settings</span>}
         </button>
         <Link
           to="/premium"
           onClick={() => { if (isMobile) closeSidebar(); }}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-emerald-600 hover:bg-emerald-50 transition-all font-medium"
+          title={isCollapsed ? 'Upgrade' : undefined}
+          className={`w-full flex items-center rounded-lg text-emerald-600 hover:bg-emerald-50 transition-all font-medium ${
+            isCollapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2 text-[13px]'
+          }`}
         >
-          <Icon name="zap" size={15} className="text-emerald-500" />
-          <span>Upgrade</span>
+          <Icon name="zap" size={isCollapsed ? 18 : 15} className="text-emerald-500" />
+          {!isCollapsed && <span>Upgrade</span>}
         </Link>
+
+        {/* Collapse toggle — desktop only */}
+        {!isMobile && (
+          <button
+            onClick={toggleCollapsed}
+            title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            className={`w-full flex items-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-all mt-1 ${
+              isCollapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2 text-[13px]'
+            }`}
+          >
+            <svg className={`w-4 h-4 transition-transform duration-200 ${isCollapsed ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+            </svg>
+            {!isCollapsed && <span className="text-gray-400 font-medium">Collapse</span>}
+          </button>
+        )}
       </div>
     </div>
   );

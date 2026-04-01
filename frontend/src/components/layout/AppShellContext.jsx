@@ -16,6 +16,8 @@ export function useAppShell() {
       toggleSidebar: () => {},
       activeSection: null,
       setActiveSection: () => {},
+      collapsed: false,
+      toggleCollapsed: () => {},
     };
   }
   return ctx;
