@@ -166,9 +166,13 @@ export default function PracticePage() {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, []);
 
-  /* ── Topic click → navigate to /app with query ── */
-  const handleTopicClick = useCallback((label) => {
-    navigate('/app?q=' + encodeURIComponent(label));
+  /* ── Topic click → navigate to the topic's prepare page ── */
+  const handleTopicClick = useCallback((item) => {
+    if (item.href) {
+      navigate(item.href);
+    } else if (item.slug) {
+      navigate(`/problems/${item.slug}`);
+    }
   }, [navigate]);
 
   /* ── Mock interview helpers ── */
@@ -307,7 +311,7 @@ export default function PracticePage() {
                 {section.items.map((item) => (
                   <button
                     key={item.label}
-                    onClick={() => handleTopicClick(item.label)}
+                    onClick={() => handleTopicClick(item)}
                     className={`group text-left p-4 rounded-lg border border-gray-100 transition-all duration-200 ${section.bg} hover:border-current hover:shadow-sm`}
                     style={{ '--tw-border-opacity': 0.3 }}
                   >
@@ -404,7 +408,7 @@ export default function PracticePage() {
                   </button>
                   <button
                     onClick={() => {
-                      if (mockQuestion) handleTopicClick(mockQuestion.label);
+                      if (mockQuestion) handleTopicClick(mockQuestion);
                       stopMock();
                     }}
                     className="inline-flex items-center gap-2 px-5 py-2 bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-600 transition-colors landing-body"
