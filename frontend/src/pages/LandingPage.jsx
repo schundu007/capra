@@ -1,16 +1,14 @@
 import { useAuth } from '../contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
 import OAuthLogin from '../components/auth/OAuthLogin';
 import LoadingScreen from '../components/shared/LoadingScreen';
 
 export default function LandingPage() {
-  const { user, loading } = useAuth();
+  const { loading } = useAuth();
 
   // Wait for auth to initialize before deciding what to show
   if (loading) return <LoadingScreen />;
 
-  // Redirect authenticated users to the main app
-  if (user) return <Navigate to="/app/coding" replace />;
-
+  // Show landing page for everyone — OAuthLogin already handles
+  // different CTAs for logged-in vs not (e.g., "Open App" button)
   return <OAuthLogin />;
 }

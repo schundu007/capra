@@ -254,14 +254,14 @@ export function AuthProvider({ children }) {
           // Fetch user data
           await fetchUserData(hashAuth.accessToken);
 
-          // Redirect to /app after fresh login (check for saved deep-link first)
-          const savedRedirect = sessionStorage.getItem('postLoginRedirect') || localStorage.getItem('postLoginRedirect');
+          // Redirect back to where the user was before OAuth
+          const savedRedirect = localStorage.getItem('ascend_auth_redirect');
+          localStorage.removeItem('ascend_auth_redirect');
           if (savedRedirect) {
-            sessionStorage.removeItem('postLoginRedirect');
-            localStorage.removeItem('postLoginRedirect');
             window.location.replace(savedRedirect);
           } else {
-            window.location.replace('/app/coding');
+            // No saved URL (e.g., direct OAuth link) — go to landing page
+            window.location.replace('/');
           }
           return;
         }
@@ -426,6 +426,9 @@ export function AuthProvider({ children }) {
     if (!isWebApp) {
       throw new Error('OAuth not available');
     }
+
+    // Save current page URL so we can redirect back after OAuth
+    localStorage.setItem('ascend_auth_redirect', window.location.pathname + window.location.search);
 
     // Use Ascend backend's Google OAuth endpoint
     window.location.href = `${API_URL}/api/auth/google/login`;
