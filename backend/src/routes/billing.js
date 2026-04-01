@@ -19,33 +19,26 @@ router.get('/prices', (req, res) => {
   res.json({
     monthly: {
       priceId: STRIPE_PRICES.MONTHLY,
-      amount: 9900, // $99.00
+      amount: 2900, // $29.00 — Interview Ready
       currency: 'usd',
       interval: 'month',
       credits: CREDITS_PER_PLAN.monthly,
     },
     quarterly_pro: {
       priceId: STRIPE_PRICES.QUARTERLY_PRO,
-      amount: 30000, // $300.00
+      amount: 5900, // $59.00 — FAANG Track
       currency: 'usd',
-      interval: 'quarter',
+      interval: 'month',
       credits: CREDITS_PER_PLAN.quarterly_pro,
-      features: ['interview_assistant', 'job_discovery'],
+      features: ['unlimited_ai', 'all_companies', 'lumora_3_sessions'],
     },
     desktop_lifetime: {
       priceId: STRIPE_PRICES.DESKTOP_LIFETIME,
-      amount: 30000, // $300.00
+      amount: 9900, // $99.00 — Elite
       currency: 'usd',
-      type: 'one_time',
-      credits: 0,
-      features: ['desktop_app', 'own_api_keys', 'unlimited_usage'],
-    },
-    addon: {
-      priceId: STRIPE_PRICES.ADDON,
-      amount: 3000, // $30.00
-      currency: 'usd',
-      type: 'one_time',
-      credits: CREDITS_PER_PLAN.addon,
+      interval: 'month',
+      credits: CREDITS_PER_PLAN.desktop_lifetime,
+      features: ['everything_faang', 'lumora_5_sessions', 'custom_plan', 'resume_review'],
     },
   });
 });
@@ -108,7 +101,8 @@ router.post('/checkout', jwtAuth, async (req, res) => {
     }
 
     // Determine if this is a subscription or one-time purchase
-    const isOneTime = priceId === STRIPE_PRICES.ADDON || priceId === STRIPE_PRICES.DESKTOP_LIFETIME;
+    // All three plans (monthly, quarterly_pro, desktop_lifetime) are now monthly subscriptions
+    const isOneTime = priceId === STRIPE_PRICES.ADDON;
 
     // For subscriptions, don't allow if already subscribed
     if (!isOneTime) {
@@ -427,17 +421,19 @@ async function handleCheckoutComplete(session) {
       'Credit add-on purchase',
       session.id
     );
-  } else if (type === 'desktop_lifetime') {
-    // Desktop lifetime purchase - record for download access
+  } else if (type === 'subscription' || type === 'desktop_lifetime') {
+    // Immediately activate plan on checkout completion (don't wait for subscription.updated)
+    let planType = 'monthly';
+    if (priceId === STRIPE_PRICES.QUARTERLY_PRO) planType = 'quarterly_pro';
+    else if (priceId === STRIPE_PRICES.DESKTOP_LIFETIME) planType = 'quarterly_pro'; // Elite maps to quarterly_pro features
+
     await query(
-      `INSERT INTO ascend_credit_transactions
-       (user_id, amount, type, description, reference_id)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [userId, 0, 'desktop_lifetime', 'Desktop app lifetime purchase', session.id]
+      `UPDATE ascend_subscriptions SET plan_type = $1, status = 'active' WHERE user_id = $2`,
+      [planType, userId]
     );
-    logger.info({ userId, sessionId: session.id }, 'Desktop lifetime purchase recorded');
+    logger.info({ userId, planType, sessionId: session.id }, 'Plan activated on checkout');
   }
-  // Subscription credits are added via invoice.paid
+  // Subscription credits are also added via invoice.paid
 }
 
 /**

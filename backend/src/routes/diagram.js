@@ -2,6 +2,7 @@ import { Router } from 'express';
 import * as eraser from '../services/eraser.js';
 import * as pythonDiagrams from '../services/pythonDiagrams.js';
 import { AppError, ErrorCode } from '../middleware/errorHandler.js';
+import * as freeUsageService from '../services/freeUsageService.js';
 
 const router = Router();
 
@@ -11,6 +12,15 @@ const router = Router();
  */
 router.post('/eraser', async (req, res, next) => {
   try {
+    // Check free usage for diagram generation
+    const userId = req.user?.id;
+    if (userId) {
+      const canUse = await freeUsageService.canUseFeature(userId, 'design');
+      if (!canUse.allowed) {
+        return res.status(429).json({ error: canUse.reason || 'Free trial exhausted.', subscriptionRequired: true });
+      }
+    }
+
     const { description } = req.body;
 
     if (!description) {
@@ -55,6 +65,15 @@ router.post('/generate', async (req, res, next) => {
   req.setTimeout(120000);
   res.setTimeout(120000);
   try {
+    // Check free usage
+    const userId = req.user?.id;
+    if (userId) {
+      const canUse = await freeUsageService.canUseFeature(userId, 'design');
+      if (!canUse.allowed) {
+        return res.status(429).json({ error: canUse.reason || 'Free trial exhausted.', subscriptionRequired: true });
+      }
+    }
+
     const { question, cloudProvider, difficulty, category, format, detailLevel, direction } = req.body;
 
     if (!question) {
