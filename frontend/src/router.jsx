@@ -66,7 +66,7 @@ function AppRoutes() {
           </ProtectedRoute>
         } />
 
-        <Route path="/practice" element={<ProtectedRoute><PracticePage /></ProtectedRoute>} />
+        <Route path="/practice" element={<PracticePage />} />
 
         {/* Shell routes — AppShell provides unified sidebar */}
         <Route element={<AppShell />}>
