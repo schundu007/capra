@@ -316,10 +316,10 @@ export default function PracticePage() {
               {/* Cards grid */}
               <div className={`px-5 sm:px-6 pb-5 grid gap-3 ${section.cols}`}>
                 {section.items.map((item) => (
-                  <button
+                  <a
                     key={item.label}
-                    onClick={() => handleTopicClick(item)}
-                    className={`group text-left p-4 rounded-xl border border-gray-200 bg-white transition-all duration-200 ${section.bg} ${section.hoverBorder} hover:shadow-sm`}
+                    href={item.href || (item.slug ? `/problems/${item.slug}` : '/prepare')}
+                    className={`group text-left p-4 rounded-xl border border-gray-200 bg-white transition-all duration-200 ${section.bg} ${section.hoverBorder} hover:shadow-sm block`}
                   >
                     <div className="flex items-start gap-3">
                       <div
@@ -336,7 +336,7 @@ export default function PracticePage() {
                         </div>
                       </div>
                     </div>
-                  </button>
+                  </a>
                 ))}
               </div>
             </div>
