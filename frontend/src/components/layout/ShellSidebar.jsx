@@ -15,9 +15,7 @@ const PREPARE_ITEMS = [
   { id: 'behavioral', label: 'Behavioral', icon: 'users', href: '/prepare/behavioral' },
 ];
 
-const PRACTICE_ITEMS = [
-  { id: 'practice', label: 'Practice', icon: 'code', href: '/practice' },
-];
+const PRACTICE_ITEMS = [];
 
 /**
  * Unified sidebar — expanded (labels + icons) or collapsed (icons only).
