@@ -6,6 +6,7 @@ import LoadingScreen from './components/shared/LoadingScreen';
 
 // Redirect to landing page if not authenticated (waits for auth to initialize)
 // Saves the attempted URL so the user can be redirected back after login
+// Requires login — redirects to /login if not authenticated
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -13,12 +14,35 @@ function ProtectedRoute({ children }) {
   if (loading) return <LoadingScreen />;
 
   if (!user) {
-    // Save the attempted URL so after login the user returns here
     const attemptedUrl = location.pathname + location.search;
     if (attemptedUrl && attemptedUrl !== '/') {
       localStorage.setItem('ascend_auth_redirect', attemptedUrl);
     }
     return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
+
+// Requires paid subscription — redirects to /premium if logged in but not subscribed
+function PaidRoute({ children }) {
+  const { user, loading, subscription } = useAuth();
+  const location = useLocation();
+
+  if (loading) return <LoadingScreen />;
+
+  if (!user) {
+    const attemptedUrl = location.pathname + location.search;
+    if (attemptedUrl && attemptedUrl !== '/') {
+      localStorage.setItem('ascend_auth_redirect', attemptedUrl);
+    }
+    return <Navigate to="/login" replace />;
+  }
+
+  // Check subscription — allow if plan is not 'free' and status is 'active'
+  const isPaid = subscription && subscription.plan_type !== 'free' && subscription.status === 'active';
+  if (!isPaid) {
+    return <Navigate to="/premium" replace />;
   }
 
   return children;
@@ -70,12 +94,12 @@ function AppRoutes() {
 
         {/* Shell routes — AppShell provides unified sidebar */}
         <Route element={<AppShell />}>
-          <Route path="/prepare/*" element={<ProtectedRoute><DocsPage /></ProtectedRoute>} />
-          <Route path="/problems/:slug" element={<ProtectedRoute><ProblemPage /></ProtectedRoute>} />
-          <Route path="/app" element={<ProtectedRoute><MainApp /></ProtectedRoute>} />
-          <Route path="/app/coding" element={<ProtectedRoute><MainApp /></ProtectedRoute>} />
-          <Route path="/app/design" element={<ProtectedRoute><MainApp /></ProtectedRoute>} />
-          <Route path="/app/prep" element={<ProtectedRoute><MainApp /></ProtectedRoute>} />
+          <Route path="/prepare/*" element={<PaidRoute><DocsPage /></PaidRoute>} />
+          <Route path="/problems/:slug" element={<PaidRoute><ProblemPage /></PaidRoute>} />
+          <Route path="/app" element={<PaidRoute><MainApp /></PaidRoute>} />
+          <Route path="/app/coding" element={<PaidRoute><MainApp /></PaidRoute>} />
+          <Route path="/app/design" element={<PaidRoute><MainApp /></PaidRoute>} />
+          <Route path="/app/prep" element={<PaidRoute><MainApp /></PaidRoute>} />
         </Route>
 
         <Route path="*" element={<NotFound />} />
