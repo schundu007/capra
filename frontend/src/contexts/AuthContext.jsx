@@ -280,7 +280,7 @@ export function AuthProvider({ children }) {
           // Redirect to saved page or landing page
           const savedRedirect = localStorage.getItem('ascend_auth_redirect');
           localStorage.removeItem('ascend_auth_redirect');
-          window.location.replace(savedRedirect || '/prepare');
+          window.location.replace(savedRedirect || '/practice');
           return;
         }
 

@@ -464,7 +464,7 @@ export default function PracticePage() {
                 href="/login"
                 className="inline-flex items-center gap-2 px-8 py-3 text-gray-300 font-semibold text-sm rounded-lg border border-gray-600 hover:bg-gray-800 transition-colors landing-body"
               >
-                Start Free
+                Sign In
               </a>
             </div>
           </div>
