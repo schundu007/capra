@@ -18,7 +18,7 @@ function ProtectedRoute({ children }) {
     if (attemptedUrl && attemptedUrl !== '/') {
       localStorage.setItem('ascend_auth_redirect', attemptedUrl);
     }
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return children;

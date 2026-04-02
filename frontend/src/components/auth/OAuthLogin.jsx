@@ -24,8 +24,8 @@ export default function OAuthLogin() {
 
   const navLinks = [
     { label: 'Apply', href: 'https://jobs.cariara.com' },
-    { label: 'Prepare', href: user ? '/prepare' : '/login' },
-    { label: 'Practice', href: user ? '/practice' : '/login' },
+    { label: 'Prepare', href: '/prepare' },
+    { label: 'Practice', href: '/practice' },
     { label: 'Attend', href: 'https://lumora.cariara.com/app' },
     { label: 'Pricing', href: '/premium' },
   ];
