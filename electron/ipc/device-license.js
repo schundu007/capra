@@ -8,7 +8,7 @@ import fetch from 'node-fetch';
 import * as deviceLicense from '../store/device-license.js';
 
 // API URL for license verification (Railway backend)
-const API_BASE_URL = process.env.VITE_API_URL || 'https://capra-backend.up.railway.app';
+const API_BASE_URL = process.env.VITE_API_URL || 'https://caprabe.cariara.com';
 
 /**
  * Setup device license IPC handlers

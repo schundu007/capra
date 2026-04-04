@@ -4,8 +4,8 @@ import { getApiUrl } from '../hooks/useElectron.js';
 const AuthContext = createContext(null);
 
 const API_URL = getApiUrl();
-// Google OAuth client (shared with Lumora)
-const GOOGLE_CLIENT_ID = '935268333296-g5mfoojchp9r5i6dolh7n7vtgursrf52.apps.googleusercontent.com';
+// Google OAuth client
+const GOOGLE_CLIENT_ID = '613343492889-isvjtllv9m8b02qbl4v8epqtf6dfegh3.apps.googleusercontent.com';
 const CARIARA_OAUTH_URL = 'https://cariara-backend.up.railway.app';
 const STORAGE_KEY = 'ascend_auth';
 

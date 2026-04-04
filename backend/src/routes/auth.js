@@ -23,7 +23,7 @@ const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || '';
 const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI
   || (process.env.NODE_ENV === 'production'
-    ? 'https://capra-backend.up.railway.app/api/auth/google/callback'
+    ? 'https://caprabe.cariara.com/api/auth/google/callback'
     : 'http://localhost:3001/api/auth/google/callback');
 const FRONTEND_URL = process.env.FRONTEND_URL
   || (process.env.NODE_ENV === 'production'
