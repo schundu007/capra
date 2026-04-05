@@ -4084,6 +4084,192 @@ code, pre, kbd {
   margin: 2px 4px 2px 0;
 }
 
+/* ═══ CODING SECTION — Code-editor aesthetic ═══ */
+
+/* Dark editor background for coding content */
+.prep-coding-bg {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #e2e8f0;
+  border: none;
+}
+
+/* Coding summary — terminal-style info block */
+.prep-coding-summary {
+  padding: 16px 20px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-left: 3px solid #10b981;
+  border-radius: 0 10px 10px 0;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: #94a3b8;
+  margin-bottom: 24px;
+}
+
+.prep-coding-summary strong {
+  color: #e2e8f0;
+}
+
+/* Coding question card */
+.prep-coding-question {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 24px;
+  transition: border-color 0.2s ease;
+}
+
+.prep-coding-question:hover {
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+/* Question number tab */
+.prep-coding-q-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Problem statement - code comment style */
+.prep-coding-problem {
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: #cbd5e1;
+  font-family: 'Source Code Pro', 'SF Mono', 'Menlo', monospace;
+}
+
+/* Example I/O blocks */
+.prep-coding-example {
+  padding: 10px 14px;
+  background: rgba(14, 165, 233, 0.06);
+  border: 1px solid rgba(14, 165, 233, 0.15);
+  border-radius: 8px;
+  font-family: 'Source Code Pro', 'SF Mono', 'Menlo', monospace;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  margin-bottom: 6px;
+}
+
+.prep-coding-example .label-input { color: #38bdf8; }
+.prep-coding-example .label-output { color: #34d399; }
+.prep-coding-example .label-explain { color: #64748b; }
+
+/* Approach card */
+.prep-coding-approach {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.prep-coding-approach-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(16, 185, 129, 0.06);
+  border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+}
+
+.prep-coding-approach-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #34d399;
+}
+
+.prep-coding-complexity {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-family: 'Source Code Pro', 'SF Mono', monospace;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
+  margin-left: 6px;
+}
+
+.prep-coding-approach-body {
+  padding: 16px;
+}
+
+/* Code block inside coding section — enhanced */
+.prep-coding-approach-body pre {
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Line-by-line explanation row */
+.prep-coding-line-explain {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.prep-coding-line-explain:last-child {
+  border-bottom: none;
+}
+
+.prep-coding-line-explain code {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  background: rgba(14, 165, 233, 0.1);
+  border: 1px solid rgba(14, 165, 233, 0.2);
+  border-radius: 4px;
+  font-size: 0.6875rem;
+  color: #38bdf8;
+  font-family: 'Source Code Pro', 'SF Mono', monospace;
+  white-space: nowrap;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.prep-coding-line-explain p {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+/* Edge case in dark mode */
+.prep-coding-edge-cases {
+  padding: 14px 16px;
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: 10px;
+}
+
+/* Coding section difficulty badges on dark */
+.prep-coding-question .prep-difficulty-badge.easy {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+.prep-coding-question .prep-difficulty-badge.medium {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+.prep-coding-question .prep-difficulty-badge.hard {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
 /* ═══ MOBILE TOUCH TARGETS ═══ */
 @media (max-width: 768px) {
   /* Prevent iOS zoom on input focus */

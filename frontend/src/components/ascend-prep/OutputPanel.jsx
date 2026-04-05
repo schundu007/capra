@@ -391,13 +391,14 @@ export default function OutputPanel({ section, content, streamingContent, isGene
   })();
 
   const displayContent = isGenerating ? streamingContent : parsedContent;
+  const isCoding = section?.id === 'coding';
 
   return (
-    <div className="h-full flex flex-col overflow-hidden landing-root" style={{ background: colors.bg }}>
+    <div className="h-full flex flex-col overflow-hidden landing-root" style={{ background: isCoding ? '#0f172a' : colors.bg }}>
       {/* Minimal Header */}
-      <div className="px-5 py-2.5 flex items-center justify-between flex-shrink-0" style={{ borderBottom: `1px solid ${colors.border}` }}>
+      <div className="px-5 py-2.5 flex items-center justify-between flex-shrink-0" style={{ borderBottom: `1px solid ${isCoding ? 'rgba(255,255,255,0.08)' : colors.border}` }}>
         <div className="flex items-center gap-3">
-          <span className="text-sm font-semibold" style={{ color: colors.text }}>{section?.name}</span>
+          <span className="text-sm font-semibold" style={{ color: isCoding ? '#e2e8f0' : colors.text }}>{section?.name}</span>
           {isGenerating && (
             <div className="flex items-center gap-2" style={{ color: colors.accent }}>
               <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -407,10 +408,10 @@ export default function OutputPanel({ section, content, streamingContent, isGene
         </div>
         {content && !isGenerating && (
           <div className="flex items-center gap-3">
-            <button onClick={handleCopy} className="text-xs px-2 py-1 rounded hover:bg-black/5" style={{ color: colors.textLight }}>
+            <button onClick={handleCopy} className={`text-xs px-2 py-1 rounded ${isCoding ? 'hover:bg-white/5' : 'hover:bg-black/5'}`} style={{ color: isCoding ? '#64748b' : colors.textLight }}>
               {copied ? 'Copied!' : 'Copy'}
             </button>
-            <button onClick={onRegenerate} className="text-xs px-2 py-1 rounded hover:bg-black/5" style={{ color: colors.accent }}>
+            <button onClick={onRegenerate} className={`text-xs px-2 py-1 rounded ${isCoding ? 'hover:bg-white/5' : 'hover:bg-black/5'}`} style={{ color: colors.accent }}>
               Regenerate
             </button>
           </div>
@@ -436,9 +437,9 @@ export default function OutputPanel({ section, content, streamingContent, isGene
             </div>
           </div>
         ) : (
-          <div className="rounded-lg p-5" style={{ background: colors.paper, border: `1px solid ${colors.border}` }}>
+          <div className={`rounded-lg p-5 ${isCoding ? 'prep-coding-bg' : ''}`} style={isCoding ? {} : { background: colors.paper, border: `1px solid ${colors.border}` }}>
             {typeof displayContent === 'string' ? (
-              <div className="text-sm leading-relaxed" style={{ color: colors.text }}>
+              <div className="text-sm leading-relaxed" style={{ color: isCoding ? '#e2e8f0' : colors.text }}>
                 {/* Check if streaming content looks like JSON - show cleaner loading state */}
                 {isGenerating && displayContent.trim().startsWith('{') ? (
                   <div className="flex items-center gap-3 py-8">
@@ -453,10 +454,14 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                 )}
               </div>
             ) : displayContent && typeof displayContent === 'object' ? (
-              <div className="space-y-4 text-sm" style={{ color: colors.text, lineHeight: '1.6' }}>
-                {/* Summary - Book chapter intro */}
+              <div className="space-y-4 text-sm" style={{ color: isCoding ? '#e2e8f0' : colors.text, lineHeight: '1.6' }}>
+                {/* Summary */}
                 {displayContent.summary?.trim() && (
-                  <div className="prep-chapter-intro">{displayContent.summary?.trim()}</div>
+                  isCoding ? (
+                    <div className="prep-coding-summary">{displayContent.summary?.trim()}</div>
+                  ) : (
+                    <div className="prep-chapter-intro">{displayContent.summary?.trim()}</div>
+                  )
                 )}
 
                 {/* Pitch Sections - Modern Numbered Paragraphs */}
@@ -548,11 +553,15 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                 {safeArray(displayContent.questions).length > 0 && (
                   <div className="space-y-5">
                     {safeArray(displayContent.questions).filter(q => q && (q.question?.trim?.() || q.title?.trim?.())).map((q, i) => (
-                      <div key={i} className="prep-question-item">
+                      <div key={i} className={isCoding ? 'prep-coding-question' : 'prep-question-item'}>
                         {/* Question/Title with number badge */}
                         <div className="flex items-start gap-3 mb-2">
-                          <span className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: '#eff6ff', color: '#1e40af' }}>{i + 1}</span>
-                          <p className="prep-question-text flex-1" style={{ marginBottom: 0 }}>
+                          {isCoding ? (
+                            <span className="prep-coding-q-number">{i + 1}</span>
+                          ) : (
+                            <span className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: '#eff6ff', color: '#1e40af' }}>{i + 1}</span>
+                          )}
+                          <p className={isCoding ? 'flex-1 text-base font-semibold' : 'prep-question-text flex-1'} style={isCoding ? { color: '#f1f5f9', marginBottom: 0 } : { marginBottom: 0 }}>
                             {(q.title || q.question)?.trim()}
                           </p>
                         </div>
@@ -563,24 +572,26 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                             {q.difficulty && (
                               <span className={`prep-difficulty-badge ${q.difficulty.toLowerCase() === 'hard' ? 'hard' : q.difficulty.toLowerCase() === 'medium' ? 'medium' : 'easy'}`}>{q.difficulty}</span>
                             )}
-                            {q.frequency && <span className="text-xs" style={{ color: colors.textMuted }}>{q.frequency}</span>}
+                            {q.frequency && <span className="text-xs" style={{ color: isCoding ? '#64748b' : colors.textMuted }}>{q.frequency}</span>}
                           </div>
                         )}
 
                         {/* Problem Statement */}
                         {q.problemStatement && (
-                          <p className="mb-3 p-2 rounded bg-gray-50" style={{ color: colors.text }}>{q.problemStatement}</p>
+                          <div className={`mb-3 ml-10 ${isCoding ? 'prep-coding-problem' : 'p-2 rounded bg-gray-50'}`} style={isCoding ? {} : { color: colors.text }}>
+                            {q.problemStatement}
+                          </div>
                         )}
 
                         {/* Examples */}
                         {safeArray(q.examples).length > 0 && (
-                          <div className="mb-3">
-                            <p className="font-semibold text-xs uppercase tracking-wide mb-1" style={{ color: colors.textLight }}>Examples</p>
+                          <div className="mb-3 ml-10">
+                            <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: isCoding ? '#475569' : colors.textLight }}>Examples</p>
                             {safeArray(q.examples).filter(ex => ex && typeof ex === 'object').map((ex, j) => (
-                              <div key={j} className="text-xs font-mono p-2 rounded mb-1" style={{ background: '#f1f5f9' }}>
-                                <span style={{ color: '#0369a1' }}>Input:</span> {ex?.input || ''}<br/>
-                                <span style={{ color: '#047857' }}>Output:</span> {ex?.output || ''}
-                                {ex?.explanation && <><br/><span style={{ color: colors.textMuted }}>→ {ex.explanation}</span></>}
+                              <div key={j} className={isCoding ? 'prep-coding-example' : 'text-xs font-mono p-2 rounded mb-1'} style={isCoding ? {} : { background: '#f1f5f9' }}>
+                                <span className={isCoding ? 'label-input' : ''} style={isCoding ? {} : { color: '#0369a1' }}>Input:</span> {ex?.input || ''}<br/>
+                                <span className={isCoding ? 'label-output' : ''} style={isCoding ? {} : { color: '#047857' }}>Output:</span> {ex?.output || ''}
+                                {ex?.explanation && <><br/><span className={isCoding ? 'label-explain' : ''} style={isCoding ? {} : { color: colors.textMuted }}>→ {ex.explanation}</span></>}
                               </div>
                             ))}
                           </div>
@@ -589,42 +600,81 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                         {/* Approaches (for coding) */}
                         {safeArray(q.approaches).length > 0 && (
                           <div className="space-y-4 ml-10">
-                            <div className="prep-section-heading" style={{ marginTop: '12px' }}>
-                              <span className="prep-section-heading-text" style={{ color: '#047857' }}>Solutions</span>
-                              <div className="prep-section-heading-line" />
-                            </div>
+                            {isCoding ? (
+                              <div className="flex items-center gap-2 mt-3 mb-2">
+                                <div className="h-px flex-1" style={{ background: 'rgba(16,185,129,0.2)' }} />
+                                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: '#10b981' }}>Solutions</span>
+                                <div className="h-px flex-1" style={{ background: 'rgba(16,185,129,0.2)' }} />
+                              </div>
+                            ) : (
+                              <div className="prep-section-heading" style={{ marginTop: '12px' }}>
+                                <span className="prep-section-heading-text" style={{ color: '#047857' }}>Solutions</span>
+                                <div className="prep-section-heading-line" />
+                              </div>
+                            )}
                             {safeArray(q.approaches).filter(approach => approach && typeof approach === 'object').map((approach, j) => (
-                              <div key={j} className="rounded-xl p-4" style={{ background: '#fafbfc', border: '1px solid #e5e7eb' }}>
-                                <div className="flex items-center justify-between mb-2">
-                                  <p className="font-semibold text-sm" style={{ color: '#047857' }}>{approach.name}</p>
-                                  <div className="flex gap-2">
-                                    {approach.timeComplexity && <span className="prep-pill" style={{ background: '#ecfdf5', color: '#047857' }}>Time: {approach.timeComplexity}</span>}
-                                    {approach.spaceComplexity && <span className="prep-pill" style={{ background: '#eff6ff', color: '#1e40af' }}>Space: {approach.spaceComplexity}</span>}
-                                  </div>
-                                </div>
-                                {approach.description && <p className="mb-3 text-sm leading-relaxed" style={{ color: colors.text }}>{approach.description}</p>}
-
-                                {/* Code */}
-                                {approach.code && (
-                                  <pre className="text-xs p-3 rounded-lg overflow-x-auto mb-3" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: "'Source Code Pro', Monaco, monospace" }}>
-                                    {approach.code.replace(/\\n/g, '\n')}
-                                  </pre>
-                                )}
-
-                                {/* Line by Line - tree style */}
-                                {safeArray(approach.lineByLine).length > 0 && (
-                                  <div className="mt-3 pt-3" style={{ borderTop: `1px dashed ${colors.border}` }}>
-                                    <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: colors.accent }}>Line-by-Line Explanation</p>
-                                    <div className="prep-tree">
-                                      {safeArray(approach.lineByLine).filter(line => line && typeof line === 'object').map((line, k) => (
-                                        <div key={k} className="prep-tree-item" style={{ paddingTop: '8px', paddingBottom: '8px' }}>
-                                          <div className="prep-tree-dot" style={{ width: '6px', height: '6px' }} />
-                                          <code className="font-mono px-1.5 py-0.5 rounded text-xs" style={{ background: '#e2e8f0', color: '#1e40af' }}>{line?.line || ''}</code>
-                                          <p className="text-xs mt-1" style={{ color: colors.textMuted }}>{line?.explanation || ''}</p>
-                                        </div>
-                                      ))}
+                              <div key={j} className={isCoding ? 'prep-coding-approach' : 'rounded-xl p-4'} style={isCoding ? {} : { background: '#fafbfc', border: '1px solid #e5e7eb' }}>
+                                {isCoding ? (
+                                  <>
+                                    <div className="prep-coding-approach-header">
+                                      <span className="prep-coding-approach-name">{approach.name}</span>
+                                      <div className="flex gap-1">
+                                        {approach.timeComplexity && <span className="prep-coding-complexity">T: {approach.timeComplexity}</span>}
+                                        {approach.spaceComplexity && <span className="prep-coding-complexity">S: {approach.spaceComplexity}</span>}
+                                      </div>
                                     </div>
-                                  </div>
+                                    <div className="prep-coding-approach-body">
+                                      {approach.description && <p className="mb-3 text-sm leading-relaxed" style={{ color: '#94a3b8' }}>{approach.description}</p>}
+                                      {approach.code && (
+                                        <pre className="text-xs p-4 rounded-lg overflow-x-auto mb-3" style={{ background: '#020617', color: '#e2e8f0', fontFamily: "'Source Code Pro', Monaco, monospace", border: '1px solid rgba(255,255,255,0.06)' }}>
+                                          {approach.code.replace(/\\n/g, '\n')}
+                                        </pre>
+                                      )}
+                                      {safeArray(approach.lineByLine).length > 0 && (
+                                        <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                                          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#475569' }}>Line-by-Line</p>
+                                          <div>
+                                            {safeArray(approach.lineByLine).filter(line => line && typeof line === 'object').map((line, k) => (
+                                              <div key={k} className="prep-coding-line-explain">
+                                                <code>{line?.line || ''}</code>
+                                                <p>{line?.explanation || ''}</p>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div className="flex items-center justify-between mb-2">
+                                      <p className="font-semibold text-sm" style={{ color: '#047857' }}>{approach.name}</p>
+                                      <div className="flex gap-2">
+                                        {approach.timeComplexity && <span className="prep-pill" style={{ background: '#ecfdf5', color: '#047857' }}>Time: {approach.timeComplexity}</span>}
+                                        {approach.spaceComplexity && <span className="prep-pill" style={{ background: '#eff6ff', color: '#1e40af' }}>Space: {approach.spaceComplexity}</span>}
+                                      </div>
+                                    </div>
+                                    {approach.description && <p className="mb-3 text-sm leading-relaxed" style={{ color: colors.text }}>{approach.description}</p>}
+                                    {approach.code && (
+                                      <pre className="text-xs p-3 rounded-lg overflow-x-auto mb-3" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: "'Source Code Pro', Monaco, monospace" }}>
+                                        {approach.code.replace(/\\n/g, '\n')}
+                                      </pre>
+                                    )}
+                                    {safeArray(approach.lineByLine).length > 0 && (
+                                      <div className="mt-3 pt-3" style={{ borderTop: `1px dashed ${colors.border}` }}>
+                                        <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: colors.accent }}>Line-by-Line Explanation</p>
+                                        <div className="prep-tree">
+                                          {safeArray(approach.lineByLine).filter(line => line && typeof line === 'object').map((line, k) => (
+                                            <div key={k} className="prep-tree-item" style={{ paddingTop: '8px', paddingBottom: '8px' }}>
+                                              <div className="prep-tree-dot" style={{ width: '6px', height: '6px' }} />
+                                              <code className="font-mono px-1.5 py-0.5 rounded text-xs" style={{ background: '#e2e8f0', color: '#1e40af' }}>{line?.line || ''}</code>
+                                              <p className="text-xs mt-1" style={{ color: colors.textMuted }}>{line?.explanation || ''}</p>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </>
                                 )}
                               </div>
                             ))}
@@ -633,15 +683,15 @@ export default function OutputPanel({ section, content, streamingContent, isGene
 
                         {/* Edge Cases */}
                         {safeArray(q.edgeCases).length > 0 && (
-                          <div className="mt-4 ml-10 p-4 rounded-xl" style={{ background: 'linear-gradient(135deg, #fff5f5 0%, #fef2f2 100%)', border: '1px solid #fecaca' }}>
+                          <div className={`mt-4 ml-10 p-4 rounded-xl ${isCoding ? 'prep-coding-edge-cases' : ''}`} style={isCoding ? {} : { background: 'linear-gradient(135deg, #fff5f5 0%, #fef2f2 100%)', border: '1px solid #fecaca' }}>
                             <div className="flex items-center gap-2 mb-3">
-                              <span className="w-5 h-5 rounded-md flex items-center justify-center text-xs" style={{ background: '#fee2e2', color: '#b91c1c' }}>!</span>
-                              <p className="font-semibold text-xs uppercase tracking-wide" style={{ color: '#B91C1C' }}>Edge Cases</p>
+                              <span className="w-5 h-5 rounded-md flex items-center justify-center text-xs" style={isCoding ? { background: 'rgba(239,68,68,0.15)', color: '#f87171' } : { background: '#fee2e2', color: '#b91c1c' }}>!</span>
+                              <p className="font-semibold text-xs uppercase tracking-wide" style={{ color: isCoding ? '#f87171' : '#B91C1C' }}>Edge Cases</p>
                             </div>
                             {safeArray(q.edgeCases).filter(edge => edge && typeof edge === 'object').map((edge, j) => (
                               <div key={j} className="mb-3 last:mb-0">
-                                <p className="text-sm"><span className="font-semibold" style={{ color: '#b91c1c' }}>{edge?.case || ''}:</span> <span style={{ color: '#374151' }}>{edge?.explanation || ''}</span></p>
-                                <div className="font-mono text-xs mt-1 px-2 py-1 rounded" style={{ background: '#fff1f2', color: '#6B7280' }}>
+                                <p className="text-sm"><span className="font-semibold" style={{ color: isCoding ? '#f87171' : '#b91c1c' }}>{edge?.case || ''}:</span> <span style={{ color: isCoding ? '#94a3b8' : '#374151' }}>{edge?.explanation || ''}</span></p>
+                                <div className="font-mono text-xs mt-1 px-2 py-1 rounded" style={isCoding ? { background: 'rgba(239,68,68,0.06)', color: '#64748b' } : { background: '#fff1f2', color: '#6B7280' }}>
                                   Input: {edge?.input || ''} &rarr; Output: {edge?.expectedOutput || ''}
                                 </div>
                               </div>
@@ -652,11 +702,11 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                         {/* Common Mistakes */}
                         {safeArray(q.commonMistakes).length > 0 && (
                           <div className="mt-3 ml-10">
-                            <p className="font-semibold text-xs uppercase tracking-wide mb-1" style={{ color: '#DC2626' }}>Common Mistakes to Avoid</p>
+                            <p className="font-semibold text-xs uppercase tracking-wide mb-1" style={{ color: isCoding ? '#f87171' : '#DC2626' }}>Common Mistakes to Avoid</p>
                             {safeArray(q.commonMistakes).filter(m => m != null).map((m, j) => (
                               <div key={j} className="flex items-start gap-2 mb-1">
-                                <span className="flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-xs mt-0.5" style={{ background: '#fee2e2', color: '#b91c1c', fontSize: '9px' }}>!</span>
-                                <span className="text-xs leading-relaxed" style={{ color: colors.textMuted }}>{String(m)}</span>
+                                <span className="flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-xs mt-0.5" style={isCoding ? { background: 'rgba(239,68,68,0.15)', color: '#f87171', fontSize: '9px' } : { background: '#fee2e2', color: '#b91c1c', fontSize: '9px' }}>!</span>
+                                <span className="text-xs leading-relaxed" style={{ color: isCoding ? '#94a3b8' : colors.textMuted }}>{String(m)}</span>
                               </div>
                             ))}
                           </div>
@@ -664,12 +714,12 @@ export default function OutputPanel({ section, content, streamingContent, isGene
 
                         {/* Follow-up Questions */}
                         {safeArray(q.followUpQuestions).length > 0 && (
-                          <div className="mt-3 ml-10 pt-3" style={{ borderTop: `1px dashed ${colors.border}` }}>
+                          <div className="mt-3 ml-10 pt-3" style={{ borderTop: `1px dashed ${isCoding ? 'rgba(255,255,255,0.06)' : colors.border}` }}>
                             <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: colors.accent }}>Follow-up Questions</p>
                             {safeArray(q.followUpQuestions).filter(f => f != null).map((f, j) => (
                               <div key={j} className="flex items-start gap-2 mb-1.5">
                                 <span className="text-xs mt-0.5" style={{ color: colors.accent }}>&#8627;</span>
-                                <span className="text-xs leading-relaxed" style={{ color: colors.textMuted }}>{String(f)}</span>
+                                <span className="text-xs leading-relaxed" style={{ color: isCoding ? '#94a3b8' : colors.textMuted }}>{String(f)}</span>
                               </div>
                             ))}
                           </div>
@@ -800,15 +850,15 @@ export default function OutputPanel({ section, content, streamingContent, isGene
 
                         {/* Simple answer/approach for basic questions */}
                         {(q.answer || q.suggestedAnswer) && !q.approaches && (
-                          <div className="mt-2" style={{ color: colors.text }}>
+                          <div className="mt-2 ml-10" style={{ color: isCoding ? '#cbd5e1' : colors.text }}>
                             {renderMarkdown((q.answer || q.suggestedAnswer)?.trim())}
                           </div>
                         )}
                         {q.approach && !q.approaches && (
-                          <p className="mt-1"><span className="font-semibold" style={{ color: colors.accent }}>Approach: </span>{q.approach?.trim()}</p>
+                          <p className="mt-1 ml-10"><span className="font-semibold" style={{ color: colors.accent }}>Approach: </span><span style={{ color: isCoding ? '#94a3b8' : undefined }}>{q.approach?.trim()}</span></p>
                         )}
                         {q.keyConsiderations?.length > 0 && (
-                          <p className="mt-1"><span className="font-semibold" style={{ color: colors.accent }}>Consider: </span>{q.keyConsiderations.join(' | ')}</p>
+                          <p className="mt-1 ml-10"><span className="font-semibold" style={{ color: colors.accent }}>Consider: </span><span style={{ color: isCoding ? '#94a3b8' : undefined }}>{q.keyConsiderations.join(' | ')}</span></p>
                         )}
 
                         {/* Behavioral Question Context */}
