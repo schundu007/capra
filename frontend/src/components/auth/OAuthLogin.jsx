@@ -134,9 +134,9 @@ export default function OAuthLogin() {
       {/* Journey Timeline — vertical line with 4 dots */}
       <section className="px-6 md:px-12 py-10">
         <div className="max-w-3xl mx-auto">
-          <div className="journey-timeline relative pl-8 md:pl-12">
-            {/* Vertical connecting line */}
-            <div className="journey-timeline-line absolute left-3 md:left-5 top-0 bottom-0 w-0.5" />
+          <div className="journey-timeline relative" style={{ paddingLeft: '48px' }}>
+            {/* Vertical connecting line — thick and visible */}
+            <div className="journey-timeline-line absolute top-2 bottom-2" style={{ left: '15px', width: '3px' }} />
 
             {[
               { label: 'Apply', href: 'https://jobs.cariara.com', icon: 'briefcase', desc: 'Discover roles that match your skills. Browse curated positions and submit your application.', color: '#059669', bgLight: '#ecfdf5', borderColor: '#6ee7b7', glowColor: '16,185,129' },
@@ -144,10 +144,10 @@ export default function OAuthLogin() {
               { label: 'Practice', href: '/practice', icon: 'code', desc: 'Solve coding challenges, system design, and behavioral questions. Track your progress across topics.', color: '#7c3aed', bgLight: '#f5f3ff', borderColor: '#c4b5fd', glowColor: '124,58,237' },
               { label: 'Attend', href: 'https://lumora.cariara.com/app', icon: 'microphone', desc: 'Join your interview with real-time AI assistance. Stealth mode keeps it invisible to screen share.', color: '#d97706', bgLight: '#fffbeb', borderColor: '#fcd34d', glowColor: '217,119,6' },
             ].map((item, i) => (
-              <a key={item.label} href={item.href} className={`journey-timeline-step journey-timeline-step-${i} group relative flex items-start gap-5 mb-2 last:mb-0`} style={{ animationDelay: `${i * 0.15}s` }}>
-                {/* Dot on the line */}
-                <div className="journey-timeline-dot absolute flex items-center justify-center z-10" style={{ left: '-20px', top: '24px', '--dot-color': item.color, '--dot-glow': item.glowColor, animationDelay: `${i * 0.15 + 0.3}s` }}>
-                  <div className="w-3.5 h-3.5 rounded-full border-[3px] border-white" style={{ background: item.color, boxShadow: `0 0 0 2px ${item.color}, 0 2px 8px rgba(${item.glowColor},0.4)` }} />
+              <a key={item.label} href={item.href} className={`journey-timeline-step journey-timeline-step-${i} group relative flex items-start gap-5 mb-6 last:mb-0`} style={{ animationDelay: `${i * 0.15}s` }}>
+                {/* Dot on the line — large and prominent */}
+                <div className="journey-timeline-dot absolute flex items-center justify-center z-10" style={{ left: '-39px', top: '20px', animationDelay: `${i * 0.15 + 0.3}s` }}>
+                  <div className="rounded-full" style={{ width: '18px', height: '18px', background: item.color, border: '3px solid white', boxShadow: `0 0 0 3px ${item.color}, 0 3px 12px rgba(${item.glowColor},0.5)` }} />
                 </div>
 
                 {/* Content card */}
@@ -357,9 +357,9 @@ export default function OAuthLogin() {
           transition: transform 0.3s ease;
         }
 
-        /* Responsive dot positioning */
-        @media (min-width: 768px) {
-          .journey-timeline-dot { left: -28px !important; }
+        /* Dot hover scale */
+        .journey-timeline-step:hover .journey-timeline-dot > div {
+          transform: scale(1.3);
         }
       `}</style>
     </div>
