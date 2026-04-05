@@ -3745,6 +3745,345 @@ code, pre, kbd {
   color: #111827;
 }
 
+/* ═══ BOOK-STYLE PREP CONTENT ═══ */
+
+/* Chapter intro - summary block */
+.prep-chapter-intro {
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 50%, #f0f9ff 100%);
+  border-left: 4px solid #10b981;
+  border-radius: 0 12px 12px 0;
+  margin-bottom: 24px;
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: #374151;
+}
+
+/* Section heading - like book chapter sections */
+.prep-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 28px 0 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.prep-section-heading-text {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6b7280;
+}
+
+.prep-section-heading-line {
+  flex: 1;
+  height: 0;
+}
+
+/* Technology card - book chapter style */
+.prep-tech-chapter {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.prep-tech-chapter:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.prep-tech-chapter-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.prep-tech-chapter-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  flex-shrink: 0;
+}
+
+.prep-tech-chapter-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.01em;
+}
+
+.prep-tech-chapter-body {
+  padding: 24px;
+}
+
+.prep-tech-chapter-desc {
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: #6b7280;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px dashed #e5e7eb;
+}
+
+/* Tree structure for concepts */
+.prep-tree {
+  position: relative;
+  padding-left: 0;
+}
+
+.prep-tree-item {
+  position: relative;
+  padding: 14px 16px 14px 40px;
+  margin-bottom: 2px;
+  border-radius: 10px;
+  background: #fafbfc;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.prep-tree-item:hover {
+  background: #f0fdf4;
+  border-color: rgba(16, 185, 129, 0.15);
+}
+
+/* Tree connector lines */
+.prep-tree-item::before {
+  content: '';
+  position: absolute;
+  left: 16px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, #d1fae5 0%, #a7f3d0 100%);
+}
+
+.prep-tree-item:first-child::before {
+  top: 50%;
+}
+
+.prep-tree-item:last-child::before {
+  bottom: 50%;
+}
+
+.prep-tree-item::after {
+  content: '';
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  width: 14px;
+  height: 2px;
+  background: #a7f3d0;
+}
+
+/* Tree node dot */
+.prep-tree-dot {
+  position: absolute;
+  left: 28px;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 1px #10b981;
+  z-index: 1;
+}
+
+.prep-tree-item-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.prep-tree-item-desc {
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  color: #6b7280;
+}
+
+/* Best practices - checklist style */
+.prep-checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 4px;
+  transition: background 0.15s ease;
+}
+
+.prep-checklist-item:hover {
+  background: #f0fdf4;
+}
+
+.prep-checklist-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.prep-checklist-icon.check {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.prep-checklist-icon.warn {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Anti-pattern card */
+.prep-antipattern {
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #fff5f5 0%, #fef2f2 100%);
+  border: 1px solid #fecaca;
+  margin-bottom: 8px;
+}
+
+.prep-antipattern-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #b91c1c;
+  margin-bottom: 6px;
+}
+
+.prep-antipattern-row {
+  display: flex;
+  gap: 6px;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  margin-bottom: 2px;
+}
+
+.prep-antipattern-label {
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* Markdown rendering improvements */
+.prep-markdown h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 24px 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.prep-markdown h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e40af;
+  margin: 20px 0 8px 0;
+}
+
+.prep-markdown h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 16px 0 6px 0;
+}
+
+.prep-markdown p {
+  font-size: 0.875rem;
+  line-height: 1.75;
+  color: var(--content-text);
+  margin-bottom: 8px;
+}
+
+.prep-markdown ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 8px 0;
+}
+
+.prep-markdown ul li {
+  position: relative;
+  padding: 4px 0 4px 20px;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--content-text);
+}
+
+.prep-markdown ul li::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 12px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.prep-markdown ol {
+  list-style: none;
+  padding-left: 0;
+  margin: 8px 0;
+  counter-reset: prep-ol-counter;
+}
+
+.prep-markdown ol li {
+  position: relative;
+  padding: 4px 0 4px 28px;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--content-text);
+  counter-increment: prep-ol-counter;
+}
+
+.prep-markdown ol li::before {
+  content: counter(prep-ol-counter);
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #eff6ff;
+  color: #1e40af;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Performance topic pills */
+.prep-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 20px;
+  background: #f1f5f9;
+  color: #475569;
+  margin: 2px 4px 2px 0;
+}
+
 /* ═══ MOBILE TOUCH TARGETS ═══ */
 @media (max-width: 768px) {
   /* Prevent iOS zoom on input focus */

@@ -41,24 +41,37 @@ function renderMarkdown(text) {
       continue;
     }
 
-    // Headers
+    // Headers - book-style hierarchy
     if (trimmed.startsWith('### ')) {
-      elements.push(<h4 key={`h4-${i}`} className="font-semibold text-sm mt-3 mb-1" style={{ color: '#1e40af' }}>{trimmed.slice(4)}</h4>);
+      elements.push(
+        <h4 key={`h4-${i}`} className="text-sm font-semibold mt-4 mb-2" style={{ color: '#374151' }}>
+          {processInlineJsx(trimmed.slice(4))}
+        </h4>
+      );
       i++;
       continue;
     }
     if (trimmed.startsWith('## ')) {
-      elements.push(<h3 key={`h3-${i}`} className="font-semibold text-base mt-3 mb-1" style={{ color: '#1e40af' }}>{trimmed.slice(3)}</h3>);
+      elements.push(
+        <h3 key={`h3-${i}`} className="text-base font-semibold mt-5 mb-2" style={{ color: '#1e40af' }}>
+          {processInlineJsx(trimmed.slice(3))}
+        </h3>
+      );
       i++;
       continue;
     }
     if (trimmed.startsWith('# ')) {
-      elements.push(<h2 key={`h2-${i}`} className="font-bold text-lg mt-3 mb-2" style={{ color: '#1e40af' }}>{trimmed.slice(2)}</h2>);
+      elements.push(
+        <div key={`h2-${i}`} className="prep-section-heading mt-6 mb-3">
+          <span className="text-lg font-bold" style={{ color: '#111827' }}>{processInlineJsx(trimmed.slice(2))}</span>
+          <div className="prep-section-heading-line" />
+        </div>
+      );
       i++;
       continue;
     }
 
-    // Bullet list
+    // Bullet list - tree-style
     if (trimmed.match(/^[-*•]\s+/)) {
       const listItems = [];
       while (i < lines.length && lines[i].trim().match(/^[-*•]\s+/)) {
@@ -66,9 +79,12 @@ function renderMarkdown(text) {
         i++;
       }
       elements.push(
-        <ul key={`ul-${elements.length}`} className="list-disc list-inside grid grid-cols-1 md:grid-cols-2 gap-1 my-2 ml-2">
+        <ul key={`ul-${elements.length}`} className="prep-markdown my-2">
           {listItems.map((item, j) => (
-            <li key={j} className="text-sm" style={{ color: 'var(--content-text)' }} dangerouslySetInnerHTML={{ __html: processInline(item) }} />
+            <li key={j} className="relative pl-5 py-1 text-sm" style={{ color: 'var(--content-text)' }}>
+              <span className="absolute left-1 top-[11px] w-1.5 h-1.5 rounded-full" style={{ background: '#10b981' }} />
+              <span dangerouslySetInnerHTML={{ __html: processInline(item) }} />
+            </li>
           ))}
         </ul>
       );
@@ -83,9 +99,12 @@ function renderMarkdown(text) {
         i++;
       }
       elements.push(
-        <ol key={`ol-${elements.length}`} className="list-decimal list-inside grid grid-cols-1 md:grid-cols-2 gap-1 my-2 ml-2">
+        <ol key={`ol-${elements.length}`} className="my-2 space-y-1">
           {listItems.map((item, j) => (
-            <li key={j} className="text-sm" style={{ color: 'var(--content-text)' }} dangerouslySetInnerHTML={{ __html: processInline(item) }} />
+            <li key={j} className="flex items-start gap-2.5 text-sm" style={{ color: 'var(--content-text)' }}>
+              <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold mt-0.5" style={{ background: '#eff6ff', color: '#1e40af' }}>{j + 1}</span>
+              <span className="leading-relaxed" dangerouslySetInnerHTML={{ __html: processInline(item) }} />
+            </li>
           ))}
         </ol>
       );
@@ -94,12 +113,19 @@ function renderMarkdown(text) {
 
     // Regular paragraph
     elements.push(
-      <p key={`p-${i}`} className="text-sm mb-2" style={{ color: 'var(--content-text)' }} dangerouslySetInnerHTML={{ __html: processInline(trimmed) }} />
+      <p key={`p-${i}`} className="text-sm mb-2 leading-relaxed" style={{ color: 'var(--content-text)' }} dangerouslySetInnerHTML={{ __html: processInline(trimmed) }} />
     );
     i++;
   }
 
   return elements;
+}
+
+// Process inline markdown returning plain JSX (no dangerouslySetInnerHTML)
+function processInlineJsx(str) {
+  if (!str) return '';
+  // For headers we just return the text - no HTML injection needed
+  return str;
 }
 
 // Process inline markdown (bold, italic, code, links)
@@ -428,9 +454,9 @@ export default function OutputPanel({ section, content, streamingContent, isGene
               </div>
             ) : displayContent && typeof displayContent === 'object' ? (
               <div className="space-y-4 text-sm" style={{ color: colors.text, lineHeight: '1.6' }}>
-                {/* Summary */}
+                {/* Summary - Book chapter intro */}
                 {displayContent.summary?.trim() && (
-                  <p className="pb-3" style={{ borderBottom: `1px solid ${colors.border}` }}>{displayContent.summary?.trim()}</p>
+                  <div className="prep-chapter-intro">{displayContent.summary?.trim()}</div>
                 )}
 
                 {/* Pitch Sections - Modern Numbered Paragraphs */}
@@ -492,43 +518,53 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                   </div>
                 )}
 
-                {/* Tech Stack - compact grid */}
+                {/* Tech Stack - table style */}
                 {safeArray(displayContent.techStack).length > 0 && (
-                  <div>
-                    <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: colors.textLight }}>Tech Stack (HR Report)</p>
-                    <div className="grid grid-cols-4 gap-1 text-xs">
-                      <span className="font-semibold" style={{ color: colors.textMuted }}>Tech</span>
-                      <span className="font-semibold" style={{ color: colors.textMuted }}>Category</span>
-                      <span className="font-semibold" style={{ color: colors.textMuted }}>Exp</span>
-                      <span className="font-semibold" style={{ color: colors.textMuted }}>Relevance</span>
-                      {safeArray(displayContent.techStack).filter(t => t && typeof t === 'object').map((t, i) => (
-                        <div key={i} className="contents">
-                          <span className="font-medium" style={{ color: colors.accent }}>{t?.technology || ''}</span>
-                          <span>{t?.category || ''}</span>
-                          <span>{t?.experience || ''}</span>
-                          <span style={{ color: colors.textMuted }}>{t?.relevance || ''}</span>
-                        </div>
-                      ))}
+                  <div className="mb-4">
+                    <div className="prep-section-heading">
+                      <span className="prep-section-heading-text">Tech Stack Overview</span>
+                      <div className="prep-section-heading-line" />
+                    </div>
+                    <div className="rounded-lg overflow-hidden border" style={{ borderColor: colors.border }}>
+                      <div className="grid grid-cols-4 gap-0 text-xs">
+                        <span className="font-semibold p-2.5" style={{ color: '#374151', background: '#f8fafc', borderBottom: '2px solid #e5e7eb' }}>Technology</span>
+                        <span className="font-semibold p-2.5" style={{ color: '#374151', background: '#f8fafc', borderBottom: '2px solid #e5e7eb' }}>Category</span>
+                        <span className="font-semibold p-2.5" style={{ color: '#374151', background: '#f8fafc', borderBottom: '2px solid #e5e7eb' }}>Experience</span>
+                        <span className="font-semibold p-2.5" style={{ color: '#374151', background: '#f8fafc', borderBottom: '2px solid #e5e7eb' }}>Relevance</span>
+                        {safeArray(displayContent.techStack).filter(t => t && typeof t === 'object').map((t, i) => (
+                          <div key={i} className="contents">
+                            <span className="p-2.5 font-medium" style={{ color: '#10b981', borderBottom: `1px solid ${colors.border}` }}>{t?.technology || ''}</span>
+                            <span className="p-2.5" style={{ color: colors.text, borderBottom: `1px solid ${colors.border}` }}>{t?.category || ''}</span>
+                            <span className="p-2.5" style={{ color: colors.text, borderBottom: `1px solid ${colors.border}` }}>{t?.experience || ''}</span>
+                            <span className="p-2.5" style={{ color: colors.textMuted, borderBottom: `1px solid ${colors.border}` }}>{t?.relevance || ''}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
 
                 {/* Questions - handles both simple and complex (coding/system-design) formats */}
                 {safeArray(displayContent.questions).length > 0 && (
-                  <div className="space-y-6">
+                  <div className="space-y-5">
                     {safeArray(displayContent.questions).filter(q => q && (q.question?.trim?.() || q.title?.trim?.())).map((q, i) => (
-                      <div key={i} className="pb-4" style={{ borderBottom: i < displayContent.questions.length - 1 ? `1px solid ${colors.border}` : 'none' }}>
-                        {/* Question/Title */}
-                        <p className="font-semibold mb-1 text-base" style={{ color: '#1e40af' }}>
-                          {i + 1}. {(q.title || q.question)?.trim()}
-                        </p>
+                      <div key={i} className="prep-question-item">
+                        {/* Question/Title with number badge */}
+                        <div className="flex items-start gap-3 mb-2">
+                          <span className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: '#eff6ff', color: '#1e40af' }}>{i + 1}</span>
+                          <p className="prep-question-text flex-1" style={{ marginBottom: 0 }}>
+                            {(q.title || q.question)?.trim()}
+                          </p>
+                        </div>
 
                         {/* Difficulty & Frequency */}
                         {(q.difficulty || q.frequency) && (
-                          <p className="text-xs mb-2" style={{ color: colors.textMuted }}>
-                            {q.difficulty && <span className="px-1.5 py-0.5 rounded mr-2" style={{ background: q.difficulty === 'Hard' ? '#FEE2E2' : q.difficulty === 'Medium' ? '#FEF3C7' : '#D1FAE5' }}>{q.difficulty}</span>}
-                            {q.frequency}
-                          </p>
+                          <div className="flex items-center gap-2 mb-3 ml-10">
+                            {q.difficulty && (
+                              <span className={`prep-difficulty-badge ${q.difficulty.toLowerCase() === 'hard' ? 'hard' : q.difficulty.toLowerCase() === 'medium' ? 'medium' : 'easy'}`}>{q.difficulty}</span>
+                            )}
+                            {q.frequency && <span className="text-xs" style={{ color: colors.textMuted }}>{q.frequency}</span>}
+                          </div>
                         )}
 
                         {/* Problem Statement */}
@@ -552,31 +588,39 @@ export default function OutputPanel({ section, content, streamingContent, isGene
 
                         {/* Approaches (for coding) */}
                         {safeArray(q.approaches).length > 0 && (
-                          <div className="space-y-4">
+                          <div className="space-y-4 ml-10">
+                            <div className="prep-section-heading" style={{ marginTop: '12px' }}>
+                              <span className="prep-section-heading-text" style={{ color: '#047857' }}>Solutions</span>
+                              <div className="prep-section-heading-line" />
+                            </div>
                             {safeArray(q.approaches).filter(approach => approach && typeof approach === 'object').map((approach, j) => (
-                              <div key={j} className="pl-3" style={{ borderLeft: '3px solid #10b981' }}>
-                                <p className="font-semibold" style={{ color: '#047857' }}>{approach.name}</p>
-                                <p className="text-xs mb-2" style={{ color: colors.textMuted }}>
-                                  Time: {approach.timeComplexity} | Space: {approach.spaceComplexity}
-                                </p>
-                                {approach.description && <p className="mb-2 text-sm">{approach.description}</p>}
+                              <div key={j} className="rounded-xl p-4" style={{ background: '#fafbfc', border: '1px solid #e5e7eb' }}>
+                                <div className="flex items-center justify-between mb-2">
+                                  <p className="font-semibold text-sm" style={{ color: '#047857' }}>{approach.name}</p>
+                                  <div className="flex gap-2">
+                                    {approach.timeComplexity && <span className="prep-pill" style={{ background: '#ecfdf5', color: '#047857' }}>Time: {approach.timeComplexity}</span>}
+                                    {approach.spaceComplexity && <span className="prep-pill" style={{ background: '#eff6ff', color: '#1e40af' }}>Space: {approach.spaceComplexity}</span>}
+                                  </div>
+                                </div>
+                                {approach.description && <p className="mb-3 text-sm leading-relaxed" style={{ color: colors.text }}>{approach.description}</p>}
 
                                 {/* Code */}
                                 {approach.code && (
-                                  <pre className="text-xs p-3 rounded overflow-x-auto mb-2" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: "'Source Code Pro', Monaco, monospace" }}>
+                                  <pre className="text-xs p-3 rounded-lg overflow-x-auto mb-3" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: "'Source Code Pro', Monaco, monospace" }}>
                                     {approach.code.replace(/\\n/g, '\n')}
                                   </pre>
                                 )}
 
-                                {/* Line by Line */}
+                                {/* Line by Line - tree style */}
                                 {safeArray(approach.lineByLine).length > 0 && (
-                                  <div className="mt-2">
-                                    <p className="font-semibold text-xs uppercase tracking-wide mb-1" style={{ color: colors.accent }}>Line-by-Line Explanation</p>
-                                    <div className="space-y-1">
+                                  <div className="mt-3 pt-3" style={{ borderTop: `1px dashed ${colors.border}` }}>
+                                    <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: colors.accent }}>Line-by-Line Explanation</p>
+                                    <div className="prep-tree">
                                       {safeArray(approach.lineByLine).filter(line => line && typeof line === 'object').map((line, k) => (
-                                        <div key={k} className="text-xs">
-                                          <code className="font-mono px-1 rounded" style={{ background: '#e2e8f0', color: '#1e40af' }}>{line?.line || ''}</code>
-                                          <p className="ml-2 mt-0.5" style={{ color: colors.textMuted }}>→ {line?.explanation || ''}</p>
+                                        <div key={k} className="prep-tree-item" style={{ paddingTop: '8px', paddingBottom: '8px' }}>
+                                          <div className="prep-tree-dot" style={{ width: '6px', height: '6px' }} />
+                                          <code className="font-mono px-1.5 py-0.5 rounded text-xs" style={{ background: '#e2e8f0', color: '#1e40af' }}>{line?.line || ''}</code>
+                                          <p className="text-xs mt-1" style={{ color: colors.textMuted }}>{line?.explanation || ''}</p>
                                         </div>
                                       ))}
                                     </div>
@@ -589,13 +633,16 @@ export default function OutputPanel({ section, content, streamingContent, isGene
 
                         {/* Edge Cases */}
                         {safeArray(q.edgeCases).length > 0 && (
-                          <div className="mt-3 p-3 rounded" style={{ background: '#FEF2F2', border: '1px solid #FECACA' }}>
-                            <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: '#B91C1C' }}>⚠ Edge Cases</p>
+                          <div className="mt-4 ml-10 p-4 rounded-xl" style={{ background: 'linear-gradient(135deg, #fff5f5 0%, #fef2f2 100%)', border: '1px solid #fecaca' }}>
+                            <div className="flex items-center gap-2 mb-3">
+                              <span className="w-5 h-5 rounded-md flex items-center justify-center text-xs" style={{ background: '#fee2e2', color: '#b91c1c' }}>!</span>
+                              <p className="font-semibold text-xs uppercase tracking-wide" style={{ color: '#B91C1C' }}>Edge Cases</p>
+                            </div>
                             {safeArray(q.edgeCases).filter(edge => edge && typeof edge === 'object').map((edge, j) => (
-                              <div key={j} className="text-xs mb-2">
-                                <span className="font-semibold">{edge?.case || ''}:</span> {edge?.explanation || ''}
-                                <div className="font-mono mt-0.5 pl-2" style={{ color: '#6B7280' }}>
-                                  Input: {edge?.input || ''} → Output: {edge?.expectedOutput || ''}
+                              <div key={j} className="mb-3 last:mb-0">
+                                <p className="text-sm"><span className="font-semibold" style={{ color: '#b91c1c' }}>{edge?.case || ''}:</span> <span style={{ color: '#374151' }}>{edge?.explanation || ''}</span></p>
+                                <div className="font-mono text-xs mt-1 px-2 py-1 rounded" style={{ background: '#fff1f2', color: '#6B7280' }}>
+                                  Input: {edge?.input || ''} &rarr; Output: {edge?.expectedOutput || ''}
                                 </div>
                               </div>
                             ))}
@@ -604,20 +651,26 @@ export default function OutputPanel({ section, content, streamingContent, isGene
 
                         {/* Common Mistakes */}
                         {safeArray(q.commonMistakes).length > 0 && (
-                          <div className="mt-2">
-                            <p className="font-semibold text-xs" style={{ color: '#DC2626' }}>Common Mistakes:</p>
+                          <div className="mt-3 ml-10">
+                            <p className="font-semibold text-xs uppercase tracking-wide mb-1" style={{ color: '#DC2626' }}>Common Mistakes to Avoid</p>
                             {safeArray(q.commonMistakes).filter(m => m != null).map((m, j) => (
-                              <p key={j} className="text-xs ml-2" style={{ color: colors.textMuted }}>• {String(m)}</p>
+                              <div key={j} className="flex items-start gap-2 mb-1">
+                                <span className="flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-xs mt-0.5" style={{ background: '#fee2e2', color: '#b91c1c', fontSize: '9px' }}>!</span>
+                                <span className="text-xs leading-relaxed" style={{ color: colors.textMuted }}>{String(m)}</span>
+                              </div>
                             ))}
                           </div>
                         )}
 
                         {/* Follow-up Questions */}
                         {safeArray(q.followUpQuestions).length > 0 && (
-                          <div className="mt-2">
-                            <p className="font-semibold text-xs" style={{ color: colors.accent }}>Follow-ups:</p>
+                          <div className="mt-3 ml-10 pt-3" style={{ borderTop: `1px dashed ${colors.border}` }}>
+                            <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: colors.accent }}>Follow-up Questions</p>
                             {safeArray(q.followUpQuestions).filter(f => f != null).map((f, j) => (
-                              <p key={j} className="text-xs ml-2" style={{ color: colors.textMuted }}>• {String(f)}</p>
+                              <div key={j} className="flex items-start gap-2 mb-1.5">
+                                <span className="text-xs mt-0.5" style={{ color: colors.accent }}>&#8627;</span>
+                                <span className="text-xs leading-relaxed" style={{ color: colors.textMuted }}>{String(f)}</span>
+                              </div>
                             ))}
                           </div>
                         )}
@@ -697,17 +750,23 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                           </div>
                         )}
 
-                        {/* Components */}
+                        {/* Components - tree structure */}
                         {safeArray(q.architecture?.components).length > 0 && (
-                          <div className="mt-3">
-                            <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: colors.accent }}>Components</p>
-                            <div className="space-y-2">
+                          <div className="mt-4 ml-10">
+                            <div className="prep-section-heading" style={{ marginTop: 0 }}>
+                              <span className="prep-section-heading-text" style={{ color: colors.accent }}>System Components</span>
+                              <div className="prep-section-heading-line" />
+                            </div>
+                            <div className="prep-tree">
                               {safeArray(q.architecture.components).filter(comp => comp && typeof comp === 'object').map((comp, j) => (
-                                <div key={j} className="text-xs p-2 rounded bg-gray-50">
-                                  <span className="font-semibold" style={{ color: '#1e40af' }}>{comp?.name || ''}</span>
-                                  <span className="ml-2 px-1.5 py-0.5 rounded text-xs" style={{ background: '#E0E7FF', color: '#3730A3' }}>{comp?.technology || ''}</span>
-                                  <p className="mt-1" style={{ color: colors.textMuted }}>{comp?.responsibility || ''}</p>
-                                  {comp?.whyThisChoice && <p className="mt-0.5 italic" style={{ color: colors.textLight }}>Why: {comp.whyThisChoice}</p>}
+                                <div key={j} className="prep-tree-item">
+                                  <div className="prep-tree-dot" />
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="prep-tree-item-title" style={{ marginBottom: 0 }}>{comp?.name || ''}</span>
+                                    {comp?.technology && <span className="prep-pill" style={{ background: '#e0e7ff', color: '#3730a3' }}>{comp.technology}</span>}
+                                  </div>
+                                  {comp?.responsibility && <p className="prep-tree-item-desc mt-1">{comp.responsibility}</p>}
+                                  {comp?.whyThisChoice && <p className="text-xs italic mt-1" style={{ color: colors.textLight }}>Why: {comp.whyThisChoice}</p>}
                                 </div>
                               ))}
                             </div>
@@ -716,13 +775,24 @@ export default function OutputPanel({ section, content, streamingContent, isGene
 
                         {/* Trade-offs */}
                         {safeArray(q.tradeOffs).length > 0 && (
-                          <div className="mt-3">
-                            <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: '#DC2626' }}>Trade-offs</p>
+                          <div className="mt-4 ml-10">
+                            <div className="prep-section-heading" style={{ marginTop: 0 }}>
+                              <span className="prep-section-heading-text" style={{ color: '#DC2626' }}>Trade-offs</span>
+                              <div className="prep-section-heading-line" />
+                            </div>
                             {safeArray(q.tradeOffs).filter(t => t && typeof t === 'object').map((t, j) => (
-                              <div key={j} className="text-xs mb-2 pl-2" style={{ borderLeft: '2px solid #FECACA' }}>
-                                <p><b>Decision:</b> {t?.decision || ''}</p>
-                                <p><b>Chose:</b> {t?.chose || ''} — {t?.reason || ''}</p>
-                                {t?.alternative && <p style={{ color: colors.textMuted }}>Alt: {t.alternative}</p>}
+                              <div key={j} className="prep-antipattern" style={{ background: 'linear-gradient(135deg, #fefce8 0%, #fef9c3 100%)', borderColor: '#fde68a' }}>
+                                <p className="prep-antipattern-title" style={{ color: '#92400e' }}>{t?.decision || ''}</p>
+                                <div className="prep-antipattern-row">
+                                  <span className="prep-antipattern-label" style={{ color: '#047857' }}>Chose:</span>
+                                  <span style={{ color: '#374151' }}>{t?.chose || ''} &mdash; {t?.reason || ''}</span>
+                                </div>
+                                {t?.alternative && (
+                                  <div className="prep-antipattern-row">
+                                    <span className="prep-antipattern-label" style={{ color: '#6b7280' }}>Alternative:</span>
+                                    <span style={{ color: '#6b7280' }}>{t.alternative}</span>
+                                  </div>
+                                )}
                               </div>
                             ))}
                           </div>
@@ -804,17 +874,29 @@ export default function OutputPanel({ section, content, streamingContent, isGene
 
                 {/* Key Topics - handles both string array and object array */}
                 {safeArray(displayContent.keyTopics).length > 0 && (
-                  <div className="mb-3">
-                    <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: colors.textLight }}>Key Topics to Focus On</p>
+                  <div className="mb-4">
+                    <div className="prep-section-heading">
+                      <span className="prep-section-heading-text">Key Topics to Focus On</span>
+                      <div className="prep-section-heading-line" />
+                    </div>
                     {typeof safeArray(displayContent.keyTopics)[0] === 'string' ? (
-                      <p>{safeArray(displayContent.keyTopics).filter(t => typeof t === 'string' && t.trim?.()).join(' • ')}</p>
+                      <div className="flex flex-wrap">
+                        {safeArray(displayContent.keyTopics).filter(t => typeof t === 'string' && t.trim?.()).map((t, i) => (
+                          <span key={i} className="prep-pill">{t}</span>
+                        ))}
+                      </div>
                     ) : (
-                      <div className="space-y-2">
+                      <div className="prep-tree">
                         {safeArray(displayContent.keyTopics).filter(topic => topic && typeof topic === 'object').map((topic, i) => (
-                          <div key={i} className="flex items-start gap-2 text-sm">
-                            <span className="font-semibold" style={{ color: colors.accent }}>{topic?.topic || ''}</span>
-                            {topic?.frequency && <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: topic.frequency === 'Very High' ? '#FEE2E2' : '#E0E7FF', color: topic.frequency === 'Very High' ? '#B91C1C' : '#3730A3' }}>{topic.frequency}</span>}
-                            {topic?.whyImportant && <span className="text-xs" style={{ color: colors.textMuted }}>— {topic.whyImportant}</span>}
+                          <div key={i} className="prep-tree-item">
+                            <div className="prep-tree-dot" />
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="prep-tree-item-title" style={{ marginBottom: 0 }}>{topic?.topic || ''}</span>
+                              {topic?.frequency && (
+                                <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ background: topic.frequency === 'Very High' ? '#FEE2E2' : '#E0E7FF', color: topic.frequency === 'Very High' ? '#B91C1C' : '#3730A3' }}>{topic.frequency}</span>
+                              )}
+                            </div>
+                            {topic?.whyImportant && <p className="prep-tree-item-desc mt-1">{topic.whyImportant}</p>}
                           </div>
                         ))}
                       </div>
@@ -822,125 +904,172 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                   </div>
                 )}
 
-                {/* Technologies (TechStack section) */}
+                {/* Technologies (TechStack section) - Book-style chapters */}
                 {safeArray(displayContent.technologies).length > 0 && (
                   <div className="space-y-6">
                     {safeArray(displayContent.technologies).filter(tech => tech && typeof tech === 'object').map((tech, i) => (
-                      <div key={i} className="prep-content-card">
-                        {/* Header */}
-                        <div className="prep-content-card-header">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#10b981' }}>
-                              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                              </svg>
-                            </div>
-                            <div>
-                              <span className="font-bold text-lg" style={{ color: '#111827' }}>{tech.name}</span>
-                              {tech.importance && (
-                                <span className={`prep-difficulty-badge ml-2 ${tech.importance === 'high' ? 'hard' : tech.importance === 'medium' ? 'medium' : 'easy'}`}>
-                                  {tech.importance}
-                                </span>
-                              )}
-                            </div>
+                      <div key={i} className="prep-tech-chapter">
+                        {/* Chapter Header */}
+                        <div className="prep-tech-chapter-header">
+                          <div className="prep-tech-chapter-icon">
+                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                            </svg>
+                          </div>
+                          <div className="flex items-center gap-3 flex-wrap">
+                            <span className="prep-tech-chapter-title">{tech.name}</span>
+                            {tech.importance && (
+                              <span className={`prep-difficulty-badge ${tech.importance === 'high' || tech.importance === 'critical' ? 'hard' : tech.importance === 'medium' ? 'medium' : 'easy'}`}>
+                                {tech.importance}
+                              </span>
+                            )}
                           </div>
                         </div>
-                        {tech.whyImportant && <p className="text-sm mb-4 leading-relaxed text-gray-500 landing-body">{tech.whyImportant}</p>}
 
-                        {/* Concepts to Know */}
-                        {safeArray(tech.conceptsToKnow).length > 0 && (
-                          <div className="mb-3">
-                            <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: colors.accent }}>Core Concepts</p>
-                            {safeArray(tech.conceptsToKnow).filter(c => c && typeof c === 'object').map((c, j) => (
-                              <div key={j} className="mb-3 pl-2" style={{ borderLeft: '2px solid #10b981' }}>
-                                <p className="font-semibold text-sm">{c?.concept || ''}</p>
-                                {c?.explanation && (
-                                  <div className="text-xs mt-1" style={{ color: colors.textMuted }}>
-                                    {renderMarkdown(String(c.explanation).replace(/\\n/g, '\n'))}
-                                  </div>
-                                )}
+                        <div className="prep-tech-chapter-body">
+                          {/* Why Important - chapter description */}
+                          {tech.whyImportant && (
+                            <p className="prep-tech-chapter-desc">{tech.whyImportant}</p>
+                          )}
+
+                          {/* Core Concepts - Tree Structure */}
+                          {safeArray(tech.conceptsToKnow).length > 0 && (
+                            <div className="mb-6">
+                              <div className="prep-section-heading">
+                                <span className="prep-section-heading-text" style={{ color: '#10b981' }}>Core Concepts</span>
+                                <div className="prep-section-heading-line" />
                               </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Questions */}
-                        {safeArray(tech.questions).length > 0 && (
-                          <div className="mb-4">
-                            <div className="prep-section-divider">Interview Questions</div>
-                            {safeArray(tech.questions).filter(q => q && typeof q === 'object').map((q, j) => (
-                              <div key={j} className="prep-question-item">
-                                <p className="prep-question-text">{q?.question || ''}</p>
-                                {q?.difficulty && (
-                                  <span className={`prep-difficulty-badge ${q.difficulty.toLowerCase() === 'hard' ? 'hard' : q.difficulty.toLowerCase() === 'medium' ? 'medium' : 'easy'}`}>
-                                    {q.difficulty}
-                                  </span>
-                                )}
-                                {q?.answer && (
-                                  <div className="text-xs mt-2" style={{ color: colors.text }}>
-                                    {renderMarkdown(String(q.answer).replace(/\\n/g, '\n'))}
+                              <div className="prep-tree">
+                                {safeArray(tech.conceptsToKnow).filter(c => c && typeof c === 'object').map((c, j) => (
+                                  <div key={j} className="prep-tree-item">
+                                    <div className="prep-tree-dot" />
+                                    <p className="prep-tree-item-title">{c?.concept || ''}</p>
+                                    {c?.explanation && (
+                                      <div className="prep-tree-item-desc">
+                                        {renderMarkdown(String(c.explanation).replace(/\\n/g, '\n'))}
+                                      </div>
+                                    )}
                                   </div>
-                                )}
-                                {q?.codeExample && (
-                                  <pre className="text-xs p-2 rounded mt-2 overflow-x-auto" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: "'Source Code Pro', Monaco, monospace" }}>
-                                    {String(q.codeExample).replace(/\\n/g, '\n')}
-                                  </pre>
-                                )}
-                                {safeArray(q?.followUps).length > 0 && (
-                                  <div className="mt-2">
-                                    <p className="text-xs font-semibold" style={{ color: colors.accent }}>Follow-ups:</p>
-                                    {safeArray(q.followUps).filter(f => f != null).map((f, k) => <p key={k} className="text-xs ml-2" style={{ color: colors.textMuted }}>• {String(f)}</p>)}
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Interview Questions */}
+                          {safeArray(tech.questions).length > 0 && (
+                            <div className="mb-6">
+                              <div className="prep-section-heading">
+                                <span className="prep-section-heading-text" style={{ color: '#1e40af' }}>Interview Questions</span>
+                                <div className="prep-section-heading-line" />
+                              </div>
+                              <div className="space-y-3">
+                                {safeArray(tech.questions).filter(q => q && typeof q === 'object').map((q, j) => (
+                                  <div key={j} className="prep-question-item">
+                                    <div className="flex items-start justify-between gap-3 mb-2">
+                                      <p className="prep-question-text" style={{ marginBottom: 0 }}>{q?.question || ''}</p>
+                                      {q?.difficulty && (
+                                        <span className={`prep-difficulty-badge flex-shrink-0 ${q.difficulty.toLowerCase() === 'hard' ? 'hard' : q.difficulty.toLowerCase() === 'medium' ? 'medium' : 'easy'}`}>
+                                          {q.difficulty}
+                                        </span>
+                                      )}
+                                    </div>
+                                    {q?.answer && (
+                                      <div className="text-sm mt-3 leading-relaxed" style={{ color: colors.text }}>
+                                        {renderMarkdown(String(q.answer).replace(/\\n/g, '\n'))}
+                                      </div>
+                                    )}
+                                    {q?.codeExample && (
+                                      <pre className="text-xs p-3 rounded-lg mt-3 overflow-x-auto" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: "'Source Code Pro', Monaco, monospace" }}>
+                                        {String(q.codeExample).replace(/\\n/g, '\n')}
+                                      </pre>
+                                    )}
+                                    {safeArray(q?.followUps).length > 0 && (
+                                      <div className="mt-3 pt-3" style={{ borderTop: `1px dashed ${colors.border}` }}>
+                                        <p className="text-xs font-semibold mb-1" style={{ color: colors.accent }}>Follow-up Questions:</p>
+                                        {safeArray(q.followUps).filter(f => f != null).map((f, k) => (
+                                          <div key={k} className="flex items-start gap-2 ml-1 mb-1">
+                                            <span className="text-xs mt-0.5" style={{ color: colors.accent }}>&#8627;</span>
+                                            <span className="text-xs" style={{ color: colors.textMuted }}>{String(f)}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
+                                    {safeArray(q?.commonMistakes).length > 0 && (
+                                      <div className="mt-3 pt-3" style={{ borderTop: `1px dashed ${colors.border}` }}>
+                                        <p className="text-xs font-semibold mb-1" style={{ color: '#DC2626' }}>Common Mistakes to Avoid:</p>
+                                        {safeArray(q.commonMistakes).filter(m => m != null).map((m, k) => (
+                                          <div key={k} className="flex items-start gap-2 ml-1 mb-1">
+                                            <span className="flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-xs" style={{ background: '#fee2e2', color: '#b91c1c', fontSize: '9px' }}>!</span>
+                                            <span className="text-xs" style={{ color: colors.textMuted }}>{String(m)}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
                                   </div>
-                                )}
-                                {safeArray(q?.commonMistakes).length > 0 && (
-                                  <div className="mt-2">
-                                    <p className="text-xs font-semibold" style={{ color: '#DC2626' }}>Avoid:</p>
-                                    {safeArray(q.commonMistakes).filter(m => m != null).map((m, k) => <p key={k} className="text-xs ml-2" style={{ color: colors.textMuted }}>• {String(m)}</p>)}
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Best Practices - Checklist style */}
+                          {safeArray(tech.bestPractices).length > 0 && (
+                            <div className="mb-6">
+                              <div className="prep-section-heading">
+                                <span className="prep-section-heading-text" style={{ color: '#047857' }}>Best Practices</span>
+                                <div className="prep-section-heading-line" />
+                              </div>
+                              {safeArray(tech.bestPractices).filter(bp => bp && typeof bp === 'object').map((bp, j) => (
+                                <div key={j} className="prep-checklist-item">
+                                  <span className="prep-checklist-icon check">&#10003;</span>
+                                  <div className="flex-1">
+                                    <span className="text-sm font-semibold" style={{ color: '#111827' }}>{bp?.practice || ''}</span>
+                                    {bp?.when && <span className="text-xs ml-1" style={{ color: colors.textMuted }}> &mdash; {bp.when}</span>}
+                                    {bp?.codeExample && (
+                                      <pre className="text-xs p-2.5 rounded-lg mt-2 overflow-x-auto" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: "'Source Code Pro', Monaco, monospace" }}>
+                                        {String(bp.codeExample).replace(/\\n/g, '\n')}
+                                      </pre>
+                                    )}
                                   </div>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
 
-                        {/* Best Practices */}
-                        {safeArray(tech.bestPractices).length > 0 && (
-                          <div className="mb-3">
-                            <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: '#047857' }}>Best Practices</p>
-                            {safeArray(tech.bestPractices).filter(bp => bp && typeof bp === 'object').map((bp, j) => (
-                              <div key={j} className="text-xs mb-2">
-                                <span className="font-semibold">{bp?.practice || ''}</span>
-                                {bp?.when && <span style={{ color: colors.textMuted }}> — {bp.when}</span>}
-                                {bp?.codeExample && (
-                                  <pre className="text-xs p-2 rounded mt-1 overflow-x-auto" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: "'Source Code Pro', Monaco, monospace" }}>
-                                    {String(bp.codeExample).replace(/\\n/g, '\n')}
-                                  </pre>
-                                )}
+                          {/* Anti-patterns - Warning cards */}
+                          {safeArray(tech.antiPatterns).length > 0 && (
+                            <div className="mb-6">
+                              <div className="prep-section-heading">
+                                <span className="prep-section-heading-text" style={{ color: '#B91C1C' }}>Anti-Patterns to Avoid</span>
+                                <div className="prep-section-heading-line" />
                               </div>
-                            ))}
-                          </div>
-                        )}
+                              {safeArray(tech.antiPatterns).filter(ap => ap && typeof ap === 'object').map((ap, j) => (
+                                <div key={j} className="prep-antipattern">
+                                  <p className="prep-antipattern-title">{ap?.pattern || ''}</p>
+                                  <div className="prep-antipattern-row">
+                                    <span className="prep-antipattern-label" style={{ color: '#b91c1c' }}>Problem:</span>
+                                    <span style={{ color: '#6b7280' }}>{ap?.problem || ''}</span>
+                                  </div>
+                                  <div className="prep-antipattern-row">
+                                    <span className="prep-antipattern-label" style={{ color: '#047857' }}>Solution:</span>
+                                    <span style={{ color: '#047857' }}>{ap?.solution || ''}</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
 
-                        {/* Anti-patterns */}
-                        {safeArray(tech.antiPatterns).length > 0 && (
-                          <div className="p-2 rounded" style={{ background: '#FEF2F2' }}>
-                            <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: '#B91C1C' }}>Anti-Patterns to Avoid</p>
-                            {safeArray(tech.antiPatterns).filter(ap => ap && typeof ap === 'object').map((ap, j) => (
-                              <div key={j} className="text-xs mb-2">
-                                <span className="font-semibold">{ap?.pattern || ''}</span>
-                                <p style={{ color: colors.textMuted }}>Problem: {ap?.problem || ''}</p>
-                                <p style={{ color: '#047857' }}>Solution: {ap?.solution || ''}</p>
+                          {/* Performance Topics - Pill tags */}
+                          {safeArray(tech.performanceTopics).length > 0 && (
+                            <div className="mt-4 pt-4" style={{ borderTop: `1px solid ${colors.border}` }}>
+                              <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: colors.textLight }}>Performance Topics</p>
+                              <div className="flex flex-wrap">
+                                {safeArray(tech.performanceTopics).filter(t => t != null).map((t, j) => (
+                                  <span key={j} className="prep-pill">{String(t)}</span>
+                                ))}
                               </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Performance Topics */}
-                        {safeArray(tech.performanceTopics).length > 0 && (
-                          <div className="mt-2">
-                            <p className="text-xs"><span className="font-semibold" style={{ color: colors.textLight }}>Performance: </span>{safeArray(tech.performanceTopics).filter(t => t != null).map(t => String(t)).join(' • ')}</p>
-                          </div>
-                        )}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -948,8 +1077,13 @@ export default function OutputPanel({ section, content, streamingContent, isGene
 
                 {/* Company Context/Insights - handles both string and object formats */}
                 {(displayContent.companyContext || displayContent.companyInsights || displayContent.companyTechContext) && (
-                  <div className="mb-3 p-3 rounded" style={{ background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
-                    <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: '#1D4ED8' }}>Company Insights</p>
+                  <div className="mb-4 p-4 rounded-xl" style={{ background: 'linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%)', border: '1px solid #bfdbfe' }}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: '#dbeafe' }}>
+                        <svg className="w-3.5 h-3.5" style={{ color: '#2563eb' }} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clipRule="evenodd" /></svg>
+                      </span>
+                      <p className="font-semibold text-sm" style={{ color: '#1D4ED8' }}>Company Insights</p>
+                    </div>
                     {(() => {
                       const ctx = displayContent.companyContext || displayContent.companyInsights || displayContent.companyTechContext;
                       if (typeof ctx === 'string') {
@@ -986,18 +1120,30 @@ export default function OutputPanel({ section, content, streamingContent, isGene
 
                 {/* Architecture Topics - handles both string array and object array */}
                 {safeArray(displayContent.architectureTopics).length > 0 && (
-                  <div className="mb-3">
-                    <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: colors.textLight }}>Architecture Topics</p>
+                  <div className="mb-4">
+                    <div className="prep-section-heading">
+                      <span className="prep-section-heading-text">Architecture Topics</span>
+                      <div className="prep-section-heading-line" />
+                    </div>
                     {typeof safeArray(displayContent.architectureTopics)[0] === 'string' ? (
-                      <p>{safeArray(displayContent.architectureTopics).filter(t => typeof t === 'string' && t.trim?.()).join(' • ')}</p>
+                      <div className="flex flex-wrap">
+                        {safeArray(displayContent.architectureTopics).filter(t => typeof t === 'string' && t.trim?.()).map((t, i) => (
+                          <span key={i} className="prep-pill">{t}</span>
+                        ))}
+                      </div>
                     ) : (
-                      <div className="space-y-2">
+                      <div className="prep-tree">
                         {safeArray(displayContent.architectureTopics).filter(topic => topic && typeof topic === 'object').map((topic, i) => (
-                          <div key={i} className="p-2 rounded bg-gray-50">
-                            <span className="font-semibold" style={{ color: colors.accent }}>{topic?.topic || ''}</span>
-                            {topic?.relevance && <p className="text-xs" style={{ color: colors.textMuted }}>{topic.relevance}</p>}
+                          <div key={i} className="prep-tree-item">
+                            <div className="prep-tree-dot" />
+                            <p className="prep-tree-item-title">{topic?.topic || ''}</p>
+                            {topic?.relevance && <p className="prep-tree-item-desc">{topic.relevance}</p>}
                             {safeArray(topic?.keyPoints).length > 0 && (
-                              <p className="text-xs mt-1">{safeArray(topic.keyPoints).join(' • ')}</p>
+                              <div className="flex flex-wrap mt-2">
+                                {safeArray(topic.keyPoints).map((kp, j) => (
+                                  <span key={j} className="prep-pill">{kp}</span>
+                                ))}
+                              </div>
                             )}
                           </div>
                         ))}
@@ -1008,17 +1154,25 @@ export default function OutputPanel({ section, content, streamingContent, isGene
 
                 {/* System Integrations (TechStack section) */}
                 {safeArray(displayContent.systemIntegrations).length > 0 && (
-                  <div className="mb-3">
-                    <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: colors.textLight }}>System Integrations</p>
-                    <div className="space-y-2">
+                  <div className="mb-4">
+                    <div className="prep-section-heading">
+                      <span className="prep-section-heading-text">System Integrations</span>
+                      <div className="prep-section-heading-line" />
+                    </div>
+                    <div className="prep-tree">
                       {safeArray(displayContent.systemIntegrations).filter(int => int && typeof int === 'object').map((int, i) => (
-                        <div key={i} className="p-2 rounded bg-gray-50">
-                          <span className="font-semibold" style={{ color: colors.accent }}>{int?.integration || ''}</span>
+                        <div key={i} className="prep-tree-item">
+                          <div className="prep-tree-dot" />
+                          <p className="prep-tree-item-title">{int?.integration || ''}</p>
                           {safeArray(int?.patterns).length > 0 && (
-                            <p className="text-xs mt-1">{safeArray(int.patterns).join(' • ')}</p>
+                            <div className="flex flex-wrap mt-1">
+                              {safeArray(int.patterns).map((p, j) => (
+                                <span key={j} className="prep-pill">{p}</span>
+                              ))}
+                            </div>
                           )}
                           {int?.codeExample && (
-                            <pre className="text-xs p-2 rounded mt-1 overflow-x-auto" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: "'Source Code Pro', Monaco, monospace" }}>
+                            <pre className="text-xs p-2.5 rounded-lg mt-2 overflow-x-auto" style={{ background: '#1e293b', color: '#e2e8f0', fontFamily: "'Source Code Pro', Monaco, monospace" }}>
                               {String(int.codeExample).replace(/\\n/g, '\n')}
                             </pre>
                           )}
@@ -1030,19 +1184,29 @@ export default function OutputPanel({ section, content, streamingContent, isGene
 
                 {/* Practice Recommendations - handles both string array and object array */}
                 {safeArray(displayContent.practiceRecommendations).length > 0 && (
-                  <div className="mb-3">
-                    <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: colors.textLight }}>Practice Recommendations</p>
+                  <div className="mb-4">
+                    <div className="prep-section-heading">
+                      <span className="prep-section-heading-text" style={{ color: '#047857' }}>Practice Recommendations</span>
+                      <div className="prep-section-heading-line" />
+                    </div>
                     {typeof safeArray(displayContent.practiceRecommendations)[0] === 'string' ? (
-                      <p>{safeArray(displayContent.practiceRecommendations).filter(r => typeof r === 'string' && r.trim?.()).join(' • ')}</p>
+                      <div className="flex flex-wrap">
+                        {safeArray(displayContent.practiceRecommendations).filter(r => typeof r === 'string' && r.trim?.()).map((r, i) => (
+                          <span key={i} className="prep-pill">{r}</span>
+                        ))}
+                      </div>
                     ) : (
                       <div className="space-y-2">
                         {safeArray(displayContent.practiceRecommendations).filter(rec => rec && typeof rec === 'object').map((rec, i) => (
-                          <div key={i} className="p-2 rounded" style={{ background: '#F0FDF4' }}>
-                            <span className="font-semibold" style={{ color: '#047857' }}>{rec?.platform || ''}</span>
-                            {safeArray(rec?.problems).length > 0 && (
-                              <p className="text-xs mt-1">{safeArray(rec.problems).join(', ')}</p>
-                            )}
-                            {rec?.reason && <p className="text-xs italic" style={{ color: colors.textMuted }}>{rec.reason}</p>}
+                          <div key={i} className="prep-checklist-item" style={{ background: '#f0fdf4' }}>
+                            <span className="prep-checklist-icon check">&#10003;</span>
+                            <div className="flex-1">
+                              <span className="text-sm font-semibold" style={{ color: '#047857' }}>{rec?.platform || ''}</span>
+                              {safeArray(rec?.problems).length > 0 && (
+                                <p className="text-xs mt-1" style={{ color: colors.text }}>{safeArray(rec.problems).join(', ')}</p>
+                              )}
+                              {rec?.reason && <p className="text-xs italic mt-0.5" style={{ color: colors.textMuted }}>{rec.reason}</p>}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -1052,27 +1216,54 @@ export default function OutputPanel({ section, content, streamingContent, isGene
 
                 {/* Interview Tips */}
                 {safeArray(displayContent.interviewTips).length > 0 && (
-                  <div className="p-3 rounded" style={{ background: '#ECFDF5', border: '1px solid #A7F3D0' }}>
-                    <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: '#047857' }}>Interview Tips</p>
+                  <div className="p-4 rounded-xl" style={{ background: 'linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%)', border: '1px solid #a7f3d0' }}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: '#d1fae5' }}>
+                        <svg className="w-3.5 h-3.5" style={{ color: '#047857' }} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
+                      </span>
+                      <p className="font-semibold text-sm" style={{ color: '#047857' }}>Interview Tips</p>
+                    </div>
                     {safeArray(displayContent.interviewTips).filter(tip => tip != null).map((tip, i) => (
-                      <p key={i} className="text-sm">• {String(tip)}</p>
+                      <div key={i} className="flex items-start gap-2 mb-2">
+                        <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full mt-2" style={{ background: '#10b981' }} />
+                        <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>{String(tip)}</p>
+                      </div>
                     ))}
                   </div>
                 )}
 
                 {/* General Tips (system design) */}
                 {safeArray(displayContent.generalTips).length > 0 && (
-                  <div className="p-3 rounded" style={{ background: '#ECFDF5', border: '1px solid #A7F3D0' }}>
-                    <p className="font-semibold text-xs uppercase tracking-wide mb-2" style={{ color: '#047857' }}>Tips</p>
+                  <div className="p-4 rounded-xl" style={{ background: 'linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%)', border: '1px solid #a7f3d0' }}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: '#d1fae5' }}>
+                        <svg className="w-3.5 h-3.5" style={{ color: '#047857' }} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
+                      </span>
+                      <p className="font-semibold text-sm" style={{ color: '#047857' }}>Tips</p>
+                    </div>
                     {safeArray(displayContent.generalTips).filter(tip => tip != null).map((tip, i) => (
-                      <p key={i} className="text-sm">• {String(tip)}</p>
+                      <div key={i} className="flex items-start gap-2 mb-2">
+                        <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full mt-2" style={{ background: '#10b981' }} />
+                        <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>{String(tip)}</p>
+                      </div>
                     ))}
                   </div>
                 )}
 
                 {/* Questions to Ask */}
                 {safeArray(displayContent.questionsToAsk).length > 0 && (
-                  <p><span className="font-semibold" style={{ color: colors.textLight }}>Ask Them: </span>{safeArray(displayContent.questionsToAsk).filter(q => q != null && (typeof q !== 'string' || q.trim?.())).map(q => String(q)).join(' • ')}</p>
+                  <div className="mb-4">
+                    <div className="prep-section-heading">
+                      <span className="prep-section-heading-text">Questions to Ask Them</span>
+                      <div className="prep-section-heading-line" />
+                    </div>
+                    {safeArray(displayContent.questionsToAsk).filter(q => q != null && (typeof q !== 'string' || q.trim?.())).map((q, i) => (
+                      <div key={i} className="flex items-start gap-2 mb-2">
+                        <span className="flex-shrink-0 text-xs mt-0.5" style={{ color: '#1e40af' }}>&#8594;</span>
+                        <p className="text-sm" style={{ color: colors.text }}>{String(q)}</p>
+                      </div>
+                    ))}
+                  </div>
                 )}
 
                 {/* Framework Tips */}
@@ -1085,7 +1276,14 @@ export default function OutputPanel({ section, content, streamingContent, isGene
 
                 {/* Key Themes */}
                 {safeArray(displayContent.keyThemes).length > 0 && (
-                  <p><span className="font-semibold" style={{ color: colors.textLight }}>Themes: </span>{safeArray(displayContent.keyThemes).filter(t => t != null && (typeof t !== 'string' || t.trim?.())).map(t => String(t)).join(' • ')}</p>
+                  <div className="mb-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: colors.textLight }}>Themes</p>
+                    <div className="flex flex-wrap">
+                      {safeArray(displayContent.keyThemes).filter(t => t != null && (typeof t !== 'string' || t.trim?.())).map((t, i) => (
+                        <span key={i} className="prep-pill">{String(t)}</span>
+                      ))}
+                    </div>
+                  </div>
                 )}
 
                 {/* Raw Content - intelligently extract and render even if JSON parsing fails */}
@@ -1206,16 +1404,19 @@ export default function OutputPanel({ section, content, streamingContent, isGene
                   return <div className="text-sm whitespace-pre-wrap">{renderMarkdown(cleanedContent)}</div>;
                 })()}
 
-                {/* Abbreviations - compact 2 column */}
+                {/* Abbreviations - glossary style */}
                 {safeArray(displayContent.abbreviations).length > 0 && (
-                  <div className="pt-3 mt-3 text-xs" style={{ borderTop: `1px solid ${colors.border}` }}>
-                    <p className="font-semibold mb-2" style={{ color: colors.textLight }}>Terms</p>
-                    <div className="grid grid-cols-2 gap-x-6 gap-y-1">
+                  <div className="mt-6 pt-4" style={{ borderTop: `2px solid ${colors.border}` }}>
+                    <div className="prep-section-heading" style={{ marginTop: 0 }}>
+                      <span className="prep-section-heading-text">Glossary</span>
+                      <div className="prep-section-heading-line" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
                       {safeArray(displayContent.abbreviations).filter(item => item && typeof item === 'object').map((item, i) => (
-                        <p key={i}>
-                          <span className="font-mono font-semibold" style={{ color: colors.accent }}>{item?.abbr || ''}</span>
-                          <span style={{ color: colors.textMuted }}> — {item?.full || ''}</span>
-                        </p>
+                        <div key={i} className="flex items-baseline gap-2 text-sm">
+                          <span className="font-mono font-bold px-1.5 py-0.5 rounded text-xs" style={{ background: '#f0fdf4', color: '#047857' }}>{item?.abbr || ''}</span>
+                          <span style={{ color: colors.textMuted }}>{item?.full || ''}</span>
+                        </div>
                       ))}
                     </div>
                   </div>

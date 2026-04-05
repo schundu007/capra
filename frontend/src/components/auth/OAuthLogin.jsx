@@ -131,27 +131,38 @@ export default function OAuthLogin() {
       {/* Divider */}
       <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent" />
 
-      {/* Journey Highlighter */}
+      {/* Journey Timeline — vertical line with 4 dots */}
       <section className="px-6 md:px-12 py-10">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 pt-6 px-2">
+        <div className="max-w-3xl mx-auto">
+          <div className="journey-timeline relative pl-8 md:pl-12">
+            {/* Vertical connecting line */}
+            <div className="journey-timeline-line absolute left-3 md:left-5 top-0 bottom-0 w-0.5" />
+
             {[
-              { label: 'Apply', href: 'https://jobs.cariara.com', icon: 'briefcase', desc: 'Find your role', bg: '#ecfdf5', bgEnd: '#d1fae5', border: '#6ee7b7', borderEnd: '#34d399', badge: '#059669', iconColor: '#059669', glowColor: '16,185,129', slideFrom: 'left' },
-              { label: 'Prepare', href: '/prepare', icon: 'book', desc: 'Study & review', bg: '#ecfeff', bgEnd: '#cffafe', border: '#67e8f9', borderEnd: '#22d3ee', badge: '#0891b2', iconColor: '#0891b2', glowColor: '8,145,178', slideFrom: 'bottom' },
-              { label: 'Practice', href: '/practice', icon: 'code', desc: 'Solve problems', bg: '#f5f3ff', bgEnd: '#ede9fe', border: '#c4b5fd', borderEnd: '#a78bfa', badge: '#7c3aed', iconColor: '#7c3aed', glowColor: '124,58,237', slideFrom: 'bottom' },
-              { label: 'Attend', href: 'https://lumora.cariara.com/app', icon: 'microphone', desc: 'Ace the interview', bg: '#fffbeb', bgEnd: '#fef3c7', border: '#fcd34d', borderEnd: '#fbbf24', badge: '#d97706', iconColor: '#d97706', glowColor: '217,119,6', slideFrom: 'right' },
+              { label: 'Apply', href: 'https://jobs.cariara.com', icon: 'briefcase', desc: 'Discover roles that match your skills. Browse curated positions and submit your application.', color: '#059669', bgLight: '#ecfdf5', borderColor: '#6ee7b7', glowColor: '16,185,129' },
+              { label: 'Prepare', href: '/prepare', icon: 'book', desc: 'Study company-specific material. AI-generated prep from your JD + resume — elevator pitch, tech stack, behavioral answers.', color: '#0891b2', bgLight: '#ecfeff', borderColor: '#67e8f9', glowColor: '8,145,178' },
+              { label: 'Practice', href: '/practice', icon: 'code', desc: 'Solve coding challenges, system design, and behavioral questions. Track your progress across topics.', color: '#7c3aed', bgLight: '#f5f3ff', borderColor: '#c4b5fd', glowColor: '124,58,237' },
+              { label: 'Attend', href: 'https://lumora.cariara.com/app', icon: 'microphone', desc: 'Join your interview with real-time AI assistance. Stealth mode keeps it invisible to screen share.', color: '#d97706', bgLight: '#fffbeb', borderColor: '#fcd34d', glowColor: '217,119,6' },
             ].map((item, i) => (
-              <a key={item.label} href={item.href} className={`journey-card journey-card-${i} group relative flex flex-col items-center gap-3 p-6 rounded-2xl text-center`} style={{ '--card-bg': item.bg, '--card-bg-end': item.bgEnd, '--card-border': item.border, '--card-border-end': item.borderEnd, '--card-glow': item.glowColor, animationDelay: `${i * 0.2}s` }}>
-                {/* Animated gradient border */}
-                <div className="journey-border-glow absolute inset-0 rounded-2xl pointer-events-none" style={{ animationDelay: `${i * 0.5}s` }} />
-                <div className="journey-badge absolute -top-5 -right-3 w-10 h-10 rounded-full flex items-center justify-center text-base font-black landing-mono text-white z-10" style={{ background: `linear-gradient(135deg, ${item.border}, ${item.badge})`, boxShadow: `0 4px 14px rgba(${item.glowColor},0.4), inset 0 1px 2px rgba(255,255,255,0.3)`, animationDelay: `${i * 0.2 + 0.6}s` }}>{i + 1}</div>
-                <div className="journey-icon w-14 h-14 rounded-xl flex items-center justify-center transition-all duration-500 group-hover:scale-115 group-hover:rotate-6" style={{ background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(8px)', boxShadow: `0 4px 16px rgba(${item.glowColor},0.2)`, animationDelay: `${i * 0.25}s` }}>
-                  <Icon name={item.icon} size={26} style={{ color: item.iconColor }} />
+              <a key={item.label} href={item.href} className={`journey-timeline-step journey-timeline-step-${i} group relative flex items-start gap-5 mb-2 last:mb-0`} style={{ animationDelay: `${i * 0.15}s` }}>
+                {/* Dot on the line */}
+                <div className="journey-timeline-dot absolute flex items-center justify-center z-10" style={{ left: '-20px', top: '24px', '--dot-color': item.color, '--dot-glow': item.glowColor, animationDelay: `${i * 0.15 + 0.3}s` }}>
+                  <div className="w-3.5 h-3.5 rounded-full border-[3px] border-white" style={{ background: item.color, boxShadow: `0 0 0 2px ${item.color}, 0 2px 8px rgba(${item.glowColor},0.4)` }} />
                 </div>
-                <span className="text-base font-bold text-gray-900 landing-display">{item.label}</span>
-                <span className="text-xs text-gray-500 landing-body">{item.desc}</span>
-                {/* Shimmer + fade overlay */}
-                <div className="journey-shimmer absolute inset-0 rounded-2xl overflow-hidden pointer-events-none" style={{ animationDelay: `${i * 0.8}s` }} />
+
+                {/* Content card */}
+                <div className="journey-timeline-card flex-1 p-5 rounded-xl transition-all duration-300 group-hover:shadow-lg" style={{ background: item.bgLight, border: `1.5px solid ${item.borderColor}` }}>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.9)', boxShadow: `0 2px 8px rgba(${item.glowColor},0.2)` }}>
+                      <Icon name={item.icon} size={18} style={{ color: item.color }} />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="landing-mono text-xs font-semibold px-2 py-0.5 rounded-full text-white" style={{ background: item.color }}>{i + 1}</span>
+                      <span className="text-base font-bold text-gray-900 landing-display">{item.label}</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500 leading-relaxed landing-body ml-12">{item.desc}</p>
+                </div>
               </a>
             ))}
           </div>
@@ -301,116 +312,54 @@ export default function OAuthLogin() {
 
         html { scroll-behavior: smooth; }
 
-        /* Journey card base — animated gradient background */
-        .journey-card {
-          background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-bg-end) 50%, var(--card-bg) 100%);
-          background-size: 200% 200%;
-          border: 2px solid var(--card-border);
-          box-shadow: 0 4px 24px rgba(var(--card-glow), 0.12), 0 0 0 0 rgba(var(--card-glow), 0);
-          animation: journeySlideIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both, journeyGradientShift 6s ease-in-out infinite, journeyFloat 4s ease-in-out 1.5s infinite;
-          transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease, border-color 0.4s ease;
+        /* Journey Timeline — vertical line with dots */
+        .journey-timeline-line {
+          background: linear-gradient(180deg, #6ee7b7 0%, #67e8f9 33%, #c4b5fd 66%, #fcd34d 100%);
+          border-radius: 1px;
         }
 
-        /* Staggered slide directions */
-        .journey-card-0 { animation: journeySlideLt 0.7s cubic-bezier(0.16,1,0.3,1) both, journeyGradientShift 6s ease-in-out infinite, journeyFloat 4s ease-in-out 1.2s infinite; }
-        .journey-card-1 { animation: journeySlideUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.15s both, journeyGradientShift 7s ease-in-out 0.5s infinite, journeyFloat 4.5s ease-in-out 1.4s infinite; }
-        .journey-card-2 { animation: journeySlideUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.3s both, journeyGradientShift 5.5s ease-in-out 1s infinite, journeyFloat 5s ease-in-out 1.6s infinite; }
-        .journey-card-3 { animation: journeySlideRt 0.7s cubic-bezier(0.16,1,0.3,1) 0.45s both, journeyGradientShift 6.5s ease-in-out 0.3s infinite, journeyFloat 4.2s ease-in-out 1.8s infinite; }
-
-        @keyframes journeySlideLt {
-          from { opacity: 0; transform: translateX(-60px) scale(0.9); filter: blur(4px); }
-          to   { opacity: 1; transform: translateX(0) scale(1); filter: blur(0); }
-        }
-        @keyframes journeySlideUp {
-          from { opacity: 0; transform: translateY(40px) scale(0.9); filter: blur(4px); }
-          to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-        }
-        @keyframes journeySlideRt {
-          from { opacity: 0; transform: translateX(60px) scale(0.9); filter: blur(4px); }
-          to   { opacity: 1; transform: translateX(0) scale(1); filter: blur(0); }
-        }
-
-        /* Background gradient shift */
-        @keyframes journeyGradientShift {
-          0%, 100% { background-position: 0% 0%; }
-          50%      { background-position: 100% 100%; }
-        }
-
-        /* Floating */
-        @keyframes journeyFloat {
-          0%, 100% { transform: translateY(0); }
-          50%      { transform: translateY(-7px); }
-        }
-
-        /* Hover — lift + glow + border color shift */
-        .journey-card:hover {
-          animation: journeyGradientShift 3s ease-in-out infinite !important;
-          transform: translateY(-10px) scale(1.04) !important;
-          border-color: var(--card-border-end) !important;
-          box-shadow: 0 12px 40px rgba(var(--card-glow), 0.25), 0 0 20px rgba(var(--card-glow), 0.15) !important;
-        }
-
-        /* Animated border glow ring */
-        .journey-border-glow {
-          background: conic-gradient(from 0deg, var(--card-border), var(--card-border-end), var(--card-border), var(--card-border-end), var(--card-border));
+        /* Step entrance animation — staggered slide from left */
+        .journey-timeline-step {
           opacity: 0;
-          animation: borderFadeIn 1s ease-out 0.8s both, borderRotate 4s linear infinite;
-          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-          mask-composite: exclude;
-          -webkit-mask-composite: xor;
-          padding: 2px;
+          animation: timelineStepIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
-        @keyframes borderFadeIn { from { opacity: 0; } to { opacity: 0.5; } }
-        @keyframes borderRotate { to { transform: rotate(360deg); } }
-        .journey-card:hover .journey-border-glow { opacity: 0.8; }
+        .journey-timeline-step-0 { animation-delay: 0.1s; }
+        .journey-timeline-step-1 { animation-delay: 0.25s; }
+        .journey-timeline-step-2 { animation-delay: 0.4s; }
+        .journey-timeline-step-3 { animation-delay: 0.55s; }
 
-        /* Badge — bounce-in then subtle pulse */
-        .journey-badge {
-          animation: badgePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both, badgePulse 2.5s ease-in-out 1.5s infinite;
-          border: 2px solid rgba(255,255,255,0.5);
-        }
-        @keyframes badgePop {
-          from { opacity: 0; transform: scale(0) rotate(-30deg); }
-          60%  { transform: scale(1.2) rotate(5deg); }
-          to   { opacity: 1; transform: scale(1) rotate(0deg); }
-        }
-        @keyframes badgePulse {
-          0%, 100% { transform: scale(1); box-shadow: 0 4px 14px rgba(0,0,0,0.15); }
-          50%      { transform: scale(1.1); box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+        @keyframes timelineStepIn {
+          from { opacity: 0; transform: translateX(-30px); filter: blur(3px); }
+          to   { opacity: 1; transform: translateX(0); filter: blur(0); }
         }
 
-        /* Icon — breathing glow + entrance scale */
-        .journey-icon {
-          animation: iconEntrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both, iconGlow 3s ease-in-out 1s infinite;
+        /* Dot pulse animation */
+        .journey-timeline-dot {
+          animation: dotAppear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
-        @keyframes iconEntrance {
-          from { opacity: 0; transform: scale(0.5) rotate(-10deg); }
-          to   { opacity: 1; transform: scale(1) rotate(0deg); }
-        }
-        @keyframes iconGlow {
-          0%, 100% { box-shadow: 0 4px 16px rgba(var(--card-glow), 0.15); }
-          50%      { box-shadow: 0 6px 28px rgba(var(--card-glow), 0.3); }
-        }
-        .journey-card:hover .journey-icon {
-          animation: none;
-          box-shadow: 0 8px 32px rgba(var(--card-glow), 0.35);
+        @keyframes dotAppear {
+          from { opacity: 0; transform: scale(0); }
+          to   { opacity: 1; transform: scale(1); }
         }
 
-        /* Shimmer sweep — wider, brighter */
-        .journey-shimmer::after {
-          content: '';
-          position: absolute;
-          top: 0; left: -100%; width: 70%; height: 100%;
-          background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%);
-          animation: shimmerSweep 4s ease-in-out 1s infinite;
+        /* Card hover */
+        .journey-timeline-card {
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        @keyframes shimmerSweep {
-          0%   { left: -100%; opacity: 0; }
-          20%  { opacity: 1; }
-          60%  { left: 150%; opacity: 1; }
-          80%  { opacity: 0; }
-          100% { left: 150%; opacity: 0; }
+        .journey-timeline-step:hover .journey-timeline-card {
+          transform: translateX(6px);
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Dot glow on hover */
+        .journey-timeline-step:hover .journey-timeline-dot > div {
+          transform: scale(1.4);
+          transition: transform 0.3s ease;
+        }
+
+        /* Responsive dot positioning */
+        @media (min-width: 768px) {
+          .journey-timeline-dot { left: -28px !important; }
         }
       `}</style>
     </div>
