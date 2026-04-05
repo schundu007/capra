@@ -131,38 +131,47 @@ export default function OAuthLogin() {
       {/* Divider */}
       <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent" />
 
-      {/* Journey Timeline — vertical line with 4 dots */}
+      {/* Journey — Left line with 4 labeled dots */}
       <section className="px-6 md:px-12 py-10">
-        <div className="max-w-3xl mx-auto">
-          <div className="journey-timeline relative" style={{ paddingLeft: '48px' }}>
-            {/* Vertical connecting line — thick and visible */}
-            <div className="journey-timeline-line absolute top-2 bottom-2" style={{ left: '15px', width: '3px' }} />
+        <div className="max-w-5xl mx-auto flex items-center gap-8 md:gap-12">
+          {/* Left: Vertical line with 4 dots */}
+          <div className="journey-stepper relative flex flex-col items-center" style={{ minHeight: '260px' }}>
+            {/* Vertical line */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="journey-stepper-line h-full" style={{ width: '3px', background: 'linear-gradient(180deg, #059669 0%, #0891b2 33%, #7c3aed 66%, #d97706 100%)', borderRadius: '2px' }} />
+            </div>
+            {/* 4 Dots with labels */}
+            <div className="relative flex flex-col justify-between h-full py-1" style={{ minHeight: '260px' }}>
+              {[
+                { label: 'Apply', color: '#059669', glowColor: '16,185,129', href: 'https://jobs.cariara.com' },
+                { label: 'Prepare', color: '#0891b2', glowColor: '8,145,178', href: '/prepare' },
+                { label: 'Practice', color: '#7c3aed', glowColor: '124,58,237', href: '/practice' },
+                { label: 'Attend', color: '#d97706', glowColor: '217,119,6', href: 'https://lumora.cariara.com/app' },
+              ].map((dot, i) => (
+                <a key={dot.label} href={dot.href} className={`journey-dot-step journey-dot-step-${i} group flex items-center gap-3 relative z-10`} style={{ animationDelay: `${i * 0.15}s` }}>
+                  {/* The dot */}
+                  <div className="journey-dot-circle flex-shrink-0 rounded-full transition-transform duration-300 group-hover:scale-125" style={{ width: '16px', height: '16px', background: dot.color, border: '3px solid white', boxShadow: `0 0 0 2px ${dot.color}, 0 2px 10px rgba(${dot.glowColor},0.45)` }} />
+                  {/* Label */}
+                  <span className="landing-display text-sm font-bold whitespace-nowrap transition-colors duration-200 group-hover:underline" style={{ color: dot.color }}>{dot.label}</span>
+                </a>
+              ))}
+            </div>
+          </div>
 
+          {/* Right: Journey cards grid */}
+          <div className="flex-1 grid grid-cols-2 gap-4">
             {[
-              { label: 'Apply', href: 'https://jobs.cariara.com', icon: 'briefcase', desc: 'Discover roles that match your skills. Browse curated positions and submit your application.', color: '#059669', bgLight: '#ecfdf5', borderColor: '#6ee7b7', glowColor: '16,185,129' },
-              { label: 'Prepare', href: '/prepare', icon: 'book', desc: 'Study company-specific material. AI-generated prep from your JD + resume — elevator pitch, tech stack, behavioral answers.', color: '#0891b2', bgLight: '#ecfeff', borderColor: '#67e8f9', glowColor: '8,145,178' },
-              { label: 'Practice', href: '/practice', icon: 'code', desc: 'Solve coding challenges, system design, and behavioral questions. Track your progress across topics.', color: '#7c3aed', bgLight: '#f5f3ff', borderColor: '#c4b5fd', glowColor: '124,58,237' },
-              { label: 'Attend', href: 'https://lumora.cariara.com/app', icon: 'microphone', desc: 'Join your interview with real-time AI assistance. Stealth mode keeps it invisible to screen share.', color: '#d97706', bgLight: '#fffbeb', borderColor: '#fcd34d', glowColor: '217,119,6' },
+              { label: 'Apply', href: 'https://jobs.cariara.com', icon: 'briefcase', desc: 'Find your role', color: '#059669', bgLight: '#ecfdf5', borderColor: '#6ee7b7', glowColor: '16,185,129' },
+              { label: 'Prepare', href: '/prepare', icon: 'book', desc: 'Study & review', color: '#0891b2', bgLight: '#ecfeff', borderColor: '#67e8f9', glowColor: '8,145,178' },
+              { label: 'Practice', href: '/practice', icon: 'code', desc: 'Solve problems', color: '#7c3aed', bgLight: '#f5f3ff', borderColor: '#c4b5fd', glowColor: '124,58,237' },
+              { label: 'Attend', href: 'https://lumora.cariara.com/app', icon: 'microphone', desc: 'Ace the interview', color: '#d97706', bgLight: '#fffbeb', borderColor: '#fcd34d', glowColor: '217,119,6' },
             ].map((item, i) => (
-              <a key={item.label} href={item.href} className={`journey-timeline-step journey-timeline-step-${i} group relative flex items-start gap-5 mb-6 last:mb-0`} style={{ animationDelay: `${i * 0.15}s` }}>
-                {/* Dot on the line — large and prominent */}
-                <div className="journey-timeline-dot absolute flex items-center justify-center z-10" style={{ left: '-39px', top: '20px', animationDelay: `${i * 0.15 + 0.3}s` }}>
-                  <div className="rounded-full" style={{ width: '18px', height: '18px', background: item.color, border: '3px solid white', boxShadow: `0 0 0 3px ${item.color}, 0 3px 12px rgba(${item.glowColor},0.5)` }} />
+              <a key={item.label} href={item.href} className={`journey-card journey-card-${i} group relative flex flex-col items-center gap-2 p-5 rounded-xl text-center transition-all duration-300`} style={{ background: item.bgLight, border: `1.5px solid ${item.borderColor}`, animationDelay: `${i * 0.12}s` }}>
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110" style={{ background: 'rgba(255,255,255,0.9)', boxShadow: `0 2px 10px rgba(${item.glowColor},0.2)` }}>
+                  <Icon name={item.icon} size={22} style={{ color: item.color }} />
                 </div>
-
-                {/* Content card */}
-                <div className="journey-timeline-card flex-1 p-5 rounded-xl transition-all duration-300 group-hover:shadow-lg" style={{ background: item.bgLight, border: `1.5px solid ${item.borderColor}` }}>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.9)', boxShadow: `0 2px 8px rgba(${item.glowColor},0.2)` }}>
-                      <Icon name={item.icon} size={18} style={{ color: item.color }} />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="landing-mono text-xs font-semibold px-2 py-0.5 rounded-full text-white" style={{ background: item.color }}>{i + 1}</span>
-                      <span className="text-base font-bold text-gray-900 landing-display">{item.label}</span>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-500 leading-relaxed landing-body ml-12">{item.desc}</p>
-                </div>
+                <span className="text-sm font-bold text-gray-900 landing-display">{item.label}</span>
+                <span className="text-xs text-gray-500 landing-body">{item.desc}</span>
               </a>
             ))}
           </div>
@@ -312,54 +321,40 @@ export default function OAuthLogin() {
 
         html { scroll-behavior: smooth; }
 
-        /* Journey Timeline — vertical line with dots */
-        .journey-timeline-line {
-          background: linear-gradient(180deg, #6ee7b7 0%, #67e8f9 33%, #c4b5fd 66%, #fcd34d 100%);
-          border-radius: 1px;
-        }
-
-        /* Step entrance animation — staggered slide from left */
-        .journey-timeline-step {
+        /* Journey Stepper — left line with labeled dots */
+        .journey-dot-step {
           opacity: 0;
-          animation: timelineStepIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+          animation: dotStepIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
-        .journey-timeline-step-0 { animation-delay: 0.1s; }
-        .journey-timeline-step-1 { animation-delay: 0.25s; }
-        .journey-timeline-step-2 { animation-delay: 0.4s; }
-        .journey-timeline-step-3 { animation-delay: 0.55s; }
+        .journey-dot-step-0 { animation-delay: 0.1s; }
+        .journey-dot-step-1 { animation-delay: 0.25s; }
+        .journey-dot-step-2 { animation-delay: 0.4s; }
+        .journey-dot-step-3 { animation-delay: 0.55s; }
 
-        @keyframes timelineStepIn {
-          from { opacity: 0; transform: translateX(-30px); filter: blur(3px); }
-          to   { opacity: 1; transform: translateX(0); filter: blur(0); }
-        }
-
-        /* Dot pulse animation */
-        .journey-timeline-dot {
-          animation: dotAppear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-        }
-        @keyframes dotAppear {
-          from { opacity: 0; transform: scale(0); }
-          to   { opacity: 1; transform: scale(1); }
+        @keyframes dotStepIn {
+          from { opacity: 0; transform: translateX(-15px); }
+          to   { opacity: 1; transform: translateX(0); }
         }
 
-        /* Card hover */
-        .journey-timeline-card {
-          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        /* Journey cards — fade in */
+        .journey-card {
+          opacity: 0;
+          animation: cardFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.04);
         }
-        .journey-timeline-step:hover .journey-timeline-card {
-          transform: translateX(6px);
-          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        .journey-card-0 { animation-delay: 0.15s; }
+        .journey-card-1 { animation-delay: 0.3s; }
+        .journey-card-2 { animation-delay: 0.45s; }
+        .journey-card-3 { animation-delay: 0.6s; }
+
+        @keyframes cardFadeIn {
+          from { opacity: 0; transform: translateY(15px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* Dot glow on hover */
-        .journey-timeline-step:hover .journey-timeline-dot > div {
-          transform: scale(1.4);
-          transition: transform 0.3s ease;
-        }
-
-        /* Dot hover scale */
-        .journey-timeline-step:hover .journey-timeline-dot > div {
-          transform: scale(1.3);
+        .journey-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 8px 24px rgba(0,0,0,0.1);
         }
       `}</style>
     </div>
